@@ -27,7 +27,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * All versions of the same object share an {@link ObjectId} with the
  * {@code UniqueId} referring to a single version.
  * <p>
- * Many external identifiers, represented by {@link Identifier}, are not truly unique.
+ * Many external identifiers, represented by {@link ExternalId}, are not truly unique.
  * This {@code ObjectId} and {@code UniqueId} are unique within the OpenGamma instance.
  * <p>
  * The unique identifier is formed from three parts, the scheme, value and version.
@@ -54,10 +54,10 @@ public final class UniqueId
   }
 
   /**
-   * Identification scheme for the UID.
-   * This allows a unique identifier to be stored and passed using the weaker {@code Identifier}.
+   * Identification scheme for the unique identifier.
+   * This allows a unique identifier to be stored and passed using an {@code ExternalId}.
    */
-  public static final IdentificationScheme EXTERNAL_SCHEME = IdentificationScheme.of("UID");
+  public static final ExternalScheme EXTERNAL_SCHEME = ExternalScheme.of("UID");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -89,7 +89,7 @@ public final class UniqueId
   private final String _version;
 
   /**
-   * Obtains a unique identifier from a scheme and value indicating the latest version
+   * Obtains a {@code UniqueId} from a scheme and value indicating the latest version
    * of the identifier, also used for non-versioned identifiers.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
@@ -101,7 +101,7 @@ public final class UniqueId
   }
 
   /**
-   * Obtains a unique identifier from a scheme, value and version.
+   * Obtains a {@code UniqueId} from a scheme, value and version.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
@@ -113,7 +113,7 @@ public final class UniqueId
   }
 
   /**
-   * Obtains a unique identifier from an {@code ObjectId} and a version.
+   * Obtains a {@code UniqueId} from an {@code ObjectId} and a version.
    * 
    * @param objectId  the object identifier, not null
    * @param version  the version of the identifier, empty treated as null, null treated as latest version
@@ -124,16 +124,16 @@ public final class UniqueId
   }
 
   /**
-   * Obtains a unique identifier from an external identifier.
+   * Obtains a {@code UniqueId} from an external identifier.
    * <p>
-   * This allows a unique identifier that was previously packaged as an external
-   * identifier to be converted back. See {@link #toIdentifier()}.
+   * This allows a unique identifier that was previously packaged as an
+   * {@link ExternalId} to be converted back. See {@link #toExternalId()}.
    * In general, this approach should be avoided.
    * 
    * @param externalId  the external identifier key, not null
    * @return the unique identifier, not null
    */
-  public static UniqueId of(Identifier externalId) {
+  public static UniqueId of(ExternalId externalId) {
     if (externalId.isNotScheme(EXTERNAL_SCHEME)) {
       throw new IllegalArgumentException("ExternalId is not a valid UniqueId");
     }
@@ -141,49 +141,49 @@ public final class UniqueId
   }
 
   /**
-   * Obtains an identifier from a formatted scheme and value.
+   * Parses a {@code UniqueId} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>~<VALUE>~<VERSION>}.
    * 
-   * @param uniqueIdStr  the identifier to parse, not null
-   * @return the identifier, not null
+   * @param str  the unique identifier to parse, not null
+   * @return the unique identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
-  public static UniqueId parse(String uniqueIdStr) {
-    ArgumentChecker.notEmpty(uniqueIdStr, "uniqueIdStr");
-    uniqueIdStr = StringUtils.replace(uniqueIdStr, "::", "~");  // leniently parse old data
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uniqueIdStr, "~");
+  public static UniqueId parse(String str) {
+    ArgumentChecker.notEmpty(str, "str");
+    str = StringUtils.replace(str, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(str, "~");
     switch (split.length) {
       case 2:
         return UniqueId.of(split[0], split[1], null);
       case 3:
         return UniqueId.of(split[0], split[1], split[2]);
     }
-    throw new IllegalArgumentException("Invalid identifier format: " + uniqueIdStr);
+    throw new IllegalArgumentException("Invalid identifier format: " + str);
   }
 
   /**
-   * Creates an instance.
+   * Creates a unique instance.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @param version  the version of the identifier, null if latest version
    */
-  private UniqueId(String scheme, String reference, String version) {
+  private UniqueId(String scheme, String value, String version) {
     ArgumentChecker.notEmpty(scheme, "scheme");
-    ArgumentChecker.notEmpty(reference, "reference");
+    ArgumentChecker.notEmpty(value, "value");
     _scheme = scheme;
-    _value = reference;
+    _value = value;
     _version = StringUtils.trimToNull(version);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the scheme of the identifier.
+   * This is the first part of the unique identifier.
    * <p>
-   * This is extracted from the object identifier.
-   * This is not expected to be the same as {@code IdentificationScheme}.
+   * This is not expected to be the same as {@link ExternalScheme}.
    * 
    * @return the scheme, not empty, not null
    */
@@ -193,8 +193,7 @@ public final class UniqueId
 
   /**
    * Gets the value of the identifier.
-   * <p>
-   * This is extracted from the object identifier.
+   * This is the second part of the unique identifier.
    * 
    * @return the value, not empty, not null
    */
@@ -204,6 +203,7 @@ public final class UniqueId
 
   /**
    * Gets the version of the identifier.
+   * This is the third part of the unique identifier.
    * 
    * @return the version, null if latest version
    */
@@ -312,13 +312,13 @@ public final class UniqueId
    * Converts this unique identifier to an external identifier.
    * <p>
    * This allows a unique identifier to be packaged and passed around
-   * in the form of an external identifier. See {@link #of(Identifier)}.
+   * in the form of an external identifier. See {@link #of(ExternalId)}.
    * In general, this approach should be avoided.
    * 
    * @return the external identifier, not null
    */
-  public Identifier toIdentifier() {
-    return Identifier.of(EXTERNAL_SCHEME, toString());
+  public ExternalId toExternalId() {
+    return ExternalId.of(EXTERNAL_SCHEME, toString());
   }
 
   //-------------------------------------------------------------------------
@@ -341,18 +341,20 @@ public final class UniqueId
 
   //-------------------------------------------------------------------------
   /**
-   * Compares the identifiers, sorting alphabetically by scheme followed by value.
+   * Compares the unique identifiers, sorting alphabetically by scheme followed by value.
    * 
-   * @param other  the other identifier, not null
+   * @param other  the other unique identifier, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
   public int compareTo(UniqueId other) {
-    if (_scheme.compareTo(other._scheme) != 0) {
-      return _scheme.compareTo(other._scheme);
+    int cmp = _scheme.compareTo(other._scheme);
+    if (cmp != 0) {
+      return cmp;
     }
-    if (_value.compareTo(other._value) != 0) {
-      return _value.compareTo(other._value);
+    cmp = _value.compareTo(other._value);
+    if (cmp != 0) {
+      return cmp;
     }
     return CompareUtils.compareWithNull(_version, other._version);
   }
@@ -381,7 +383,7 @@ public final class UniqueId
    * <p>
    * If the version is null, the identifier will omit the colons and version.
    * 
-   * @return the identifier, not null
+   * @return a parsable representation of the identifier, not null
    */
   @Override
   public String toString() {
@@ -395,9 +397,9 @@ public final class UniqueId
 
   //-------------------------------------------------------------------------
   /**
-   * Serializes this unique identifier to a Fudge message.
+   * Serializes to a Fudge message.
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param factory  a message creator, not null
    * @param msg  the message to serialize into, not null
@@ -415,9 +417,9 @@ public final class UniqueId
   }
 
   /**
-   * Serializes this unique identifier to a Fudge message.
+   * Serializes to a Fudge message.
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param factory  a message creator, not null
    * @return the serialized Fudge message
@@ -427,9 +429,9 @@ public final class UniqueId
   }
 
   /**
-   * Deserializes a unique identifier from a Fudge message.
+   * Deserializes from a Fudge message.
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param fudgeContext  the Fudge context
    * @param msg  the Fudge message, not null

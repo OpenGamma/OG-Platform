@@ -48,7 +48,7 @@ public class FXFutureSecurity extends com.opengamma.financial.security.future.Fu
       throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'multiplicationFactor' is not double", e);
     }
   }
-  public FXFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.util.money.Currency numerator, com.opengamma.util.money.Currency denominator, double multiplicationFactor) {
+  public FXFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.util.money.Currency numerator, com.opengamma.util.money.Currency denominator, double multiplicationFactor) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (numerator == null) throw new NullPointerException ("numerator' cannot be null");
     _numerator = numerator;

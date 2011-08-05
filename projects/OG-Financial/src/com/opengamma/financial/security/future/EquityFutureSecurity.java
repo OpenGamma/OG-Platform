@@ -4,10 +4,10 @@
 package com.opengamma.financial.security.future;
 public class EquityFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityFutureSecurity (this); }
-  private static final long serialVersionUID = -10447875481842l;
+  private static final long serialVersionUID = -10447956813653l;
   private javax.time.calendar.ZonedDateTime _settlementDate;
   public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private com.opengamma.id.Identifier _underlyingIdentifier;
+  private com.opengamma.id.ExternalId _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   public EquityFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate) {
     super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
@@ -30,16 +30,16 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField != null)  {
       try {
-        final com.opengamma.id.Identifier fudge1;
-        fudge1 = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+        final com.opengamma.id.ExternalId fudge1;
+        fudge1 = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
         setUnderlyingIdentifier (fudge1);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not Identifier message", e);
+        throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
       }
     }
   }
-  public EquityFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier underlyingIdentifier) {
+  public EquityFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId underlyingIdentifier) {
     super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
@@ -77,7 +77,7 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
       fudgeContext.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
     }
     if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _underlyingIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
     }
@@ -105,10 +105,10 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
       _settlementDate = settlementDate;
     }
   }
-  public com.opengamma.id.Identifier getUnderlyingIdentifier () {
+  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
     return _underlyingIdentifier;
   }
-  public void setUnderlyingIdentifier (com.opengamma.id.Identifier underlyingIdentifier) {
+  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
     if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {
       _underlyingIdentifier = underlyingIdentifier;

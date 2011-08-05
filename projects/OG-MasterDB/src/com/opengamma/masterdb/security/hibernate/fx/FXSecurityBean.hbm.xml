@@ -6,7 +6,7 @@
   <union-subclass name="FXSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_fx">
     <many-to-one name="payCurrency" column="pay_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
     <many-to-one name="receiveCurrency" column="receive_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
-  	<component name="region" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
   	  <property name="scheme" column="region_scheme" type="string" not-null="true" />
   	  <property name="identifier" column="region_identifier" type="string" not-null="true" />
   	</component>

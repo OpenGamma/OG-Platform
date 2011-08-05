@@ -40,8 +40,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -100,10 +100,10 @@ public class HistoricalTimeSeriesSourceResource {
     return new FudgeSerializationContext(getFudgeContext());
   }
 
-  private IdentifierBundle identifiersToBundle(final List<String> identifiers) {
-    IdentifierBundle bundle = IdentifierBundle.EMPTY;
+  private ExternalIdBundle identifiersToBundle(final List<String> identifiers) {
+    ExternalIdBundle bundle = ExternalIdBundle.EMPTY;
     for (String identifier : identifiers) {
-      bundle = bundle.withIdentifier(Identifier.parse(identifier));
+      bundle = bundle.withExternalId(ExternalId.parse(identifier));
     }
     return bundle;
   }
@@ -227,7 +227,7 @@ public class HistoricalTimeSeriesSourceResource {
     
     FudgeMsg msg = request.getMessage();
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
-    Set<IdentifierBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
+    Set<ExternalIdBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
     String dataSource = msg.getString(REQUEST_DATA_SOURCE);
     String dataProvider = msg.getString(REQUEST_DATA_PROVIDER);
     String dataField = msg.getString(REQUEST_DATA_FIELD);
@@ -236,7 +236,7 @@ public class HistoricalTimeSeriesSourceResource {
     LocalDate end = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_END));
     boolean exclusiveEnd = msg.getBoolean(REQUEST_EXCLUSIVE_END);
     
-    Map<IdentifierBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeMsg message = context.newMessage();

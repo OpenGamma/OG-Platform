@@ -16,8 +16,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidaySearchRequest;
@@ -156,7 +156,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderKey(Identifier.of("A", "B"));
+    request.setProviderId(ExternalId.of("A", "B"));
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -165,7 +165,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_providerFound() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setProviderKey(Identifier.of("COPP_CLARK", "2"));
+    request.setProviderId(ExternalId.of("COPP_CLARK", "2"));
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -176,7 +176,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionEmptyBundle() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setRegionKeys(new IdentifierSearch());
+    request.setRegionExternalIdSearch(new ExternalIdSearch());
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -185,7 +185,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionNoMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.addRegionKey(Identifier.of("A", "B"));
+    request.addRegionExternalId(ExternalId.of("A", "B"));
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -194,7 +194,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_exchange_empty() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setExchangeKeys(new IdentifierSearch());
+    request.setExchangeExternalIdSearch(new ExternalIdSearch());
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -203,7 +203,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_exchange_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.addExchangeKey(Identifier.of("A", "B"));
+    request.addExchangeExternalId(ExternalId.of("A", "B"));
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -243,7 +243,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_holidayIds_none() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setHolidayIds(new ArrayList<ObjectId>());
+    request.setHolidayObjectIds(new ArrayList<ObjectId>());
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -252,9 +252,9 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_holidayIds() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.addHolidayId(ObjectId.of("DbHol", "101"));
-    request.addHolidayId(ObjectId.of("DbHol", "201"));
-    request.addHolidayId(ObjectId.of("DbHol", "9999"));
+    request.addHolidayObjectId(ObjectId.of("DbHol", "101"));
+    request.addHolidayObjectId(ObjectId.of("DbHol", "201"));
+    request.addHolidayObjectId(ObjectId.of("DbHol", "9999"));
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -265,7 +265,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_holidayIds_badSchemeValidOid() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.addHolidayId(ObjectId.of("Rubbish", "120"));
+    request.addHolidayObjectId(ObjectId.of("Rubbish", "120"));
     _holMaster.search(request);
   }
 

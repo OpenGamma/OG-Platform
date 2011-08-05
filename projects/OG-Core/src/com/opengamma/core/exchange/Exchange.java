@@ -7,7 +7,7 @@ package com.opengamma.core.exchange;
 
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
@@ -33,7 +33,7 @@ public interface Exchange extends UniqueIdentifiable {
    * 
    * @return the bundle of identifiers, not null
    */
-  IdentifierBundle getIdentifiers();
+  ExternalIdBundle getExternalIdBundle();
 
   /**
    * Gets the name of the exchange intended for display purposes.
@@ -47,7 +47,7 @@ public interface Exchange extends UniqueIdentifiable {
    * 
    * @return the region key identifier bundle of the exchange, null if no location
    */
-  IdentifierBundle getRegionKey();
+  ExternalIdBundle getRegionIdBundle();
 
   /**
    * Gets the time-zone of the exchange.

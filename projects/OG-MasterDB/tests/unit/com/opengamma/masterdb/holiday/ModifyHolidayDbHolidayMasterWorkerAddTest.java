@@ -21,7 +21,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
@@ -80,8 +80,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.CURRENCY, testHoliday.getType());
     assertEquals("USD", testHoliday.getCurrency().getCode());
-    assertEquals(null, testHoliday.getRegionKey());
-    assertEquals(null, testHoliday.getExchangeKey());
+    assertEquals(null, testHoliday.getRegionExternalId());
+    assertEquals(null, testHoliday.getExchangeExternalId());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 
@@ -89,7 +89,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_add_bank() {
     Instant now = Instant.now(_holMaster.getTimeSource());
     
-    ManageableHoliday holiday = new ManageableHoliday(HolidayType.BANK, Identifier.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(HolidayType.BANK, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
     HolidayDocument test = _holMaster.add(doc);
@@ -110,8 +110,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.BANK, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
-    assertEquals(Identifier.of("A", "B"), testHoliday.getRegionKey());
-    assertEquals(null, testHoliday.getExchangeKey());
+    assertEquals(ExternalId.of("A", "B"), testHoliday.getRegionExternalId());
+    assertEquals(null, testHoliday.getExchangeExternalId());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 
@@ -119,7 +119,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_add_settlement() {
     Instant now = Instant.now(_holMaster.getTimeSource());
     
-    ManageableHoliday holiday = new ManageableHoliday(HolidayType.SETTLEMENT, Identifier.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(HolidayType.SETTLEMENT, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
     HolidayDocument test = _holMaster.add(doc);
@@ -140,8 +140,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.SETTLEMENT, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
-    assertEquals(null, testHoliday.getRegionKey());
-    assertEquals(Identifier.of("A", "B"), testHoliday.getExchangeKey());
+    assertEquals(null, testHoliday.getRegionExternalId());
+    assertEquals(ExternalId.of("A", "B"), testHoliday.getExchangeExternalId());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 
@@ -149,7 +149,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_add_trading() {
     Instant now = Instant.now(_holMaster.getTimeSource());
     
-    ManageableHoliday holiday = new ManageableHoliday(HolidayType.TRADING, Identifier.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(HolidayType.TRADING, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
     HolidayDocument test = _holMaster.add(doc);
@@ -170,8 +170,8 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     assertEquals(name, test.getName());
     assertEquals(HolidayType.TRADING, testHoliday.getType());
     assertEquals(null, testHoliday.getCurrency());
-    assertEquals(null, testHoliday.getRegionKey());
-    assertEquals(Identifier.of("A", "B"), testHoliday.getExchangeKey());
+    assertEquals(null, testHoliday.getRegionExternalId());
+    assertEquals(ExternalId.of("A", "B"), testHoliday.getExchangeExternalId());
     assertEquals(Arrays.asList(LocalDate.of(2010, 6, 9)), testHoliday.getHolidayDates());
   }
 

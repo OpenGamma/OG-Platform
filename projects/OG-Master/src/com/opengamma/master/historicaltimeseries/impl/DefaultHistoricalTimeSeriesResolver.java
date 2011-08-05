@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -57,14 +57,14 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueId resolve(String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
+  public UniqueId resolve(String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(identifiers, "identifiers");
     resolutionKey = Objects.firstNonNull(resolutionKey, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME);
     
     // find all matching time-series
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest(identifiers);
-    searchRequest.setIdentifierValidityDate(identifierValidityDate);
+    searchRequest.setValidityDate(identifierValidityDate);
     searchRequest.setDataField(dataField);
     HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(searchRequest);
     if (searchResult.getDocuments().isEmpty()) {

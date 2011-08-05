@@ -15,7 +15,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
 /**
- * Test UniqueId. 
+ * Test {@link UniqueId}. 
  */
 @Test
 public class UniqueIdTest {
@@ -189,9 +189,9 @@ public class UniqueIdTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toIdentifier() {
+  public void test_toExternalId() {
     UniqueId test = UniqueId.of("id1", "value1");
-    assertEquals(Identifier.of(UniqueId.EXTERNAL_SCHEME, "id1~value1"), test.toIdentifier());
+    assertEquals(ExternalId.of(UniqueId.EXTERNAL_SCHEME, "id1~value1"), test.toExternalId());
   }
 
   //-------------------------------------------------------------------------

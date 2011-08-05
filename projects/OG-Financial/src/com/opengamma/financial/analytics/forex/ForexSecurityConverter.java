@@ -29,8 +29,8 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.MonitoringType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -89,8 +89,8 @@ public class ForexSecurityConverter implements FXOptionSecurityVisitor<ForexConv
   @Override
   public ForexConverter<?> visitFXForwardSecurity(final FXForwardSecurity fxForwardSecurity) {
     Validate.notNull(fxForwardSecurity, "fx forward security");
-    final Identifier underlyingIdentifier = fxForwardSecurity.getUnderlyingIdentifier();
-    final FXSecurity fxSecurity = (FXSecurity) _securitySource.getSecurity(IdentifierBundle.of(underlyingIdentifier));
+    final ExternalId underlyingIdentifier = fxForwardSecurity.getUnderlyingIdentifier();
+    final FXSecurity fxSecurity = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier));
     final Currency payCurrency = fxSecurity.getPayCurrency();
     final Currency receiveCurrency = fxSecurity.getReceiveCurrency();
     final double payAmount = fxSecurity.getPayAmount();

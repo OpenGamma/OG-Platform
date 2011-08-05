@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
@@ -51,8 +51,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   private final VolatilityCubeFunctionHelper _helper;
   private VolatilityCubeDefinition _definition;
 
-  private Map<Identifier, VolatilityPoint> _pointsById;
-  private Map<Identifier, Pair<Tenor, Tenor>> _strikesById;
+  private Map<ExternalId, VolatilityPoint> _pointsById;
+  private Map<ExternalId, Pair<Tenor, Tenor>> _strikesById;
 
   public VolatilityCubeMarketDataFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
@@ -78,8 +78,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private Set<ValueRequirement> buildRequirements(final VolatilityCubeSpecification third, final FunctionCompilationContext context) {
-    _pointsById = new HashMap<Identifier, VolatilityPoint>();
-    _strikesById = new HashMap<Identifier, Pair<Tenor, Tenor>>();
+    _pointsById = new HashMap<ExternalId, VolatilityPoint>();
+    _strikesById = new HashMap<ExternalId, Pair<Tenor, Tenor>>();
 
     final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
@@ -97,15 +97,15 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private Set<ValueRequirement> getValueRequirements(final VolatilityPoint point) {
-    Set<Identifier> instruments = INSTRUMENT_PROVIDER.getInstruments(_helper.getCurrency(), point);
+    Set<ExternalId> instruments = INSTRUMENT_PROVIDER.getInstruments(_helper.getCurrency(), point);
     if (instruments != null) {
-      for (final Identifier identifier : instruments) {
+      for (final ExternalId identifier : instruments) {
         _pointsById.put(identifier, point);
       }
 
-      final Identifier strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getCurrency(), point);
+      final ExternalId strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getCurrency(), point);
       if (strikeInstruments != null) {
-        final Set<Identifier> instrumentsWithStrike = new HashSet<Identifier>(instruments);
+        final Set<ExternalId> instrumentsWithStrike = new HashSet<ExternalId>(instruments);
         final ObjectsPair<Tenor, Tenor> strikePoint = Pair.of(point.getSwapTenor(), point.getOptionExpiry());
         final Pair<Tenor, Tenor> previous = _strikesById.put(strikeInstruments, strikePoint);
         if (previous != null && !previous.equals(strikePoint)) {
@@ -119,10 +119,10 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     return getMarketValueReqs(instruments);
   }
 
-  private Set<ValueRequirement> getMarketValueReqs(final Set<Identifier> instruments) {
+  private Set<ValueRequirement> getMarketValueReqs(final Set<ExternalId> instruments) {
     final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
     if (instruments != null) {
-      for (final Identifier id : instruments) {
+      for (final ExternalId id : instruments) {
         ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, new ComputationTargetSpecification(id)));
       }
     }

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -44,7 +44,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
   private static final String BBG_DATA_SOURCE = "BLOOMBERG";
-  private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of("A", "B");
+  private static final ExternalIdBundle IDENTIFIERS = ExternalIdBundle.of("A", "B");
   
   private HistoricalTimeSeriesMaster _mockMaster;
   private HistoricalTimeSeriesResolver _mockResolver;
@@ -82,7 +82,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     new MasterHistoricalTimeSeriesSource(null, null);
   }
 
-  public void getHistoricalTimeSeriesByIdentifierWithMetaData() throws Exception {
+  public void getHistoricalTimeSeriesByExternalIdWithMetaData() throws Exception {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
@@ -107,7 +107,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     assertEquals(UID, test.getUniqueId());
   }
 
-  public void getHistoricalTimeSeriesByIdentifierWithoutMetaData() throws Exception {
+  public void getHistoricalTimeSeriesByExternalIdWithoutMetaData() throws Exception {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());

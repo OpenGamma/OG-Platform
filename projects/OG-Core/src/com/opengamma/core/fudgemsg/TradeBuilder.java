@@ -22,8 +22,8 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
@@ -101,7 +101,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
       context.addToMessage(message, FIELD_SECURITYID, null, trade.getSecurityLink().getObjectId());
     }
     if (trade.getCounterparty() != null) {
-      context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
+      context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getExternalId());
     }
     if (trade.getTradeDate() != null) {
       message.add(FIELD_TRADE_DATE, null, trade.getTradeDate());
@@ -161,7 +161,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
       if (secKeyField != null) {
-        trade.getSecurityLink().setBundleId(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+        trade.getSecurityLink().setBundleId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
       }
     }
     if (message.hasField(FIELD_SECURITYID)) {
@@ -173,7 +173,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (message.hasField(FIELD_COUNTERPARTY)) {
       FudgeField counterpartyField = message.getByName(FIELD_COUNTERPARTY);
       if (counterpartyField != null) {
-        trade.setCounterparty(new CounterpartyImpl(context.fieldValueToObject(Identifier.class, counterpartyField)));
+        trade.setCounterparty(new CounterpartyImpl(context.fieldValueToObject(ExternalId.class, counterpartyField)));
       }
     }
     if (message.hasField(FIELD_TRADE_DATE)) {

@@ -14,7 +14,7 @@ import javax.time.calendar.LocalDate;
 import com.google.common.base.Supplier;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.ArgumentChecker;
@@ -72,13 +72,13 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
     UniqueId uniqueId = _metaUniqueIdStore.get(key);
@@ -90,7 +90,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField,
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalTimeSeries(
         identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
@@ -98,7 +98,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
+      ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
@@ -107,34 +107,34 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, String resolutionKey) {
+      String dataField, ExternalIdBundle identifiers, String resolutionKey) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, String configName, 
+      String dataField, ExternalIdBundle identifiers, String configName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
+      String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
+      String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
-      Set<IdentifierBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+  public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
+      Set<ExternalIdBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support getHistoricalTimeSeries for multiple time-series");
   }
@@ -150,7 +150,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
    * @param timeSeriesDataPoints  the time-series data points, not null
    */
   public void storeHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDateDoubleTimeSeries timeSeriesDataPoints) {
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDateDoubleTimeSeries timeSeriesDataPoints) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");

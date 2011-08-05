@@ -922,7 +922,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
    * @return the unique identifier,not null
    */
   protected UniqueId createUniqueId(BatchDocument doc) {
-    return UniqueId.of(getIdentifierScheme(), doc.getObservationDate() + "-" + doc.getObservationTime());
+    return UniqueId.of(getUniqueIdScheme(), doc.getObservationDate() + "-" + doc.getObservationTime());
   }
 
   //-------------------------------------------------------------------------

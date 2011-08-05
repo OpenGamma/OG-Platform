@@ -19,8 +19,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -65,9 +65,9 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
-    assertEquals(Identifier.of("TICKER", "ORCL"), secKey.getIdentifiers().iterator().next());
+    assertEquals(ExternalId.of("TICKER", "ORCL"), secKey.getExternalIds().iterator().next());
   }
 
   //-------------------------------------------------------------------------

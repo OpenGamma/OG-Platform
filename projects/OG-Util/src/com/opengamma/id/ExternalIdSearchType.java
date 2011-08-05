@@ -11,7 +11,7 @@ import com.opengamma.util.PublicAPI;
  * The type of identifier search.
  */
 @PublicAPI
-public enum IdentifierSearchType {
+public enum ExternalIdSearchType {
 
   /**
    * Match requires that the target must contain exactly the same set of identifiers.

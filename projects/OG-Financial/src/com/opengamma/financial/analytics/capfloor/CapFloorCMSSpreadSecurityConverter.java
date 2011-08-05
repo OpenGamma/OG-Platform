@@ -23,7 +23,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurityVisitor;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -51,8 +51,8 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     double accrualFactor = capFloorCMSSpreadSecurity.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate); 
     double strike = capFloorCMSSpreadSecurity.getStrike();
     boolean isCap = capFloorCMSSpreadSecurity.getIsCap();
-    Identifier longId = capFloorCMSSpreadSecurity.getLongIdentifier();
-    Identifier shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
+    ExternalId longId = capFloorCMSSpreadSecurity.getLongIdentifier();
+    ExternalId shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
     Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);

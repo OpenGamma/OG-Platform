@@ -8,7 +8,7 @@
 **
 ** The identifier of an item.
 **
-message com.opengamma.id.Identifier {
+message com.opengamma.id.ExternalId {
 
   ** The scheme within which the value has meaning.
   string Scheme
@@ -22,7 +22,7 @@ message com.opengamma.id.Identifier {
 **
 ** The scheme of an identifier.
 **
-message com.opengamma.id.IdentificationScheme {
+message com.opengamma.id.ExternalScheme {
 
   ** The scheme name.
   string name
@@ -33,10 +33,10 @@ message com.opengamma.id.IdentificationScheme {
 **
 ** The bundle of identifiers that each separately refer to an item.
 **
-message com.opengamma.id.IdentifierBundle {
+message com.opengamma.id.ExternalIdBundle {
 
   ** The identifiers.
-  com.opengamma.id.Identifier[] ID
+  com.opengamma.id.ExternalId[] ID
 
 }
 

@@ -13,9 +13,9 @@ import javax.time.calendar.TimeZone;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
@@ -31,15 +31,15 @@ import com.opengamma.util.i18n.Country;
 public class InMemoryExchangeMasterTest {
 
   private static String NAME = "LIFFE";
-  private static Identifier ID_LIFFE_MIC = Identifier.of(ExchangeUtils.ISO_MIC, "XLIF");
-  private static Identifier ID_LIFFE_CCID = Identifier.of("COPP_CLARK_CENTER_ID", "979");
-  private static Identifier ID_LIFFE_CCNAME = Identifier.of("COPP_CLARK_NAME", "Euronext LIFFE (UK contracts)");
-  private static Identifier ID_OTHER1 = Identifier.of("TEST_SCHEME", "EURONEXT LIFFE");
-  private static Identifier ID_OTHER2 = Identifier.of("TEST_SCHEME", "LIFFE");
-  private static IdentifierBundle BUNDLE_FULL = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_LIFFE_CCID);
-  private static IdentifierBundle BUNDLE_PART = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCID);
-  private static IdentifierBundle BUNDLE_OTHER = IdentifierBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_OTHER1);
-  private static IdentifierBundle GB = IdentifierBundle.of(RegionUtils.countryRegionId(Country.GB));
+  private static ExternalId ID_LIFFE_MIC = ExternalId.of(ExchangeUtils.ISO_MIC, "XLIF");
+  private static ExternalId ID_LIFFE_CCID = ExternalId.of("COPP_CLARK_CENTER_ID", "979");
+  private static ExternalId ID_LIFFE_CCNAME = ExternalId.of("COPP_CLARK_NAME", "Euronext LIFFE (UK contracts)");
+  private static ExternalId ID_OTHER1 = ExternalId.of("TEST_SCHEME", "EURONEXT LIFFE");
+  private static ExternalId ID_OTHER2 = ExternalId.of("TEST_SCHEME", "LIFFE");
+  private static ExternalIdBundle BUNDLE_FULL = ExternalIdBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_LIFFE_CCID);
+  private static ExternalIdBundle BUNDLE_PART = ExternalIdBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCID);
+  private static ExternalIdBundle BUNDLE_OTHER = ExternalIdBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_OTHER1);
+  private static ExternalIdBundle GB = ExternalIdBundle.of(RegionUtils.countryRegionId(Country.GB));
 
   private InMemoryExchangeMaster master;
   private ExchangeDocument addedDoc;
@@ -88,7 +88,7 @@ public class InMemoryExchangeMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_oneBundle_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE_OTHER);
-    request.getExchangeKeys().setSearchType(IdentifierSearchType.ALL);
+    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
@@ -110,16 +110,16 @@ public class InMemoryExchangeMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_twoBundles_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addExchangeKey(ID_OTHER1);
-    request.addExchangeKey(ID_OTHER2);
+    request.addExternalId(ID_OTHER1);
+    request.addExternalId(ID_OTHER2);
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
 
   public void test_search_twoBundles_oneMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addExchangeKey(ID_LIFFE_MIC);
-    request.addExchangeKey(ID_OTHER1);
+    request.addExternalId(ID_LIFFE_MIC);
+    request.addExternalId(ID_OTHER1);
     ExchangeSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
@@ -127,8 +127,8 @@ public class InMemoryExchangeMasterTest {
 
   public void test_search_twoBundles_bothMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.addExchangeKey(ID_LIFFE_MIC);
-    request.addExchangeKey(ID_LIFFE_CCID);
+    request.addExternalId(ID_LIFFE_MIC);
+    request.addExternalId(ID_LIFFE_CCID);
     ExchangeSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());

@@ -14,7 +14,7 @@ import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.masterdb.security.hibernate.bond.CouponTypeBean;
@@ -375,7 +375,7 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   
   // Identifiers
   private IdentifierAssociationBean createIdentifierAssociationBean(Date now, String scheme, String identifier, SecurityBean security) {
-    final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new IdentifierBean(scheme, identifier));
+    final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new ExternalIdBean(scheme, identifier));
     Query query = getSession().getNamedQuery("IdentifierAssociationBean.one.previousAssociation");
     query.setString("scheme", scheme);
     query.setString("identifier", identifier);
@@ -430,8 +430,8 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   }
 
   @Override
-  public void associateOrUpdateIdentifierWithSecurity(Date now,
-      Identifier identifier, SecurityBean security) {
+  public void associateOrUpdateExternalIdWithSecurity(Date now,
+      ExternalId identifier, SecurityBean security) {
     getCreateOrUpdateIdentifierAssociationBean(now, identifier
         .getScheme().getName(), identifier.getValue(), security);  // TODO: was .getFirstVersion()
   }

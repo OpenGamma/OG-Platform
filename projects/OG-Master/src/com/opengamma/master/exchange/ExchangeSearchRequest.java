@@ -20,10 +20,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
@@ -49,12 +49,12 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectId> _exchangeIds;
+  private List<ObjectId> _objectIds;
   /**
-   * The exchange keys to match, null to not match on exchange keys.
+   * The exchange external identifiers to match, null to not match on exchange identifiers.
    */
   @PropertyDefinition
-  private IdentifierSearch _exchangeKeys;
+  private ExternalIdSearch _externalIdSearch;
   /**
    * The exchange name, wildcards allowed, null to not match on name.
    */
@@ -70,19 +70,19 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   /**
    * Creates an instance using a single search identifier.
    * 
-   * @param exchangeKey  the exchange key identifier to search for, not null
+   * @param exchangeId  the exchange external identifier to search for, not null
    */
-  public ExchangeSearchRequest(Identifier exchangeKey) {
-    addExchangeKey(exchangeKey);
+  public ExchangeSearchRequest(ExternalId exchangeId) {
+    addExternalId(exchangeId);
   }
 
   /**
    * Creates an instance using a bundle of identifiers.
    * 
-   * @param exchangeKeys  the exchange key identifiers to search for, not null
+   * @param exchangeBundle  the exchange external identifiers to search for, not null
    */
-  public ExchangeSearchRequest(IdentifierBundle exchangeKeys) {
-    addExchangeKeys(exchangeKeys);
+  public ExchangeSearchRequest(ExternalIdBundle exchangeBundle) {
+    addExternalIds(exchangeBundle);
   }
 
   //-------------------------------------------------------------------------
@@ -91,12 +91,12 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * 
    * @param exchangeId  the exchange object identifier to add, not null
    */
-  public void addExchangeId(ObjectIdentifiable exchangeId) {
+  public void addObjectId(ObjectIdentifiable exchangeId) {
     ArgumentChecker.notNull(exchangeId, "exchangeId");
-    if (_exchangeIds == null) {
-      _exchangeIds = new ArrayList<ObjectId>();
+    if (_objectIds == null) {
+      _objectIds = new ArrayList<ObjectId>();
     }
-    _exchangeIds.add(exchangeId.getObjectId());
+    _objectIds.add(exchangeId.getObjectId());
   }
 
   /**
@@ -105,59 +105,59 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * 
    * @param exchangeIds  the new exchange identifiers, null clears the exchange id search
    */
-  public void setExchangeIds(Iterable<? extends ObjectIdentifiable> exchangeIds) {
+  public void setObjectIds(Iterable<? extends ObjectIdentifiable> exchangeIds) {
     if (exchangeIds == null) {
-      _exchangeIds = null;
+      _objectIds = null;
     } else {
-      _exchangeIds = new ArrayList<ObjectId>();
+      _objectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable exchangeId : exchangeIds) {
-        _exchangeIds.add(exchangeId.getObjectId());
+        _objectIds.add(exchangeId.getObjectId());
       }
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single exchange key identifier to the collection to search for.
+   * Adds a single exchange external identifier to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param exchangeKey  the exchange key identifier to add, not null
+   * @param exchangeId  the exchange key identifier to add, not null
    */
-  public void addExchangeKey(Identifier exchangeKey) {
-    ArgumentChecker.notNull(exchangeKey, "exchangeKey");
-    addExchangeKeys(Arrays.asList(exchangeKey));
+  public void addExternalId(ExternalId exchangeId) {
+    ArgumentChecker.notNull(exchangeId, "exchangeId");
+    addExternalIds(Arrays.asList(exchangeId));
   }
 
   /**
-   * Adds a collection of exchange key identifiers to the collection to search for.
+   * Adds a collection of exchange external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param exchangeKeys  the exchange key identifiers to add, not null
+   * @param exchangeIds  the exchange key identifiers to add, not null
    */
-  public void addExchangeKeys(Identifier... exchangeKeys) {
-    ArgumentChecker.notNull(exchangeKeys, "exchangeKeys");
-    if (getExchangeKeys() == null) {
-      setExchangeKeys(new IdentifierSearch(exchangeKeys));
+  public void addExternalIds(ExternalId... exchangeIds) {
+    ArgumentChecker.notNull(exchangeIds, "exchangeIds");
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(new ExternalIdSearch(exchangeIds));
     } else {
-      getExchangeKeys().addIdentifiers(exchangeKeys);
+      getExternalIdSearch().addExternalIds(exchangeIds);
     }
   }
 
   /**
-   * Adds a collection of exchange key identifiers to the collection to search for.
+   * Adds a collection of exchange external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param exchangeKeys  the exchange key identifiers to add, not null
+   * @param exchangeIds  the exchange key identifiers to add, not null
    */
-  public void addExchangeKeys(Iterable<Identifier> exchangeKeys) {
-    ArgumentChecker.notNull(exchangeKeys, "exchangeKeys");
-    if (getExchangeKeys() == null) {
-      setExchangeKeys(new IdentifierSearch(exchangeKeys));
+  public void addExternalIds(Iterable<ExternalId> exchangeIds) {
+    ArgumentChecker.notNull(exchangeIds, "exchangeIds");
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(new ExternalIdSearch(exchangeIds));
     } else {
-      getExchangeKeys().addIdentifiers(exchangeKeys);
+      getExternalIdSearch().addExternalIds(exchangeIds);
     }
   }
 
@@ -169,10 +169,10 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     }
     final ExchangeDocument document = (ExchangeDocument) obj;
     final ManageableExchange exchange = document.getExchange();
-    if (getExchangeIds() != null && getExchangeIds().contains(document.getObjectId()) == false) {
+    if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getExchangeKeys() != null && getExchangeKeys().matches(exchange.getIdentifiers()) == false) {
+    if (getExternalIdSearch() != null && getExternalIdSearch().matches(exchange.getExternalIdBundle()) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), exchange.getName()) == false) {
@@ -202,10 +202,10 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -1755006571:  // exchangeIds
-        return getExchangeIds();
-      case 1429431991:  // exchangeKeys
-        return getExchangeKeys();
+      case -1489617159:  // objectIds
+        return getObjectIds();
+      case -265376882:  // externalIdSearch
+        return getExternalIdSearch();
       case 3373707:  // name
         return getName();
     }
@@ -216,11 +216,11 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -1755006571:  // exchangeIds
-        setExchangeIds((List<ObjectId>) newValue);
+      case -1489617159:  // objectIds
+        setObjectIds((List<ObjectId>) newValue);
         return;
-      case 1429431991:  // exchangeKeys
-        setExchangeKeys((IdentifierSearch) newValue);
+      case -265376882:  // externalIdSearch
+        setExternalIdSearch((ExternalIdSearch) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -236,8 +236,8 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExchangeSearchRequest other = (ExchangeSearchRequest) obj;
-      return JodaBeanUtils.equal(getExchangeIds(), other.getExchangeIds()) &&
-          JodaBeanUtils.equal(getExchangeKeys(), other.getExchangeKeys()) &&
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           super.equals(obj);
     }
@@ -247,8 +247,8 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash ^ super.hashCode();
   }
@@ -259,42 +259,42 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no exchanges.
    * @return the value of the property
    */
-  public List<ObjectId> getExchangeIds() {
-    return _exchangeIds;
+  public List<ObjectId> getObjectIds() {
+    return _objectIds;
   }
 
   /**
-   * Gets the the {@code exchangeIds} property.
+   * Gets the the {@code objectIds} property.
    * Note that an empty set will return no exchanges.
    * @return the property, not null
    */
-  public final Property<List<ObjectId>> exchangeIds() {
-    return metaBean().exchangeIds().createProperty(this);
+  public final Property<List<ObjectId>> objectIds() {
+    return metaBean().objectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the exchange keys to match, null to not match on exchange keys.
+   * Gets the exchange external identifiers to match, null to not match on exchange identifiers.
    * @return the value of the property
    */
-  public IdentifierSearch getExchangeKeys() {
-    return _exchangeKeys;
+  public ExternalIdSearch getExternalIdSearch() {
+    return _externalIdSearch;
   }
 
   /**
-   * Sets the exchange keys to match, null to not match on exchange keys.
-   * @param exchangeKeys  the new value of the property
+   * Sets the exchange external identifiers to match, null to not match on exchange identifiers.
+   * @param externalIdSearch  the new value of the property
    */
-  public void setExchangeKeys(IdentifierSearch exchangeKeys) {
-    this._exchangeKeys = exchangeKeys;
+  public void setExternalIdSearch(ExternalIdSearch externalIdSearch) {
+    this._externalIdSearch = externalIdSearch;
   }
 
   /**
-   * Gets the the {@code exchangeKeys} property.
+   * Gets the the {@code externalIdSearch} property.
    * @return the property, not null
    */
-  public final Property<IdentifierSearch> exchangeKeys() {
-    return metaBean().exchangeKeys().createProperty(this);
+  public final Property<ExternalIdSearch> externalIdSearch() {
+    return metaBean().externalIdSearch().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -333,16 +333,16 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code exchangeIds} property.
+     * The meta-property for the {@code objectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectId>> _exchangeIds = DirectMetaProperty.ofReadWrite(
-        this, "exchangeIds", ExchangeSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _objectIds = DirectMetaProperty.ofReadWrite(
+        this, "objectIds", ExchangeSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code exchangeKeys} property.
+     * The meta-property for the {@code externalIdSearch} property.
      */
-    private final MetaProperty<IdentifierSearch> _exchangeKeys = DirectMetaProperty.ofReadWrite(
-        this, "exchangeKeys", ExchangeSearchRequest.class, IdentifierSearch.class);
+    private final MetaProperty<ExternalIdSearch> _externalIdSearch = DirectMetaProperty.ofReadWrite(
+        this, "externalIdSearch", ExchangeSearchRequest.class, ExternalIdSearch.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -353,8 +353,8 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "exchangeIds",
-        "exchangeKeys",
+        "objectIds",
+        "externalIdSearch",
         "name");
 
     /**
@@ -366,10 +366,10 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1755006571:  // exchangeIds
-          return _exchangeIds;
-        case 1429431991:  // exchangeKeys
-          return _exchangeKeys;
+        case -1489617159:  // objectIds
+          return _objectIds;
+        case -265376882:  // externalIdSearch
+          return _externalIdSearch;
         case 3373707:  // name
           return _name;
       }
@@ -393,19 +393,19 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code exchangeIds} property.
+     * The meta-property for the {@code objectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectId>> exchangeIds() {
-      return _exchangeIds;
+    public final MetaProperty<List<ObjectId>> objectIds() {
+      return _objectIds;
     }
 
     /**
-     * The meta-property for the {@code exchangeKeys} property.
+     * The meta-property for the {@code externalIdSearch} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierSearch> exchangeKeys() {
-      return _exchangeKeys;
+    public final MetaProperty<ExternalIdSearch> externalIdSearch() {
+      return _externalIdSearch;
     }
 
     /**

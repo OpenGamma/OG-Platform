@@ -6,6 +6,6 @@
 
 namespace com.opengamma.id {
 
-  message IdentifierBundleWithDates;
+  message ExternalIdBundleWithDates;
 
 }

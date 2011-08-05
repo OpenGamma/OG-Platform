@@ -5,14 +5,14 @@ package com.opengamma.financial.security.capfloor;
 public class CapFloorSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept(CapFloorSecurityVisitor<T> visitor) { return visitor.visitCapFloorSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCapFloorSecurity(this); }
-  private static final long serialVersionUID = -8901151506824854311l;
+  private static final long serialVersionUID = -6807127630180718666l;
   private javax.time.calendar.ZonedDateTime _startDate;
   public static final String START_DATE_KEY = "startDate";
   private javax.time.calendar.ZonedDateTime _maturityDate;
   public static final String MATURITY_DATE_KEY = "maturityDate";
   private double _notional;
   public static final String NOTIONAL_KEY = "notional";
-  private com.opengamma.id.Identifier _underlyingIdentifier;
+  private com.opengamma.id.ExternalId _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   private double _strike;
   public static final String STRIKE_KEY = "strike";
@@ -29,7 +29,7 @@ public class CapFloorSecurity extends com.opengamma.financial.security.Financial
   private boolean _isIbor;
   public static final String IS_IBOR_KEY = "isIbor";
   public static final String SECURITY_TYPE = "CAP/FLOOR";
-  public CapFloorSecurity (javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier underlyingIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
+  public CapFloorSecurity (javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.ExternalId underlyingIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
     super (SECURITY_TYPE);
     if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
     else {
@@ -85,10 +85,10 @@ public class CapFloorSecurity extends com.opengamma.financial.security.Financial
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorSecurity - field 'underlyingIdentifier' is not present");
     try {
-      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorSecurity - field 'underlyingIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a CapFloorSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (STRIKE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorSecurity - field 'strike' is not present");
@@ -147,7 +147,7 @@ public class CapFloorSecurity extends com.opengamma.financial.security.Financial
       throw new IllegalArgumentException ("Fudge message is not a CapFloorSecurity - field 'isIbor' is not boolean", e);
     }
   }
-  public CapFloorSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier underlyingIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
+  public CapFloorSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.ExternalId underlyingIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
     super (uniqueId, name, securityType, identifiers);
     if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
     else {
@@ -216,7 +216,7 @@ public class CapFloorSecurity extends com.opengamma.financial.security.Financial
     }
     msg.add (NOTIONAL_KEY, null, _notional);
     if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _underlyingIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
     }
@@ -272,10 +272,10 @@ public class CapFloorSecurity extends com.opengamma.financial.security.Financial
   public void setNotional (double notional) {
     _notional = notional;
   }
-  public com.opengamma.id.Identifier getUnderlyingIdentifier () {
+  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
     return _underlyingIdentifier;
   }
-  public void setUnderlyingIdentifier (com.opengamma.id.Identifier underlyingIdentifier) {
+  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
       _underlyingIdentifier = underlyingIdentifier;

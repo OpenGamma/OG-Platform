@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 
 /**
  * Hibernate bean for storage.
@@ -22,7 +22,7 @@ public class FutureBundleBean {
   private Date _startDate;
   private Date _endDate;
   private double _conversionFactor;
-  private Set<IdentifierBean> _identifiers;
+  private Set<ExternalIdBean> _identifiers;
 
   public FutureBundleBean() {
   }
@@ -67,11 +67,11 @@ public class FutureBundleBean {
     _conversionFactor = conversionFactor;
   }
   
-  public Set<IdentifierBean> getIdentifiers() {
+  public Set<ExternalIdBean> getIdentifiers() {
     return _identifiers;
   }
   
-  public void setIdentifiers(final Set<IdentifierBean> identifiers) {
+  public void setIdentifiers(final Set<ExternalIdBean> identifiers) {
     _identifiers = identifiers;
   }
   

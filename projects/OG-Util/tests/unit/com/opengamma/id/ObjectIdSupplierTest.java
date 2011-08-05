@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test ObjectIdSupplier. 
+ * Test {@link ObjectIdSupplier}. 
  */
 @Test
 public class ObjectIdSupplierTest {

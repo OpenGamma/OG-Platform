@@ -24,8 +24,8 @@ import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
@@ -43,18 +43,18 @@ import com.opengamma.util.time.Expiry;
     return UniqueId.of(scheme, Integer.toString(_nextId.incrementAndGet()));
   }
 
-  protected Identifier createIdentifier(final String scheme) {
-    return Identifier.of(scheme, Integer.toString(_nextId.incrementAndGet()));
+  protected ExternalId createExternalId(final String scheme) {
+    return ExternalId.of(scheme, Integer.toString(_nextId.incrementAndGet()));
   }
 
-  protected IdentifierBundle createIdentifierBundle() {
+  protected ExternalIdBundle createExternalIdBundle() {
     switch (_rnd.nextInt(3)) {
       case 0:
-        return IdentifierBundle.of(createIdentifier("Foo"));
+        return ExternalIdBundle.of(createExternalId("Foo"));
       case 1:
-        return IdentifierBundle.of(createIdentifier("Bar"));
+        return ExternalIdBundle.of(createExternalId("Bar"));
       case 2:
-        return IdentifierBundle.of(createIdentifier("Foo"), createIdentifier("Bar"));
+        return ExternalIdBundle.of(createExternalId("Foo"), createExternalId("Bar"));
       default:
         throw new IllegalStateException();
     }
@@ -98,33 +98,33 @@ import com.opengamma.util.time.Expiry;
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     baos.write(data);
     final RawSecurity security = new RawSecurity("WOSSNAME", baos.toByteArray());
-    security.setIdentifiers(createIdentifierBundle());
+    security.setIdentifiers(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 
-  protected Security createEquityOptionSecurity(final String name, final OptionType type, final double strike, final Identifier underlying) {
+  protected Security createEquityOptionSecurity(final String name, final OptionType type, final double strike, final ExternalId underlying) {
     final EquityOptionSecurity security = new EquityOptionSecurity(type, strike, Currency.USD, underlying, new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2010, 10,
         10, 12, 0, 0, 0, TimeZone.UTC)), 0d, "EXCH");
-    security.setIdentifiers(createIdentifierBundle());
+    security.setIdentifiers(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 
-  protected Security createSwaptionSecurity(final String name, final boolean isPayer, final Currency currency, final Identifier underlying) {
+  protected Security createSwaptionSecurity(final String name, final boolean isPayer, final Currency currency, final ExternalId underlying) {
     final SwaptionSecurity security = new SwaptionSecurity(isPayer, underlying, false, new Expiry(ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC)), false, currency);
-    security.setIdentifiers(createIdentifierBundle());
+    security.setIdentifiers(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
   }
 
-  protected Security createFRASecurity(final String name, final Currency currency, final double rate, final Identifier underlying) {
-    final FRASecurity security = new FRASecurity(currency, Identifier.of("Region", "US"), ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2012, 10, 10, 12, 0, 0, 0,
+  protected Security createFRASecurity(final String name, final Currency currency, final double rate, final ExternalId underlying) {
+    final FRASecurity security = new FRASecurity(currency, ExternalId.of("Region", "US"), ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2012, 10, 10, 12, 0, 0, 0,
         TimeZone.UTC), rate, 0d, underlying);
-    security.setIdentifiers(createIdentifierBundle());
+    security.setIdentifiers(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;

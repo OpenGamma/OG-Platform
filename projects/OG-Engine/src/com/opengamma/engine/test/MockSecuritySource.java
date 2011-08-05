@@ -13,8 +13,8 @@ import java.util.Map;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.IdUtils;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
@@ -51,7 +51,7 @@ public class MockSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
@@ -63,9 +63,9 @@ public class MockSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    for (Identifier secId : bundle.getIdentifiers()) {
+    for (ExternalId secId : bundle.getExternalIds()) {
       for (Security sec : _securities.values()) {
         if (sec.getIdentifiers().contains(secId)) {
           return sec;

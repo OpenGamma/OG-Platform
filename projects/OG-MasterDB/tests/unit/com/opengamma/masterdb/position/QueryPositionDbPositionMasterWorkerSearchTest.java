@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
@@ -113,7 +113,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionIds_none() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPositionIds(new ArrayList<ObjectId>());
+    request.setPositionObjectIds(new ArrayList<ObjectId>());
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -122,9 +122,9 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionIds() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(ObjectId.of("DbPos", "120"));
-    request.addPositionId(ObjectId.of("DbPos", "221"));
-    request.addPositionId(ObjectId.of("DbPos", "9999"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "120"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "221"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "9999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -135,14 +135,14 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_positionIds_badSchemeValidOid() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(ObjectId.of("Rubbish", "120"));
+    request.addPositionObjectId(ObjectId.of("Rubbish", "120"));
     _posMaster.search(request);
   }
 
   @Test
   public void test_search_tradeIds_none() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setTradeIds(new ArrayList<ObjectId>());
+    request.setTradeObjectIds(new ArrayList<ObjectId>());
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -151,10 +151,10 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_tradeIds() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addTradeId(ObjectId.of("DbPos", "402"));
-    request.addTradeId(ObjectId.of("DbPos", "403"));
-    request.addTradeId(ObjectId.of("DbPos", "407"));
-    request.addTradeId(ObjectId.of("DbPos", "9999"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "402"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "403"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "407"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "9999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -164,19 +164,19 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   
   @Test
   public void test_search_trades_withPremium() {
-    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
-    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade1.setPremium(1000000.00);
     trade1.setPremiumCurrency(Currency.USD);
     trade1.setPremiumDate(tradeDate.plusDays(1));
     trade1.setPremiumTime(tradeTime);
     position.getTrades().add(trade1);
     
-    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), tradeDate, tradeTime, ExternalId.of("CPS2", "CPV2"));
     trade2.setPremium(100.00);
     trade2.setPremiumCurrency(Currency.GBP);
     trade2.setPremiumDate(tradeDate.plusDays(10));
@@ -190,14 +190,14 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     assertNotNull(trade2.getUniqueId());
     
     PositionSearchRequest requestByTrade = new PositionSearchRequest();
-    requestByTrade.addTradeId(trade1.getUniqueId().getObjectId());
+    requestByTrade.addTradeObjectId(trade1.getUniqueId().getObjectId());
     
     PositionSearchResult test = _posMaster.search(requestByTrade);
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
     
     PositionSearchRequest requestByPosition = new PositionSearchRequest();
-    requestByPosition.addPositionId(position.getUniqueId().getObjectId());
+    requestByPosition.addPositionObjectId(position.getUniqueId().getObjectId());
     test = _posMaster.search(requestByTrade);
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
@@ -206,17 +206,17 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   
   @Test
   public void test_search_trades_withAttributes() {
-    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
-    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade1.addAttribute("key11", "value11");
     trade1.addAttribute("key12", "value12");
     position.addTrade(trade1);
     
-    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), tradeDate, tradeTime, ExternalId.of("CPS2", "CPV2"));
     trade2.addAttribute("key21", "value21");
     trade2.addAttribute("key22", "value22");
     position.addTrade(trade2);
@@ -228,14 +228,14 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     assertNotNull(trade2.getUniqueId());
     
     PositionSearchRequest requestByTrade = new PositionSearchRequest();
-    requestByTrade.addTradeId(trade1.getUniqueId().getObjectId());
+    requestByTrade.addTradeObjectId(trade1.getUniqueId().getObjectId());
     
     PositionSearchResult test = _posMaster.search(requestByTrade);
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
     
     PositionSearchRequest requestByPosition = new PositionSearchRequest();
-    requestByPosition.addPositionId(position.getUniqueId().getObjectId());
+    requestByPosition.addPositionObjectId(position.getUniqueId().getObjectId());
     test = _posMaster.search(requestByTrade);
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
@@ -243,7 +243,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   
   @Test
   public void test_search_position_withAttributes() {
-    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     position.addAttribute("PA1", "A");
     position.addAttribute("PA2", "B");
     position.addAttribute("PA3", "C");
@@ -251,12 +251,12 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
-    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     trade1.addAttribute("key11", "value11");
     trade1.addAttribute("key12", "value12");
     position.addTrade(trade1);
     
-    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), tradeDate, tradeTime, ExternalId.of("CPS2", "CPV2"));
     trade2.addAttribute("key21", "value21");
     trade2.addAttribute("key22", "value22");
     position.addTrade(trade2);
@@ -268,14 +268,14 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     assertNotNull(trade2.getUniqueId());
     
     PositionSearchRequest requestByTrade = new PositionSearchRequest();
-    requestByTrade.addTradeId(trade1.getUniqueId().getObjectId());
+    requestByTrade.addTradeObjectId(trade1.getUniqueId().getObjectId());
     
     PositionSearchResult test = _posMaster.search(requestByTrade);
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
     
     PositionSearchRequest requestByPosition = new PositionSearchRequest();
-    requestByPosition.addPositionId(position.getUniqueId().getObjectId());
+    requestByPosition.addPositionObjectId(position.getUniqueId().getObjectId());
     test = _posMaster.search(requestByTrade);
     assertEquals(1, test.getDocuments().size());
     assertEquals(doc, test.getDocuments().get(0));
@@ -286,18 +286,18 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_tradeIds_badSchemeValidOid() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addTradeId(ObjectId.of("Rubbish", "402"));
+    request.addTradeObjectId(ObjectId.of("Rubbish", "402"));
     _posMaster.search(request);
   }
 
   @Test
   public void test_search_positionAndTradeIds_matchSome() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(ObjectId.of("DbPos", "120"));
-    request.addPositionId(ObjectId.of("DbPos", "122"));
-    request.addTradeId(ObjectId.of("DbPos", "402"));
-    request.addTradeId(ObjectId.of("DbPos", "403"));
-    request.addTradeId(ObjectId.of("DbPos", "407"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "120"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "122"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "402"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "403"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "407"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -307,11 +307,11 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionAndTradeIds_matchNone() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addPositionId(ObjectId.of("DbPos", "120"));
-    request.addPositionId(ObjectId.of("DbPos", "121"));
-    request.addTradeId(ObjectId.of("DbPos", "402"));
-    request.addTradeId(ObjectId.of("DbPos", "403"));
-    request.addTradeId(ObjectId.of("DbPos", "407"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "120"));
+    request.addPositionObjectId(ObjectId.of("DbPos", "121"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "402"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "403"));
+    request.addTradeObjectId(ObjectId.of("DbPos", "407"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -321,8 +321,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_noKeys_Exact_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setSecurityKeys(new IdentifierSearch());
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
+    request.setSecurityIdSearch(new ExternalIdSearch());
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -331,8 +331,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_noKeys_All_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setSecurityKeys(new IdentifierSearch());
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    request.setSecurityIdSearch(new ExternalIdSearch());
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.ALL);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -341,8 +341,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_noKeys_Any_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setSecurityKeys(new IdentifierSearch());
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.ANY);
+    request.setSecurityIdSearch(new ExternalIdSearch());
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.ANY);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -351,8 +351,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_noKeys_None_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setSecurityKeys(new IdentifierSearch());
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.NONE);
+    request.setSecurityIdSearch(new ExternalIdSearch());
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.NONE);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(_totalPositions, test.getDocuments().size());
@@ -362,7 +362,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_oneKey_Any_1() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("TICKER", "S100"));
+    request.addSecurityExternalId(ExternalId.of("TICKER", "S100"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -372,7 +372,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_oneKey_Any_1_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("A", "Z"));
+    request.addSecurityExternalId(ExternalId.of("A", "Z"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -382,7 +382,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_twoKeys_Any_2() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("TICKER", "S100"));
+    request.addSecurityExternalIds(ExternalId.of("TICKER", "MSFT"), ExternalId.of("TICKER", "S100"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -393,7 +393,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_twoKeys_Any_2_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKeys(Identifier.of("E", "H"), Identifier.of("A", "D"));
+    request.addSecurityExternalIds(ExternalId.of("E", "H"), ExternalId.of("A", "D"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -402,7 +402,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_identifier() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setIdentifierValue("S100");
+    request.setSecurityIdValue("S100");
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -412,7 +412,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_identifier_case() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setIdentifierValue("s100");
+    request.setSecurityIdValue("s100");
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -422,7 +422,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_identifier_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setIdentifierValue("FooBar");
+    request.setSecurityIdValue("FooBar");
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -431,7 +431,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_identifier_wildcard() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setIdentifierValue("OR*");
+    request.setSecurityIdValue("OR*");
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -442,7 +442,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_identifier_wildcardCase() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setIdentifierValue("or*");
+    request.setSecurityIdValue("or*");
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -454,8 +454,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_oneKey_All_1() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("TICKER", "S100"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    request.addSecurityExternalId(ExternalId.of("TICKER", "S100"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.ALL);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -465,8 +465,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_oneKey_All_1_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("A", "Z"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    request.addSecurityExternalId(ExternalId.of("A", "Z"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.ALL);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -476,8 +476,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_twoKeys_All_2() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("NASDAQ", "Micro"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    request.addSecurityExternalIds(ExternalId.of("TICKER", "MSFT"), ExternalId.of("NASDAQ", "Micro"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.ALL);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -487,8 +487,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_twoKeys_All_2_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("A", "D"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
+    request.addSecurityExternalIds(ExternalId.of("TICKER", "MSFT"), ExternalId.of("A", "D"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.ALL);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -498,8 +498,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_oneKey_None() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("TICKER", "MSFT"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.NONE);
+    request.addSecurityExternalId(ExternalId.of("TICKER", "MSFT"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.NONE);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(5, test.getDocuments().size());
@@ -513,15 +513,15 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_oneKey_None_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("TICKER", "S100"));
-    request.addSecurityKey(Identifier.of("TICKER", "T130"));
-    request.addSecurityKey(Identifier.of("TICKER", "MSFT"));
-    request.addSecurityKey(Identifier.of("NASDAQ", "Micro"));
-    request.addSecurityKey(Identifier.of("TICKER", "ORCL"));
-    request.addSecurityKey(Identifier.of("TICKER", "ORCL134"));
-    request.addSecurityKey(Identifier.of("NASDAQ", "ORCL135"));
-    request.addSecurityKey(Identifier.of("TICKER", "IBMC"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.NONE);
+    request.addSecurityExternalId(ExternalId.of("TICKER", "S100"));
+    request.addSecurityExternalId(ExternalId.of("TICKER", "T130"));
+    request.addSecurityExternalId(ExternalId.of("TICKER", "MSFT"));
+    request.addSecurityExternalId(ExternalId.of("NASDAQ", "Micro"));
+    request.addSecurityExternalId(ExternalId.of("TICKER", "ORCL"));
+    request.addSecurityExternalId(ExternalId.of("TICKER", "ORCL134"));
+    request.addSecurityExternalId(ExternalId.of("NASDAQ", "ORCL135"));
+    request.addSecurityExternalId(ExternalId.of("TICKER", "IBMC"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.NONE);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -531,8 +531,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_threeKeys_Exact() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKeys(Identifier.of("TICKER", "MSFT"), Identifier.of("NASDAQ", "Micro"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
+    request.addSecurityExternalIds(ExternalId.of("TICKER", "MSFT"), ExternalId.of("NASDAQ", "Micro"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     PositionSearchResult test = _posMaster.search(request);
     
     System.out.println(test.getDocuments());
@@ -543,8 +543,8 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_threeKeys_Exact_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.addSecurityKey(Identifier.of("TICKER", "MSFT"));
-    request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
+    request.addSecurityExternalId(ExternalId.of("TICKER", "MSFT"));
+    request.getSecurityIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -554,7 +554,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionProviderKey_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPositionProviderKey(Identifier.of("A", "999"));
+    request.setPositionProviderId(ExternalId.of("A", "999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -563,7 +563,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_positionProviderKey_found() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPositionProviderKey(Identifier.of("A", "121"));
+    request.setPositionProviderId(ExternalId.of("A", "121"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -574,7 +574,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_tradeProviderKey_noMatch() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setTradeProviderKey(Identifier.of("B", "999"));
+    request.setTradeProviderId(ExternalId.of("B", "999"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -583,7 +583,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_tradeProviderKey_found() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setTradeProviderKey(Identifier.of("B", "401"));
+    request.setTradeProviderId(ExternalId.of("B", "401"));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());

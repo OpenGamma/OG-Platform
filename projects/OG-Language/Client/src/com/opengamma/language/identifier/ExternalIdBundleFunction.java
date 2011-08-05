@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.context.SessionContext;
@@ -26,25 +26,25 @@ import com.opengamma.language.text.Ordinal;
 /**
  * Constructs an identifier bundle from a set of identifiers.
  */
-public class IdentifierBundleFunction implements PublishedFunction {
+public class ExternalIdBundleFunction implements PublishedFunction {
 
   private static final int MAX_PARAMETERS = 20;
 
-  private static void getIdentifier(final Collection<Identifier> identifiers, final Value value) {
+  private static void getIdentifier(final Collection<ExternalId> identifiers, final Value value) {
     if (value.getStringValue() != null) {
-      identifiers.add(Identifier.parse(value.getStringValue()));
+      identifiers.add(ExternalId.parse(value.getStringValue()));
     } else if (value.getMessageValue() != null) {
-      identifiers.add(Identifier.fromFudgeMsg(value.getMessageValue()));
+      identifiers.add(ExternalId.fromFudgeMsg(value.getMessageValue()));
     }
   }
 
-  private static void getIdentifiers(final Collection<Identifier> identifiers, final Value[] values) {
+  private static void getIdentifiers(final Collection<ExternalId> identifiers, final Value[] values) {
     for (Value value : values) {
       getIdentifier(identifiers, value);
     }
   }
 
-  private static void getIdentifiers(final Collection<Identifier> identifiers, final Data data) {
+  private static void getIdentifiers(final Collection<ExternalId> identifiers, final Data data) {
     if (data.getSingle() != null) {
       getIdentifier(identifiers, data.getSingle());
     } else if (data.getLinear() != null) {
@@ -56,20 +56,20 @@ public class IdentifierBundleFunction implements PublishedFunction {
     }
   }
 
-  public static IdentifierBundle execute(final List<?> parameters) {
-    final Collection<Identifier> identifiers = new ArrayList<Identifier>(parameters.size());
+  public static ExternalIdBundle execute(final List<?> parameters) {
+    final Collection<ExternalId> identifiers = new ArrayList<ExternalId>(parameters.size());
     for (Object parameter : parameters) {
       getIdentifiers(identifiers, (Data) parameter);
     }
-    return IdentifierBundle.of(identifiers);
+    return ExternalIdBundle.of(identifiers);
   }
 
-  public static IdentifierBundle execute(final Object[] parameters) {
-    final Collection<Identifier> identifiers = new ArrayList<Identifier>(parameters.length);
+  public static ExternalIdBundle execute(final Object[] parameters) {
+    final Collection<ExternalId> identifiers = new ArrayList<ExternalId>(parameters.length);
     for (Object parameter : parameters) {
       getIdentifiers(identifiers, (Data) parameter);
     }
-    return IdentifierBundle.of(identifiers);
+    return ExternalIdBundle.of(identifiers);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class IdentifierBundleFunction implements PublishedFunction {
       }
     };
     final MetaFunction meta = new MetaFunction("IdentifierBundle", args, invoker);
-    meta.setDescription("Creates an IdentifierBundle from one or more identifiers");
+    meta.setDescription("Creates an ExternalIdBundle from one or more identifiers");
     return meta;
   }
 

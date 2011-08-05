@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier;
 import org.testng.annotations.Test;
 
 /**
- * Test IdUtils. 
+ * Test {@link IdUtils}. 
  */
 @Test
 public class IdUtilsTest {

@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
@@ -79,12 +79,12 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   @PropertyDefinition
   private final List<ManageableTrade> _trades = new ArrayList<ManageableTrade>();
   /**
-   * The provider key identifier for the data.
+   * The provider external identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerKey;
+  private ExternalId _providerId;
   /**
    * Position attributes used for aggregation
    */
@@ -102,26 +102,26 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * Creates a position from an amount of a security identified by key.
    * 
    * @param quantity  the amount of the position, not null
-   * @param securityKey  the security identifier, not null
+   * @param securityId  the security identifier, not null
    */
-  public ManageablePosition(final BigDecimal quantity, final Identifier securityKey) {
+  public ManageablePosition(final BigDecimal quantity, final ExternalId securityId) {
     ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(securityKey, "securityKey");
+    ArgumentChecker.notNull(securityId, "securityId");
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = new SecurityLink(securityId);
   }
 
   /**
    * Creates a position from an amount of a security identified by key.
    * 
    * @param quantity  the amount of the position, not null
-   * @param securityKey  the security identifier, not null
+   * @param securityBundle  the security bundle, not null
    */
-  public ManageablePosition(final BigDecimal quantity, final IdentifierBundle securityKey) {
+  public ManageablePosition(final BigDecimal quantity, final ExternalIdBundle securityBundle) {
     ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(securityKey, "securityKey");
+    ArgumentChecker.notNull(securityBundle, "securityKey");
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = new SecurityLink(securityBundle);
   }
 
   //-------------------------------------------------------------------------
@@ -186,13 +186,13 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
   /**
    * Checks if any trade provider key matches.
    * 
-   * @param tradeProviderKey  the trade provider key to match against, not null
+   * @param tradeProviderId  the trade provider key to match against, not null
    * @return true if the key matches
    */
-  public boolean matchesAnyTradeProviderKey(Identifier tradeProviderKey) {
-    ArgumentChecker.notNull(tradeProviderKey, "tradeProviderKey");
+  public boolean matchesAnyTradeProviderId(ExternalId tradeProviderId) {
+    ArgumentChecker.notNull(tradeProviderId, "tradeProviderId");
     for (ManageableTrade trade : getTrades()) {
-      if (tradeProviderKey.equals(trade.getProviderKey())) {
+      if (tradeProviderId.equals(trade.getProviderId())) {
         return true;
       }
     }
@@ -251,8 +251,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         return getSecurityLink();
       case -865715313:  // trades
         return getTrades();
-      case 2064682670:  // providerKey
-        return getProviderKey();
+      case 205149932:  // providerId
+        return getProviderId();
       case 405645655:  // attributes
         return getAttributes();
       case 3373707:  // name
@@ -277,8 +277,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       case -865715313:  // trades
         setTrades((List<ManageableTrade>) newValue);
         return;
-      case 2064682670:  // providerKey
-        setProviderKey((Identifier) newValue);
+      case 205149932:  // providerId
+        setProviderId((ExternalId) newValue);
         return;
       case 405645655:  // attributes
         setAttributes((Map<String, String>) newValue);
@@ -309,7 +309,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
-          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
           JodaBeanUtils.equal(getName(), other.getName());
     }
@@ -323,7 +323,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
@@ -445,33 +445,33 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the provider key identifier for the data.
+   * Gets the provider external identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderKey() {
-    return _providerKey;
+  public ExternalId getProviderId() {
+    return _providerId;
   }
 
   /**
-   * Sets the provider key identifier for the data.
+   * Sets the provider external identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
-   * @param providerKey  the new value of the property
+   * @param providerId  the new value of the property
    */
-  public void setProviderKey(Identifier providerKey) {
-    this._providerKey = providerKey;
+  public void setProviderId(ExternalId providerId) {
+    this._providerId = providerId;
   }
 
   /**
-   * Gets the the {@code providerKey} property.
+   * Gets the the {@code providerId} property.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerKey() {
-    return metaBean().providerKey().createProperty(this);
+  public final Property<ExternalId> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -542,10 +542,10 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     private final MetaProperty<List<ManageableTrade>> _trades = DirectMetaProperty.ofReadWrite(
         this, "trades", ManageablePosition.class, (Class) List.class);
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code providerId} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
-        this, "providerKey", ManageablePosition.class, Identifier.class);
+    private final MetaProperty<ExternalId> _providerId = DirectMetaProperty.ofReadWrite(
+        this, "providerId", ManageablePosition.class, ExternalId.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
@@ -566,7 +566,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         "quantity",
         "securityLink",
         "trades",
-        "providerKey",
+        "providerId",
         "attributes",
         "name");
 
@@ -587,8 +587,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
           return _securityLink;
         case -865715313:  // trades
           return _trades;
-        case 2064682670:  // providerKey
-          return _providerKey;
+        case 205149932:  // providerId
+          return _providerId;
         case 405645655:  // attributes
           return _attributes;
         case 3373707:  // name
@@ -646,11 +646,11 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     }
 
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code providerId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerKey() {
-      return _providerKey;
+    public final MetaProperty<ExternalId> providerId() {
+      return _providerId;
     }
 
     /**

@@ -28,8 +28,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -187,11 +187,11 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "100"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "100"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(100.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
-    assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("TICKER", "S100")));
+    assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("TICKER", "S100")));
     assertEquals(null, position.getSecurityLink().getObjectId());
     
     List<ManageableTrade> trades = position.getTrades();
@@ -210,11 +210,11 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "120"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "120"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(120.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
-    assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("TICKER", "T130")));
+    assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("TICKER", "T130")));
     assertEquals(null, position.getSecurityLink().getObjectId());
     
     List<ManageableTrade> trades = position.getTrades();
@@ -222,13 +222,13 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageableTrade trade = trades.get(0);
     assertNotNull(trade);
     assertEquals(UniqueId.of("DbPos", "400", "0"), trade.getUniqueId());
-    assertEquals(Identifier.of("B", "400"), trade.getProviderKey());
+    assertEquals(ExternalId.of("B", "400"), trade.getProviderId());
     assertEquals(uniqueId, trade.getParentPositionId());
-    assertEquals(Identifier.of("CPARTY", "C100"), trade.getCounterpartyKey());
+    assertEquals(ExternalId.of("CPARTY", "C100"), trade.getCounterpartyExternalId());
     assertEquals(BigDecimal.valueOf(120.987), trade.getQuantity());
     assertEquals(_now.toLocalDate(), trade.getTradeDate());
     assertEquals(_now.toOffsetTime().minusSeconds(400), trade.getTradeTime());
-    assertEquals(true, trade.getSecurityLink().getIdentifiers().contains(Identifier.of("TICKER", "T130")));
+    assertEquals(true, trade.getSecurityLink().getExternalIds().contains(ExternalId.of("TICKER", "T130")));
   }
 
   protected void assert121(final PositionDocument test) {
@@ -242,12 +242,12 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "121"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "121"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(121.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(2, secKey.size());
-    assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("TICKER", "MSFT")));
-    assertEquals(true, secKey.getIdentifiers().contains(Identifier.of("NASDAQ", "Micro")));
+    assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("TICKER", "MSFT")));
+    assertEquals(true, secKey.getExternalIds().contains(ExternalId.of("NASDAQ", "Micro")));
     assertEquals(null, position.getSecurityLink().getObjectId());
     
     List<ManageableTrade> trades = position.getTrades();
@@ -255,9 +255,9 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageableTrade trade = trades.get(0);
     assertNotNull(trade);
     assertEquals(UniqueId.of("DbPos", "401", "0"), trade.getUniqueId());
-    assertEquals(Identifier.of("B", "401"), trade.getProviderKey());
+    assertEquals(ExternalId.of("B", "401"), trade.getProviderId());
     assertEquals(uniqueId, trade.getParentPositionId());
-    assertEquals(Identifier.of("CPARTY", "C101"), trade.getCounterpartyKey());
+    assertEquals(ExternalId.of("CPARTY", "C101"), trade.getCounterpartyExternalId());
     assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
     assertEquals(_now.toLocalDate(), trade.getTradeDate());
     assertEquals(_now.toOffsetTime().minusSeconds(401), trade.getTradeTime());
@@ -274,11 +274,11 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "122"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "122"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(122.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
-    assertEquals(Identifier.of("TICKER", "ORCL"), secKey.getIdentifiers().iterator().next());
+    assertEquals(ExternalId.of("TICKER", "ORCL"), secKey.getExternalIds().iterator().next());
     assertEquals(null, position.getSecurityLink().getObjectId());
     assertEquals(2, position.getTrades().size());
   }
@@ -294,33 +294,33 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "123"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "123"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(123.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(2, secKey.size());
-    assertTrue(secKey.getIdentifiers().contains(Identifier.of("NASDAQ", "ORCL135")));
-    assertTrue(secKey.getIdentifiers().contains(Identifier.of("TICKER", "ORCL134")));
+    assertTrue(secKey.getExternalIds().contains(ExternalId.of("NASDAQ", "ORCL135")));
+    assertTrue(secKey.getExternalIds().contains(ExternalId.of("TICKER", "ORCL134")));
     assertEquals(null, position.getSecurityLink().getObjectId());
     
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(3, trades.size());
     
-    ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), Identifier.of("CPARTY", "C104"));
+    ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), ExternalId.of("CPARTY", "C104"));
     trade.setParentPositionId(uniqueId);
     trade.setUniqueId(UniqueId.of("DbPos", "404", "0"));
-    trade.setProviderKey(Identifier.of("B", "404"));
+    trade.setProviderId(ExternalId.of("B", "404"));
     assertTrue(trades.contains(trade));
     
-    trade = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), Identifier.of("CPARTY", "C105"));
+    trade = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), ExternalId.of("CPARTY", "C105"));
     trade.setParentPositionId(uniqueId);
     trade.setUniqueId(UniqueId.of("DbPos", "405", "0"));
-    trade.setProviderKey(Identifier.of("B", "405"));
+    trade.setProviderId(ExternalId.of("B", "405"));
     assertTrue(trades.contains(trade));
     
-    trade = new ManageableTrade(BigDecimal.valueOf(300.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(406),Identifier.of("CPARTY", "C106"));
+    trade = new ManageableTrade(BigDecimal.valueOf(300.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(406),ExternalId.of("CPARTY", "C106"));
     trade.setParentPositionId(uniqueId);
     trade.setUniqueId(UniqueId.of("DbPos", "406", "0"));
-    trade.setProviderKey(Identifier.of("B", "406"));
+    trade.setProviderId(ExternalId.of("B", "406"));
     assertTrue(trades.contains(trade));
   }
 
@@ -335,19 +335,19 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "221"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "221"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(221.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
-    assertEquals(Identifier.of("TICKER", "IBMC"), secKey.getIdentifiers().iterator().next());
+    assertEquals(ExternalId.of("TICKER", "IBMC"), secKey.getExternalIds().iterator().next());
     assertEquals(null, position.getSecurityLink().getObjectId());
     
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(1, trades.size());
-    ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), Identifier.of("CPARTY", "C221"));
+    ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), ExternalId.of("CPARTY", "C221"));
     expected.setParentPositionId(uniqueId);
     expected.setUniqueId(UniqueId.of("DbPos", "407", "0"));
-    expected.setProviderKey(Identifier.of("B", "407"));
+    expected.setProviderId(ExternalId.of("B", "407"));
     assertTrue(trades.contains(expected));
   }
 
@@ -362,19 +362,19 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     ManageablePosition position = test.getPosition();
     assertNotNull(position);
     assertEquals(uniqueId, position.getUniqueId());
-    assertEquals(Identifier.of("A", "222"), position.getProviderKey());
+    assertEquals(ExternalId.of("A", "222"), position.getProviderId());
     assertEquals(BigDecimal.valueOf(222.987), position.getQuantity());
-    IdentifierBundle secKey = position.getSecurityLink().getBundleId();
+    ExternalIdBundle secKey = position.getSecurityLink().getBundleId();
     assertEquals(1, secKey.size());
-    assertEquals(Identifier.of("TICKER", "IBMC"), secKey.getIdentifiers().iterator().next());
+    assertEquals(ExternalId.of("TICKER", "IBMC"), secKey.getExternalIds().iterator().next());
     assertEquals(ObjectId.of("DbSec", "1234"), position.getSecurityLink().getObjectId());
     
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(1, trades.size());
-    ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
+    ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
     expected.setParentPositionId(uniqueId);
     expected.setUniqueId(UniqueId.of("DbPos", "407", "1"));
-    expected.setProviderKey(Identifier.of("B", "408"));
+    expected.setProviderId(ExternalId.of("B", "408"));
     assertTrue(trades.contains(expected));
   }
 

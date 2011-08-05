@@ -39,7 +39,7 @@ import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -52,7 +52,7 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testEmptyView() {
-    Identifier secIdentifier = Identifier.of("SEC", "1");
+    ExternalId secIdentifier = ExternalId.of("SEC", "1");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
     PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
     pn.addPosition(pos);
@@ -92,7 +92,7 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testSingleValueNoLiveData() {
-    Identifier secIdentifier = Identifier.of("SEC", "1");
+    ExternalId secIdentifier = ExternalId.of("SEC", "1");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
     PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
     pn.addPosition(pos);
@@ -147,8 +147,8 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testSingleValueExternalDependency() {
-    Identifier secIdentifier1 = Identifier.of("SEC", "1");
-    Identifier secIdentifier2 = Identifier.of("SEC", "2");
+    ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
+    ExternalId secIdentifier2 = ExternalId.of("SEC", "2");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier1);
     PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
     pn.addPosition(pos);
@@ -242,7 +242,7 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    Identifier secIdentifier1 = Identifier.of("SEC", "1");
+    ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
     MockSecurity sec1 = new MockSecurity("My Sec");
     sec1.addIdentifier(secIdentifier1);
     MockSecuritySource securitySource = new MockSecuritySource();

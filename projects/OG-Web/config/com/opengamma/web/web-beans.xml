@@ -99,7 +99,7 @@
   
   <!-- Curves service -->
   <bean id="testInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
-    <property name="identifierScheme" value="TestCurves" />
+    <property name="uniqueIdScheme" value="TestCurves" />
   </bean>
   <bean id="interpolatedYieldCurveDefinitionSourceRestBean" class="com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionSourceService">
     <constructor-arg ref="fudgeContext" />

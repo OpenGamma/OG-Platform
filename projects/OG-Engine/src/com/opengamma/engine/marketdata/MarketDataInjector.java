@@ -6,7 +6,7 @@
 package com.opengamma.engine.marketdata;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -24,14 +24,14 @@ public interface MarketDataInjector {
   void addValue(ValueRequirement valueRequirement, Object value);
 
   /**
-   * Injects a live data value by {@link Identifier}. This identifier is resolved automatically into the
+   * Injects a live data value by {@link ExternalId}. This identifier is resolved automatically into the
    * {@link UniqueId} to use in a {@link ValueRequirement}.
    * 
    * @param identifier  an identifier of the target, not {@code null}
    * @param valueName  the name of the value being added, not {@code null}
    * @param value  the value to add
    */
-  void addValue(Identifier identifier, String valueName, Object value);
+  void addValue(ExternalId identifier, String valueName, Object value);
   
   /**
    * Removes a previously-added live data value by {@link ValueRequirement}.
@@ -41,13 +41,13 @@ public interface MarketDataInjector {
   void removeValue(ValueRequirement valueRequirement);
   
   /**
-   * Removes a previously-added live data value by {@link Identifier}. This identifier is resolved automatically into
+   * Removes a previously-added live data value by {@link ExternalId}. This identifier is resolved automatically into
    * a {@link ValueRequirement} so could be different from the one used when the value was added, as long as it
    * resolves to the same target.
    * 
    * @param identifier  an identifier of the target, not {@code null}
    * @param valueName  the name of the value being removed, not {@code null}
    */
-  void removeValue(Identifier identifier, String valueName);
+  void removeValue(ExternalId identifier, String valueName);
   
 }

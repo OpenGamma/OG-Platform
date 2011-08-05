@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
- * Test ObjectId. 
+ * Test {@link ObjectId}. 
  */
 @Test
 public class ObjectIdTest {

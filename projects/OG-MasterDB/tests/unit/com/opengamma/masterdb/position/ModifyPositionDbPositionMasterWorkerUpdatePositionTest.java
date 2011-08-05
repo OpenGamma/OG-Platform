@@ -22,7 +22,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -54,7 +54,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noPositionId() {
-    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     _posMaster.update(doc);
@@ -69,7 +69,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "0", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _posMaster.update(doc);
@@ -77,7 +77,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "221", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _posMaster.update(doc);
@@ -88,7 +88,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     
@@ -118,9 +118,9 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));
-    pos.addTrade(new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(500), Identifier.of("CPS2", "CPV2")));
+    pos.addTrade(new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), _now.toLocalDate(), _now.toOffsetTime().minusSeconds(500), ExternalId.of("CPS2", "CPV2")));
     PositionDocument input = new PositionDocument(pos);
     
     PositionDocument updated = _posMaster.update(input);
@@ -150,17 +150,17 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   
   @Test
   public void test_updateTradeAttributes() {
-    ManageablePosition pos1 = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos1 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
-    ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     tradeA.addAttribute("key11", "Value11");
     tradeA.addAttribute("key12", "Value12");
     pos1.addTrade(tradeA);
     
-    ManageableTrade tradeB = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    ManageableTrade tradeB = new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), tradeDate, tradeTime, ExternalId.of("CPS2", "CPV2"));
     tradeB.addAttribute("key21", "Value21");
     tradeB.addAttribute("key22", "Value22");
     pos1.addTrade(tradeB);
@@ -172,9 +172,9 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertNotNull(tradeB.getUniqueId());
     assertEquals(version1.getPosition(), _posMaster.get(pos1.getUniqueId()).getPosition());
     
-    ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos2.setUniqueId(version1.getUniqueId());
-    ManageableTrade tradeC = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade tradeC = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     tradeC.addAttribute("A", "B");
     tradeC.addAttribute("C", "D");
     tradeC.addAttribute("E", "F");
@@ -198,19 +198,19 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   
   @Test
   public void test_updatePositionAttributes() {
-    ManageablePosition pos1 = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos1 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos1.addAttribute("A11", "V11");
     pos1.addAttribute("A12", "V12");
 
     LocalDate tradeDate = _now.toLocalDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
 
-    ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade tradeA = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     tradeA.addAttribute("key11", "Value11");
     tradeA.addAttribute("key12", "Value12");
     pos1.addTrade(tradeA);
 
-    ManageableTrade tradeB = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    ManageableTrade tradeB = new ManageableTrade(BigDecimal.TEN, ExternalId.of("C", "D"), tradeDate, tradeTime, ExternalId.of("CPS2", "CPV2"));
     tradeB.addAttribute("key21", "Value21");
     tradeB.addAttribute("key22", "Value22");
     pos1.addTrade(tradeB);
@@ -222,11 +222,11 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertNotNull(tradeB.getUniqueId());
     assertEquals(version1.getPosition(), _posMaster.get(pos1.getUniqueId()).getPosition());
 
-    ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos2 = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos2.setUniqueId(version1.getUniqueId());
     pos1.addAttribute("A11", "V21");
     pos1.addAttribute("A12", "V22");
-    ManageableTrade tradeC = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    ManageableTrade tradeC = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
     tradeC.addAttribute("A", "B");
     tradeC.addAttribute("C", "D");
     tradeC.addAttribute("E", "F");
@@ -256,7 +256,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
       }
     };
     final PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     try {

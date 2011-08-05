@@ -36,7 +36,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -246,7 +246,7 @@ public class YieldCurveNodeSensitivitiesSummingFunction extends FilteringSumming
 
     @Override
     public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
-      final FXSecurity underlying = (FXSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
+      final FXSecurity underlying = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
       return Arrays.asList(underlying.getPayCurrency(), underlying.getReceiveCurrency());
     }
 

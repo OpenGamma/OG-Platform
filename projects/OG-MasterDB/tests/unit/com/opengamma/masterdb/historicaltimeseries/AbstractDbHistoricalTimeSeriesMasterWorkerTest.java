@@ -22,9 +22,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.IdentifierWithDates;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
@@ -171,13 +171,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     assertEquals("DS21", info.getDataSource());
     assertEquals("DP31", info.getDataProvider());
     assertEquals("OT41", info.getObservationTime());
-    IdentifierBundleWithDates key = info.getIdentifiers();
+    ExternalIdBundleWithDates key = info.getExternalIdBundle();
     assertNotNull(key);
     assertEquals(2, key.size());
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("TICKER", "V501"), null, null)));
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("NASDAQ", "V502"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("TICKER", "V501"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("NASDAQ", "V502"), null, null)));
   }
 
   protected void assert102(final HistoricalTimeSeriesInfoDocument test) {
@@ -196,13 +196,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     assertEquals("DS22", info.getDataSource());
     assertEquals("DP32", info.getDataProvider());
     assertEquals("OT42", info.getObservationTime());
-    IdentifierBundleWithDates key = info.getIdentifiers();
+    ExternalIdBundleWithDates key = info.getExternalIdBundle();
     assertNotNull(key);
     assertEquals(2, key.size());
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("TICKER", "V503"), null, null)));
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("NASDAQ", "V504"), LocalDate.of(2011, 6, 30), null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("TICKER", "V503"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("NASDAQ", "V504"), LocalDate.of(2011, 6, 30), null)));
   }
 
   protected void assert201(final HistoricalTimeSeriesInfoDocument test) {
@@ -221,13 +221,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     assertEquals("DS21", info.getDataSource());
     assertEquals("DP31", info.getDataProvider());
     assertEquals("OT41", info.getObservationTime());
-    IdentifierBundleWithDates key = info.getIdentifiers();
+    ExternalIdBundleWithDates key = info.getExternalIdBundle();
     assertNotNull(key);
     assertEquals(2, key.size());
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("TICKER", "V505"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("NASDAQ", "V506"), null, null)));
   }
 
   protected void assert202(final HistoricalTimeSeriesInfoDocument test) {
@@ -246,13 +246,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     assertEquals("DS21", info.getDataSource());
     assertEquals("DP31", info.getDataProvider());
     assertEquals("OT42", info.getObservationTime());
-    IdentifierBundleWithDates key = info.getIdentifiers();
+    ExternalIdBundleWithDates key = info.getExternalIdBundle();
     assertNotNull(key);
     assertEquals(2, key.size());
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("TICKER", "V505"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("NASDAQ", "V506"), null, null)));
   }
 
   protected void assert203(final HistoricalTimeSeriesInfoDocument test) {
@@ -271,13 +271,13 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     assertEquals("DS21", info.getDataSource());
     assertEquals("DP31", info.getDataProvider());
     assertEquals("OT42", info.getObservationTime());
-    IdentifierBundleWithDates key = info.getIdentifiers();
+    ExternalIdBundleWithDates key = info.getExternalIdBundle();
     assertNotNull(key);
     assertEquals(2, key.size());
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("TICKER", "V505"), null, null)));
-    assertEquals(true, key.getIdentifiers().contains(
-        IdentifierWithDates.of(Identifier.of("NASDAQ", "V506"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("TICKER", "V505"), null, null)));
+    assertEquals(true, key.getExternalIds().contains(
+        ExternalIdWithDates.of(ExternalId.of("NASDAQ", "V506"), null, null)));
   }
 
 }

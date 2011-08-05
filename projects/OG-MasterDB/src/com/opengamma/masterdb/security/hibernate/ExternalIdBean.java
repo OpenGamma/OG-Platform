@@ -9,20 +9,20 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Hibernate bean for storing Identifier.
+ * Hibernate bean for storing ExternalId.
  */
-public class IdentifierBean {
+public class ExternalIdBean {
   // Note: the reason that this doesn't have an id is that it's a hibernate
   // component of other beans so it doesn't need one
   private String _identifier;
   private String _scheme;
   
-  public IdentifierBean() {
+  public ExternalIdBean() {
   }
 
-  public IdentifierBean(String scheme, String identifier) {
+  public ExternalIdBean(String scheme, String externalId) {
     _scheme = scheme;
-    _identifier = identifier;
+    _identifier = externalId;
   }
 
   public String getScheme() {
@@ -58,10 +58,10 @@ public class IdentifierBean {
     if (other == this) { 
       return true;
     }
-    if (!(other instanceof IdentifierBean)) {
+    if (!(other instanceof ExternalIdBean)) {
       return false;
     }
-    IdentifierBean otherBean = (IdentifierBean) other;
+    ExternalIdBean otherBean = (ExternalIdBean) other;
     return ObjectUtils.equals(otherBean.getScheme(), getScheme())
         && ObjectUtils.equals(otherBean.getIdentifier(), getIdentifier());
   }

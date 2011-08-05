@@ -13,7 +13,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -58,7 +58,7 @@ public class CurveSpecificationBuilderConfiguration {
     _oisSwapInstrumentProviders = oisSwapInstrumentProviders;
   }
 
-  private Identifier getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final Tenor tenor) {
+  private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final Tenor tenor) {
     final CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor);
@@ -73,7 +73,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getCashSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getCashSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_cashInstrumentProviders, curveDate, tenor);
   }
 
@@ -83,7 +83,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getFRASecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getFRASecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_fraInstrumentProviders, curveDate, tenor);
   }
 
@@ -93,7 +93,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_swapInstrumentProviders, curveDate, tenor);
   }
 
@@ -103,7 +103,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return identifier of the security to use
    */
-  public Identifier getBasisSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getBasisSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_basisSwapInstrumentProviders, curveDate, tenor);
   }
 
@@ -113,7 +113,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return identifier of the security to use
    */
-  public Identifier getTenorSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getTenorSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_tenorSwapInstrumentProviders, curveDate, tenor);
   }
 
@@ -123,7 +123,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return identifier of the security to use
    */
-  public Identifier getOISSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getOISSwapSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_oisSwapInstrumentProviders, curveDate, tenor);
   }
 
@@ -133,7 +133,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
    */
-  public Identifier getRateSecurity(final LocalDate curveDate, final Tenor tenor) {
+  public ExternalId getRateSecurity(final LocalDate curveDate, final Tenor tenor) {
     return getStaticSecurity(_rateInstrumentProviders, curveDate, tenor);
   }
 
@@ -144,7 +144,7 @@ public class CurveSpecificationBuilderConfiguration {
    * @param numberQuarterlyFuturesFromTenor the number of quarterly IR futures to traverse from (curveDate + tenor) 
    * @return the identifier of the security to use
    */
-  public Identifier getFutureSecurity(final LocalDate curveDate, final Tenor tenor, final int numberQuarterlyFuturesFromTenor) {
+  public ExternalId getFutureSecurity(final LocalDate curveDate, final Tenor tenor, final int numberQuarterlyFuturesFromTenor) {
     final CurveInstrumentProvider mapper = _futureInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, numberQuarterlyFuturesFromTenor);

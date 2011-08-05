@@ -14,7 +14,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
 public class CalendarUtil {
 
   public static Calendar getCalendar(final RegionSource regionSource, final HolidaySource holidaySource,
-      final Identifier regionId) {
+      final ExternalId regionId) {
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
       final String[] regions = regionId.getValue().split("\\+");
       final Set<Region> resultRegions = new HashSet<Region>();

@@ -44,14 +44,14 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectId> _portfolioIds;
+  private List<ObjectId> _portfolioObjectIds;
   /**
    * The set of node object identifiers, null to not limit by node object identifiers.
    * Each returned portfolio will contain at least one of these nodes.
    * Note that an empty list will return no portfolio.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectId> _nodeIds;
+  private List<ObjectId> _nodeObjectIds;
   /**
    * The portfolio name, wildcards allowed, null to not match on name.
    */
@@ -78,12 +78,12 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * 
    * @param portfolioId  the portfolio object identifier to add, not null
    */
-  public void addPortfolioId(ObjectIdentifiable portfolioId) {
+  public void addPortfolioObjectId(ObjectIdentifiable portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
-    if (_portfolioIds == null) {
-      _portfolioIds = new ArrayList<ObjectId>();
+    if (_portfolioObjectIds == null) {
+      _portfolioObjectIds = new ArrayList<ObjectId>();
     }
-    _portfolioIds.add(portfolioId.getObjectId());
+    _portfolioObjectIds.add(portfolioId.getObjectId());
   }
 
   /**
@@ -92,13 +92,13 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * 
    * @param portfolioIds  the new portfolio identifiers, null clears the position id search
    */
-  public void setPortfolioIds(Iterable<? extends ObjectIdentifiable> portfolioIds) {
+  public void setPortfolioObjectIds(Iterable<? extends ObjectIdentifiable> portfolioIds) {
     if (portfolioIds == null) {
-      _portfolioIds = null;
+      _portfolioObjectIds = null;
     } else {
-      _portfolioIds = new ArrayList<ObjectId>();
+      _portfolioObjectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable portfolioId : portfolioIds) {
-        _portfolioIds.add(portfolioId.getObjectId());
+        _portfolioObjectIds.add(portfolioId.getObjectId());
       }
     }
   }
@@ -108,12 +108,12 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * 
    * @param nodeId  the node object identifier to add, not null
    */
-  public void addNodeId(ObjectIdentifiable nodeId) {
+  public void addNodeObjectId(ObjectIdentifiable nodeId) {
     ArgumentChecker.notNull(nodeId, "nodeId");
-    if (_nodeIds == null) {
-      _nodeIds = new ArrayList<ObjectId>();
+    if (_nodeObjectIds == null) {
+      _nodeObjectIds = new ArrayList<ObjectId>();
     }
-    _nodeIds.add(nodeId.getObjectId());
+    _nodeObjectIds.add(nodeId.getObjectId());
   }
 
   /**
@@ -123,13 +123,13 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * 
    * @param nodeIds  the new node identifiers, null clears the position id search
    */
-  public void setNodeIds(Iterable<? extends ObjectIdentifiable> nodeIds) {
+  public void setNodeObjectIds(Iterable<? extends ObjectIdentifiable> nodeIds) {
     if (nodeIds == null) {
-      _nodeIds = null;
+      _nodeObjectIds = null;
     } else {
-      _nodeIds = new ArrayList<ObjectId>();
+      _nodeObjectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable nodeId : nodeIds) {
-        _nodeIds.add(nodeId.getObjectId());
+        _nodeObjectIds.add(nodeId.getObjectId());
       }
     }
   }
@@ -142,10 +142,10 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     }
     final PortfolioDocument document = (PortfolioDocument) obj;
     final ManageablePortfolio portfolio = document.getPortfolio();
-    if (getPortfolioIds() != null && getPortfolioIds().contains(document.getObjectId()) == false) {
+    if (getPortfolioObjectIds() != null && getPortfolioObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getNodeIds() != null && portfolio.getRootNode().matchesAny(getNodeIds()) == false) {
+    if (getNodeObjectIds() != null && portfolio.getRootNode().matchesAny(getNodeObjectIds()) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), portfolio.getName()) == false) {
@@ -175,10 +175,10 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -160779184:  // portfolioIds
-        return getPortfolioIds();
-      case 2114427222:  // nodeIds
-        return getNodeIds();
+      case -397882735:  // portfolioObjectIds
+        return getPortfolioObjectIds();
+      case 2068534039:  // nodeObjectIds
+        return getNodeObjectIds();
       case 3373707:  // name
         return getName();
       case 95472323:  // depth
@@ -191,11 +191,11 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -160779184:  // portfolioIds
-        setPortfolioIds((List<ObjectId>) newValue);
+      case -397882735:  // portfolioObjectIds
+        setPortfolioObjectIds((List<ObjectId>) newValue);
         return;
-      case 2114427222:  // nodeIds
-        setNodeIds((List<ObjectId>) newValue);
+      case 2068534039:  // nodeObjectIds
+        setNodeObjectIds((List<ObjectId>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -214,8 +214,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PortfolioSearchRequest other = (PortfolioSearchRequest) obj;
-      return JodaBeanUtils.equal(getPortfolioIds(), other.getPortfolioIds()) &&
-          JodaBeanUtils.equal(getNodeIds(), other.getNodeIds()) &&
+      return JodaBeanUtils.equal(getPortfolioObjectIds(), other.getPortfolioObjectIds()) &&
+          JodaBeanUtils.equal(getNodeObjectIds(), other.getNodeObjectIds()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getDepth(), other.getDepth()) &&
           super.equals(obj);
@@ -226,8 +226,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNodeIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNodeObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
     return hash ^ super.hashCode();
@@ -239,17 +239,17 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no portfolios.
    * @return the value of the property
    */
-  public List<ObjectId> getPortfolioIds() {
-    return _portfolioIds;
+  public List<ObjectId> getPortfolioObjectIds() {
+    return _portfolioObjectIds;
   }
 
   /**
-   * Gets the the {@code portfolioIds} property.
+   * Gets the the {@code portfolioObjectIds} property.
    * Note that an empty set will return no portfolios.
    * @return the property, not null
    */
-  public final Property<List<ObjectId>> portfolioIds() {
-    return metaBean().portfolioIds().createProperty(this);
+  public final Property<List<ObjectId>> portfolioObjectIds() {
+    return metaBean().portfolioObjectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -259,18 +259,18 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no portfolio.
    * @return the value of the property
    */
-  public List<ObjectId> getNodeIds() {
-    return _nodeIds;
+  public List<ObjectId> getNodeObjectIds() {
+    return _nodeObjectIds;
   }
 
   /**
-   * Gets the the {@code nodeIds} property.
+   * Gets the the {@code nodeObjectIds} property.
    * Each returned portfolio will contain at least one of these nodes.
    * Note that an empty list will return no portfolio.
    * @return the property, not null
    */
-  public final Property<List<ObjectId>> nodeIds() {
-    return metaBean().nodeIds().createProperty(this);
+  public final Property<List<ObjectId>> nodeObjectIds() {
+    return metaBean().nodeObjectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -343,17 +343,17 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code portfolioIds} property.
+     * The meta-property for the {@code portfolioObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectId>> _portfolioIds = DirectMetaProperty.ofReadWrite(
-        this, "portfolioIds", PortfolioSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _portfolioObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "portfolioObjectIds", PortfolioSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code nodeIds} property.
+     * The meta-property for the {@code nodeObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectId>> _nodeIds = DirectMetaProperty.ofReadWrite(
-        this, "nodeIds", PortfolioSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _nodeObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "nodeObjectIds", PortfolioSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -369,8 +369,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "portfolioIds",
-        "nodeIds",
+        "portfolioObjectIds",
+        "nodeObjectIds",
         "name",
         "depth");
 
@@ -383,10 +383,10 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -160779184:  // portfolioIds
-          return _portfolioIds;
-        case 2114427222:  // nodeIds
-          return _nodeIds;
+        case -397882735:  // portfolioObjectIds
+          return _portfolioObjectIds;
+        case 2068534039:  // nodeObjectIds
+          return _nodeObjectIds;
         case 3373707:  // name
           return _name;
         case 95472323:  // depth
@@ -412,19 +412,19 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code portfolioIds} property.
+     * The meta-property for the {@code portfolioObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectId>> portfolioIds() {
-      return _portfolioIds;
+    public final MetaProperty<List<ObjectId>> portfolioObjectIds() {
+      return _portfolioObjectIds;
     }
 
     /**
-     * The meta-property for the {@code nodeIds} property.
+     * The meta-property for the {@code nodeObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectId>> nodeIds() {
-      return _nodeIds;
+    public final MetaProperty<List<ObjectId>> nodeObjectIds() {
+      return _nodeObjectIds;
     }
 
     /**

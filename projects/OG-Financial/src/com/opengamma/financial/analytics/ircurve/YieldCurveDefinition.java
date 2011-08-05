@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -58,7 +58,7 @@ public class YieldCurveDefinition extends DirectBean
    * The region that the curve is for.
    */
   @PropertyDefinition
-  private final Identifier _region;
+  private final ExternalId _region;
   /**
    * The display name of the curve.
    */
@@ -91,7 +91,7 @@ public class YieldCurveDefinition extends DirectBean
    * @param interpolatorName  the interpolator name, not null
    */
   public YieldCurveDefinition(
-      Currency currency, Identifier region, String name, String interpolatorName) {
+      Currency currency, ExternalId region, String name, String interpolatorName) {
     this(currency, region, name, interpolatorName, Collections.<FixedIncomeStrip>emptySet());
   }
 
@@ -105,7 +105,7 @@ public class YieldCurveDefinition extends DirectBean
    * @param strips  the underlying strips, null treated as empty list
    */
   public YieldCurveDefinition(
-      Currency currency, Identifier region, String name, String interpolatorName,
+      Currency currency, ExternalId region, String name, String interpolatorName,
       Iterable<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(interpolatorName, "interpolatorName");
@@ -278,7 +278,7 @@ public class YieldCurveDefinition extends DirectBean
    * Gets the region that the curve is for.
    * @return the value of the property
    */
-  public Identifier getRegion() {
+  public ExternalId getRegion() {
     return _region;
   }
 
@@ -286,7 +286,7 @@ public class YieldCurveDefinition extends DirectBean
    * Gets the the {@code region} property.
    * @return the property, not null
    */
-  public final Property<Identifier> region() {
+  public final Property<ExternalId> region() {
     return metaBean().region().createProperty(this);
   }
 
@@ -373,8 +373,8 @@ public class YieldCurveDefinition extends DirectBean
     /**
      * The meta-property for the {@code region} property.
      */
-    private final MetaProperty<Identifier> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", YieldCurveDefinition.class, Identifier.class);
+    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", YieldCurveDefinition.class, ExternalId.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -464,7 +464,7 @@ public class YieldCurveDefinition extends DirectBean
      * The meta-property for the {@code region} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> region() {
+    public final MetaProperty<ExternalId> region() {
       return _region;
     }
 

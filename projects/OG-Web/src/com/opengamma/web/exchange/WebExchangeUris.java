@@ -8,8 +8,8 @@ package com.opengamma.web.exchange;
 import java.net.URI;
 
 import com.opengamma.core.exchange.Exchange;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * URIs for web-based exchanges.
@@ -43,8 +43,8 @@ public class WebExchangeUris {
    * @param identifier  the identifier to search for, may be null
    * @return the URI
    */
-  public URI exchanges(final Identifier identifier) {
-    return WebExchangesResource.uri(_data, IdentifierBundle.of(identifier));
+  public URI exchanges(final ExternalId identifier) {
+    return WebExchangesResource.uri(_data, ExternalIdBundle.of(identifier));
   }
 
   /**
@@ -52,7 +52,7 @@ public class WebExchangeUris {
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI
    */
-  public URI exchanges(final IdentifierBundle identifiers) {
+  public URI exchanges(final ExternalIdBundle identifiers) {
     return WebExchangesResource.uri(_data, identifiers);
   }
 

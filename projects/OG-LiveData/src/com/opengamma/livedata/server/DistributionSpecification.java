@@ -9,7 +9,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.util.ArgumentChecker;
@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 public class DistributionSpecification {
 
   /** What market data is being distributed (e.g., AAPL stock) */
-  private final Identifier _marketDataUniqueId;
+  private final ExternalId _marketDataUniqueId;
 
   /** Topic it's published to */
   private final String _jmsTopic;
@@ -32,7 +32,7 @@ public class DistributionSpecification {
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
 
-  public DistributionSpecification(Identifier marketDataUniqueId, 
+  public DistributionSpecification(ExternalId marketDataUniqueId, 
       NormalizationRuleSet normalizationRuleSet,
       String jmsTopic) {
     ArgumentChecker.notNull(marketDataUniqueId, "Unique identifier for the market data ticker this distribution spec relates to");
@@ -43,7 +43,7 @@ public class DistributionSpecification {
     _jmsTopic = jmsTopic;
   }
 
-  public Identifier getMarketDataId() {
+  public ExternalId getMarketDataId() {
     return _marketDataUniqueId;
   }
 

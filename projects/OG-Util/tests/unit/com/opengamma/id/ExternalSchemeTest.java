@@ -11,33 +11,33 @@ import static org.testng.AssertJUnit.assertSame;
 import org.testng.annotations.Test;
 
 /**
- * Test IdentificationScheme.
+ * Test {@link ExternalScheme}.
  */
 @Test
-public class IdentificationSchemeTest {
+public class ExternalSchemeTest {
 
   public void test_factory() {
-    IdentificationScheme test = IdentificationScheme.of("IATA");
+    ExternalScheme test = ExternalScheme.of("IATA");
     assertEquals("IATA", test.getName());
   }
 
   public void test_factory_cached() {
-    assertSame(IdentificationScheme.of("ISO"), IdentificationScheme.of("ISO"));
+    assertSame(ExternalScheme.of("ISO"), ExternalScheme.of("ISO"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_null() {
-    IdentificationScheme.of(null);
+    ExternalScheme.of(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_emptyName() {
-    IdentificationScheme.of("");
+    ExternalScheme.of("");
   }
 
   public void test_compareTo() {
-    IdentificationScheme d1 = IdentificationScheme.of("d1");
-    IdentificationScheme d2 = IdentificationScheme.of("d2");
+    ExternalScheme d1 = ExternalScheme.of("d1");
+    ExternalScheme d2 = ExternalScheme.of("d2");
     
     assertEquals(d1.compareTo(d1) == 0, true);
     assertEquals(d1.compareTo(d2) < 0, true);
@@ -47,9 +47,9 @@ public class IdentificationSchemeTest {
   }
 
   public void test_equals() {
-    IdentificationScheme d1a = IdentificationScheme.of("d1");
-    IdentificationScheme d1b = IdentificationScheme.of("d1");
-    IdentificationScheme d2 = IdentificationScheme.of("d2");
+    ExternalScheme d1a = ExternalScheme.of("d1");
+    ExternalScheme d1b = ExternalScheme.of("d1");
+    ExternalScheme d2 = ExternalScheme.of("d2");
     
     assertEquals(d1a.equals(d1a), true);
     assertEquals(d1a.equals(d1b), true);
@@ -68,14 +68,14 @@ public class IdentificationSchemeTest {
   }
 
   public void test_hashCode() {
-    IdentificationScheme d1a = IdentificationScheme.of("d1");
-    IdentificationScheme d1b = IdentificationScheme.of("d1");
+    ExternalScheme d1a = ExternalScheme.of("d1");
+    ExternalScheme d1b = ExternalScheme.of("d1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }
 
   public void test_toString() {
-    IdentificationScheme test = IdentificationScheme.of("Scheme");
+    ExternalScheme test = ExternalScheme.of("Scheme");
     assertEquals("Scheme", test.toString());
   }
 

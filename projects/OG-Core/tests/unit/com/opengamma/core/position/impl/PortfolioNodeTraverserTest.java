@@ -32,21 +32,21 @@ public class PortfolioNodeTraverserTest {
    
    */
 
-  private Position createTestPosition(final AtomicInteger nextIdentifier) {
+  private Position createTestPosition(final AtomicInteger nextId) {
     final PositionImpl position = new PositionImpl();
-    position.setUniqueId(UniqueId.of("Test", Integer.toString(nextIdentifier.getAndIncrement())));
+    position.setUniqueId(UniqueId.of("Test", Integer.toString(nextId.getAndIncrement())));
     return position;
   }
 
-  private PortfolioNode createTestPortfolioNode(final AtomicInteger nextIdentifier, final int depth) {
+  private PortfolioNode createTestPortfolioNode(final AtomicInteger nextId, final int depth) {
     final PortfolioNodeImpl node = new PortfolioNodeImpl();
-    node.setUniqueId(UniqueId.of("Test", Integer.toString(nextIdentifier.getAndIncrement())));
+    node.setUniqueId(UniqueId.of("Test", Integer.toString(nextId.getAndIncrement())));
     if (depth > 0) {
-      node.addChildNode(createTestPortfolioNode(nextIdentifier, depth - 1));
-      node.addChildNode(createTestPortfolioNode(nextIdentifier, depth - 1));
+      node.addChildNode(createTestPortfolioNode(nextId, depth - 1));
+      node.addChildNode(createTestPortfolioNode(nextId, depth - 1));
     }
-    node.addPosition(createTestPosition(nextIdentifier));
-    node.addPosition(createTestPosition(nextIdentifier));
+    node.addPosition(createTestPosition(nextId));
+    node.addPosition(createTestPosition(nextId));
     return node;
   }
 

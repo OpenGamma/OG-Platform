@@ -14,7 +14,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * A class to manage {@code Identifier}, {@code IdentifierBundle} and {@code UniqueId}
+ * A class to manage {@code ExternalId}, {@code ExternalIdBundle} and {@code UniqueId}
  * references to generic objects.
  * <p>
  * This is an optimized data structure for storing multiple different references to the same object.
@@ -22,14 +22,13 @@ import com.google.common.collect.Multimap;
  * <p>
  * This class is mutable and thread-safe via synchronization.
  * 
- * @param <T> the type of the object being referred to by the Identifiers
+ * @param <T> the type of the object being referred to by the identifiers
  */
-public class IdentifierBundleMapper<T> {
+public class ExternalIdBundleMapper<T> {
 
-  private final Multimap<Identifier, T> _toMap = HashMultimap.create();
-  private final Multimap<T, Identifier> _fromMap = HashMultimap.create();
+  private final Multimap<ExternalId, T> _toMap = HashMultimap.create();
+  private final Multimap<T, ExternalId> _fromMap = HashMultimap.create();
   private final BiMap<UniqueId, T> _uniqueIdMap = HashBiMap.create();
-  private final String _uniqueIdScheme;
   private final UniqueIdSupplier _idSupplier;
 
   /**
@@ -37,9 +36,8 @@ public class IdentifierBundleMapper<T> {
    * 
    * @param uniqueIdScheme  the scheme to use for the automatically allocated unique identifiers
    */
-  public IdentifierBundleMapper(String uniqueIdScheme) {
-    _uniqueIdScheme = uniqueIdScheme;
-    _idSupplier = new UniqueIdSupplier(_uniqueIdScheme);
+  public ExternalIdBundleMapper(String uniqueIdScheme) {
+    _idSupplier = new UniqueIdSupplier(uniqueIdScheme);
   }
 
   //-------------------------------------------------------------------------
@@ -50,9 +48,9 @@ public class IdentifierBundleMapper<T> {
    * @param obj  the object being referred to, not null
    * @return the created unique identifier, not null
    */
-  public synchronized UniqueId add(IdentifierBundle bundle, T obj) {
-    _fromMap.putAll(obj, bundle.getIdentifiers());
-    for (Identifier identifier : bundle.getIdentifiers()) {
+  public synchronized UniqueId add(ExternalIdBundle bundle, T obj) {
+    _fromMap.putAll(obj, bundle.getExternalIds());
+    for (ExternalId identifier : bundle.getExternalIds()) {
       _toMap.put(identifier, obj);
     }
     if (_uniqueIdMap.inverse().containsKey(obj)) {
@@ -73,10 +71,10 @@ public class IdentifierBundleMapper<T> {
    * @param bundle  the bundle to search for, not null
    * @return the matching objects, not null
    */
-  public Collection<T> get(IdentifierBundle bundle) {
+  public synchronized Collection<T> get(ExternalIdBundle bundle) {
     // TODO: semantics are wrong
     Collection<T> results = new HashSet<T>();
-    for (Identifier identifier : bundle) {
+    for (ExternalId identifier : bundle) {
       if (_toMap.containsKey(identifier)) {
         results.addAll(_toMap.get(identifier));
       }
@@ -87,11 +85,11 @@ public class IdentifierBundleMapper<T> {
   /**
    * Gets those objects which match the specified bundle.
    * 
-   * @param identifier  the identifier to search for, not null
+   * @param externalId  the external identifier to search for, not null
    * @return the matching objects, not null
    */
-  public Collection<T> get(Identifier identifier) {
-    return _toMap.get(identifier);
+  public synchronized Collection<T> get(ExternalId externalId) {
+    return _toMap.get(externalId);
   }
 
   /**
@@ -100,19 +98,19 @@ public class IdentifierBundleMapper<T> {
    * @param uniqueId  the unique identifier to search for, not null
    * @return the matching objects, not null
    */
-  public T get(UniqueId uniqueId) {
+  public synchronized T get(UniqueId uniqueId) {
     return _uniqueIdMap.get(uniqueId);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the bundle of identifiers associated with the object.
+   * Gets the bundle of external identifiers associated with the object.
    * 
    * @param obj  the object to search for, not null
    * @return the matching bundle, not null
    */
-  public IdentifierBundle getIdentifierBundle(T obj) {
-    return IdentifierBundle.of(_fromMap.get(obj));
+  public synchronized ExternalIdBundle getExternalIdBundle(T obj) {
+    return ExternalIdBundle.of(_fromMap.get(obj));
   }
 
   /**
@@ -121,7 +119,7 @@ public class IdentifierBundleMapper<T> {
    * @param obj  the object to search for, not null
    * @return the matching unique identifier, not null
    */
-  public UniqueId getUniqueId(T obj) {
+  public synchronized UniqueId getUniqueId(T obj) {
     return _uniqueIdMap.inverse().get(obj);
   }
 

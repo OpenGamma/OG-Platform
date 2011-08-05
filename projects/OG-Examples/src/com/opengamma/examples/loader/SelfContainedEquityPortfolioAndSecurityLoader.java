@@ -34,8 +34,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -167,10 +167,10 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
     addPortfolio(portfolio);
   }
 
-  protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, int gicsCode, Identifier... identifiers) {
+  protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, int gicsCode, ExternalId... identifiers) {
     EquitySecurity equitySecurity = new EquitySecurity(exchange, exchangeCode, companyName, currency);
     equitySecurity.setGicsCode(GICSCode.getInstance(gicsCode));
-    equitySecurity.setIdentifiers(IdentifierBundle.of(identifiers));
+    equitySecurity.setIdentifiers(ExternalIdBundle.of(identifiers));
     equitySecurity.setName(companyName);
     return equitySecurity;
   }
@@ -245,9 +245,9 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
     String ticker = getWithException(equityDetails, "ticker");
     
     return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, Integer.parseInt(gisCode), 
-        Identifier.of(SecurityUtils.ISIN, isin), 
-        Identifier.of(SecurityUtils.CUSIP, cusip), 
-        Identifier.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker));
+        ExternalId.of(SecurityUtils.ISIN, isin), 
+        ExternalId.of(SecurityUtils.CUSIP, cusip), 
+        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker));
   }
 
   /**
@@ -277,18 +277,18 @@ public class SelfContainedEquityPortfolioAndSecurityLoader {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
     
-    IdentifierBundle bundle = security.getIdentifiers(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
+    ExternalIdBundle bundle = security.getIdentifiers(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
 
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
     
     // create random trades that add up in shares to the position they're under (this is not enforced by the system)
     if (shares <= 2000) {
-      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, Identifier.of("CPARTY", "BACS"));
+      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade);
     } else {
-      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, Identifier.of("CPARTY", "BACS"));
+      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade1);
-      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, Identifier.of("CPARTY", "BACS"));
+      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade2);
     }
     return position;

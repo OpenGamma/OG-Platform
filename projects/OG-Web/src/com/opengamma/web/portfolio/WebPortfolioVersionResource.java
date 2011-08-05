@@ -63,7 +63,7 @@ public class WebPortfolioVersionResource extends AbstractWebPortfolioResource {
   private FlexiBean createPortfolioData() {
     PortfolioDocument doc = data().getPortfolio();
     PositionSearchRequest positionSearch = new PositionSearchRequest();
-    positionSearch.setPositionIds(doc.getPortfolio().getRootNode().getPositionIds());
+    positionSearch.setPositionObjectIds(doc.getPortfolio().getRootNode().getPositionIds());
     PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
     
     FlexiBean out = createRootData();

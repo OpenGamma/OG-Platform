@@ -14,19 +14,17 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A classification scheme for identifiers.
+ * A classification scheme for external identifiers.
  * <p>
- * The scheme defines a universe of unique identifiers.
- * Each identifier is only unique with respect to the scheme.
- * The same identifier may have a different meaning in a different scheme.
- * <p>
- * Fundamentally, this is nothing other than a type-safe wrapper on top of
- * a name describing the identification scheme.
+ * The scheme defines a universe of identifier values.
+ * Each value only has meaning within that scheme, and the same value may have
+ * a different meaning in a different scheme.
+ * The scheme class is a type-safe wrapper on top of a string name.
  * <p>
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-public final class IdentificationScheme implements Serializable, Comparable<IdentificationScheme> {
+public final class ExternalScheme implements Serializable, Comparable<ExternalScheme> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -34,11 +32,11 @@ public final class IdentificationScheme implements Serializable, Comparable<Iden
   /**
    * Computing cache for the schemes.
    */
-  private static final ConcurrentMap<String, IdentificationScheme> s_cache =
-      new MapMaker().initialCapacity(256).concurrencyLevel(4).makeComputingMap(new Function<String, IdentificationScheme>() {
+  private static final ConcurrentMap<String, ExternalScheme> s_cache =
+      new MapMaker().initialCapacity(256).concurrencyLevel(4).makeComputingMap(new Function<String, ExternalScheme>() {
         @Override
-        public IdentificationScheme apply(String key) {
-          return new IdentificationScheme(key);
+        public ExternalScheme apply(String key) {
+          return new ExternalScheme(key);
         }
       });
 
@@ -48,12 +46,12 @@ public final class IdentificationScheme implements Serializable, Comparable<Iden
   private final String _name;
 
   /**
-   * Obtains an {@code IdentificationScheme} scheme using the specified name.
+   * Obtains an {@code ExternalScheme} scheme using the specified name.
    * 
    * @param name  the scheme name, not empty, not null
    * @return the scheme, not null
    */
-  public static IdentificationScheme of(final String name) {
+  public static ExternalScheme of(final String name) {
     ArgumentChecker.notEmpty(name, "name");
     return s_cache.get(name);
   }
@@ -63,7 +61,7 @@ public final class IdentificationScheme implements Serializable, Comparable<Iden
    * 
    * @param name  the scheme name, not empty, not null
    */
-  private IdentificationScheme(final String name) {
+  private ExternalScheme(final String name) {
     _name = name;
   }
 
@@ -78,9 +76,15 @@ public final class IdentificationScheme implements Serializable, Comparable<Iden
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Compares this scheme to another sorting alphabetically.
+   * 
+   * @param other  the other scheme, not null
+   * @return negative if this is less, zero if equal, positive if greater
+   */
   @Override
-  public int compareTo(final IdentificationScheme obj) {
-    return _name.compareTo(obj._name);
+  public int compareTo(final ExternalScheme other) {
+    return _name.compareTo(other._name);
   }
 
   @Override
@@ -88,8 +92,8 @@ public final class IdentificationScheme implements Serializable, Comparable<Iden
     if (this == obj) {
       return true;
     }
-    if (obj instanceof IdentificationScheme) {
-      IdentificationScheme other = (IdentificationScheme) obj;
+    if (obj instanceof ExternalScheme) {
+      ExternalScheme other = (ExternalScheme) obj;
       return _name.equals(other._name);
     }
     return false;
@@ -100,6 +104,11 @@ public final class IdentificationScheme implements Serializable, Comparable<Iden
     return _name.hashCode();
   }
 
+  /**
+   * Returns the name of the scheme.
+   * 
+   * @return the scheme name, not null
+   */
   @Override
   public String toString() {
     return _name;

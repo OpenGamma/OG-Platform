@@ -18,7 +18,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -49,7 +49,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noPositionId() {
-    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     _posMaster.correct(doc);
@@ -64,7 +64,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "0", "0"));
     PositionDocument doc = new PositionDocument(pos);
     _posMaster.correct(doc);
@@ -72,7 +72,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
 //  @Test(expected = IllegalArgumentException.class)
 //  public void test_correct_notLatestCorrection() {
-//    PortfolioTreePosition pos = new PortfolioTreePosition(UniqueId("DbPos", "221", "221"), BigDecimal.TEN, Identifier.of("A", "B"));
+//    PortfolioTreePosition pos = new PortfolioTreePosition(UniqueId("DbPos", "221", "221"), BigDecimal.TEN, ExternalId.of("A", "B"));
 //    PositionDocument doc = new PositionDocument(pos);
 //    _posMaster.correct(doc);
 //  }
@@ -82,7 +82,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     Instant now = Instant.now(_posMaster.getTimeSource());
     
     PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
-    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));
     PositionDocument input = new PositionDocument(pos);
     

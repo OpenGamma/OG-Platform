@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
@@ -58,16 +58,16 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
-  public Collection<Security> getSecurities(final IdentifierBundle securityKey) {
+  public Collection<Security> getSecurities(final ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(securityKey);
+    request.addExternalIds(securityKey);
     request.setVersionCorrection(getVersionCorrection());
     return (Collection) search(request).getSecurities();  // cast safe as supplied list will not be altered
   }
 
   @Override
-  public Security getSecurity(final IdentifierBundle securityKey) {
+  public Security getSecurity(final ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final Collection<Security> securities = getSecurities(securityKey);
     // simply picks the first returned security

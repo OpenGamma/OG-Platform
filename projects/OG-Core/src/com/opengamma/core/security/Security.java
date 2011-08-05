@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.security;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
@@ -35,11 +35,11 @@ public interface Security extends UniqueIdentifiable {
   String getName();
 
   /**
-   * Gets the bundle of identifiers that define the security.
+   * Gets the external identifier bundle that define the security.
    * 
-   * @return the identifiers defining the security, not null
+   * @return the bundle defining the security, not null
    */
-  IdentifierBundle getIdentifiers();
+  ExternalIdBundle getIdentifiers();
 
   /**
    * Gets the text-based type of this security.

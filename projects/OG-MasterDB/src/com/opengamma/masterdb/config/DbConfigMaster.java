@@ -78,9 +78,9 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
    * 
    * @param scheme  the scheme for unique identifier, not null
    */
-  public void setIdentifierScheme(final String scheme) {
-    super.setIdentifierScheme(scheme);
-    _worker.setIdentifierScheme(scheme);
+  public void setUniqueIdScheme(final String scheme) {
+    super.setUniqueIdScheme(scheme);
+    _worker.setUniqueIdScheme(scheme);
   }
 
   //-------------------------------------------------------------------------
@@ -162,7 +162,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
+    return getClass().getSimpleName() + "[" + getUniqueIdScheme() + "]";
   }
 
 }

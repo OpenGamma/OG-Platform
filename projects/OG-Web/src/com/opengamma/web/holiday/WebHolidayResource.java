@@ -100,7 +100,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
 //    }
 //    Holiday holiday = data().getHoliday().getHoliday().clone();
 //    holiday.setName(name);
-//    holiday.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
+//    holiday.setIdentifiers(ExternalIdBundle.of(Identifier.of(idScheme, idValue)));
 //    holiday.setRegionId(Identifier.of(regionScheme, regionValue));
 //    HolidayDocument doc = new HolidayDocument(holiday);
 //    doc = data().getHolidayMaster().updateHoliday(doc);

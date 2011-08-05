@@ -19,9 +19,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
@@ -42,10 +42,10 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
 
   private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
-  private static final Identifier ID1 = Identifier.of("A", "B");
-  private static final Identifier ID2 = Identifier.of("A", "C");
-  private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
-  private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
+  private static final ExternalId ID1 = ExternalId.of("A", "B");
+  private static final ExternalId ID2 = ExternalId.of("A", "C");
+  private static final ExternalIdBundle BUNDLE1 = ExternalIdBundle.of(ID1);
+  private static final ExternalIdBundle BUNDLE2 = ExternalIdBundle.of(ID2);
 
   private InMemoryHistoricalTimeSeriesMaster testEmpty;
   private InMemoryHistoricalTimeSeriesMaster testPopulated;
@@ -64,7 +64,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     info1.setDataSource("DS1");
     info1.setDataProvider("DP1");
     info1.setObservationTime("OT1");
-    info1.setIdentifiers(IdentifierBundleWithDates.of(BUNDLE1));
+    info1.setExternalIdBundle(ExternalIdBundleWithDates.of(BUNDLE1));
     doc1 = new HistoricalTimeSeriesInfoDocument();
     doc1.setInfo(info1);
     doc1 = testPopulated.add(doc1);
@@ -74,7 +74,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     info2.setDataSource("DS2");
     info2.setDataProvider("DP2");
     info2.setObservationTime("OT2");
-    info2.setIdentifiers(IdentifierBundleWithDates.of(BUNDLE2));
+    info2.setExternalIdBundle(ExternalIdBundleWithDates.of(BUNDLE2));
     doc2 = new HistoricalTimeSeriesInfoDocument();
     doc2.setInfo(info2);
     doc2 = testPopulated.add(doc2);
@@ -130,8 +130,8 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
 
   public void test_search_populatedMaster_filterByBundle_both() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.addIdentifierKeys(BUNDLE1);
-    request.addIdentifierKeys(BUNDLE2);
+    request.addExternalIds(BUNDLE1);
+    request.addExternalIds(BUNDLE2);
     HistoricalTimeSeriesInfoSearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     List<HistoricalTimeSeriesInfoDocument> docs = result.getDocuments();
@@ -140,9 +140,9 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
 
-  public void test_search_popluatedMaster_filterByIdentifierValue() {
+  public void test_search_popluatedMaster_filterByExternalIdValue() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setIdentifierValue("B");
+    request.setExternalIdValue("B");
     HistoricalTimeSeriesInfoSearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<HistoricalTimeSeriesInfoDocument> docs = result.getDocuments();
@@ -150,9 +150,9 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(true, docs.contains(doc1));
   }
 
-  public void test_search_popluatedMaster_filterByIdentifierValue_case() {
+  public void test_search_popluatedMaster_filterByExternalIdValue_case() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setIdentifierValue("b");
+    request.setExternalIdValue("b");
     HistoricalTimeSeriesInfoSearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<HistoricalTimeSeriesInfoDocument> docs = result.getDocuments();

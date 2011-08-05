@@ -97,7 +97,7 @@ public class EquitySecurity extends com.opengamma.financial.security.FinancialSe
       }
     }
   }
-  public EquitySecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, String shortName, String exchange, String exchangeCode, String companyName, com.opengamma.util.money.Currency currency, com.opengamma.financial.security.equity.GICSCode gicsCode) {
+  public EquitySecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, String shortName, String exchange, String exchangeCode, String companyName, com.opengamma.util.money.Currency currency, com.opengamma.financial.security.equity.GICSCode gicsCode) {
     super (uniqueId, name, securityType, identifiers);
     _shortName = shortName;
     if (exchange == null) throw new NullPointerException ("exchange' cannot be null");

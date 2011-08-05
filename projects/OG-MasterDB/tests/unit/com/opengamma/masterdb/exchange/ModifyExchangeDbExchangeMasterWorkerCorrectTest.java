@@ -17,7 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
@@ -32,8 +32,8 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyExchangeDbExchangeMasterWorkerCorrectTest.class);
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of("A", "B");
-  private static final IdentifierBundle REGION = IdentifierBundle.of("C", "D");
+  private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
+  private static final ExternalIdBundle REGION = ExternalIdBundle.of("C", "D");
 
   @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifyExchangeDbExchangeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
@@ -77,7 +77,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
 //  @Test(expected = IllegalArgumentException.class)
 //  public void test_correct_notLatestCorrection() {
 //    UniqueId uniqueId = UniqueId.of("DbExg", "201", "0");
-//    ManageableExchange exchange = new ManageableExchange(uniqueId, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+//    ManageableExchange exchange = new ManageableExchange(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
 //    ExchangeDocument doc = new ExchangeDocument(exchange);
 //    _worker.correct(doc);
 //  }

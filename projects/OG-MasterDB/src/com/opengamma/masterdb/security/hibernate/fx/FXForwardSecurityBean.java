@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -19,8 +19,8 @@ import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
  */
 public class FXForwardSecurityBean extends SecurityBean {
   private ZonedDateTimeBean _forwardDate;
-  private IdentifierBean _region;
-  private IdentifierBean _underlying;
+  private ExternalIdBean _region;
+  private ExternalIdBean _underlying;
   
   /**
    * Gets the forwardDate.
@@ -42,7 +42,7 @@ public class FXForwardSecurityBean extends SecurityBean {
    * Gets the underlying.
    * @return the underlying
    */
-  public IdentifierBean getUnderlying() {
+  public ExternalIdBean getUnderlying() {
     return _underlying;
   }
 
@@ -50,7 +50,7 @@ public class FXForwardSecurityBean extends SecurityBean {
    * Sets the underlying.
    * @param underlying  the underlying
    */
-  public void setUnderlying(IdentifierBean underlying) {
+  public void setUnderlying(ExternalIdBean underlying) {
     _underlying = underlying;
   }
 
@@ -58,7 +58,7 @@ public class FXForwardSecurityBean extends SecurityBean {
    * Gets the region.
    * @return the region
    */
-  public IdentifierBean getRegion() {
+  public ExternalIdBean getRegion() {
     return _region;
   }
 
@@ -66,7 +66,7 @@ public class FXForwardSecurityBean extends SecurityBean {
    * Sets the region.
    * @param region  the region
    */
-  public void setRegion(IdentifierBean region) {
+  public void setRegion(ExternalIdBean region) {
     _region = region;
   }
 

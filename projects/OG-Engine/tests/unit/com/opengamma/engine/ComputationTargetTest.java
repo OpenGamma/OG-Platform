@@ -16,7 +16,7 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -27,8 +27,8 @@ public class ComputationTargetTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueId.of("A", "B"), "Name");
-  private static final Position POSITION = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UniqueId.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
+  private static final Position POSITION = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UniqueId.of("Test", "SEC"), "Test security", "EQUITY", ExternalIdBundle.EMPTY);
 
   public void test_constructor_Object_Portfolio() {
     ComputationTarget test = new ComputationTarget(PORTFOLIO);

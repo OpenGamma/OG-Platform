@@ -67,7 +67,7 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_snpMaster);
-    assertEquals(true, _snpMaster.getIdentifierScheme().equals("DbSnp"));
+    assertEquals(true, _snpMaster.getUniqueIdScheme().equals("DbSnp"));
     assertNotNull(_snpMaster.getDbSource());
     assertNotNull(_snpMaster.getTimeSource());
   }

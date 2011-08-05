@@ -90,10 +90,10 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setDepth(NumberUtils.toInt(depthStr, -1));
     for (String portfolioIdStr : portfolioIdStrs) {
-      searchRequest.addPortfolioId(ObjectId.parse(portfolioIdStr));
+      searchRequest.addPortfolioObjectId(ObjectId.parse(portfolioIdStr));
     }
     for (String nodeIdStr : nodeIdStrs) {
-      searchRequest.addNodeId(ObjectId.parse(nodeIdStr));
+      searchRequest.addNodeObjectId(ObjectId.parse(nodeIdStr));
     }
     out.put("searchRequest", searchRequest);
     

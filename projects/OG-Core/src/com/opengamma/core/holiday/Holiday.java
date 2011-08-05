@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
@@ -44,14 +44,14 @@ public interface Holiday extends UniqueIdentifiable {
    * 
    * @return an identifier for the region, if this is a BANK holiday, null otherwise
    */
-  Identifier getRegionKey();
+  ExternalId getRegionExternalId();
 
   /**
    * The exchange key identifier, used when this is a holiday of type SETTLEMENT or TRADING.
    * 
    * @return an identifier for the exchange, if this is a SETTLEMENT or TRADING holiday, null otherwise
    */
-  Identifier getExchangeKey();
+  ExternalId getExchangeExternalId();
 
   /**
    * The currency, used when this is a holiday of type CURRENCY.

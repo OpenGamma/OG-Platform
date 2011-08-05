@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
@@ -28,7 +28,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification requestedSpecification =
       new LiveDataSpecification(
           "NormalizationId1",
-          Identifier.of("Domain1", "Value1"));
+          ExternalId.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification,  listener);
@@ -40,7 +40,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification requestedSpecification =
       new LiveDataSpecification(
           "NormalizationId1",
-          Identifier.of("Domain1", "Value1"));
+          ExternalId.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
@@ -52,7 +52,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification spec =
       new LiveDataSpecification(
           "NormalizationId1",
-          Identifier.of("Domain1", "Value1"));
+          ExternalId.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
@@ -72,7 +72,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification spec =
       new LiveDataSpecification(
           "NormalizationId1",
-          Identifier.of("Domain1", "Value1"));
+          ExternalId.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
@@ -94,7 +94,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification spec =
       new LiveDataSpecification(
           "NormalizationId1",
-          Identifier.of("Domain1", "Value1"));
+          ExternalId.of("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     

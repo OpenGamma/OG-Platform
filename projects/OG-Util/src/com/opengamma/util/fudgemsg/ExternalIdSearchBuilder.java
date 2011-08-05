@@ -16,15 +16,15 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 
 /**
- * Fudge builder for {@code IdentifierSearch}.
+ * Fudge builder for {@code ExternalIdSearch}.
  */
-@FudgeBuilderFor(IdentifierSearch.class)
-public final class IdentifierSearchBuilder implements FudgeBuilder<IdentifierSearch> {
+@FudgeBuilderFor(ExternalIdSearch.class)
+public final class ExternalIdSearchBuilder implements FudgeBuilder<ExternalIdSearch> {
 
   /** Field name. */
   public static final String IDENTIFIERS_KEY = "identifiers";
@@ -32,10 +32,10 @@ public final class IdentifierSearchBuilder implements FudgeBuilder<IdentifierSea
   public static final String SEARCH_TYPE_KEY = "searchType";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, IdentifierSearch object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ExternalIdSearch object) {
     final MutableFudgeMsg msg = context.newMessage();
     final MutableFudgeMsg ids = context.newMessage();
-    for (Identifier identifier : object.getIdentifiers()) {
+    for (ExternalId identifier : object.getExternalIds()) {
       context.addToMessage(ids, null, null, identifier);
     }
     context.addToMessage(msg, IDENTIFIERS_KEY, null, ids);
@@ -44,21 +44,21 @@ public final class IdentifierSearchBuilder implements FudgeBuilder<IdentifierSea
   }
 
   @Override
-  public IdentifierSearch buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ExternalIdSearch buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     final FudgeMsg idMsg = msg.getMessage(IDENTIFIERS_KEY);
     if (idMsg == null) {
-      throw new IllegalArgumentException("Fudge message is not a IdentifierSearch - field 'identifiers' is not present");
+      throw new IllegalArgumentException("Fudge message is not a ExternalIdSearch - field 'identifiers' is not present");
     }
     final String searchType = msg.getString(SEARCH_TYPE_KEY);
     if (searchType == null) {
-      throw new IllegalArgumentException("Fudge message is not a IdentifierSearch - field 'searchType' is not present");
+      throw new IllegalArgumentException("Fudge message is not a ExternalIdSearch - field 'searchType' is not present");
     }
-    final Set<Identifier> identifiers = new HashSet<Identifier>();
+    final Set<ExternalId> identifiers = new HashSet<ExternalId>();
     for (FudgeField field : idMsg) {
-      identifiers.add(context.fieldValueToObject(Identifier.class, field));
+      identifiers.add(context.fieldValueToObject(ExternalId.class, field));
     }
-    IdentifierSearchType type = IdentifierSearchType.valueOf(msg.getString("searchType"));
-    return new IdentifierSearch(identifiers, type);
+    ExternalIdSearchType type = ExternalIdSearchType.valueOf(msg.getString("searchType"));
+    return new ExternalIdSearch(identifiers, type);
   }
 
 }

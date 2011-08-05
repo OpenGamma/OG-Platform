@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.position.rest.DataPositionResource;
 import com.opengamma.financial.position.rest.DataPositionsResource;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -48,7 +48,7 @@ public class DataPositionsResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddPosition() {
-    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     final PositionDocument request = new PositionDocument(position);
     
     final PositionDocument result = new PositionDocument(position);

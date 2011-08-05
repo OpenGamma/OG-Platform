@@ -155,7 +155,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     if (vc != null) {
       // use defined instants
       PortfolioSearchRequest portfolioSearch = new PortfolioSearchRequest();
-      portfolioSearch.addNodeId(uniqueId);
+      portfolioSearch.addNodeObjectId(uniqueId);
       portfolioSearch.setVersionCorrection(vc);
       PortfolioSearchResult portfolios = getPortfolioMaster().search(portfolioSearch);
       if (portfolios.getDocuments().size() != 1) {
@@ -219,7 +219,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     if (vc != null) {
       // use defined instants
       PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.addTradeId(tradeId);
+      positionSearch.addTradeObjectId(tradeId);
       positionSearch.setVersionCorrection(vc);
       PositionSearchResult positions = getPositionMaster().search(positionSearch);
       if (positions.getDocuments().size() != 1) {
@@ -241,8 +241,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
 
   private static int populatePositionSearchRequest(final PositionSearchRequest positionSearch, final ManageablePortfolioNode node) {
     int count = 0;
-    for (ObjectId positionIdentifier : node.getPositionIds()) {
-      positionSearch.addPositionId(positionIdentifier);
+    for (ObjectId positionId : node.getPositionIds()) {
+      positionSearch.addPositionObjectId(positionId);
       count++;
     }
     for (ManageablePortfolioNode child : node.getChildNodes()) {
@@ -287,14 +287,14 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNodeId(manNode.getParentNodeId());
     if (manNode.getPositionIds().size() > 0) {
-      for (ObjectId positionIdentifier : manNode.getPositionIds()) {
-        final ManageablePosition foundPosition = positionCache.get(positionIdentifier);
+      for (ObjectId positionId : manNode.getPositionIds()) {
+        final ManageablePosition foundPosition = positionCache.get(positionId);
         if (foundPosition != null) {
           final PositionImpl position = new PositionImpl();
           convertPosition(nodeId, foundPosition, position);
           sourceNode.addPosition(position);
         } else {
-          s_logger.warn("Position {} not found for portfolio node {}", positionIdentifier, nodeId);
+          s_logger.warn("Position {} not found for portfolio node {}", positionId, nodeId);
         }
       }
     }

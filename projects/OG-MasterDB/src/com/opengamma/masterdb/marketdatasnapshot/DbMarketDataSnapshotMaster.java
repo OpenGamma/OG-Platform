@@ -50,8 +50,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketDataSnapshotDocument> implements
-    MarketDataSnapshotMaster {
+public class DbMarketDataSnapshotMaster
+    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
+    implements MarketDataSnapshotMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMaster.class);

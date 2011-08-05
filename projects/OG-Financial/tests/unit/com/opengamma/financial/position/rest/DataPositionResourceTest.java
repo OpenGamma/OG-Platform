@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 
 import javax.ws.rs.core.Response;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
@@ -44,7 +44,7 @@ public class DataPositionResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testGetPosition() {
-    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     final PositionDocument result = new PositionDocument(position);
     when(_underlying.get(UID, VersionCorrection.LATEST)).thenReturn(result);
     
@@ -55,7 +55,7 @@ public class DataPositionResourceTest {
 
   @Test
   public void testUpdatePosition() {
-    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     final PositionDocument request = new PositionDocument(position);
     request.setUniqueId(UID);
     

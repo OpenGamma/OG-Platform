@@ -32,9 +32,9 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -59,14 +59,14 @@ public class RESTMethodTest {
   @BeforeMethod
   public void configureService() {
     MockFinancialSecuritySource securitySource = new MockFinancialSecuritySource();
-    Identifier secId1 = Identifier.of(IdentificationScheme.of("d1"), "v1");
-    Identifier secId2 = Identifier.of(IdentificationScheme.of("d2"), "v2");
+    ExternalId secId1 = ExternalId.of(ExternalScheme.of("d1"), "v1");
+    ExternalId secId2 = ExternalId.of(ExternalScheme.of("d2"), "v2");
     MockSecurity sec1 = new MockSecurity("t1");
-    sec1.setIdentifiers(IdentifierBundle.of(secId1));
+    sec1.setIdentifiers(ExternalIdBundle.of(secId1));
     sec1.setSecurityType("BOND");
     securitySource.addSecurity(sec1);
     MockSecurity sec2 = new MockSecurity("t2");
-    sec2.setIdentifiers(IdentifierBundle.of(secId2));
+    sec2.setIdentifiers(ExternalIdBundle.of(secId2));
     securitySource.addSecurity(sec2);
     
     BondSecurity bondSec = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
@@ -74,7 +74,7 @@ public class RESTMethodTest {
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100, 100000000, 5000, 1000, 100, 100);
-    bondSec.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
+    bondSec.setIdentifiers(ExternalIdBundle.of(ExternalId.of("A", "B")));
     securitySource.addSecurity(bondSec);
     
     getSecuritySourceService().setUnderlying(securitySource);

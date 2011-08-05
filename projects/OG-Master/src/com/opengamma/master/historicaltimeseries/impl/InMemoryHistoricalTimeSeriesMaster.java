@@ -389,8 +389,8 @@ public class InMemoryHistoricalTimeSeriesMaster implements HistoricalTimeSeriesM
       validateId(document.getUniqueId());
     }
     ArgumentChecker.notNull(document.getInfo(), "document.series");
-    ArgumentChecker.notNull(document.getInfo().getIdentifiers(), "document.series.identifiers");
-    ArgumentChecker.isTrue(document.getInfo().getIdentifiers().asIdentifierBundle().getIdentifiers().size() > 0, "document.series.identifiers must not be empty");
+    ArgumentChecker.notNull(document.getInfo().getExternalIdBundle(), "document.series.identifiers");
+    ArgumentChecker.isTrue(document.getInfo().getExternalIdBundle().toBundle().getExternalIds().size() > 0, "document.series.identifiers must not be empty");
     ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getDataSource()), "document.series.dataSource must not be blank");
     ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getDataProvider()), "document.series.dataProvider must not be blank");
     ArgumentChecker.isTrue(StringUtils.isNotBlank(document.getInfo().getDataField()), "document.series.dataField must not be blank");

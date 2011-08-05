@@ -48,7 +48,7 @@ public abstract class AbstractDbMaster {
   /**
    * The scheme in use for the unique identifier.
    */
-  private String _identifierScheme;
+  private String _uniqueIdScheme;
 
   /**
    * Creates an instance.
@@ -61,7 +61,7 @@ public abstract class AbstractDbMaster {
     s_logger.debug("installed DbSource: {}", dbSource);
     _dbSource = dbSource;
     _timeSource = dbSource.timeSource();
-    _identifierScheme = defaultScheme;
+    _uniqueIdScheme = defaultScheme;
   }
 
   //-------------------------------------------------------------------------
@@ -138,8 +138,8 @@ public abstract class AbstractDbMaster {
    * 
    * @return the scheme, not null
    */
-  public String getIdentifierScheme() {
-    return _identifierScheme;
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
   }
 
   /**
@@ -147,10 +147,10 @@ public abstract class AbstractDbMaster {
    * 
    * @param scheme  the scheme for unique identifier, not null
    */
-  public void setIdentifierScheme(final String scheme) {
+  public void setUniqueIdScheme(final String scheme) {
     ArgumentChecker.notNull(scheme, "scheme");
-    s_logger.debug("installed IdentifierScheme: {}", scheme);
-    _identifierScheme = scheme;
+    s_logger.debug("installed scheme: {}", scheme);
+    _uniqueIdScheme = scheme;
   }
 
   /**
@@ -159,7 +159,7 @@ public abstract class AbstractDbMaster {
    * @param objectId  the object identifier, not null
    */
   protected void checkScheme(final ObjectIdentifiable objectId) {
-    if (getIdentifierScheme().equals(objectId.getObjectId().getScheme()) == false) {
+    if (getUniqueIdScheme().equals(objectId.getObjectId().getScheme()) == false) {
       throw new IllegalArgumentException("UniqueId is not from this master (" + toString() + "): " + objectId);
     }
   }
@@ -201,7 +201,7 @@ public abstract class AbstractDbMaster {
    * @return the unique identifier, not null
    */
   public UniqueId createObjectId(final long oid) {
-    return UniqueId.of(getIdentifierScheme(), Long.toString(oid));
+    return UniqueId.of(getUniqueIdScheme(), Long.toString(oid));
   }
 
   /**
@@ -212,7 +212,7 @@ public abstract class AbstractDbMaster {
    * @return the unique identifier, not null
    */
   public UniqueId createUniqueId(final long oid, final long rowId) {
-    return UniqueId.of(getIdentifierScheme(), Long.toString(oid), Long.toString(rowId - oid));
+    return UniqueId.of(getUniqueIdScheme(), Long.toString(oid), Long.toString(rowId - oid));
   }
 
   //-------------------------------------------------------------------------
@@ -262,7 +262,7 @@ public abstract class AbstractDbMaster {
    */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
+    return getClass().getSimpleName() + "[" + getUniqueIdScheme() + "]";
   }
 
 }

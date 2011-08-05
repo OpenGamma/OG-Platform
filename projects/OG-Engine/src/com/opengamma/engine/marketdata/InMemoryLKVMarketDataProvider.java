@@ -22,8 +22,8 @@ import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -114,7 +114,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
   
   @Override
-  public void addValue(Identifier identifier, String valueName, Object value) {
+  public void addValue(ExternalId identifier, String valueName, Object value) {
     ValueRequirement valueRequirement = resolveRequirement(identifier, valueName);
     addValue(valueRequirement, value);
   }
@@ -126,7 +126,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
   
   @Override
-  public void removeValue(Identifier identifier, String valueName) {
+  public void removeValue(ExternalId identifier, String valueName) {
     ValueRequirement valueRequirement = resolveRequirement(identifier, valueName);
     removeValue(valueRequirement);
   }
@@ -145,14 +145,14 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     return new HashMap<ValueRequirement, Object>(_lastKnownValues);
   }
   
-  private ValueRequirement resolveRequirement(Identifier identifier, String valueName) {
+  private ValueRequirement resolveRequirement(ExternalId identifier, String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
     
     Security security = null;
     if (_securitySource != null) {
       // 1 - see if the identifier can be resolved to a security
-      security = _securitySource.getSecurity(IdentifierBundle.of(identifier));
+      security = _securitySource.getSecurity(ExternalIdBundle.of(identifier));
       
       // 2 - see if the so-called Identifier is actually the UniqueId of a security
       // if (security == null) {

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -41,7 +41,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_invalid_searchRequest() {
-    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
+    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
     _cfgMaster.search(request);
   }
   
@@ -62,14 +62,14 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test
   public void test_search_typed_documents() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
-    assertEquals(_totalIdentifiers, test.getPaging().getTotalItems());
+    assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
-    assertEquals(_totalIdentifiers, test.getDocuments().size());
+    assertEquals(_totalExternalIds, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
     assert102(test.getDocuments().get(1));
     assert101(test.getDocuments().get(2));
@@ -78,13 +78,13 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test
   public void test_search_pageOne() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setPagingRequest(PagingRequest.of(1, 2));
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
     assertEquals(2, test.getPaging().getPagingSize());
-    assertEquals(_totalIdentifiers, test.getPaging().getTotalItems());
+    assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -93,13 +93,13 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test
   public void test_search_pageTwo() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setPagingRequest(PagingRequest.of(2, 2));
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());
     assertEquals(2, test.getPaging().getPagingSize());
-    assertEquals(_totalIdentifiers, test.getPaging().getTotalItems());
+    assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
     assert101(test.getDocuments().get(0));
@@ -108,18 +108,18 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test
   public void test_search_name_noMatch() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setName("FooBar");
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
   public void test_search_name() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setName("TestConfig102");
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -127,9 +127,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test
   public void test_search_name_case() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setName("TESTConfig102");
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -137,9 +137,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test
   public void test_search_name_wildcard() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setName("TestConfig1*");
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -148,9 +148,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test
   public void test_search_name_wildcardCase() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setName("TESTConfig1*");
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
@@ -160,20 +160,20 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test
   public void test_search_configIds_none() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setConfigIds(new ArrayList<ObjectId>());
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
   public void test_search_configIds() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.addConfigId(ObjectId.of("DbCfg", "101"));
     request.addConfigId(ObjectId.of("DbCfg", "201"));
     request.addConfigId(ObjectId.of("DbCfg", "9999"));
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
@@ -182,7 +182,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_configIds_badSchemeValidOid() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.addConfigId(ObjectId.of("Rubbish", "102"));
     _cfgMaster.search(request);
   }
@@ -190,18 +190,18 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test
   public void test_search_versionAsOf_below() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1aInstant.minusSeconds(5)));
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
   }
 
   @Test
   public void test_search_versionAsOf_mid() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version1cInstant.plusSeconds(5)));
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
     assert201(test.getDocuments().get(0));  // old version
@@ -211,9 +211,9 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test
   public void test_search_versionAsOf_above() {
-    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(_version2Instant.plusSeconds(5)));
-    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
     assert202(test.getDocuments().get(0));  // new version
@@ -227,8 +227,8 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
   
-  private ConfigSearchRequest<Identifier> createIdentifierSearchRequest() {
-    return new ConfigSearchRequest<Identifier>(Identifier.class);
+  private ConfigSearchRequest<ExternalId> createExternalIdSearchRequest() {
+    return new ConfigSearchRequest<ExternalId>(ExternalId.class);
   }
 
 }

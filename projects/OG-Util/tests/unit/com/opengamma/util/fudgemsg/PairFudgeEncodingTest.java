@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
@@ -32,8 +32,8 @@ public class PairFudgeEncodingTest {
   private static final Logger s_logger = LoggerFactory.getLogger(PairFudgeEncodingTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  public void test_OO_IdentifierBundle() {
-    Pair<String, IdentifierBundle> pair = Pair.of("Hello", IdentifierBundle.of(Identifier.of("A", "B")));
+  public void test_OO_Bundle() {
+    Pair<String, ExternalIdBundle> pair = Pair.of("Hello", ExternalIdBundle.of(ExternalId.of("A", "B")));
     testFudgeMessage(pair);
   }
 

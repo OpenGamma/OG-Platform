@@ -19,14 +19,14 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A search request to match identifiers.
+ * A search request to match external identifiers.
  * <p>
- * The search combines a set of identifiers and a matching rule.
+ * The search combines a set of external identifiers and a matching rule.
  * <p>
  * This class is mutable and not thread-safe.
  */
 @PublicAPI
-public final class IdentifierSearch implements Iterable<Identifier>, Serializable {
+public final class ExternalIdSearch implements Iterable<ExternalId>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -34,16 +34,16 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   /**
    * The set of identifiers.
    */
-  private final SortedSet<Identifier> _identifiers = new TreeSet<Identifier>();
+  private final SortedSet<ExternalId> _externalIds = new TreeSet<ExternalId>();
   /**
    * The search type.
    */
-  private IdentifierSearchType _searchType = IdentifierSearchType.ANY;
+  private ExternalIdSearchType _searchType = ExternalIdSearchType.ANY;
 
   /**
    * Creates an empty search, with the search type set to any.
    */
-  public IdentifierSearch() {
+  public ExternalIdSearch() {
   }
 
   /**
@@ -51,8 +51,8 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @param identifier  the identifier, not null
    */
-  public IdentifierSearch(Identifier identifier) {
-    addIdentifier(identifier);
+  public ExternalIdSearch(ExternalId identifier) {
+    addExternalId(identifier);
   }
 
   /**
@@ -60,8 +60,8 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @param identifiers  the collection of identifiers, not null
    */
-  public IdentifierSearch(Identifier... identifiers) {
-    addIdentifiers(identifiers);
+  public ExternalIdSearch(ExternalId... identifiers) {
+    addExternalIds(identifiers);
   }
 
   /**
@@ -69,8 +69,8 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @param identifiers  the collection of identifiers, not null
    */
-  public IdentifierSearch(Iterable<Identifier> identifiers) {
-    this(identifiers, IdentifierSearchType.ANY);
+  public ExternalIdSearch(Iterable<ExternalId> identifiers) {
+    this(identifiers, ExternalIdSearchType.ANY);
   }
 
   /**
@@ -79,8 +79,8 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * @param identifiers  the collection of identifiers, not null
    * @param searchType  the search type, not null
    */
-  public IdentifierSearch(Iterable<Identifier> identifiers, IdentifierSearchType searchType) {
-    addIdentifiers(identifiers);
+  public ExternalIdSearch(Iterable<ExternalId> identifiers, ExternalIdSearchType searchType) {
+    addExternalIds(identifiers);
     setSearchType(searchType);
   }
 
@@ -90,48 +90,48 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @return the identifier set, live and modifiable, not null, no nulls
    */
-  public SortedSet<Identifier> getIdentifiers() {
-    return _identifiers;
+  public SortedSet<ExternalId> getExternalIds() {
+    return _externalIds;
   }
 
   /**
    * Adds an identifier to the set of searched for identifiers.
    * 
-   * @param identifier  the identifier to add, not null
+   * @param externalId  the identifier to add, not null
    */
-  public void addIdentifier(Identifier identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    _identifiers.add(identifier);
+  public void addExternalId(ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    _externalIds.add(externalId);
   }
 
   /**
    * Adds a identifiers to the set of searched for identifiers.
    * 
-   * @param identifiers  the identifiers to add, not null
+   * @param externalIds  the identifiers to add, not null
    */
-  public void addIdentifiers(Identifier... identifiers) {
-    ArgumentChecker.noNulls(identifiers, "identifiers");
-    _identifiers.addAll(Arrays.asList(identifiers));
+  public void addExternalIds(ExternalId... externalIds) {
+    ArgumentChecker.noNulls(externalIds, "externalIds");
+    _externalIds.addAll(Arrays.asList(externalIds));
   }
 
   /**
    * Adds a identifiers to the set of searched for identifiers.
    * 
-   * @param identifiers  the identifiers to add, not null
+   * @param externalIds  the identifiers to add, not null
    */
-  public void addIdentifiers(Iterable<Identifier> identifiers) {
-    ArgumentChecker.noNulls(identifiers, "identifiers");
-    Iterables.addAll(_identifiers, identifiers);
+  public void addExternalIds(Iterable<ExternalId> externalIds) {
+    ArgumentChecker.noNulls(externalIds, "externalIds");
+    Iterables.addAll(_externalIds, externalIds);
   }
 
   /**
    * Removes an identifier from the set of searched for identifiers.
    * 
-   * @param identifier  the identifier to remove, null ignored
+   * @param externalId  the identifier to remove, null ignored
    */
-  public void removeIdentifier(Identifier identifier) {
-    if (identifier != null) {
-      _identifiers.remove(identifier);
+  public void removeExternalId(ExternalId externalId) {
+    if (externalId != null) {
+      _externalIds.remove(externalId);
     }
   }
 
@@ -142,7 +142,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @return the search type, not null
    */
-  public IdentifierSearchType getSearchType() {
+  public ExternalIdSearchType getSearchType() {
     return _searchType;
   }
 
@@ -151,7 +151,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @param searchType  the search type, not null
    */
-  public void setSearchType(IdentifierSearchType searchType) {
+  public void setSearchType(ExternalIdSearchType searchType) {
     ArgumentChecker.notNull(searchType, "searchType");
     _searchType = searchType;
   }
@@ -163,7 +163,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * @return the bundle size, zero or greater
    */
   public int size() {
-    return _identifiers.size();
+    return _externalIds.size();
   }
 
   /**
@@ -171,8 +171,8 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * 
    * @return the identifiers, not null
    */
-  public Iterator<Identifier> iterator() {
-    return _identifiers.iterator();
+  public Iterator<ExternalId> iterator() {
+    return _externalIds.iterator();
   }
 
   //-------------------------------------------------------------------------
@@ -184,20 +184,20 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * An ANY match returns true if the passed in identifier matches any of the stored identifiers.<br />
    * A NONE match returns true if the passed in identifier does not match any stored identifier.<br />
    * 
-   * @param otherIdentifier  the identifier to search for, not null
+   * @param otherId  the identifier to search for, not null
    * @return true if this search contains all of the keys specified
    */
-  public boolean matches(Identifier otherIdentifier) {
-    ArgumentChecker.notNull(otherIdentifier, "otherIdentifier");
+  public boolean matches(ExternalId otherId) {
+    ArgumentChecker.notNull(otherId, "otherId");
     switch (_searchType) {
       case EXACT:
-        return Sets.newHashSet(otherIdentifier).equals(_identifiers);
+        return Sets.newHashSet(otherId).equals(_externalIds);
       case ALL:
-        return Sets.newHashSet(otherIdentifier).containsAll(_identifiers);
+        return Sets.newHashSet(otherId).containsAll(_externalIds);
       case ANY:
-        return contains(otherIdentifier);
+        return contains(otherId);
       case NONE:
-        return contains(otherIdentifier) == false;
+        return contains(otherId) == false;
     }
     return false;
   }
@@ -210,20 +210,20 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * An ANY match returns true if the passed in identifiers match any of the stored identifiers.<br />
    * A NONE match returns true if none of the passed in identifiers match a stored identifier.<br />
    * 
-   * @param otherIdentifiers  the identifiers to search for, empty returns true, not null
+   * @param otherId  the identifiers to search for, empty returns true, not null
    * @return true if this search contains all of the keys specified
    */
-  public boolean matches(Iterable<Identifier> otherIdentifiers) {
-    ArgumentChecker.notNull(otherIdentifiers, "otherIdentifiers");
+  public boolean matches(Iterable<ExternalId> otherId) {
+    ArgumentChecker.notNull(otherId, "otherId");
     switch (_searchType) {
       case EXACT:
-        return Sets.newHashSet(otherIdentifiers).equals(_identifiers);
+        return Sets.newHashSet(otherId).equals(_externalIds);
       case ALL:
-        return Sets.newHashSet(otherIdentifiers).containsAll(_identifiers);
+        return Sets.newHashSet(otherId).containsAll(_externalIds);
       case ANY:
-        return containsAny(otherIdentifiers);
+        return containsAny(otherId);
       case NONE:
-        return containsAny(otherIdentifiers) == false;
+        return containsAny(otherId) == false;
     }
     return false;
   }
@@ -236,13 +236,13 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * This method checks if this is a superset or equal to the passed in identifiers.
    * The ALL check checks the superset the other way around.
    * 
-   * @param otherIdentifiers  the identifiers to search for, empty returns true, not null
+   * @param otherId  the identifiers to search for, empty returns true, not null
    * @return true if this search contains all of the keys specified
    */
-  public boolean containsAll(Iterable<Identifier> otherIdentifiers) {
-    ArgumentChecker.notNull(otherIdentifiers, "otherIdentifiers");
-    for (Identifier identifier : otherIdentifiers) {
-      if (_identifiers.contains(identifier) == false) {
+  public boolean containsAll(Iterable<ExternalId> otherId) {
+    ArgumentChecker.notNull(otherId, "otherId");
+    for (ExternalId identifier : otherId) {
+      if (_externalIds.contains(identifier) == false) {
         return false;
       }
     }
@@ -252,13 +252,13 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   /**
    * Checks if this search contains any key from the specified identifiers.
    * 
-   * @param otherIdentifiers  the identifiers to search for, empty returns false, not null
+   * @param otherId  the identifiers to search for, empty returns false, not null
    * @return true if this search contains any of the keys specified
    */
-  public boolean containsAny(Iterable<Identifier> otherIdentifiers) {
-    ArgumentChecker.notNull(otherIdentifiers, "otherIdentifiers");
-    for (Identifier identifier : otherIdentifiers) {
-      if (_identifiers.contains(identifier)) {
+  public boolean containsAny(Iterable<ExternalId> otherId) {
+    ArgumentChecker.notNull(otherId, "otherId");
+    for (ExternalId identifier : otherId) {
+      if (_externalIds.contains(identifier)) {
         return true;
       }
     }
@@ -268,11 +268,11 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
   /**
    * Checks if this search contains the specified key.
    * 
-   * @param identifier  the key to search for, null returns false
+   * @param externalId  the key to search for, null returns false
    * @return true if this search contains the specified key
    */
-  public boolean contains(Identifier identifier) {
-    return identifier != null && _identifiers.contains(identifier);
+  public boolean contains(ExternalId externalId) {
+    return externalId != null && _externalIds.contains(externalId);
   }
 
   //-------------------------------------------------------------------
@@ -282,11 +282,11 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * @param idSearch  the identifier search, null returns true
    * @return true if the search can match anything
    */
-  public static boolean canMatch(final IdentifierSearch idSearch) {
+  public static boolean canMatch(final ExternalIdSearch idSearch) {
     if (idSearch == null) {
       return true;
     }
-    if (idSearch.getSearchType() == IdentifierSearchType.NONE) {
+    if (idSearch.getSearchType() == ExternalIdSearchType.NONE) {
       return true;
     }
     return idSearch.size() > 0;
@@ -298,16 +298,16 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
     if (this == obj) {
       return true;
     }
-    if (obj instanceof IdentifierSearch) {
-      IdentifierSearch other = (IdentifierSearch) obj;
-      return _identifiers.equals(other._identifiers);
+    if (obj instanceof ExternalIdSearch) {
+      ExternalIdSearch other = (ExternalIdSearch) obj;
+      return _externalIds.equals(other._externalIds);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return _identifiers.hashCode() ^ _searchType.hashCode();
+    return _externalIds.hashCode() ^ _searchType.hashCode();
   }
 
   @Override
@@ -315,7 +315,7 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
     return new StrBuilder()
         .append("Search")
         .append("[")
-        .appendWithSeparators(_identifiers, ", ")
+        .appendWithSeparators(_externalIds, ", ")
         .append("]")
         .toString();
   }

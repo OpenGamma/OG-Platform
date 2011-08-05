@@ -50,7 +50,7 @@ import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.CommandLineBatchJob;
 import com.opengamma.financial.batch.CommandLineBatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.db.DbDateUtils;
@@ -250,7 +250,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     values = new HashSet<LiveDataValue>();
     values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12345", null)), "field_name", 123.46));
     values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12347", "2")), "field_name", 123.47));
-    values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12348")), "field_name", 123.45));
+    values.add(new LiveDataValue(new ComputationTargetSpecification(ExternalId.of("BUID", "EQ12348")), "field_name", 123.45));
     
     _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
     snapshot = _batchMaster.getLiveDataSnapshot(_batchJobRun);

@@ -19,8 +19,8 @@ import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefin
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * 
@@ -39,8 +39,8 @@ public class InterestRateFutureOptionSecurityConverter {
 
   public Object convert(final IRFutureOptionSecurity security) {
     Validate.notNull(security, "security");
-    final Identifier underlyingIdentifier = security.getUnderlyingIdentifier();
-    final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSecurity(IdentifierBundle.of(underlyingIdentifier)));
+    final ExternalId underlyingIdentifier = security.getUnderlyingIdentifier();
+    final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier)));
     final InterestRateFutureSecurityDefinition underlyingFuture = (InterestRateFutureSecurityDefinition) _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike() / 100;

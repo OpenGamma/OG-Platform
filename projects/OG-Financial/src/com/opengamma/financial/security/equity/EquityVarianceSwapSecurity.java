@@ -6,8 +6,8 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
           
         public <T> T accept(EquityVarianceSwapSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-  private static final long serialVersionUID = 5052668084358189075l;
-  private com.opengamma.id.Identifier _spotUnderlyingIdentifier;
+  private static final long serialVersionUID = -156858993943404659l;
+  private com.opengamma.id.ExternalId _spotUnderlyingIdentifier;
   public static final String SPOT_UNDERLYING_IDENTIFIER_KEY = "spotUnderlyingIdentifier";
   private com.opengamma.util.money.Currency _currency;
   public static final String CURRENCY_KEY = "currency";
@@ -25,12 +25,12 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   public static final String LAST_OBSERVATION_DATE_KEY = "lastObservationDate";
   private javax.time.calendar.ZonedDateTime _settlementDate;
   public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private com.opengamma.id.Identifier _region;
+  private com.opengamma.id.ExternalId _region;
   public static final String REGION_KEY = "region";
   private com.opengamma.financial.convention.frequency.Frequency _observationFrequency;
   public static final String OBSERVATION_FREQUENCY_KEY = "observationFrequency";
   public static final String SECURITY_TYPE = "EQUITY VARIANCE SWAP";
-  public EquityVarianceSwapSecurity (com.opengamma.id.Identifier spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
+  public EquityVarianceSwapSecurity (com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
     super (SECURITY_TYPE);
     if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
     else {
@@ -67,10 +67,10 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     fudgeField = fudgeMsg.getByName (SPOT_UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'spotUnderlyingIdentifier' is not present");
     try {
-      _spotUnderlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _spotUnderlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'spotUnderlyingIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'spotUnderlyingIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'currency' is not present");
@@ -139,10 +139,10 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     fudgeField = fudgeMsg.getByName (REGION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'region' is not present");
     try {
-      _region = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _region = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'region' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'region' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (OBSERVATION_FREQUENCY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'observationFrequency' is not present");
@@ -153,7 +153,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
       throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'observationFrequency' is not Frequency typedef", e);
     }
   }
-  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.id.Identifier spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.Identifier region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
+  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
     super (uniqueId, name, securityType, identifiers);
     if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
     else {
@@ -226,7 +226,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_spotUnderlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _spotUnderlyingIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _spotUnderlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _spotUnderlyingIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (SPOT_UNDERLYING_IDENTIFIER_KEY, null, fudge1);
     }
@@ -247,7 +247,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
       fudgeContext.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
     }
     if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _region.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
       _region.toFudgeMsg (fudgeContext, fudge1);
       msg.add (REGION_KEY, null, fudge1);
     }
@@ -269,10 +269,10 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     }
     return new EquityVarianceSwapSecurity (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.Identifier getSpotUnderlyingIdentifier () {
+  public com.opengamma.id.ExternalId getSpotUnderlyingIdentifier () {
     return _spotUnderlyingIdentifier;
   }
-  public void setSpotUnderlyingIdentifier (com.opengamma.id.Identifier spotUnderlyingIdentifier) {
+  public void setSpotUnderlyingIdentifier (com.opengamma.id.ExternalId spotUnderlyingIdentifier) {
     if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
     else {
       _spotUnderlyingIdentifier = spotUnderlyingIdentifier;
@@ -336,10 +336,10 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
       _settlementDate = settlementDate;
     }
   }
-  public com.opengamma.id.Identifier getRegion () {
+  public com.opengamma.id.ExternalId getRegion () {
     return _region;
   }
-  public void setRegion (com.opengamma.id.Identifier region) {
+  public void setRegion (com.opengamma.id.ExternalId region) {
     if (region == null) throw new NullPointerException ("'region' cannot be null");
     else {
       _region = region;

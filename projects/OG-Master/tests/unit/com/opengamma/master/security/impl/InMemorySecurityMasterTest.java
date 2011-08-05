@@ -15,8 +15,8 @@ import java.util.List;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
@@ -34,10 +34,10 @@ public class InMemorySecurityMasterTest {
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
 
   private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
-  private static final Identifier ID1 = Identifier.of("A", "B");
-  private static final Identifier ID2 = Identifier.of("A", "C");
-  private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
-  private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
+  private static final ExternalId ID1 = ExternalId.of("A", "B");
+  private static final ExternalId ID2 = ExternalId.of("A", "C");
+  private static final ExternalIdBundle BUNDLE1 = ExternalIdBundle.of(ID1);
+  private static final ExternalIdBundle BUNDLE2 = ExternalIdBundle.of(ID2);
   private static final ManageableSecurity SEC1 = new ManageableSecurity(UniqueId.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
   private static final ManageableSecurity SEC2 = new ManageableSecurity(UniqueId.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
 
@@ -108,8 +108,8 @@ public class InMemorySecurityMasterTest {
 
   public void test_search_populatedMaster_filterByBundle_both() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(BUNDLE1);
-    request.addSecurityKeys(BUNDLE2);
+    request.addExternalIds(BUNDLE1);
+    request.addExternalIds(BUNDLE2);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();
@@ -138,9 +138,9 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
   
-  public void test_search_popluatedMaster_filterByIdentifierValue() {
+  public void test_search_popluatedMaster_filterByExternalIdValue() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifierValue("B");
+    request.setExternalIdValue("B");
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();
@@ -148,9 +148,9 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc1));
   }
   
-  public void test_search_popluatedMaster_filterByIdentifierValue_case() {
+  public void test_search_popluatedMaster_filterByExternalIdValue_case() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifierValue("b");
+    request.setExternalIdValue("b");
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();

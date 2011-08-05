@@ -354,9 +354,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
       ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);
-      UniqueId uniqueIdentifier = createUniqueId(docOid, docId);
-      doc.setUniqueId(uniqueIdentifier);
-      IdUtils.setInto(value, uniqueIdentifier);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
+      doc.setUniqueId(uniqueId);
+      IdUtils.setInto(value, uniqueId);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

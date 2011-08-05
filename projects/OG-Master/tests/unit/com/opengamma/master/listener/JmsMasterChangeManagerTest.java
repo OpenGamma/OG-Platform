@@ -19,7 +19,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -89,7 +89,7 @@ public class JmsMasterChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    final ConfigDocument<Identifier> doc = createTestDocument();
+    final ConfigDocument<ExternalId> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
     UniqueId addedItem = added.getUniqueId();
     assertNotNull(addedItem);
@@ -102,7 +102,7 @@ public class JmsMasterChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    final ConfigDocument<Identifier> doc = createTestDocument();
+    final ConfigDocument<ExternalId> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
     UniqueId uniqueId = added.getUniqueId();
     assertNotNull(uniqueId);
@@ -117,7 +117,7 @@ public class JmsMasterChangeManagerTest {
     _changeManager.addChangeListener(_testListener);
     startContainer();
     
-    final ConfigDocument<Identifier> doc = createTestDocument();
+    final ConfigDocument<ExternalId> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
     UniqueId oldItem = added.getUniqueId();
     assertNotNull(oldItem);
@@ -141,7 +141,7 @@ public class JmsMasterChangeManagerTest {
     startContainer();
     
     // add, update and remove doc in config master
-    final ConfigDocument<Identifier> doc = createTestDocument();
+    final ConfigDocument<ExternalId> doc = createTestDocument();
     ConfigDocument<?> added = _configMaster.add(doc);
     UniqueId addedItem = added.getUniqueId();
     assertNotNull(addedItem);
@@ -167,10 +167,10 @@ public class JmsMasterChangeManagerTest {
     }
   }
 
-  private ConfigDocument<Identifier> createTestDocument() {
-    final ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+  private ConfigDocument<ExternalId> createTestDocument() {
+    final ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("TEST");
-    doc.setValue(Identifier.of("A", "B"));
+    doc.setValue(ExternalId.of("A", "B"));
     return doc;
   }
 

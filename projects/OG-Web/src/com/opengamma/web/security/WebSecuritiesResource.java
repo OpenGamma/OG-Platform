@@ -34,9 +34,9 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
@@ -105,15 +105,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
-    searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
+    searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
     for (String securityIdStr : securityIdStrs) {
-      searchRequest.addSecurityId(ObjectId.parse(securityIdStr));
+      searchRequest.addObjectId(ObjectId.parse(securityIdStr));
     }
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
-      Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      searchRequest.addSecurityKey(id);
+      ExternalId id = ExternalId.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
+      searchRequest.addExternalId(id);
     }
     out.put("searchRequest", searchRequest);
     
@@ -147,17 +147,17 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       String html = getFreemarker().build("securities/securities-add.ftl", out);
       return Response.ok(html).build();
     }
-    IdentificationScheme scheme = IdentificationScheme.of(idScheme);
-    Collection<IdentifierBundle> bundles = buildSecurityRequest(scheme, idValue);
+    ExternalScheme scheme = ExternalScheme.of(idScheme);
+    Collection<ExternalIdBundle> bundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(bundles);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(bundles);
     
     URI uri = null;
     if (bundles.size() == 1 && loadedSecurities.size() == 1) {
-      IdentifierBundle identifierBundle = bundles.iterator().next();
+      ExternalIdBundle identifierBundle = bundles.iterator().next();
       uri = data().getUriInfo().getAbsolutePathBuilder().path(loadedSecurities.get(identifierBundle).toLatest().toString()).build();
     } else {
-      uri = uri(data(), buildRequestAsIdentifierBundle(scheme, bundles));
+      uri = uri(data(), buildRequestAsExternalIdBundle(scheme, bundles));
     }
     return Response.seeOther(uri).build();
   }
@@ -173,20 +173,20 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     if (idScheme == null || idValue == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    IdentificationScheme scheme = IdentificationScheme.of(idScheme);
-    Collection<IdentifierBundle> requestBundles = buildSecurityRequest(scheme, idValue);
+    ExternalScheme scheme = ExternalScheme.of(idScheme);
+    Collection<ExternalIdBundle> requestBundles = buildSecurityRequest(scheme, idValue);
     SecurityLoader securityLoader = data().getSecurityLoader();
-    Map<IdentifierBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(requestBundles);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurity(requestBundles);
     FlexiBean out = createPostJSONOutput(loadedSecurities, requestBundles, scheme);    
     return Response.ok(getFreemarker().build("securities/jsonsecurities-added.ftl", out)).build();
   }
 
-  private FlexiBean createPostJSONOutput(Map<IdentifierBundle, UniqueId> loadedSecurities, Collection<IdentifierBundle> requestBundles, IdentificationScheme scheme) {
+  private FlexiBean createPostJSONOutput(Map<ExternalIdBundle, UniqueId> loadedSecurities, Collection<ExternalIdBundle> requestBundles, ExternalScheme scheme) {
     Map<String, String> result = new HashMap<String, String>();
-    for (IdentifierBundle identifierBundle : requestBundles) {
+    for (ExternalIdBundle identifierBundle : requestBundles) {
       UniqueId uniqueIdentifier = loadedSecurities.get(identifierBundle);
       String objectIdentifier = uniqueIdentifier != null ? uniqueIdentifier.getObjectId().toString() : null;
-      result.put(identifierBundle.getIdentifierValue(scheme), objectIdentifier);
+      result.put(identifierBundle.getValue(scheme), objectIdentifier);
     }
     FlexiBean out = createRootData();
     out.put("requestScheme", scheme);
@@ -194,24 +194,24 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     return out;
   }
 
-  private IdentifierBundle buildRequestAsIdentifierBundle(IdentificationScheme scheme, Collection<IdentifierBundle> bundles) {
-    List<Identifier> identifiers = new ArrayList<Identifier>();
-    for (IdentifierBundle bundle : bundles) {
-      identifiers.add(bundle.getIdentifier(scheme));
+  private ExternalIdBundle buildRequestAsExternalIdBundle(ExternalScheme scheme, Collection<ExternalIdBundle> bundles) {
+    List<ExternalId> identifiers = new ArrayList<ExternalId>();
+    for (ExternalIdBundle bundle : bundles) {
+      identifiers.add(bundle.getExternalId(scheme));
     }
-    return IdentifierBundle.of(identifiers);
+    return ExternalIdBundle.of(identifiers);
   }
 
-  private Collection<IdentifierBundle> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
+  private Collection<ExternalIdBundle> buildSecurityRequest(final ExternalScheme identificationScheme, final String idValue) {
     if (idValue == null) {
       return Collections.emptyList();
     }
     final String[] identifiers = StringUtils.split(idValue, "\n");
-    final List<IdentifierBundle> result = new ArrayList<IdentifierBundle>(identifiers.length);
+    final List<ExternalIdBundle> result = new ArrayList<ExternalIdBundle>(identifiers.length);
     for (String identifier : identifiers) {
       identifier = StringUtils.trimToNull(identifier);
       if (identifier != null) {
-        result.add(IdentifierBundle.of(Identifier.of(identificationScheme, identifier)));
+        result.add(ExternalIdBundle.of(ExternalId.of(identificationScheme, identifier)));
       }
     }
     return result;
@@ -276,12 +276,12 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI, not null
    */
-  public static URI uri(WebSecuritiesData data, IdentifierBundle identifiers) {
+  public static URI uri(WebSecuritiesData data, ExternalIdBundle identifiers) {
     UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebSecuritiesResource.class);
     if (identifiers != null) {
-      Iterator<Identifier> it = identifiers.iterator();
+      Iterator<ExternalId> it = identifiers.iterator();
       for (int i = 0; it.hasNext(); i++) {
-        Identifier id = it.next();
+        ExternalId id = it.next();
         builder.queryParam("idscheme." + i, id.getScheme().getName());
         builder.queryParam("idvalue." + i, id.getValue());
       }

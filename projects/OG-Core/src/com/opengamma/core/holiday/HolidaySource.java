@@ -7,8 +7,8 @@ package com.opengamma.core.holiday;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
@@ -48,7 +48,7 @@ public interface HolidaySource {
    * @param regionOrExchangeIds  the regions or exchanges to check, not null
    * @return true if it is a holiday
    */
-  boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, IdentifierBundle regionOrExchangeIds);
+  boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds);
 
   /**
    * Checks if a date is a holiday for a BANK, SETTLEMENT or TRADING type.
@@ -58,6 +58,6 @@ public interface HolidaySource {
    * @param regionOrExchangeId  the region or exchange to check, not null
    * @return true if it is a holiday
    */
-  boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, Identifier regionOrExchangeId);  
+  boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId);  
 
 }

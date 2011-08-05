@@ -14,7 +14,7 @@ import com.opengamma.id.ObjectId;
 /**
  * Defines a {@code ObjectId} as a Fudge type using a String.
  * <p>
- * A {@code ObjectId} is typically encoded as a sub-message in Fudge with two separate strings.
+ * An {@code ObjectId} is typically encoded as a sub-message in Fudge with two separate strings.
  * This class allows the objects to be sent as a single formatted string using
  * {@link ObjectId#toString()} and {@link ObjectId#parse(String)}.
  * <p>

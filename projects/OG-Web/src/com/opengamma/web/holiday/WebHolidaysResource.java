@@ -25,8 +25,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -101,15 +101,15 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     }
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
-      Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
+      ExternalId id = ExternalId.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
       if (HolidayType.BANK.name().equals(type)) {
-        searchRequest.addRegionKey(id);
+        searchRequest.addRegionExternalId(id);
       } else { // assume settlement/trading
-        searchRequest.addExchangeKey(id);
+        searchRequest.addExchangeExternalId(id);
       }
     }
     for (String holidayIdStr : holidayIdStrs) {
-      searchRequest.addHolidayId(ObjectId.parse(holidayIdStr));
+      searchRequest.addHolidayObjectId(ObjectId.parse(holidayIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -157,7 +157,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
 //    }
 //    Identifier id = Identifier.of(idScheme, idValue);
 //    Identifier region = Identifier.of(regionScheme, regionValue);
-//    Holiday holiday = new Holiday(IdentifierBundle.of(id), name, region);
+//    Holiday holiday = new Holiday(ExternalIdBundle.of(id), name, region);
 //    HolidayDocument doc = new HolidayDocument(holiday);
 //    HolidayDocument added = data().getHolidayMaster().addHoliday(doc);
 //    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getHolidayId().toLatest().toString()).build();
@@ -224,13 +224,13 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI, not null
    */
-  public static URI uri(WebHolidayData data, HolidayType type, IdentifierBundle identifiers) {
+  public static URI uri(WebHolidayData data, HolidayType type, ExternalIdBundle identifiers) {
     UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebHolidaysResource.class);
     if (type != null && identifiers != null) {
       builder.queryParam("type", type.name());
-      Iterator<Identifier> it = identifiers.iterator();
+      Iterator<ExternalId> it = identifiers.iterator();
       for (int i = 0; it.hasNext(); i++) {
-        Identifier id = it.next();
+        ExternalId id = it.next();
         builder.queryParam("idscheme." + i, id.getScheme().getName());
         builder.queryParam("idvalue." + i, id.getValue());
       }

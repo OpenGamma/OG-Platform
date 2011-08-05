@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.convention;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 /**
  * Simple to use interface to a ReferenceRateMaster
  */
 public interface ConventionBundleSource {
-  ConventionBundle getConventionBundle(Identifier identifier);
-  ConventionBundle getConventionBundle(IdentifierBundle identifiers);
+  ConventionBundle getConventionBundle(ExternalId identifier);
+  ConventionBundle getConventionBundle(ExternalIdBundle identifiers);
   ConventionBundle getConventionBundle(UniqueId identifier);
 }

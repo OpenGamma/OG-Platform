@@ -39,20 +39,20 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
   private final MasterChangeManager _changeManager = new BasicMasterChangeManager();  // TODO
 
-  private String _identifierScheme;
+  private String _uniqueIdScheme;
   private VersionCorrection _sourceVersionCorrection = VersionCorrection.LATEST;
 
   public InMemoryInterpolatedYieldCurveDefinitionMaster() {
-    setIdentifierScheme(DEFAULT_SCHEME);
+    setUniqueIdScheme(DEFAULT_SCHEME);
   }
 
-  public void setIdentifierScheme(final String identifierScheme) {
+  public void setUniqueIdScheme(final String identifierScheme) {
     ArgumentChecker.notNull(identifierScheme, "identifierScheme");
-    _identifierScheme = identifierScheme;
+    _uniqueIdScheme = identifierScheme;
   }
 
-  public String getIdentifierScheme() {
-    return _identifierScheme;
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
   }
 
   // InterpolatedYieldCurveDefinitionSource
@@ -128,7 +128,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     Instant now = Instant.now();
     value.put(now, document.getYieldCurveDefinition());
     _definitions.put(key, value);
-    final UniqueId uid = UniqueId.of(getIdentifierScheme(), name + "_" + currency.getCode());
+    final UniqueId uid = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
     document.setUniqueId(uid);
     changeManager().masterChanged(MasterChangedType.ADDED, null, uid, now);
     return document;
@@ -142,7 +142,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     final String name = document.getYieldCurveDefinition().getName();
     final Pair<Currency, String> key = Pair.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
-    final UniqueId uid = UniqueId.of(getIdentifierScheme(), name + "_" + currency.getCode());
+    final UniqueId uid = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
     Instant now = Instant.now();
     if (value != null) {
       if (_sourceVersionCorrection.getVersionAsOf() != null) {
@@ -176,14 +176,14 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public synchronized YieldCurveDefinitionDocument get(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     if (!uid.isLatest()) {
-      throw new IllegalArgumentException("Only latest version supported by '" + getIdentifierScheme() + "'");
+      throw new IllegalArgumentException("Only latest version supported by '" + getUniqueIdScheme() + "'");
     }
-    if (!getIdentifierScheme().equals(uid.getScheme())) {
-      throw new DataNotFoundException("Scheme '" + uid.getScheme() + "' not valid for '" + getIdentifierScheme() + "'");
+    if (!getUniqueIdScheme().equals(uid.getScheme())) {
+      throw new DataNotFoundException("Scheme '" + uid.getScheme() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
     final int i = uid.getValue().indexOf('_');
     if (i <= 0) {
-      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'");
+      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
     final String name = uid.getValue().substring(0, i);
     final String iso = uid.getValue().substring(i + 1);
@@ -191,7 +191,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     try {
       currency = Currency.of(iso);
     } catch (IllegalArgumentException e) {
-      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
+      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getUniqueIdScheme() + "'", e);
     }
     final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
     if (definitions == null) {
@@ -208,12 +208,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public synchronized YieldCurveDefinitionDocument get(ObjectIdentifiable objectIdable, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectIdable, "objectIdable");
     ObjectId objectId = objectIdable.getObjectId();
-    if (!getIdentifierScheme().equals(objectId.getScheme())) {
-      throw new DataNotFoundException("Scheme '" + objectId.getScheme() + "' not valid for '" + getIdentifierScheme() + "'");
+    if (!getUniqueIdScheme().equals(objectId.getScheme())) {
+      throw new DataNotFoundException("Scheme '" + objectId.getScheme() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
     final int i = objectId.getValue().indexOf('_');
     if (i <= 0) {
-      throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getIdentifierScheme() + "'");
+      throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
     final String name = objectId.getValue().substring(0, i);
     final String iso = objectId.getValue().substring(i + 1);
@@ -221,7 +221,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     try {
       currency = Currency.of(iso);
     } catch (IllegalArgumentException e) {
-      throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
+      throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getUniqueIdScheme() + "'", e);
     }
     final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
     if (definitions == null) {
@@ -238,14 +238,14 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public synchronized void remove(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     if (!uid.isLatest()) {
-      throw new IllegalArgumentException("Only latest version supported by '" + getIdentifierScheme() + "'");
+      throw new IllegalArgumentException("Only latest version supported by '" + getUniqueIdScheme() + "'");
     }
-    if (!getIdentifierScheme().equals(uid.getScheme())) {
-      throw new DataNotFoundException("Scheme '" + uid.getScheme() + "' not valid for '" + getIdentifierScheme() + "'");
+    if (!getUniqueIdScheme().equals(uid.getScheme())) {
+      throw new DataNotFoundException("Scheme '" + uid.getScheme() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
     final int i = uid.getValue().indexOf('_');
     if (i <= 0) {
-      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'");
+      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getUniqueIdScheme() + "'");
     }
     final String name = uid.getValue().substring(0, i);
     final String iso = uid.getValue().substring(i + 1);
@@ -253,7 +253,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     try {
       currency = Currency.of(iso);
     } catch (IllegalArgumentException e) {
-      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
+      throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getUniqueIdScheme() + "'", e);
     }
     final Pair<Currency, String> key = Pair.of(currency, name);
     if (_sourceVersionCorrection.getVersionAsOf() != null) {
@@ -282,7 +282,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
     final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final UniqueId uid = UniqueId.of(getIdentifierScheme(), name + "_" + currency.getCode());
+    final UniqueId uid = UniqueId.of(getUniqueIdScheme(), name + "_" + currency.getCode());
     if (!uid.equals(document.getUniqueId())) {
       throw new IllegalArgumentException("Invalid unique identifier");
     }

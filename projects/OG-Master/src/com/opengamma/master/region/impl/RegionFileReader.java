@@ -208,7 +208,7 @@ public class RegionFileReader {
         region.setFullName(fullName);
         if (countryISO != null) {
           region.setCountry(Country.of(countryISO));
-          region.addIdentifier(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
+          region.addExternalId(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
         }
         if (currencyISO != null) {
           region.setCurrency(Currency.of(currencyISO));

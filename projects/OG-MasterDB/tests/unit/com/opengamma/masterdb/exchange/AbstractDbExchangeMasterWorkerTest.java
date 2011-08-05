@@ -28,8 +28,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
@@ -80,7 +80,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     final SimpleJdbcTemplate template = _exgMaster.getDbSource().getJdbcTemplate();
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UniqueId.of("DbExg", "101", "0"));
-    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")));
+    exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     exchange.setName("TestExchange101");
     exchange.setTimeZone(TimeZone.of("Europe/London"));
     byte[] bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
@@ -88,7 +88,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestExchange101", "Europe/London", new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
     exchange.setUniqueId(UniqueId.of("DbExg", "102", "0"));
-    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")));
+    exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H")));
     exchange.setName("TestExchange102");
     exchange.setTimeZone(TimeZone.of("Europe/Paris"));
     bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
@@ -96,7 +96,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
         102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestExchange102", "Europe/Paris", new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
     exchange.setUniqueId(UniqueId.of("DbExg", "201", "0"));
-    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
+    exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     exchange.setName("TestExchange201");
     exchange.setTimeZone(TimeZone.of("Asia/Tokyo"));
     bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
@@ -104,7 +104,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "TestExchange201", "Asia/Tokyo", new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
     exchange.setUniqueId(UniqueId.of("DbExg", "201", "1"));
-    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
+    exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     exchange.setName("TestExchange202");
     exchange.setTimeZone(TimeZone.of("Asia/Tokyo"));
     bytes = fudgeContext.toByteArray(fudgeContext.toFudgeMsg(exchange).getMessage());
@@ -167,7 +167,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange101", test.getName());
     assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 
   protected void assert102(final ExchangeDocument test) {
@@ -183,7 +183,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange102", test.getName());
     assertEquals(TimeZone.of("Europe/Paris"), exchange.getTimeZone());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H")), exchange.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H")), exchange.getExternalIdBundle());
   }
 
   protected void assert201(final ExchangeDocument test) {
@@ -199,7 +199,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange201", test.getName());
     assertEquals(TimeZone.of("Asia/Tokyo"), exchange.getTimeZone());
-    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 
   protected void assert202(final ExchangeDocument test) {
@@ -215,7 +215,7 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, exchange.getUniqueId());
     assertEquals("TestExchange202", test.getName());
     assertEquals(TimeZone.of("Asia/Tokyo"), exchange.getTimeZone());
-    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), exchange.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
   }
 
 }

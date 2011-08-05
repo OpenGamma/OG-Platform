@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -84,10 +84,10 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     return uniqueId;
   }
 
-  private Security getSecurity(final Iterable<Identifier> identifiers) {
+  private Security getSecurity(final Iterable<ExternalId> identifiers) {
     s_logger.debug("Search for security with identifiers {}", identifiers);
     final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(identifiers);
+    request.addExternalIds(identifiers);
     final SecuritySearchResult result = _secMaster.search(request);
     assertNotNull(result);
     final List<SecurityDocument> documents = result.getDocuments();
@@ -143,18 +143,18 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     sec = getSecurity(uniqueId);
     normalizeSecurity(sec);
     assertEquals(security, sec);
-    IdentifierBundle bundle = null;
+    ExternalIdBundle bundle = null;
     if (security.getIdentifiers().size() > 0) {
-      final Iterator<Identifier> iterator = security.getIdentifiers().iterator();
-      bundle = IdentifierBundle.EMPTY;
+      final Iterator<ExternalId> iterator = security.getIdentifiers().iterator();
+      bundle = ExternalIdBundle.EMPTY;
       // retrieve with one identifier
-      Identifier id = iterator.next();
-      bundle = bundle.withIdentifier(id);
+      ExternalId id = iterator.next();
+      bundle = bundle.withExternalId(id);
       sec = getSecurity(bundle);
       normalizeSecurity(sec);
       assertEquals(security, sec);
       // retrieve with one valid and one incorrect identifier
-      sec = getSecurity(Arrays.asList(id, Identifier.of("FOO", "BAR")));
+      sec = getSecurity(Arrays.asList(id, ExternalId.of("FOO", "BAR")));
       normalizeSecurity(sec);
       assertEquals(security, sec);
       // retrieve with exact bundle

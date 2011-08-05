@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.IdentifierWithDates;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
@@ -64,9 +64,9 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument test = _htsMaster.add(doc);
     
@@ -88,8 +88,8 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     assertEquals("DS", testInfo.getDataSource());
     assertEquals("DP", testInfo.getDataProvider());
     assertEquals("OT", testInfo.getObservationTime());
-    assertEquals(1, testInfo.getIdentifiers().size());
-    assertTrue(testInfo.getIdentifiers().getIdentifiers().contains(id));
+    assertEquals(1, testInfo.getExternalIdBundle().size());
+    assertTrue(testInfo.getExternalIdBundle().getExternalIds().contains(id));
   }
 
   @Test
@@ -100,9 +100,9 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
     

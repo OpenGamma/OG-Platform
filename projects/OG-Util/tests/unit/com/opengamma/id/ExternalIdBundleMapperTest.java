@@ -10,29 +10,27 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Unit tests for {@link IdentifierBundleMapper}
+ * Test {@link ExternalIdBundleMapper}.
  */
 @Test
-public class IdentifierBundleMapperTest {
+public class ExternalIdBundleMapperTest {
 
-  public void testIdentifierBundleMapper() {
-    Identifier idA1 = Identifier.of("TEST_SCHEME_A", "1");
-    Identifier idB1 = Identifier.of("TEST_SCHEME_B", "1");
-    Identifier idC1 = Identifier.of("TEST_SCHEME_C", "1");
-    Identifier idD1 = Identifier.of("TEST_SCHEME_D", "1");
-    Identifier idA2 = Identifier.of("TEST_SCHEME_A", "2");
-    Identifier idB2 = Identifier.of("TEST_SCHEME_B", "2");
-    Identifier idC2 = Identifier.of("TEST_SCHEME_C", "2");
-        
+  public void testMapper() {
+    ExternalId idA1 = ExternalId.of("TEST_SCHEME_A", "1");
+    ExternalId idB1 = ExternalId.of("TEST_SCHEME_B", "1");
+    ExternalId idC1 = ExternalId.of("TEST_SCHEME_C", "1");
+    ExternalId idD1 = ExternalId.of("TEST_SCHEME_D", "1");
+    ExternalId idA2 = ExternalId.of("TEST_SCHEME_A", "2");
+    ExternalId idB2 = ExternalId.of("TEST_SCHEME_B", "2");
+    
     // first some bundles with overlapping ids.
-    IdentifierBundle bundleA1B1 = IdentifierBundle.of(idA1, idB1); 
-    IdentifierBundle bundleB1C1 = IdentifierBundle.of(idB1, idC1);  
-    IdentifierBundle bundleA1B1C1 = IdentifierBundle.of(idA1, idB1, idC1);
-    IdentifierBundle bundleA1B1C1D1 = IdentifierBundle.of(idA1, idB1, idC1, idD1);
-    IdentifierBundle bundleA2B2 = IdentifierBundle.of(idA2, idB2);
-    IdentifierBundle bundleA1B2 = IdentifierBundle.of(idA1, idB2);
+    ExternalIdBundle bundleA1B1 = ExternalIdBundle.of(idA1, idB1); 
+    ExternalIdBundle bundleB1C1 = ExternalIdBundle.of(idB1, idC1);  
+    ExternalIdBundle bundleA1B1C1 = ExternalIdBundle.of(idA1, idB1, idC1);
+    ExternalIdBundle bundleA1B1C1D1 = ExternalIdBundle.of(idA1, idB1, idC1, idD1);
+    ExternalIdBundle bundleA2B2 = ExternalIdBundle.of(idA2, idB2);
     final String testSchemeName = "TEST_SCHEME_1";
-    IdentifierBundleMapper<String> mapper = new IdentifierBundleMapper<String>(testSchemeName);
+    ExternalIdBundleMapper<String> mapper = new ExternalIdBundleMapper<String>(testSchemeName);
     String obj = "TEST1";
     UniqueId uniqueId1 = mapper.add(bundleA1B1, obj);
     // check the uniqueId is what we expect.
@@ -74,12 +72,6 @@ public class IdentifierBundleMapperTest {
     // check the uniqueId is what we expect.
     assertEquals(testSchemeName, uniqueId3.getScheme());
     assertEquals("2", uniqueId3.getValue());
-    // look into the below state, but i think it's ok as the behaviour changed
-    //try {
-    //  uniqueId3 = mapper.add(bundleA1B2, obj2);
-    //  Assert.fail();
-    //} catch (OpenGammaRuntimeException ogre) {
-    //  // expected.
-    //}
   }
+
 }

@@ -21,7 +21,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -33,7 +33,7 @@ public class ValueRequirementTest {
 
   private static final UniqueId USD = UniqueId.of("currency", "USD");  
   private static final UniqueId GBP = UniqueId.of("currency", "GBP");
-  private static final Position POSITION = new PositionImpl(UniqueId.of("A", "B"), new BigDecimal(1), IdentifierBundle.EMPTY);
+  private static final Position POSITION = new PositionImpl(UniqueId.of("A", "B"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
 
   public void test_constructor_Position() {

@@ -32,7 +32,7 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -60,7 +60,7 @@ public class DataPositionSourceResourceTest {
 
   //-------------------------------------------------------------------------
   public void testGetPortfolio() {
-    final Position position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
+    final Position position = new PositionImpl(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
     final PortfolioNodeImpl node = new PortfolioNodeImpl(UID1, "TestNode");
     final PortfolioNodeImpl child = new PortfolioNodeImpl(UID1, "Child");
     node.addChildNode(child);
@@ -75,7 +75,7 @@ public class DataPositionSourceResourceTest {
   public void testGetPortfolioNode() {
     final PortfolioNodeImpl node = new PortfolioNodeImpl(UID1, "TestNode");
     final PortfolioNodeImpl child = new PortfolioNodeImpl(UID1, "Child");
-    final Position position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
+    final Position position = new PositionImpl(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
     node.addChildNode(child);
     node.addPosition(position);
     when(_underlying.getPortfolioNode(eq(UID1))).thenReturn(node);
@@ -84,9 +84,9 @@ public class DataPositionSourceResourceTest {
   }
 
   public void testGetPosition() {
-    final PositionImpl position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
+    final PositionImpl position = new PositionImpl(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
     position.setParentNodeId(UID2);
-    final TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(Identifier.of("A", "B")), BigDecimal.TEN, new CounterpartyImpl(Identifier.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
+    final TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, new CounterpartyImpl(ExternalId.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
     position.addTrade(trade);
     when(_underlying.getPosition(eq(UID1))).thenReturn(position);
     
@@ -94,8 +94,8 @@ public class DataPositionSourceResourceTest {
   }
 
   public void testGetTrade() {
-    final Counterparty cparty = new CounterpartyImpl(Identifier.of("C", "D"));
-    final TradeImpl trade = new TradeImpl(UID2, new SecurityLink(Identifier.of("A", "B")), BigDecimal.TEN, cparty, LocalDate.of(2010, 12, 6), null);
+    final Counterparty cparty = new CounterpartyImpl(ExternalId.of("C", "D"));
+    final TradeImpl trade = new TradeImpl(UID2, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, cparty, LocalDate.of(2010, 12, 6), null);
     trade.setUniqueId(UID1);
     when(_underlying.getTrade(eq(UID1))).thenReturn(trade);
     

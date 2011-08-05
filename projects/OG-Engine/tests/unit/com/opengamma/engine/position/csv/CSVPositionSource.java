@@ -35,8 +35,8 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -216,14 +216,14 @@ public class CSVPositionSource implements PositionSource {
     BigDecimal quantity = new BigDecimal(tokens[0].trim());
     
     // Each set of 2 tokens is then security id domain and then id 
-    List<Identifier> securityIdentifiers = new ArrayList<Identifier>();
+    List<ExternalId> securityIdentifiers = new ArrayList<ExternalId>();
     for (int i = 1; i < (tokens.length - 1); i++) {
       String idScheme = tokens[i].trim();
       String idValue = tokens[++i].trim();
-      Identifier id = Identifier.of(idScheme, idValue);
+      ExternalId id = ExternalId.of(idScheme, idValue);
       securityIdentifiers.add(id);
     }
-    IdentifierBundle securityKey = IdentifierBundle.of(securityIdentifiers);
+    ExternalIdBundle securityKey = ExternalIdBundle.of(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
     return new PositionImpl(positionId, quantity, securityKey);

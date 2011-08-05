@@ -19,7 +19,7 @@ import org.apache.commons.io.FileUtils;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -47,8 +47,8 @@ public class CSVPositionSourceTest {
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
     
-    assertEquals(1, position.getSecurityLink().getIdentifiers().size());
-    Identifier id = position.getSecurityLink().getIdentifiers().iterator().next();
+    assertEquals(1, position.getSecurityLink().getExternalIds().size());
+    ExternalId id = position.getSecurityLink().getExternalIds().iterator().next();
     assertNotNull(id);
     assertNotNull(id.getScheme());
     assertEquals("KIRK", id.getScheme().getName());
@@ -63,9 +63,9 @@ public class CSVPositionSourceTest {
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
     
-    assertEquals(3, position.getSecurityLink().getIdentifiers().size());
+    assertEquals(3, position.getSecurityLink().getExternalIds().size());
     
-    for (Identifier id : position.getSecurityLink().getIdentifiers()) {
+    for (ExternalId id : position.getSecurityLink().getExternalIds()) {
       assertNotNull(id);
       assertNotNull(id.getScheme());
       assertNotNull(id.getValue());

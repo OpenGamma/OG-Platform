@@ -19,8 +19,8 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
@@ -43,13 +43,13 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final IdentifierBundle regionOrExchangeIds) {
+        final ExternalIdBundle regionOrExchangeIds) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final Identifier regionOrExchangeId) {
+        final ExternalId regionOrExchangeId) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
@@ -72,7 +72,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
       }
 
       @Override
-      public IdentifierBundle getIdentifiers() {
+      public ExternalIdBundle getExternalIdBundle() {
         return null;
       }
 
@@ -82,7 +82,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
       }
 
       @Override
-      public IdentifierBundle getRegionKey() {
+      public ExternalIdBundle getRegionIdBundle() {
         return null;
       }
 
@@ -99,12 +99,12 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     }
 
     @Override
-    public Exchange getSingleExchange(final Identifier identifier) {
+    public Exchange getSingleExchange(final ExternalId identifier) {
       return EXCHANGE;
     }
 
     @Override
-    public Exchange getSingleExchange(final IdentifierBundle identifierBundle) {
+    public Exchange getSingleExchange(final ExternalIdBundle identifierBundle) {
       return EXCHANGE;
     }
 

@@ -31,8 +31,8 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MockConfigSource;
@@ -120,7 +120,7 @@ public class BatchJobTest {
     SnapshotId snapshotId3 = new SnapshotId(LocalDate.of(2010, 9, 7), "LDN_CLOSE");
     
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
-        Identifier.of("BUID", "EQ12345")), "BID", 11.22);
+        ExternalId.of("BUID", "EQ12345")), "BID", 11.22);
     
     DummyBatchMaster batchMaster = new DummyBatchMaster();
     batchMaster.addLiveData(snapshotId1, value);
@@ -158,11 +158,11 @@ public class BatchJobTest {
   public void dateRangeCommandLineHolidayMaster() throws Exception {
     HolidaySource holidaySource = new HolidaySource() {
       @Override
-      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, Identifier regionOrExchangeId) {
+      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
       @Override
-      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, IdentifierBundle regionOrExchangeIds) {
+      public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
       @Override
@@ -249,7 +249,7 @@ public class BatchJobTest {
     
     SnapshotId snapshotId = new SnapshotId(LocalDate.of(9999, 9, 1), "AD_HOC_RUN");
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
-        Identifier.of("BUID", "EQ12345")), "BID", 11.22);
+        ExternalId.of("BUID", "EQ12345")), "BID", 11.22);
     
     DummyBatchMaster batchMaster = new DummyBatchMaster();
     batchMaster.addLiveData(snapshotId, value);

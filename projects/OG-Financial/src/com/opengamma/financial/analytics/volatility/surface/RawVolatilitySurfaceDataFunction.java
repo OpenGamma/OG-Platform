@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -104,7 +104,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
     for (final X x : definition.getXs()) {
       // don't care what these are
       for (final Y y : definition.getYs()) {
-        final Identifier identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
+        final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }
     }
@@ -158,7 +158,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
             final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
-            final Identifier identifier = provider.getInstrument(x, y, now.toLocalDate());
+            final ExternalId identifier = provider.getInstrument(x, y, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);

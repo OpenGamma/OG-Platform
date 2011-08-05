@@ -6,8 +6,8 @@
 package com.opengamma.master.exchange.impl;
 
 import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
@@ -54,7 +54,7 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   }
 
   @Override
-  public ManageableExchange getSingleExchange(Identifier identifier) {
+  public ManageableExchange getSingleExchange(ExternalId identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(getVersionCorrection());
@@ -62,7 +62,7 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   }
 
   @Override
-  public ManageableExchange getSingleExchange(IdentifierBundle identifiers) {
+  public ManageableExchange getSingleExchange(ExternalIdBundle identifiers) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(getVersionCorrection());

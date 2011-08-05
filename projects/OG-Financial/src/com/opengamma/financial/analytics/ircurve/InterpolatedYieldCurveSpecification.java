@@ -18,7 +18,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -33,10 +33,10 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
   private final String _name;
   private final Interpolator1D<?> _interpolator;
   private final Set<FixedIncomeStripWithIdentifier> _strips = new LinkedHashSet<FixedIncomeStripWithIdentifier>();
-  private final Identifier _region;
+  private final ExternalId _region;
   
   public InterpolatedYieldCurveSpecification(LocalDate curveDate, String name, Currency currency,  
-      Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, Identifier region) {
+      Interpolator1D<?> interpolator, Collection<FixedIncomeStripWithIdentifier> resolvedStrips, ExternalId region) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolator, "Interpolator1D");
@@ -62,7 +62,7 @@ public class InterpolatedYieldCurveSpecification implements Serializable {
    * Gets the region field.
    * @return the region
    */
-  public Identifier getRegion() {
+  public ExternalId getRegion() {
     return _region;
   }
 

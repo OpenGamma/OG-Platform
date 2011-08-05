@@ -17,8 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -50,7 +50,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noSecurityId() {
     UniqueId uniqueId = UniqueId.of("DbSec", "101");
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     _secMaster.correct(doc);
@@ -66,7 +66,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueId uniqueId = UniqueId.of("DbSec", "0", "0");
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.correct(doc);
   }
@@ -74,7 +74,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
 //  @Test(expected = IllegalArgumentException.class)
 //  public void test_correct_notLatestCorrection() {
 //    UniqueId uniqueId = UniqueId("DbSec", "201", "0");
-//    DefaultSecurity security = new DefaultSecurity(uniqueId, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+//    DefaultSecurity security = new DefaultSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
 //    SecurityDocument doc = new SecurityDocument(security);
 //    _worker.correct(doc);
 //  }
@@ -85,7 +85,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     SecurityDocument base = _secMaster.get(uniqueId);
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument corrected = _secMaster.correct(input);

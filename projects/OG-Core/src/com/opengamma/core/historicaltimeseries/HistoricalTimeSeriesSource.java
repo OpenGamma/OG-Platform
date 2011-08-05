@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
@@ -67,7 +67,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField);
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField);
 
   /**
    * Finds a time-series from identifierBundle, source, provider and field checking
@@ -83,7 +83,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
+      ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField);
 
   /**
    * Finds a time-series from identifierBundle, source, provider and field.
@@ -101,7 +101,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField,
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   /**
@@ -122,7 +122,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, 
+      ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   //-------------------------------------------------------------------------
@@ -136,7 +136,7 @@ public interface HistoricalTimeSeriesSource {
    * @param resolutionKey  the key to resolve the correct time-series, null to use default rules
    * @return the historical time-series, null if not found
    */
-  HistoricalTimeSeries getHistoricalTimeSeries(String dataField, IdentifierBundle identifierBundle, String resolutionKey);
+  HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey);
 
   /**
    * Finds a time-series from identifierBundle using configuration checking
@@ -151,7 +151,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey);
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey);
 
   /**
    * Finds a time-series from identifierBundle using configuration.
@@ -168,7 +168,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, String resolutionKey,
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   /**
@@ -188,7 +188,7 @@ public interface HistoricalTimeSeriesSource {
    * @return the historical time-series, null if not found
    */
   HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
   //-------------------------------------------------------------------------
@@ -208,8 +208,8 @@ public interface HistoricalTimeSeriesSource {
    * @param exclusiveEnd  whether or not the end date is included in the result
    * @return a map of each supplied identifier bundle to the corresponding time-series, not null
    */
-  Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
-      Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+  Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
+      Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd);
 
 }

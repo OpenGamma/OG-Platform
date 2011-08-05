@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
@@ -32,8 +32,8 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
   // superclass sets up dummy database
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyExchangeDbExchangeMasterWorkerAddTest.class);
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of("A", "B");
-  private static final IdentifierBundle REGION = IdentifierBundle.of("C", "D");
+  private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
+  private static final ExternalIdBundle REGION = ExternalIdBundle.of("C", "D");
 
   @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public ModifyExchangeDbExchangeMasterWorkerAddTest(String databaseType, String databaseVersion) {
@@ -76,8 +76,8 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     assertNotNull(testExchange);
     assertEquals(uniqueId, testExchange.getUniqueId());
     assertEquals("Test", test.getName());
-    assertEquals(BUNDLE, testExchange.getIdentifiers());
-    assertEquals(REGION, testExchange.getRegionKey());
+    assertEquals(BUNDLE, testExchange.getExternalIdBundle());
+    assertEquals(REGION, testExchange.getRegionIdBundle());
     assertEquals(null, testExchange.getTimeZone());
   }
 

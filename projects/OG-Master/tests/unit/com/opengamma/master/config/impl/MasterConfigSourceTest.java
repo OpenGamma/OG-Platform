@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 import java.util.List;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -25,11 +25,11 @@ import com.opengamma.master.config.ConfigSearchRequest;
 @Test
 public class MasterConfigSourceTest {
 
-  private static final ConfigDocument<Identifier> DOC;
+  private static final ConfigDocument<ExternalId> DOC;
   static {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
+    ConfigDocument<ExternalId> doc = new ConfigDocument<ExternalId>(ExternalId.class);
     doc.setName("Test");
-    doc.setValue(Identifier.of("A", "B"));
+    doc.setValue(ExternalId.of("A", "B"));
     DOC = doc;
   }
   
@@ -60,22 +60,22 @@ public class MasterConfigSourceTest {
   }
 
   public void search() throws Exception {
-    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
+    ConfigSearchRequest<ExternalId> request = new ConfigSearchRequest<ExternalId>();
     request.setName("Test");
-    request.setType(Identifier.class);
-    List<Identifier> searchResult = _configSource.search(request);
+    request.setType(ExternalId.class);
+    List<ExternalId> searchResult = _configSource.search(request);
     assertTrue(searchResult.size() == 1);
-    assertEquals(Identifier.of("A", "B"), searchResult.get(0));
+    assertEquals(ExternalId.of("A", "B"), searchResult.get(0));
   }
 
   public void get() throws Exception {
-    Identifier test = _configSource.get(Identifier.class, DOC.getUniqueId());
-    assertEquals(Identifier.of("A", "B"), test);
+    ExternalId test = _configSource.get(ExternalId.class, DOC.getUniqueId());
+    assertEquals(ExternalId.of("A", "B"), test);
   }
 
   public void accessInvalidDocument() throws Exception {
-    UniqueId uniqueIdentifier = _configSource.get(UniqueId.class, UniqueId.of("U", "1"));
-    assertNull(uniqueIdentifier);
+    UniqueId uniqueId = _configSource.get(UniqueId.class, UniqueId.of("U", "1"));
+    assertNull(uniqueId);
   }
 
 }

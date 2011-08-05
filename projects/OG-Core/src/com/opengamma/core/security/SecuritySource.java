@@ -7,7 +7,7 @@ package com.opengamma.core.security;
 
 import java.util.Collection;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
@@ -47,7 +47,7 @@ public interface SecuritySource {
    * @return all securities matching the specified key, empty if no matches, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
-  Collection<Security> getSecurities(IdentifierBundle bundle);
+  Collection<Security> getSecurities(ExternalIdBundle bundle);
 
   /**
    * Finds the single best-fit security that matches the specified bundle of keys.
@@ -63,6 +63,6 @@ public interface SecuritySource {
    * @return the single security matching the bundle of keys, null if not found
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
-  Security getSecurity(IdentifierBundle bundle);
+  Security getSecurity(ExternalIdBundle bundle);
 
 }

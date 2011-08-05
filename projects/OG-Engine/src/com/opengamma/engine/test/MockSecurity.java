@@ -9,8 +9,8 @@ import java.io.Serializable;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 
@@ -24,7 +24,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
   private UniqueId _uniqueId;
   private String _securityType;
   private String _name;
-  private IdentifierBundle _identifiers;
+  private ExternalIdBundle _identifiers;
 
   /**
    * Creates an instance.
@@ -32,10 +32,10 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
    */
   public MockSecurity(String securityType) {
     _securityType = securityType;
-    _identifiers = IdentifierBundle.EMPTY;
+    _identifiers = ExternalIdBundle.EMPTY;
   }
 
-  public MockSecurity(UniqueId uniqueId, String name, String securityType, IdentifierBundle identifiers) {
+  public MockSecurity(UniqueId uniqueId, String name, String securityType, ExternalIdBundle identifiers) {
     _uniqueId = uniqueId;
     _name = name;
     _securityType = securityType;
@@ -66,16 +66,16 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _securityType = securityType;
   }
 
-  public IdentifierBundle getIdentifiers() {
+  public ExternalIdBundle getIdentifiers() {
     return _identifiers;
   }
 
-  public void setIdentifiers(IdentifierBundle identifiers) {
+  public void setIdentifiers(ExternalIdBundle identifiers) {
     _identifiers = identifiers;
   }
 
-  public void addIdentifier(final Identifier identifier) {
-    setIdentifiers(getIdentifiers().withIdentifier(identifier));
+  public void addIdentifier(final ExternalId identifier) {
+    setIdentifiers(getIdentifiers().withExternalId(identifier));
   }
 
   //-------------------------------------------------------------------------

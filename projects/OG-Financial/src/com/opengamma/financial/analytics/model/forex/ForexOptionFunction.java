@@ -43,7 +43,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -101,7 +101,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final ForexConverter<?> definition = getDefinition(security);
     final Currency putCurrency = getPutCurrency(security);
     final Currency callCurrency = getCallCurrency(security);
-    final Identifier spotIdentifier = getSpotIdentifier(security);
+    final ExternalId spotIdentifier = getSpotIdentifier(security);
     final String putCurveName = _putCurveName + "_" + putCurrency.getCode();
     final String callCurveName = _callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
@@ -132,7 +132,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Object spotObject = inputs.getValue(spotRequirement);
     double spot;
     if (spotObject == null) {
-      final Identifier inverseSpotIdentifier = getInverseSpotIdentifier(security);
+      final ExternalId inverseSpotIdentifier = getInverseSpotIdentifier(security);
       final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
       final Object inverseSpotObject = inputs.getValue(inverseSpotRequirement);
       if (inverseSpotObject == null) {
@@ -190,9 +190,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
 
   protected abstract Currency getCallCurrency(FinancialSecurity target);
 
-  protected abstract Identifier getSpotIdentifier(FinancialSecurity target);
+  protected abstract ExternalId getSpotIdentifier(FinancialSecurity target);
 
-  protected abstract Identifier getInverseSpotIdentifier(FinancialSecurity target);
+  protected abstract ExternalId getInverseSpotIdentifier(FinancialSecurity target);
 
   @Override
   public ComputationTargetType getTargetType() {

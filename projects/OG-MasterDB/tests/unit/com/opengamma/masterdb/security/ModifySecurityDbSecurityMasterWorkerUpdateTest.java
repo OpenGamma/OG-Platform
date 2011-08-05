@@ -19,8 +19,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -52,7 +52,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noSecurityId() {
     UniqueId uniqueId = UniqueId.of("DbSec", "101");
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     _secMaster.update(doc);
@@ -68,7 +68,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     UniqueId uniqueId = UniqueId.of("DbSec", "0", "0");
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.update(doc);
   }
@@ -76,7 +76,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     UniqueId uniqueId = UniqueId.of("DbSec", "201", "0");
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.update(doc);
   }
@@ -87,7 +87,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     SecurityDocument base = _secMaster.get(uniqueId);
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument updated = _secMaster.update(input);
@@ -122,7 +122,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     };
     final SecurityDocument base = _secMaster.get(UniqueId.of("DbSec", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
-    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     try {
       w.update(input);

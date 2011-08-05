@@ -17,7 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.test.DBTest;
@@ -50,14 +50,14 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     _cfgMaster.remove(uniqueId);
-    ConfigDocument<Identifier> test = _cfgMaster.get(uniqueId, Identifier.class);
+    ConfigDocument<ExternalId> test = _cfgMaster.get(uniqueId, ExternalId.class);
     
     assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1aInstant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(Identifier.of("A", "B"), test.getValue());
+    assertEquals(ExternalId.of("A", "B"), test.getValue());
     assertEquals("TestConfig101", test.getName());
   }
 

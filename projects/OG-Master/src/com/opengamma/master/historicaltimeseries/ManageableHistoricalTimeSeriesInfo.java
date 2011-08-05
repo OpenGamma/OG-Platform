@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -50,11 +50,11 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   @PropertyDefinition
   private UniqueId _uniqueId;
   /**
-   * The identifier keys with valid dates if available.
+   * The external identifier bundle with valid dates if available.
    * The key of the specific series, such as the equity identifiers.
    */
   @PropertyDefinition
-  private IdentifierBundleWithDates _identifiers;
+  private ExternalIdBundleWithDates _externalIdBundle;
   /**
    * The name of the historical time-series intended for display purposes.
    * This field must not be null for the object to be valid.
@@ -121,8 +121,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 1368189162:  // identifiers
-        return getIdentifiers();
+      case -736922008:  // externalIdBundle
+        return getExternalIdBundle();
       case 3373707:  // name
         return getName();
       case -386794640:  // dataField
@@ -145,8 +145,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
-      case 1368189162:  // identifiers
-        setIdentifiers((IdentifierBundleWithDates) newValue);
+      case -736922008:  // externalIdBundle
+        setExternalIdBundle((ExternalIdBundleWithDates) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -178,7 +178,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       ManageableHistoricalTimeSeriesInfo other = (ManageableHistoricalTimeSeriesInfo) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
@@ -193,7 +193,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
@@ -233,30 +233,30 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier keys with valid dates if available.
+   * Gets the external identifier bundle with valid dates if available.
    * The key of the specific series, such as the equity identifiers.
    * @return the value of the property
    */
-  public IdentifierBundleWithDates getIdentifiers() {
-    return _identifiers;
+  public ExternalIdBundleWithDates getExternalIdBundle() {
+    return _externalIdBundle;
   }
 
   /**
-   * Sets the identifier keys with valid dates if available.
+   * Sets the external identifier bundle with valid dates if available.
    * The key of the specific series, such as the equity identifiers.
-   * @param identifiers  the new value of the property
+   * @param externalIdBundle  the new value of the property
    */
-  public void setIdentifiers(IdentifierBundleWithDates identifiers) {
-    this._identifiers = identifiers;
+  public void setExternalIdBundle(ExternalIdBundleWithDates externalIdBundle) {
+    this._externalIdBundle = externalIdBundle;
   }
 
   /**
-   * Gets the the {@code identifiers} property.
+   * Gets the the {@code externalIdBundle} property.
    * The key of the specific series, such as the equity identifiers.
    * @return the property, not null
    */
-  public final Property<IdentifierBundleWithDates> identifiers() {
-    return metaBean().identifiers().createProperty(this);
+  public final Property<ExternalIdBundleWithDates> externalIdBundle() {
+    return metaBean().externalIdBundle().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -443,10 +443,10 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", ManageableHistoricalTimeSeriesInfo.class, UniqueId.class);
     /**
-     * The meta-property for the {@code identifiers} property.
+     * The meta-property for the {@code externalIdBundle} property.
      */
-    private final MetaProperty<IdentifierBundleWithDates> _identifiers = DirectMetaProperty.ofReadWrite(
-        this, "identifiers", ManageableHistoricalTimeSeriesInfo.class, IdentifierBundleWithDates.class);
+    private final MetaProperty<ExternalIdBundleWithDates> _externalIdBundle = DirectMetaProperty.ofReadWrite(
+        this, "externalIdBundle", ManageableHistoricalTimeSeriesInfo.class, ExternalIdBundleWithDates.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -483,7 +483,7 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "identifiers",
+        "externalIdBundle",
         "name",
         "dataField",
         "dataSource",
@@ -502,8 +502,8 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case 1368189162:  // identifiers
-          return _identifiers;
+        case -736922008:  // externalIdBundle
+          return _externalIdBundle;
         case 3373707:  // name
           return _name;
         case -386794640:  // dataField
@@ -545,11 +545,11 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
     }
 
     /**
-     * The meta-property for the {@code identifiers} property.
+     * The meta-property for the {@code externalIdBundle} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundleWithDates> identifiers() {
-      return _identifiers;
+    public final MetaProperty<ExternalIdBundleWithDates> externalIdBundle() {
+      return _externalIdBundle;
     }
 
     /**

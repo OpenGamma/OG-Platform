@@ -22,9 +22,9 @@ import org.springframework.core.io.Resource;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.IdentifierWithDates;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
@@ -47,7 +47,7 @@ public class SimulatedHistoricalDataGenerator {
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataGenerator.class);
   
   private final DbHistoricalTimeSeriesMaster _htsMaster;
-  private Map<Pair<Identifier, String>, Double> _initialValues = new HashMap<Pair<Identifier, String>, Double>();
+  private Map<Pair<ExternalId, String>, Double> _initialValues = new HashMap<Pair<ExternalId, String>, Double>();
 
   private static final int NUM_FIELDS = 4;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
@@ -78,7 +78,7 @@ public class SimulatedHistoricalDataGenerator {
           String fieldName = line[2];
           String valueStr = line[3];
           Double value = Double.parseDouble(valueStr);
-          Identifier id = Identifier.of(scheme, identifier);
+          ExternalId id = ExternalId.of(scheme, identifier);
           _initialValues.put(Pair.of(id, fieldName), value);
         }
       }
@@ -91,8 +91,8 @@ public class SimulatedHistoricalDataGenerator {
   
   public void run() {
     Random random = new Random(); // noMarket need for SecureRandom here..
-    for (Entry<Pair<Identifier, String>, Double> entry : _initialValues.entrySet()) {
-      Identifier identifier = entry.getKey().getFirst();
+    for (Entry<Pair<ExternalId, String>, Double> entry : _initialValues.entrySet()) {
+      ExternalId identifier = entry.getKey().getFirst();
       String dataField = entry.getKey().getSecond();
       Double startValue = entry.getValue();
       ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
@@ -101,9 +101,9 @@ public class SimulatedHistoricalDataGenerator {
       info.setDataSource(OG_DATA_SOURCE);
       info.setDataProvider(OG_DATA_PROVIDER);
       info.setObservationTime("LONDON_CLOSE");
-      IdentifierWithDates id = IdentifierWithDates.of(identifier, null, null);
-      IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-      info.setIdentifiers(bundle);
+      ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
+      ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+      info.setExternalIdBundle(bundle);
       s_logger.info("loading timeseries for {} {}/{}/{}", new Object[]{identifier, dataField, OG_DATA_SOURCE, OG_DATA_PROVIDER});
       HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
       LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, startValue, TS_LENGTH);

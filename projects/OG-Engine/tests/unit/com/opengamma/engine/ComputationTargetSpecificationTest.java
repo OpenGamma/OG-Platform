@@ -16,9 +16,9 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 
@@ -28,13 +28,13 @@ import com.opengamma.id.UniqueId;
 @Test
 public class ComputationTargetSpecificationTest {
 
-  private static final Identifier ID = Identifier.of("Test", "0");
+  private static final ExternalId ID = ExternalId.of("Test", "0");
   private static final UniqueId UID = UniqueId.of("Test", "1");
   private static final UniqueId UID2 = UniqueId.of("Test", "2");
-  private static final Identifiable IDENTIFIABLE = new Identifiable() {
+  private static final ExternalIdentifiable IDENTIFIABLE = new ExternalIdentifiable() {
     @Override
-    public Identifier getIdentityKey() {
-      return Identifier.of("Test", "3");
+    public ExternalId getExternalId() {
+      return ExternalId.of("Test", "3");
     }
   };
   private static final UniqueIdentifiable UNIQUE_IDENTIFIABLE = new UniqueIdentifiable() {
@@ -45,8 +45,8 @@ public class ComputationTargetSpecificationTest {
   };
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
-  private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UID, "", "", IdentifierBundle.EMPTY);
+  private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UID, "", "", ExternalIdBundle.EMPTY);
 
   public void test_constructor_Object_Portfolio() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);

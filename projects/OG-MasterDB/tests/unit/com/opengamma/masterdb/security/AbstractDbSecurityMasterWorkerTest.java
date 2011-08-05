@@ -22,8 +22,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -133,7 +133,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
   protected void assert102(final SecurityDocument test) {
@@ -149,7 +149,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity102", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "HI")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI")), security.getIdentifiers());
   }
 
   protected void assert201(final SecurityDocument test) {
@@ -165,7 +165,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity201", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
   protected void assert202(final SecurityDocument test) {
@@ -181,7 +181,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity202", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
 }

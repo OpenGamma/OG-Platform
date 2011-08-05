@@ -22,8 +22,8 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -74,7 +74,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(BigDecimal quantity, Identifier securityKey) {
+  public PositionImpl(BigDecimal quantity, ExternalId securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
@@ -87,7 +87,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(BigDecimal quantity, IdentifierBundle securityKey) {
+  public PositionImpl(BigDecimal quantity, ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
@@ -101,7 +101,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, Identifier securityKey) {
+  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, ExternalId securityKey) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
@@ -117,7 +117,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, IdentifierBundle securityKey) {
+  public PositionImpl(UniqueId uniqueId, BigDecimal quantity, ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");

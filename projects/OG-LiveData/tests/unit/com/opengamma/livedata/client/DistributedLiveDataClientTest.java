@@ -19,7 +19,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import com.google.common.collect.Sets;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationTest;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -98,9 +98,9 @@ public class DistributedLiveDataClientTest {
     _server.start();
     
     LiveDataSpecification spec1 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
+        ExternalId.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
     LiveDataSpecification spec2 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
+        ExternalId.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
     
     Collection<LiveDataSubscriptionResponse> responses = _client.snapshot(TEST_USER, Sets.newHashSet(spec1, spec2), 1000);
     assertNotNull(responses);
@@ -147,9 +147,9 @@ public class DistributedLiveDataClientTest {
     _server.start();
     
     LiveDataSpecification spec1 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
+        ExternalId.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_1));
     LiveDataSpecification spec2 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
-        Identifier.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
+        ExternalId.of(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
     
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     

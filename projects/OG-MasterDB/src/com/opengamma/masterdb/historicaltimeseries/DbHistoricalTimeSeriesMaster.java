@@ -30,10 +30,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierWithDates;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -231,8 +231,8 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     s_logger.debug("search {}", request);
     
     final HistoricalTimeSeriesInfoSearchResult result = new HistoricalTimeSeriesInfoSearchResult();
-    if ((request.getInfoIds() != null && request.getInfoIds().size() == 0) ||
-        (IdentifierSearch.canMatch(request.getIdentifierKeys()) == false)) {
+    if ((request.getObjectIds() != null && request.getObjectIds().size() == 0) ||
+        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -245,11 +245,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       .addValueNullIgnored("data_source", getDbHelper().sqlWildcardAdjustValue(request.getDataSource()))
       .addValueNullIgnored("data_provider", getDbHelper().sqlWildcardAdjustValue(request.getDataProvider()))
       .addValueNullIgnored("observation_time", getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()))
-      .addDateNullIgnored("id_validity_date", request.getIdentifierValidityDate())
-      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
-    if (request.getIdentifierKeys() != null) {
+      .addDateNullIgnored("id_validity_date", request.getValidityDate())
+      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getExternalIdValue()));
+    if (request.getExternalIdSearch() != null) {
       int i = 0;
-      for (Identifier id : request.getIdentifierKeys()) {
+      for (ExternalId id : request.getExternalIdSearch()) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
@@ -283,20 +283,20 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     if (request.getObservationTime() != null) {
       where += "AND observation_time_id IN (" + getObservationTimeTable().sqlSelectSearch(request.getObservationTime()) + ") ";
     }
-    if (request.getInfoIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getInfoIds().size() * 10);
-      for (ObjectId objectId : request.getInfoIds()) {
+    if (request.getObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
+      for (ObjectId objectId : request.getObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getIdentifierKeys() != null && request.getIdentifierKeys().size() > 0) {
-      where += sqlSelectMatchingHistoricalTimeSeriesKeys(request.getIdentifierKeys(), request.getIdentifierValidityDate());
+    if (request.getExternalIdSearch() != null && request.getExternalIdSearch().size() > 0) {
+      where += sqlSelectMatchingHistoricalTimeSeriesKeys(request.getExternalIdSearch(), request.getValidityDate());
     }
-    if (request.getIdentifierValue() != null) {
-      where += sqlSelectIdentifierValue(request.getIdentifierValue(), request.getIdentifierValidityDate());
+    if (request.getExternalIdValue() != null) {
+      where += sqlSelectExternalIdValue(request.getExternalIdValue(), request.getValidityDate());
     }
     where += sqlAdditionalWhere();
     
@@ -314,7 +314,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectIdentifierValue(final String identifierValue, final LocalDate validityDate) {
+  protected String sqlSelectExternalIdValue(final String identifierValue, final LocalDate validityDate) {
     String select = "SELECT DISTINCT doc_id " +
         "FROM hts_doc2idkey di, hts_document main " +
         "WHERE doc_id = main.id " +
@@ -326,13 +326,13 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   }
 
   /**
-   * Gets the SQL to match the {@code IdentifierSearch}.
+   * Gets the SQL to match the {@code ExternalIdSearch}.
    * 
    * @param idSearch  the identifier search, not null
    * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeys(final IdentifierSearch idSearch, final LocalDate validityDate) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeys(final ExternalIdSearch idSearch, final LocalDate validityDate) {
     switch (idSearch.getSearchType()) {
       case EXACT:
         return "AND id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysExact(idSearch, validityDate) + ") ";
@@ -353,7 +353,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysExact(final IdentifierSearch idSearch, final LocalDate validityDate) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysExact(final ExternalIdSearch idSearch, final LocalDate validityDate) {
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT doc_id AS matched_doc_id, COUNT(doc_id) AS matched_count " +
@@ -386,7 +386,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAll(final IdentifierSearch idSearch, final LocalDate validityDate) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAll(final ExternalIdSearch idSearch, final LocalDate validityDate) {
     // only return doc_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT doc_id " +
@@ -408,7 +408,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * @param validityDate  the validity date, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAny(final IdentifierSearch idSearch, final LocalDate validityDate) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysAny(final ExternalIdSearch idSearch, final LocalDate validityDate) {
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT doc_id " +
@@ -427,7 +427,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingHistoricalTimeSeriesKeysOr(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingHistoricalTimeSeriesKeysOr(final ExternalIdSearch idSearch) {
     String select = "SELECT id FROM hts_idkey ";
     for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");
@@ -494,11 +494,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    for (IdentifierWithDates id : info.getIdentifiers()) {
+    for (ExternalIdWithDates id : info.getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
-        .addValue("key_scheme", id.getIdentityKey().getScheme().getName())
-        .addValue("key_value", id.getIdentityKey().getValue())
+        .addValue("key_scheme", id.getExternalId().getScheme().getName())
+        .addValue("key_value", id.getExternalId().getValue())
         .addValue("valid_from", DbDateUtils.toSqlDateNullFarPast(id.getValidFrom()))
         .addValue("valid_to", DbDateUtils.toSqlDateNullFarFuture(id.getValidTo()));
       assocList.add(assocArgs);
@@ -507,8 +507,8 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         final long idKeyId = nextId("hts_idkey_seq");
         final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
           .addValue("idkey_id", idKeyId)
-          .addValue("key_scheme", id.getIdentityKey().getScheme().getName())
-          .addValue("key_value", id.getIdentityKey().getValue());
+          .addValue("key_scheme", id.getExternalId().getScheme().getName())
+          .addValue("key_value", id.getExternalId().getValue());
         idKeyList.add(idkeyArgs);
       }
     }
@@ -931,7 +931,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     String oidStr = DATA_POINT_PREFIX + oid;
     Duration dur = Duration.between(verInstant, corrInstant);
     String verStr = verInstant.toString() + dur.toString();
-    return UniqueId.of(getIdentifierScheme(), oidStr, verStr);
+    return UniqueId.of(getUniqueIdScheme(), oidStr, verStr);
   }
 
   /**
@@ -1068,8 +1068,8 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         final LocalDate validFrom = DbDateUtils.fromSqlDateNullFarPast(rs.getDate("KEY_VALID_FROM"));
         final LocalDate validTo = DbDateUtils.fromSqlDateNullFarFuture(rs.getDate("KEY_VALID_TO"));
         if (idScheme != null && idValue != null) {
-          IdentifierWithDates id = IdentifierWithDates.of(Identifier.of(idScheme, idValue), validFrom, validTo);
-          _info.setIdentifiers(_info.getIdentifiers().withIdentifier(id));
+          ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of(idScheme, idValue), validFrom, validTo);
+          _info.setExternalIdBundle(_info.getExternalIdBundle().withExternalId(id));
         }
       }
       return _documents;
@@ -1095,7 +1095,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       _info.setDataSource(dataSource);
       _info.setDataProvider(dataProvider);
       _info.setObservationTime(observationTime);
-      _info.setIdentifiers(IdentifierBundleWithDates.EMPTY);
+      _info.setExternalIdBundle(ExternalIdBundleWithDates.EMPTY);
       _info.setTimeSeriesObjectId(uniqueId.getObjectId().withValue(DATA_POINT_PREFIX + uniqueId.getValue()));
       
       HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(_info);

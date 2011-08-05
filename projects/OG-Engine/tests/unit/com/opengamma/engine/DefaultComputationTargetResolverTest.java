@@ -27,8 +27,8 @@ import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.test.MockSecuritySource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -39,8 +39,8 @@ public class DefaultComputationTargetResolverTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueId.of("A", "B"), "Name");
-  private static final Position POSITION = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UniqueId.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
+  private static final Position POSITION = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UniqueId.of("Test", "SEC"), "Test security", "EQUITY", ExternalIdBundle.EMPTY);
 
   //-------------------------------------------------------------------------
   public void test_constructor() {
@@ -91,8 +91,8 @@ public class DefaultComputationTargetResolverTest {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
     PortfolioImpl portfolio = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
-    PositionImpl position = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-    TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(), new BigDecimal(1), new CounterpartyImpl(Identifier.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
+    PositionImpl position = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+    TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(), new BigDecimal(1), new CounterpartyImpl(ExternalId.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
     trade.setUniqueId(UniqueId.of("TradeScheme", "1"));
     position.addTrade(trade);
     portfolio.getRootNode().addPosition(position);

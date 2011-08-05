@@ -111,8 +111,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     s_logger.debug("search {}", request);
     
     final PortfolioSearchResult result = new PortfolioSearchResult();
-    if ((request.getPortfolioIds() != null && request.getPortfolioIds().size() == 0) ||
-        (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
+    if ((request.getPortfolioObjectIds() != null && request.getPortfolioObjectIds().size() == 0) ||
+        (request.getNodeObjectIds() != null && request.getNodeObjectIds().size() == 0)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -138,18 +138,18 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     if (request.getName() != null) {
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
-    if (request.getPortfolioIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getPortfolioIds().size() * 10);
-      for (ObjectId objectId : request.getPortfolioIds()) {
+    if (request.getPortfolioObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getPortfolioObjectIds().size() * 10);
+      for (ObjectId objectId : request.getPortfolioObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getNodeIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getNodeIds().size() * 10);
-      for (ObjectId objectId : request.getNodeIds()) {
+    if (request.getNodeObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getNodeObjectIds().size() * 10);
+      for (ObjectId objectId : request.getNodeObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }

@@ -19,15 +19,20 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * An immutable identifier with valid dates for an item.
+ * An immutable external identifier with validity dates.
  * <p>
- * It is made up of an {@link Identifier identifier} with valid start and end date
+ * This class is used to restrict the validity of an {@link ExternalId external identifier}.
  * <p>
  * This class is immutable and thread-safe.
  */
-public final class IdentifierWithDates implements Identifiable, Comparable<IdentifierWithDates>, Serializable {
+public final class ExternalIdWithDates
+    implements ExternalIdentifiable, Comparable<ExternalIdWithDates>, Serializable {
+  static {
+    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.IdentifierWithDates", ExternalIdWithDates.class);
+  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -40,10 +45,11 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * Fudge message key for the valid_to.
    */
   public static final String VALID_TO_FUDGE_FIELD_NAME = "ValidTo";
+
   /**
    * The identifier.
    */
-  private final Identifier _identifier;
+  private final ExternalId _identifier;
   /**
    * The valid start date, inclusive.
    */
@@ -54,19 +60,19 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   private final LocalDate _validTo;
 
   /**
-   * Obtains an identifier with dates from an identifier and dates.
+   * Obtains an {@code ExternalIdWithDates} from an identifier and dates.
    * 
    * @param identifier  the identifier, not empty, not null
    * @param validFrom  the valid from date, inclusive, may be null
    * @param validTo  the valid to date, inclusive, may be null
    * @return the identifier, not null
    */
-  public static IdentifierWithDates of(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
-    return new IdentifierWithDates(identifier, validFrom, validTo);
+  public static ExternalIdWithDates of(ExternalId identifier, LocalDate validFrom, LocalDate validTo) {
+    return new ExternalIdWithDates(identifier, validFrom, validTo);
   }
 
   /**
-   * Obtains an identifier with dates from a formatted scheme and value.
+   * Parses an {@code ExternalIdWithDates} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>~<VALUE>~S~<VALID_FROM>~E~<VALID_TO>}.
@@ -75,15 +81,15 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
-  public static IdentifierWithDates parse(String str) {
+  public static ExternalIdWithDates parse(String str) {
     ArgumentChecker.notNull(str, "parse string");
-    Identifier identifier = null;
+    ExternalId identifier = null;
     LocalDate validFrom = null;
     LocalDate validTo = null;
     int startPos = str.indexOf("~S~");
     int endPos = str.indexOf("~E~");
     if (startPos > 0) {
-      identifier = Identifier.parse(str.substring(0, startPos));
+      identifier = ExternalId.parse(str.substring(0, startPos));
       if (endPos > 0) {
         validFrom = LocalDate.parse(str.substring(startPos + 3, endPos));
         validTo = LocalDate.parse(str.substring(endPos + 3));
@@ -91,12 +97,12 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
         validFrom = LocalDate.parse(str.substring(startPos + 3));
       }
     } else if (endPos > 0) {
-      identifier = Identifier.parse(str.substring(0, endPos));
+      identifier = ExternalId.parse(str.substring(0, endPos));
       validTo = LocalDate.parse(str.substring(endPos + 3));
     } else {
-      identifier = Identifier.parse(str);
+      identifier = ExternalId.parse(str);
     }
-    return new IdentifierWithDates(identifier, validFrom, validTo);
+    return new ExternalIdWithDates(identifier, validFrom, validTo);
   }
 
   /**
@@ -106,7 +112,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * @param validFrom  the valid from date, may be null
    * @param validTo  the valid to date, may be null
    */
-  private IdentifierWithDates(Identifier identifier, LocalDate validFrom, LocalDate validTo) {
+  private ExternalIdWithDates(ExternalId identifier, LocalDate validFrom, LocalDate validTo) {
     ArgumentChecker.notNull(identifier, "identifier");
     if (validFrom != null && validTo != null) {
       ArgumentChecker.isTrue(validTo.isAfter(validFrom) || validTo.equals(validFrom), "ValidTo must be after or eqauls to ValidFrom");
@@ -118,7 +124,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
 
   //-------------------------------------------------------------------------
   @Override
-  public Identifier getIdentityKey() {
+  public ExternalId getExternalId() {
     return _identifier;
   }
 
@@ -162,18 +168,30 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * 
    * @return the identifier without dates, not null
    */
-  public Identifier asIdentifier() {
+  public ExternalId toExternalId() {
     return _identifier;
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Compares the external identifiers ignoring the dates.
+   * This ordering is inconsistent with equals.
+   * 
+   * @param other  the other external identifier, not null
+   * @return negative if this is less, zero if equal, positive if greater
+   */
+  @Override
+  public int compareTo(ExternalIdWithDates other) {
+    return _identifier.compareTo(other._identifier);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof IdentifierWithDates) {
-      IdentifierWithDates other = (IdentifierWithDates) obj;
+    if (obj instanceof ExternalIdWithDates) {
+      ExternalIdWithDates other = (ExternalIdWithDates) obj;
       return ObjectUtils.equals(_identifier, other._identifier) &&
               ObjectUtils.equals(_validFrom, other._validFrom) &&
               ObjectUtils.equals(_validTo, other._validTo);
@@ -184,11 +202,6 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   @Override
   public int hashCode() {
     return _identifier.hashCode() ^ ObjectUtils.hashCode(_validFrom) ^ ObjectUtils.hashCode(_validTo);
-  }
-
-  @Override
-  public int compareTo(IdentifierWithDates other) {
-    return _identifier.compareTo(other._identifier);
   }
 
   /**
@@ -223,7 +236,8 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   }
 
   /**
-   * Serializes this pair to a Fudge message.
+   * Serializes to a Fudge message.
+   * 
    * @param factory  the Fudge context, not null
    * @return the Fudge message, not null
    */
@@ -232,13 +246,14 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   }
 
   /**
-   * Deserializes this pair from a Fudge message.
+   * Deserializes from a Fudge message.
+   * 
    * @param fudgeContext  the Fudge context
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static IdentifierWithDates fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
-    Identifier identifier = Identifier.fromFudgeMsg(fudgeContext, msg);
+  public static ExternalIdWithDates fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+    ExternalId identifier = ExternalId.fromFudgeMsg(fudgeContext, msg);
     FudgeField field = msg.getByName(VALID_FROM_FUDGE_FIELD_NAME);
     LocalDate validFrom = null;
     if (field != null) {
@@ -249,7 +264,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
     if (field != null) {
       validTo = (LocalDate) field.getValue();
     }
-    return IdentifierWithDates.of(identifier, validFrom, validTo);
+    return ExternalIdWithDates.of(identifier, validFrom, validTo);
   }
 
 }

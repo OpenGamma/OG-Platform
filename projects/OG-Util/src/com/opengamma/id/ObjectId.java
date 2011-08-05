@@ -24,7 +24,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * All versions of the same object share an object identifier.
  * A {@link UniqueId} refers to a single version of an object identifier.
  * <p>
- * Many external identifiers, represented by {@link Identifier}, are not truly unique.
+ * Many external identifiers, represented by {@link ExternalId}, are not truly unique.
  * This {@code ObjectId} and {@code UniqueId} are unique within the OpenGamma instance.
  * <p>
  * The object identifier is formed from two parts, the scheme and value.
@@ -48,10 +48,10 @@ public final class ObjectId
   }
 
   /**
-   * Identification scheme for the OID.
-   * This allows a unique identifier to be stored and passed using the weaker {@code Identifier}.
+   * Identification scheme for the object identifier.
+   * This allows a unique identifier to be stored and passed using an {@code ExternalId}.
    */
-  public static final IdentificationScheme EXTERNAL_SCHEME = IdentificationScheme.of("OID");
+  public static final ExternalScheme EXTERNAL_SCHEME = ExternalScheme.of("OID");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -64,10 +64,6 @@ public final class ObjectId
    * Fudge message key for the value.
    */
   public static final String VALUE_FUDGE_FIELD_NAME = "Value";
-  /**
-   * Fudge message key for the version.
-   */
-  public static final String VERSION_FUDGE_FIELD_NAME = "Version";
 
   /**
    * The scheme that categorizes the identifier value.
@@ -79,8 +75,7 @@ public final class ObjectId
   private final String _value;
 
   /**
-   * Obtains an identifier from a scheme and value indicating the latest version
-   * of the identifier, also used for non-versioned identifiers.
+   * Obtains an {@code ObjectId} from a scheme and value.
    * 
    * @param scheme  the scheme of the object identifier, not empty, not null
    * @param value  the value of the object identifier, not empty, not null
@@ -91,24 +86,24 @@ public final class ObjectId
   }
 
   /**
-   * Obtains an identifier from a formatted scheme and value.
+   * Parses an {@code ObjectId} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
    * which is {@code <SCHEME>~<VALUE>}.
    * 
-   * @param objectIdStr  the object identifier to parse, not null
+   * @param str  the object identifier to parse, not null
    * @return the object identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
-  public static ObjectId parse(String objectIdStr) {
-    ArgumentChecker.notEmpty(objectIdStr, "objectIdStr");
-    objectIdStr = StringUtils.replace(objectIdStr, "::", "~");  // leniently parse old data
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(objectIdStr, "~");
+  public static ObjectId parse(String str) {
+    ArgumentChecker.notEmpty(str, "str");
+    str = StringUtils.replace(str, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(str, "~");
     switch (split.length) {
       case 2:
         return ObjectId.of(split[0], split[1]);
     }
-    throw new IllegalArgumentException("Invalid identifier format: " + objectIdStr);
+    throw new IllegalArgumentException("Invalid identifier format: " + str);
   }
 
   /**
@@ -117,18 +112,19 @@ public final class ObjectId
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    */
-  private ObjectId(String scheme, String reference) {
+  private ObjectId(String scheme, String value) {
     ArgumentChecker.notEmpty(scheme, "scheme");
-    ArgumentChecker.notEmpty(reference, "reference");
+    ArgumentChecker.notEmpty(value, "value");
     _scheme = scheme;
-    _value = reference;
+    _value = value;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the scheme of the identifier.
+   * This is the first part of the object identifier.
    * <p>
-   * This is not expected to be the same as {@code IdentificationScheme}.
+   * This is not expected to be the same as {@link ExternalScheme}.
    * 
    * @return the scheme, not empty, not null
    */
@@ -138,6 +134,7 @@ public final class ObjectId
 
   /**
    * Gets the value of the identifier.
+   * This is the second part of the object identifier.
    * 
    * @return the value, not empty, not null
    */
@@ -207,9 +204,9 @@ public final class ObjectId
 
   //-------------------------------------------------------------------------
   /**
-   * Compares the identifiers, sorting alphabetically by scheme followed by value.
+   * Compares the object identifiers, sorting alphabetically by scheme followed by value.
    * 
-   * @param other  the other identifier, not null
+   * @param other  the other object identifier, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
@@ -242,7 +239,7 @@ public final class ObjectId
   /**
    * Returns the identifier in the form {@code <SCHEME>~<VALUE>}.
    * 
-   * @return the identifier, not null
+   * @return a parsable representation of the identifier, not null
    */
   @Override
   public String toString() {
@@ -251,9 +248,9 @@ public final class ObjectId
 
   //-------------------------------------------------------------------------
   /**
-   * Serializes this object identifier to a Fudge message.
+   * Serializes to a Fudge message.
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * object identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param factory  a message creator, not null
    * @param msg  the message to serialize into, not null
@@ -268,9 +265,9 @@ public final class ObjectId
   }
 
   /**
-   * Serializes this object identifier to a Fudge message.
+   * Serializes to a Fudge message.
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * object identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param factory  a message creator, not null
    * @return the serialized Fudge message, not null
@@ -280,9 +277,9 @@ public final class ObjectId
   }
 
   /**
-   * Deserializes an object identifier from a Fudge message.
+   * Deserializes from a Fudge message.
    * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * object identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param msg  the Fudge message, not null
    * @return the object identifier, not null

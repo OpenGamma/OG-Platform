@@ -33,8 +33,8 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
@@ -120,11 +120,11 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
-    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(
+    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(ExternalId.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
-    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle
+    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(ExternalIdBundle
         .of(conventionBundle.getSwapFloatingLegInitialRate()));
-    final Identifier initialRefRateId = referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId initialRefRateId = referenceRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return Collections.unmodifiableSet(result);
   }
