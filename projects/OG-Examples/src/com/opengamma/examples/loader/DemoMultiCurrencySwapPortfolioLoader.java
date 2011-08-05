@@ -151,7 +151,12 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         swaps.add(swap);
       }
     }
-    s_logger.info("Created " + swaps.size() + " swaps");
+    StringBuilder sb = new StringBuilder();
+    sb.append("Parsed ").append(swaps.size()).append(" swaps:\n");
+    for (SwapSecurity swap : swaps) {
+      sb.append("\t").append(swap.getName()).append("\n");
+    }
+    s_logger.info(sb.toString());
     return swaps;
   }
 
