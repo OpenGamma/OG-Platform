@@ -29,7 +29,6 @@ $.register_module({
             routes = common.routes,
             search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
@@ -124,14 +123,16 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    var $html = $.tmpl(template, {
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
                         name: 'Configs',
                         recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
                     });
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     toolbar('default');
+                    layout.inner.resizeAll();
                 }});
             },
             details_page = function (args, new_config_type) {

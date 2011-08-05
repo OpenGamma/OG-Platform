@@ -16,7 +16,7 @@ $.register_module({
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
             masthead = og.common.masthead, search, details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
+            ui = og.common.util.ui, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             search_options = {
@@ -42,14 +42,16 @@ $.register_module({
             },
             default_page = function () {
                 og.api.text({module: 'og.views.default', handler: function (template) {
-                    var $html = $.tmpl(template, {
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
                         name: 'Regions',
                         recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions'
                     });
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(default_toolbar_options);
+                    layout.inner.resizeAll();
                }});
             },
             new_page = function (args) {
@@ -74,16 +76,17 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            var $html = $.tmpl(template, json.template_data);
+                            var layout = og.views.common.layout,
+                                $html = $.tmpl(template, json.template_data);
                             $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                             $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                            layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.render_keys('.OG-region .og-js-keys', json.keys);
                             f.render_regions('.OG-region .og-js-parent_regions', json.parent);
                             f.render_regions('.OG-region .og-js-child_regions', json.child);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(active_toolbar_options);
-                            details.favorites();
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,

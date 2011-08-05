@@ -25,7 +25,6 @@ $.register_module({
             routes = common.routes,
             search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
@@ -157,14 +156,16 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    var $html = $.tmpl(template, {
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
                         name: 'Timeseries',
                         recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries'
                     });
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
+                    layout.inner.resizeAll();
                 }});
             },
             details_page = function (args) {

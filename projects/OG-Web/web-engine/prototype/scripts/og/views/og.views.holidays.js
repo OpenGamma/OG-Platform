@@ -26,7 +26,6 @@ $.register_module({
             routes = common.routes,
             search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
@@ -80,15 +79,17 @@ $.register_module({
             },
             default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
-                    $html = $.tmpl(template, {
-                        name: 'Holidays',
-                        favorites_list: history.get_html('history.holidays.favorites') || 'no favorited holidays',
-                        recent_list: history.get_html('history.holidays.recent') || 'no recently viewed holidays'
+                    var layout = og.views.common.layout,
+                        $html = $.tmpl(template, {
+                            name: 'Holidays',
+                            favorites_list: history.get_html('history.holidays.favorites') || 'no favorited holidays',
+                            recent_list: history.get_html('history.holidays.recent') || 'no recently viewed holidays'
                     });
                     $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                     $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                    og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
+                    layout.inner.resizeAll();
                 }});
             },
             details_page = function (args) {
@@ -102,10 +103,11 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var $html = $.tmpl(template, json.template_data);
+                            var layout = og.views.common.layout,
+                                $html = $.tmpl(template, json.template_data);
                             $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                             $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            og.views.common.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                            layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             $('.OG-holiday .og-calendar').datepicker({
                                 numberOfMonths: [4, 3],                     // Layout configuration
                                 showCurrentAtPos: new Date().getMonth(),    // Makes the first month January
@@ -119,6 +121,7 @@ $.register_module({
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
