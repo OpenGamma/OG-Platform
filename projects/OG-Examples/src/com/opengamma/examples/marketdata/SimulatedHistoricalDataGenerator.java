@@ -18,9 +18,13 @@ import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 
 import au.com.bytecode.opencsv.CSVReader;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundleWithDates;
@@ -29,6 +33,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PlatformConfigUtils;
+import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -113,14 +119,11 @@ public class SimulatedHistoricalDataGenerator {
   
   private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {
     MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
-    LocalDate endDate = DateUtil.previousWeekDay();
-    LocalDate startDate = DateUtil.previousWeekDay(endDate.minusYears(tsLength));
-    result.putDataPoint(startDate, startValue);
-    LocalDate nextDate = DateUtil.nextWeekDay(startDate);
-    while (nextDate.isBefore(endDate)) {
-      result.putDataPoint(nextDate, wiggleValue(random, startValue));
-      nextDate = DateUtil.nextWeekDay(nextDate);
-    }
+    LocalDate date = DateUtil.previousWeekDay(LocalDate.now().minusYears(tsLength));
+    do {
+      result.putDataPoint(date, wiggleValue(random, startValue));
+      date = DateUtil.nextWeekDay(date);
+    } while (date.isBefore(LocalDate.now()));
     return result;
   }
 
@@ -128,5 +131,44 @@ public class SimulatedHistoricalDataGenerator {
     double result = value + (random.nextGaussian() * (value * SCALING_FACTOR));
     //s_logger.warn("wiggleValue = {}", result);
     return result;
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Sets up and loads the database.
+   * <p>
+   * This loader requires a Spring configuration file that defines the security,
+   * position and portfolio masters, together with an instance of this bean
+   * under the name "simulatedHistoricalDataGenerator".
+   * 
+   * @param args  the arguments, unused
+   */
+  public static void main(String[] args) {  // CSIGNORE
+    try {
+      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+      JoranConfigurator configurator = new JoranConfigurator();
+      configurator.setContext(lc);
+      lc.reset(); 
+      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
+      
+      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
+      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
+      System.out.println("Starting connections");
+      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
+      appContext.start();
+      
+      try {
+        SimulatedHistoricalDataGenerator loader = appContext.getBean("simulatedHistoricalDataGenerator", SimulatedHistoricalDataGenerator.class);
+        System.out.println("Loading data");
+        loader.run();
+      } finally {
+        appContext.close();
+      }
+      System.out.println("Finished");
+      
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    System.exit(0);
   }
 }
