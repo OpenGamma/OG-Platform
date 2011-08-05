@@ -15,7 +15,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 /**
- *
+ * Tests the PackedMatrix Class
  */
 public class PackedMatrixTest {
   double _ragged[][]={{1,2,3,4},{5,6,7},{11,12,13,14,15}};

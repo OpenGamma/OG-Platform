@@ -124,12 +124,17 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     _data = Arrays.copyOfRange(tmp, 0, count);
   }
 
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getNumberOfElements() {
     return _els;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double getEntry(int... indices) {
     if (indices.length > 2) {
@@ -157,6 +162,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getFullRow(int index) {
     double[] tmp = new double[_cols];
@@ -166,6 +174,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     return tmp;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getFullColumn(int index) {
     double[] tmp = new double[_rows];
@@ -175,6 +186,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     return tmp;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getRowElements(int index) {
     int count = (_colCount[index + 1] - _colCount[index]);
@@ -185,6 +199,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     return tmp;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getColumnElements(int index) {
     double[] tmp = new double[_rows];
@@ -199,11 +216,17 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     return Arrays.copyOfRange(tmp, 0, idx);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getNumberOfNonZeroElements() {
     return _data.length;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
@@ -219,6 +242,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     return tmp;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString() {
     return "PackedMatrix:\ndata = " + Arrays.toString(_data)
@@ -226,6 +252,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
       + Arrays.toString(_rowPtr);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -239,6 +268,9 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
