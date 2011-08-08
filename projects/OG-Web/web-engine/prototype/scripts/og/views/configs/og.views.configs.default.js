@@ -27,7 +27,8 @@ $.register_module({
                 json.config_data = is_new ? '' :
                     json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                         : json.configXML ? json.configXML : '';
-                $.tmpl(template, json).appendTo($(selector).empty());
+                var temp = $('<p/>').append($.tmpl(template, json)).html();
+                $(selector).html(temp);
                 if (deleted || is_new)
                     $(selector + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                 if (is_new) $(selector + ' .og-js-submit[value=save_as_new]').html('Save');

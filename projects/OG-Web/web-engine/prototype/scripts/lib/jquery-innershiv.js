@@ -89,7 +89,7 @@ window.innerShiv = (function () {
 (function ($) {
     var old_html = $.fn.html;
     $.fn.html = function (input) {
-        if (typeof input !== 'string') old_html.call(this, input);
+        if (typeof input !== 'string') return old_html.call(this, input);
         return this.empty().append(innerShiv(input, false));
     };
 })($);
