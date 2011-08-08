@@ -161,8 +161,8 @@ $.register_module({
                         name: 'Timeseries',
                         recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries'
                     });
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
+                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
                     layout.inner.resizeAll();
@@ -191,8 +191,8 @@ $.register_module({
                                     ui.message({location: '.ui-layout-inner-center', destroy: true});
                                     layout.inner.resizeAll();
                                 };
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);

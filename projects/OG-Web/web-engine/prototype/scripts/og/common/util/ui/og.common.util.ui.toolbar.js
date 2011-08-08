@@ -8,6 +8,7 @@ $.register_module({
     obj: function () {
         return function (obj) {
             var $new_obj = [], html,
+                toolbar_tmpl = '<div class="og-${name} og-js-${name} ${enabled}"><span>${name}</span></div>',
                 buttons = [
                     {name: 'delete', 'level': 'danger'},
                     {name: 'new'}
@@ -17,9 +18,8 @@ $.register_module({
             $.each(obj.buttons, function (i) {
                 if (obj.buttons[i]['enabled'] === 'OG-disabled') obj.buttons[i]['level'] = 'off';
             });
-            html = $.tmpl('<div class="og-${name} og-js-${name} ${enabled}"><span>${name}</span></div>',
-                    $.extend(true, buttons, obj.buttons)
-            );
+            // must convert rendered template into a string
+            html = $('<p/>').append($.tmpl(toolbar_tmpl, $.extend(true, buttons, obj.buttons))).html();
             $(obj.location).html(html); // Add the buttons to the page
             // Implement handlers
             $.each(($.extend(true, $new_obj, {'buttons': buttons}, obj)).buttons, function (i, val) {

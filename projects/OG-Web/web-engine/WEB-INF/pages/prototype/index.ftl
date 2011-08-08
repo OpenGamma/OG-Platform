@@ -31,8 +31,8 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <#include "modules/common/og.common.search_results.ftl">
   </div>
 </div>
-<!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_common.js',false)}
+<!--[if lt IE 9]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_main.js',false)}
 </body>
 </html>
