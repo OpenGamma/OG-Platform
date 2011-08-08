@@ -36,9 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
@@ -108,7 +108,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
-    searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
+    searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setDataSource(StringUtils.trimToNull(dataSource));
     searchRequest.setDataProvider(StringUtils.trimToNull(dataProvider));
     searchRequest.setDataField(StringUtils.trimToNull(dataField));
@@ -116,8 +116,8 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     searchRequest.setName(StringUtils.trimToNull(name));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
-      Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      searchRequest.addIdentifierKey(id);
+      ExternalId id = ExternalId.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
+      searchRequest.addExternalId(id);
     }
     out.put("searchRequest", searchRequest);
     
@@ -240,10 +240,10 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   }
 
   private URI addTimeSeries(String dataProvider, String dataField, String idScheme, String idValue, LocalDate startDate, LocalDate endDate) {
-    IdentificationScheme scheme = IdentificationScheme.of(idScheme);
-    Set<Identifier> identifiers = buildSecurityRequest(scheme, idValue);
+    ExternalScheme scheme = ExternalScheme.of(idScheme);
+    Set<ExternalId> identifiers = buildSecurityRequest(scheme, idValue);
     HistoricalTimeSeriesLoader loader = data().getHistoricalTimeSeriesLoader();
-    Map<Identifier, UniqueIdentifier> added = Maps.newHashMap();
+    Map<ExternalId, UniqueId> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
       added = loader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
@@ -251,10 +251,10 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     URI result = null;
     if (!identifiers.isEmpty()) {
       if (identifiers.size() == 1) {
-        Identifier requestIdentifier = identifiers.iterator().next();
-        UniqueIdentifier uid = added.get(requestIdentifier);
-        if (uid != null) {
-          result = data().getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+        ExternalId requestIdentifier = identifiers.iterator().next();
+        UniqueId uniqueId = added.get(requestIdentifier);
+        if (uniqueId != null) {
+          result = data().getUriInfo().getAbsolutePathBuilder().path(uniqueId.toString()).build();
         } else {
           s_logger.warn("No time-series added for {} ", requestIdentifier);
           result = uri(data());
@@ -266,16 +266,16 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     return result;
   }
 
-  private Set<Identifier> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
+  private Set<ExternalId> buildSecurityRequest(final ExternalScheme identificationScheme, final String idValue) {
     if (idValue == null) {
       return Collections.emptySet();
     }
     final String[] identifiers = StringUtils.split(idValue, "\n");
-    final Set<Identifier> result = new HashSet<Identifier>(identifiers.length);
+    final Set<ExternalId> result = new HashSet<ExternalId>(identifiers.length);
     for (String identifier : identifiers) {
       identifier = StringUtils.trimToNull(identifier);
       if (identifier != null) {
-        result.add(Identifier.of(identificationScheme, identifier));
+        result.add(ExternalId.of(identificationScheme, identifier));
       }
     }
     return result;
@@ -285,7 +285,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   @Path("{timeseriesId}")
   public WebHistoricalTimeSeriesResource findSeries(@PathParam("timeseriesId") String idStr) {
     data().setUriHistoricalTimeSeriesId(idStr);
-    HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueIdentifier.parse(idStr));
+    HistoricalTimeSeriesInfoDocument info = data().getHistoricalTimeSeriesMaster().get(UniqueId.parse(idStr));
     data().setInfo(info);
     ManageableHistoricalTimeSeries series = data().getHistoricalTimeSeriesMaster().getTimeSeries(
         info.getInfo().getTimeSeriesObjectId(), VersionCorrection.LATEST, null, null);
@@ -321,12 +321,12 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI, not null
    */
-  public static URI uri(WebHistoricalTimeSeriesData data, Collection<Identifier> identifiers) {
+  public static URI uri(WebHistoricalTimeSeriesData data, Collection<ExternalId> identifiers) {
     UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebAllHistoricalTimeSeriesResource.class);
     if (identifiers != null) {
-      Iterator<Identifier> it = identifiers.iterator();
+      Iterator<ExternalId> it = identifiers.iterator();
       for (int i = 0; it.hasNext(); i++) {
-        Identifier id = it.next();
+        ExternalId id = it.next();
         builder.queryParam("idscheme." + i, id.getScheme().getName());
         builder.queryParam("idvalue." + i, id.getValue());
       }

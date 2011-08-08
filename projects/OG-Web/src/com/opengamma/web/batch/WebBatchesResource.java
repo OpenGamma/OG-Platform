@@ -25,7 +25,7 @@ import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
@@ -98,7 +98,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   @Path("{batchId}")
   public WebBatchResource findSecurity(@PathParam("batchId") String idStr) {
     data().setUriBatchId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       BatchDocument doc = data().getBatchMaster().get(oid);
       data().setBatch(doc);

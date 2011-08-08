@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 
 /**
@@ -91,7 +91,7 @@ public class WebExchangeVersionResource extends AbstractWebExchangeResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideVersionId) {
+  public static URI uri(final WebExchangeData data, final UniqueId overrideVersionId) {
     String exchangeId = data.getBestExchangeUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebExchangeVersionResource.class).build(exchangeId, versionId);

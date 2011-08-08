@@ -7,15 +7,15 @@
 package com.opengamma.masterdb.security.hibernate.swap;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
-import static com.opengamma.masterdb.security.hibernate.Converters.uniqueIdentifierBeanToUniqueIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.uniqueIdentifierToUniqueIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.uniqueIdBeanToUniqueId;
+import static com.opengamma.masterdb.security.hibernate.Converters.uniqueIdToUniqueIdBean;
 
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SecurityNotional;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 
 /**
@@ -52,7 +52,7 @@ public final class NotionalBeanOperation {
       @Override
       public NotionalBean visitSecurityNotional(SecurityNotional notional) {
         final NotionalBean bean = createNotionalBean(notional);
-        bean.setIdentifier(uniqueIdentifierToUniqueIdentifierBean(notional.getNotionalIdentifier()));
+        bean.setIdentifier(uniqueIdToUniqueIdBean(notional.getNotionalIdentifier()));
         return bean;
       }
 
@@ -76,7 +76,7 @@ public final class NotionalBeanOperation {
 
       @Override
       public Notional visitSecurityNotional(SecurityNotional ignore) {
-        UniqueIdentifier uniqueId = uniqueIdentifierBeanToUniqueIdentifier(bean.getIdentifier());
+        UniqueId uniqueId = uniqueIdBeanToUniqueId(bean.getIdentifier());
         final SecurityNotional notional = new SecurityNotional(uniqueId);
         return notional;
       }

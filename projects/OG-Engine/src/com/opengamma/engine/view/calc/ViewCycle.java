@@ -10,7 +10,7 @@ import javax.time.Duration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -24,14 +24,14 @@ public interface ViewCycle extends UniqueIdentifiable {
    * 
    * @return the unique identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /**
    * Gets the unique identifier of the view process.
    * 
    * @return the unique identifier of the owning view process, not null
    */
-  UniqueIdentifier getViewProcessId();
+  UniqueId getViewProcessId();
   
   /**
    * Gets the state of the view cycle.

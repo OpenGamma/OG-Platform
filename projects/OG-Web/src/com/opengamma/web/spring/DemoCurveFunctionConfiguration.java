@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumen
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -66,7 +66,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       // tightly coupled to the ConfigDbInterpolatedYieldCurveSource and MarketInstrumentImpliedYieldCurveFunction classes
       final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<YieldCurveDefinition>();
       searchRequest.setType(YieldCurveDefinition.class);
-      
+
       final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
       final Map<String, Set<String>> currencyToCurves = new HashMap<String, Set<String>>();
       for (ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
@@ -86,20 +86,17 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       for (Map.Entry<String, Set<String>> currencyCurves : currencyToCurves.entrySet()) {
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
-        if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
+        if (_conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
 //          if (curveNames.contains("SECONDARY")) {
 //            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
 //          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-            addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-            addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
           }
           if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD")) {
             addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-            addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-            addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
             addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
           } else {
             s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
@@ -113,14 +110,6 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
       addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
       addYieldCurveFunction(configs, "GBP", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "GBP", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-      addYieldCurveFunction(configs, "GBP", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
       addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
       addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
       addYieldCurveFunction(configs, "USD", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
@@ -132,20 +121,19 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY_NO3YR", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
     addYieldCurveFunction(configs, "USD", "SWAP_ONLY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-    
+
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
-    
+
     Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {
       addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
-    
+
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
     return new RepositoryConfiguration(configs);
   }
 
-  
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
     addVolatilityCubeFunction(configs, Arrays.asList(parameters));
   }
@@ -154,11 +142,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     if (parameters.size() != 2) {
       throw new IllegalArgumentException();
     }
-    
+
     configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeFunction.class.getName(), parameters));
     configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeMarketDataFunction.class.getName(), parameters));
   }
-  
+
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, String... parameters) {
     addYieldCurveFunction(configs, Arrays.asList(parameters));
   }
@@ -167,14 +155,13 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     if (parameters.size() < 2) {
       throw new IllegalArgumentException();
     }
-    
+
     configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
     for (int i = 1; i < parameters.size() - 1; i++) {
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
       configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
     }
   }
-
 
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
     return new RepositoryConfigurationSource() {

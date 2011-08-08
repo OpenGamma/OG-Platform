@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Hibernate bean.
@@ -86,7 +86,7 @@ public class ComputationTarget {
       if (type.ordinal() == _computationTargetType) {
         return new ComputationTargetSpecification(
             type,
-            UniqueIdentifier.of(_idScheme, _idValue, _idVersion)
+            UniqueId.of(_idScheme, _idValue, _idVersion)
         );
       }
     }

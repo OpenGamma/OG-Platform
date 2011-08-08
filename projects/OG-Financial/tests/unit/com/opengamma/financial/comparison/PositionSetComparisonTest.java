@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 
@@ -39,9 +39,9 @@ public class PositionSetComparisonTest extends AbstractTest {
     final Set<Position> set = new HashSet<Position>();
     Security security;
     set.add(createPosition("A1", 10, createRawSecurity("1", 42), "P1", "P2", null, null));
-    security = createSwaptionSecurity("3", true, Currency.USD, Identifier.of("Underlying", "3"));
+    security = createSwaptionSecurity("3", true, Currency.USD, ExternalId.of("Underlying", "3"));
     set.add(createPosition("A3", 30, security, "P1", "P2", createTrade(20, security, "T1", "T2"), createTrade(10, security, "T1", "T2")));
-    security = createFRASecurity("4", Currency.USD, 42d, Identifier.of("Underlying", "4"));
+    security = createFRASecurity("4", Currency.USD, 42d, ExternalId.of("Underlying", "4"));
     set.add(createPosition("A4", 40, security, "P1", "P2", createTrade(30, security, null, null), createTrade(10, security, null, null)));
     security = createRawSecurity("5", 42);
     security = createRawSecurity("6", 42);
@@ -52,8 +52,8 @@ public class PositionSetComparisonTest extends AbstractTest {
   private Set<Position> createPositionSetB() {
     final Set<Position> set = new HashSet<Position>();
     Security security;
-    set.add(createPosition("B2", 20, createEquityOptionSecurity("2", OptionType.CALL, 42d, Identifier.of("Underlying", "2")), null, null, null, null));
-    security = createSwaptionSecurity("3", true, Currency.USD, Identifier.of("Underlying", "3"));
+    set.add(createPosition("B2", 20, createEquityOptionSecurity("2", OptionType.CALL, 42d, ExternalId.of("Underlying", "2")), null, null, null, null));
+    security = createSwaptionSecurity("3", true, Currency.USD, ExternalId.of("Underlying", "3"));
     set.add(createPosition("B3", 30, security, "P1", "P2", createTrade(20, security, "T1", "T2"), createTrade(10, security, "T1", "T2")));
     security = createRawSecurity("5", 42);
     set.add(createPosition("B5", 50, security, null, null, createTrade(30, security, "T1", "T2"), createTrade(20, security, "T1", "T2")));

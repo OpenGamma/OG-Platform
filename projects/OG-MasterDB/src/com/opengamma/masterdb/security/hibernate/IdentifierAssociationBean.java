@@ -11,21 +11,21 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Hibernate bean for storing IdentifierAssociation.
+ * Hibernate bean for storing an association.
  */
 public class IdentifierAssociationBean {
   private Long _id;
   private SecurityBean _security;
-  private IdentifierBean _identifier;
+  private ExternalIdBean _externalId;
   private Date _validStartDate; // inclusive
   private Date _validEndDate; // not inclusive
 
   public IdentifierAssociationBean() {
   }
   
-  public IdentifierAssociationBean(SecurityBean security, IdentifierBean identifier) {
+  public IdentifierAssociationBean(SecurityBean security, ExternalIdBean externalId) {
     _security = security;
-    _identifier = identifier;
+    _externalId = externalId;
   }
   
   public Long getId() {
@@ -36,12 +36,12 @@ public class IdentifierAssociationBean {
     _id = id;
   }
   
-  public IdentifierBean getIdentifier() {
-    return _identifier;
+  public ExternalIdBean getIdentifier() {
+    return _externalId;
   }
   
-  public void setIdentifier(IdentifierBean identifier) {
-    _identifier = identifier;
+  public void setIdentifier(ExternalIdBean identifier) {
+    _externalId = identifier;
   }
   
   public SecurityBean getSecurity() {
@@ -74,7 +74,7 @@ public class IdentifierAssociationBean {
     int result = 1;
     result = prime * result + ((_id == null) ? 0 : _id.hashCode());
     result = prime * result + ((_security == null) ? 0 : _security.hashCode());
-    result = prime * result + ((_identifier == null) ? 0 : _identifier.hashCode());
+    result = prime * result + ((_externalId == null) ? 0 : _externalId.hashCode());
     result = prime * result + ((_validStartDate == null) ? 0 : _validStartDate.hashCode());
     result = prime * result + ((_validEndDate == null) ? 0 : _validEndDate.hashCode());
     return result;

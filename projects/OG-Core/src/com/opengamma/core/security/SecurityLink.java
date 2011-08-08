@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Link;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -29,8 +29,8 @@ import com.opengamma.util.PublicSPI;
  * A flexible link between an object and a security.
  * <p>
  * The security link represents a connection from an entity to a security.
- * The connection can be held by {@code ObjectIdentifier}, {@code IdentifierBundle}
- * or by a resolved reference to the security itself.
+ * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
+ * The link also holds a resolved reference to the security itself.
  * <p>
  * This class is mutable and not thread-safe.
  */
@@ -56,7 +56,7 @@ public class SecurityLink extends Link<Security> {
     SecurityLink link = new SecurityLink();
     link.setAndLockTarget(security);
     if (link.getObjectId() == null) {
-      link.setBundleId(security.getIdentifiers());
+      link.setExternalId(security.getIdentifiers());
     }
     return link;
   }
@@ -88,7 +88,7 @@ public class SecurityLink extends Link<Security> {
    * 
    * @param objectId  the object identifier, not null
    */
-  public SecurityLink(final ObjectIdentifier objectId) {
+  public SecurityLink(final ObjectId objectId) {
     super(objectId);
   }
 
@@ -97,7 +97,7 @@ public class SecurityLink extends Link<Security> {
    * 
    * @param uniqueId  the unique identifier, not null
    */
-  public SecurityLink(final UniqueIdentifier uniqueId) {
+  public SecurityLink(final UniqueId uniqueId) {
     super(uniqueId);
   }
 
@@ -106,8 +106,8 @@ public class SecurityLink extends Link<Security> {
    * 
    * @param identifier  the identifier, not null
    */
-  public SecurityLink(final Identifier identifier) {
-    super(IdentifierBundle.of(identifier));
+  public SecurityLink(final ExternalId identifier) {
+    super(ExternalIdBundle.of(identifier));
   }
 
   /**
@@ -115,7 +115,7 @@ public class SecurityLink extends Link<Security> {
    * 
    * @param bundle  the identifier bundle, not null
    */
-  public SecurityLink(final IdentifierBundle bundle) {
+  public SecurityLink(final ExternalIdBundle bundle) {
     super(bundle);
   }
 
@@ -127,20 +127,20 @@ public class SecurityLink extends Link<Security> {
    */
   public String getBestName() {
     Security security = getTarget();
-    ObjectIdentifier objectId = getObjectId();
-    IdentifierBundle bundle = getBundleId();
+    ObjectId objectId = getObjectId();
+    ExternalIdBundle bundle = getExternalId();
     if (security != null) {
       bundle = security.getIdentifiers();
     }
     if (bundle != null && bundle.size() > 0) {
-      if (bundle.getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return bundle.getIdentifierValue(SecurityUtils.BLOOMBERG_TICKER);
-      } else if (bundle.getIdentifierValue(SecurityUtils.RIC) != null) {
-        return bundle.getIdentifierValue(SecurityUtils.RIC);
-      } else if (bundle.getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
-        return bundle.getIdentifierValue(SecurityUtils.ACTIVFEED_TICKER);
+      if (bundle.getValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
+        return bundle.getValue(SecurityUtils.BLOOMBERG_TICKER);
+      } else if (bundle.getValue(SecurityUtils.RIC) != null) {
+        return bundle.getValue(SecurityUtils.RIC);
+      } else if (bundle.getValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
+        return bundle.getValue(SecurityUtils.ACTIVFEED_TICKER);
       } else {
-        return bundle.getIdentifiers().iterator().next().getValue();
+        return bundle.getExternalIds().iterator().next().getValue();
       }
     }
     if (objectId != null) {
@@ -163,7 +163,7 @@ public class SecurityLink extends Link<Security> {
     if (target != null) {
       return target;
     }
-    ObjectIdentifier objectId = getObjectId();
+    ObjectId objectId = getObjectId();
     if (objectId != null) {
       target = source.getSecurity(objectId.atLatestVersion());
       if (target != null) {
@@ -171,7 +171,7 @@ public class SecurityLink extends Link<Security> {
         return target;
       }
     }
-    IdentifierBundle bundle = getBundleId();
+    ExternalIdBundle bundle = getExternalId();
     if (bundle.size() > 0) {
       target = source.getSecurity(bundle);
       if (target != null) {

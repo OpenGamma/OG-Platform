@@ -10,7 +10,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 
 /**
  * A bean representation of a {@link SwapLeg}.
@@ -21,12 +21,12 @@ public class SwapLegBean {
   private SwapLegType _swapLegType;
   private DayCountBean _dayCount;
   private FrequencyBean _frequency;
-  private IdentifierBean _region;
+  private ExternalIdBean _region;
   private BusinessDayConventionBean _businessDayConvention;
   private NotionalBean _notional;
   private double _rate;
   private double _spread;
-  private IdentifierBean _rateIdentifier;
+  private ExternalIdBean _rateIdentifier;
   private Boolean _ibor;
 
   public SwapLegType getSwapLegType() {
@@ -73,7 +73,7 @@ public class SwapLegBean {
    * Gets the region field.
    * @return the region
    */
-  public IdentifierBean getRegion() {
+  public ExternalIdBean getRegion() {
     return _region;
   }
 
@@ -81,7 +81,7 @@ public class SwapLegBean {
    * Sets the region field.
    * @param region  the region
    */
-  public void setRegion(IdentifierBean region) {
+  public void setRegion(ExternalIdBean region) {
     _region = region;
   }
 
@@ -153,7 +153,7 @@ public class SwapLegBean {
    * Gets the rateIdentifier field.
    * @return the rateIdentifier
    */
-  public IdentifierBean getRateIdentifier() {
+  public ExternalIdBean getRateIdentifier() {
     return _rateIdentifier;
   }
 
@@ -161,7 +161,7 @@ public class SwapLegBean {
    * Sets the rateIdentifier field.
    * @param rateIdentifier  the rateIdentifier
    */
-  public void setRateIdentifier(IdentifierBean rateIdentifier) {
+  public void setRateIdentifier(ExternalIdBean rateIdentifier) {
     _rateIdentifier = rateIdentifier;
   }
   

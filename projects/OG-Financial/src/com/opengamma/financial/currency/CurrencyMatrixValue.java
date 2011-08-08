@@ -14,7 +14,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -213,7 +213,7 @@ public abstract class CurrencyMatrixValue {
    * @param uniqueId the unique identifier to retrieve market data for
    * @return the matrix value
    */
-  public static CurrencyMatrixValueRequirement of(final UniqueIdentifier uniqueId) {
+  public static CurrencyMatrixValueRequirement of(final UniqueId uniqueId) {
     return new CurrencyMatrixValueRequirement(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueId), false);
   }
 

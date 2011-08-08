@@ -18,8 +18,8 @@ import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.analytics.bond.BondSecurityConverter;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -30,9 +30,9 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.money.Currency;
@@ -83,7 +83,7 @@ public class BondSecurityToBondDefinitionConverterTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity3() {
-    CONVERTER.getBond((BondSecurity) null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(
+    CONVERTER.getBond((BondSecurity) null, false, CONVENTION_SOURCE.getConventionBundle(ExternalId.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
   }
 
@@ -117,18 +117,18 @@ public class BondSecurityToBondDefinitionConverterTest {
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final IdentifierBundle regionOrExchangeIds) {
+        final ExternalIdBundle regionOrExchangeIds) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final Identifier regionOrExchangeId) {
+        final ExternalId regionOrExchangeId) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
 
     @Override
-    public Holiday getHoliday(final UniqueIdentifier uid) {
+    public Holiday getHoliday(final UniqueId uid) {
       return null;
     }
 

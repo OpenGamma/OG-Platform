@@ -6,7 +6,7 @@
 <@section title="Time series search" if=searchRequest??>
   <@form method="GET" action="${uris.allTimeSeries()}">
   <p>
-    <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.identifierValue}" /></@rowin>
+    <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.externalIdValue}" /></@rowin>
     <@rowin label="Data source"><input type="text" size="30" maxlength="80" name="dataSource" value="${searchRequest.dataSource}" /></@rowin>
     <@rowin label="Data provider"><input type="text" size="30" maxlength="80" name="dataProvider" value="${searchRequest.dataProvider}" /></@rowin>
     <@rowin label="Data field"><input type="text" size="30" maxlength="80" name="dataField" value="${searchRequest.dataField}" /></@rowin>
@@ -22,7 +22,7 @@
   <@table items=searchResult.documents paging=paging empty="No time series" headers=["Reference","Identifiers","Data source","Data provider","Data field","Observation time","Actions"]; item>
       <td><a href="${uris.oneTimeSeries(item)}">${item.info.uniqueId.value}</a></td>
       <td>
-      <#list item.info.identifiers.iterator() as item>
+      <#list item.info.externalIdBundle.externalIds as item>
     	   ${item}<br>
    	  </#list>
       </td>

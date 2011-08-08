@@ -5,7 +5,7 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.fra">
   <union-subclass name="FRASecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_fra">
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
-  	<component name="region" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
   	  <property name="scheme" column="region_scheme" type="string" />
   	  <property name="identifier" column="region_identifier" type="string" />
   	</component>
@@ -19,7 +19,7 @@
     </component>
     <property name="rate" type="double" not-null="true"/>
     <property name="amount" type="double" not-null="true"/>
-    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="underlying_scheme" type="string" />
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>

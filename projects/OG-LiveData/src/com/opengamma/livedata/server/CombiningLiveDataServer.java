@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
@@ -173,7 +173,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   }
 
   @Override
-  protected IdentificationScheme getUniqueIdDomain() {
+  protected ExternalScheme getUniqueIdDomain() {
     throw new IllegalArgumentException();
   }
 

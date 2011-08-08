@@ -23,7 +23,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -66,19 +65,6 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
     final YieldAndDiscountCurve creditCurve = (YieldAndDiscountCurve) creditCurveObject;
     final YieldAndDiscountCurve riskFreeCurve = (YieldAndDiscountCurve) riskFreeCurveObject;
     return new YieldCurveBundle(new String[] {getCreditCurveName(), getRiskFreeCurveName()}, new YieldAndDiscountCurve[] {creditCurve, riskFreeCurve});
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof BondSecurity;
   }
 
   @Override

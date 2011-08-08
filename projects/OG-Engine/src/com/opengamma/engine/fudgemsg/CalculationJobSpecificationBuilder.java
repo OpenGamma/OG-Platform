@@ -15,7 +15,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Fudge message builder for {@code CalculationJobSpecification}.
@@ -39,7 +39,7 @@ public class CalculationJobSpecificationBuilder implements FudgeBuilder<Calculat
 
   @Override
   public CalculationJobSpecification buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    UniqueIdentifier viewCycleId = msg.getValue(UniqueIdentifier.class, VIEW_CYCLE_ID_FIELD_NAME);
+    UniqueId viewCycleId = msg.getValue(UniqueId.class, VIEW_CYCLE_ID_FIELD_NAME);
     String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_FIELD_NAME);
     Instant valuationTime = context.fieldValueToObject(Instant.class, msg.getByName(VALUATION_TIME_FIELD_NAME));
     long jobId = msg.getLong(JOB_ID_FIELD_NAME);

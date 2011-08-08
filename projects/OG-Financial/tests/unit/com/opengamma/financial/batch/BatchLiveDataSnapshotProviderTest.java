@@ -18,8 +18,8 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
@@ -46,8 +46,8 @@ public class BatchLiveDataSnapshotProviderTest {
     
     MockHistoricalTimeSeriesSource historicalSource = new MockHistoricalTimeSeriesSource();
     
-    Identifier identifier = Identifier.of("mytimeseries", "500");
-    IdentifierBundle bundle = IdentifierBundle.of(identifier);
+    ExternalId identifier = ExternalId.of("mytimeseries", "500");
+    ExternalIdBundle bundle = ExternalIdBundle.of(identifier);
     historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
     
     HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, "BLOOMBERG", "CMPL", "PX_LAST");
@@ -61,8 +61,8 @@ public class BatchLiveDataSnapshotProviderTest {
     Object ts = snapshot.query(new ValueRequirement("foo", identifier));
     assertEquals(11.12, ts);
     
-    assertNull(snapshot.query(new ValueRequirement("foo", Identifier.of("mytimeseries2", "500"))));
-    assertNull(snapshot.query(new ValueRequirement("foo", Identifier.of("mytimeseries", "501"))));
+    assertNull(snapshot.query(new ValueRequirement("foo", ExternalId.of("mytimeseries2", "500"))));
+    assertNull(snapshot.query(new ValueRequirement("foo", ExternalId.of("mytimeseries", "501"))));
   }
 
 }

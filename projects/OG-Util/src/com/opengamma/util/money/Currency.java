@@ -11,9 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -34,9 +34,10 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    */
   private static final ConcurrentMap<String, Currency> s_instanceMap = new ConcurrentHashMap<String, Currency>();
   /**
-   * A scheme for the unique identifier.
+   * The scheme to use in object identifiers.
    */
-  public static final String OBJECT_IDENTIFIER_SCHEME = "CurrencyISO";
+  public static final String OBJECT_SCHEME = "CurrencyISO";
+
   // a selection of commonly traded, stable currencies
   /**
    * The currency 'USD' - United States Dollar.
@@ -68,6 +69,10 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   public static final Currency CAD = of("CAD");
 
   // a selection of other currencies
+  /**
+   * The currency 'NZD' - New Zealand Dollar.
+   */
+  public static final Currency NZD = of("NZD");
   /**
    * The currency 'DKK' - Danish Krone
    */
@@ -116,7 +121,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   //-----------------------------------------------------------------------
   /**
-   * Obtains an instance of {@code CurrencyUnit} matching the specified JDK currency.
+   * Obtains an instance of {@code Currency} matching the specified JDK currency.
    * <p>
    * This converts the JDK currency instance to a currency unit using the code.
    *
@@ -129,7 +134,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   }
 
   /**
-   * Obtains an instance of {@code CurrencyUnit} for the specified ISO-4217
+   * Obtains an instance of {@code Currency} for the specified ISO-4217
    * three letter currency code dynamically creating a currency if necessary.
    * <p>
    * A currency is uniquely identified by ISO-4217 three letter code.
@@ -149,7 +154,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   }
 
   /**
-   * Parses a string to obtain a {@code CurrencyUnit}.
+   * Parses a string to obtain a {@code Currency}.
    * <p>
    * The parse is identical to {@link #of(String)} except that it will convert
    * letters to upper case first.
@@ -196,32 +201,32 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   /**
    * Gets the object identifier for the currency.
    * <p>
-   * This uses the scheme {@link #OBJECT_IDENTIFIER_SCHEME CurrencyISO}.
+   * This uses the scheme {@link #OBJECT_SCHEME CurrencyISO}.
    * 
    * @return the object identifier, not null
    */
   @Override
-  public ObjectIdentifier getObjectId() {
-    return ObjectIdentifier.of(OBJECT_IDENTIFIER_SCHEME, _code);
+  public ObjectId getObjectId() {
+    return ObjectId.of(OBJECT_SCHEME, _code);
   }
 
   /**
    * Gets the unique identifier for the currency.
    * <p>
-   * This uses the scheme {@link #OBJECT_IDENTIFIER_SCHEME CurrencyISO}.
+   * This uses the scheme {@link #OBJECT_SCHEME CurrencyISO}.
    * 
    * @return the unique identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
-    return UniqueIdentifier.of(OBJECT_IDENTIFIER_SCHEME, _code);
+  public UniqueId getUniqueId() {
+    return UniqueId.of(OBJECT_SCHEME, _code);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the JDK currency instance equivalent to this currency.
    * <p>
-   * This attempts to convert a {@code CurrencyUnit} to a JDK {@code Currency}.
+   * This attempts to convert a {@code Currency} to a JDK {@code Currency}.
    * 
    * @return the JDK currency instance, not null
    * @throws IllegalArgumentException if no matching currency exists in the JDK

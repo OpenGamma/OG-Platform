@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calc;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class EngineResourceManagerImpl<T extends EngineResource> implements EngineResourceManagerInternal<T> {
   
-  private final ConcurrentMap<UniqueIdentifier, ReferenceCountedResource<T>> _resourceMap = new ConcurrentHashMap<UniqueIdentifier, ReferenceCountedResource<T>>();
+  private final ConcurrentMap<UniqueId, ReferenceCountedResource<T>> _resourceMap = new ConcurrentHashMap<UniqueId, ReferenceCountedResource<T>>();
   
   @Override
   public EngineResourceReferenceImpl<T> manage(T resource) {
@@ -31,19 +31,19 @@ public class EngineResourceManagerImpl<T extends EngineResource> implements Engi
   }
 
   @Override
-  public EngineResourceReference<T> createReference(UniqueIdentifier uniqueId) {
+  public EngineResourceReference<T> createReference(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     T resource = incrementCycleReferenceCountCore(uniqueId);
     return resource == null ? null : new EngineResourceReferenceImpl<T>(this, resource);
   }
 
   @Override
-  public boolean incrementCycleReferenceCount(UniqueIdentifier uniqueId) {
+  public boolean incrementCycleReferenceCount(UniqueId uniqueId) {
     return incrementCycleReferenceCountCore(uniqueId) != null;
   }
   
   @Override
-  public boolean decrementCycleReferenceCount(UniqueIdentifier uniqueId) {
+  public boolean decrementCycleReferenceCount(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ReferenceCountedResource<T> refCountedResource = _resourceMap.get(uniqueId);
     
@@ -66,7 +66,7 @@ public class EngineResourceManagerImpl<T extends EngineResource> implements Engi
   }
   
   //-------------------------------------------------------------------------
-  private T incrementCycleReferenceCountCore(UniqueIdentifier uniqueId) {
+  private T incrementCycleReferenceCountCore(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ReferenceCountedResource<T> refCountedResource = _resourceMap.get(uniqueId);
      

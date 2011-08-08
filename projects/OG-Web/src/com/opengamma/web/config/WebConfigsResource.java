@@ -27,8 +27,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -39,6 +39,7 @@ import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.json.JSONBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -103,7 +104,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     out.put("searchRequest", searchRequest);
     out.put("type", type);
     for (String configIdStr : configIdStrs) {
-      searchRequest.addConfigId(ObjectIdentifier.parse(configIdStr));
+      searchRequest.addConfigId(ObjectId.parse(configIdStr));
     }
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
@@ -209,7 +210,10 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     Class<?> typeClazz = typeMap.get(configType);
     String template = null;
     if (typeClazz != null) {
-      template = data().getTemplateMap().get(typeClazz);
+      JSONBuilder<?> jsonBuilder = data().getJsonBuilderMap().get(typeClazz);
+      if (jsonBuilder != null) {
+        template = jsonBuilder.getTemplate();
+      }
     } 
     FlexiBean out = super.createRootData();
     out.put("template", template);
@@ -221,7 +225,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Path("{configId}")
   public WebConfigResource findConfig(@PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       ConfigDocument<?> doc = data().getConfigMaster().get(oid);
       data().setConfig(doc);

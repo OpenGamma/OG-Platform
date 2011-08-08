@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Base operation for {@link ViewDeltaResultModelBuilder} and {@link ViewComputationResultModelBuilder}.
@@ -56,8 +56,8 @@ public abstract class ViewResultModelBuilder {
   }
 
   protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeMsg message) {
-    final UniqueIdentifier viewProcessId = message.getValue(UniqueIdentifier.class, FIELD_VIEWPROCESSID);
-    final UniqueIdentifier viewCycleId = message.getValue(UniqueIdentifier.class, FIELD_VIEWCYCLEID);
+    final UniqueId viewProcessId = message.getValue(UniqueId.class, FIELD_VIEWPROCESSID);
+    final UniqueId viewCycleId = message.getValue(UniqueId.class, FIELD_VIEWCYCLEID);
     final Instant valuationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATION_TIME));
     final Instant calculationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_CALCULATION_TIME));
     final Duration calculationDuration = context.fieldValueToObject(Duration.class, message.getByName(FIELD_CALCULATION_DURATION));

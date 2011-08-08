@@ -28,7 +28,7 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -126,7 +126,7 @@ public final class PortfolioCompiler {
    * @param compilationContext  the compilation context containing the view being compiled, not null
    */
   private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
-    UniqueIdentifier portfolioId = compilationContext.getViewDefinition().getPortfolioId();
+    UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
     if (portfolioId == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
@@ -174,7 +174,7 @@ public final class PortfolioCompiler {
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
     Portfolio cloned = new PortfolioImpl(portfolio);
-    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(portfolio.getRootNode());
+    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(cloned.getRootNode());
     return cloned;
   }
 

@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
@@ -44,7 +44,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   /**
    * The identifier specified in the URI.
    */
-  private UniqueIdentifier _urlResourceId;
+  private UniqueId _urlResourceId;
 
   /**
    * Creates the resource.
@@ -52,7 +52,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @param portfoliosResource  the parent resource, not null
    * @param portfolioId  the portfolio unique identifier, not null
    */
-  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final UniqueIdentifier portfolioId) {
+  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final UniqueId portfolioId) {
     ArgumentChecker.notNull(portfoliosResource, "portfoliosResource");
     ArgumentChecker.notNull(portfolioId, "portfolio");
     _portfoliosResource = portfoliosResource;
@@ -74,7 +74,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * 
    * @return the unique identifier, not null
    */
-  public UniqueIdentifier getUrlPortfolioId() {
+  public UniqueId getUrlPortfolioId() {
     return _urlResourceId;
   }
 
@@ -100,7 +100,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   @PUT
   @Consumes(FudgeRest.MEDIA)
   public Response put(PortfolioDocument request) {
-    if (getUrlPortfolioId().equalObjectIdentifier(request.getUniqueId()) == false) {
+    if (getUrlPortfolioId().equalObjectId(request.getUniqueId()) == false) {
       throw new IllegalArgumentException("Document portfolioId does not match URI");
     }
     PortfolioDocument result = getPortfolioMaster().update(request);
@@ -176,7 +176,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @param uniqueId  the resource unique identifier, not null
    * @return the URI, not null
    */
-  public static URI uriVersion(URI baseUri, UniqueIdentifier uniqueId) {
+  public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
     return UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }

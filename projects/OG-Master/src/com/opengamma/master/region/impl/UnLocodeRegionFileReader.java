@@ -31,6 +31,7 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
 
 /**
  * Loads a CSV formatted UN/LOCODE file based on the regions in the holiday database.
@@ -147,7 +148,7 @@ class UnLocodeRegionFileReader {
         }
         
         ManageableRegion region = createRegion(name, fullName, countryISO);
-        region.addIdentifier(RegionUtils.unLocode20102RegionId(unlocode));
+        region.addExternalId(RegionUtils.unLocode20102RegionId(unlocode));
         regions.add(region);
       }
     } catch (Exception ex) {
@@ -171,7 +172,7 @@ class UnLocodeRegionFileReader {
 
   private void addParent(ManageableRegion region, String countryISO) {
     RegionSearchRequest request = new RegionSearchRequest();
-    request.addCountryISO(countryISO);
+    request.addCountry(Country.of(countryISO));
     ManageableRegion parent = _regionMaster.search(request).getFirstRegion();
     if (parent == null) {
       throw new OpenGammaRuntimeException("Cannot find parent '" + countryISO + "'  for '" + region.getName() + "'");
@@ -181,20 +182,20 @@ class UnLocodeRegionFileReader {
 
   private void coppClark(Set<ManageableRegion> regions) {
     for (ManageableRegion region : regions) {
-      String unLocode = region.getIdentifiers().getIdentifierValue(RegionUtils.UN_LOCODE_2010_2);
+      String unLocode = region.getExternalIdBundle().getValue(RegionUtils.UN_LOCODE_2010_2);
       String coppClarkLocode = COPP_CLARK_ALTERATIONS.get(unLocode);
       if (coppClarkLocode != null) {
-        region.addIdentifier(RegionUtils.coppClarkRegionId(coppClarkLocode));
+        region.addExternalId(RegionUtils.coppClarkRegionId(coppClarkLocode));
         if (coppClarkLocode.substring(0, 2).equals(unLocode.substring(0, 2)) == false) {
           addParent(region, coppClarkLocode.substring(0, 2));
         }
       } else {
-        region.addIdentifier(RegionUtils.coppClarkRegionId(unLocode));
+        region.addExternalId(RegionUtils.coppClarkRegionId(unLocode));
       }
     }
     for (Entry<String, String> entry : COPP_CLARK_ADDITIONS.entrySet()) {
       ManageableRegion region = createRegion(entry.getValue(), entry.getValue(), entry.getKey().substring(0, 2));
-      region.addIdentifier(RegionUtils.coppClarkRegionId(entry.getKey()));
+      region.addExternalId(RegionUtils.coppClarkRegionId(entry.getKey()));
       regions.add(region);
     }
   }
@@ -204,7 +205,7 @@ class UnLocodeRegionFileReader {
       RegionDocument doc = new RegionDocument();
       doc.setRegion(region);
       RegionSearchRequest request = new RegionSearchRequest();
-      request.addRegionKeys(region.getIdentifiers());
+      request.addExternalIds(region.getExternalIdBundle());
       RegionSearchResult result = _regionMaster.search(request);
       if (result.getDocuments().size() == 0) {
         _regionMaster.add(doc);

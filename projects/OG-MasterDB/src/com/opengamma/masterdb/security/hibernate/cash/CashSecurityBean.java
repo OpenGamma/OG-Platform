@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -20,7 +20,7 @@ import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
  */
 public class CashSecurityBean extends SecurityBean {
   private CurrencyBean _currency;
-  private IdentifierBean _region;
+  private ExternalIdBean _region;
   private ZonedDateTimeBean _maturity;
   /**
    * Gets the rate field.
@@ -61,14 +61,14 @@ public class CashSecurityBean extends SecurityBean {
   /**
    * @return the region Identifier
    */
-  public IdentifierBean getRegion() {
+  public ExternalIdBean getRegion() {
     return _region;
   }
 
   /**
    * @param region the region Identifier to set
    */
-  public void setRegion(final IdentifierBean region) {
+  public void setRegion(final ExternalIdBean region) {
     _region = region;
   }
 

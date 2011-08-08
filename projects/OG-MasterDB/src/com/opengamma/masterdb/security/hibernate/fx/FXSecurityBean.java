@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
@@ -22,7 +22,7 @@ public class FXSecurityBean extends SecurityBean {
   private CurrencyBean _payCurrency;
   private double _receiveAmount;
   private CurrencyBean _receiveCurrency;
-  private IdentifierBean _region;
+  private ExternalIdBean _region;
   
   /**
    * Gets the payAmount.
@@ -92,7 +92,7 @@ public class FXSecurityBean extends SecurityBean {
    * Gets the region.
    * @return the region
    */
-  public IdentifierBean getRegion() {
+  public ExternalIdBean getRegion() {
     return _region;
   }
 
@@ -100,7 +100,7 @@ public class FXSecurityBean extends SecurityBean {
    * Sets the region.
    * @param region  the region
    */
-  public void setRegion(IdentifierBean region) {
+  public void setRegion(ExternalIdBean region) {
     _region = region;
   }
 

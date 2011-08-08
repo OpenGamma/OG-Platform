@@ -12,7 +12,7 @@ import javax.time.InstantProvider;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -50,7 +50,7 @@ public class BloombergVolatilityCubeDefinitionSource implements VolatilityCubeDe
     ret.setSwapTenors(Lists.newArrayList(swapTenors));
     ret.setRelativeStrikes(Lists.newArrayList(relativeStrikes));
     
-    ret.setUniqueId(UniqueIdentifier.of("BLOOMBERG_VOLATILITY_CUBE_DEFINITION", currency.getCode()));
+    ret.setUniqueId(UniqueId.of("BLOOMBERG_VOLATILITY_CUBE_DEFINITION", currency.getCode()));
     return ret;
   }
 

@@ -48,7 +48,7 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -62,8 +62,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   
   // Injected inputs
-  private final UniqueIdentifier _cycleId;
-  private final UniqueIdentifier _viewProcessId;
+  private final UniqueId _cycleId;
+  private final UniqueId _viewProcessId;
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
@@ -84,7 +84,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId,
+  public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId,
       ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition,
       ViewCycleExecutionOptions executionOptions) {
     ArgumentChecker.notNull(cycleId, "cycleId");
@@ -169,12 +169,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _cycleId;
   }
 
   @Override
-  public UniqueIdentifier getViewProcessId() {
+  public UniqueId getViewProcessId() {
     return _viewProcessId;
   }
   

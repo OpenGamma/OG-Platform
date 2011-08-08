@@ -15,7 +15,7 @@ import com.opengamma.financial.currency.AbstractCurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 public class CurrencyMatrixTest extends FinancialTestBase {
@@ -49,7 +49,7 @@ public class CurrencyMatrixTest extends FinancialTestBase {
   @Test
   public void testSymmetricalMatrix() {
     final SimpleCurrencyMatrix simple = new SimpleCurrencyMatrix();
-    simple.setLiveData(Currency.USD, Currency.GBP, UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "GBP Curncy"));
+    simple.setLiveData(Currency.USD, Currency.GBP, UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "GBP Curncy"));
     simple.setFixedConversion(Currency.GBP, Currency.EUR, 0.9);
     simple.setCrossConversion(Currency.USD, Currency.EUR, Currency.GBP);
     simple.setFixedConversion(Currency.EUR, Currency.CHF, 10.0);
@@ -65,7 +65,7 @@ public class CurrencyMatrixTest extends FinancialTestBase {
         case 2:
           return CurrencyMatrixValue.of(Currency.of("AA" + (char) ('A' + r.nextInt(('Z' - 'A') + 1))));
         case 3:
-          return CurrencyMatrixValue.of(UniqueIdentifier.of("Test", "" + r.nextLong()));
+          return CurrencyMatrixValue.of(UniqueId.of("Test", "" + r.nextLong()));
       }
       return null;
     }

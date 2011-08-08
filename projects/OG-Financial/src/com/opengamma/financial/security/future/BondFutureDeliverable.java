@@ -3,12 +3,12 @@
 // CSOFF: Generated File
 package com.opengamma.financial.security.future;
 public class BondFutureDeliverable implements java.io.Serializable {
-  private static final long serialVersionUID = 39623133256803l;
-  private com.opengamma.id.IdentifierBundle _identifiers;
+  private static final long serialVersionUID = 39227779606784l;
+  private com.opengamma.id.ExternalIdBundle _identifiers;
   public static final String IDENTIFIERS_KEY = "identifiers";
   private double _conversionFactor;
   public static final String CONVERSION_FACTOR_KEY = "conversionFactor";
-  public BondFutureDeliverable (com.opengamma.id.IdentifierBundle identifiers, double conversionFactor) {
+  public BondFutureDeliverable (com.opengamma.id.ExternalIdBundle identifiers, double conversionFactor) {
     if (identifiers == null) throw new NullPointerException ("'identifiers' cannot be null");
     else {
       _identifiers = identifiers;
@@ -20,10 +20,10 @@ public class BondFutureDeliverable implements java.io.Serializable {
     fudgeField = fudgeMsg.getByName (IDENTIFIERS_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureDeliverable - field 'identifiers' is not present");
     try {
-      _identifiers = com.opengamma.id.IdentifierBundle.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _identifiers = com.opengamma.id.ExternalIdBundle.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondFutureDeliverable - field 'identifiers' is not IdentifierBundle message", e);
+      throw new IllegalArgumentException ("Fudge message is not a BondFutureDeliverable - field 'identifiers' is not ExternalIdBundle message", e);
     }
     fudgeField = fudgeMsg.getByName (CONVERSION_FACTOR_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureDeliverable - field 'conversionFactor' is not present");
@@ -53,7 +53,7 @@ public class BondFutureDeliverable implements java.io.Serializable {
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_identifiers != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _identifiers.getClass (), com.opengamma.id.IdentifierBundle.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _identifiers.getClass (), com.opengamma.id.ExternalIdBundle.class);
       _identifiers.toFudgeMsg (fudgeContext, fudge1);
       msg.add (IDENTIFIERS_KEY, null, fudge1);
     }
@@ -73,10 +73,10 @@ public class BondFutureDeliverable implements java.io.Serializable {
     }
     return new BondFutureDeliverable (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.IdentifierBundle getIdentifiers () {
+  public com.opengamma.id.ExternalIdBundle getIdentifiers () {
     return _identifiers;
   }
-  public void setIdentifiers (com.opengamma.id.IdentifierBundle identifiers) {
+  public void setIdentifiers (com.opengamma.id.ExternalIdBundle identifiers) {
     if (identifiers == null) throw new NullPointerException ("'identifiers' cannot be null");
     else {
       _identifiers = identifiers;

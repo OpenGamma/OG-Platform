@@ -18,18 +18,16 @@
         "quantity": "${position.quantity}"
     },
     "securities": [
-        <#if position.securityLink.weakId??>
-          <#list position.securityLink.weakId.identifiers as item>{
-              "scheme": "${item.scheme.name}",
-              "value": "${item.value}"
-          }<#if item_has_next>,</#if></#list>
-        </#if>
+        <#list position.securityLink.externalId.externalIds as item>{
+            "scheme": "${item.scheme.name}",
+            "value": "${item.value}"
+        }<#if item_has_next>,</#if></#list>
     ],
     "trades": [
         <#list position.trades as item>{
             "id": "${item.uniqueId.objectId}",
             "quantity": "${item.quantity}",
-            "counterParty": "${item.counterpartyKey}",
+            "counterParty": "${item.counterpartyExternalId}",
             "date": "${item.tradeDate}"
         }<#if item_has_next>,</#if></#list>
     ]

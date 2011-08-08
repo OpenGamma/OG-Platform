@@ -1,0 +1,14 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+ 
+/**
+ * Introduce the Country element as a Fudge-Proto identifier.
+ */
+namespace com.opengamma.util.i18n {
+
+  extern typedef Country = string;
+
+}

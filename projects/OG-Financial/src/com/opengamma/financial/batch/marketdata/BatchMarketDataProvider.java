@@ -7,6 +7,9 @@ package com.opengamma.financial.batch.marketdata;
 
 import java.util.Set;
 
+import javax.time.Duration;
+import javax.time.Instant;
+
 import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
@@ -142,6 +145,11 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
     }
     
     return new BatchMarketDataSnapshot(_run.getSnapshotId(), _batchRunMaster, _batchDbProvider, batchDbSnapshot, historicalSnapshot);
+  }
+  
+  @Override
+  public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+    return Duration.between(fromInstant, toInstant);
   }
 
   //-------------------------------------------------------------------------

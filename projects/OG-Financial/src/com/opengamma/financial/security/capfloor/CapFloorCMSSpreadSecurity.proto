@@ -16,8 +16,8 @@ namespace com.opengamma.financial.security.capfloor {
     required javax.time.calendar.ZonedDateTime startDate;
     required javax.time.calendar.ZonedDateTime maturityDate;
     required double notional;
-    required id.Identifier longIdentifier;
-    required id.Identifier shortIdentifier;
+    required id.ExternalId longIdentifier;
+    required id.ExternalId shortIdentifier;
     required double strike;
     required com.opengamma.financial.convention.frequency.Frequency frequency;
     required com.opengamma.util.money.Currency currency;

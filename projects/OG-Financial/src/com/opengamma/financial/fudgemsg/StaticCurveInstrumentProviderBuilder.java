@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 /**
  * Builder for converting Region instances to/from Fudge messages.
@@ -37,7 +37,7 @@ public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<Static
   @Override
   public StaticCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField instrumentIdentifier = message.getByName("instrument");
-    Identifier identifier = context.fieldValueToObject(Identifier.class, instrumentIdentifier);
+    ExternalId identifier = context.fieldValueToObject(ExternalId.class, instrumentIdentifier);
     return new StaticCurveInstrumentProvider(identifier);
   }
 

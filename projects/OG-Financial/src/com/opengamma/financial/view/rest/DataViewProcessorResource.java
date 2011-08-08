@@ -31,7 +31,7 @@ import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
 
@@ -73,7 +73,7 @@ public class DataViewProcessorResource {
   /**
    * The view clients.
    */
-  private final ConcurrentMap<UniqueIdentifier, DataViewClientResource> _createdViewClients = new ConcurrentHashMap<UniqueIdentifier, DataViewClientResource>();
+  private final ConcurrentMap<UniqueId, DataViewClientResource> _createdViewClients = new ConcurrentHashMap<UniqueId, DataViewClientResource>();
 
   /**
    * Creates an instance.
@@ -128,14 +128,14 @@ public class DataViewProcessorResource {
   //-------------------------------------------------------------------------
   @Path(PATH_PROCESSES + "/{viewProcessId}")
   public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") String viewProcessId) {
-    ViewProcess view = _viewProcessor.getViewProcess(UniqueIdentifier.parse(viewProcessId));
+    ViewProcess view = _viewProcessor.getViewProcess(UniqueId.parse(viewProcessId));
     return new DataViewProcessResource(view);
   }
 
   //-------------------------------------------------------------------------
   @Path(PATH_CLIENTS + "/{viewClientId}")
   public DataViewClientResource getViewClient(@Context UriInfo uriInfo, @PathParam("viewClientId") String viewClientIdString) {
-    UniqueIdentifier viewClientId = UniqueIdentifier.parse(viewClientIdString);
+    UniqueId viewClientId = UniqueId.parse(viewClientIdString);
     DataViewClientResource viewClientResource = _createdViewClients.get(viewClientId);
     if (viewClientResource != null) {
       return viewClientResource;
@@ -165,14 +165,14 @@ public class DataViewProcessorResource {
   }
 
   //-------------------------------------------------------------------------
-  public static URI uriViewProcess(URI baseUri, UniqueIdentifier viewProcessId) {
+  public static URI uriViewProcess(URI baseUri, UniqueId viewProcessId) {
     // WARNING: '/' characters could well appear in the view name
     // There is a bug(?) in UriBuilder where, even though segment() is meant to treat the item as a single path segment
     // and therefore encode '/' characters, it does not encode '/' characters which come from a variable substitution.
     return UriBuilder.fromUri(baseUri).path("processes").segment(viewProcessId.toString()).build();
   }
 
-  public static URI uriClient(URI clientsBaseUri, UniqueIdentifier viewClientId) {
+  public static URI uriClient(URI clientsBaseUri, UniqueId viewClientId) {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
   }
 

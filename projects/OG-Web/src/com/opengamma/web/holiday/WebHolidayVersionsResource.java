@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -87,7 +87,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
   public WebHolidayVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     HolidayDocument doc = data().getHoliday();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       HolidayDocument versioned = data().getHolidayMaster().get(combined);
       data().setVersioned(versioned);

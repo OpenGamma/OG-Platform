@@ -19,7 +19,7 @@
     _create: function() {
       var self = this,
         select = this.element,
-        selectWidth = select.width() + 15,
+        selectWidth = Math.min(250, select.width() + 15),
         selected = select.children(":selected"),
         value = selected.val() ? selected.text() : "";
       select.hide();
@@ -46,7 +46,7 @@
             }) );
           },
           select: function(event, ui) {
-            ui.item.option.selected = true;
+            select.val(ui.item.option.value);
             self._trigger("selected", event, {
               item: ui.item.option
             });
@@ -72,10 +72,6 @@
                 $(this).val("");
                 select.val("");
                 return false;
-              }
-            } else {
-              if (self.options.change) {
-                self.options.change(ui.item.option);
               }
             }
           }
@@ -119,20 +115,21 @@
   
   function onInitDataReceived(initData) {
     if (_init) {
-      return;
+      updateViewList(initData.viewNames);
+    } else {
+      initControls(initData);
     }
-    
+  }
+  
+  function initControls(initData) {
     $('#viewcontrols').show();
     
     viewList = initData.viewNames;
     var $views = $('#views');
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
     var $backingSnapshotList = $("<select id='snapshotlist'></select>")
-    $('<option value=""></option>').appendTo($backingViewList);
-    $.each(viewList, function() {
-      var $opt = $('<option value="' + this + '">' + this + '</option>');
-      $opt.appendTo($backingViewList);
-    });
+
+    updateViewList(initData.viewNames);
     $backingViewList.combobox({
       change: function(item) { populateSnapshots($backingSnapshotList, initData.snapshots, $(item).val()); }
     });
@@ -170,6 +167,16 @@
     $('#viewcontrols').hide().show(500);
     $('#loadingviews').remove();
     _init = true;
+  }
+  
+  function updateViewList(viewList) {
+    var $backingViewList = $("#viewlist")
+    $backingViewList.empty();
+    $('<option value=""></option>').appendTo($backingViewList);
+    $.each(viewList, function() {
+      var $opt = $('<option value="' + this + '">' + this + '</option>');
+      $opt.appendTo($backingViewList);
+    });
   }
   
   function populateSnapshots($snapshotSelect, snapshots, selectedView) {
@@ -213,7 +220,7 @@
       });
     }
         
-    $input.width($snapshotSelect.width() + 15);
+    $input.width(Math.min(250, $snapshotSelect.width() + 15));
     if (!currentValExists) {
       $input.val("Live market data");
     }
@@ -245,6 +252,11 @@
       snapshotId = null;
     }
     
+    prepareChangeView();    
+    _liveResultsClient.changeView(view, snapshotId);
+  }
+  
+  function prepareChangeView() {
     document.body.style.cursor = "wait";
     if (_resultsViewer) {
       _resultsViewer.destroy();
@@ -262,17 +274,18 @@
       });
       $resultsViewerContainer.append($loadingDots);
     }
-    
     setStatusTitle('Loading');
-    setResultTitle('initializing ' + view);
+    setResultTitle('initializing view');
     updateStatusText();
     _isRunning = false;
     disablePauseResumeButtons();
-    
-    _liveResultsClient.changeView(view, snapshotId);
   }
   
   function onViewInitialized(gridStructures) {
+    if (_isRunning) {
+      // Unsolicited re-initialization
+      prepareChangeView();
+    }
     _resultsViewer = new TabbedViewResultsViewer($('#resultsViewer'), gridStructures, _liveResultsClient, _userConfig);
     
     // Ask the client to start

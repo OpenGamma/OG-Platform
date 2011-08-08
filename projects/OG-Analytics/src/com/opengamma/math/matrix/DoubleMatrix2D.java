@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.math.matrix;
@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 /**
  * A minimal implementation of a 2D matrix of doubles.
- * 
+ *
  */
 public class DoubleMatrix2D implements Matrix<Double> {
   private final double[][] _data;
@@ -20,7 +20,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
   public static final DoubleMatrix2D EMPTY_MATRIX = new DoubleMatrix2D(new double[0][0]);
 
   /**
-   * Sets up an empty matrix 
+   * Sets up an empty matrix
    * @param rows Number of rows
    * @param columns Number of columns
    */
@@ -87,7 +87,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
   /**
    * Returns the row for a particular index.
    * @param index The index
-   * @return The row 
+   * @return The row
    */
   public DoubleMatrix1D getRowVector(final int index) {
     return new DoubleMatrix1D(_data[index]);
@@ -118,14 +118,14 @@ public class DoubleMatrix2D implements Matrix<Double> {
   /**
    * Returns the underlying matrix data. If this is changed so is the matrix.
    * @see #toArray to get a copy of data
-   * @return An array of arrays containing the matrix elements 
+   * @return An array of arrays containing the matrix elements
    */
   public double[][] getData() {
     return _data;
   }
 
   /**
-   * Convert the matrix to an array of double arrays. 
+   * Convert the matrix to an array of double arrays.
    * As its elements are copied, the array is independent from the matrix data.
    * @return An array of arrays containing a copy of matrix elements
    */

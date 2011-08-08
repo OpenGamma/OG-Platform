@@ -9,8 +9,8 @@ import java.net.URI;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * URIs for web-based securities.
@@ -44,8 +44,8 @@ public class WebSecuritiesUris {
    * @param identifier  the identifier to search for, may be null
    * @return the URI
    */
-  public URI securities(final Identifier identifier) {
-    return WebSecuritiesResource.uri(_data, IdentifierBundle.of(identifier));
+  public URI securities(final ExternalId identifier) {
+    return WebSecuritiesResource.uri(_data, ExternalIdBundle.of(identifier));
   }
 
   /**
@@ -53,7 +53,7 @@ public class WebSecuritiesUris {
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI
    */
-  public URI securities(final IdentifierBundle identifiers) {
+  public URI securities(final ExternalIdBundle identifiers) {
     return WebSecuritiesResource.uri(_data, identifiers);
   }
 
@@ -66,7 +66,7 @@ public class WebSecuritiesUris {
     if (link.getObjectId() != null) {
       return WebSecurityResource.uri(_data, link.getObjectId().atLatestVersion());
     }
-    return WebSecuritiesResource.uri(_data, link.getBundleId());
+    return WebSecuritiesResource.uri(_data, link.getExternalId());
   }
 
   /**

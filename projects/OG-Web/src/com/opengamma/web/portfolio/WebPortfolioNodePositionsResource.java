@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 
@@ -56,51 +56,51 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
       String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
-    UniqueIdentifier posUid = null;
+    UniqueId positionId = null;
     try {
       new URI(positionUrlStr);  // validates whole URI
-      String uidStr = StringUtils.substringAfterLast(positionUrlStr, "/positions/");
-      uidStr = StringUtils.substringBefore(uidStr, "/");
-      posUid = UniqueIdentifier.parse(uidStr);
-      data().getPositionMaster().get(posUid);  // validate position exists
+      String uniqueIdStr = StringUtils.substringAfterLast(positionUrlStr, "/positions/");
+      uniqueIdStr = StringUtils.substringBefore(uniqueIdStr, "/");
+      positionId = UniqueId.parse(uniqueIdStr);
+      data().getPositionMaster().get(positionId);  // validate position exists
     } catch (Exception ex) {
       FlexiBean out = createRootData();
       out.put("err_positionUrlInvalid", true);
       String html = getFreemarker().build("portfolios/portfolionodepositions-add.ftl", out);
       return Response.ok(html).build();
     }
-    URI uri = addPosition(doc, posUid);
+    URI uri = addPosition(doc, positionId);
     return Response.seeOther(uri).build();
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response postJSON(@FormParam("uid") String uidStr) {
+  public Response postJSON(@FormParam("uid") String uniqueIdStr) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).getHTML()).build();
     }
-    uidStr = StringUtils.trimToNull(uidStr);
-    if (uidStr == null) {
+    uniqueIdStr = StringUtils.trimToNull(uniqueIdStr);
+    if (uniqueIdStr == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    UniqueIdentifier posUid = null;
+    UniqueId positionId = null;
     try {
-      posUid = UniqueIdentifier.parse(uidStr);
-      data().getPositionMaster().get(posUid);  // validate position exists
+      positionId = UniqueId.parse(uniqueIdStr);
+      data().getPositionMaster().get(positionId);  // validate position exists
     } catch (Exception ex) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    URI uri = addPosition(doc, posUid);
+    URI uri = addPosition(doc, positionId);
     return Response.created(uri).build();
   }
 
-  private URI addPosition(PortfolioDocument doc, UniqueIdentifier posUid) {
+  private URI addPosition(PortfolioDocument doc, UniqueId positionId) {
     ManageablePortfolioNode node = data().getNode();
     URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
-    if (node.getPositionIds().contains(posUid) == false) {
-      node.addPosition(posUid);
+    if (node.getPositionIds().contains(positionId) == false) {
+      node.addPosition(positionId);
       doc = data().getPortfolioMaster().update(doc);
       data().setPortfolio(doc);
     }
@@ -148,7 +148,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
    * @param overrideNodeId  the override node id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebPortfoliosData data, final UniqueIdentifier overrideNodeId) {
+  public static URI uri(final WebPortfoliosData data, final UniqueId overrideNodeId) {
     String portfolioId = data.getBestPortfolioUriId(null);
     String nodeId = data.getBestNodeUriId(overrideNodeId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioNodePositionsResource.class).build(portfolioId, nodeId);

@@ -14,7 +14,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -25,8 +25,8 @@ public class TotallingGraphStatisticsGathererProviderTest {
   private TotallingGraphStatisticsGathererProvider _provider = new TotallingGraphStatisticsGathererProvider();
   
   public void testBasicOperation () {
-    UniqueIdentifier vp1Id = UniqueIdentifier.of("Test", "ViewProcess1");
-    UniqueIdentifier vp2Id = UniqueIdentifier.of("Test", "ViewProcess2");
+    UniqueId vp1Id = UniqueId.of("Test", "ViewProcess1");
+    UniqueId vp2Id = UniqueId.of("Test", "ViewProcess2");
     _provider.getStatisticsGatherer(vp1Id).graphProcessed("Config 1", 10, 20.0, 30.0, 40.0);
     _provider.getStatisticsGatherer(vp1Id).graphExecuted("Config 1", 200, 300, 400);
     _provider.getStatisticsGatherer(vp2Id).graphProcessed("Config 1", 20, 40.0, 50.0, 60.0);

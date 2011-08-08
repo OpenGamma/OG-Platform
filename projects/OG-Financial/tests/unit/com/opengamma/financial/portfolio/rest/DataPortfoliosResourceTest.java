@@ -19,7 +19,7 @@ import javax.ws.rs.core.UriInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -52,7 +52,7 @@ public class DataPortfoliosResourceTest {
     final PortfolioDocument request = new PortfolioDocument(portfolio);
     
     final PortfolioDocument result = new PortfolioDocument(portfolio);
-    result.setUniqueId(UniqueIdentifier.of("Test", "PortA"));
+    result.setUniqueId(UniqueId.of("Test", "PortA"));
     when(_underlying.add(same(request))).thenReturn(result);
     
     Response test = _resource.add(_uriInfo, request);
@@ -64,14 +64,14 @@ public class DataPortfoliosResourceTest {
   public void testFindPortfolio() {
     DataPortfolioResource test = _resource.findPortfolio("Test~PortA");
     assertSame(_resource, test.getPortfoliosResource());
-    assertEquals(UniqueIdentifier.of("Test", "PortA"), test.getUrlPortfolioId());
+    assertEquals(UniqueId.of("Test", "PortA"), test.getUrlPortfolioId());
   }
 
   @Test
   public void testFindPortfolioNode() {
     DataPortfolioNodeResource test = _resource.findPortfolioNode("Test~NodeA");
     assertSame(_resource, test.getPortfoliosResource());
-    assertEquals(UniqueIdentifier.of("Test", "NodeA"), test.getUrlNodeId());
+    assertEquals(UniqueId.of("Test", "NodeA"), test.getUrlNodeId());
   }
 
 }

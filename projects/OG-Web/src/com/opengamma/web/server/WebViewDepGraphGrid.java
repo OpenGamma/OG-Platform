@@ -118,9 +118,14 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   
   private Object getJsonRowStructure(DependencyNode node, ValueSpecification valueSpecification, long parentRowId, long rowId, int indent) {
     Map<String, Object> row = new HashMap<String, Object>();
-    String targetName = node.getComputationTarget().getName();
-    if (targetName == null) {
+    String targetName;
+    if (node.getComputationTarget().getType() == ComputationTargetType.TRADE) {
       targetName = node.getComputationTarget().getUniqueId().toString();
+    } else {
+      targetName = node.getComputationTarget().getName();
+      if (targetName == null) {
+        targetName = node.getComputationTarget().getUniqueId().toString();
+      }
     }
     String targetType = getTargetTypeName(node.getComputationTarget().getType());
     String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();   

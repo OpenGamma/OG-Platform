@@ -14,7 +14,7 @@
       </component>
       <property name="accuracy" column="expiry_accuracy" type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true" />
     </component>
-    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="underlying_scheme" type="string" />
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>

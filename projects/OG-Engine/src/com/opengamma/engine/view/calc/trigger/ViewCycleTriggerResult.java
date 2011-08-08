@@ -44,6 +44,10 @@ public class ViewCycleTriggerResult {
     return new ViewCycleTriggerResult(nanos);
   }
   
+  public static ViewCycleTriggerResult forceFull() {
+    return new ViewCycleTriggerResult(ViewCycleEligibility.FORCE, ViewCycleType.FULL);
+  }
+  
   public ViewCycleType getCycleType() {
     return _cycleType;
   }

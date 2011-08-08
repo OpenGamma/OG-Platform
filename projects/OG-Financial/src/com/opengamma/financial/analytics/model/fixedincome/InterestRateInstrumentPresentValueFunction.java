@@ -25,17 +25,17 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
 
-  public InterestRateInstrumentPresentValueFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentPresentValueFunction(String forwardCurveName, String fundingCurveName) {
+    super(forwardCurveName, fundingCurveName, VALUE_REQUIREMENT);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
-      FinancialSecurity security, String forwardCurveName, String fundingCurveName) {
+      FinancialSecurity security) {
     final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-            fundingCurveName, forwardCurveName, createValueProperties()));
+            getFundingCurveName(), getForwardCurveName(), createValueProperties()));
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
 

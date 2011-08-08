@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.time.Duration;
+import javax.time.Instant;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.engine.marketdata.PendingCombinedMarketDataSubscription.PendingCombinedSubscriptionState;
@@ -159,6 +162,11 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
     MarketDataSnapshot underlyingSnapshot = _underlying.snapshot(marketDataSpec);
     MarketDataSnapshot overrideSnapshot = _override.snapshot(marketDataSpec);    
     return new MarketDataSnapshotWithOverride(underlyingSnapshot, overrideSnapshot);
+  }
+  
+  @Override
+  public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+    return _underlying.getRealTimeDuration(fromInstant, toInstant);
   }
     
   //--------------------------------------------------------------------------

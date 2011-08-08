@@ -17,8 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -41,28 +41,28 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_remove_nullOID() {
-    _htsMaster.removeTimeSeriesDataPoints((ObjectIdentifier) null, LocalDate.of(2011, 7, 1), LocalDate.of(2011, 7, 1));
+    _htsMaster.removeTimeSeriesDataPoints((ObjectId) null, LocalDate.of(2011, 7, 1), LocalDate.of(2011, 7, 1));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_remove_dateOrder() {
-    _htsMaster.removeTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), LocalDate.of(2011, 7, 1), LocalDate.of(2011, 3, 1));
+    _htsMaster.removeTimeSeriesDataPoints(ObjectId.of("DbHts", "DP101"), LocalDate.of(2011, 7, 1), LocalDate.of(2011, 3, 1));
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_remove_versioned_notFoundId() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP0");
+    ObjectId oid = ObjectId.of("DbHts", "DP0");
     _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 7, 1), LocalDate.of(2011, 7, 1));
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_remove_101_removeOne() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
-    UniqueIdentifier uid = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 2));
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    UniqueId uniqueId = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 2));
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, testCorrected.getUniqueId());
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(2, timeSeries.size());
     assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(0));
@@ -73,11 +73,11 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
 
   @Test
   public void test_remove_101_removeRange() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
-    UniqueIdentifier uid = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2010, 7, 3), LocalDate.of(2011, 1, 2));
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    UniqueId uniqueId = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2010, 7, 3), LocalDate.of(2011, 1, 2));
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, testCorrected.getUniqueId());
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(1, timeSeries.size());
     assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTime(0));
@@ -86,11 +86,11 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTimeSeriesTest extends Abst
 
   @Test
   public void test_remove_101_removeRangeWithNullEnd() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
-    UniqueIdentifier uid = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), null);
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    UniqueId uniqueId = _htsMaster.removeTimeSeriesDataPoints(oid, LocalDate.of(2011, 1, 2), null);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, testCorrected.getUniqueId());
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(1, timeSeries.size());
     assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(0));

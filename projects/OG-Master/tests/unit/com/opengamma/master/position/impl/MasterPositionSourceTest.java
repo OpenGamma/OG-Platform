@@ -21,9 +21,9 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -42,11 +42,11 @@ import com.opengamma.master.position.PositionSearchResult;
 @Test
 public class MasterPositionSourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
-  private static final UniqueIdentifier UID2 = UniqueIdentifier.of("C", "D");
-  private static final UniqueIdentifier UID3 = UniqueIdentifier.of("E", "F");
-  private static final UniqueIdentifier UID4 = UniqueIdentifier.of("G", "H");
-  private static final UniqueIdentifier UID5 = UniqueIdentifier.of("I", "J");
+  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final UniqueId UID2 = UniqueId.of("C", "D");
+  private static final UniqueId UID3 = UniqueId.of("E", "F");
+  private static final UniqueId UID4 = UniqueId.of("G", "H");
+  private static final UniqueId UID5 = UniqueId.of("I", "J");
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
@@ -89,7 +89,7 @@ public class MasterPositionSourceTest {
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
   }
 
-  public void test_getPortfolio_oid_instants_children() throws Exception {
+  public void test_getPortfolio_objectId_instants_children() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
@@ -100,17 +100,17 @@ public class MasterPositionSourceTest {
     
     ManageableTrade manTrade = new ManageableTrade();
     manTrade.setQuantity(BigDecimal.valueOf(1234));
-    manTrade.setSecurityLink(new SecurityLink(Identifier.of("CC", "DD")));
+    manTrade.setSecurityLink(new SecurityLink(ExternalId.of("CC", "DD")));
     manTrade.setUniqueId(UID5);
     manTrade.setParentPositionId(UID4);
     ManageablePosition manPos = new ManageablePosition();
     manPos.setQuantity(BigDecimal.valueOf(1235));
-    manPos.setSecurityLink(new SecurityLink(Identifier.of("AA", "BB")));
+    manPos.setSecurityLink(new SecurityLink(ExternalId.of("AA", "BB")));
     manPos.setUniqueId(UID4);
     manPos.addTrade(manTrade);
     PositionDocument posDoc = new PositionDocument(manPos);
     PositionSearchRequest posRequest = new PositionSearchRequest();
-    posRequest.addPositionId(UID4);
+    posRequest.addPositionObjectId(UID4);
     posRequest.setVersionCorrection(VC);
     PositionSearchResult posResult = new PositionSearchResult();
     posResult.getDocuments().add(posDoc);
@@ -135,17 +135,17 @@ public class MasterPositionSourceTest {
     assertEquals(1, testResult.getRootNode().getChildNodes().get(0).getPositions().size());
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
     Position pos = testResult.getRootNode().getChildNodes().get(0).getPositions().get(0);
-    UniqueIdentifier combinedUid4 = UniqueIdentifier.of(UID3.getScheme() + "-" + UID4.getScheme(), UID3.getValue() + "-" + UID4.getValue(), "-");
-    UniqueIdentifier combinedUid5 = UniqueIdentifier.of(UID3.getScheme() + "-" + UID5.getScheme(), UID3.getValue() + "-" + UID5.getValue(), "-");
+    UniqueId combinedUid4 = UniqueId.of(UID3.getScheme() + "-" + UID4.getScheme(), UID3.getValue() + "-" + UID4.getValue(), "-");
+    UniqueId combinedUid5 = UniqueId.of(UID3.getScheme() + "-" + UID5.getScheme(), UID3.getValue() + "-" + UID5.getValue(), "-");
     assertEquals(combinedUid4, pos.getUniqueId());
     assertEquals(BigDecimal.valueOf(1235), pos.getQuantity());
-    assertEquals(IdentifierBundle.of("AA", "BB"), pos.getSecurityLink().getBundleId());
+    assertEquals(ExternalIdBundle.of("AA", "BB"), pos.getSecurityLink().getExternalId());
     assertEquals(1, pos.getTrades().size());
     Trade trade = pos.getTrades().iterator().next();
     assertEquals(combinedUid5, trade.getUniqueId());
     assertEquals(combinedUid4, trade.getParentPositionId());
     assertEquals(BigDecimal.valueOf(1234), trade.getQuantity());
-    assertEquals(IdentifierBundle.of("CC", "DD"), trade.getSecurityLink().getBundleId());
+    assertEquals(ExternalIdBundle.of("CC", "DD"), trade.getSecurityLink().getExternalId());
   }
 
   //-------------------------------------------------------------------------
@@ -187,7 +187,7 @@ public class MasterPositionSourceTest {
 //    Instant now = Instant.now();
 //    request.setVersionAsOfInstant(now.minusSeconds(2));
 //    request.setCorrectedToInstant(now.minusSeconds(1));
-//    Position node = new PositionImpl(UID, BigDecimal.TEN, Identifier.of("B", "C"));
+//    Position node = new PositionImpl(UID, BigDecimal.TEN, ExternalId.of("B", "C"));
 //    
 //    when(mockPortfolio.getFullPosition(request)).thenReturn(node);
 //    MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition, now.minusSeconds(2), now.minusSeconds(1));
@@ -196,7 +196,7 @@ public class MasterPositionSourceTest {
 //    
 //    assertEquals(UID, testResult.getUniqueId());
 //    assertEquals(BigDecimal.TEN, testResult.getQuantity());
-//    assertEquals(Identifier.of("B", "C"), testResult.getSecurityKey().getIdentifiers().iterator().next());
+//    assertEquals(ExternalId.of("B", "C"), testResult.getSecurityKey().getIdentifiers().iterator().next());
 //  }
 //  
 //  public void test_getTrade() throws Exception {
@@ -205,10 +205,10 @@ public class MasterPositionSourceTest {
 //    FullTradeGetRequest request = new FullTradeGetRequest(UID);
 //
 //    OffsetDateTime now = OffsetDateTime.now();
-//    final UniqueIdentifier positionId = UniqueIdentifier.of("P", "A");
+//    final UniqueId positionId = UniqueId.of("P", "A");
 //    final MockSecurity security = new MockSecurity("A");
-//    security.setIdentifiers(IdentifierBundle.of(Identifier.of("S", "A")));
-//    final Counterparty counterparty = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
+//    security.setIdentifiers(ExternalIdBundle.of(ExternalId.of("S", "A")));
+//    final Counterparty counterparty = new CounterpartyImpl(ExternalId.of("CPARTY", "C100"));
 //    
 //    TradeImpl trade = new TradeImpl(positionId, security, BigDecimal.TEN, counterparty, now.toLocalDate(), now.toOffsetTime().minusSeconds(100));
 //    trade.setUniqueId(UID);
@@ -221,7 +221,7 @@ public class MasterPositionSourceTest {
 //    
 //    assertEquals(UID, testResult.getUniqueId());
 //    assertEquals(BigDecimal.TEN, testResult.getQuantity());
-//    assertEquals(Identifier.of("S", "A"), testResult.getSecurityKey().getIdentifiers().iterator().next());
+//    assertEquals(ExternalId.of("S", "A"), testResult.getSecurityKey().getIdentifiers().iterator().next());
 //    assertEquals(counterparty, testResult.getCounterparty());
 //    assertEquals(positionId, testResult.getPositionId());
 //    assertEquals(now.toLocalDate(), testResult.getTradeDate());

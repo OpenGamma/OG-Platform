@@ -20,9 +20,9 @@ import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -39,7 +39,7 @@ public class InMemorySnapshotMasterTest {
 
   // TODO Move the logical tests from here to the generic SnapshotMasterTestCase then we can just extend from that
 
-  private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
+  private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
   private static final ManageableMarketDataSnapshot SNAP1 = new ManageableMarketDataSnapshot("Test 1", new ManageableUnstructuredMarketDataSnapshot(),new HashMap<YieldCurveKey, YieldCurveSnapshot>(12));
   private static final ManageableMarketDataSnapshot SNAP2 = new ManageableMarketDataSnapshot("Test 2", new ManageableUnstructuredMarketDataSnapshot(),new HashMap<YieldCurveKey, YieldCurveSnapshot>(12));
   
@@ -51,8 +51,8 @@ public class InMemorySnapshotMasterTest {
 
   @BeforeMethod
   public void setUp() {
-    testEmpty = new InMemorySnapshotMaster(new ObjectIdentifierSupplier("Test"));
-    testPopulated = new InMemorySnapshotMaster(new ObjectIdentifierSupplier("Test"));
+    testEmpty = new InMemorySnapshotMaster(new ObjectIdSupplier("Test"));
+    testPopulated = new InMemorySnapshotMaster(new ObjectIdSupplier("Test"));
     doc1 = new MarketDataSnapshotDocument();
     doc1.setSnapshot(SNAP1);
     doc1 = testPopulated.add(doc1);
@@ -64,7 +64,7 @@ public class InMemorySnapshotMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemorySnapshotMaster((Supplier<ObjectIdentifier>) null);
+    new InMemorySnapshotMaster((Supplier<ObjectId>) null);
   }
 
   public void test_defaultSupplier() {
@@ -76,7 +76,7 @@ public class InMemorySnapshotMasterTest {
   }
 
   public void test_alternateSupplier() {
-    InMemorySnapshotMaster master = new InMemorySnapshotMaster(new ObjectIdentifierSupplier("Hello"));
+    InMemorySnapshotMaster master = new InMemorySnapshotMaster(new ObjectIdSupplier("Hello"));
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
     doc.setSnapshot(SNAP1);
     MarketDataSnapshotDocument added = master.add(doc);

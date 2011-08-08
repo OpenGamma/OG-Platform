@@ -11,10 +11,11 @@ import javax.time.calendar.TimeZone;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -31,7 +32,7 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this region entry, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Gets the classification of the region.
@@ -46,7 +47,7 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the parent unique identifiers, null if this is the root entry
    */
-  Set<UniqueIdentifier> getParentRegionIds();
+  Set<UniqueId> getParentRegionIds();
 
   /**
    * Gets the short descriptive name of the region.
@@ -63,20 +64,20 @@ public interface Region extends UniqueIdentifiable {
   String getFullName();
 
   /**
-   * Gets the identifiers defining the region.
+   * Gets the external identifier bundle defining the region.
    * <p>
    * This will include the country, currency and time-zone.
    * 
-   * @return the identifiers, null if not applicable
+   * @return the bundle, null if not applicable
    */
-  IdentifierBundle getIdentifiers();
+  ExternalIdBundle getExternalIdBundle();
 
   /**
-   * Gets the country ISO code.
+   * Gets the country.
    * 
-   * @return the 2 letter country code, null if not applicable
+   * @return the country, null if not applicable
    */
-  String getCountryISO();
+  Country getCountry();
 
   /**
    * Gets the currency.

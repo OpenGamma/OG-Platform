@@ -19,8 +19,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.holiday.Holiday;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -43,19 +43,19 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The name of the holiday.
    */
   @PropertyDefinition
   private String _name;
   /**
-   * The provider key identifier for the data.
+   * The provider external identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerKey;
+  private ExternalId _providerId;
   /**
    * The holiday.
    */
@@ -90,14 +90,14 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     ManageableHoliday holiday = getHoliday();
     switch (holiday.getType()) {
       case BANK:
-        setName(holiday.getRegionKey().getValue());
+        setName(holiday.getRegionExternalId().getValue());
         break;
       case CURRENCY:
         setName(holiday.getCurrency().getCode());
         break;
       case SETTLEMENT:
       case TRADING:
-        setName(holiday.getExchangeKey().getValue());
+        setName(holiday.getExchangeExternalId().getValue());
         break;
       default:
         throw new IllegalArgumentException("Unsupported holiday type");
@@ -129,8 +129,8 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
         return getUniqueId();
       case 3373707:  // name
         return getName();
-      case 2064682670:  // providerKey
-        return getProviderKey();
+      case 205149932:  // providerId
+        return getProviderId();
       case 1091905624:  // holiday
         return getHoliday();
     }
@@ -141,13 +141,13 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
         return;
-      case 2064682670:  // providerKey
-        setProviderKey((Identifier) newValue);
+      case 205149932:  // providerId
+        setProviderId((ExternalId) newValue);
         return;
       case 1091905624:  // holiday
         setHoliday((ManageableHoliday) newValue);
@@ -165,7 +165,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
       HolidayDocument other = (HolidayDocument) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
           JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
           super.equals(obj);
     }
@@ -177,7 +177,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
     return hash ^ super.hashCode();
   }
@@ -188,7 +188,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -197,7 +197,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -206,7 +206,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
    * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -237,33 +237,33 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the provider key identifier for the data.
+   * Gets the provider external identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderKey() {
-    return _providerKey;
+  public ExternalId getProviderId() {
+    return _providerId;
   }
 
   /**
-   * Sets the provider key identifier for the data.
+   * Sets the provider external identifier for the data.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
-   * @param providerKey  the new value of the property
+   * @param providerId  the new value of the property
    */
-  public void setProviderKey(Identifier providerKey) {
-    this._providerKey = providerKey;
+  public void setProviderId(ExternalId providerId) {
+    this._providerId = providerId;
   }
 
   /**
-   * Gets the the {@code providerKey} property.
+   * Gets the the {@code providerId} property.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerKey() {
-    return metaBean().providerKey().createProperty(this);
+  public final Property<ExternalId> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -304,18 +304,18 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", HolidayDocument.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", HolidayDocument.class, UniqueId.class);
     /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", HolidayDocument.class, String.class);
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code providerId} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
-        this, "providerKey", HolidayDocument.class, Identifier.class);
+    private final MetaProperty<ExternalId> _providerId = DirectMetaProperty.ofReadWrite(
+        this, "providerId", HolidayDocument.class, ExternalId.class);
     /**
      * The meta-property for the {@code holiday} property.
      */
@@ -328,7 +328,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "uniqueId",
         "name",
-        "providerKey",
+        "providerId",
         "holiday");
 
     /**
@@ -344,8 +344,8 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
           return _uniqueId;
         case 3373707:  // name
           return _name;
-        case 2064682670:  // providerKey
-          return _providerKey;
+        case 205149932:  // providerId
+          return _providerId;
         case 1091905624:  // holiday
           return _holiday;
       }
@@ -372,7 +372,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 
@@ -385,11 +385,11 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
     }
 
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code providerId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerKey() {
-      return _providerKey;
+    public final MetaProperty<ExternalId> providerId() {
+      return _providerId;
     }
 
     /**

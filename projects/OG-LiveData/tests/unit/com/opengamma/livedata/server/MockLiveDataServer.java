@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,18 +24,18 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MockLiveDataServer extends AbstractLiveDataServer {
   
-  private final IdentificationScheme _domain;
+  private final ExternalScheme _domain;
   private final List<String> _subscriptions = new ArrayList<String>();
   private final List<String> _unsubscriptions = new ArrayList<String>();
   private volatile int _numConnections; // = 0;
   private volatile int _numDisconnections; // = 0;
   private final Map<String, FudgeMsg> _uniqueId2MarketData;
   
-  public MockLiveDataServer(IdentificationScheme domain) {
+  public MockLiveDataServer(ExternalScheme domain) {
     this(domain, new ConcurrentHashMap<String, FudgeMsg>());
   }
   
-  public MockLiveDataServer(IdentificationScheme domain,
+  public MockLiveDataServer(ExternalScheme domain,
       Map<String, FudgeMsg> uniqueId2Snapshot) {
     ArgumentChecker.notNull(domain, "Identification domain");
     ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
@@ -48,7 +48,7 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   }
   
   @Override
-  protected IdentificationScheme getUniqueIdDomain() {
+  protected ExternalScheme getUniqueIdDomain() {
     return _domain;
   }
 

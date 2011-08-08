@@ -22,10 +22,10 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -94,14 +94,14 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (trade.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, trade.getQuantity());
     }
-    if (trade.getSecurityLink().getBundleId().size() > 0) {
-      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityLink().getBundleId());
+    if (trade.getSecurityLink().getExternalId().size() > 0) {
+      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityLink().getExternalId());
     }
     if (trade.getSecurityLink().getObjectId() != null) {
       context.addToMessage(message, FIELD_SECURITYID, null, trade.getSecurityLink().getObjectId());
     }
     if (trade.getCounterparty() != null) {
-      context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
+      context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getExternalId());
     }
     if (trade.getTradeDate() != null) {
       message.add(FIELD_TRADE_DATE, null, trade.getTradeDate());
@@ -147,9 +147,9 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   protected static TradeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     TradeImpl trade = new TradeImpl();
     if (message.hasField(FIELD_UNIQUE_ID)) {
-      FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
-      if (uidField != null) {
-        trade.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uidField));
+      FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
+      if (uniqueIdField != null) {
+        trade.setUniqueId(context.fieldValueToObject(UniqueId.class, uniqueIdField));
       }      
     }
     if (message.hasField(FIELD_QUANTITY)) {
@@ -161,19 +161,19 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
       if (secKeyField != null) {
-        trade.getSecurityLink().setBundleId(context.fieldValueToObject(IdentifierBundle.class, secKeyField));
+        trade.getSecurityLink().setExternalId(context.fieldValueToObject(ExternalIdBundle.class, secKeyField));
       }
     }
     if (message.hasField(FIELD_SECURITYID)) {
       FudgeField secIdField = message.getByName(FIELD_SECURITYID);
       if (secIdField != null) {
-        trade.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectIdentifier.class, secIdField));
+        trade.getSecurityLink().setObjectId(context.fieldValueToObject(ObjectId.class, secIdField));
       }
     }
     if (message.hasField(FIELD_COUNTERPARTY)) {
       FudgeField counterpartyField = message.getByName(FIELD_COUNTERPARTY);
       if (counterpartyField != null) {
-        trade.setCounterparty(new CounterpartyImpl(context.fieldValueToObject(Identifier.class, counterpartyField)));
+        trade.setCounterparty(new CounterpartyImpl(context.fieldValueToObject(ExternalId.class, counterpartyField)));
       }
     }
     if (message.hasField(FIELD_TRADE_DATE)) {
@@ -227,7 +227,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     final TradeImpl trade = buildObjectImpl(context, message);
     FudgeField positionField = message.getByName(FIELD_PARENT_POSITION_ID);
     if (positionField != null) {
-      trade.setParentPositionId(context.fieldValueToObject(UniqueIdentifier.class, positionField));
+      trade.setParentPositionId(context.fieldValueToObject(UniqueId.class, positionField));
     }
     return trade;
   }

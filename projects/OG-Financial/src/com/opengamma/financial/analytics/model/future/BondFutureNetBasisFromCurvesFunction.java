@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -46,7 +47,7 @@ public class BondFutureNetBasisFromCurvesFunction extends BondFutureFromCurvesFu
     }
     final String[] label = new String[n];
     for (int i = 0; i < n; i++) {
-      label[i] = deliverables.get(i).getIdentifiers().toString();
+      label[i] = deliverables.get(i).getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
     }
     final StringLabelledMatrix1D result = new StringLabelledMatrix1D(label, netBasis);
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), result));

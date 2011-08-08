@@ -14,7 +14,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -76,7 +76,7 @@ public class ValueSpecification implements Serializable {
    * @param properties  the value properties, not null and must include the function identifier
    * @return the created specification, not null
    */
-  public static ValueSpecification of(final String valueName, final ComputationTargetType targetType, final UniqueIdentifier targetId,  final ValueProperties properties) {
+  public static ValueSpecification of(final String valueName, final ComputationTargetType targetType, final UniqueId targetId,  final ValueProperties properties) {
     ArgumentChecker.notNull(targetType, "targetType");    
     ArgumentChecker.notNull(properties, "uid");
     return new ValueSpecification(valueName, new ComputationTargetSpecification(targetType, targetId), properties);
@@ -132,7 +132,7 @@ public class ValueSpecification implements Serializable {
    * @return the created specification, not null
    */
   public static ValueSpecification of(
-      final String valueName, final ComputationTargetType targetType, final UniqueIdentifier targetId, final String functionIdentifier,
+      final String valueName, final ComputationTargetType targetType, final UniqueId targetId, final String functionIdentifier,
       final String currencyISO, final ValueProperties properties) {
     ArgumentChecker.notNull(targetType, "targetType");    
     ArgumentChecker.notNull(properties, "uid");

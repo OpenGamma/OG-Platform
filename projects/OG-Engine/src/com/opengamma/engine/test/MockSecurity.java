@@ -9,10 +9,10 @@ import java.io.Serializable;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Mock Security.
@@ -21,10 +21,10 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
 
   private static final long serialVersionUID = 1L;
 
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   private String _securityType;
   private String _name;
-  private IdentifierBundle _identifiers;
+  private ExternalIdBundle _identifiers;
 
   /**
    * Creates an instance.
@@ -32,21 +32,21 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
    */
   public MockSecurity(String securityType) {
     _securityType = securityType;
-    _identifiers = IdentifierBundle.EMPTY;
+    _identifiers = ExternalIdBundle.EMPTY;
   }
 
-  public MockSecurity(UniqueIdentifier uniqueId, String name, String securityType, IdentifierBundle identifiers) {
+  public MockSecurity(UniqueId uniqueId, String name, String securityType, ExternalIdBundle identifiers) {
     _uniqueId = uniqueId;
     _name = name;
     _securityType = securityType;
     _identifiers = identifiers;
   }
 
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 
@@ -66,16 +66,16 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _securityType = securityType;
   }
 
-  public IdentifierBundle getIdentifiers() {
+  public ExternalIdBundle getIdentifiers() {
     return _identifiers;
   }
 
-  public void setIdentifiers(IdentifierBundle identifiers) {
+  public void setIdentifiers(ExternalIdBundle identifiers) {
     _identifiers = identifiers;
   }
 
-  public void addIdentifier(final Identifier identifier) {
-    setIdentifiers(getIdentifiers().withIdentifier(identifier));
+  public void addIdentifier(final ExternalId identifier) {
+    setIdentifiers(getIdentifiers().withExternalId(identifier));
   }
 
   //-------------------------------------------------------------------------

@@ -10,7 +10,7 @@ import java.util.Map;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -29,7 +29,7 @@ public interface Trade extends PositionOrTrade {
    * 
    * @return the unique identifier of the parent position, null if not attached to a position
    */
-  UniqueIdentifier getParentPositionId();
+  UniqueId getParentPositionId();
 
   /**
    * Gets the counterparty associated with the trade.

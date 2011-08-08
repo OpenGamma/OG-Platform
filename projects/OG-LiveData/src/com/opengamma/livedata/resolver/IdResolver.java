@@ -8,13 +8,13 @@ package com.opengamma.livedata.resolver;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Transforms a set of IDs into a unique ID.
  */
-public interface IdResolver extends Resolver<IdentifierBundle, Identifier> { 
+public interface IdResolver extends Resolver<ExternalIdBundle, ExternalId> { 
   
   /**
    * Transforms a set of IDs into a unique ID. For example, a Bloomberg ticker is 
@@ -25,10 +25,10 @@ public interface IdResolver extends Resolver<IdentifierBundle, Identifier> {
    * @param ids input IDs
    * @return the unique ID. Null if it was not found.
    */
-  Identifier resolve(IdentifierBundle ids);
+  ExternalId resolve(ExternalIdBundle ids);
   
   /**
-   * Same as calling {@link #resolve(IdentifierBundle)} for each ID bundle
+   * Same as calling {@link #resolve(ExternalIdBundle)} for each ID bundle
    * individually, but since it works in bulk, may be more efficient. 
    * 
    * @param ids input IDs
@@ -37,7 +37,7 @@ public interface IdResolver extends Resolver<IdentifierBundle, Identifier> {
    * However, the value of the entry can be null if no unique ID was 
    * found for the given identifier bundle.
    */
-  Map<IdentifierBundle, Identifier> resolve(Collection<IdentifierBundle> ids);
+  Map<ExternalIdBundle, ExternalId> resolve(Collection<ExternalIdBundle> ids);
   
   
 

@@ -14,7 +14,7 @@
         </#list>
       </select>
     </@rowin>
-    <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.identifierValue}" /></@rowin>
+    <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.externalIdValue}" /></@rowin>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${searchRequest.name}" /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>

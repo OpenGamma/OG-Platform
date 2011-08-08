@@ -23,7 +23,7 @@ import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -62,7 +62,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   /**
    * JSON template
    */
-  public static final String TEMPLATE = getTemplate();
+  private static final String TEMPLATE = createTemplate();
   
   /**
    * Restricted constructor
@@ -77,9 +77,9 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     ViewDefinition viewDefinition = null;
     try {
       JSONObject viewJSON = new JSONObject(json);
-      UniqueIdentifier portfolioIdentifier = null;
+      UniqueId portfolioIdentifier = null;
       if (viewJSON.opt(IDENTIFIER_FIELD) != null) {
-        portfolioIdentifier = UniqueIdentifier.parse(viewJSON.getString(IDENTIFIER_FIELD));
+        portfolioIdentifier = UniqueId.parse(viewJSON.getString(IDENTIFIER_FIELD));
       }
       String name = viewJSON.getString(NAME_FIELD);
       UserPrincipal liveDataUser = convertJsonToObject(UserPrincipal.class, viewJSON.getJSONObject(USER_FIELD));
@@ -148,7 +148,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
         }
       }
       if (viewJSON.opt(UNIQUE_ID_FIELD) != null) {
-        viewDefinition.setUniqueId(UniqueIdentifier.parse(viewJSON.getString(UNIQUE_ID_FIELD)));
+        viewDefinition.setUniqueId(UniqueId.parse(viewJSON.getString(UNIQUE_ID_FIELD)));
       }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create ViewDefinition", ex);
@@ -234,7 +234,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     return jsonObject.toString();
   }
 
-  private static String getTemplate() {
+  private static String createTemplate() {
     ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
     String result = null;
     try {
@@ -257,6 +257,11 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     dummy.setMinFullCalculationPeriod(0L);
     dummy.addPortfolioRequirementName("", "", "");
     return dummy;
+  }
+
+  @Override
+  public String getTemplate() {
+    return TEMPLATE;
   }
   
 }

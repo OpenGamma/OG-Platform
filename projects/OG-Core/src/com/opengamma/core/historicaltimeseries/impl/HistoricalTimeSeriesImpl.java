@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -27,7 +27,7 @@ public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, Uni
   /**
    * The unique identifier of the time-series.
    */
-  private final UniqueIdentifier _uniqueId;
+  private final UniqueId _uniqueId;
   /**
    * The time-series itself.
    */
@@ -39,7 +39,7 @@ public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, Uni
    * @param uniqueId  the unique identifier, not null
    * @param timeSeries  the time-series, not null
    */
-  public HistoricalTimeSeriesImpl(UniqueIdentifier uniqueId, LocalDateDoubleTimeSeries timeSeries) {
+  public HistoricalTimeSeriesImpl(UniqueId uniqueId, LocalDateDoubleTimeSeries timeSeries) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     _uniqueId = uniqueId;
@@ -53,7 +53,7 @@ public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, Uni
    * @return the unique identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
