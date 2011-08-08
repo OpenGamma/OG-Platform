@@ -9,8 +9,8 @@
             "observation_time": "${info.observationTime}"
     },
     "identifiers": [
-    <#list info.identifiers.iterator() as item>
-    	{"scheme": "${item.identityKey.scheme}", "value": "${item.identityKey.value}", "date":{"start":"${item.validFrom}", "end":"${item.validTo}"}}<#if item_has_next>,</#if>
+    <#list info.externalIdBundle.externalIds as item>
+    	{"scheme": "${item.externalId.scheme}", "value": "${item.externalId.value}", "date":{"start":"${item.validFrom}", "end":"${item.validTo}"}}<#if item_has_next>,</#if>
    	</#list>
     ],
     "timeseries": {

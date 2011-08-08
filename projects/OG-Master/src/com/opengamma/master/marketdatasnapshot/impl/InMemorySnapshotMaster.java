@@ -18,10 +18,10 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -43,18 +43,18 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
   // be altered from outside as it is the same object
 
   /**
-   * The default scheme used for each {@link ObjectIdentifier}.
+   * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSnap";
 
   /**
    * A cache of snapshots by identifier.
    */
-  private final ConcurrentMap<ObjectIdentifier, MarketDataSnapshotDocument> _store = new ConcurrentHashMap<ObjectIdentifier, MarketDataSnapshotDocument>();
+  private final ConcurrentMap<ObjectId, MarketDataSnapshotDocument> _store = new ConcurrentHashMap<ObjectId, MarketDataSnapshotDocument>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  private final Supplier<ObjectId> _objectIdSupplier;
   /**
    * The change manager.
    */
@@ -64,7 +64,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * Creates an instance.
    */
   public InMemorySnapshotMaster() {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
@@ -73,7 +73,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * @param changeManager  the change manager, not null
    */
   public InMemorySnapshotMaster(final ChangeManager changeManager) {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME), changeManager);
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
   /**
@@ -81,7 +81,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemorySnapshotMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+  public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier) {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
@@ -91,7 +91,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemorySnapshotMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final ChangeManager changeManager) {
+  public InMemorySnapshotMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
@@ -116,7 +116,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument get(UniqueIdentifier uniqueId) {
+  public MarketDataSnapshotDocument get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final MarketDataSnapshotDocument document = _store.get(uniqueId.getObjectId());
     if (document == null || !document.getUniqueId().equals(uniqueId)) {
@@ -143,8 +143,8 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
 
-    final ObjectIdentifier objectId = _objectIdSupplier.get();
-    final UniqueIdentifier uniqueId = objectId.atVersion("");
+    final ObjectId objectId = _objectIdSupplier.get();
+    final UniqueId uniqueId = objectId.atVersion("");
     final ManageableMarketDataSnapshot snapshot = document.getSnapshot();
     snapshot.setUniqueId(uniqueId);
     final Instant now = Instant.now();
@@ -163,7 +163,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
 
-    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -182,7 +182,7 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Security not found: " + uniqueId);

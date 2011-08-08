@@ -19,8 +19,8 @@ import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueIdSupplier;
 
 /**
  * Tests for the {@link PortfolioStructure} class. 
@@ -39,17 +39,17 @@ public class PortfolioStructureTest {
   
   @BeforeMethod
   public void createPortfolio() {
-    final UniqueIdentifierSupplier uid = new UniqueIdentifierSupplier("Test");
+    final UniqueIdSupplier uid = new UniqueIdSupplier("Test");
     final MockPositionSource positionSource = new MockPositionSource();
     final PortfolioStructure resolver = new PortfolioStructure(positionSource);
     final PortfolioImpl portfolio = new PortfolioImpl(uid.get(), "Test");
     _root = new PortfolioNodeImpl(uid.get(), "root");
     _child1 = new PortfolioNodeImpl(uid.get(), "child 1");
     _child2 = new PortfolioNodeImpl(uid.get(), "child 2");
-    _position1 = new PositionImpl(uid.get(), new BigDecimal(10), Identifier.of("Security", "Foo"));
+    _position1 = new PositionImpl(uid.get(), new BigDecimal(10), ExternalId.of("Security", "Foo"));
     _position1.setParentNodeId(_child2.getUniqueId());
     _child2.addPosition(_position1);
-    _position2 = new PositionImpl(uid.get(), new BigDecimal(20), Identifier.of("Security", "Bar"));
+    _position2 = new PositionImpl(uid.get(), new BigDecimal(20), ExternalId.of("Security", "Bar"));
     _position2.setParentNodeId(_child2.getUniqueId());
     _child2.addPosition(_position2);
     _child2.setParentNodeId(_child1.getUniqueId());
@@ -60,7 +60,7 @@ public class PortfolioStructureTest {
     positionSource.addPortfolio(portfolio);
     _badChild = new PortfolioNodeImpl(uid.get(), "child 3");
     _badChild.setParentNodeId(uid.get());
-    _badPosition = new PositionImpl(uid.get(), new BigDecimal(10), Identifier.of("Security", "Cow"));
+    _badPosition = new PositionImpl(uid.get(), new BigDecimal(10), ExternalId.of("Security", "Cow"));
     _badPosition.setParentNodeId(uid.get());
     _context = new FunctionCompilationContext();
     _context.setPortfolioStructure(resolver);

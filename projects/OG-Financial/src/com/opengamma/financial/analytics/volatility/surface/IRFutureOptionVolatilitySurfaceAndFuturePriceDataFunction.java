@@ -44,7 +44,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.Pair;
 
@@ -132,12 +132,12 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
     for (final Object x : volSurfaceDefinition.getXs()) {
       // don't care what these are
       for (final Object y : volSurfaceDefinition.getYs()) {
-        final Identifier identifier = volSurfaceProvider.getInstrument(x, (Double) y, atInstant.toLocalDate());
+        final ExternalId identifier = volSurfaceProvider.getInstrument(x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier));
       }
     }
     for (final Object x : futurePriceCurveDefinition.getXs()) {
-      final Identifier identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
+      final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
       result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier));
     }
     return result;
@@ -195,7 +195,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
           final Number xNum = (Number) x;
           final double t = getTime(xNum, now);
           final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) _priceCurveSpecification.getCurveInstrumentProvider();
-          Identifier identifier = futurePriceCurveProvider.getInstrument(xNum, now.toLocalDate());
+          ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, now.toLocalDate());
           ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
             final Double futurePrice = (Double) inputs.getValue(requirement);

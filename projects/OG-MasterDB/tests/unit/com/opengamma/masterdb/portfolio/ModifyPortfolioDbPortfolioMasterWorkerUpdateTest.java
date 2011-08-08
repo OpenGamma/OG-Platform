@@ -17,7 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -57,14 +57,14 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noPortfolio() {
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setUniqueId(UniqueIdentifier.of("DbPrt", "101", "0"));
+    doc.setUniqueId(UniqueId.of("DbPrt", "101", "0"));
     _prtMaster.update(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
-    port.setUniqueId(UniqueIdentifier.of("DbPrt", "0", "0"));
+    port.setUniqueId(UniqueId.of("DbPrt", "0", "0"));
     port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioDocument doc = new PortfolioDocument(port);
     _prtMaster.update(doc);
@@ -73,7 +73,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
-    port.setUniqueId(UniqueIdentifier.of("DbPrt", "201", "0"));
+    port.setUniqueId(UniqueId.of("DbPrt", "201", "0"));
     port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioDocument doc = new PortfolioDocument(port);
     _prtMaster.update(doc);
@@ -83,7 +83,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   public void test_update_getUpdateGet() {
     Instant now = Instant.now(_prtMaster.getTimeSource());
     
-    UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPrt", "101", "0");
+    UniqueId oldPortfolioId = UniqueId.of("DbPrt", "101", "0");
     PortfolioDocument base = _prtMaster.get(oldPortfolioId);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueId(oldPortfolioId);
@@ -91,7 +91,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     PortfolioDocument input = new PortfolioDocument(port);
     
     PortfolioDocument updated = _prtMaster.update(input);
-    assertEquals(UniqueIdentifier.of("DbPrt", "101"), updated.getUniqueId().toLatest());
+    assertEquals(UniqueId.of("DbPrt", "101"), updated.getUniqueId().toLatest());
     assertEquals(false, base.getUniqueId().getVersion().equals(updated.getUniqueId().getVersion()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());

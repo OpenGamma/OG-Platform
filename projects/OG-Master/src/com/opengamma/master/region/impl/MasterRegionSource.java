@@ -6,9 +6,9 @@
 package com.opengamma.master.region.impl;
 
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.region.ManageableRegion;
@@ -48,20 +48,20 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableRegion getRegion(UniqueIdentifier uniqueId) {
+  public ManageableRegion getRegion(UniqueId uniqueId) {
     RegionDocument doc = getDocument(uniqueId);
     return (doc != null ? doc.getRegion() : null);
   }
 
   @Override
-  public ManageableRegion getHighestLevelRegion(Identifier regionId) {
+  public ManageableRegion getHighestLevelRegion(ExternalId regionId) {
     RegionSearchRequest request = new RegionSearchRequest(regionId);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionCorrection(getVersionCorrection());
     return getMaster().search(request).getFirstRegion();
   }
 
-  public ManageableRegion getHighestLevelRegion(IdentifierBundle regionIds) {
+  public ManageableRegion getHighestLevelRegion(ExternalIdBundle regionIds) {
     RegionSearchRequest request = new RegionSearchRequest(regionIds);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionCorrection(getVersionCorrection());

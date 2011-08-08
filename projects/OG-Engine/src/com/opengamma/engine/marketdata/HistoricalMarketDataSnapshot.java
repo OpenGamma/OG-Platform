@@ -16,8 +16,8 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * A {@link MarketDataSnapshot} backed by historical data.
@@ -57,9 +57,9 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
   @Override
   public Object query(ValueRequirement requirement) {
     LocalDate date = getMarketDataSpec().getSnapshotDate();
-    Identifier identifier = requirement.getTargetSpecification().getIdentifier();
+    ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
-        IdentifierBundle.of(identifier), 
+        ExternalIdBundle.of(identifier), 
         getMarketDataSpec().getDataSource(), 
         getMarketDataSpec().getDataProvider(), 
         getMarketDataSpec().getDataField(), 

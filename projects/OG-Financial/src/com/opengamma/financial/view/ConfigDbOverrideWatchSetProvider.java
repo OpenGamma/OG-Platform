@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -33,14 +33,14 @@ public class ConfigDbOverrideWatchSetProvider implements WatchSetProvider {
   }
 
   @Override
-  public Set<UniqueIdentifier> getAdditionalWatchSet(final Set<UniqueIdentifier> watchSet) {
-    final Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>();
+  public Set<UniqueId> getAdditionalWatchSet(final Set<UniqueId> watchSet) {
+    final Set<UniqueId> result = new HashSet<UniqueId>();
     for (String scheme : _schemes) {
-      for (UniqueIdentifier watch : watchSet) {
+      for (UniqueId watch : watchSet) {
         if (_configScheme.equals(watch.getScheme())) {
           try {
             final ConfigDocument<?> doc = _configMaster.get(watch);
-            result.add(UniqueIdentifier.of(scheme, doc.getName()));
+            result.add(UniqueId.of(scheme, doc.getName()));
           } catch (DataNotFoundException ex) {
             // ignore
           }

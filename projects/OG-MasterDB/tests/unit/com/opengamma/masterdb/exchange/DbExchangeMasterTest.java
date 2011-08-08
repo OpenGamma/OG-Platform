@@ -18,8 +18,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -58,7 +58,7 @@ public class DbExchangeMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_exgMaster);
-    assertEquals(true, _exgMaster.getIdentifierScheme().equals("DbExg"));
+    assertEquals(true, _exgMaster.getUniqueIdScheme().equals("DbExg"));
     assertNotNull(_exgMaster.getDbSource());
     assertNotNull(_exgMaster.getTimeSource());
   }
@@ -67,9 +67,9 @@ public class DbExchangeMasterTest extends DBTest {
   @Test
   public void test_example() throws Exception {
     ManageableExchange exchange = new ManageableExchange();
-    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
+    exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D")));
     exchange.setName("Test");
-    exchange.setRegionKey(IdentifierBundle.of(Identifier.of("E", "F"), Identifier.of("G", "H")));
+    exchange.setRegionIdBundle(ExternalIdBundle.of(ExternalId.of("E", "F"), ExternalId.of("G", "H")));
     exchange.setTimeZone(TimeZone.of("Europe/London"));
     ExchangeDocument addDoc = new ExchangeDocument(exchange);
     ExchangeDocument added = _exgMaster.add(addDoc);

@@ -35,7 +35,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.Cancellable;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -61,23 +61,23 @@ public class MultipleNodeExecutorTest {
    */
   private DependencyNode[] _testNode;
   private DependencyGraph _testGraph;
-  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "20"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "20"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "21"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "21"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "24"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "24"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "34"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue0x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "0x"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue0x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0x"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue1x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "1x"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue1x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1x"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue4x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "4x"), ValueProperties.builder().with(
+  private final ValueSpecification _testValue4x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4x"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValuex2 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "x2"), ValueProperties.builder().with(
+  private final ValueSpecification _testValuex2 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "x2"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "LiveDataSourcingFunction").get());
-  private final ValueSpecification _testValuex3 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Test", "x3"), ValueProperties.builder().with(
+  private final ValueSpecification _testValuex3 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "x3"), ValueProperties.builder().with(
       ValuePropertyNames.FUNCTION, "LiveDataSourcingFunction").get());
 
   @BeforeMethod
@@ -123,7 +123,7 @@ public class MultipleNodeExecutorTest {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-        return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
+        return new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
       }
 
       @Override

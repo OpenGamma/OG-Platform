@@ -4,7 +4,7 @@
 package com.opengamma.financial.security.swap;
 public abstract class InterestRateLeg extends com.opengamma.financial.security.swap.SwapLeg implements java.io.Serializable {
   private static final long serialVersionUID = 1l;
-  public InterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
+  public InterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
   }
   protected InterestRateLeg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {

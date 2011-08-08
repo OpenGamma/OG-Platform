@@ -12,9 +12,9 @@ import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -28,7 +28,7 @@ public class LiveDataSpecification {
   private static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
   
   /** A set of IDs for a single ticker **/
-  private final IdentifierBundle _domainSpecificIdentifiers;
+  private final ExternalIdBundle _domainSpecificIdentifiers;
   
   /** What format it should be sent to the client **/
   private final String _normalizationRuleSetId;
@@ -37,19 +37,19 @@ public class LiveDataSpecification {
     this(source.getNormalizationRuleSetId(), source.getIdentifiers());        
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Identifier... identifiers) {
-    this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, ExternalId... identifiers) {
+    this(normalizationRuleSetId, ExternalIdBundle.of(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Collection<Identifier> identifiers) {
-    this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, Collection<ExternalId> identifiers) {
+    this(normalizationRuleSetId, ExternalIdBundle.of(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Identifier identifier) {
-    this(normalizationRuleSetId, IdentifierBundle.of(identifier));
+  public LiveDataSpecification(String normalizationRuleSetId, ExternalId identifier) {
+    this(normalizationRuleSetId, ExternalIdBundle.of(identifier));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, IdentifierBundle domainSpecificIdentifiers) {
+  public LiveDataSpecification(String normalizationRuleSetId, ExternalIdBundle domainSpecificIdentifiers) {
     ArgumentChecker.notNull(normalizationRuleSetId, "Client data format");
     ArgumentChecker.notNull(domainSpecificIdentifiers, "Identifiers");
     _domainSpecificIdentifiers = domainSpecificIdentifiers;
@@ -60,17 +60,17 @@ public class LiveDataSpecification {
     return _normalizationRuleSetId;
   }
 
-  public IdentifierBundle getIdentifiers() {
+  public ExternalIdBundle getIdentifiers() {
     return _domainSpecificIdentifiers;
   }
   
-  public String getIdentifier(IdentificationScheme scheme) {
-    return _domainSpecificIdentifiers.getIdentifierValue(scheme);
+  public String getIdentifier(ExternalScheme scheme) {
+    return _domainSpecificIdentifiers.getValue(scheme);
   }
   
   public static LiveDataSpecification fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    IdentifierBundle ids = IdentifierBundle.fromFudgeMsg(fudgeContext, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
+    ExternalIdBundle ids = ExternalIdBundle.fromFudgeMsg(fudgeContext, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   

@@ -11,7 +11,7 @@
         "classification": "${region.classification}"
     },
     "keys": {
-        <#list region.identifiers.identifiers as item>
+        <#list region.externalIdBundle.externalIds as item>
             "${item.scheme.name}": "${item.value}"<#if item_has_next>,</#if>
         </#list>
     },

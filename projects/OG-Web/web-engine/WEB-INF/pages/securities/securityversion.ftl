@@ -16,7 +16,7 @@
 <#-- SUBSECTION Main data -->
 <@subsection title="Detail">
     <@rowout label="Type">${security.securityType}</@rowout>
-<#list security.identifiers.identifiers as item>
+<#list security.identifiers.externalIds as item>
     <@rowout label="Key">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
 </@subsection>

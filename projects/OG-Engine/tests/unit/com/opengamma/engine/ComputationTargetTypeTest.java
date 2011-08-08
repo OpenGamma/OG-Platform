@@ -23,9 +23,9 @@ import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test ComputationTargetType.
@@ -33,13 +33,13 @@ import com.opengamma.id.UniqueIdentifier;
 @Test
 public class ComputationTargetTypeTest {
 
-  private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
+  private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl();
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
+  private static final Position POSITION = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity("");
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
   private static final Trade TRADE = new TradeImpl(POSITION.getUniqueId(), SECURITY, new BigDecimal(1), 
-      new CounterpartyImpl(Identifier.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+      new CounterpartyImpl(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
 
   public void determine() {
     

@@ -25,7 +25,7 @@ public class RawSecurity extends com.opengamma.master.security.ManageableSecurit
       throw new IllegalArgumentException ("Fudge message is not a RawSecurity - field 'rawData' is not byte[]", e);
     }
   }
-  public RawSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, byte[] rawData) {
+  public RawSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, byte[] rawData) {
     super (uniqueId, name, securityType, identifiers);
     if (rawData == null) throw new NullPointerException ("'rawData' cannot be null");
     else {

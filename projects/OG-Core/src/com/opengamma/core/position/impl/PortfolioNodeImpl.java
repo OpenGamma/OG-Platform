@@ -18,7 +18,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,11 +37,11 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   /**
    * The unique identifier of the node.
    */
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The unique identifier of the parent node.
    */
-  private UniqueIdentifier _parentNodeId;
+  private UniqueId _parentNodeId;
   /**
    * The display name of the node.
    */
@@ -77,7 +77,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @param uniqueId  the unique identifier, not null
    * @param name  the name to use, null treated as empty
    */
-  public PortfolioNodeImpl(UniqueIdentifier uniqueId, String name) {
+  public PortfolioNodeImpl(UniqueId uniqueId, String name) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;
     _name = StringUtils.defaultString(name);
@@ -111,7 +111,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @return the identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -120,7 +120,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * 
    * @param uniqueId  the new unique identifier, not null
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;
   }
@@ -132,7 +132,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @return the unique identifier, null if root node
    */
   @Override
-  public UniqueIdentifier getParentNodeId() {
+  public UniqueId getParentNodeId() {
     return _parentNodeId;
   }
 
@@ -141,7 +141,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * 
    * @param parentNodeId  the new parent node, null if root node
    */
-  public void setParentNodeId(final UniqueIdentifier parentNodeId) {
+  public void setParentNodeId(final UniqueId parentNodeId) {
     _parentNodeId = parentNodeId;
   }
 
@@ -286,27 +286,27 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * Recursively finds a specific node from this node by identifier.
    * If this node matches it is returned.
    * 
-   * @param uid  the identifier, null returns null
+   * @param uniqueId  the identifier, null returns null
    * @return the node, null if not found
    */
-  public PortfolioNode getNode(UniqueIdentifier uid) {
-    return getNode(this, uid);
+  public PortfolioNode getNode(UniqueId uniqueId) {
+    return getNode(this, uniqueId);
   }
 
   /**
    * Recursively finds a specific node from a node by identifier.
    * 
    * @param node  the node to process, not null
-   * @param uid  the identifier, null returns null
+   * @param uniqueId  the identifier, null returns null
    * @return the node, null if not found
    */
-  private static PortfolioNode getNode(PortfolioNode node, UniqueIdentifier uid) {
-    if (uid != null) {
-      if (uid.equals(node.getUniqueId())) {
+  private static PortfolioNode getNode(PortfolioNode node, UniqueId uniqueId) {
+    if (uniqueId != null) {
+      if (uniqueId.equals(node.getUniqueId())) {
         return node;
       }
       for (PortfolioNode child : node.getChildNodes()) {
-        PortfolioNode result = getNode(child, uid);
+        PortfolioNode result = getNode(child, uniqueId);
         if (result != null) {
           return result;
         }
@@ -318,29 +318,29 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   /**
    * Recursively finds a specific position from this node by identifier.
    * 
-   * @param uid  the identifier, null returns null
+   * @param uniqueId  the identifier, null returns null
    * @return the position, null if not found
    */
-  public Position getPosition(UniqueIdentifier uid) {
-    return getPosition(this, uid);
+  public Position getPosition(UniqueId uniqueId) {
+    return getPosition(this, uniqueId);
   }
 
   /**
    * Recursively finds a specific position from a node by identifier.
    * 
    * @param node  the node to process, not null
-   * @param uid  the identifier, null returns null
+   * @param uniqueId  the identifier, null returns null
    * @return the position, null if not found
    */
-  private static Position getPosition(PortfolioNode node, UniqueIdentifier uid) {
-    if (uid != null) {
+  private static Position getPosition(PortfolioNode node, UniqueId uniqueId) {
+    if (uniqueId != null) {
       for (Position child : node.getPositions()) {
-        if (uid.equals(child.getUniqueId())) {
+        if (uniqueId.equals(child.getUniqueId())) {
           return child;
         }
       }
       for (PortfolioNode child : node.getChildNodes()) {
-        Position result = getPosition(child, uid);
+        Position result = getPosition(child, uniqueId);
         if (result != null) {
           return result;
         }

@@ -9,7 +9,7 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.i18n.Country;
 
 /**
@@ -40,19 +40,19 @@ public final class CountrySecondaryType extends SecondaryFieldType<Country, Stri
   }
 
   @Override
-  public Country primaryToSecondary(final String isoCodeOrUniqueIdentifier) {
-    if (isoCodeOrUniqueIdentifier.length() == 1) {
+  public Country primaryToSecondary(final String isoCodeOrUniqueId) {
+    if (isoCodeOrUniqueId.length() == 1) {
       // 2 letters means ISO code
-      return Country.of(isoCodeOrUniqueIdentifier);
-    } else if (isoCodeOrUniqueIdentifier.startsWith(Country.OBJECT_IDENTIFIER_SCHEME)) {
+      return Country.of(isoCodeOrUniqueId);
+    } else if (isoCodeOrUniqueId.startsWith(Country.OBJECT_SCHEME)) {
       // try as a unique id
-      final UniqueIdentifier uniqueId = UniqueIdentifier.parse(isoCodeOrUniqueIdentifier);
-      if (Country.OBJECT_IDENTIFIER_SCHEME.equals(uniqueId.getScheme())) {
+      final UniqueId uniqueId = UniqueId.parse(isoCodeOrUniqueId);
+      if (Country.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
         return Country.of(uniqueId.getValue());
       }
     }
     throw new IllegalArgumentException("Not a unique identifier or country ISO code - '"
-        + isoCodeOrUniqueIdentifier + "'");
+        + isoCodeOrUniqueId + "'");
   }
 
 }

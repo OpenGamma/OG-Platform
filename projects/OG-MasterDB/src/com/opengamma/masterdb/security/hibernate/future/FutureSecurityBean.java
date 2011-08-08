@@ -12,7 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExchangeBean;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -33,7 +33,7 @@ public class FutureSecurityBean extends SecurityBean {
   private Double _unitAmount;
   private UnitBean _unitName;
   private Double _unitNumber;
-  private IdentifierBean _underlying;
+  private ExternalIdBean _underlying;
   private Set<FutureBundleBean> _basket;
   private ZonedDateTimeBean _firstDeliveryDate;
   private ZonedDateTimeBean _lastDeliveryDate;
@@ -238,11 +238,11 @@ public class FutureSecurityBean extends SecurityBean {
     _basket = basket;
   }
 
-  public IdentifierBean getUnderlying() {
+  public ExternalIdBean getUnderlying() {
     return _underlying;
   }
 
-  public void setUnderlying(final IdentifierBean underlying) {
+  public void setUnderlying(final ExternalIdBean underlying) {
     _underlying = underlying;
   }
 

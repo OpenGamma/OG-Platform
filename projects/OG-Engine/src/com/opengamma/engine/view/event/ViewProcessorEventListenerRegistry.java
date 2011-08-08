@@ -7,7 +7,7 @@ package com.opengamma.engine.view.event;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Registered listeners for registering and unregistering ViewProcessorEventListener and sending notifications to
@@ -23,28 +23,28 @@ public class ViewProcessorEventListenerRegistry implements ViewProcessorEventLis
   private final CopyOnWriteArraySet<ViewProcessorEventListener> _listeners = new CopyOnWriteArraySet<ViewProcessorEventListener>();
 
   @Override
-  public void notifyViewProcessAdded(UniqueIdentifier viewProcessId) {
+  public void notifyViewProcessAdded(UniqueId viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
       listener.notifyViewProcessAdded(viewProcessId);
     }
   }
 
   @Override
-  public void notifyViewProcessRemoved(UniqueIdentifier viewProcessId) {
+  public void notifyViewProcessRemoved(UniqueId viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
       listener.notifyViewProcessRemoved(viewProcessId);
     }
   }
   
   @Override
-  public void notifyViewClientAdded(UniqueIdentifier viewClientId) {
+  public void notifyViewClientAdded(UniqueId viewClientId) {
     for (ViewProcessorEventListener listener : _listeners) {
       listener.notifyViewClientAdded(viewClientId);
     }
   }
 
   @Override
-  public void notifyViewClientRemoved(UniqueIdentifier viewClientId) {
+  public void notifyViewClientRemoved(UniqueId viewClientId) {
     for (ViewProcessorEventListener listener : _listeners) {
       listener.notifyViewClientRemoved(viewClientId);
     }

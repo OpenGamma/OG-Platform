@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.IdentifierWithDates;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.test.DBTest;
@@ -64,32 +64,32 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument test = _htsMaster.add(doc);
     
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbHts", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbHts", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHistoricalTimeSeriesInfo testInfo = test.getInfo();
     assertNotNull(testInfo);
-    assertEquals(uid, testInfo.getUniqueId());
+    assertEquals(uniqueId, testInfo.getUniqueId());
     assertEquals("Added", testInfo.getName());
     assertEquals("DF", testInfo.getDataField());
     assertEquals("DS", testInfo.getDataSource());
     assertEquals("DP", testInfo.getDataProvider());
     assertEquals("OT", testInfo.getObservationTime());
-    assertEquals(1, testInfo.getIdentifiers().size());
-    assertTrue(testInfo.getIdentifiers().getIdentifiers().contains(id));
+    assertEquals(1, testInfo.getExternalIdBundle().size());
+    assertTrue(testInfo.getExternalIdBundle().getExternalIds().contains(id));
   }
 
   @Test
@@ -100,9 +100,9 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
     info.setDataSource("DS");
     info.setDataProvider("DP");
     info.setObservationTime("OT");
-    IdentifierWithDates id = IdentifierWithDates.of(Identifier.of("A", "B"), LocalDate.of(2011, 6, 30), null);
-    IdentifierBundleWithDates bundle = IdentifierBundleWithDates.of(id);
-    info.setIdentifiers(bundle);
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
     HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
     

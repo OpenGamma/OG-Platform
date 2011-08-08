@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -116,7 +116,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     HistoricalTimeSeries hts = getFromCache(uniqueId);
     if (hts == null) {
@@ -131,7 +131,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
   }
@@ -139,13 +139,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
     HistoricalTimeSeries hts = getFromCache(key);
@@ -162,7 +162,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalTimeSeries(
         identifiers, (LocalDate) null, dataSource, dataProvider, dataField,
@@ -171,7 +171,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
+      ExternalIdBundle identifiers, LocalDate currentDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries tsPair = getHistoricalTimeSeries(identifiers, currentDate, dataSource, dataProvider, dataField);
     return getSubSeries(tsPair, start, inclusiveStart, end, exclusiveEnd);
@@ -180,13 +180,13 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, String resolutionKey) {
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
     return getHistoricalTimeSeries(dataField, identifierBundle, null, resolutionKey);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, null);
@@ -204,14 +204,14 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries tsPair = getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey);
     return getSubSeries(tsPair, start, inclusiveStart, end, exclusiveEnd);
@@ -219,28 +219,28 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
-      Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
+  public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
+      Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifierSet, "identifierSet");
-    Map<IdentifierBundle, HistoricalTimeSeries> result = new HashMap<IdentifierBundle, HistoricalTimeSeries>();
-    Set<IdentifierBundle> remainingIdentifiers = new HashSet<IdentifierBundle>();
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = new HashMap<ExternalIdBundle, HistoricalTimeSeries>();
+    Set<ExternalIdBundle> remainingIds = new HashSet<ExternalIdBundle>();
     // caching works individually but all misses can be passed to underlying as one request
-    for (IdentifierBundle identifiers : identifierSet) {
+    for (ExternalIdBundle identifiers : identifierSet) {
       HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
       HistoricalTimeSeries hts = getFromCache(key);
       if (hts != null) {
         hts = getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
         result.put(identifiers, hts);
       } else {
-        remainingIdentifiers.add(identifiers);
+        remainingIds.add(identifiers);
       }
     }
-    if (remainingIdentifiers.size() > 0) {
-      Map<IdentifierBundle, HistoricalTimeSeries> remainingTsResults =
-        _underlying.getHistoricalTimeSeries(remainingIdentifiers, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
-      for (Map.Entry<IdentifierBundle, HistoricalTimeSeries> tsResult : remainingTsResults.entrySet()) {
-        IdentifierBundle identifiers = tsResult.getKey();
+    if (remainingIds.size() > 0) {
+      Map<ExternalIdBundle, HistoricalTimeSeries> remainingTsResults =
+        _underlying.getHistoricalTimeSeries(remainingIds, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+      for (Map.Entry<ExternalIdBundle, HistoricalTimeSeries> tsResult : remainingTsResults.entrySet()) {
+        ExternalIdBundle identifiers = tsResult.getKey();
         HistoricalTimeSeries hts = tsResult.getValue();
         HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
         if (hts != null) {
@@ -264,12 +264,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   private HistoricalTimeSeries getFromCache(HistoricalTimeSeriesKey key) {
     Element element = _cache.get(key);
-    if (element == null || element.getValue() instanceof UniqueIdentifier == false) {
-      s_logger.debug("Cache miss on {}", key.getIdentifiers());
+    if (element == null || element.getValue() instanceof UniqueId == false) {
+      s_logger.debug("Cache miss on {}", key.getExternalIdBundle());
       return null;
     }
-    s_logger.debug("Cache hit on {}", key.getIdentifiers());
-    return getFromCache((UniqueIdentifier) element.getValue());
+    s_logger.debug("Cache hit on {}", key.getExternalIdBundle());
+    return getFromCache((UniqueId) element.getValue());
   }
 
   /**
@@ -278,7 +278,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * @param uniqueId  the unique identifier, not null
    * @return the time-series, null if no match
    */
-  private HistoricalTimeSeries getFromCache(UniqueIdentifier uniqueId) {
+  private HistoricalTimeSeries getFromCache(UniqueId uniqueId) {
     Element element = _cache.get(uniqueId);
     if (element == null || element.getValue() instanceof HistoricalTimeSeries == false) {
       s_logger.debug("Cache miss on {}", uniqueId);

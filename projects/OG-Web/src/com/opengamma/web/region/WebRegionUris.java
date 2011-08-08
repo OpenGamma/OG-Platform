@@ -9,8 +9,8 @@ import java.net.URI;
 
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -45,8 +45,8 @@ public class WebRegionUris {
    * @param identifier  the identifier to search for, may be null
    * @return the URI
    */
-  public URI regions(final Identifier identifier) {
-    return WebRegionsResource.uri(_data, IdentifierBundle.of(identifier));
+  public URI regions(final ExternalId identifier) {
+    return WebRegionsResource.uri(_data, ExternalIdBundle.of(identifier));
   }
 
   /**
@@ -54,7 +54,7 @@ public class WebRegionUris {
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI
    */
-  public URI regions(final IdentifierBundle identifiers) {
+  public URI regions(final ExternalIdBundle identifiers) {
     return WebRegionsResource.uri(_data, identifiers);
   }
 
@@ -65,7 +65,7 @@ public class WebRegionUris {
    */
   public URI regionsByCurrency(final String currencyISO) {
     try {
-      return WebRegionsResource.uri(_data, IdentifierBundle.of(RegionUtils.currencyRegionId(Currency.of(currencyISO))));
+      return WebRegionsResource.uri(_data, ExternalIdBundle.of(RegionUtils.currencyRegionId(Currency.of(currencyISO))));
     } catch (Exception ex) {
       return WebRegionResource.uri(_data);
     }

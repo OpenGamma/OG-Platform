@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
@@ -20,7 +20,7 @@ import com.opengamma.masterdb.security.hibernate.SecurityBean;
 public class SwaptionSecurityBean extends SecurityBean {
 
   private ExpiryBean _expiry;
-  private IdentifierBean _underlying;
+  private ExternalIdBean _underlying;
   private Boolean _cashSettled;
   private Boolean _long;
   private Boolean _payer;
@@ -48,14 +48,14 @@ public class SwaptionSecurityBean extends SecurityBean {
   /**
    * @return the underlyingIdentifier
    */
-  public IdentifierBean getUnderlying() {
+  public ExternalIdBean getUnderlying() {
     return _underlying;
   }
 
   /**
    * @param underlying the underlyingIdentifier to set
    */
-  public void setUnderlying(final IdentifierBean underlying) {
+  public void setUnderlying(final ExternalIdBean underlying) {
     _underlying = underlying;
   }
 

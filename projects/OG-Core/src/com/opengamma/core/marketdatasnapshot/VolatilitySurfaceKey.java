@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -28,7 +28,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   /**
    * The target.
    */
-  private final UniqueIdentifier _target;
+  private final UniqueId _target;
   /**
    * The curve name.
    */
@@ -53,7 +53,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * Gets the target field.
    * @return the target
    */
-  public UniqueIdentifier getTarget() {
+  public UniqueId getTarget() {
     return _target;
   }
   /**
@@ -134,14 +134,14 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   }
 
   public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-    UniqueIdentifier targetUid;
+    UniqueId targetUid;
     String target = msg.getString("target");
     if (target == null) {
       //Handle old form of snapshot
       Currency curr = Currency.of(msg.getString("currency"));
       targetUid = curr.getUniqueId();
     } else {
-      targetUid = UniqueIdentifier.parse(target);
+      targetUid = UniqueId.parse(target);
     }
     return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"));
   }

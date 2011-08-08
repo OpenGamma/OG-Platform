@@ -5,16 +5,16 @@ package com.opengamma.financial.security.capfloor;
 public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept(CapFloorCMSSpreadSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); };
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); }
-  private static final long serialVersionUID = -4044791924367201199l;
+  private static final long serialVersionUID = -5326972972901251765l;
   private javax.time.calendar.ZonedDateTime _startDate;
   public static final String START_DATE_KEY = "startDate";
   private javax.time.calendar.ZonedDateTime _maturityDate;
   public static final String MATURITY_DATE_KEY = "maturityDate";
   private double _notional;
   public static final String NOTIONAL_KEY = "notional";
-  private com.opengamma.id.Identifier _longIdentifier;
+  private com.opengamma.id.ExternalId _longIdentifier;
   public static final String LONG_IDENTIFIER_KEY = "longIdentifier";
-  private com.opengamma.id.Identifier _shortIdentifier;
+  private com.opengamma.id.ExternalId _shortIdentifier;
   public static final String SHORT_IDENTIFIER_KEY = "shortIdentifier";
   private double _strike;
   public static final String STRIKE_KEY = "strike";
@@ -29,7 +29,7 @@ public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.
   private boolean _isCap;
   public static final String IS_CAP_KEY = "isCap";
   public static final String SECURITY_TYPE = "CAP/FLOOR CMS SPREAD";
-  public CapFloorCMSSpreadSecurity (javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier longIdentifier, com.opengamma.id.Identifier shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
+  public CapFloorCMSSpreadSecurity (javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.ExternalId longIdentifier, com.opengamma.id.ExternalId shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
     super (SECURITY_TYPE);
     if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
     else {
@@ -88,18 +88,18 @@ public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.
     fudgeField = fudgeMsg.getByName (LONG_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'longIdentifier' is not present");
     try {
-      _longIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _longIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'longIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'longIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (SHORT_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'shortIdentifier' is not present");
     try {
-      _shortIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _shortIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'shortIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'shortIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (STRIKE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'strike' is not present");
@@ -150,7 +150,7 @@ public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.
       throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'isCap' is not boolean", e);
     }
   }
-  public CapFloorCMSSpreadSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.Identifier longIdentifier, com.opengamma.id.Identifier shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
+  public CapFloorCMSSpreadSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.ExternalId longIdentifier, com.opengamma.id.ExternalId shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
     super (uniqueId, name, securityType, identifiers);
     if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
     else {
@@ -225,12 +225,12 @@ public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.
     }
     msg.add (NOTIONAL_KEY, null, _notional);
     if (_longIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _longIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _longIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _longIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (LONG_IDENTIFIER_KEY, null, fudge1);
     }
     if (_shortIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _shortIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _shortIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _shortIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (SHORT_IDENTIFIER_KEY, null, fudge1);
     }
@@ -285,19 +285,19 @@ public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.
   public void setNotional (double notional) {
     _notional = notional;
   }
-  public com.opengamma.id.Identifier getLongIdentifier () {
+  public com.opengamma.id.ExternalId getLongIdentifier () {
     return _longIdentifier;
   }
-  public void setLongIdentifier (com.opengamma.id.Identifier longIdentifier) {
+  public void setLongIdentifier (com.opengamma.id.ExternalId longIdentifier) {
     if (longIdentifier == null) throw new NullPointerException ("'longIdentifier' cannot be null");
     else {
       _longIdentifier = longIdentifier;
     }
   }
-  public com.opengamma.id.Identifier getShortIdentifier () {
+  public com.opengamma.id.ExternalId getShortIdentifier () {
     return _shortIdentifier;
   }
-  public void setShortIdentifier (com.opengamma.id.Identifier shortIdentifier) {
+  public void setShortIdentifier (com.opengamma.id.ExternalId shortIdentifier) {
     if (shortIdentifier == null) throw new NullPointerException ("'shortIdentifier' cannot be null");
     else {
       _shortIdentifier = shortIdentifier;

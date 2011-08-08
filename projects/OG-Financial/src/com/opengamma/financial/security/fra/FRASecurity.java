@@ -5,10 +5,10 @@ package com.opengamma.financial.security.fra;
 public class FRASecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept(FRASecurityVisitor<T> visitor) { return visitor.visitFRASecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFRASecurity(this); }
-  private static final long serialVersionUID = -7528652185626330017l;
+  private static final long serialVersionUID = -2848496775655682215l;
   private com.opengamma.util.money.Currency _currency;
   public static final String CURRENCY_KEY = "currency";
-  private com.opengamma.id.Identifier _region;
+  private com.opengamma.id.ExternalId _region;
   public static final String REGION_KEY = "region";
   private javax.time.calendar.ZonedDateTime _startDate;
   public static final String START_DATE_KEY = "startDate";
@@ -18,10 +18,10 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
   public static final String RATE_KEY = "rate";
   private double _amount;
   public static final String AMOUNT_KEY = "amount";
-  private com.opengamma.id.Identifier _underlyingIdentifier;
+  private com.opengamma.id.ExternalId _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   public static final String SECURITY_TYPE = "FRA";
-  public FRASecurity (com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime endDate, double rate, double amount, com.opengamma.id.Identifier underlyingIdentifier) {
+  public FRASecurity (com.opengamma.util.money.Currency currency, com.opengamma.id.ExternalId region, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime endDate, double rate, double amount, com.opengamma.id.ExternalId underlyingIdentifier) {
     super (SECURITY_TYPE);
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
@@ -58,10 +58,10 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
     fudgeField = fudgeMsg.getByName (REGION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'region' is not present");
     try {
-      _region = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _region = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'region' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'region' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (START_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'startDate' is not present");
@@ -98,13 +98,13 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'underlyingIdentifier' is not present");
     try {
-      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'underlyingIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a FRASecurity - field 'underlyingIdentifier' is not ExternalId message", e);
     }
   }
-  public FRASecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier region, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime endDate, double rate, double amount, com.opengamma.id.Identifier underlyingIdentifier) {
+  public FRASecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.ExternalId region, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime endDate, double rate, double amount, com.opengamma.id.ExternalId underlyingIdentifier) {
     super (uniqueId, name, securityType, identifiers);
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
@@ -165,7 +165,7 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
       msg.add (CURRENCY_KEY, null, _currency);
     }
     if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _region.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
       _region.toFudgeMsg (fudgeContext, fudge1);
       msg.add (REGION_KEY, null, fudge1);
     }
@@ -178,7 +178,7 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
     msg.add (RATE_KEY, null, _rate);
     msg.add (AMOUNT_KEY, null, _amount);
     if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _underlyingIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
     }
@@ -204,10 +204,10 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
   }
-  public com.opengamma.id.Identifier getRegion () {
+  public com.opengamma.id.ExternalId getRegion () {
     return _region;
   }
-  public void setRegion (com.opengamma.id.Identifier region) {
+  public void setRegion (com.opengamma.id.ExternalId region) {
     if (region == null) throw new NullPointerException ("'region' cannot be null");
     else {
       _region = region;
@@ -243,10 +243,10 @@ public class FRASecurity extends com.opengamma.financial.security.FinancialSecur
   public void setAmount (double amount) {
     _amount = amount;
   }
-  public com.opengamma.id.Identifier getUnderlyingIdentifier () {
+  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
     return _underlyingIdentifier;
   }
-  public void setUnderlyingIdentifier (com.opengamma.id.Identifier underlyingIdentifier) {
+  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
       _underlyingIdentifier = underlyingIdentifier;

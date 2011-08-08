@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -31,7 +31,7 @@ public interface PositionOrTrade extends UniqueIdentifiable {
    * 
    * @return the unique identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Gets the amount of the position held in terms of the security.

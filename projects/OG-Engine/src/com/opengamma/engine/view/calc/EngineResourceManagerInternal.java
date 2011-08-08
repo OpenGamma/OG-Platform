@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * An internal interface to an engine resource manager.
@@ -25,21 +25,21 @@ public interface EngineResourceManagerInternal<T extends EngineResource> extends
   
   /**
    * Increments the reference count for a resource which ensures it is retained. A call to this method must be paired
-   * with a subsequent call to {@link #decrementCycleReferenceCount(UniqueIdentifier)} to avoid resource leaks. 
+   * with a subsequent call to {@link #decrementCycleReferenceCount(UniqueId)} to avoid resource leaks. 
    * 
    * @param uniqueId  the unique identifier of the resource to retain, not null
    * @return {@code true} if the operation was successful, {@code false} if the cycle was not found
    */
-  boolean incrementCycleReferenceCount(UniqueIdentifier uniqueId);
+  boolean incrementCycleReferenceCount(UniqueId uniqueId);
   
   /**
    * Decrements the reference count for a resource which may allow it to be released. A call to this method must only
-   * follow a previous call to {@link #incrementCycleReferenceCount(UniqueIdentifier)}.
+   * follow a previous call to {@link #incrementCycleReferenceCount(UniqueId)}.
    * 
    * @param uniqueId  the unique identifier of the resource to release, not null
    * @return {@code true} if the operation was successful, {@code false} if the resource was not found
    */
-  boolean decrementCycleReferenceCount(UniqueIdentifier uniqueId);
+  boolean decrementCycleReferenceCount(UniqueId uniqueId);
   
   /**
    * Gets the number of resources under management.

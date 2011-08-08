@@ -41,7 +41,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -167,7 +167,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     ConventionBundle swapConvention = getSwapConventionBundle(ccy);
     ConventionBundle liborConvention = getLiborConventionBundle(swapConvention);
     // look up the OG_SYNTHETIC ticker out of the bundle
-    Identifier liborIdentifier = liborConvention.getIdentifiers().getIdentifier(SecurityUtils.OG_SYNTHETIC_TICKER);
+    ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(SecurityUtils.OG_SYNTHETIC_TICKER);
     if (liborIdentifier == null) {
       throw new OpenGammaRuntimeException("No synthetic ticker set up for " + swapConvention.getName());
     }
@@ -196,7 +196,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         swapConvention.getSwapFloatingLegRegion(), 
         swapConvention.getSwapFloatingLegBusinessDayConvention(), 
         new InterestRateNotional(ccy, notional), 
-        Identifier.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
+        ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
         initialRate, 
         0.0, false);
     
@@ -219,7 +219,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
       receiveLegDescription = fixedLegDescription;
     }
     SwapSecurity swap = new SwapSecurity(tradeDateTime, tradeDateTime, maturityDateTime, counterparty, payLeg, receiveLeg);
-    swap.addIdentifier(Identifier.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swap.addIdentifier(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap.setName("IR Swap " + ccy + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(notional) + " " +
         maturityDateTime.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     return swap;  
@@ -228,7 +228,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   private Double getFixedRate(SecureRandom random, Currency ccy, LocalDate tradeDate, Tenor maturity) {
     HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
     MasterConfigSource configSource = new MasterConfigSource(_loaderContext.getConfigMaster());
-    Identifier swapRateForMaturityIdentifier = getSwapRateFor(configSource, ccy, tradeDate, maturity);
+    ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, ccy, tradeDate, maturity);
     if (swapRateForMaturityIdentifier == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap rate identifier for " + ccy + " [" + maturity + "]" + " from " + tradeDate);
     }
@@ -245,7 +245,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     return fixedRate;
   }
 
-  private Double getInitialRate(LocalDate tradeDate, Identifier liborIdentifier) {
+  private Double getInitialRate(LocalDate tradeDate, ExternalId liborIdentifier) {
     HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
     HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
         HistoricalTimeSeriesFields.LAST_PRICE, liborIdentifier.toBundle(), 
@@ -269,7 +269,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
 
   private ConventionBundle getSwapConventionBundle(Currency ccy) {
     ConventionBundleSource conventionSource = _loaderContext.getConventionBundleSource();
-    ConventionBundle swapConvention = conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
+    ConventionBundle swapConvention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap convention for " + ccy.getCode());
     }
@@ -291,12 +291,12 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     return ccy;
   }
   
-  private static Identifier getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
+  private static ExternalId getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
     CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getByName(CurveSpecificationBuilderConfiguration.class, "SECONDARY_" + ccy.getCode(), null);
     if (curveSpecConfig == null) {
       throw new OpenGammaRuntimeException("No curve spec builder configuration for SECONDARY_" + ccy.getCode());
     }
-    Identifier swapSecurity = curveSpecConfig.getSwapSecurity(tradeDate, tenor);
+    ExternalId swapSecurity = curveSpecConfig.getSwapSecurity(tradeDate, tenor);
     return swapSecurity;
   }
 

@@ -8,8 +8,8 @@ package com.opengamma.masterdb.security.hibernate.option;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
@@ -36,7 +36,7 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setCashSettled(security.getIsCashSettled());
     bean.setLong(security.getIsLong());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
-    bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
     bean.setPayer(security.getIsPayer());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     return bean;
@@ -45,7 +45,7 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
   @Override
   public SwaptionSecurity createSecurity(OperationContext context, SwaptionSecurityBean bean) {
     return new SwaptionSecurity(bean.isPayer(), 
-        identifierBeanToIdentifier(bean.getUnderlying()), 
+        externalIdBeanToExternalId(bean.getUnderlying()), 
         bean.isLong(), 
         expiryBeanToExpiry(bean.getExpiry()), 
         bean.isCashSettled(), 

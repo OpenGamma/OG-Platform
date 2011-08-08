@@ -20,7 +20,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.money.Currency;
 
@@ -49,7 +49,7 @@ public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBui
     LocalDate curveDate = context.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
     String name = message.getString("name");
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
-    Identifier region = context.fieldValueToObject(Identifier.class, message.getByName("region"));
+    ExternalId region = context.fieldValueToObject(ExternalId.class, message.getByName("region"));
     Interpolator1D<?> interpolator = context.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
     List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");
     List<FixedIncomeStripWithIdentifier> resolvedStrips = new ArrayList<FixedIncomeStripWithIdentifier>();

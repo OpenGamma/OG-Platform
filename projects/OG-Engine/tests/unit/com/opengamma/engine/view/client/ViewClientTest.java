@@ -47,7 +47,7 @@ import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
@@ -537,7 +537,7 @@ public class ViewClientTest {
     }
     
     @Override
-    public void addValue(Identifier identifier, String valueName, Object value) {
+    public void addValue(ExternalId identifier, String valueName, Object value) {
     }
 
     @Override
@@ -549,7 +549,7 @@ public class ViewClientTest {
     }
     
     @Override
-    public void removeValue(Identifier identifier, String valueName) {
+    public void removeValue(ExternalId identifier, String valueName) {
     }
 
     //-----------------------------------------------------------------------

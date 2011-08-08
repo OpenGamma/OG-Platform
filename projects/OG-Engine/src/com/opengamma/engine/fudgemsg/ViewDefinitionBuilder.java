@@ -25,7 +25,7 @@ import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -110,14 +110,14 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       context.addToMessage(calcConfigMsg, RESOLUTION_RULE_TRANSFORM_FIELD, null, calcConfig.getResolutionRuleTransform());
       message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
     }
-    context.addToMessageWithClassHeaders(message, "uniqueId", null, viewDefinition.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, "uniqueId", null, viewDefinition.getUniqueId(), UniqueId.class);
     return message;
   }
 
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField identifierField = message.getByName(IDENTIFIER_FIELD);
-    UniqueIdentifier identifier = identifierField == null ? null : context.fieldValueToObject(UniqueIdentifier.class, identifierField);
+    UniqueId identifier = identifierField == null ? null : context.fieldValueToObject(UniqueId.class, identifierField);
     
     ViewDefinition viewDefinition = new ViewDefinition(message.getFieldValue(String.class, message.getByName(NAME_FIELD)),
         identifier,
@@ -181,7 +181,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     }
     FudgeField uniqueId = message.getByName("uniqueId");
     if (uniqueId != null) {
-      viewDefinition.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
+      viewDefinition.setUniqueId(context.fieldValueToObject(UniqueId.class, uniqueId));
     }
     return viewDefinition;
   }

@@ -29,53 +29,53 @@ public class DataViewCycleResource extends AbstractDataResource {
   public static final String PATH_RESULT = "result";
   public static final String PATH_QUERY_CACHES = "queryCaches";
   //CSON: just constants
-  
+
   private final ViewCycle _cycle;
-  
+
   public DataViewCycleResource(ViewCycle cycle) {
     _cycle = cycle;
   }
-  
+
   @GET
   @Path(PATH_UNIQUE_ID)
-  public Response getUniqueIdentifier() {
+  public Response getUniqueId() {
     return Response.ok(_cycle.getUniqueId()).build();
   }
-  
+
   @GET
   @Path(PATH_VIEW_PROCESS_ID)
   public Response getViewProcessId() {
     return Response.ok(_cycle.getViewProcessId()).build();
   }
-  
+
   @GET
   @Path(PATH_STATE)
   public Response getState() {
     return Response.ok(_cycle.getState()).build();
   }
-  
+
   @GET
   @Path(PATH_DURATION)
   public Response getDuration() {
     return Response.ok(_cycle.getDuration()).build();
   }
-  
+
   @Path(PATH_COMPILED_VIEW_DEFINITION)
   public DataCompiledViewDefinitionResource getCompiledViewDefinition() {
     return new DataCompiledViewDefinitionResource(_cycle.getCompiledViewDefinition());
   }
-  
+
   @GET
   @Path(PATH_RESULT)
   public Response getResult() {
     return Response.ok(_cycle.getResultModel()).build();
   }
-  
+
   @POST
   @Path(PATH_QUERY_CACHES)
   public Response queryComputationCaches(ComputationCacheQuery query) {
     ComputationCacheResponse result = _cycle.queryComputationCaches(query);
     return Response.ok(result).build();
   }
-  
+
 }

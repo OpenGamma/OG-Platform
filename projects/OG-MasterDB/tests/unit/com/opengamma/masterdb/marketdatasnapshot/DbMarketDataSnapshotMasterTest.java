@@ -25,7 +25,7 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableVolatilityCubeSnapshot;
@@ -67,7 +67,7 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_snpMaster);
-    assertEquals(true, _snpMaster.getIdentifierScheme().equals("DbSnp"));
+    assertEquals(true, _snpMaster.getUniqueIdScheme().equals("DbSnp"));
     assertNotNull(_snpMaster.getDbSource());
     assertNotNull(_snpMaster.getTimeSource());
   }
@@ -105,8 +105,8 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     HashMap<YieldCurveKey,YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey,YieldCurveSnapshot>();
     
     
-    MarketDataValueSpecification specA = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, UniqueIdentifier.of("XXX", "AAA"));
-    MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueIdentifier.of("XXX", "AAA"));
+    MarketDataValueSpecification specA = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, UniqueId.of("XXX", "AAA"));
+    MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueId.of("XXX", "AAA"));
     
     HashMap<String,ValueSnapshot> hashMapA = new HashMap<String,ValueSnapshot>();
     hashMapA.put("X", new ValueSnapshot(Double.valueOf(12),null));

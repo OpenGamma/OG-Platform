@@ -12,7 +12,7 @@ import net.sf.ehcache.CacheException;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClientState;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -42,7 +42,7 @@ public class ViewClient implements ViewClientMBean {
   /**
    * Creates an object name using the scheme "com.opengamma:type=ViewClient,ViewProcessor=<viewProcessorId>,name=<viewClientId>"
    */
-  /*package*/ static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewClientId) {
+  /*package*/ static ObjectName createObjectName(UniqueId viewProcessorId, UniqueId viewClientId) {
     ObjectName objectName;
     try {
       objectName = new ObjectName("com.opengamma:type=ViewClient,ViewProcessor=ViewProcessor " + viewProcessorId.getValue() + ",name=ViewClient " + viewClientId.getValue());
@@ -63,7 +63,7 @@ public class ViewClient implements ViewClientMBean {
   
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _viewClient.getUniqueId();
   }
 

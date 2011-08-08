@@ -24,7 +24,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * 
@@ -37,7 +37,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
+    final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
     if (spotAsObject == null) {
       s_logger.warn("Didn't have market value for {}", option.getUnderlyingIdentifier());
@@ -55,7 +55,7 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     if (canApplyTo(context, target)) {
       final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
+      final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
       requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueId()));

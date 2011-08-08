@@ -12,7 +12,7 @@ import javax.time.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.config.ConfigDocument;
@@ -118,7 +118,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   @Override
-  public <T> T get(final Class<T> clazz, final UniqueIdentifier uniqueId) {
+  public <T> T get(final Class<T> clazz, final UniqueId uniqueId) {
     ConfigDocument<T> doc = getDocument(clazz, uniqueId);
     return (doc != null ? doc.getValue() : null);
   }
@@ -143,7 +143,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    * @param uniqueId  the unique identifier, not null
    * @return the configuration document, null if not found
    */
-  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueIdentifier uniqueId) {
+  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     VersionCorrection vc = getVersionCorrection();  // lock against change

@@ -7,14 +7,14 @@
 package com.opengamma.masterdb.security.hibernate.fx;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -36,17 +36,17 @@ public final class FXForwardSecurityBeanOperation extends AbstractSecurityBeanOp
   @Override
   public FXForwardSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, FXForwardSecurity security) {
     final FXForwardSecurityBean bean = new FXForwardSecurityBean();
-    bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
     bean.setForwardDate(dateTimeWithZoneToZonedDateTimeBean(security.getForwardDate()));
-    bean.setRegion(identifierToIdentifierBean(security.getRegion()));
+    bean.setRegion(externalIdToExternalIdBean(security.getRegion()));
     return bean;
   }
 
   @Override
   public FXForwardSecurity createSecurity(final OperationContext context, FXForwardSecurityBean bean) {
     ZonedDateTime forwardDate = zonedDateTimeBeanToDateTimeWithZone(bean.getForwardDate());
-    Identifier region = identifierBeanToIdentifier(bean.getRegion());
-    Identifier underlyingIdentifier = identifierBeanToIdentifier(bean.getUnderlying());
+    ExternalId region = externalIdBeanToExternalId(bean.getRegion());
+    ExternalId underlyingIdentifier = externalIdBeanToExternalId(bean.getUnderlying());
     return new FXForwardSecurity(underlyingIdentifier, forwardDate, region);
   }
 

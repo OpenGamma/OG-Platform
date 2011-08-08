@@ -12,7 +12,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Wraps a view definition repository to trap calls to record user based information to allow clean up and
@@ -34,7 +34,7 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   @Override
   public void addViewDefinition(AddViewDefinitionRequest request) {
     _underlying.addViewDefinition(request);
-    _tracker.created(UniqueIdentifier.of(SCHEME, request.getViewDefinition().getName()));
+    _tracker.created(UniqueId.of(SCHEME, request.getViewDefinition().getName()));
   }
 
   @Override
@@ -45,7 +45,7 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   @Override
   public void removeViewDefinition(String name) {
     _underlying.removeViewDefinition(name);
-    _tracker.deleted(UniqueIdentifier.of(SCHEME, name));
+    _tracker.deleted(UniqueId.of(SCHEME, name));
   }
 
   @Override

@@ -6,9 +6,6 @@
 package com.opengamma.util.fudgemsg;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -18,7 +15,9 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
- * Fudge builder for {@code LocalDate}. For cases where you're passing as LocalDate in a polymorphic field (e.g. generics) and you can't use the secondary type encoding directly.
+ * Fudge builder for {@code LocalDate}.
+ * For cases where you're passing as LocalDate in a polymorphic field (e.g. generics) and you
+ * can't use the secondary type encoding directly.
  */
 @FudgeBuilderFor(LocalDate.class)
 public final class LocalDateBuilder implements FudgeBuilder<LocalDate> {

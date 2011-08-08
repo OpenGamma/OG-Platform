@@ -36,5 +36,19 @@ public class HSQLDbHelperTest extends DbHelperTest {
   public void test_sqlNextSequenceValueSelect() {
     assertEquals("CALL NEXT VALUE FOR MySeq", _helper.sqlNextSequenceValueSelect("MySeq"));
   }
+  
+  //-------------------------------------------------------------------------
+  public void test_sqlWildcardQuery() {
+    assertEquals("AND col LIKE :arg ESCAPE '\\' ", _helper.sqlWildcardQuery("AND col ", ":arg", "a*"));
+    assertEquals("AND col LIKE :arg ESCAPE '\\' ", _helper.sqlWildcardQuery("AND col ", ":arg", "a?"));
+    assertEquals("AND col LIKE :arg ESCAPE '\\' ", _helper.sqlWildcardQuery("AND col ", ":arg", "a*b"));
+    assertEquals("AND col LIKE :arg ESCAPE '\\' ", _helper.sqlWildcardQuery("AND col ", ":arg", "a?b"));
+    assertEquals("AND col LIKE :arg ESCAPE '\\' ", _helper.sqlWildcardQuery("AND col ", ":arg", "*b"));
+    assertEquals("AND col LIKE :arg ESCAPE '\\' ", _helper.sqlWildcardQuery("AND col ", ":arg", "?b"));
+    
+    assertEquals("AND col = :arg ", _helper.sqlWildcardQuery("AND col ", ":arg", "a"));
+    assertEquals("AND col = :arg ", _helper.sqlWildcardQuery("AND col ", ":arg", ""));
+    assertEquals("", _helper.sqlWildcardQuery("AND col ", ":arg", null));
+  }
 
 }

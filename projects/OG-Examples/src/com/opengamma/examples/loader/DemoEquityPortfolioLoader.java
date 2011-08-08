@@ -22,8 +22,8 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -216,11 +216,11 @@ public class DemoEquityPortfolioLoader {
   protected ManageablePosition createPosition(EquitySecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    Identifier buid = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
-    Identifier ticker = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-    IdentifierBundle bundle;
+    ExternalId buid = security.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+    ExternalId ticker = security.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    ExternalIdBundle bundle;
     if (buid != null && ticker != null) {
-      bundle = IdentifierBundle.of(buid, ticker);
+      bundle = ExternalIdBundle.of(buid, ticker);
     } else {
       bundle = security.getIdentifiers();
     }
@@ -228,12 +228,12 @@ public class DemoEquityPortfolioLoader {
     
     // create random trades
     if (shares <= 2000) {
-      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, Identifier.of("CPARTY", "BACS"));
+      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade);
     } else {
-      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, Identifier.of("CPARTY", "BACS"));
+      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade1);
-      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, Identifier.of("CPARTY", "BACS"));
+      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade2);
     }
     return position;

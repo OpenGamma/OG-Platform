@@ -10,7 +10,7 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
@@ -72,7 +72,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  ManageableHistoricalTimeSeries getTimeSeries(UniqueIdentifier uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+  ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
   /**
    * Gets the time-series data points.
@@ -105,7 +105,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier updateTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
+  UniqueId updateTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
 
   /**
    * Corrects the time-series by removing data points.
@@ -126,7 +126,7 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier correctTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
+  UniqueId correctTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDateDoubleTimeSeries series);
 
   /**
    * Corrects the time-series by removing data points.
@@ -143,6 +143,6 @@ public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTim
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  UniqueIdentifier removeTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
+  UniqueId removeTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive);
 
 }

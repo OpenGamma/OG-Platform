@@ -47,7 +47,7 @@ public class BondFutureGrossBasisFromCurvesFunction extends BondFutureFromCurves
     }
     final String[] label = new String[n];
     for (int i = 0; i < n; i++) {
-      label[i] = deliverables.get(i).getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_BUID); //TODO get a better label
+      label[i] = deliverables.get(i).getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID); //TODO get a better label
     }
     final StringLabelledMatrix1D result = new StringLabelledMatrix1D(label, grossBasis);
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), result));

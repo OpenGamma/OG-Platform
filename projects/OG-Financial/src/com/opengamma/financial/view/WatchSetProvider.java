@@ -7,7 +7,7 @@ package com.opengamma.financial.view;
 
 import java.util.Set;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Interface to allow an alternate set of unique identifiers to be watched for changes in addition to those
@@ -22,6 +22,6 @@ public interface WatchSetProvider {
    * @param watchSet explicitly requested watch set, not {@code null}
    * @return the additional identifiers to watch, or {@code null} if there are no additional ones
    */
-  Set<UniqueIdentifier> getAdditionalWatchSet(Set<UniqueIdentifier> watchSet);
+  Set<UniqueId> getAdditionalWatchSet(Set<UniqueId> watchSet);
   
 }

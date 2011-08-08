@@ -20,7 +20,7 @@ import org.springframework.core.io.Resource;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -32,9 +32,9 @@ import com.opengamma.util.tuple.Pair;
 public class SimulatedMarketDataGenerator implements Runnable {
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedMarketDataGenerator.class);
   private MarketDataInjector _marketDataInjector;
-  private Map<Pair<Identifier, String>, Object> _initialValues = new HashMap<Pair<Identifier, String>, Object>();
+  private Map<Pair<ExternalId, String>, Object> _initialValues = new HashMap<Pair<ExternalId, String>, Object>();
   @SuppressWarnings("unchecked")
-  private Pair<Identifier, String>[] _identifiers = new Pair[0];
+  private Pair<ExternalId, String>[] _identifiers = new Pair[0];
 
   private static final int NUM_FIELDS = 4;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
@@ -64,7 +64,7 @@ public class SimulatedMarketDataGenerator implements Runnable {
           String fieldName = line[2];
           String valueStr = line[3];
           Double value = Double.parseDouble(valueStr);
-          Identifier id = Identifier.of(scheme, identifier);
+          ExternalId id = ExternalId.of(scheme, identifier);
           _initialValues.put(Pair.of(id, fieldName), value);
           _marketDataInjector.addValue(id, fieldName, value);
         }
@@ -87,7 +87,7 @@ public class SimulatedMarketDataGenerator implements Runnable {
     boolean running = true;
     Random random = new Random(); // noMarket need for SecureRandom here..
     while (running) {      
-      Pair<Identifier, String> idFieldPair = _identifiers[random.nextInt(_identifiers.length)];
+      Pair<ExternalId, String> idFieldPair = _identifiers[random.nextInt(_identifiers.length)];
       Object initialValue = _initialValues.get(idFieldPair);
       if (initialValue instanceof Double) {
         double value = wiggleValue(random, (Double) initialValue);

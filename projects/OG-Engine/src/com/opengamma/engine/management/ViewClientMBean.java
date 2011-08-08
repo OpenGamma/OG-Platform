@@ -8,7 +8,7 @@ package com.opengamma.engine.management;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -21,7 +21,7 @@ public interface ViewClientMBean {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /**
    * Gets the user for whom the view client was created. This user necessarily has sufficient permissions on the

@@ -4,18 +4,18 @@
 package com.opengamma.financial.security.swap;
 public abstract class SwapLeg implements java.io.Serializable {
   public abstract <T> T accept (SwapLegVisitor<T> visitor);
-  private static final long serialVersionUID = 2567591056847352827l;
+  private static final long serialVersionUID = 2567515945211926296l;
   private final com.opengamma.financial.convention.daycount.DayCount _dayCount;
   public static final String DAY_COUNT_KEY = "dayCount";
   private final com.opengamma.financial.convention.frequency.Frequency _frequency;
   public static final String FREQUENCY_KEY = "frequency";
-  private final com.opengamma.id.Identifier _regionIdentifier;
+  private final com.opengamma.id.ExternalId _regionIdentifier;
   public static final String REGION_IDENTIFIER_KEY = "regionIdentifier";
   private final com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
   public static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
   private final com.opengamma.financial.security.swap.Notional _notional;
   public static final String NOTIONAL_KEY = "notional";
-  public SwapLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
+  public SwapLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
     if (dayCount == null) throw new NullPointerException ("dayCount' cannot be null");
     _dayCount = dayCount;
     if (frequency == null) throw new NullPointerException ("frequency' cannot be null");
@@ -52,10 +52,10 @@ public abstract class SwapLeg implements java.io.Serializable {
     fudgeField = fudgeMsg.getByName (REGION_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not present");
     try {
-      _regionIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _regionIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (BUSINESS_DAY_CONVENTION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'businessDayConvention' is not present");
@@ -97,7 +97,7 @@ public abstract class SwapLeg implements java.io.Serializable {
       msg.add (FREQUENCY_KEY, null, _frequency);
     }
     if (_regionIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _regionIdentifier.getClass (), com.opengamma.id.Identifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _regionIdentifier.getClass (), com.opengamma.id.ExternalId.class);
       _regionIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (REGION_IDENTIFIER_KEY, null, fudge1);
     }
@@ -130,7 +130,7 @@ public abstract class SwapLeg implements java.io.Serializable {
   public com.opengamma.financial.convention.frequency.Frequency getFrequency () {
     return _frequency;
   }
-  public com.opengamma.id.Identifier getRegionIdentifier () {
+  public com.opengamma.id.ExternalId getRegionIdentifier () {
     return _regionIdentifier;
   }
   public com.opengamma.financial.convention.businessday.BusinessDayConvention getBusinessDayConvention () {

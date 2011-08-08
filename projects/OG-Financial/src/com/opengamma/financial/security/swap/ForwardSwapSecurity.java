@@ -26,7 +26,7 @@ public class ForwardSwapSecurity extends com.opengamma.financial.security.swap.S
       throw new IllegalArgumentException ("Fudge message is not a ForwardSwapSecurity - field 'forwardStartDate' is not ZonedDateTime typedef", e);
     }
   }
-  public ForwardSwapSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, javax.time.calendar.ZonedDateTime tradeDate, javax.time.calendar.ZonedDateTime effectiveDate, javax.time.calendar.ZonedDateTime maturityDate, String counterparty, com.opengamma.financial.security.swap.SwapLeg payLeg, com.opengamma.financial.security.swap.SwapLeg receiveLeg, javax.time.calendar.ZonedDateTime forwardStartDate) {
+  public ForwardSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, javax.time.calendar.ZonedDateTime tradeDate, javax.time.calendar.ZonedDateTime effectiveDate, javax.time.calendar.ZonedDateTime maturityDate, String counterparty, com.opengamma.financial.security.swap.SwapLeg payLeg, com.opengamma.financial.security.swap.SwapLeg receiveLeg, javax.time.calendar.ZonedDateTime forwardStartDate) {
     super (uniqueId, name, securityType, identifiers, tradeDate, effectiveDate, maturityDate, counterparty, payLeg, receiveLeg);
     if (forwardStartDate == null) throw new NullPointerException ("'forwardStartDate' cannot be null");
     else {

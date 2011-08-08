@@ -32,7 +32,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 
@@ -59,8 +59,8 @@ public class FinancialSecurityUtils {
       }
         break;
       case PRIMITIVE: {
-        final UniqueIdentifier uid = target.getUniqueId();
-        if (uid.getScheme().equals(Currency.OBJECT_IDENTIFIER_SCHEME)) {
+        final UniqueId uid = target.getUniqueId();
+        if (uid.getScheme().equals(Currency.OBJECT_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }

@@ -24,7 +24,7 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractDocumentsResult;
@@ -133,7 +133,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param masterName  a name describing the contents of the master for an error message, not null
    * @return the document, null if not found
    */
-  protected D doGet(final UniqueIdentifier uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
+  protected D doGet(final UniqueId uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
     
@@ -209,7 +209,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param masterName  a name describing the contents of the master for an error message, not null
    * @return the document, null if not found
    */
-  protected D doGetById(final UniqueIdentifier uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
+  protected D doGetById(final UniqueId uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(extractor, "extractor");
     s_logger.debug("getById {}", uniqueId);
@@ -229,7 +229,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param uniqueId  the versioned unique identifier, not null
    * @return the SQL arguments, not null
    */
-  protected DbMapSqlParameterSource argsGetById(final UniqueIdentifier uniqueId) {
+  protected DbMapSqlParameterSource argsGetById(final UniqueId uniqueId) {
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("doc_oid", extractOid(uniqueId))
       .addValue("doc_id", extractRowId(uniqueId));
@@ -435,8 +435,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     // retry to handle concurrent conflicting inserts into unique content tables
     for (int retry = 0; true; retry++) {
       try {
-        final UniqueIdentifier beforeId = document.getUniqueId();
-        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
+        final UniqueId beforeId = document.getUniqueId();
+        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
           @Override
           public D doInTransaction(final TransactionStatus status) {
@@ -481,7 +481,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
     s_logger.debug("remove {}", uniqueId);
@@ -513,7 +513,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param uniqueId  the unique identifier to remove, not null
    * @return the updated document, not null
    */
-  protected D doRemoveInTransaction(final UniqueIdentifier uniqueId) {
+  protected D doRemoveInTransaction(final UniqueId uniqueId) {
     // load old row
     final D oldDoc = getCheckLatestVersion(uniqueId);
     // update old row
@@ -533,8 +533,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     // retry to handle concurrent conflicting inserts into unique content tables
     for (int retry = 0; true; retry++) {
       try {
-        final UniqueIdentifier beforeId = document.getUniqueId();
-        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
+        final UniqueId beforeId = document.getUniqueId();
+        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
           @Override
           public D doInTransaction(final TransactionStatus status) {
@@ -611,10 +611,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param uniqueId  the unique identifier to load, not null
    * @return the loaded document, not null
    */
-  protected D getCheckLatestVersion(final UniqueIdentifier uniqueId) {
+  protected D getCheckLatestVersion(final UniqueId uniqueId) {
     final D oldDoc = get(uniqueId);  // checks uniqueId exists
     if (oldDoc.getVersionToInstant() != null) {
-      throw new IllegalArgumentException("UniqueIdentifier is not latest version: " + uniqueId);
+      throw new IllegalArgumentException("UniqueId is not latest version: " + uniqueId);
     }
     return oldDoc;
   }
@@ -654,10 +654,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param uniqueId  the unique identifier to load, not null
    * @return the loaded document, not null
    */
-  protected D getCheckLatestCorrection(final UniqueIdentifier uniqueId) {
+  protected D getCheckLatestCorrection(final UniqueId uniqueId) {
     final D oldDoc = get(uniqueId);  // checks uniqueId exists
     if (oldDoc.getCorrectionToInstant() != null) {
-      throw new IllegalArgumentException("UniqueIdentifier is not latest correction: " + uniqueId);
+      throw new IllegalArgumentException("UniqueId is not latest correction: " + uniqueId);
     }
     return oldDoc;
   }

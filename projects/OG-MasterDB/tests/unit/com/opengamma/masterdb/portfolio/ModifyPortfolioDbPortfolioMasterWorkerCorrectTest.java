@@ -17,7 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -57,14 +57,14 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noPortfolio() {
     PortfolioDocument doc = new PortfolioDocument();
-    doc.setUniqueId(UniqueIdentifier.of("DbPrt", "201", "0"));
+    doc.setUniqueId(UniqueId.of("DbPrt", "201", "0"));
     _prtMaster.correct(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
-    port.setUniqueId(UniqueIdentifier.of("DbPrt", "0", "0"));
+    port.setUniqueId(UniqueId.of("DbPrt", "0", "0"));
     port.setRootNode(new ManageablePortfolioNode("Root"));
     PortfolioDocument doc = new PortfolioDocument(port);
     _prtMaster.correct(doc);
@@ -72,9 +72,9 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_notLatestCorrection() {
-    PortfolioDocument base = _prtMaster.get(UniqueIdentifier.of("DbPrt", "201", "0"));
+    PortfolioDocument base = _prtMaster.get(UniqueId.of("DbPrt", "201", "0"));
     _prtMaster.correct(base);  // correction
-    base = _prtMaster.get(UniqueIdentifier.of("DbPrt", "201", "0"));  // get old version
+    base = _prtMaster.get(UniqueId.of("DbPrt", "201", "0"));  // get old version
     _prtMaster.correct(base);  // cannot update old correction
   }
 
@@ -82,7 +82,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
   public void test_correct_getUpdateGet() {
     Instant now = Instant.now(_prtMaster.getTimeSource());
     
-    UniqueIdentifier oldPortfolioId = UniqueIdentifier.of("DbPrt", "201", "0");
+    UniqueId oldPortfolioId = UniqueId.of("DbPrt", "201", "0");
     PortfolioDocument base = _prtMaster.get(oldPortfolioId);
     ManageablePortfolio port = new ManageablePortfolio("NewName");
     port.setUniqueId(oldPortfolioId);
@@ -90,7 +90,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     PortfolioDocument input = new PortfolioDocument(port);
     
     PortfolioDocument corrected = _prtMaster.correct(input);
-    assertEquals(UniqueIdentifier.of("DbPrt", "201"), corrected.getUniqueId().toLatest());
+    assertEquals(UniqueId.of("DbPrt", "201"), corrected.getUniqueId().toLatest());
     assertEquals(false, base.getUniqueId().getVersion().equals(corrected.getUniqueId().getVersion()));
     assertEquals(_version1Instant, corrected.getVersionFromInstant());
     assertEquals(_version2Instant, corrected.getVersionToInstant());
