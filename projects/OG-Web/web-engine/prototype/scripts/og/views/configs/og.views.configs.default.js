@@ -32,7 +32,7 @@ $.register_module({
                     $(selector + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                 if (is_new) $(selector + ' .og-js-submit[value=save_as_new]').html('Save');
                 $(selector + ' [name=name]').bind('keyup', function (e) {
-                    $(selector + ' .og-js-name').text($(e.target).val());
+                    $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                 });
                 $(selector + ' .og-js-submit').click(function (e) {submit_type = $(e.target).val();});
                 $(selector + ' form').bind('submit', function (e) {

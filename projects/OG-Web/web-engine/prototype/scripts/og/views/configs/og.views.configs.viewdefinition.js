@@ -70,7 +70,7 @@ $.register_module({
                     var header_html = '\
                         <header class="OG-header-generic">\
                           <div class="OG-toolbar"></div>\
-                          <h1>' + master.name + '</h1>\
+                          <h1 class="og-js-name">' + master.name + '</h1>\
                           <br />(View Definition)\
                         </header>\
                     ';
@@ -122,7 +122,7 @@ $.register_module({
                             $(form_id + ' select[name=currency]').val(master.currency);
                         }},
                         {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
-                            $(form_id + ' h1').text($(e.target).val());
+                            $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                         }}
                     ]
                 }),
