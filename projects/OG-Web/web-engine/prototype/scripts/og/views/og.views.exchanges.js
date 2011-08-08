@@ -64,8 +64,10 @@ $.register_module({
                         name: 'Exchanges',
                         recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
                     }), layout = og.views.common.layout;
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                    $('.ui-layout-inner-center .ui-layout-header')
+                        .html($('<p/>').append($html.find('> header')).html());
+                    $('.ui-layout-inner-center .ui-layout-content')
+                        .html($('<p/>').append($html.find('> section')).html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
                     layout.inner.resizeAll();
@@ -83,8 +85,10 @@ $.register_module({
                         });
                         api.text({module: module.name, handler: function (template) {
                             var $html = $.tmpl(template, json), layout = og.views.common.layout;
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                            $('.ui-layout-inner-center .ui-layout-header')
+                                .html($('<p/>').append($html.find('> header')).html());
+                            $('.ui-layout-inner-center .ui-layout-content')
+                                .html($('<p/>').append($html.find('> section')).html());
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});

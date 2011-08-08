@@ -128,8 +128,10 @@ $.register_module({
                         name: 'Configs',
                         recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
                     });
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                    $('.ui-layout-inner-center .ui-layout-header')
+                        .html($('<p/>').append($html.find('> header')).html());
+                    $('.ui-layout-inner-center .ui-layout-content')
+                        .html($('<p/>').append($html.find('> section')).html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     toolbar('default');
                     layout.inner.resizeAll();

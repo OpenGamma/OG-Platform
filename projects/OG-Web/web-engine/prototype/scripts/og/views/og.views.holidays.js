@@ -85,8 +85,10 @@ $.register_module({
                             favorites_list: history.get_html('history.holidays.favorites') || 'no favorited holidays',
                             recent_list: history.get_html('history.holidays.recent') || 'no recently viewed holidays'
                     });
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                    $('.ui-layout-inner-center .ui-layout-header')
+                        .html($('<p/>').append($html.find('> header')).html());
+                    $('.ui-layout-inner-center .ui-layout-content')
+                        .html($('<p/>').append($html.find('> section')).html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
                     layout.inner.resizeAll();
@@ -105,8 +107,10 @@ $.register_module({
                         api.text({module: module.name, handler: function (template) {
                             var layout = og.views.common.layout,
                                 $html = $.tmpl(template, json.template_data);
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                            $('.ui-layout-inner-center .ui-layout-header')
+                                .html($('<p/>').append($html.find('> header')).html());
+                            $('.ui-layout-inner-center .ui-layout-content')
+                                .html($('<p/>').append($html.find('> section')).html());
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             $('.OG-holiday .og-calendar').datepicker({
                                 numberOfMonths: [4, 3],                     // Layout configuration

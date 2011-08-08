@@ -75,8 +75,10 @@ $.register_module({
                         name: 'Batches',
                         recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches'
                     });
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                    $('.ui-layout-inner-center .ui-layout-header')
+                        .html($('<p/>').append($html.find('> header')).html());
+                    $('.ui-layout-inner-center .ui-layout-content')
+                        .html($('<p/>').append($html.find('> section')).html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
                     layout.inner.resizeAll();
@@ -95,8 +97,10 @@ $.register_module({
                         api.text({module: module.name, handler: function (template) {
                             var layout = og.views.common.layout,
                                 $html = $.tmpl(template, json.template_data);
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                            $('.ui-layout-inner-center .ui-layout-header')
+                                .html($('<p/>').append($html.find('> header')).html());
+                            $('.ui-layout-inner-center .ui-layout-content')
+                                .html($('<p/>').append($html.find('> section')).html());
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.results('.OG-batch .og-js-results', json.data.batch_results);
                             f.errors('.OG-batch .og-js-errors', json.data.batch_errors);

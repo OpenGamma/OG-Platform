@@ -47,8 +47,10 @@ $.register_module({
                         name: 'Regions',
                         recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions'
                     });
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                                                $('.ui-layout-inner-center .ui-layout-header')
+                                .html($('<p/>').append($html.find('> header')).html());
+                            $('.ui-layout-inner-center .ui-layout-content')
+                                .html($('<p/>').append($html.find('> section')).html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(default_toolbar_options);
                     layout.inner.resizeAll();
@@ -78,8 +80,10 @@ $.register_module({
                         og.api.text({module: module.name, handler: function (template) {
                             var layout = og.views.common.layout,
                                 $html = $.tmpl(template, json.template_data);
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header').html());
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section').html());
+                            $('.ui-layout-inner-center .ui-layout-header')
+                                .html($('<p/>').append($html.find('> header')).html());
+                            $('.ui-layout-inner-center .ui-layout-content')
+                                .html($('<p/>').append($html.find('> section')).html());
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.render_keys('.OG-region .og-js-keys', json.keys);
                             f.render_regions('.OG-region .og-js-parent_regions', json.parent);
