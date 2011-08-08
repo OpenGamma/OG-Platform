@@ -64,8 +64,9 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+    public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
       s_logger.debug("Failed {} at {}", value, this);
+      storeFailure(failure);
       _pump = null;
       context.run(getTask());
     }
@@ -134,6 +135,10 @@ import com.opengamma.util.tuple.Pair;
       return _worker;
     }
 
+    protected ResolutionFailure functionApplication() {
+      return ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
+    }
+
     public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
@@ -159,6 +164,7 @@ import com.opengamma.util.tuple.Pair;
       }
       if (newOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", getFunction(), inputs);
+        getWorker().storeFailure(functionApplication().requirements(inputs).getResultsFailed());
         return false;
       }
       if (getOutputs().equals(newOutputValues)) {
@@ -179,6 +185,7 @@ import com.opengamma.util.tuple.Pair;
       }
       if (resolvedOutput == null) {
         s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
+        getWorker().storeFailure(functionApplication().requirements(inputs).lateResolutionFailure());
         return false;
       }
       if (resolvedOutput.equals(getValueSpecification())) {
@@ -241,7 +248,9 @@ import com.opengamma.util.tuple.Pair;
       }
 
       @Override
-      public final void failed(final GraphBuildingContext context, final ValueRequirement value) {
+      public final void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+        // Record details of the failure
+        getWorker().storeFailure(failure);
         // Go back to the original state
         setTaskState(PumpingState.this);
         // Do the required action
@@ -292,9 +301,12 @@ import com.opengamma.util.tuple.Pair;
       }
       if (additionalRequirements == null) {
         s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
+        final ResolutionFailure failure = functionApplication().requirements(inputs).getAdditionalRequirementsFailed();
         if (substituteWorker != null) {
+          substituteWorker.storeFailure(failure);
           substituteWorker.finished(context);
         }
+        getWorker().storeFailure(failure);
         return false;
       }
       if (additionalRequirements.isEmpty()) {
@@ -305,9 +317,12 @@ import com.opengamma.util.tuple.Pair;
       final ResolvedValueCallback callback = new ResolvedValueCallback() {
 
         @Override
-        public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+        public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
           s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
+          final ResolutionFailure additionalRequirement = functionApplication().requirements(inputs).additionalRequirement(value, failure);
+          getWorker().storeFailure(additionalRequirement);
           if (substituteWorker != null) {
+            substituteWorker.storeFailure(additionalRequirement);
             substituteWorker.finished(context);
           }
           pump(context);
@@ -394,7 +409,10 @@ import com.opengamma.util.tuple.Pair;
       if (originalOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
+        worker.storeFailure(failure);
         worker.finished(context);
+        storeFailure(failure);
         return;
       }
       final Set<ValueSpecification> resolvedOutputValues;
@@ -419,9 +437,12 @@ import com.opengamma.util.tuple.Pair;
         context.exception(t);
       }
       if (inputRequirements == null) {
-        s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getValueRequirement());
+        s_logger.info("Function {} returned NULL for getRequirements on {}", functionDefinition, getValueRequirement());
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getRequirementsFailed();
+        worker.storeFailure(failure);
         worker.finished(context);
+        storeFailure(failure);
         return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);

@@ -77,6 +77,10 @@ import com.opengamma.engine.value.ValueSpecification;
       return pushResult(context, createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
     }
 
+    protected void storeFailure(final ResolutionFailure failure) {
+      getTask().storeFailure(failure);
+    }
+
     protected ValueRequirement getValueRequirement() {
       return getTask().getValueRequirement();
     }
@@ -232,7 +236,5 @@ import com.opengamma.engine.value.ValueSpecification;
   public String toString() {
     return "ResolveTask" + getObjectId() + "[" + getValueRequirement() + ", " + getState() + "]";
   }
-
-  // TODO: update javadoc on CompiledFunctionDefinition about nulls; nothing should return null, but doing so is better than an exception for halting graph construction in a controlled manner
 
 }

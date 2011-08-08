@@ -28,8 +28,9 @@ import com.opengamma.engine.value.ValueRequirement;
    * 
    * @param context graph building context
    * @param value requirement that couldn't be resolved
+   * @param failure description of the failure
    */
-  void failed(GraphBuildingContext context, ValueRequirement value);
+  void failed(GraphBuildingContext context, ValueRequirement value, ResolutionFailure failure);
 
   /**
    * {@link ContextRunnable} form of the {@link #resolved} method.
@@ -62,15 +63,17 @@ import com.opengamma.engine.value.ValueRequirement;
 
     private final ResolvedValueCallback _instance;
     private final ValueRequirement _value;
+    private final ResolutionFailure _failure;
 
-    public Failed(final ResolvedValueCallback instance, final ValueRequirement value) {
+    public Failed(final ResolvedValueCallback instance, final ValueRequirement value, final ResolutionFailure failure) {
       _instance = instance;
       _value = value;
+      _failure = failure;
     }
 
     @Override
     public void run(final GraphBuildingContext context) {
-      _instance.failed(context, _value);
+      _instance.failed(context, _value, _failure);
     }
 
   }

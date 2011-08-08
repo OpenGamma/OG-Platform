@@ -42,6 +42,7 @@ import com.opengamma.util.Cancellable;
       s_logger.debug("Pump called on {}", this);
       ResolvedValue nextValue = null;
       boolean finished = false;
+      ResolutionFailure failure = null;
       boolean needsOuterPump = false;
       synchronized (this) {
         if (_resultsPushed < _results.length) {
@@ -57,6 +58,7 @@ import com.opengamma.util.Cancellable;
             } else {
               if (_finished) {
                 finished = true;
+                failure = _failure;
               } else {
                 needsOuterPump = _pumped.isEmpty();
                 if (s_logger.isDebugEnabled()) {
@@ -81,7 +83,7 @@ import com.opengamma.util.Cancellable;
         } else {
           if (finished) {
             s_logger.debug("Finished {}", getValueRequirement());
-            context.failed(_callback, getValueRequirement());
+            context.failed(_callback, getValueRequirement(), failure);
           }
         }
       }
@@ -109,6 +111,7 @@ import com.opengamma.util.Cancellable;
   private final Set<ValueSpecification> _resolvedValues = new HashSet<ValueSpecification>();
   private ResolvedValue[] _results;
   private boolean _finished;
+  private ResolutionFailure _failure;
 
   public AbstractResolvedValueProducer(final ValueRequirement valueRequirement) {
     _valueRequirement = valueRequirement;
@@ -121,6 +124,7 @@ import com.opengamma.util.Cancellable;
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
     boolean finished = false;
+    ResolutionFailure failure = null;
     synchronized (this) {
       s_logger.debug("Added callback {} to {}", valueCallback, this);
       callback._results = _results;
@@ -130,6 +134,7 @@ import com.opengamma.util.Cancellable;
       } else {
         if (_finished) {
           finished = true;
+          failure = _failure;
         } else {
           _pumped.add(callback);
         }
@@ -140,7 +145,7 @@ import com.opengamma.util.Cancellable;
       context.resolved(valueCallback, getValueRequirement(), firstResult, callback);
     } else if (finished) {
       s_logger.debug("Pushing failure");
-      context.failed(valueCallback, getValueRequirement());
+      context.failed(valueCallback, getValueRequirement(), failure);
     }
     return callback;
   }
@@ -180,20 +185,25 @@ import com.opengamma.util.Cancellable;
     return true;
   }
 
+  /**
+   * Triggers either a future (or immediate) call to either one or more {@link #pushResult} or a single {@link #finished}.
+   * 
+   * @param context building context
+   */
   protected abstract void pumpImpl(final GraphBuildingContext context);
 
   protected boolean finished(final GraphBuildingContext context) {
     s_logger.debug("Finished producing results at {}", this);
-    final Collection<Callback> pumped;
+    Collection<Callback> pumped = null;
+    ResolutionFailure failure = null;
     synchronized (this) {
       if (_finished) {
         s_logger.debug("Already finished on other thread");
         return false;
       }
       _finished = true;
-      if (_pumped.isEmpty()) {
-        pumped = null;
-      } else {
+      if (!_pumped.isEmpty()) {
+        failure = _failure;
         pumped = new ArrayList<Callback>(_pumped);
         _pumped.clear();
       }
@@ -201,12 +211,30 @@ import com.opengamma.util.Cancellable;
     if (pumped != null) {
       for (Callback callback : pumped) {
         s_logger.debug("Pushing failure to {}", callback._callback);
-        context.failed(callback._callback, getValueRequirement());
+        context.failed(callback._callback, getValueRequirement(), failure);
       }
     } else {
       s_logger.debug("No pumped callbacks");
     }
     return true;
+  }
+
+  protected void storeFailure(final ResolutionFailure failure) {
+    if (failure != null) {
+      synchronized (this) {
+        if (_failure == null) {
+          if (_results.length == 0) {
+            _failure = (ResolutionFailure) failure.clone();
+            return;
+          }
+          _failure = ResolutionFailure.resolvedValue(getValueRequirement(), _results[0]);
+        }
+        while (_failure.getResultCount() < _results.length) {
+          _failure.resolvedValue(_results[_failure.getResultCount()]);
+        }
+        _failure.merge(failure);
+      }
+    }
   }
 
   public ValueRequirement getValueRequirement() {

@@ -46,7 +46,8 @@ import com.opengamma.util.tuple.Pair;
         public void pump(final GraphBuildingContext context) {
           final ResolvedValueCallback callback = callbackRef.getAndSet(null);
           if (callback != null) {
-            callback.failed(context, _valueRequirement);
+            // No error information to push; just that there are no additional value requirements
+            context.failed(callback, _valueRequirement, null);
           }
         }
       });
@@ -79,6 +80,7 @@ import com.opengamma.util.tuple.Pair;
         setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
       } else {
         s_logger.info("No functions for {}", getValueRequirement());
+        storeFailure(ResolutionFailure.noFunctions(getValueRequirement()));
         setTaskStateFinished(context);
       }
     }

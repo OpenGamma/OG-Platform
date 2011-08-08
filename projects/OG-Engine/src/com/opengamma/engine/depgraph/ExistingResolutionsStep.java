@@ -28,7 +28,8 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+  public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+    storeFailure(failure);
     _pump = null;
     // All existing resolutions have been completed, so now try the actual application
     setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getFunction(), getOriginalOutput(), getResolvedOutput()), context);

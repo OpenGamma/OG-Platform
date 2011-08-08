@@ -127,7 +127,7 @@ public class DependencyGraphBuilderTest {
     task.addCallback(builder.getContext(), new ResolvedValueCallback() {
 
       @Override
-      public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+      public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
         result.set("FAILED");
         latch.countDown();
       }

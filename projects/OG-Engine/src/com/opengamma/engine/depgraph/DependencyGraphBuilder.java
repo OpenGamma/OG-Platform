@@ -53,11 +53,12 @@ public final class DependencyGraphBuilder {
   private static final Logger s_loggerContext = LoggerFactory.getLogger(GraphBuildingContext.class);
 
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
-  private static final AtomicInteger s_nextDebugGraphId = new AtomicInteger();
+  private static final AtomicInteger s_nextDebugId = new AtomicInteger();
 
   private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
   private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = true; // DON'T CHECK IN WITH =true
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false; // DON'T CHECK IN WITH =true
+  private static final boolean DEBUG_DUMP_FAILURE_INFO = false; // DON'T CHECK IN WITH =true
   private static final int MAX_CALLBACK_DEPTH = 16;
 
   private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
@@ -246,12 +247,13 @@ public final class DependencyGraphBuilder {
      * 
      * @param callback callback object
      * @param valueRequirement requirement that failed to resolve or for which there are no further resolutions
+     * @param failure description of the failure
      */
-    public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement) {
+    public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolutionFailure failure) {
       s_loggerContext.debug("Couldn't resolve {}", valueRequirement);
       _stackDepth++;
       // Note that NextFunctionStep does the finished transaction too early if we schedule resolved messages arbitrarily 
-      callback.failed(this, valueRequirement);
+      callback.failed(this, valueRequirement, failure);
       _stackDepth--;
     }
 
@@ -277,7 +279,7 @@ public final class DependencyGraphBuilder {
 
           @Override
           public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
-            context.failed(callback, requirement);
+            context.failed(callback, requirement, ResolutionFailure.recursiveRequirement(requirement));
             return null;
           }
 
@@ -367,7 +369,7 @@ public final class DependencyGraphBuilder {
 
     // Collation
 
-    private synchronized void mergeThreadContext (final GraphBuildingContext context) {
+    private synchronized void mergeThreadContext(final GraphBuildingContext context) {
       if (_exceptions == null) {
         _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
       }
@@ -405,7 +407,8 @@ public final class DependencyGraphBuilder {
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
-  private final ResolvedValueCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs);
+  private final ResolvedValueCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(_graphNodes, _terminalOutputs,
+      DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure")) : ResolutionFailureVisitor.DEFAULT_INSTANCE);
   private final Executor _executor;
 
   /**
@@ -580,7 +583,7 @@ public final class DependencyGraphBuilder {
     resolvedValue.addCallback(getContext(), new ResolvedValueCallback() {
 
       @Override
-      public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+      public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
         s_loggerBuilder.warn("Couldn't resolve {}", value);
         exception.set(new UnsatisfiableDependencyGraphException(value));
         latch.countDown();
@@ -901,16 +904,21 @@ public final class DependencyGraphBuilder {
     }
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
-      try {
-        int graphFileId = s_nextDebugGraphId.getAndIncrement();
-        final PrintStream ps = new PrintStream(new FileOutputStream("/tmp/dependencyGraph" + graphFileId + ".txt"));
-        graph.dumpStructureASCII(ps);
-        ps.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      final PrintStream ps = openDebugStream("dependencyGraph");
+      graph.dumpStructureASCII(ps);
+      ps.close();
     }
     return graph;
+  }
+
+  protected static PrintStream openDebugStream(final String name) {
+    try {
+      int fileId = s_nextDebugId.getAndIncrement();
+      return new PrintStream(new FileOutputStream("/tmp/" + name + fileId + ".txt"));
+    } catch (IOException e) {
+      s_loggerBuilder.error("Can't open debug file", e);
+      return System.out;
+    }
   }
 
   /**

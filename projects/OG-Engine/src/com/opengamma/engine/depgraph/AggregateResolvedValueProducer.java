@@ -37,7 +37,8 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
-  public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+  public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+    storeFailure(failure);
     boolean deferredPump;
     synchronized (this) {
       _pendingTasks--;
@@ -46,7 +47,9 @@ import com.opengamma.engine.value.ValueRequirement;
         _deferredPump = false;
       } else {
         // If finished; do a deferred pump to complete
-        deferredPump = _pumps.isEmpty();
+        if (_pendingTasks == 0) {
+          deferredPump = _pumps.isEmpty();
+        }
       }
     }
     if (deferredPump) {

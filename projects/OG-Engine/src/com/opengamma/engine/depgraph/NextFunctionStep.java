@@ -36,7 +36,6 @@ import com.opengamma.util.tuple.Pair;
   protected void run(final GraphBuildingContext context) {
     if (!getFunctions().hasNext()) {
       s_logger.info("No more functions for {}", getValueRequirement());
-      // was transition to finished ...
       setTaskStateFinished(context);
       return;
     }
@@ -67,12 +66,6 @@ import com.opengamma.util.tuple.Pair;
       aggregate.start(context);
     }
   }
-
-  /*@Override
-  protected void pump(final GraphBuildingContext context) {
-    assert !getFunctions().hasNext();
-    setTaskStateFinished(context);
-  }*/
 
   @Override
   public String toString() {

@@ -71,20 +71,26 @@ import com.opengamma.util.Cancellable;
   }
 
   @Override
-  public void failed(final GraphBuildingContext context, final ValueRequirement value) {
+  public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Resolution of {} failed at {}", value, this);
     final FunctionApplicationStep.PumpingState state;
     final Collection<Cancellable> unsubscribes;
+    ResolutionFailure requirementFailure = null;
     synchronized (this) {
       _inputHandles.remove(value);
       _pendingInputs--;
       _validInputs--;
-      if (((_pendingInputs > 0) || (_validInputs > 0)) && (_inputs.get(value) != null)) {
-        // Ok; we've already had some values for this requirement and there are others pending or still valid
-        s_logger.debug("PendingInputs={}, ValidInputs={}", _pendingInputs, _validInputs);
-        return;
-      } else {
+      if (_inputs.get(value) == null) {
         s_logger.info("Resolution of {} failed", value);
+        if (_taskState != null) {
+          requirementFailure = _taskState.functionApplication().requirement(value, failure);
+        }
+      } else {
+        if ((_pendingInputs > 0) || (_validInputs > 0)) {
+          // Ok; we've already had some values for this requirement and there are others pending or still valid
+          s_logger.debug("PendingInputs={}, ValidInputs={}", _pendingInputs, _validInputs);
+          return;
+        }
       }
       if (_inputHandles.isEmpty()) {
         unsubscribes = null;
@@ -96,6 +102,10 @@ import com.opengamma.util.Cancellable;
     }
     // Not ok; we either couldn't satisfy anything or the pumped enumeration is complete
     s_logger.info("{} complete", this);
+    if (state != null) {
+      state.storeFailure(requirementFailure);
+    }
+    storeFailure(requirementFailure);
     // Unsubscribe from any inputs that are still valid
     if (unsubscribes != null) {
       s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
@@ -144,6 +154,18 @@ import com.opengamma.util.Cancellable;
         pumpImpl(context);
       }
     }
+  }
+
+  @Override
+  protected void storeFailure(final ResolutionFailure failure) {
+    final FunctionApplicationStep.PumpingState state;
+    synchronized (this) {
+      state = _taskState;
+    }
+    if (state != null) {
+      state.storeFailure(failure);
+    }
+    super.storeFailure(failure);
   }
 
   public void addInput(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValueProducer inputProducer) {

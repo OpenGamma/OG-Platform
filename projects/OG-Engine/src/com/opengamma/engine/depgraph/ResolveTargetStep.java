@@ -26,7 +26,7 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
     final ComputationTarget target = targetResolver.resolve(getValueRequirement().getTargetSpecification());
     if (target == null) {
       s_logger.warn("Couldn't resolve target for {}", getValueRequirement());
-      context.exception(new UnsatisfiableDependencyGraphException(getValueRequirement(), "No ComputationTarget").addState("targetResolver ComputationTargetResolver", targetResolver));
+      context.exception(new UnsatisfiableDependencyGraphException(ResolutionFailure.couldNotResolve(getValueRequirement())));
       setTaskStateFinished(context);
     } else {
       s_logger.debug("Resolved target {}", getValueRequirement().getTargetSpecification());

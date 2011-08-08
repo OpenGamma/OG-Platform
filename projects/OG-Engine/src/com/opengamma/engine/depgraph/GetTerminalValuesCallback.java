@@ -33,18 +33,28 @@ import com.opengamma.util.ArgumentChecker;
       new HashMap<ParameterizedFunction, Map<ComputationTarget, List<DependencyNode>>>();
   private final Set<DependencyNode> _graphNodes;
   private final Map<ValueRequirement, ValueSpecification> _resolvedValues;
+  private final ResolutionFailureVisitor _failureVisitor;
 
-  public GetTerminalValuesCallback(final Set<DependencyNode> graphNodes, final Map<ValueRequirement, ValueSpecification> resolvedValues) {
+  public GetTerminalValuesCallback(final Set<DependencyNode> graphNodes, final Map<ValueRequirement, ValueSpecification> resolvedValues, final ResolutionFailureVisitor failureVisitor) {
     ArgumentChecker.notNull(graphNodes, "graphNodes");
     ArgumentChecker.notNull(resolvedValues, "resolvedValues");
     _graphNodes = graphNodes;
     _resolvedValues = resolvedValues;
+    _failureVisitor = failureVisitor;
   }
 
   @Override
-  public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-    // TODO: extract some useful reporting information from the context and log it as an exception
+  public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.error("Couldn't resolve {}", value);
+    if (failure != null) {
+      if (_failureVisitor != null) {
+        failure.accept(_failureVisitor);
+      }
+      context.exception(new UnsatisfiableDependencyGraphException(failure));
+    } else {
+      s_logger.warn("No failure state for {}", value);
+      context.exception(new UnsatisfiableDependencyGraphException(value));
+    }
   }
 
   // Caller must already hold the monitor
@@ -127,8 +137,11 @@ import com.opengamma.util.ArgumentChecker;
             resolvedEntry.getValue().addCallback(context, new ResolvedValueCallback() {
 
               @Override
-              public void failed(final GraphBuildingContext context, final ValueRequirement value) {
-                s_logger.warn("Failed production for {} ({})", input, value);
+              public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+                // This shouldn't happen; if the value we're considering was produced once then the producer should be able to
+                // produce it again.
+                s_logger.error("Failed production for {} ({})", input, value);
+                assert false;
               }
 
               @Override
