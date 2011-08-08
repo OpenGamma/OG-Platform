@@ -10,13 +10,13 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 public class CurveInstrumentProviderTest extends FinancialTestBase {
 
   @Test
   public void testCycle() {
-    final CurveInstrumentProvider cip = new StaticCurveInstrumentProvider(Identifier.of("JIM", "BO"));
+    final CurveInstrumentProvider cip = new StaticCurveInstrumentProvider(ExternalId.of("JIM", "BO"));
     final CurveInstrumentProvider cip2 = new BloombergFutureCurveInstrumentProvider("ED", "Curncy");
     assertEquals(cip, cycleObject(CurveInstrumentProvider.class, cip));
     assertEquals(cip2, cycleObject(CurveInstrumentProvider.class, cip2));

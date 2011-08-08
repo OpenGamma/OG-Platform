@@ -7,13 +7,13 @@ package com.opengamma.financial.analytics.ircurve;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
 public interface CurveInstrumentProvider {
-  Identifier getInstrument(LocalDate curveDate, Tenor tenor);
-  Identifier getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor);
+  ExternalId getInstrument(LocalDate curveDate, Tenor tenor);
+  ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor);
 }

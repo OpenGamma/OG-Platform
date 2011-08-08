@@ -9,8 +9,8 @@ import org.testng.annotations.Test;
 import org.testng.AssertJUnit;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 
 /**
  * Test DependencyNode.
@@ -19,14 +19,14 @@ import com.opengamma.id.Identifier;
 public class DependencyNodeTest {
   
   public void testDependentNodes() {
-    IdentificationScheme domain = IdentificationScheme.of("test");
+    ExternalScheme domain = ExternalScheme.of("test");
     
-    DependencyNode node0 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "0")));
-    DependencyNode node1 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "1")));
-    DependencyNode node2 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "2")));
-    DependencyNode node3 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "3")));
-    DependencyNode node4 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "4")));
-    DependencyNode node5 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, Identifier.of(domain, "5")));
+    DependencyNode node0 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "0")));
+    DependencyNode node1 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "1")));
+    DependencyNode node2 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "2")));
+    DependencyNode node3 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "3")));
+    DependencyNode node4 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "4")));
+    DependencyNode node5 = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, ExternalId.of(domain, "5")));
     
     node0.addInputNode(node1);
     node0.addInputNode(node2);

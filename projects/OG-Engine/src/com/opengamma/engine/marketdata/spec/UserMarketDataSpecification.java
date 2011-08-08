@@ -3,10 +3,10 @@
 // CSOFF: Generated File
 package com.opengamma.engine.marketdata.spec;
 public class UserMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
-  private static final long serialVersionUID = -12166521530l;
-  private com.opengamma.id.UniqueIdentifier _userSnapshotId;
+  private static final long serialVersionUID = -12218260552l;
+  private com.opengamma.id.UniqueId _userSnapshotId;
   public static final String USER_SNAPSHOT_ID_KEY = "userSnapshotId";
-  public UserMarketDataSpecification (com.opengamma.id.UniqueIdentifier userSnapshotId) {
+  public UserMarketDataSpecification (com.opengamma.id.UniqueId userSnapshotId) {
     if (userSnapshotId == null) throw new NullPointerException ("'userSnapshotId' cannot be null");
     else {
       _userSnapshotId = userSnapshotId;
@@ -18,10 +18,10 @@ public class UserMarketDataSpecification extends com.opengamma.engine.marketdata
     fudgeField = fudgeMsg.getByName (USER_SNAPSHOT_ID_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a UserMarketDataSpecification - field 'userSnapshotId' is not present");
     try {
-      _userSnapshotId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _userSnapshotId = com.opengamma.id.UniqueId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a UserMarketDataSpecification - field 'userSnapshotId' is not UniqueIdentifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a UserMarketDataSpecification - field 'userSnapshotId' is not UniqueId message", e);
     }
   }
   protected UserMarketDataSpecification (final UserMarketDataSpecification source) {
@@ -44,7 +44,7 @@ public class UserMarketDataSpecification extends com.opengamma.engine.marketdata
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_userSnapshotId != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _userSnapshotId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _userSnapshotId.getClass (), com.opengamma.id.UniqueId.class);
       _userSnapshotId.toFudgeMsg (fudgeContext, fudge1);
       msg.add (USER_SNAPSHOT_ID_KEY, null, fudge1);
     }
@@ -63,10 +63,10 @@ public class UserMarketDataSpecification extends com.opengamma.engine.marketdata
     }
     return new UserMarketDataSpecification (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getUserSnapshotId () {
+  public com.opengamma.id.UniqueId getUserSnapshotId () {
     return _userSnapshotId;
   }
-  public void setUserSnapshotId (com.opengamma.id.UniqueIdentifier userSnapshotId) {
+  public void setUserSnapshotId (com.opengamma.id.UniqueId userSnapshotId) {
     if (userSnapshotId == null) throw new NullPointerException ("'userSnapshotId' cannot be null");
     else {
       _userSnapshotId = userSnapshotId;

@@ -51,7 +51,7 @@ public class DbHistoricalTimeSeriesMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_htsMaster);
-    assertEquals(true, _htsMaster.getIdentifierScheme().equals("DbHts"));
+    assertEquals(true, _htsMaster.getUniqueIdScheme().equals("DbHts"));
     assertNotNull(_htsMaster.getDbSource());
     assertNotNull(_htsMaster.getTimeSource());
   }

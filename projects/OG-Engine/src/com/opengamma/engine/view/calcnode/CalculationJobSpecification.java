@@ -12,7 +12,7 @@ import javax.time.Instant;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A description of a job that will be executed by a Calculation Node.
@@ -23,12 +23,12 @@ public class CalculationJobSpecification implements Serializable {
   
   private static final long serialVersionUID = 1L;
   
-  private final UniqueIdentifier _viewCycleId;
+  private final UniqueId _viewCycleId;
   private final String _calcConfigName;
   private final Instant _valuationTime;
   private final long _jobId;
   
-  public CalculationJobSpecification(UniqueIdentifier viewCycleId, String calcConfigName, Instant valuationTime, long jobId) {
+  public CalculationJobSpecification(UniqueId viewCycleId, String calcConfigName, Instant valuationTime, long jobId) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _viewCycleId = viewCycleId;
     _calcConfigName = calcConfigName;
@@ -43,7 +43,7 @@ public class CalculationJobSpecification implements Serializable {
   /**
    * @return the unique identifier of the view cycle
    */
-  public UniqueIdentifier getViewCycleId() {
+  public UniqueId getViewCycleId() {
     return _viewCycleId;
   }
 

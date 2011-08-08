@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 import javax.ws.rs.core.Response;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -28,7 +28,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataPortfolioResourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "PortA");
+  private static final UniqueId UID = UniqueId.of("Test", "PortA");
   private PortfolioMaster _underlying;
   private DataPortfolioResource _resource;
 

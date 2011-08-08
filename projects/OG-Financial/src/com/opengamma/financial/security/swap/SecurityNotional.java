@@ -4,10 +4,10 @@
 package com.opengamma.financial.security.swap;
 public class SecurityNotional extends com.opengamma.financial.security.swap.Notional implements java.io.Serializable {
   public <T> T accept (NotionalVisitor<T> visitor) { return visitor.visitSecurityNotional (this); }
-  private static final long serialVersionUID = -35332849337l;
-  private final com.opengamma.id.UniqueIdentifier _notionalIdentifier;
+  private static final long serialVersionUID = -35384588359l;
+  private final com.opengamma.id.UniqueId _notionalIdentifier;
   public static final String NOTIONAL_IDENTIFIER_KEY = "notionalIdentifier";
-  public SecurityNotional (com.opengamma.id.UniqueIdentifier notionalIdentifier) {
+  public SecurityNotional (com.opengamma.id.UniqueId notionalIdentifier) {
     if (notionalIdentifier == null) throw new NullPointerException ("'notionalIdentifier' cannot be null");
     else {
       _notionalIdentifier = notionalIdentifier;
@@ -19,10 +19,10 @@ public class SecurityNotional extends com.opengamma.financial.security.swap.Noti
     fudgeField = fudgeMsg.getByName (NOTIONAL_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SecurityNotional - field 'notionalIdentifier' is not present");
     try {
-      _notionalIdentifier = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _notionalIdentifier = com.opengamma.id.UniqueId.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SecurityNotional - field 'notionalIdentifier' is not UniqueIdentifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a SecurityNotional - field 'notionalIdentifier' is not UniqueId message", e);
     }
   }
   protected SecurityNotional (final SecurityNotional source) {
@@ -42,7 +42,7 @@ public class SecurityNotional extends com.opengamma.financial.security.swap.Noti
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_notionalIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _notionalIdentifier.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _notionalIdentifier.getClass (), com.opengamma.id.UniqueId.class);
       _notionalIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (NOTIONAL_IDENTIFIER_KEY, null, fudge1);
     }
@@ -61,7 +61,7 @@ public class SecurityNotional extends com.opengamma.financial.security.swap.Noti
     }
     return new SecurityNotional (fudgeContext, fudgeMsg);
   }
-  public com.opengamma.id.UniqueIdentifier getNotionalIdentifier () {
+  public com.opengamma.id.UniqueId getNotionalIdentifier () {
     return _notionalIdentifier;
   }
   public boolean equals (final Object o) {

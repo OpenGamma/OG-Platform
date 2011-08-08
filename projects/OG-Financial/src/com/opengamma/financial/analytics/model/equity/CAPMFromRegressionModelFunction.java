@@ -32,8 +32,8 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.equity.capm.CAPMFromRegressionCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -60,13 +60,13 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
     final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final ConventionBundle bundle = conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
+    final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IdentifierBundle.of(
+    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
-    final HistoricalTimeSeries riskFreeTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IdentifierBundle.of(
+    final HistoricalTimeSeries riskFreeTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMRiskFreeRateName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
     if (marketTSObject != null && assetPnLObject != null && assetFairValueObject != null && riskFreeTSObject != null) {
       final double fairValue = (Double) assetFairValueObject;

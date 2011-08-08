@@ -30,7 +30,7 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.schedule.ScheduleFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -55,7 +55,7 @@ public class BondSecurityToBondDefinitionConverter {
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement) {
     Validate.notNull(security);
     Validate.notNull(rollToSettlement);
-    final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, security.getIssuerDomicile() + "_TREASURY_BOND_CONVENTION");
+    final ExternalId id = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, security.getIssuerDomicile() + "_TREASURY_BOND_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     return getBond(security, rollToSettlement, convention);
   }

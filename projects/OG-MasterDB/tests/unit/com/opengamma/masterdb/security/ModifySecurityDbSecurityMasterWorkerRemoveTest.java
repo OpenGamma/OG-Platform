@@ -18,9 +18,9 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DBTest;
@@ -43,29 +43,29 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeSecurity_versioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    _secMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "0", "0");
+    _secMaster.remove(uniqueId);
   }
 
   @Test
   public void test_remove_removed() {
     Instant now = Instant.now(_secMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
-    _secMaster.remove(uid);
-    SecurityDocument test = _secMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
+    _secMaster.remove(uniqueId);
+    SecurityDocument test = _secMaster.get(uniqueId);
     
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueId());
+    assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
   //-------------------------------------------------------------------------

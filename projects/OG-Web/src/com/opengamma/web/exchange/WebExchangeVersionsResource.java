@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -87,7 +87,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   public WebExchangeVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     ExchangeDocument doc = data().getExchange();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       ExchangeDocument versioned = data().getExchangeMaster().get(combined);
       data().setVersioned(versioned);

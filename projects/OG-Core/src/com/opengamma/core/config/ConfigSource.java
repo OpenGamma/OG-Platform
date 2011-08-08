@@ -7,7 +7,7 @@ package com.opengamma.core.config;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -27,7 +27,7 @@ public interface ConfigSource {
    * @param uniqueId  the unique identifier, not null
    * @return the configuration element, null if not found
    */
-  <T> T get(Class<T> clazz, UniqueIdentifier uniqueId);
+  <T> T get(Class<T> clazz, UniqueId uniqueId);
 
   /**
    * Searches for the latest version of a configuration element matching the specified name.

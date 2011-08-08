@@ -21,7 +21,7 @@ import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -54,13 +54,13 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
   }
 
   @Override
-  protected Identifier getSpotIdentifier(final FinancialSecurity target) {
+  protected ExternalId getSpotIdentifier(final FinancialSecurity target) {
     final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
     return FXUtils.getSpotIdentifier(security, true);
   }
 
   @Override
-  protected Identifier getInverseSpotIdentifier(final FinancialSecurity target) {
+  protected ExternalId getInverseSpotIdentifier(final FinancialSecurity target) {
     final FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target;
     return FXUtils.getInverseSpotIdentifier(security, true);
   }
@@ -85,7 +85,7 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
                                                              .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     return Sets.newHashSet(putCurve, callCurve, fxVolatilitySurface, spotRequirement);
   }

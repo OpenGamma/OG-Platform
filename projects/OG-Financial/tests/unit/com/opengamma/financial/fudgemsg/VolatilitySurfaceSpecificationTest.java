@@ -12,7 +12,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
@@ -42,11 +42,11 @@ public class VolatilitySurfaceSpecificationTest extends FinancialTestBase {
   @Test
   public void testEOCycle() {
     BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
-    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), instrumentProvider);
+    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
         cycleObject(VolatilitySurfaceSpecification.class,
-            new VolatilitySurfaceSpecification("DEFAULT", UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "DJX Index"),
+            new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "DJX Index"),
                 new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY)))));
   }
 }

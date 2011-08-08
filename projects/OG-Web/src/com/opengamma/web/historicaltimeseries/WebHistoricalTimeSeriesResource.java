@@ -21,7 +21,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
@@ -79,7 +79,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     return result;
   }
 
-  private boolean updateTimeseries(final UniqueIdentifier uniqueId) {
+  private boolean updateTimeseries(final UniqueId uniqueId) {
     HistoricalTimeSeriesLoader timeSeriesLoader = data().getHistoricalTimeSeriesLoader();
     return timeSeriesLoader.updateTimeSeries(uniqueId);
   }
@@ -136,7 +136,7 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
    * @param overrideTimeSeriesId  the override historical time-series id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebHistoricalTimeSeriesData data, final UniqueIdentifier overrideTimeSeriesId) {
+  public static URI uri(final WebHistoricalTimeSeriesData data, final UniqueId overrideTimeSeriesId) {
     String portfolioId = data.getBestHistoricalTimeSeriesUriId(overrideTimeSeriesId);
     return data.getUriInfo().getBaseUriBuilder().path(WebHistoricalTimeSeriesResource.class).build(portfolioId);
   }

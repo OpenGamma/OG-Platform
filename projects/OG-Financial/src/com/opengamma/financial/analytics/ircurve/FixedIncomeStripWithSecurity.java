@@ -13,7 +13,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -25,7 +25,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
   private final Tenor _resolvedTenor;
   private int _nthFutureFromTenor;
   private final ZonedDateTime _maturity;
-  private final Identifier _securityIdentifier;
+  private final ExternalId _securityIdentifier;
   private final Security _security;
 
   /**
@@ -78,7 +78,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
    * This is available, just so the same identifier can be conveniently used to retrieve requested market data.
    * @return The security identifier
    */
-  public Identifier getSecurityIdentifier() {
+  public ExternalId getSecurityIdentifier() {
     return _securityIdentifier;
   }
 
@@ -92,7 +92,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
 
   public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
                                       final Tenor resolvedTenor, final int nthFutureFromOriginalTenor,
-                                      final ZonedDateTime maturity, final Identifier securityIdentifier,
+                                      final ZonedDateTime maturity, final ExternalId securityIdentifier,
                                       final Security security) {
     Validate.isTrue(instrumentType == StripInstrumentType.FUTURE, "Trying to create a node with a nthFutureFromOriginalTenor param when not a future node");
     _instrumentType = instrumentType;
@@ -105,7 +105,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
   }
 
   public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
-      final Tenor resolvedTenor, final ZonedDateTime maturity, final Identifier securityIdentifier,
+      final Tenor resolvedTenor, final ZonedDateTime maturity, final ExternalId securityIdentifier,
       final Security security) {
     Validate.isTrue(instrumentType != StripInstrumentType.FUTURE, "Trying to create a node without a nthFutureFromOriginalTenor param when a future node");
     _instrumentType = instrumentType;

@@ -19,8 +19,8 @@ import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermission
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -105,12 +105,12 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   //-------------------------------------------------------------------------
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
-    Identifier identifier = requirement.getTargetSpecification().getIdentifier();
-    HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(IdentifierBundle.of(identifier), getDataSource(), getDataProvider(), getDataField());
+    ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
+    HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(ExternalIdBundle.of(identifier), getDataSource(), getDataProvider(), getDataField());
     if (hts == null) {
-      hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(IdentifierBundle.of(identifier), getDataSource(), "CMPL", getDataField());
+      hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(ExternalIdBundle.of(identifier), getDataSource(), "CMPL", getDataField());
       if (hts == null) {
-        hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(IdentifierBundle.of(identifier), getDataSource(), "EXCH_XCME", getDataField());
+        hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(ExternalIdBundle.of(identifier), getDataSource(), "EXCH_XCME", getDataField());
       }
     }
     return (hts != null);

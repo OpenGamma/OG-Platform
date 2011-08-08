@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -28,9 +30,9 @@ import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -89,7 +91,7 @@ public final class SecurityLinkResolver {
     for (SecurityLink link : securityLinks) {
       Security security = link.getTarget();
       if (security == null) {
-        if (link.getObjectId() != null || link.getBundleId().size() > 0) {
+        if (link.getObjectId() != null || link.getExternalId().size() > 0) {
           SecurityResolutionJob task = new SecurityResolutionJob(link, _securitySource);
           submitted.add(completionService.submit(task));
         } else {
@@ -205,8 +207,8 @@ public final class SecurityLinkResolver {
    */
   static class CachedSecuritySource implements SecuritySource {
     private final SecuritySource _underlying;
-    private final ConcurrentMap<ObjectIdentifier, Security> _objectIdCache = new ConcurrentHashMap<ObjectIdentifier, Security>();
-    private final ConcurrentMap<IdentifierBundle, Security> _weakIdCache = new ConcurrentHashMap<IdentifierBundle, Security>();
+    private final ConcurrentMap<ObjectId, Security> _objectIdCache = new ConcurrentHashMap<ObjectId, Security>();
+    private final ConcurrentMap<ExternalIdBundle, Security> _weakIdCache = new ConcurrentHashMap<ExternalIdBundle, Security>();
 
     CachedSecuritySource(SecuritySource underlying) {
       _underlying = underlying;
@@ -219,7 +221,7 @@ public final class SecurityLinkResolver {
     }
 
     @Override
-    public Security getSecurity(UniqueIdentifier uniqueId) {
+    public Security getSecurity(UniqueId uniqueId) {
       Security security = _objectIdCache.get(uniqueId.getObjectId());
       if (security == null) {
         security = _underlying.getSecurity(uniqueId);
@@ -231,12 +233,12 @@ public final class SecurityLinkResolver {
     }
 
     @Override
-    public Collection<Security> getSecurities(IdentifierBundle bundle) {
+    public Collection<Security> getSecurities(ExternalIdBundle bundle) {
       return _underlying.getSecurities(bundle);
     }
 
     @Override
-    public Security getSecurity(IdentifierBundle bundle) {
+    public Security getSecurity(ExternalIdBundle bundle) {
       Security security = _weakIdCache.get(bundle);
       if (security == null) {
         security = _underlying.getSecurity(bundle);
@@ -245,6 +247,11 @@ public final class SecurityLinkResolver {
         }
       }
       return security;
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
     }
   }
 

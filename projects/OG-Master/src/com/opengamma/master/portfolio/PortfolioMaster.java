@@ -6,7 +6,7 @@
 package com.opengamma.master.portfolio;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
@@ -53,6 +53,6 @@ public interface PortfolioMaster extends AbstractMaster<PortfolioDocument> {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no node with that unique identifier
    */
-  ManageablePortfolioNode getNode(UniqueIdentifier nodeId);
+  ManageablePortfolioNode getNode(UniqueId nodeId);
 
 }

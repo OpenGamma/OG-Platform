@@ -22,7 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
@@ -93,7 +93,7 @@ public class WebPositionsData extends DirectBean {
    * @param overrideId  the override id, null derives the result from the data
    * @return the id, may be null
    */
-  public String getBestPositionUriId(final UniqueIdentifier overrideId) {
+  public String getBestPositionUriId(final UniqueId overrideId) {
     if (overrideId != null) {
       return overrideId.toLatest().toString();
     }

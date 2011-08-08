@@ -17,9 +17,9 @@ import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -44,24 +44,24 @@ import com.opengamma.util.db.Paging;
 public class InMemoryHolidayMaster implements HolidayMaster {
 
   /**
-   * The default scheme used for each {@link ObjectIdentifier}.
+   * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemHol";
 
   /**
    * A cache of holidays by identifier.
    */
-  private final ConcurrentMap<ObjectIdentifier, HolidayDocument> _store = new ConcurrentHashMap<ObjectIdentifier, HolidayDocument>();
+  private final ConcurrentMap<ObjectId, HolidayDocument> _store = new ConcurrentHashMap<ObjectId, HolidayDocument>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  private final Supplier<ObjectId> _objectIdSupplier;
 
   /**
-   * Creates an empty master using the default scheme for any {@link ObjectIdentifier}s created.
+   * Creates an empty master using the default scheme for any {@link ObjectId}s created.
    */
   public InMemoryHolidayMaster() {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
@@ -69,7 +69,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryHolidayMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+  public InMemoryHolidayMaster(final Supplier<ObjectId> objectIdSupplier) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     _objectIdSupplier = objectIdSupplier;
   }
@@ -103,7 +103,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayDocument get(final UniqueIdentifier uniqueId) {
+  public HolidayDocument get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
@@ -126,8 +126,8 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     
-    final ObjectIdentifier objectId = _objectIdSupplier.get();
-    final UniqueIdentifier uniqueId = objectId.atVersion("");
+    final ObjectId objectId = _objectIdSupplier.get();
+    final UniqueId uniqueId = objectId.atVersion("");
     final ManageableHoliday holiday = document.getHoliday();
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
@@ -148,7 +148,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     
-    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final HolidayDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -166,7 +166,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Holiday not found: " + uniqueId);

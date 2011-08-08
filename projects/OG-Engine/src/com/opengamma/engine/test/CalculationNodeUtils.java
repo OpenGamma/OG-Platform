@@ -17,7 +17,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -50,7 +50,7 @@ public class CalculationNodeUtils {
   public static CalculationJob getCalculationJob(MockFunction function) {
 
     Instant valuationTime = Instant.now();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), CALC_CONF_NAME, valuationTime, 1L);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), CALC_CONF_NAME, valuationTime, 1L);
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());

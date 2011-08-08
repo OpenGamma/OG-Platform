@@ -5,9 +5,9 @@
  */
 package com.opengamma.core.region;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,25 +26,25 @@ public interface RegionSource {
    * @return the region, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Region getRegion(UniqueIdentifier uniqueId);
+  Region getRegion(UniqueId uniqueId);
 
   /**
    * Get the region with a matching identifier that is highest up the
    * region hierarchy e.g. US will return USA rather than a dependency.
    * 
-   * @param regionId a region identifier
+   * @param regionId  the region identifier to find, not null
    * @return the region, null if not found
    */
-  Region getHighestLevelRegion(Identifier regionId);
+  Region getHighestLevelRegion(ExternalId regionId);
 
   /**
    * Get the region with at least one identifier from the bundle that is highest up the
    * region hierarchy e.g. US will return USA rather than a dependency.  US + a more specific
    * identifier for a sub-region will return US also.
    * 
-   * @param regionIdentifiers a bundle of region identifiers
+   * @param regionId  the bundle of region identifiers to find, not null
    * @return the region, null if not found
    */
-  Region getHighestLevelRegion(IdentifierBundle regionIdentifiers);
+  Region getHighestLevelRegion(ExternalIdBundle regionId);
 
 }

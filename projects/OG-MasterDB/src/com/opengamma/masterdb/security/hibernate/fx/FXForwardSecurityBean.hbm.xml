@@ -8,11 +8,11 @@
       <property name="date" column="forward_date" type="timestamp" not-null="true" />
       <property name="zone" column="forward_zone" type="string" not-null="true" />
     </component>
-  	<component name="region" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
   	  <property name="scheme" column="region_scheme" type="string" not-null="true" />
   	  <property name="identifier" column="region_identifier" type="string" not-null="true" />
   	</component>
-  	<component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="underlying_scheme" type="string" not-null="true" />
       <property name="identifier" column="underlying_identifier" type="string" not-null="true" />
     </component>

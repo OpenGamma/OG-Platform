@@ -29,7 +29,7 @@ namespace com.opengamma.financial.security.future {
   
   message EnergyFutureSecurity extends CommodityFutureSecurity {
   
-    optional id.Identifier underlyingIdentifier;
+    optional id.ExternalId underlyingIdentifier;
   
     binding Java {
       body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEnergyFutureSecurity (this); }";
@@ -39,7 +39,7 @@ namespace com.opengamma.financial.security.future {
   
   message MetalFutureSecurity extends CommodityFutureSecurity {
 
-    optional id.Identifier underlyingIdentifier;
+    optional id.ExternalId underlyingIdentifier;
     
     binding Java {
       body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitMetalFutureSecurity (this); }";

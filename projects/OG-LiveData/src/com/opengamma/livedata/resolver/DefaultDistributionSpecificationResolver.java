@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -49,9 +49,9 @@ public class DefaultDistributionSpecificationResolver
     
     ArgumentChecker.notNull(liveDataSpecifications, "Live Data specification");
     
-    Collection<IdentifierBundle> identifierBundles = new ArrayList<IdentifierBundle>();
-    Map<IdentifierBundle, Collection<LiveDataSpecification>> identifierBundle2LiveDataSpec = new HashMap<IdentifierBundle, Collection<LiveDataSpecification>>();
-    Map<LiveDataSpecification, Identifier> liveDataSec2Identifier = new HashMap<LiveDataSpecification, Identifier>();
+    Collection<ExternalIdBundle> identifierBundles = new ArrayList<ExternalIdBundle>();
+    Map<ExternalIdBundle, Collection<LiveDataSpecification>> identifierBundle2LiveDataSpec = new HashMap<ExternalIdBundle, Collection<LiveDataSpecification>>();
+    Map<LiveDataSpecification, ExternalId> liveDataSec2Identifier = new HashMap<LiveDataSpecification, ExternalId>();
     Map<LiveDataSpecification, NormalizationRuleSet> liveDataSec2NormalizationRule = new HashMap<LiveDataSpecification, NormalizationRuleSet>();
     Collection<JmsTopicNameResolveRequest> jmsTopicNameRequests = new ArrayList<JmsTopicNameResolveRequest>();
     Map<JmsTopicNameResolveRequest, Collection<LiveDataSpecification>> jmsTopicNameRequest2LiveDataSec = new HashMap<JmsTopicNameResolveRequest, Collection<LiveDataSpecification>>();
@@ -70,8 +70,8 @@ public class DefaultDistributionSpecificationResolver
       liveDataSec2NormalizationRule.put(liveDataSpec, normalizationRule);
     }
     
-    Map<IdentifierBundle, Identifier> bundle2Identifier = _idResolver.resolve(identifierBundles);
-    for (Map.Entry<IdentifierBundle, Identifier> entry : bundle2Identifier.entrySet()) {
+    Map<ExternalIdBundle, ExternalId> bundle2Identifier = _idResolver.resolve(identifierBundles);
+    for (Map.Entry<ExternalIdBundle, ExternalId> entry : bundle2Identifier.entrySet()) {
       Collection<LiveDataSpecification> liveDataSpecsForBundle = identifierBundle2LiveDataSpec.get(entry.getKey());
       for (LiveDataSpecification liveDataSpecForBundle : liveDataSpecsForBundle) {
         liveDataSec2Identifier.put(liveDataSpecForBundle, entry.getValue());
@@ -79,7 +79,7 @@ public class DefaultDistributionSpecificationResolver
     }
       
     for (LiveDataSpecification liveDataSpec : liveDataSpecifications) {
-      Identifier identifier = liveDataSec2Identifier.get(liveDataSpec);
+      ExternalId identifier = liveDataSec2Identifier.get(liveDataSpec);
       NormalizationRuleSet normalizationRule = liveDataSec2NormalizationRule.get(liveDataSpec);
       if (identifier == null || normalizationRule == null) {
         liveDataSec2JmsTopicName.put(liveDataSpec, null);       
@@ -107,7 +107,7 @@ public class DefaultDistributionSpecificationResolver
     Map<LiveDataSpecification, DistributionSpecification> returnValue = new HashMap<LiveDataSpecification, DistributionSpecification>();
 
     for (LiveDataSpecification liveDataSpec : liveDataSpecifications) {
-      Identifier identifier = liveDataSec2Identifier.get(liveDataSpec);
+      ExternalId identifier = liveDataSec2Identifier.get(liveDataSpec);
       NormalizationRuleSet normalizationRule = liveDataSec2NormalizationRule.get(liveDataSpec);
       String jmsTopicName = liveDataSec2JmsTopicName.get(liveDataSpec);
       if (identifier == null || normalizationRule == null || jmsTopicName == null) {

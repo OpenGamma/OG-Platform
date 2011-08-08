@@ -16,10 +16,12 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -39,6 +41,10 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
    * The base URI of the RESTful server.
    */
   private final RestTarget _targetBase;
+  /**
+   * The change manager
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -47,10 +53,23 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
    * @param baseTarget  the base target URI to call, not null
    */
   public RemoteFinancialSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
+    this(fudgeContext, baseTarget, new BasicChangeManager());
+  }
+  
+  /**
+   * Creates an instance.
+   * 
+   * @param fudgeContext  the Fudge context, not null
+   * @param baseTarget  the base target URI to call, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemoteFinancialSecuritySource(final FudgeContext fudgeContext, final RestTarget baseTarget, ChangeManager changeManager) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(baseTarget, "baseTarget");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetBase = baseTarget;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -74,14 +93,14 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     final RestTarget target = _targetBase.resolveBase("security").resolve(uid.toString());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
+  public Collection<Security> getSecurities(ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
     final FudgeMsg message = getRestClient().getMsg(target);
@@ -96,7 +115,7 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle securityKey) {
+  public Security getSecurity(ExternalIdBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", securityKey.toStringList());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
@@ -115,6 +134,12 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
       }
     }
     return securities;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

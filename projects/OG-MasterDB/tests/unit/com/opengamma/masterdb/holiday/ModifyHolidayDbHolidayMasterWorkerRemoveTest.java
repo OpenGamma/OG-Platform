@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.test.DBTest;
@@ -44,31 +44,31 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeHoliday_versioned_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
-    _holMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbHol", "0", "0");
+    _holMaster.remove(uniqueId);
   }
 
   @Test
   public void test_remove_removed() {
     Instant now = Instant.now(_holMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
-    _holMaster.remove(uid);
-    HolidayDocument test = _holMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
+    _holMaster.remove(uniqueId);
+    HolidayDocument test = _holMaster.get(uniqueId);
     
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueId());
+    assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
     assertEquals("GBP", holiday.getCurrency().getCode());
-    assertEquals(null, holiday.getRegionKey());
-    assertEquals(null, holiday.getExchangeKey());
+    assertEquals(null, holiday.getRegionExternalId());
+    assertEquals(null, holiday.getExchangeExternalId());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 1)), holiday.getHolidayDates());
   }
 

@@ -28,7 +28,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -85,9 +85,9 @@ public class SecurityMasterResource {
    */
   public class IdentifiedSecurityResource {
 
-    private final UniqueIdentifier _uniqueId;
+    private final UniqueId _uniqueId;
 
-    public IdentifiedSecurityResource(final UniqueIdentifier uid) {
+    public IdentifiedSecurityResource(final UniqueId uid) {
       _uniqueId = uid;
     }
 
@@ -112,7 +112,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope correct(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().correct(document);
-      final UniqueIdentifier uid = document.getUniqueId();
+      final UniqueId uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
@@ -124,7 +124,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope update(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().update(document);
-      final UniqueIdentifier uid = document.getUniqueId();
+      final UniqueId uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
@@ -153,7 +153,7 @@ public class SecurityMasterResource {
 
     @Path("{uid}")
     public Object resource(@PathParam("uid") String uid) {
-      final UniqueIdentifier uniqueId = UniqueIdentifier.parse(uid);
+      final UniqueId uniqueId = UniqueId.parse(uid);
       return new IdentifiedSecurityResource(uniqueId);
     }
 

@@ -5,8 +5,10 @@
  */
 package com.opengamma.util.money;
 
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -15,12 +17,12 @@ import com.opengamma.util.ArgumentChecker;
  * This acts like a two element {@code Set}, thus
  * {@code UnorderedCurrencyPair(USD, EUR) == UnorderedCurrencyPair(EUR, USD)}.
  */
-public final class UnorderedCurrencyPair implements UniqueIdentifiable {
+public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectIdentifiable {
 
   /**
-   * The scheme for the unique identifier.
+   * The scheme to use in object identifiers.
    */
-  private static final String OBJECT_IDENTIFIER_SCHEME = "UnorderedCurrencyPair";
+  private static final String OBJECT_SCHEME = "UnorderedCurrencyPair";
 
   /**
    * One of the two currencies.
@@ -88,13 +90,27 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides the pair as a unique identifier.
+   * Gets the object identifier for the pair.
+   * <p>
+   * This uses the scheme {@link #OBJECT_SCHEME UnorderedCurrencyPair}.
+   * 
+   * @return the object identifier, not null
+   */
+  @Override
+  public ObjectId getObjectId() {
+    return ObjectId.of(OBJECT_SCHEME, _idValue);
+  }
+
+  /**
+   * Gets the unique identifier for the pair.
+   * <p>
+   * This uses the scheme {@link #OBJECT_SCHEME UnorderedCurrencyPair}.
    * 
    * @return the unique identifier, not null
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
-    return UniqueIdentifier.of(OBJECT_IDENTIFIER_SCHEME, _idValue);
+  public UniqueId getUniqueId() {
+    return UniqueId.of(OBJECT_SCHEME, _idValue);
   }
 
   //-------------------------------------------------------------------------

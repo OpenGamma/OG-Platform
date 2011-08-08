@@ -12,7 +12,7 @@ import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -26,7 +26,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
   /**
    * The unique identifier of the portfolio.
    */
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The display name of the portfolio.
    */
@@ -64,7 +64,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * @param uniqueId  the unique identifier, not null
    * @param name  the name to use, not null
    */
-  public PortfolioImpl(UniqueIdentifier uniqueId, String name) {
+  public PortfolioImpl(UniqueId uniqueId, String name) {
     this(uniqueId, name, new PortfolioNodeImpl());
   }
 
@@ -75,7 +75,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * @param name  the name to use, not null
    * @param rootNode  the root node, not null
    */
-  public PortfolioImpl(UniqueIdentifier uniqueId, String name, PortfolioNodeImpl rootNode) {
+  public PortfolioImpl(UniqueId uniqueId, String name, PortfolioNodeImpl rootNode) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(rootNode, "rootNode");
@@ -104,7 +104,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * @return the identifier, null if not from a position source
    */
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -113,7 +113,7 @@ public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Seri
    * 
    * @param uniqueId  the new unique identifier, not null
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;
   }

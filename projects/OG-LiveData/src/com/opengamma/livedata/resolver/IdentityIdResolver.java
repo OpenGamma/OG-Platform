@@ -5,21 +5,21 @@
  */
 package com.opengamma.livedata.resolver;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * This {@code IdResolver} returns the ID as-is.  
  *
  */
-public class IdentityIdResolver extends AbstractResolver<IdentifierBundle, Identifier> implements IdResolver {
+public class IdentityIdResolver extends AbstractResolver<ExternalIdBundle, ExternalId> implements IdResolver {
 
   @Override
-  public Identifier resolve(IdentifierBundle ids) {
-    if (ids.getIdentifiers().size() != 1) {
+  public ExternalId resolve(ExternalIdBundle ids) {
+    if (ids.getExternalIds().size() != 1) {
       throw new IllegalArgumentException("This resolver only supports singleton bundles");
     }
-    return ids.getIdentifiers().iterator().next();
+    return ids.getExternalIds().iterator().next();
   }
   
 

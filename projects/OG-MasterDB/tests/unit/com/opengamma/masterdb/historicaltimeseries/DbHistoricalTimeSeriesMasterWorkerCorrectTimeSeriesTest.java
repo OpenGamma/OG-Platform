@@ -17,8 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -42,17 +42,17 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_nullOID() {
-    _htsMaster.correctTimeSeriesDataPoints((ObjectIdentifier) null, new ArrayLocalDateDoubleTimeSeries());
+    _htsMaster.correctTimeSeriesDataPoints((ObjectId) null, new ArrayLocalDateDoubleTimeSeries());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_nullSeries() {
-    _htsMaster.correctTimeSeriesDataPoints(ObjectIdentifier.of("DbHts", "DP101"), null);
+    _htsMaster.correctTimeSeriesDataPoints(ObjectId.of("DbHts", "DP101"), null);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_versioned_notFoundId() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP0");
+    ObjectId oid = ObjectId.of("DbHts", "DP0");
     _htsMaster.correctTimeSeriesDataPoints(oid, new ArrayLocalDateDoubleTimeSeries());
   }
 
@@ -63,11 +63,11 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     double[] values = {0.1d, 0.2d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
-    UniqueIdentifier uid = _htsMaster.correctTimeSeriesDataPoints(oid, series);
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, testCorrected.getUniqueId());
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(3, timeSeries.size());
     assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(0));
@@ -84,11 +84,11 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     double[] values = {0.5d};
     LocalDateDoubleTimeSeries series = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    ObjectIdentifier oid = ObjectIdentifier.of("DbHts", "DP101");
-    UniqueIdentifier uid = _htsMaster.correctTimeSeriesDataPoints(oid, series);
+    ObjectId oid = ObjectId.of("DbHts", "DP101");
+    UniqueId uniqueId = _htsMaster.correctTimeSeriesDataPoints(oid, series);
     
-    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uid, null, null);
-    assertEquals(uid, testCorrected.getUniqueId());
+    ManageableHistoricalTimeSeries testCorrected = _htsMaster.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(4, timeSeries.size());
     assertEquals(LocalDate.of(2010, 12, 31), timeSeries.getTime(0));

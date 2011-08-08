@@ -9,8 +9,8 @@ package com.opengamma.masterdb.security.hibernate.swap;
 import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -37,7 +37,7 @@ public final class SwapLegBeanOperation {
         bean.setDayCount(secMasterSession.getOrCreateDayCountBean(swapLeg.getDayCount().getConventionName()));
         bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(swapLeg.getFrequency().getConventionName()));
         bean.setNotional(NotionalBeanOperation.createBean(secMasterSession, swapLeg.getNotional()));
-        bean.setRegion(identifierToIdentifierBean(swapLeg.getRegionIdentifier()));
+        bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionIdentifier()));
         return bean;
       }
 
@@ -57,7 +57,7 @@ public final class SwapLegBeanOperation {
       public SwapLegBean visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
         final SwapLegBean bean = createInterestRateLegBean(swapLeg);
         bean.setRate(swapLeg.getInitialFloatingRate());
-        bean.setRateIdentifier(identifierToIdentifierBean(swapLeg.getFloatingReferenceRateIdentifier()));
+        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateIdentifier()));
         bean.setSpread(swapLeg.getSpread());
         bean.setIBOR(swapLeg.getIsIBOR());
         return bean;
@@ -73,7 +73,7 @@ public final class SwapLegBeanOperation {
         return new FixedInterestRateLeg(
             dayCountBeanToDayCount(bean.getDayCount()),
             frequencyBeanToFrequency(bean.getFrequency()),
-            identifierBeanToIdentifier(bean.getRegion()),
+            externalIdBeanToExternalId(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
             bean.getRate());
@@ -84,10 +84,10 @@ public final class SwapLegBeanOperation {
         return new FloatingInterestRateLeg(
             dayCountBeanToDayCount(bean.getDayCount()),
             frequencyBeanToFrequency(bean.getFrequency()),
-            identifierBeanToIdentifier(bean.getRegion()),
+            externalIdBeanToExternalId(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
-            identifierBeanToIdentifier(bean.getRateIdentifier()),
+            externalIdBeanToExternalId(bean.getRateIdentifier()),
             bean.getRate(),
             bean.getSpread(),
             bean.isIBOR());

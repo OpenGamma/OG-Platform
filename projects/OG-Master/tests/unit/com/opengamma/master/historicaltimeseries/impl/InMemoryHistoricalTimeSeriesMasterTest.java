@@ -19,12 +19,12 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
@@ -41,11 +41,11 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
 
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
 
-  private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
-  private static final Identifier ID1 = Identifier.of("A", "B");
-  private static final Identifier ID2 = Identifier.of("A", "C");
-  private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
-  private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
+  private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
+  private static final ExternalId ID1 = ExternalId.of("A", "B");
+  private static final ExternalId ID2 = ExternalId.of("A", "C");
+  private static final ExternalIdBundle BUNDLE1 = ExternalIdBundle.of(ID1);
+  private static final ExternalIdBundle BUNDLE2 = ExternalIdBundle.of(ID2);
 
   private InMemoryHistoricalTimeSeriesMaster testEmpty;
   private InMemoryHistoricalTimeSeriesMaster testPopulated;
@@ -56,15 +56,15 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
 
   @BeforeMethod
   public void setUp() {
-    testEmpty = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdentifierSupplier("Test"));
-    testPopulated = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdentifierSupplier("Test"));
+    testEmpty = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdSupplier("Test"));
+    testPopulated = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdSupplier("Test"));
     info1 = new ManageableHistoricalTimeSeriesInfo();
     info1.setName("Name1");
     info1.setDataField("DF1");
     info1.setDataSource("DS1");
     info1.setDataProvider("DP1");
     info1.setObservationTime("OT1");
-    info1.setIdentifiers(IdentifierBundleWithDates.of(BUNDLE1));
+    info1.setExternalIdBundle(ExternalIdBundleWithDates.of(BUNDLE1));
     doc1 = new HistoricalTimeSeriesInfoDocument();
     doc1.setInfo(info1);
     doc1 = testPopulated.add(doc1);
@@ -74,7 +74,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     info2.setDataSource("DS2");
     info2.setDataProvider("DP2");
     info2.setObservationTime("OT2");
-    info2.setIdentifiers(IdentifierBundleWithDates.of(BUNDLE2));
+    info2.setExternalIdBundle(ExternalIdBundleWithDates.of(BUNDLE2));
     doc2 = new HistoricalTimeSeriesInfoDocument();
     doc2.setInfo(info2);
     doc2 = testPopulated.add(doc2);
@@ -83,7 +83,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemoryHistoricalTimeSeriesMaster((Supplier<ObjectIdentifier>) null);
+    new InMemoryHistoricalTimeSeriesMaster((Supplier<ObjectId>) null);
   }
 
   public void test_defaultSupplier() {
@@ -95,7 +95,7 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
   }
 
   public void test_alternateSupplier() {
-    InMemoryHistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdentifierSupplier("Hello"));
+    InMemoryHistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster(new ObjectIdSupplier("Hello"));
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
     doc.setInfo(info1);
     HistoricalTimeSeriesInfoDocument added = master.add(doc);
@@ -130,8 +130,8 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
 
   public void test_search_populatedMaster_filterByBundle_both() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.addIdentifierKeys(BUNDLE1);
-    request.addIdentifierKeys(BUNDLE2);
+    request.addExternalIds(BUNDLE1);
+    request.addExternalIds(BUNDLE2);
     HistoricalTimeSeriesInfoSearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     List<HistoricalTimeSeriesInfoDocument> docs = result.getDocuments();
@@ -140,9 +140,9 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
 
-  public void test_search_popluatedMaster_filterByIdentifierValue() {
+  public void test_search_popluatedMaster_filterByExternalIdValue() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setIdentifierValue("B");
+    request.setExternalIdValue("B");
     HistoricalTimeSeriesInfoSearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<HistoricalTimeSeriesInfoDocument> docs = result.getDocuments();
@@ -150,9 +150,9 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     assertEquals(true, docs.contains(doc1));
   }
 
-  public void test_search_popluatedMaster_filterByIdentifierValue_case() {
+  public void test_search_popluatedMaster_filterByExternalIdValue_case() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setIdentifierValue("b");
+    request.setExternalIdValue("b");
     HistoricalTimeSeriesInfoSearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<HistoricalTimeSeriesInfoDocument> docs = result.getDocuments();
@@ -281,25 +281,25 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     double[] values = {1.1d, 2.2d};
     LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    UniqueIdentifier uid = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
-    assertEquals(doc1.getUniqueId().getObjectId(), uid.getObjectId());
+    UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
+    assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
     
-    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uid, null, null);
-    assertEquals(uid, test.getUniqueId());
+    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(input, test.getTimeSeries());
     
     LocalDate[] dates2 = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 3)};
     double[] values2 = {1.5d, 2.5d};
     LocalDateDoubleTimeSeries input2 = new ArrayLocalDateDoubleTimeSeries(dates2, values2);
     
-    UniqueIdentifier uid2 = testPopulated.correctTimeSeriesDataPoints(doc1.getUniqueId(), input2);
-    assertEquals(doc1.getUniqueId().getObjectId(), uid2.getObjectId());
+    UniqueId uniqueId2 = testPopulated.correctTimeSeriesDataPoints(doc1.getUniqueId(), input2);
+    assertEquals(doc1.getUniqueId().getObjectId(), uniqueId2.getObjectId());
     
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 1, 2), LocalDate.of(2011, 1, 3)};
     double[] expectedValues = {1.5d, 2.2d, 2.5d};
     LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
-    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uid, null, null);
-    assertEquals(uid, test2.getUniqueId());
+    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
   }
 
@@ -308,21 +308,21 @@ public class InMemoryHistoricalTimeSeriesMasterTest {
     double[] values = {1.1d, 2.2d};
     LocalDateDoubleTimeSeries input = new ArrayLocalDateDoubleTimeSeries(dates, values);
     
-    UniqueIdentifier uid = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
-    assertEquals(doc1.getUniqueId().getObjectId(), uid.getObjectId());
+    UniqueId uniqueId = testPopulated.updateTimeSeriesDataPoints(doc1.getUniqueId(), input);
+    assertEquals(doc1.getUniqueId().getObjectId(), uniqueId.getObjectId());
     
-    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uid, null, null);
-    assertEquals(uid, test.getUniqueId());
+    ManageableHistoricalTimeSeries test = testPopulated.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(input, test.getTimeSeries());
     
-    UniqueIdentifier uid2 = testPopulated.removeTimeSeriesDataPoints(doc1.getUniqueId(), LocalDate.of(2011, 1, 2), null);
-    assertEquals(doc1.getUniqueId().getObjectId(), uid2.getObjectId());
+    UniqueId uniqueId2 = testPopulated.removeTimeSeriesDataPoints(doc1.getUniqueId(), LocalDate.of(2011, 1, 2), null);
+    assertEquals(doc1.getUniqueId().getObjectId(), uniqueId2.getObjectId());
     
     LocalDate[] expectedDates = {LocalDate.of(2011, 1, 1)};
     double[] expectedValues = {1.1d};
     LocalDateDoubleTimeSeries expected = new ArrayLocalDateDoubleTimeSeries(expectedDates, expectedValues);
-    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uid, null, null);
-    assertEquals(uid, test2.getUniqueId());
+    ManageableHistoricalTimeSeries test2 = testPopulated.getTimeSeries(uniqueId, null, null);
+    assertEquals(uniqueId, test2.getUniqueId());
     assertEquals(expected, test2.getTimeSeries());
   }
 

@@ -30,8 +30,8 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * A fully versioned object in an OpenGamma installation will have a single state for
  * any combination of version and correction. This state is assigned a version string
- * which is used as the third component in a {@link UniqueIdentifier}, where all versions
- * share the same {@link ObjectIdentifier}.
+ * which is used as the third component in a {@link UniqueId}, where all versions
+ * share the same {@link ObjectId}.
  * <p>
  * This class represents a single version-correction combination suitable for identifying
  * a single state. It is typically used to obtain an object, while the version string is

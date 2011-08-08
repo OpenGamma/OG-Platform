@@ -8,7 +8,7 @@ package com.opengamma.financial.portfolio.rest;
 import java.net.URI;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -58,7 +58,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioDocument get(final UniqueIdentifier uniqueId) {
+  public PortfolioDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
@@ -102,7 +102,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataPortfolioResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
@@ -133,7 +133,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageablePortfolioNode getNode(final UniqueIdentifier nodeId) {
+  public ManageablePortfolioNode getNode(final UniqueId nodeId) {
     ArgumentChecker.notNull(nodeId, "nodeId");
     
     URI uri = DataPortfolioNodeResource.uri(_baseUri, nodeId);

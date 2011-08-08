@@ -24,7 +24,7 @@ public class EquitySecurityBean extends SecurityBean {
   private CurrencyBean _currency;
   private GICSCodeBean _gicsCode;
   
-  // Identifiers that might be valid for equities:
+  // ExternalIds that might be valid for equities:
   // - Bloomberg ticker (in BbgId)
   // - CUSIP (in CUSIP)
   // - ISIN (in ISIN)

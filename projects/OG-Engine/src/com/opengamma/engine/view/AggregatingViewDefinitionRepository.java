@@ -10,6 +10,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * A view definition repository which represents one or more others. When retrieving a view definition, repositories
  * are searched in the order that they were added and the first matching definition is returned.
@@ -19,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class AggregatingViewDefinitionRepository implements ViewDefinitionRepository {
 
   private final Set<ViewDefinitionRepository> _repositories = new CopyOnWriteArraySet<ViewDefinitionRepository>();
+  private final AggregatingChangeManager _changeManager = new AggregatingChangeManager();
 
   public AggregatingViewDefinitionRepository(Collection<ViewDefinitionRepository> repositories) {
     for (ViewDefinitionRepository repository : repositories) {
@@ -27,7 +32,9 @@ public class AggregatingViewDefinitionRepository implements ViewDefinitionReposi
   }
 
   public void addRepository(ViewDefinitionRepository repository) {
+    ArgumentChecker.notNull(repository, "repository");
     _repositories.add(repository);
+    _changeManager.addChangeManager(repository.changeManager());
   }
 
   @Override
@@ -48,6 +55,11 @@ public class AggregatingViewDefinitionRepository implements ViewDefinitionReposi
       result.addAll(repository.getDefinitionNames());
     }
     return result;
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

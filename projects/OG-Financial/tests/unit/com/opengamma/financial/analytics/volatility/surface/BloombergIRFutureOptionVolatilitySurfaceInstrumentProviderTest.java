@@ -12,7 +12,7 @@ import javax.time.calendar.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   public void test() {
     for (int i = 0; i < NUMBERS.length; i++) {
       for (int j = 0; j < STRIKES.length; j++) {
-        final Identifier result = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
+        final ExternalId result = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
         assertEquals(SecurityUtils.BLOOMBERG_TICKER_WEAK, result.getScheme());
         assertEquals(RESULTS[i][j], result.getValue());
       }

@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -36,11 +36,11 @@ public class EHCachingDistributionSpecificationResolverTest {
   @Test
   public void testCaching() {
     
-    Identifier id = Identifier.of("foo", "bar");
+    ExternalId id = ExternalId.of("foo", "bar");
     
     LiveDataSpecification request = new LiveDataSpecification(
         "TestNormalization",
-        Identifier.of("foo", "bar"));
+        ExternalId.of("foo", "bar"));
     
     DistributionSpecification distributionSpec = new DistributionSpecification(
         id,

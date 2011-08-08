@@ -17,7 +17,7 @@ import javax.time.Instant;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -46,7 +46,7 @@ public class CalculationJob implements Serializable {
    */
   private boolean _cancelled;
 
-  public CalculationJob(UniqueIdentifier viewCycleId, String calcConfigName, Instant valuationTime, long functionInitializationTimestamp, long jobId, List<CalculationJobItem> jobItems,
+  public CalculationJob(UniqueId viewCycleId, String calcConfigName, Instant valuationTime, long functionInitializationTimestamp, long jobId, List<CalculationJobItem> jobItems,
       final CacheSelectHint cacheSelect) {
     this(new CalculationJobSpecification(viewCycleId, calcConfigName, valuationTime, jobId), 0, null, jobItems, cacheSelect);
   }

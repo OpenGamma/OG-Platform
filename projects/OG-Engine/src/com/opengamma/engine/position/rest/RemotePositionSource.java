@@ -7,12 +7,14 @@ package com.opengamma.engine.position.rest;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -26,47 +28,64 @@ public class RemotePositionSource implements PositionSource {
    * The base URI to call.
    */
   private final RestTarget _target;
-
   /**
    * The client API.
    */
   private final RestClient _client;
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
 
   public RemotePositionSource(final FudgeContext fudgeContext, final RestTarget restTarget) {
+    this(fudgeContext, restTarget, new BasicChangeManager());
+  }
+  
+  public RemotePositionSource(final FudgeContext fudgeContext, final RestTarget restTarget, ChangeManager changeManager) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(restTarget, "restTarget");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _client = RestClient.getInstance(fudgeContext, null);
     _target = restTarget;
+    _changeManager = changeManager;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueIdentifier uid) {
+  public Portfolio getPortfolio(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Portfolio result = _client.getSingleValue(Portfolio.class, DataPositionSourceResource.targetPortfolio(_target, uid), "portfolio");
     return result;
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueIdentifier uid) {
+  public PortfolioNode getPortfolioNode(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     PortfolioNode result = _client.getSingleValue(PortfolioNode.class, DataPositionSourceResource.targetPortfolioNode(_target, uid), "node");
     return result;
   }
 
   @Override
-  public Position getPosition(UniqueIdentifier uid) {
+  public Position getPosition(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Position result = _client.getSingleValue(Position.class, DataPositionSourceResource.targetPosition(_target, uid), "position");
     return result;
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier uid) {
+  public Trade getTrade(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Trade result = _client.getSingleValue(Trade.class, DataPositionSourceResource.targetTrade(_target, uid), "trade");
     return result;
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns a string summary of this object.
    * 

@@ -7,7 +7,7 @@ package com.opengamma.master;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -93,7 +93,7 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
    * @param uniqueId  the unique identifier
    * @return the document, null if not found
    */
-  public D getDocument(UniqueIdentifier uniqueId) {
+  public D getDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     try {

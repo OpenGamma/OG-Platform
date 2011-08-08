@@ -20,9 +20,9 @@ import net.sf.ehcache.Element;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.test.MockSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -32,8 +32,8 @@ public class EHCachingFinancialSecuritySourceTest {
 
   private MockFinancialSecuritySource _underlyingSecuritySource = null;
   private EHCachingFinancialSecuritySource _cachingSecuritySource = null;
-  private Identifier _secId1 = Identifier.of("d1", "v1");
-  private Identifier _secId2 = Identifier.of("d1", "v2");
+  private ExternalId _secId1 = ExternalId.of("d1", "v1");
+  private ExternalId _secId2 = ExternalId.of("d1", "v2");
   private MockSecurity _security1 = new MockSecurity("");
   private MockSecurity _security2 = new MockSecurity("");
 
@@ -42,8 +42,8 @@ public class EHCachingFinancialSecuritySourceTest {
     _underlyingSecuritySource = new MockFinancialSecuritySource();
     _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, EHCacheUtils.createCacheManager ());
     
-    _security1.addIdentifier(_secId1);
-    _security2.addIdentifier(_secId2);
+    _security1.addExternalId(_secId1);
+    _security2.addExternalId(_secId2);
   }
 
   @AfterMethod
@@ -57,10 +57,10 @@ public class EHCachingFinancialSecuritySourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void getSecurity_UniqueIdentifier() {
+  public void getSecurity_UniqueId() {
     addSecuritiesToMock(_security1, _security2);
     
-    UniqueIdentifier uid1 = _security1.getUniqueId();
+    UniqueId uid1 = _security1.getUniqueId();
     Security underlyingSec = _underlyingSecuritySource.getSecurity(uid1);
     Security cachedSec = _cachingSecuritySource.getSecurity(uid1);
     assertNotNull(underlyingSec);
@@ -82,12 +82,12 @@ public class EHCachingFinancialSecuritySourceTest {
   }
 
   @Test
-  public void getSecurity_UniqueIdentifier_empty() {
+  public void getSecurity_UniqueId_empty() {
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     
-    UniqueIdentifier uid = UniqueIdentifier.of("Mock", "99");
+    UniqueId uid = UniqueId.of("Mock", "99");
     Security cachedSec = _cachingSecuritySource.getSecurity(uid);
     assertNull(cachedSec);
     assertEquals(0, singleSecCache.getSize());
@@ -98,9 +98,9 @@ public class EHCachingFinancialSecuritySourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void getSecurities_IdentifierBundle() {
+  public void getSecurities_ExternalIdBundle() {
     addSecuritiesToMock(_security1, _security2);
-    IdentifierBundle secKey = IdentifierBundle.of(_secId1, _secId2);
+    ExternalIdBundle secKey = ExternalIdBundle.of(_secId1, _secId2);
     
     Collection<Security> underlyingSecurities = _underlyingSecuritySource.getSecurities(secKey);
     assertNotNull(underlyingSecurities);
@@ -132,8 +132,8 @@ public class EHCachingFinancialSecuritySourceTest {
   }
 
   @Test
-  public void getSecurities_IdentifierBundle_empty() {
-    IdentifierBundle secKey = IdentifierBundle.of(_secId1);
+  public void getSecurities_ExternalIdBundle_empty() {
+    ExternalIdBundle secKey = ExternalIdBundle.of(_secId1);
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
@@ -148,10 +148,10 @@ public class EHCachingFinancialSecuritySourceTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void getSecurity_IdentifierBundle() {
+  public void getSecurity_ExternalIdBundle() {
     addSecuritiesToMock(_security1, _security2);
     
-    IdentifierBundle secKey1 = IdentifierBundle.of(_secId1);
+    ExternalIdBundle secKey1 = ExternalIdBundle.of(_secId1);
     Security underlyingSec = _underlyingSecuritySource.getSecurity(secKey1);
     Security cachedSec = _cachingSecuritySource.getSecurity(secKey1);
     assertNotNull(underlyingSec);
@@ -179,8 +179,8 @@ public class EHCachingFinancialSecuritySourceTest {
   }
 
   @Test
-  public void getSecurity_IdentifierBundle_empty() {
-    IdentifierBundle secKey = IdentifierBundle.of(_secId1);
+  public void getSecurity_ExternalIdBundle_empty() {
+    ExternalIdBundle secKey = ExternalIdBundle.of(_secId1);
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
@@ -197,7 +197,7 @@ public class EHCachingFinancialSecuritySourceTest {
   @Test
   public void refreshGetSecurity_UniqueIdentity() {
     addSecuritiesToMock(_security1, _security2);
-    UniqueIdentifier uid1 = _security1.getUniqueId();
+    UniqueId uid1 = _security1.getUniqueId();
     _cachingSecuritySource.getSecurity(uid1);
     Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
@@ -222,9 +222,9 @@ public class EHCachingFinancialSecuritySourceTest {
   }
    
   @Test
-  public void refreshGetSecurities_IdentifierBundle() {
+  public void refreshGetSecurities_ExternalIdBundle() {
     addSecuritiesToMock(_security1, _security2);
-    IdentifierBundle secKey = IdentifierBundle.of(_secId1, _secId2);
+    ExternalIdBundle secKey = ExternalIdBundle.of(_secId1, _secId2);
     _cachingSecuritySource.getSecurities(secKey);
     Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
@@ -270,10 +270,10 @@ public class EHCachingFinancialSecuritySourceTest {
   }
     
   @Test
-  public void refreshGetSecurity_IdentifierBundle() {
+  public void refreshGetSecurity_ExternalIdBundle() {
     addSecuritiesToMock(_security1, _security2);
     
-    IdentifierBundle secKey1 = IdentifierBundle.of(_secId1);
+    ExternalIdBundle secKey1 = ExternalIdBundle.of(_secId1);
     _cachingSecuritySource.getSecurity(secKey1);
     Cache multiSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.MULTI_SECURITIES_CACHE);
     assertEquals(1, multiSecCache.getSize());

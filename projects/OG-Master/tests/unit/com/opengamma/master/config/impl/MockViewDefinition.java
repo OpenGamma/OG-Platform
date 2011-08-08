@@ -7,7 +7,7 @@ package com.opengamma.master.config.impl;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -15,14 +15,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MockViewDefinition {
   private String _name;
-  private UniqueIdentifier _portfolioId;
+  private UniqueId _portfolioId;
   private Long _minDeltaCalculationPeriod;
   private Long _maxDeltaCalculationPeriod;
 
   public MockViewDefinition() {
   }
 
-  public MockViewDefinition(String name, UniqueIdentifier portfolioId) {
+  public MockViewDefinition(String name, UniqueId portfolioId) {
     ArgumentChecker.notNull(name, "View name");
 
     _name = name;
@@ -37,11 +37,11 @@ public class MockViewDefinition {
     _name = name;
   }
 
-  public UniqueIdentifier getPortfolioId() {
+  public UniqueId getPortfolioId() {
     return _portfolioId;
   }
 
-  public void setPortfolioId(UniqueIdentifier portfolioId) {
+  public void setPortfolioId(UniqueId portfolioId) {
     _portfolioId = portfolioId;
   }
 

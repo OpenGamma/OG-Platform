@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.calc;
 
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Manages engine resources for which reference counting is required.
@@ -23,6 +23,6 @@ public interface EngineResourceManager<T extends UniqueIdentifiable> {
    * @param uniqueId  the unique identifier of the resource for which a reference is required, not null
    * @return a reference wrapper to the resource, or {@code null} if the resource was not found
    */
-  EngineResourceReference<T> createReference(UniqueIdentifier uniqueId);
+  EngineResourceReference<T> createReference(UniqueId uniqueId);
   
 }

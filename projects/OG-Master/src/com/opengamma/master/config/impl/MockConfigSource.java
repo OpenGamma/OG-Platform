@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -32,18 +32,18 @@ public class MockConfigSource extends MasterConfigSource {
   /**
    * The configuration documents keyed by identifier.
    */
-  private final Map<UniqueIdentifier, ConfigDocument<?>> _configs = new HashMap<UniqueIdentifier, ConfigDocument<?>>();
+  private final Map<UniqueId, ConfigDocument<?>> _configs = new HashMap<UniqueId, ConfigDocument<?>>();
   /**
    * The next index for the identifier.
    */
-  private final UniqueIdentifierSupplier _uniqueIdSupplier;
+  private final UniqueIdSupplier _uniqueIdSupplier;
 
   /**
    * Creates the instance.
    */
   public MockConfigSource() {
     super(new InMemoryConfigMaster());
-    _uniqueIdSupplier = new UniqueIdentifierSupplier("Mock");
+    _uniqueIdSupplier = new UniqueIdSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
@@ -63,7 +63,7 @@ public class MockConfigSource extends MasterConfigSource {
   }
 
   @Override
-  public <T> T get(Class<T> clazz, UniqueIdentifier uniqueId) {
+  public <T> T get(Class<T> clazz, UniqueId uniqueId) {
     ConfigDocument<T> doc = getDocument(clazz, uniqueId);
     return (doc != null ? doc.getValue() : null);
   }
@@ -81,7 +81,7 @@ public class MockConfigSource extends MasterConfigSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueIdentifier uniqueId) {
+  public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uniqueId);

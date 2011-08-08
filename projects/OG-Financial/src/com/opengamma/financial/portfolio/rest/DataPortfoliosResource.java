@@ -20,7 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
@@ -87,13 +87,13 @@ public class DataPortfoliosResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @Path("nodes/{nodeId}")
   public DataPortfolioNodeResource findPortfolioNode(@PathParam("nodeId") String idStr) {
-    UniqueIdentifier id = UniqueIdentifier.parse(idStr);
+    UniqueId id = UniqueId.parse(idStr);
     return new DataPortfolioNodeResource(this, id);
   }
 
   @Path("{portfolioId}")
   public DataPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
-    UniqueIdentifier id = UniqueIdentifier.parse(idStr);
+    UniqueId id = UniqueId.parse(idStr);
     return new DataPortfolioResource(this, id);
   }
 

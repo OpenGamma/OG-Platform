@@ -7,7 +7,7 @@ package com.opengamma.engine.management;
 
 import java.util.Set;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * A management bean for a ViewProcessor
@@ -21,7 +21,7 @@ public interface ViewProcessorMBean {
    * 
    * @return a collection of the current view processes, not null
    */
-  Set<UniqueIdentifier> getViewProcesses();
+  Set<UniqueId> getViewProcesses();
   
   /**
    * Start this view processor

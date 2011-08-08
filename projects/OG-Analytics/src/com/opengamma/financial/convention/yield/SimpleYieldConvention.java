@@ -59,6 +59,10 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * US short duration T-bill.
    */
   public static final YieldConvention DISCOUNT = new SimpleYieldConvention("DISCOUNT");
+  /**
+   * Some bonds have this code.
+   */
+  public static final YieldConvention STEP_FLOATER = new SimpleYieldConvention("STEP FLOATER");  // TODO: check if real yield convention
 
   /**
    * The convention name.

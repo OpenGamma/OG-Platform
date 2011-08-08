@@ -25,9 +25,9 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 
@@ -133,8 +133,8 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   private URI updateExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
     ManageableExchange exchange = data().getExchange().getExchange().clone();
     exchange.setName(name);
-    exchange.setIdentifiers(IdentifierBundle.of(Identifier.of(idScheme, idValue)));
-    exchange.setRegionKey(IdentifierBundle.of(Identifier.of(regionScheme, regionValue)));
+    exchange.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of(idScheme, idValue)));
+    exchange.setRegionIdBundle(ExternalIdBundle.of(ExternalId.of(regionScheme, regionValue)));
     ExchangeDocument doc = new ExchangeDocument(exchange);
     doc = data().getExchangeMaster().update(doc);
     data().setExchange(doc);
@@ -201,7 +201,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
    * @param overrideExchangeId  the override exchange id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebExchangeData data, final UniqueIdentifier overrideExchangeId) {
+  public static URI uri(final WebExchangeData data, final UniqueId overrideExchangeId) {
     String exchangeId = data.getBestExchangeUriId(overrideExchangeId);
     return data.getUriInfo().getBaseUriBuilder().path(WebExchangeResource.class).build(exchangeId);
   }

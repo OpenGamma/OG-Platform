@@ -256,7 +256,7 @@
     }
     
     this.getInitData = function() {
-      _cometd.publish('/service/initData', {});
+      _cometd.publish('/service/getInitData', {});
     }
     
     this.triggerImmediateUpdate = function() {

@@ -11,7 +11,7 @@ public abstract class FinancialSecurity extends com.opengamma.master.security.Ma
   protected FinancialSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeContext, fudgeMsg);
   }
-  public FinancialSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers) {
+  public FinancialSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers) {
     super (uniqueId, name, securityType, identifiers);
   }
   protected FinancialSecurity (final FinancialSecurity source) {

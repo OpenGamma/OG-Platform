@@ -27,7 +27,7 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -227,7 +227,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     final MatrixImpl matrix = new MatrixImpl();
     FudgeField field = message.getByName(UNIQUE_ID_FIELD_NAME);
     if (field != null) {
-      matrix.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, field));
+      matrix.setUniqueId(context.fieldValueToObject(UniqueId.class, field));
     }
     field = message.getByName(CROSS_CONVERT_FIELD_NAME);
     if (field != null) {

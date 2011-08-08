@@ -6,7 +6,7 @@
 package com.opengamma.core.position;
 
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -25,7 +25,7 @@ public interface Portfolio extends UniqueIdentifiable {
    * 
    * @return the unique identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Gets the name of the portfolio intended for display purposes.

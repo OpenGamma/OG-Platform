@@ -7,8 +7,9 @@ package com.opengamma.core.security;
 
 import java.util.Collection;
 
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -18,7 +19,7 @@ import com.opengamma.util.PublicSPI;
  * This may be backed by a full-featured security master, or by a much simpler data structure.
  */
 @PublicSPI
-public interface SecuritySource {
+public interface SecuritySource extends ChangeProvider {
 
   /**
    * Finds a specific security by unique identifier.
@@ -29,7 +30,7 @@ public interface SecuritySource {
    * @return the security, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Security getSecurity(UniqueIdentifier uniqueId);
+  Security getSecurity(UniqueId uniqueId);
 
   /**
    * Finds all securities that match the specified bundle of keys.
@@ -47,7 +48,7 @@ public interface SecuritySource {
    * @return all securities matching the specified key, empty if no matches, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
-  Collection<Security> getSecurities(IdentifierBundle bundle);
+  Collection<Security> getSecurities(ExternalIdBundle bundle);
 
   /**
    * Finds the single best-fit security that matches the specified bundle of keys.
@@ -63,6 +64,6 @@ public interface SecuritySource {
    * @return the single security matching the bundle of keys, null if not found
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
    */
-  Security getSecurity(IdentifierBundle bundle);
+  Security getSecurity(ExternalIdBundle bundle);
 
 }

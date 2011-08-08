@@ -14,7 +14,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -31,7 +31,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          final Security underlyingSecurity = secMaster.getSecurity(IdentifierBundle.of(option.getUnderlyingIdentifier()));
+          final Security underlyingSecurity = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
           final HistoricalTimeSeries hts = source.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, underlyingSecurity.getIdentifiers(), resolutionKey);
           if (hts == null) {
             throw new NullPointerException("Could not get time series pair for " + underlying + " for security " + security + "for " + resolutionKey + "/" + HistoricalTimeSeriesFields.LAST_PRICE);

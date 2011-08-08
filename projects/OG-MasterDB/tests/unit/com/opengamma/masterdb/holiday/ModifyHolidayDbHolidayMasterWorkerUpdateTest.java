@@ -21,7 +21,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
@@ -52,9 +52,9 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noHolidayId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101");
+    UniqueId uniqueId = UniqueId.of("DbHol", "101");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueId(uid);
+    holiday.setUniqueId(uniqueId);
     HolidayDocument doc = new HolidayDocument();
     doc.setHoliday(holiday);
     _holMaster.update(doc);
@@ -63,24 +63,24 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noHoliday() {
     HolidayDocument doc = new HolidayDocument();
-    doc.setUniqueId(UniqueIdentifier.of("DbHol", "101", "0"));
+    doc.setUniqueId(UniqueId.of("DbHol", "101", "0"));
     _holMaster.update(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
+    UniqueId uniqueId = UniqueId.of("DbHol", "0", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueId(uid);
+    holiday.setUniqueId(uniqueId);
     HolidayDocument doc = new HolidayDocument(holiday);
     _holMaster.update(doc);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "0");
+    UniqueId uniqueId = UniqueId.of("DbHol", "201", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueId(uid);
+    holiday.setUniqueId(uniqueId);
     HolidayDocument doc = new HolidayDocument(holiday);
     _holMaster.update(doc);
   }
@@ -89,10 +89,10 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   public void test_update_getUpdateGet() {
     Instant now = Instant.now(_holMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
-    HolidayDocument base = _holMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
+    HolidayDocument base = _holMaster.get(uniqueId);
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueId(uid);
+    holiday.setUniqueId(uniqueId);
     HolidayDocument input = new HolidayDocument(holiday);
     
     HolidayDocument updated = _holMaster.update(input);
@@ -103,7 +103,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals(input.getHoliday(), updated.getHoliday());
     
-    HolidayDocument old = _holMaster.get(uid);
+    HolidayDocument old = _holMaster.get(uniqueId);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
@@ -124,10 +124,10 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
         return "INSERT";  // bad sql
       };
     };
-    final HolidayDocument base = _holMaster.get(UniqueIdentifier.of("DbHol", "101", "0"));
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
+    final HolidayDocument base = _holMaster.get(UniqueId.of("DbHol", "101", "0"));
+    UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
-    holiday.setUniqueId(uid);
+    holiday.setUniqueId(uniqueId);
     HolidayDocument input = new HolidayDocument(holiday);
     try {
       w.update(input);
@@ -135,7 +135,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     } catch (BadSqlGrammarException ex) {
       // expected
     }
-    final HolidayDocument test = _holMaster.get(UniqueIdentifier.of("DbHol", "101", "0"));
+    final HolidayDocument test = _holMaster.get(UniqueId.of("DbHol", "101", "0"));
     
     assertEquals(base, test);
   }

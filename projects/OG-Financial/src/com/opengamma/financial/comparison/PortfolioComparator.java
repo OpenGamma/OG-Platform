@@ -8,7 +8,7 @@ package com.opengamma.financial.comparison;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.Portfolio;
@@ -37,8 +37,8 @@ public class PortfolioComparator extends PositionSetComparator {
   }
 
   public PortfolioComparison compare(final Portfolio first, final Portfolio second) {
-    UniqueIdentifier firstId = first.getUniqueId();
-    UniqueIdentifier secondId = second.getUniqueId();
+    UniqueId firstId = first.getUniqueId();
+    UniqueId secondId = second.getUniqueId();
     String firstName;
     String secondName;
 

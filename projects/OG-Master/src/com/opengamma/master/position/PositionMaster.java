@@ -6,9 +6,9 @@
 package com.opengamma.master.position;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -18,7 +18,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface PositionMaster extends AbstractMaster<PositionDocument>, NotifyingMaster {
+public interface PositionMaster extends AbstractMaster<PositionDocument>, ChangeProvider {
 
   /**
    * Searches for positions matching the specified search criteria.
@@ -51,6 +51,6 @@ public interface PositionMaster extends AbstractMaster<PositionDocument>, Notify
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no trade with that unique identifier
    */
-  ManageableTrade getTrade(UniqueIdentifier tradeId);
+  ManageableTrade getTrade(UniqueId tradeId);
 
 }
