@@ -87,9 +87,18 @@ window.innerShiv = (function () {
 }());
 
 (function ($) {
-    var old_html = $.fn.html;
+    var init = $.fn.init, html = $.fn.html;
+    // overwrite so that $(html_string) gets innerShiv treatment
+    $.fn.init = function (selector, context, root) {
+        var nodes;
+        if (typeof selector === 'string' && ~selector.indexOf('>') && ~selector.indexOf('<'))
+            return (nodes = innerShiv(selector, false)).length ? new init(nodes, context, root)
+                : new init(selector, context, root);
+        return new init(selector, context, root);
+    };
+    // overwrite so that $(selector).html(html_string) gets innerShiv treatment
     $.fn.html = function (input) {
-        if (typeof input !== 'string') return old_html.call(this, input);
+        if (typeof input !== 'string') return html.call(this, input);
         return this.empty().append(innerShiv(input, false));
     };
 })($);

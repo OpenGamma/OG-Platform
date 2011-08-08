@@ -91,7 +91,7 @@ $.register_module({
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
-                    var header_html = '\
+                    var header = '\
                         <header class="OG-header-generic">\
                           <div class="OG-toolbar"></div>\
                           <h1>\
@@ -101,7 +101,7 @@ $.register_module({
                           <br />(Yield Curve Definition)\
                         </header>\
                     ';
-                    $('.ui-layout-inner-center .ui-layout-header').html(header_html);
+                    $('.ui-layout-inner-center .ui-layout-header').html(header);
                     $(form_id + ' [name=currency]').val(master.currency);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';

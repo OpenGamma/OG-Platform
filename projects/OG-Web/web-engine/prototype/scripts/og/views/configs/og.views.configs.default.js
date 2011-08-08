@@ -17,18 +17,19 @@ $.register_module({
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler;
             og.dev.log('json!', json);
             api.text({module: module.name, handler: function (template, error) {
-                var header_html = '\
+                var header, content;
+                header = '\
                     <header class="OG-header-generic">\
                       <div class="OG-toolbar"></div>\
                       <h1 class="og-js-name">' + json.name + '</h1>\
                     </header>\
                 ';
-                $('.ui-layout-inner-center .ui-layout-header').html(header_html);
+                $('.ui-layout-inner-center .ui-layout-header').html(header);
                 json.config_data = is_new ? '' :
                     json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                         : json.configXML ? json.configXML : '';
-                var temp = $('<p/>').append($.tmpl(template, json)).html();
-                $(selector).html(temp);
+                content = $.outer($.tmpl(template, json)[0]);
+                $(selector).html(content);
                 if (deleted || is_new)
                     $(selector + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                 if (is_new) $(selector + ' .og-js-submit[value=save_as_new]').html('Save');

@@ -13,8 +13,10 @@ $.register_module({
         'og.common.util.history',
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
+        'og.common.util.ui.toolbar',
         'og.views.common.layout',
-        'og.views.common.state'
+        'og.views.common.state',
+        'og.views.common.default_details'
     ],
     obj: function () {
         var api = og.api,
@@ -58,21 +60,7 @@ $.register_module({
                     }
                 }
             },
-            default_details_page = function () {
-                api.text({module: 'og.views.default', handler: function (template) {
-                    var $html = $.tmpl(template, {
-                        name: 'Exchanges',
-                        recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
-                    }), layout = og.views.common.layout;
-                    $('.ui-layout-inner-center .ui-layout-header')
-                        .html($('<p/>').append($html.find('> header')).html());
-                    $('.ui-layout-inner-center .ui-layout-content')
-                        .html($('<p/>').append($html.find('> section')).html());
-                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                    ui.toolbar(options.toolbar['default']);
-                    layout.inner.resizeAll();
-                }});
-            },
+            default_details = og.views.common.default_details.partial(page_name, 'Exchanges', options),
             details_page = function(args) {
                 api.rest.exchanges.get({
                     handler: function (result) {
@@ -84,11 +72,11 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var $html = $.tmpl(template, json), layout = og.views.common.layout;
-                            $('.ui-layout-inner-center .ui-layout-header')
-                                .html($('<p/>').append($html.find('> header')).html());
-                            $('.ui-layout-inner-center .ui-layout-content')
-                                .html($('<p/>').append($html.find('> section')).html());
+                            var $html = $.tmpl(template, json), layout = og.views.common.layout, header, content;
+                            header = $.outer($html.find('> header')[0]);
+                            content = $.outer($html.find('> section')[0]);
+                            $('.ui-layout-inner-center .ui-layout-header').html(header);
+                            $('.ui-layout-inner-center .ui-layout-content').html(content);
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
@@ -117,7 +105,7 @@ $.register_module({
                     }}
                 ]});
                 if (args.id) return;
-                default_details_page();
+                default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [

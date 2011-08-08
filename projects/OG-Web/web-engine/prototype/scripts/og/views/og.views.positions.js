@@ -15,7 +15,8 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
-        'og.views.common.state'
+        'og.views.common.state',
+        'og.views.common.default_details'
     ],
     obj: function () {
         var api = og.api,
@@ -153,11 +154,11 @@ $.register_module({
                                     </section>\
                                 ',
                                 $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout;
-                            $('.ui-layout-inner-center .ui-layout-header')
-                                .html($('<p/>').append($html.find('> header')).html());
-                            $('.ui-layout-inner-center .ui-layout-content')
-                                .html($('<p/>').append($html.find('> section')).html());
+                                layout = og.views.common.layout, header, content;
+                            header = $.outer($html.find('> header')[0]);
+                            content = $.outer($html.find('> section')[0]);
+                            $('.ui-layout-inner-center .ui-layout-header').html(header);
+                            $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -191,22 +192,7 @@ $.register_module({
                     }
                 });
             },
-            default_details_page = function () {
-                api.text({module: 'og.views.default', handler: function (template) {
-                    var layout = og.views.common.layout,
-                        $html = $.tmpl(template, {
-                        name: 'Positions',
-                        recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions'
-                    });
-                    $('.ui-layout-inner-center .ui-layout-header')
-                        .html($('<p/>').append($html.find('> header')).html());
-                    $('.ui-layout-inner-center .ui-layout-content')
-                        .html($('<p/>').append($html.find('> section')).html());
-                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                    ui.toolbar(options.toolbar['default']);
-                    layout.inner.resizeAll();
-                }});
-            };
+            default_details = og.views.common.default_details.partial(page_name, 'Positions', options);
         module.rules = {
             load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'},
@@ -254,7 +240,7 @@ $.register_module({
                     }}
                 ]});
                 if (args.id) return;
-                default_details_page();
+                default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
