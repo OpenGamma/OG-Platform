@@ -13,7 +13,7 @@ import net.sf.ehcache.CacheManager;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,8 +130,8 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
 
   @Override
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
-    final CacheMessage message = dctx.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
+    final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    final CacheMessage message = deserializer.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
     message.accept(_messageReceiver);
   }
 

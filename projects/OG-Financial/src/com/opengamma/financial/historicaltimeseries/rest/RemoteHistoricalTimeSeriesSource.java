@@ -34,8 +34,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -103,9 +103,9 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     if (timeSeriesField == null) {
       throw new IllegalArgumentException(HISTORICALTIMESERIESSOURCE_TIMESERIES + " not present in message");
     }
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    UniqueId uniqueId = context.fieldValueToObject(UniqueId.class, uniqueIdField);
-    LocalDateDoubleTimeSeries ts = context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getRestClient().getFudgeContext());
+    UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, uniqueIdField);
+    LocalDateDoubleTimeSeries ts = deserializer.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
     return new HistoricalTimeSeriesImpl(uniqueId, ts);
   }
 
@@ -235,7 +235,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());
+    FudgeSerializer serializationContext = new FudgeSerializer(getRestClient().getFudgeContext());
     MutableFudgeMsg msg = serializationContext.newMessage();
     serializationContext.addToMessage(msg, REQUEST_IDENTIFIER_SET, null, identifierSet);
     serializationContext.addToMessage(msg, REQUEST_DATA_SOURCE, null, dataSource);
@@ -247,7 +247,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     serializationContext.addToMessage(msg, REQUEST_EXCLUSIVE_END, null, exclusiveEnd);
     
     FudgeMsgEnvelope result = getRestClient().post(target, msg);
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getRestClient().getFudgeContext());
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(getRestClient().getFudgeContext());
     return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALTIMESERIESSOURCE_TIMESERIES));
   }
 

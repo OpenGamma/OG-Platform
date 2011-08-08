@@ -18,7 +18,7 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 /**
  * A JAX-RS provider to convert RESTful responses to Fudge binary encoded messages.
@@ -55,7 +55,7 @@ public class FudgeObjectBinaryConsumer extends FudgeBase implements MessageBodyR
     if (message == null) {
       return null;
     }
-    FudgeDeserializationContext deser = new FudgeDeserializationContext(getFudgeContext());
+    FudgeDeserializer deser = new FudgeDeserializer(getFudgeContext());
     return deser.fudgeMsgToObject(type, message);
   }
 

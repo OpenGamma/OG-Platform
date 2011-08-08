@@ -8,8 +8,8 @@ package com.opengamma.core.marketdatasnapshot;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.UniqueId;
 
@@ -92,16 +92,16 @@ public class MarketDataValueSpecification {
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
-    msg.add("type", null, context.objectToFudgeMsg(_type));
-    msg.add("uniqueId", null, context.objectToFudgeMsg(_uniqueId));
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("type", null, serializer.objectToFudgeMsg(_type));
+    msg.add("uniqueId", null, serializer.objectToFudgeMsg(_uniqueId));
     return msg;
   }
 
-  public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
+  public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return new MarketDataValueSpecification(
-        context.fieldValueToObject(MarketDataValueType.class, msg.getByName("type")), context.fieldValueToObject(
+        deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type")), deserializer.fieldValueToObject(
             UniqueId.class, msg.getByName("uniqueId")));
   }
 

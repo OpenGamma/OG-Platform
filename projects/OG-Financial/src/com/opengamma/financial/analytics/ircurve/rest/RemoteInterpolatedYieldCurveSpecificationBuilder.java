@@ -10,8 +10,8 @@ import javax.time.calendar.LocalDate;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
@@ -52,15 +52,15 @@ public class RemoteInterpolatedYieldCurveSpecificationBuilder implements Interpo
     ArgumentChecker.notNull(curveDate, "curveDate");
     ArgumentChecker.notNull(curveDefinition, "curveDefinition");
     final RestTarget target = getTargetBase().resolve(curveDate.toString());
-    final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
+    final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg defnMsg = sctx.newMessage();
     sctx.addToMessageWithClassHeaders(defnMsg, "definition", null, curveDefinition, YieldCurveDefinition.class);
     final FudgeMsgEnvelope specMsg = getRestClient().post(target, defnMsg);
     if (specMsg == null) {
       return null;
     }
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    return dctx.fieldValueToObject(InterpolatedYieldCurveSpecification.class, specMsg.getMessage().getByName("specification"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    return deserializer.fieldValueToObject(InterpolatedYieldCurveSpecification.class, specMsg.getMessage().getByName("specification"));
   }
 
 }

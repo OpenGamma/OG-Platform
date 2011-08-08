@@ -23,7 +23,7 @@ import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -339,7 +339,7 @@ public class ExternalIdBundleWithDatesTest {
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    ExternalIdBundleWithDates decoded = ExternalIdBundleWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    ExternalIdBundleWithDates decoded = ExternalIdBundleWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(input, decoded);
   }
 

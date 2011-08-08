@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -29,9 +29,9 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
   private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ResultModelDefinition object) {
-    ArgumentChecker.notNull(context, "Fudge Context");
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ResultModelDefinition object) {
+    ArgumentChecker.notNull(serializer, "Fudge Context");
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(AGGREGATE_POSITION_OUTPUT_MODE_FIELD, object.getAggregatePositionOutputMode().name());
     msg.add(POSITION_OUTPUT_MODE_FIELD, object.getPositionOutputMode().name());
     msg.add(TRADE_OUTPUT_MODE_FIELD, object.getTradeOutputMode().name());
@@ -41,7 +41,7 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
   }
 
   @Override
-  public ResultModelDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public ResultModelDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     ResultModelDefinition result = new ResultModelDefinition();
     result.setAggregatePositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
     result.setPositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(POSITION_OUTPUT_MODE_FIELD)));

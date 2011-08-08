@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -45,16 +45,16 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
     return _values;
   }
 
-  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializationContext context) {
-    MutableFudgeMsg ret = context.newMessage();
-    FudgeSerializationContext.addClassHeader(ret, ManageableVolatilitySurfaceSnapshot.class);
-    MutableFudgeMsg valuesMsg = context.newMessage();
+  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
+    MutableFudgeMsg ret = serializer.newMessage();
+    FudgeSerializer.addClassHeader(ret, ManageableVolatilitySurfaceSnapshot.class);
+    MutableFudgeMsg valuesMsg = serializer.newMessage();
     for (Entry<Pair<Object, Object>, ValueSnapshot> entry : _values.entrySet()) {
-      context.addToMessage(valuesMsg, null, 1, entry.getKey());
+      serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
       if (entry.getValue() == null) {
         valuesMsg.add(2, IndicatorType.INSTANCE);
       } else {
-        context.addToMessage(valuesMsg, null, 2, entry.getValue());
+        serializer.addToMessage(valuesMsg, null, 2, entry.getValue());
       }
     }
     ret.add("values", valuesMsg);
@@ -62,7 +62,7 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
   }
 
   @SuppressWarnings("unchecked")
-  public static ManageableVolatilitySurfaceSnapshot fromFudgeMsg(FudgeDeserializationContext context, FudgeMsg msg) {
+  public static ManageableVolatilitySurfaceSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
 
     HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
 
@@ -75,9 +75,9 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
 
       int intValue = ordinal.intValue();
       if (intValue == 1) {
-        key = context.fieldValueToObject(Pair.class, fudgeField);
+        key = deserializer.fieldValueToObject(Pair.class, fudgeField);
       } else if (intValue == 2) {
-        ValueSnapshot value = context.fieldValueToObject(ValueSnapshot.class, fudgeField);
+        ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
         values.put(key, value);
         key = null;
       }

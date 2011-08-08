@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
@@ -68,7 +68,7 @@ public class LiveDataSpecification {
     return _domainSpecificIdentifiers.getValue(scheme);
   }
   
-  public static LiveDataSpecification fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg fudgeMsg) {
+  public static LiveDataSpecification fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
     ExternalIdBundle ids = ExternalIdBundle.fromFudgeMsg(fudgeContext, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    

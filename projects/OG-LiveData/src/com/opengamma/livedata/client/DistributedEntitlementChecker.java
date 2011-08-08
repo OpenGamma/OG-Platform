@@ -15,8 +15,8 @@ import java.util.concurrent.TimeUnit;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class DistributedEntitlementChecker {
           FudgeMsgEnvelope msgEnvelope) {
         
         FudgeMsg msg = msgEnvelope.getMessage();
-        EntitlementResponseMsg responseMsg = EntitlementResponseMsg.fromFudgeMsg(new FudgeDeserializationContext(fudgeContext), msg);
+        EntitlementResponseMsg responseMsg = EntitlementResponseMsg.fromFudgeMsg(new FudgeDeserializer(fudgeContext), msg);
         for (EntitlementResponse response : responseMsg.getResponses()) {
           returnValue.put(response.getLiveDataSpecification(), response.getIsEntitled());
         }
@@ -110,7 +110,7 @@ public class DistributedEntitlementChecker {
   private FudgeMsg composeRequestMessage(UserPrincipal user,
       Collection<LiveDataSpecification> specifications) {
     EntitlementRequest request = new EntitlementRequest(user, specifications);
-    return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
+    return request.toFudgeMsg(new FudgeSerializer(_fudgeContext));
   }
 
 }

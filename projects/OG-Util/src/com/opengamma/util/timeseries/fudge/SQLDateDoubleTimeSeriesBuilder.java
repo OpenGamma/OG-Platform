@@ -8,8 +8,8 @@ package com.opengamma.util.timeseries.fudge;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 
@@ -19,14 +19,12 @@ import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 public class SQLDateDoubleTimeSeriesBuilder implements FudgeBuilder<SQLDateDoubleTimeSeries> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, SQLDateDoubleTimeSeries object) {
-    // TODO Auto-generated method stub
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SQLDateDoubleTimeSeries object) {
     return null;
   }
 
   @Override
-  public SQLDateDoubleTimeSeries buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    // TODO Auto-generated method stub
+  public SQLDateDoubleTimeSeries buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     return null;
   }
 

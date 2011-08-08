@@ -18,7 +18,7 @@ import javax.ws.rs.QueryParam;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
@@ -75,16 +75,6 @@ public class SecuritySourceResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the serialization context derived from the main Fudge context.
-   * 
-   * @return the context, not null
-   */
-  protected FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * RESTful method to get a security by unique identifier.
    * 
    * @param uidStr  the unique identifier from the URI, not null
@@ -94,9 +84,9 @@ public class SecuritySourceResource {
   @Path("security/{uid}")
   public FudgeMsgEnvelope getSecurity(@PathParam("uid") String uidStr) {
     final UniqueId uid = UniqueId.parse(uidStr);
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeMsg msg = context.newMessage();
-    context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -114,11 +104,11 @@ public class SecuritySourceResource {
     for (String idStr : idStrs) {
       bundle = bundle.withExternalId(ExternalId.parse(idStr));
     }
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeMsg msg = context.newMessage();
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
     final Collection<Security> securities = getSecuritySource().getSecurities(bundle);
     for (Security security : securities) {
-      context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+      serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
     }
     return new FudgeMsgEnvelope(msg);
   }
@@ -137,9 +127,9 @@ public class SecuritySourceResource {
     for (String idStr : idStrs) {
       bundle = bundle.withExternalId(ExternalId.parse(idStr));
     }
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeMsg msg = context.newMessage();
-    context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -153,11 +143,11 @@ public class SecuritySourceResource {
   @Path("bonds")
   public FudgeMsgEnvelope getBondsWithIssuerName(@QueryParam("issuerName") String issuerName) {
     ArgumentChecker.notEmpty(issuerName, "issuerName");
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeMsg msg = context.newMessage();
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
     final Collection<Security> securities = getSecuritySource().getBondsWithIssuerName(issuerName);
     for (Security security : securities) {
-      context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+      serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
     }
     return new FudgeMsgEnvelope(msg);
   }

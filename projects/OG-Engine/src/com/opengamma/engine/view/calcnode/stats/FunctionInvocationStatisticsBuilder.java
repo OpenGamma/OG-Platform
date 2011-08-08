@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * Fudge message builder for {@code FunctionInvocationStatistics}.
@@ -24,8 +24,8 @@ public class FunctionInvocationStatisticsBuilder implements FudgeBuilder<Functio
   private static final String DATA_INPUT_COST_FIELD_NAME = "dataInputCost";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final FunctionInvocationStatistics statistics) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FunctionInvocationStatistics statistics) {
+    final MutableFudgeMsg message = serializer.newMessage();
     message.add(FUNCTION_IDENTIFIER_FIELD_NAME, statistics.getFunctionId());
     message.add(INVOCATION_COST_FIELD_NAME, statistics.getInvocationCost());
     message.add(DATA_INPUT_COST_FIELD_NAME, statistics.getDataInputCost());
@@ -34,7 +34,7 @@ public class FunctionInvocationStatisticsBuilder implements FudgeBuilder<Functio
   }
 
   @Override
-  public FunctionInvocationStatistics buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public FunctionInvocationStatistics buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final FunctionInvocationStatistics statistics = new FunctionInvocationStatistics(message.getString(FUNCTION_IDENTIFIER_FIELD_NAME));
     statistics.recordInvocation(1, message.getDouble(INVOCATION_COST_FIELD_NAME), message.getDouble(DATA_INPUT_COST_FIELD_NAME), message.getDouble(DATA_OUTPUT_COST_FIELD_NAME));
     return statistics;

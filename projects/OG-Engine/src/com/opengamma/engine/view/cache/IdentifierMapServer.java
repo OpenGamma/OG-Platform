@@ -15,8 +15,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,18 +81,18 @@ public class IdentifierMapServer extends CacheMessageVisitor implements FudgeReq
   }
 
   @Override
-  public FudgeMsg requestReceived(final FudgeDeserializationContext context, final FudgeMsgEnvelope requestEnvelope) {
-    final CacheMessage request = context.fudgeMsgToObject(CacheMessage.class, requestEnvelope.getMessage());
-    final FudgeContext fudgeContext = context.getFudgeContext();
+  public FudgeMsg requestReceived(final FudgeDeserializer deserializer, final FudgeMsgEnvelope requestEnvelope) {
+    final CacheMessage request = deserializer.fudgeMsgToObject(CacheMessage.class, requestEnvelope.getMessage());
+    final FudgeContext fudgeContext = deserializer.getFudgeContext();
     CacheMessage response = request.accept(this);
     if (response == null) {
       response = new CacheMessage();
     }
     response.setCorrelationId(request.getCorrelationId());
-    final FudgeSerializationContext ctx = new FudgeSerializationContext(fudgeContext);
+    final FudgeSerializer ctx = new FudgeSerializer(fudgeContext);
     final MutableFudgeMsg responseMsg = ctx.objectToFudgeMsg(response);
     // We have only one response for each request type, so don't need the headers
-    // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), IdentifierMapResponse.class);
+    // FudgeSerializer.addClassHeader(responseMsg, response.getClass(), IdentifierMapResponse.class);
     return responseMsg;
   }
 

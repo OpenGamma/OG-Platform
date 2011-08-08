@@ -12,8 +12,8 @@ import org.testng.annotations.BeforeMethod;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +64,8 @@ public class FinancialTestBase {
 
   protected <T> T cycleGenericObject(final Class<T> clazz, final T object) {
     s_logger.info("object {}", object);
-    final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(getFudgeContext());
-    final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext(getFudgeContext());
+    final FudgeSerializer fudgeSerializationContext = new FudgeSerializer(getFudgeContext());
+    final FudgeDeserializer fudgeDeserializationContext = new FudgeDeserializer(getFudgeContext());
     final MutableFudgeMsg messageIn = fudgeSerializationContext.newMessage();
     fudgeSerializationContext.addToMessage(messageIn, "test", null, object);
     s_logger.info("message {}", messageIn);

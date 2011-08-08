@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertSame;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -354,7 +354,7 @@ public class UniqueIdTest {
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(test, decoded);
   }
 
@@ -365,7 +365,7 @@ public class UniqueIdTest {
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(test, decoded);
   }
 
