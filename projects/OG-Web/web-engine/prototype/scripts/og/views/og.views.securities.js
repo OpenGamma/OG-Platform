@@ -137,8 +137,10 @@ $.register_module({
                         name: 'Securities',
                         recent_list: history.get_html('history.securities.recent') || 'no recently viewed securities'
                     });
-                    $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                    $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                    $('.ui-layout-inner-center .ui-layout-header')
+                        .html($('<p/>').append($html.find('> header')).html());
+                    $('.ui-layout-inner-center .ui-layout-content')
+                        .html($('<p/>').append($html.find('> section')).html());
                     layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                     ui.toolbar(options.toolbar['default']);
                     layout.inner.resizeAll();
@@ -169,8 +171,10 @@ $.register_module({
                                 $html = $.tmpl(template, json.template_data),
                                 layout = og.views.common.layout,
                                 html = [], id, json_id = json.identifiers;
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            $('.ui-layout-inner-center .ui-layout-header')
+                                .html($('<p/>').append($html.find('> header')).html());
+                            $('.ui-layout-inner-center .ui-layout-content')
+                                .html($('<p/>').append($html.find('> section')).html());
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);

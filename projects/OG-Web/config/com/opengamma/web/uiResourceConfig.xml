@@ -215,6 +215,7 @@
   </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.min.js</fragment>
+    <fragment>/scripts/lib/jquery-innershiv.js</fragment>
   </bundle>
   <bundle id="og_common.js">
     <bundle idref="lib.js" />

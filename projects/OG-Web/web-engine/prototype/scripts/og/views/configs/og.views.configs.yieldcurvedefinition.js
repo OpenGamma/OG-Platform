@@ -95,8 +95,8 @@ $.register_module({
                         <header class="OG-header-generic">\
                           <div class="OG-toolbar"></div>\
                           <h1>\
-                            <span class="og-js-name">' + master.name + '</span>\
-                            _<span class="og-js-currency">' + master.currency + '</span>\
+                            <span class="og-js-name">' + master.name + '</span>_<span class="og-js-currency">' +
+                            master.currency + '</span>\
                           </h1>\
                           <br />(Yield Curve Definition)\
                         </header>\

@@ -23,6 +23,10 @@ public class ViewDefinitionChangeListener implements ChangeListener {
   
   @Override
   public void entityChanged(ChangeEvent event) {
+    if (event.getBeforeId() == null) {
+      // View definition created 
+      return;
+    }
     if (event.getAfterId() == null) {
       // View definition could have been deleted - do we want to stop the process?
       return;
