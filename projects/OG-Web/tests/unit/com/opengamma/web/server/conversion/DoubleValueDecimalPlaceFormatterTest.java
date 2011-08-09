@@ -64,7 +64,8 @@ public class DoubleValueDecimalPlaceFormatterTest {
     assertEquals("1,23", formatter.format(1.22666));
     
     formatter = new DoubleValueDecimalPlaceFormatter(2, false, DecimalFormatSymbols.getInstance(Locale.FRENCH));
-    assertEquals("1 234,99", formatter.format(1234.987654321));
+    String nbsp = "\u00A0";
+    assertEquals("1" + nbsp + "234,99", formatter.format(1234.987654321));
   }
   
 }

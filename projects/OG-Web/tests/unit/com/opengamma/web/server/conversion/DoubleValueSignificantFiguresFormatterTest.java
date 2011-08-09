@@ -38,7 +38,8 @@ public class DoubleValueSignificantFiguresFormatterTest {
     assertEquals("1.234", formatter.format(1233.56));
     
     formatter = new DoubleValueSignificantFiguresFormatter(5, false, DecimalFormatSymbols.getInstance(Locale.FRENCH));
-    assertEquals("1 234,5", formatter.format(1234.4567));
+    String nbsp = "\u00A0";
+    assertEquals("1" + nbsp + "234,5", formatter.format(1234.4567));
   }
   
 }
