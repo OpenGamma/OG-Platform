@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 
@@ -23,14 +23,14 @@ public class ProcessTerminatedCallBuilder implements FudgeBuilder<ProcessTermina
   private static final String EXECUTION_INTERRUPTED_FIELD = "executionInterrupted";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ProcessTerminatedCall object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ProcessTerminatedCall object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(EXECUTION_INTERRUPTED_FIELD, object.isExecutionInterrupted());
     return msg;
   }
 
   @Override
-  public ProcessTerminatedCall buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ProcessTerminatedCall buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     boolean executionInterrupted = msg.getBoolean(EXECUTION_INTERRUPTED_FIELD);
     return new ProcessTerminatedCall(executionInterrupted);
   }

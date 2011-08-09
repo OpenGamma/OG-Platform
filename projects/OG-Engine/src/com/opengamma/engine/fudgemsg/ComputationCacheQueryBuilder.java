@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
@@ -29,13 +29,13 @@ public class ComputationCacheQueryBuilder implements FudgeBuilder<ComputationCac
   private static final String VALUE_SPECIFICATIONS_FIELD_NAME = "valueSpecifications";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ComputationCacheQuery object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputationCacheQuery object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(CALCULATION_CONFIGURATION_FIELD_NAME, object.getCalculationConfigurationName());
 
-    final MutableFudgeMsg valueSpecificationsMessage = context.newMessage();
+    final MutableFudgeMsg valueSpecificationsMessage = serializer.newMessage();
     for (ValueSpecification valueSpecification : object.getValueSpecifications()) {
-      context.addToMessage(valueSpecificationsMessage, null, null, valueSpecification);
+      serializer.addToMessage(valueSpecificationsMessage, null, null, valueSpecification);
     }
     msg.add(VALUE_SPECIFICATIONS_FIELD_NAME, valueSpecificationsMessage);
 
@@ -43,7 +43,7 @@ public class ComputationCacheQueryBuilder implements FudgeBuilder<ComputationCac
   }
 
   @Override
-  public ComputationCacheQuery buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public ComputationCacheQuery buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     ComputationCacheQuery computationCacheQuery = new ComputationCacheQuery();
     computationCacheQuery.setCalculationConfigurationName(message.getString(CALCULATION_CONFIGURATION_FIELD_NAME));
     
@@ -51,7 +51,7 @@ public class ComputationCacheQueryBuilder implements FudgeBuilder<ComputationCac
     
     FudgeMsg valueSpecificationMessage = message.getMessage(VALUE_SPECIFICATIONS_FIELD_NAME);
     for (FudgeField fudgeField : valueSpecificationMessage) {
-      specs.add(context.fieldValueToObject(ValueSpecification.class, fudgeField));
+      specs.add(deserializer.fieldValueToObject(ValueSpecification.class, fudgeField));
     }
     computationCacheQuery.setValueSpecifications(specs);
     

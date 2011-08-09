@@ -100,8 +100,8 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _parAmount = parAmount;
     _redemptionValue = redemptionValue;
   }
-  protected BondSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeContext, fudgeMsg);
+  protected BondSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (ISSUER_NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerName' is not present");
@@ -154,7 +154,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (LAST_TRADE_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'lastTradeDate' is not present");
     try {
-      _lastTradeDate = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _lastTradeDate = com.opengamma.util.time.Expiry.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'lastTradeDate' is not Expiry message", e);
@@ -194,7 +194,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (INTEREST_ACCRUAL_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not present");
     try {
-      _interestAccrualDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
+      _interestAccrualDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not ZonedDateTime typedef", e);
@@ -202,7 +202,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not present");
     try {
-      _settlementDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
+      _settlementDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
@@ -210,7 +210,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (FIRST_COUPON_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not present");
     try {
-      _firstCouponDate = fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
+      _firstCouponDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not ZonedDateTime typedef", e);
@@ -284,7 +284,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     fudgeField = fudgeMsg.getByName (ANNOUNCEMENT_DATE_KEY);
     if (fudgeField != null)  {
       try {
-        setAnnouncementDate (fudgeContext.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField));
+        setAnnouncementDate (deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField));
       }
       catch (IllegalArgumentException e) {
         throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'announcementDate' is not ZonedDateTime typedef", e);
@@ -383,8 +383,8 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _parAmount = source._parAmount;
     _redemptionValue = source._redemptionValue;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (fudgeContext, msg);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
+    super.toFudgeMsg (serializer, msg);
     if (_issuerName != null)  {
       msg.add (ISSUER_NAME_KEY, null, _issuerName);
     }
@@ -407,8 +407,8 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
       msg.add (GUARANTEE_TYPE_KEY, null, _guaranteeType);
     }
     if (_lastTradeDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _lastTradeDate.getClass (), com.opengamma.util.time.Expiry.class);
-      _lastTradeDate.toFudgeMsg (fudgeContext, fudge1);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _lastTradeDate.getClass (), com.opengamma.util.time.Expiry.class);
+      _lastTradeDate.toFudgeMsg (serializer, fudge1);
       msg.add (LAST_TRADE_DATE_KEY, null, fudge1);
     }
     if (_couponType != null)  {
@@ -425,16 +425,16 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
       msg.add (BUSINESS_DAY_CONVENTION_KEY, null, _businessDayConvention);
     }
     if (_announcementDate != null)  {
-      fudgeContext.addToMessage (msg, ANNOUNCEMENT_DATE_KEY, null, _announcementDate);
+      serializer.addToMessage (msg, ANNOUNCEMENT_DATE_KEY, null, _announcementDate);
     }
     if (_interestAccrualDate != null)  {
-      fudgeContext.addToMessage (msg, INTEREST_ACCRUAL_DATE_KEY, null, _interestAccrualDate);
+      serializer.addToMessage (msg, INTEREST_ACCRUAL_DATE_KEY, null, _interestAccrualDate);
     }
     if (_settlementDate != null)  {
-      fudgeContext.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
+      serializer.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
     }
     if (_firstCouponDate != null)  {
-      fudgeContext.addToMessage (msg, FIRST_COUPON_DATE_KEY, null, _firstCouponDate);
+      serializer.addToMessage (msg, FIRST_COUPON_DATE_KEY, null, _firstCouponDate);
     }
     msg.add (ISSUANCE_PRICE_KEY, null, _issuancePrice);
     msg.add (TOTAL_AMOUNT_ISSUED_KEY, null, _totalAmountIssued);
@@ -443,13 +443,13 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     msg.add (PAR_AMOUNT_KEY, null, _parAmount);
     msg.add (REDEMPTION_VALUE_KEY, null, _redemptionValue);
   }
-  public static BondSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static BondSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.bond.BondSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.bond.BondSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.financial.security.bond.BondSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

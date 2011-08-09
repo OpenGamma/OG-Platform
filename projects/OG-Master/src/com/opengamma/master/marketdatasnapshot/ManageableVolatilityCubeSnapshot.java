@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -47,50 +47,50 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   }
 
 
-  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializationContext context) {
-    MutableFudgeMsg ret = context.newMessage();
-    FudgeSerializationContext.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
-    MutableFudgeMsg valuesMsg = getValuesMessage(context);
-    MutableFudgeMsg strikesMsg = getStrikesMessage(context);
+  public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
+    MutableFudgeMsg ret = serializer.newMessage();
+    FudgeSerializer.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
+    MutableFudgeMsg valuesMsg = getValuesMessage(serializer);
+    MutableFudgeMsg strikesMsg = getStrikesMessage(serializer);
     
     ret.add("values", valuesMsg);
-    ret.add("otherValues", context.objectToFudgeMsg(_otherValues));
+    ret.add("otherValues", serializer.objectToFudgeMsg(_otherValues));
     ret.add("strikes", strikesMsg);
     
     return ret;
   }
 
-  private MutableFudgeMsg getValuesMessage(FudgeSerializationContext context) {
-    MutableFudgeMsg valuesMsg = context.newMessage();
+  private MutableFudgeMsg getValuesMessage(FudgeSerializer serializer) {
+    MutableFudgeMsg valuesMsg = serializer.newMessage();
     for (Entry<VolatilityPoint, ValueSnapshot> entry : _values.entrySet()) {
-      context.addToMessage(valuesMsg, null, 1, entry.getKey());
+      serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
       if (entry.getValue() == null) {
         valuesMsg.add(2, IndicatorType.INSTANCE);
       } else {
-        context.addToMessage(valuesMsg, null, 2, entry.getValue());
+        serializer.addToMessage(valuesMsg, null, 2, entry.getValue());
       }
     }
     return valuesMsg;
   }
   
-  private MutableFudgeMsg getStrikesMessage(FudgeSerializationContext context) {
-    MutableFudgeMsg msg = context.newMessage();
+  private MutableFudgeMsg getStrikesMessage(FudgeSerializer serializer) {
+    MutableFudgeMsg msg = serializer.newMessage();
     for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
-      context.addToMessage(msg, null, 1, entry.getKey());
+      serializer.addToMessage(msg, null, 1, entry.getKey());
       if (entry.getValue() == null) {
         msg.add(2, IndicatorType.INSTANCE);
       } else {
-        context.addToMessage(msg, null, 2, entry.getValue());
+        serializer.addToMessage(msg, null, 2, entry.getValue());
       }
     }
     return msg;
   }
 
-  public static ManageableVolatilityCubeSnapshot fromFudgeMsg(FudgeDeserializationContext context, FudgeMsg msg) {
+  public static ManageableVolatilityCubeSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
 
-    HashMap<VolatilityPoint, ValueSnapshot> values = readValues(context, msg);
-    UnstructuredMarketDataSnapshot otherValues = context.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, msg.getByName("otherValues"));
-    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = readStrikes(context, msg);
+    HashMap<VolatilityPoint, ValueSnapshot> values = readValues(deserializer, msg);
+    UnstructuredMarketDataSnapshot otherValues = deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, msg.getByName("otherValues"));
+    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = readStrikes(deserializer, msg);
         
     ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
     ret.setValues(values);
@@ -100,8 +100,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   }
 
   @SuppressWarnings("unchecked")
-  private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializationContext context,
-      FudgeMsg msg) {
+  private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializer deserializer, FudgeMsg msg) {
     HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
 
     FudgeMsg valuesMessage = msg.getMessage("strikes");
@@ -117,9 +116,9 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
 
       int intValue = ordinal.intValue();
       if (intValue == 1) {
-        key = context.fieldValueToObject(Pair.class, fudgeField);
+        key = deserializer.fieldValueToObject(Pair.class, fudgeField);
       } else if (intValue == 2) {
-        ValueSnapshot value = context.fieldValueToObject(ValueSnapshot.class, fudgeField);
+        ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
         values.put(key, value);
         key = null;
       }
@@ -127,7 +126,7 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
     return values;
   }
 
-  private static HashMap<VolatilityPoint, ValueSnapshot> readValues(FudgeDeserializationContext context, FudgeMsg msg) {
+  private static HashMap<VolatilityPoint, ValueSnapshot> readValues(FudgeDeserializer deserializer, FudgeMsg msg) {
     HashMap<VolatilityPoint, ValueSnapshot> values = new HashMap<VolatilityPoint, ValueSnapshot>();
 
     VolatilityPoint key = null;
@@ -140,9 +139,9 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
 
       int intValue = ordinal.intValue();
       if (intValue == 1) {
-        key = context.fieldValueToObject(VolatilityPoint.class, fudgeField);
+        key = deserializer.fieldValueToObject(VolatilityPoint.class, fudgeField);
       } else if (intValue == 2) {
-        ValueSnapshot value = context.fieldValueToObject(ValueSnapshot.class, fudgeField);
+        ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, fudgeField);
         values.put(key, value);
         key = null;
       }

@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.core.position.Portfolio;
@@ -30,20 +30,20 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
   private static final String FIELD_ROOT = "root";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
-    final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Portfolio portfolio) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
     message.add(FIELD_NAME, portfolio.getName());
-    context.addToMessage(message, FIELD_ROOT, null, portfolio.getRootNode());
+    serializer.addToMessage(message, FIELD_ROOT, null, portfolio.getRootNode());
     return message;
   }
 
   @Override
-  public Portfolio buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public Portfolio buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     FudgeField idField = message.getByName(FIELD_IDENTIFIER);
-    final UniqueId id = idField != null ? context.fieldValueToObject(UniqueId.class, idField) : null;
+    final UniqueId id = idField != null ? deserializer.fieldValueToObject(UniqueId.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
-    final PortfolioNode node = context.fieldValueToObject(PortfolioNode.class, message.getByName(FIELD_ROOT));
+    final PortfolioNode node = deserializer.fieldValueToObject(PortfolioNode.class, message.getByName(FIELD_ROOT));
     
     PortfolioImpl portfolio = new PortfolioImpl(name);
     if (id != null) {

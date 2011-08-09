@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
@@ -30,40 +30,40 @@ import com.opengamma.util.money.Currency;
 public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefinition> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, YieldCurveDefinition object) {
-    MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, "currency", null, object.getCurrency());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, YieldCurveDefinition object) {
+    MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, "currency", null, object.getCurrency());
     if (object.getRegion() != null) {
-      context.addToMessage(message, "region", null, object.getRegion());
+      serializer.addToMessage(message, "region", null, object.getRegion());
     }
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());
     for (FixedIncomeStrip strip : object.getStrips()) {
-      context.addToMessage(message, "strip", null, strip);
+      serializer.addToMessage(message, "strip", null, strip);
     }
-    context.addToMessageWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueId.class);
+    serializer.addToMessageWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueId.class);
     return message;
   }
 
   @Override
-  public YieldCurveDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
+  public YieldCurveDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
     ExternalId region = null;
     if (message.hasField("region")) {
-      region = context.fieldValueToObject(ExternalId.class, message.getByName("region"));
+      region = deserializer.fieldValueToObject(ExternalId.class, message.getByName("region"));
     }
     String name = message.getString("name");
     String interpolatorName = message.getString("interpolatorName");
     List<FudgeField> allByOrdinal = message.getAllByName("strip");
     SortedSet<FixedIncomeStrip> strips = new TreeSet<FixedIncomeStrip>();
     for (FudgeField field : allByOrdinal) {
-      FixedIncomeStrip strip = context.fieldValueToObject(FixedIncomeStrip.class, field);
+      FixedIncomeStrip strip = deserializer.fieldValueToObject(FixedIncomeStrip.class, field);
       strips.add(strip);
     }
     YieldCurveDefinition curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
     FudgeField uniqueId = message.getByName("uniqueId");
     if (uniqueId != null) {
-      curveDefinition.setUniqueId(context.fieldValueToObject(UniqueId.class, uniqueId));
+      curveDefinition.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueId));
     }
     return curveDefinition;
   }

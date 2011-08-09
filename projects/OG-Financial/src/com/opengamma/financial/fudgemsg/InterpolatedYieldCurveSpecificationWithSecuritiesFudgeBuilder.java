@@ -15,8 +15,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
@@ -30,28 +30,28 @@ import com.opengamma.util.money.Currency;
 public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilder implements FudgeBuilder<InterpolatedYieldCurveSpecificationWithSecurities> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, InterpolatedYieldCurveSpecificationWithSecurities object) {
-    MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, "curveDate", null, object.getCurveDate());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, InterpolatedYieldCurveSpecificationWithSecurities object) {
+    MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, "curveDate", null, object.getCurveDate());
     message.add("name", object.getName());
-    context.addToMessage(message, "currency", null, object.getCurrency());
-    context.addToMessage(message, "interpolator", null, object.getInterpolator());
+    serializer.addToMessage(message, "currency", null, object.getCurrency());
+    serializer.addToMessage(message, "interpolator", null, object.getInterpolator());
     for (FixedIncomeStripWithSecurity resolvedStrip : object.getStrips()) {
-      context.addToMessage(message, "resolvedStrips", null, resolvedStrip);
+      serializer.addToMessage(message, "resolvedStrips", null, resolvedStrip);
     }
     return message; 
   }
 
   @Override
-  public InterpolatedYieldCurveSpecificationWithSecurities buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    LocalDate curveDate = context.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
+  public InterpolatedYieldCurveSpecificationWithSecurities buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    LocalDate curveDate = deserializer.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
     String name = message.getString("name");
-    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
-    Interpolator1D<?> interpolator = context.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
+    Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
+    Interpolator1D<?> interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
     List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");
     List<FixedIncomeStripWithSecurity> resolvedStrips = new ArrayList<FixedIncomeStripWithSecurity>();
     for (FudgeField resolvedStripField : resolvedStripFields) {
-      resolvedStrips.add(context.fieldValueToObject(FixedIncomeStripWithSecurity.class, resolvedStripField));
+      resolvedStrips.add(deserializer.fieldValueToObject(FixedIncomeStripWithSecurity.class, resolvedStripField));
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, name, currency, interpolator, resolvedStrips);
   }

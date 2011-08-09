@@ -8,8 +8,8 @@ package com.opengamma.util.timeseries.fudge;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -23,18 +23,18 @@ public abstract class FastLongDoubleTimeSeriesBuilder<T extends FastLongDoubleTi
   public abstract T makeSeries(DateTimeNumericEncoding encoding, long[] times, double[] values);
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FastLongDoubleTimeSeries object) {
-    final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, null, 0, object.getClass().getName());
-    context.addToMessage(message, null, 1, object.getEncoding());
-    context.addToMessage(message, null, 2, object.timesArrayFast());
-    context.addToMessage(message, null, 3, object.valuesArrayFast());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FastLongDoubleTimeSeries object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, null, 0, object.getClass().getName());
+    serializer.addToMessage(message, null, 1, object.getEncoding());
+    serializer.addToMessage(message, null, 2, object.timesArrayFast());
+    serializer.addToMessage(message, null, 3, object.valuesArrayFast());
     return message;
   }
 
   @Override
-  public T buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    return makeSeries((DateTimeNumericEncoding) context.fieldValueToObject(message.getByOrdinal(1)), 
+  public T buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    return makeSeries((DateTimeNumericEncoding) deserializer.fieldValueToObject(message.getByOrdinal(1)), 
                       (long[]) message.getValue(2), 
                       (double[]) message.getValue(3));
   }
