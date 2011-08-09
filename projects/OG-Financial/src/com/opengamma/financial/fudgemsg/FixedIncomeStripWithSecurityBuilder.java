@@ -11,13 +11,13 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.time.Tenor;
 
@@ -28,16 +28,16 @@ import com.opengamma.util.time.Tenor;
 public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIncomeStripWithSecurity> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStripWithSecurity object) {
-    MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, "type", null, object.getInstrumentType());
-    context.addToMessage(message, "tenor", null, object.getTenor());
-    context.addToMessage(message, "resolvedTenor", null, object.getResolvedTenor());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FixedIncomeStripWithSecurity object) {
+    MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, "type", null, object.getInstrumentType());
+    serializer.addToMessage(message, "tenor", null, object.getTenor());
+    serializer.addToMessage(message, "resolvedTenor", null, object.getResolvedTenor());
     ZonedDateTimeBuilder zonedDateTimeBuilder = new ZonedDateTimeBuilder();
-    MutableFudgeMsg subMessage = zonedDateTimeBuilder.buildMessage(context, object.getMaturity());
-    context.addToMessage(message, "maturity", null, subMessage);
-    context.addToMessage(message, "identifier", null, object.getSecurityIdentifier());
-    context.addToMessageWithClassHeaders(message, "security", null, object.getSecurity());
+    MutableFudgeMsg subMessage = zonedDateTimeBuilder.buildMessage(serializer, object.getMaturity());
+    serializer.addToMessage(message, "maturity", null, subMessage);
+    serializer.addToMessage(message, "identifier", null, object.getSecurityIdentifier());
+    serializer.addToMessageWithClassHeaders(message, "security", null, object.getSecurity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());
     }
@@ -45,14 +45,14 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
   }
 
   @Override
-  public FixedIncomeStripWithSecurity buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    StripInstrumentType type = context.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
-    Tenor tenor = context.fieldValueToObject(Tenor.class, message.getByName("tenor"));
-    Tenor resolvedTenor = context.fieldValueToObject(Tenor.class, message.getByName("resolvedTenor"));
+  public FixedIncomeStripWithSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    StripInstrumentType type = deserializer.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
+    Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName("tenor"));
+    Tenor resolvedTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName("resolvedTenor"));
     ZonedDateTimeBuilder zonedDateTimeBuilder = new ZonedDateTimeBuilder();
-    ZonedDateTime maturity = zonedDateTimeBuilder.buildObject(context, message.getMessage("maturity"));
-    Identifier identifier = context.fieldValueToObject(Identifier.class, message.getByName("identifier"));
-    Security security = (Security) context.fieldValueToObject(message.getByName("security"));
+    ZonedDateTime maturity = zonedDateTimeBuilder.buildObject(deserializer, message.getMessage("maturity"));
+    ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, message.getByName("identifier"));
+    Security security = (Security) deserializer.fieldValueToObject(message.getByName("security"));
     if (type == StripInstrumentType.FUTURE) {
       int numFutures = message.getInt("numFutures");
       return new FixedIncomeStripWithSecurity(type, tenor, resolvedTenor, numFutures, maturity, identifier, security);

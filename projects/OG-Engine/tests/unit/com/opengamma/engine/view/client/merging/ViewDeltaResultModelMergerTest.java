@@ -24,7 +24,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -102,7 +102,7 @@ public class ViewDeltaResultModelMergerTest {
   }
 
   private ComputedValue getComputedValue(String valueName, Object value) {
-    UniqueIdentifier uniqueId = UniqueIdentifier.of("Scheme", valueName);
+    UniqueId uniqueId = UniqueId.of("Scheme", valueName);
     ValueRequirement valueRequirement = new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueId);
     return new ComputedValue(new ValueSpecification(valueRequirement, "FunctionId"), value);
   }

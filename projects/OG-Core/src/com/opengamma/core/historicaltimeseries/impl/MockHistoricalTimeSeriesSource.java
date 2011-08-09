@@ -14,9 +14,9 @@ import javax.time.calendar.LocalDate;
 import com.google.common.base.Supplier;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -28,43 +28,43 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   /**
    * The store of unique identifiers.
    */
-  private Map<HistoricalTimeSeriesKey, UniqueIdentifier> _metaUniqueIdentifierStore = new ConcurrentHashMap<HistoricalTimeSeriesKey, UniqueIdentifier>();
+  private Map<HistoricalTimeSeriesKey, UniqueId> _metaUniqueIdStore = new ConcurrentHashMap<HistoricalTimeSeriesKey, UniqueId>();
   /**
    * The store of unique time-series.
    */
-  private Map<UniqueIdentifier, HistoricalTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueIdentifier, HistoricalTimeSeries>();
+  private Map<UniqueId, HistoricalTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueId, HistoricalTimeSeries>();
   /**
    * The suppler of unique identifiers.
    */
-  private final Supplier<UniqueIdentifier> _uidSupplier;
+  private final Supplier<UniqueId> _uniqueIdSupplier;
 
   /**
-   * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
+   * Creates an instance using the default scheme for each {@link UniqueId} created.
    */
   public MockHistoricalTimeSeriesSource() {
-    _uidSupplier = new UniqueIdentifierSupplier("MockHTS");
+    _uniqueIdSupplier = new UniqueIdSupplier("MockHTS");
   }
 
   /**
    * Creates an instance specifying the supplier of unique identifiers.
    * 
-   * @param uidSupplier  the supplier of unique identifiers, not null
+   * @param uniqueIdSupplier  the supplier of unique identifiers, not null
    */
-  public MockHistoricalTimeSeriesSource(final Supplier<UniqueIdentifier> uidSupplier) {
-    ArgumentChecker.notNull(uidSupplier, "uidSupplier");
-    _uidSupplier = uidSupplier;
+  public MockHistoricalTimeSeriesSource(final Supplier<UniqueId> uniqueIdSupplier) {
+    ArgumentChecker.notNull(uniqueIdSupplier, "uniqueIdSupplier");
+    _uniqueIdSupplier = uniqueIdSupplier;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return _timeSeriesStore.get(uniqueId);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
   }
@@ -72,16 +72,16 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField) {
     return getHistoricalTimeSeries(identifiers, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
-    UniqueIdentifier uniqueId = _metaUniqueIdentifierStore.get(key);
+    UniqueId uniqueId = _metaUniqueIdStore.get(key);
     if (uniqueId == null) {
       return null;
     }
@@ -90,7 +90,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField,
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalTimeSeries(
         identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
@@ -98,7 +98,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
+      ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
     return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
@@ -107,34 +107,34 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, String resolutionKey) {
+      String dataField, ExternalIdBundle identifiers, String resolutionKey) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, String configName, 
+      String dataField, ExternalIdBundle identifiers, String configName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
+      String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
+      String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
-      Set<IdentifierBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
+  public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
+      Set<ExternalIdBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support getHistoricalTimeSeries for multiple time-series");
   }
@@ -150,22 +150,22 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
    * @param timeSeriesDataPoints  the time-series data points, not null
    */
   public void storeHistoricalTimeSeries(
-      IdentifierBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDateDoubleTimeSeries timeSeriesDataPoints) {
+      ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField, LocalDateDoubleTimeSeries timeSeriesDataPoints) {
     ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(timeSeriesDataPoints, "timeSeriesDataPoints");
     HistoricalTimeSeriesKey metaKey = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
-    UniqueIdentifier uid = null;
+    UniqueId uniqueId = null;
     synchronized (this) {
-      uid = _metaUniqueIdentifierStore.get(metaKey);
-      if (uid == null) {
-        uid = _uidSupplier.get();
-        _metaUniqueIdentifierStore.put(metaKey, uid);
+      uniqueId = _metaUniqueIdStore.get(metaKey);
+      if (uniqueId == null) {
+        uniqueId = _uniqueIdSupplier.get();
+        _metaUniqueIdStore.put(metaKey, uniqueId);
       }
     }
-    _timeSeriesStore.put(uid, new HistoricalTimeSeriesImpl(uid, timeSeriesDataPoints));
+    _timeSeriesStore.put(uniqueId, new HistoricalTimeSeriesImpl(uniqueId, timeSeriesDataPoints));
   }
 
   /**

@@ -10,14 +10,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.time.Instant;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Holds statistics about graph execution.
  */
 public class GraphExecutionStatistics {
 
-  private final UniqueIdentifier _viewProcessId;
+  private final UniqueId _viewProcessId;
   private final String _calcConfigName;
   private final AtomicLong _processedGraphs = new AtomicLong();
   private final AtomicLong _executedGraphs = new AtomicLong();
@@ -31,12 +31,12 @@ public class GraphExecutionStatistics {
   private volatile Instant _lastProcessedTime;
   private volatile Instant _lastExecutedTime;
 
-  public GraphExecutionStatistics(final UniqueIdentifier viewProcessId, final String calcConfigName) {
+  public GraphExecutionStatistics(final UniqueId viewProcessId, final String calcConfigName) {
     _viewProcessId = viewProcessId;
     _calcConfigName = calcConfigName;
   }
 
-  public UniqueIdentifier getViewProcessId() {
+  public UniqueId getViewProcessId() {
     return _viewProcessId;
   }
 

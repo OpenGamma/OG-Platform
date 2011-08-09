@@ -16,7 +16,7 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.test.PrimitiveTestFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -34,7 +34,7 @@ public class DefaultFunctionResolverTest {
 
   @BeforeMethod
   public void setUp() {
-    _target = new ComputationTarget(UniqueIdentifier.of("scheme", "test_target"));
+    _target = new ComputationTarget(UniqueId.of("scheme", "test_target"));
 
     _f1 = new PrimitiveTestFunction("req1");
     _f1.setUniqueId("1");
@@ -79,7 +79,7 @@ public class DefaultFunctionResolverTest {
 
     assertEquals(_parameterizedF2, result.getFirst());
 
-    ComputationTarget anotherTarget = new ComputationTarget(UniqueIdentifier.of("scheme", "target2"));
+    ComputationTarget anotherTarget = new ComputationTarget(UniqueId.of("scheme", "target2"));
     result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), anotherTarget).next();
 
     assertEquals(_parameterizedF1, result.getFirst());

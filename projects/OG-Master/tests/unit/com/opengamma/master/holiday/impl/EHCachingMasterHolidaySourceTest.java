@@ -19,8 +19,8 @@ import java.util.Collections;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
@@ -43,8 +43,8 @@ public class EHCachingMasterHolidaySourceTest {
   private static final LocalDate DATE_TUESDAY = LocalDate.of(2010, 10, 26);
   private static final LocalDate DATE_SUNDAY = LocalDate.of(2010, 10, 24);
   private static final Currency GBP = Currency.GBP;
-  private static final Identifier ID = Identifier.of("C", "D");
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
+  private static final ExternalId ID = ExternalId.of("C", "D");
+  private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -88,8 +88,8 @@ public class EHCachingMasterHolidaySourceTest {
     verify(_underlyingHolidayMaster, times(1)).search(request);
   }
   
-  public void isHoliday_dateTypeAndIdentifier() {
-    HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, IdentifierBundle.of(ID));
+  public void isHoliday_dateTypeAndExternalId() {
+    HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, ExternalIdBundle.of(ID));
     
     ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
     HolidaySearchResult result = new HolidaySearchResult();

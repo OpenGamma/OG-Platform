@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 
@@ -82,7 +82,7 @@ public class WebHolidayData extends DirectBean {
    * @param overrideId  the override id, null derives the result from the data
    * @return the id, may be null
    */
-  public String getBestHolidayUriId(final UniqueIdentifier overrideId) {
+  public String getBestHolidayUriId(final UniqueId overrideId) {
     if (overrideId != null) {
       return overrideId.toLatest().toString();
     }

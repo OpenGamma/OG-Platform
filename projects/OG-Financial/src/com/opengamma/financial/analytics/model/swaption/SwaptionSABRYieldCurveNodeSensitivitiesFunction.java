@@ -32,13 +32,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
-import com.opengamma.financial.analytics.swaption.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -77,9 +77,9 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   private final PresentValueNodeSensitivityCalculator _nodeSensitivityCalculator;
   private SecuritySource _securitySource;
   private SwaptionSecurityConverter _swaptionVisitor;
-  private String _forwardCurveName;
-  private String _fundingCurveName;
-  private VolatilityCubeFunctionHelper _helper;
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
+  private final VolatilityCubeFunctionHelper _helper;
   private boolean _useSABRExtrapolation;
 
   public SwaptionSABRYieldCurveNodeSensitivitiesFunction(final String currency, final String definitionName, final String useSABRExtrapolation, final String forwardCurveName,

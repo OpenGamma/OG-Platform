@@ -7,8 +7,10 @@ package com.opengamma.financial.portfolio.rest;
 
 import java.net.URI;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -35,6 +37,10 @@ public class RemotePortfolioMaster implements PortfolioMaster {
    * The client API.
    */
   private final FudgeRestClient _client;
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -42,8 +48,21 @@ public class RemotePortfolioMaster implements PortfolioMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemotePortfolioMaster(final URI baseUri) {
+    this(baseUri, new BasicChangeManager());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemotePortfolioMaster(final URI baseUri, ChangeManager changeManager) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -58,7 +77,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioDocument get(final UniqueIdentifier uniqueId) {
+  public PortfolioDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
@@ -102,7 +121,7 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataPortfolioResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
@@ -133,11 +152,17 @@ public class RemotePortfolioMaster implements PortfolioMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageablePortfolioNode getNode(final UniqueIdentifier nodeId) {
+  public ManageablePortfolioNode getNode(final UniqueId nodeId) {
     ArgumentChecker.notNull(nodeId, "nodeId");
     
     URI uri = DataPortfolioNodeResource.uri(_baseUri, nodeId);
     return accessRemote(uri).get(ManageablePortfolioNode.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

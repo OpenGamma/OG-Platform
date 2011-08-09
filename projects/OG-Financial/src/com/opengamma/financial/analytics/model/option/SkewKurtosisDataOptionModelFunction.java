@@ -20,7 +20,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -30,7 +30,7 @@ public abstract class SkewKurtosisDataOptionModelFunction extends StandardOption
   @Override
   protected SkewKurtosisOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
     final StandardOptionDataBundle standardData = super.getDataBundle(secMaster, relevantTime, option, inputs);
-    final UniqueIdentifier uid = option.getUniqueId();
+    final UniqueId uid = option.getUniqueId();
     final Object skewObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid));
     if (skewObject == null) {
       throw new NullPointerException("Could not get skew");
@@ -47,7 +47,7 @@ public abstract class SkewKurtosisDataOptionModelFunction extends StandardOption
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier uid = target.getSecurity().getUniqueId();
+      final UniqueId uid = target.getSecurity().getUniqueId();
       final Set<ValueRequirement> standardRequirements = super.getRequirements(context, target, desiredValue);
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
       result.addAll(standardRequirements);

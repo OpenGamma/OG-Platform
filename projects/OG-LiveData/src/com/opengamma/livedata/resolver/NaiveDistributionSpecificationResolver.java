@@ -22,7 +22,7 @@ public class NaiveDistributionSpecificationResolver
   public DistributionSpecification resolve(
       LiveDataSpecification spec) throws IllegalArgumentException {
     return new DistributionSpecification(
-        spec.getIdentifiers().getIdentifiers().iterator().next(), 
+        spec.getIdentifiers().getExternalIds().iterator().next(), 
         StandardRules.getNoNormalization(),
         spec.getIdentifiers().toString());
   }

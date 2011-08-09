@@ -11,13 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,27 +33,27 @@ public class MockSecuritySource implements SecuritySource {
   /**
    * The securities keyed by identifier.
    */
-  private final Map<UniqueIdentifier, Security> _securities = new HashMap<UniqueIdentifier, Security>();
+  private final Map<UniqueId, Security> _securities = new HashMap<UniqueId, Security>();
   /**
    * The suppler of unique identifiers.
    */
-  private final UniqueIdentifierSupplier _uidSupplier;
+  private final UniqueIdSupplier _uidSupplier;
 
   /**
    * Creates the security master.
    */
   public MockSecuritySource() {
-    _uidSupplier = new UniqueIdentifierSupplier("Mock");
+    _uidSupplier = new UniqueIdSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier identifier) {
+  public Security getSecurity(UniqueId identifier) {
     return identifier == null ? null : _securities.get(identifier);
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
@@ -63,9 +65,9 @@ public class MockSecuritySource implements SecuritySource {
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    for (Identifier secId : bundle.getIdentifiers()) {
+    for (ExternalId secId : bundle.getExternalIds()) {
       for (Security sec : _securities.values()) {
         if (sec.getIdentifiers().contains(secId)) {
           return sec;
@@ -73,6 +75,12 @@ public class MockSecuritySource implements SecuritySource {
       }
     }
     return null;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
@@ -83,7 +91,7 @@ public class MockSecuritySource implements SecuritySource {
    */
   public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
-    UniqueIdentifiables.setInto(security, _uidSupplier.get());
+    IdUtils.setInto(security, _uidSupplier.get());
     _securities.put(security.getUniqueId(), security);
   }
 

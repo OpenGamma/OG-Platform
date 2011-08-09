@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -36,13 +36,13 @@ final class MathCurve {
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final ConstantDoublesCurve object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ConstantDoublesCurve object) {
       message.add(Y_VALUE_FIELD_NAME, null, object.getYValue(0.));
       message.add(CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
     @Override
-    public ConstantDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    public ConstantDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       return ConstantDoublesCurve.from(message.getFieldValue(Double.class, message.getByName(Y_VALUE_FIELD_NAME)), message.getFieldValue(String.class, message.getByName(CURVE_NAME_FIELD_NAME)));
     }
   }
@@ -58,20 +58,20 @@ final class MathCurve {
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InterpolatedDoublesCurve object) {
-      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
-      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
-      context.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
-      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final InterpolatedDoublesCurve object) {
+      serializer.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      serializer.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      serializer.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      serializer.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public InterpolatedDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
-      final double[] y = context.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
-      final Interpolator1D interpolator = context.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_FIELD_NAME));
-      final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
+    public InterpolatedDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double[] x = deserializer.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
+      final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
+      final Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_FIELD_NAME));
+      final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
       return InterpolatedDoublesCurve.fromSorted(x, y, interpolator, name);
     }
   }
@@ -86,9 +86,9 @@ final class MathCurve {
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public FunctionalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
-      final Object function = context.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
+    public FunctionalDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
+      final Object function = deserializer.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
       if (function instanceof Function) {
         return FunctionalDoublesCurve.from((Function) function, name);
       } else {
@@ -97,9 +97,9 @@ final class MathCurve {
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final FunctionalDoublesCurve object) {
-      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
-      context.addToMessage(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final FunctionalDoublesCurve object) {
+      serializer.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+      serializer.addToMessage(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
       return;
     }
   }
@@ -115,17 +115,17 @@ final class MathCurve {
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final NodalDoublesCurve object) {
-      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
-      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
-      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final NodalDoublesCurve object) {
+      serializer.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      serializer.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      serializer.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
     @Override
-    public NodalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
-      final double[] y = context.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
-      final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
+    public NodalDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double[] x = deserializer.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
+      final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
+      final String name = deserializer.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
       NodalDoublesCurve nodalDoublesCurve = new NodalDoublesCurve(x, y, true, name);
       return nodalDoublesCurve;
     }

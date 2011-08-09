@@ -15,7 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
@@ -77,7 +77,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
     sleep();
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.GBP, null, "3", "E")));
-    _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_GBP"), new YieldCurveDefinition(Currency.GBP, null, "1", "E")));
+    _master.update(new YieldCurveDefinitionDocument(UniqueId.of(_master.getUniqueIdScheme(), "1_GBP"), new YieldCurveDefinition(Currency.GBP, null, "1", "E")));
     // Expect original data
     YieldCurveDefinition yc = _master.getDefinition(Currency.GBP, "3");
     assertNull(yc);
@@ -86,7 +86,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertEquals("B", yc.getInterpolatorName());
     Instant nextInstant = Instant.now();
     sleep();
-    _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "3_GBP"));
+    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "3_GBP"));
     // Still at original instant - expect original data
     yc = _master.getDefinition(Currency.GBP, "3");
     assertNull(yc);
@@ -157,7 +157,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   
   @Test
   public void testGet () {
-    YieldCurveDefinitionDocument ycdoc = _master.get(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_USD"));
+    YieldCurveDefinitionDocument ycdoc = _master.get(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
     assertNotNull(ycdoc);
     YieldCurveDefinition yc = ycdoc.getYieldCurveDefinition();
     assertNotNull(yc);
@@ -166,25 +166,25 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   
   @Test(expectedExceptions=DataNotFoundException.class)
   public void testGet_missing () {
-    _master.get(UniqueIdentifier.of(_master.getIdentifierScheme(), "GBP_3"));
+    _master.get(UniqueId.of(_master.getUniqueIdScheme(), "GBP_3"));
   }
   
   @Test(expectedExceptions = DataNotFoundException.class)
   public void testGet_deleted () {
-    _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "USD_1"));
-    _master.get(UniqueIdentifier.of(_master.getIdentifierScheme(), "USD_1"));
+    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "USD_1"));
+    _master.get(UniqueId.of(_master.getUniqueIdScheme(), "USD_1"));
   }
   
   @Test
   public void testRemove () {
     assertNotNull(_master.getDefinition(Currency.USD, "1"));
-    _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_USD"));
+    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
     assertNull(_master.getDefinition(Currency.USD, "1"));
   }
   
   @Test(expectedExceptions = DataNotFoundException.class)
   public void testRemove_missing () {
-    _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "3_USD"));
+    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "3_USD"));
   }
   
   @Test
@@ -196,7 +196,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     Instant second = Instant.now();
     _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     sleep();
-    _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_USD"));
+    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
     // This should only have kept the second one
     _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     assertNull(_master.getDefinition(Currency.USD, "1"));
@@ -208,7 +208,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   
   @Test(expectedExceptions=DataNotFoundException.class)
   public void testUpdate_missing () {
-    _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "3_USD"), new YieldCurveDefinition(Currency.USD, null, "3", "E")));
+    _master.update(new YieldCurveDefinitionDocument(UniqueId.of(_master.getUniqueIdScheme(), "3_USD"), new YieldCurveDefinition(Currency.USD, null, "3", "E")));
   }
   
   @Test
@@ -220,7 +220,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     Instant second = Instant.now();
     _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
     sleep();
-    _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "1_USD"));
+    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
     // This should only have kept the second one
     _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
     assertNull(_master.getDefinition(Currency.USD, "1"));

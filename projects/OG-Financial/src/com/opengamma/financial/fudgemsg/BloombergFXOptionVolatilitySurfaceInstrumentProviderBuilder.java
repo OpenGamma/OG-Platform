@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider;
 
@@ -24,9 +24,9 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProviderBuilder impleme
   private static final String DATA_FIELD_NAME = "DATA_FIELD_NAME";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final BloombergFXOptionVolatilitySurfaceInstrumentProvider object) {
-    final MutableFudgeMsg message = context.newMessage();
-    FudgeSerializationContext.addClassHeader(message, BloombergFXOptionVolatilitySurfaceInstrumentProvider.class);
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergFXOptionVolatilitySurfaceInstrumentProvider object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    FudgeSerializer.addClassHeader(message, BloombergFXOptionVolatilitySurfaceInstrumentProvider.class);
     message.add(FX_PREFIX, object.getFXPrefix());
     message.add(POSTFIX, object.getPostfix());
     message.add(DATA_FIELD_NAME, object.getDataFieldName());
@@ -34,7 +34,7 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProviderBuilder impleme
   }
 
   @Override
-  public BloombergFXOptionVolatilitySurfaceInstrumentProvider buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public BloombergFXOptionVolatilitySurfaceInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     return new BloombergFXOptionVolatilitySurfaceInstrumentProvider(message.getString(FX_PREFIX), message.getString(POSTFIX), message.getString(DATA_FIELD_NAME));
   }
 

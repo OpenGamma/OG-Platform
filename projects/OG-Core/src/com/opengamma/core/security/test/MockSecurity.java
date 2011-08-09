@@ -9,10 +9,10 @@ import java.io.Serializable;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Mock Security.
@@ -22,10 +22,10 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   private String _securityType;
   private String _name;
-  private IdentifierBundle _identifiers;
+  private ExternalIdBundle _externalIdBundle;
 
   /**
    * Creates an instance.
@@ -34,14 +34,14 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
    */
   public MockSecurity(String securityType) {
     _securityType = securityType;
-    _identifiers = IdentifierBundle.EMPTY;
+    _externalIdBundle = ExternalIdBundle.EMPTY;
   }
 
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 
@@ -61,16 +61,16 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _securityType = securityType;
   }
 
-  public IdentifierBundle getIdentifiers() {
-    return _identifiers;
+  public ExternalIdBundle getIdentifiers() {
+    return _externalIdBundle;
   }
 
-  public void setIdentifiers(IdentifierBundle identifiers) {
-    _identifiers = identifiers;
+  public void setExternalIdBundle(ExternalIdBundle bundle) {
+    _externalIdBundle = bundle;
   }
 
-  public void addIdentifier(final Identifier identifier) {
-    setIdentifiers(getIdentifiers().withIdentifier(identifier));
+  public void addExternalId(final ExternalId externalId) {
+    setExternalIdBundle(getIdentifiers().withExternalId(externalId));
   }
 
   //-------------------------------------------------------------------------
@@ -84,7 +84,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
       return Objects.equal(_uniqueId, other._uniqueId) &&
         Objects.equal(_securityType, other._securityType) &&
         Objects.equal(_name, other._name) &&
-        Objects.equal(_identifiers, other._identifiers);
+        Objects.equal(_externalIdBundle, other._externalIdBundle);
     }
     return false;
   }
@@ -93,7 +93,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_identifiers == null) ? 0 : _identifiers.hashCode());
+    result = prime * result + ((_externalIdBundle == null) ? 0 : _externalIdBundle.hashCode());
     result = prime * result + ((_name == null) ? 0 : _name.hashCode());
     result = prime * result + ((_securityType == null) ? 0 : _securityType.hashCode());
     result = prime * result + ((_uniqueId == null) ? 0 : _uniqueId.hashCode());

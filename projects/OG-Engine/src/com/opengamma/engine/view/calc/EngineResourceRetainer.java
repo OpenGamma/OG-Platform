@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Manages the sliding retention of at most one resource from a manager.
@@ -14,7 +14,7 @@ public class EngineResourceRetainer {
 
   private final EngineResourceManagerInternal<?> _manager;
   
-  private UniqueIdentifier _retainedResourceId;
+  private UniqueId _retainedResourceId;
   
   public EngineResourceRetainer(EngineResourceManagerInternal<?> manager) {
     _manager = manager;
@@ -25,7 +25,7 @@ public class EngineResourceRetainer {
    * 
    * @param resourceId  the unique identifier of the new resource to retain, or {@code null} if there is nothing new to retain 
    */
-  public void replaceRetainedCycle(UniqueIdentifier resourceId) {
+  public void replaceRetainedCycle(UniqueId resourceId) {
     if (_retainedResourceId != null) {
       getManager().decrementCycleReferenceCount(_retainedResourceId);
       _retainedResourceId = null;

@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -32,8 +32,8 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
   private static final String ITEM_FIELD_NAME = "calculationJobItem";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CalculationJob object) {
-    MutableFudgeMsg msg = context.objectToFudgeMsg(object.getSpecification());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CalculationJob object) {
+    MutableFudgeMsg msg = serializer.objectToFudgeMsg(object.getSpecification());
     msg.add(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME, object.getFunctionInitializationIdentifier());
     if (object.getRequiredJobIds() != null) {
       for (Long required : object.getRequiredJobIds()) {
@@ -41,9 +41,9 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
       }
     }
     for (CalculationJobItem item : object.getJobItems()) {
-      context.addToMessage(msg, ITEM_FIELD_NAME, null, item);
+      serializer.addToMessage(msg, ITEM_FIELD_NAME, null, item);
     }
-    MutableFudgeMsg cacheSelectHintMsg = context.objectToFudgeMsg(object.getCacheSelectHint());
+    MutableFudgeMsg cacheSelectHintMsg = serializer.objectToFudgeMsg(object.getCacheSelectHint());
     for (FudgeField fudgeField : cacheSelectHintMsg.getAllFields()) {
       msg.add(fudgeField);
     }
@@ -51,8 +51,8 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
   }
 
   @Override
-  public CalculationJob buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    CalculationJobSpecification jobSpec = context.fudgeMsgToObject(CalculationJobSpecification.class, message);
+  public CalculationJob buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    CalculationJobSpecification jobSpec = deserializer.fudgeMsgToObject(CalculationJobSpecification.class, message);
     Validate.notNull(jobSpec, "Fudge message is not a CalculationJob - field 'calculationJobSpecification' is not present");
     final long functionInitializationIdentifier = message.getLong(FUNCTION_INITIALIZATION_IDENTIFIER_FIELD_NAME);
     Collection<FudgeField> fields = message.getAllByName(REQUIRED_FIELD_NAME);
@@ -66,10 +66,10 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
     fields = message.getAllByName(ITEM_FIELD_NAME);
     final ArrayList<CalculationJobItem> jobItems = new ArrayList<CalculationJobItem>(fields.size());
     for (FudgeField field : fields) {
-      CalculationJobItem jobItem = context.fudgeMsgToObject(CalculationJobItem.class, (FudgeMsg) field.getValue());
+      CalculationJobItem jobItem = deserializer.fudgeMsgToObject(CalculationJobItem.class, (FudgeMsg) field.getValue());
       jobItems.add(jobItem);
     }
-    CacheSelectHint cacheSelectFilter = context.fudgeMsgToObject(CacheSelectHint.class, message);
+    CacheSelectHint cacheSelectFilter = deserializer.fudgeMsgToObject(CacheSelectHint.class, message);
     return new CalculationJob(jobSpec, functionInitializationIdentifier, requiredJobIds, jobItems, cacheSelectFilter);
   }
 

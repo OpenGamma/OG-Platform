@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 public class ComputationCacheQueryBuilderTest extends AbstractBuilderTestCase {
@@ -32,7 +32,7 @@ public class ComputationCacheQueryBuilderTest extends AbstractBuilderTestCase {
   public void testSingleQuery() {
     ComputationCacheQuery query = new ComputationCacheQuery();
     query.setCalculationConfigurationName("DEFAULT");
-    ValueSpecification spec = ValueSpecification.of("SomeValue", UniqueIdentifier.of("SomeScheme","SomeValue"), "SomeFunc", "USD", ValueProperties.none());
+    ValueSpecification spec = ValueSpecification.of("SomeValue", UniqueId.of("SomeScheme","SomeValue"), "SomeFunc", "USD", ValueProperties.none());
     query.setValueSpecifications(Lists.newArrayList(spec));
     
     checkCycle(query);
@@ -42,8 +42,8 @@ public class ComputationCacheQueryBuilderTest extends AbstractBuilderTestCase {
   public void testMultipleQuery() {
     ComputationCacheQuery query = new ComputationCacheQuery();
     query.setCalculationConfigurationName("DEFAULT");
-    ValueSpecification spec = ValueSpecification.of("SomeValue", UniqueIdentifier.of("SomeScheme","SomeValue"), "SomeFunc", "USD", ValueProperties.none());
-    ValueSpecification spec2 = ValueSpecification.of("SomeOtherValue", UniqueIdentifier.of("SomeScheme","SomeOtherValue"), "SomeOtherFunc", "USD", ValueProperties.none());
+    ValueSpecification spec = ValueSpecification.of("SomeValue", UniqueId.of("SomeScheme","SomeValue"), "SomeFunc", "USD", ValueProperties.none());
+    ValueSpecification spec2 = ValueSpecification.of("SomeOtherValue", UniqueId.of("SomeScheme","SomeOtherValue"), "SomeOtherFunc", "USD", ValueProperties.none());
     query.setValueSpecifications(Lists.newArrayList(spec, spec2));
     
     checkCycle(query);

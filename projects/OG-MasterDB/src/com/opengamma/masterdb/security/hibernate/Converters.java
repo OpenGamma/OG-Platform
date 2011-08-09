@@ -17,8 +17,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -38,27 +38,27 @@ public final class Converters {
   }
 
   //-------------------------------------------------------------------------
-  public static Identifier identifierBeanToIdentifier(IdentifierBean hibernateBean) {
+  public static ExternalId externalIdBeanToExternalId(ExternalIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
-    return Identifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
+    return ExternalId.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
   }
 
-  public static IdentifierBean identifierToIdentifierBean(final Identifier identifier) {
-    return new IdentifierBean(identifier.getScheme().getName(), identifier.getValue());
+  public static ExternalIdBean externalIdToExternalIdBean(final ExternalId identifier) {
+    return new ExternalIdBean(identifier.getScheme().getName(), identifier.getValue());
   }
 
   //-------------------------------------------------------------------------
-  public static UniqueIdentifier uniqueIdentifierBeanToUniqueIdentifier(UniqueIdentifierBean hibernateBean) {
+  public static UniqueId uniqueIdBeanToUniqueId(UniqueIdBean hibernateBean) {
     if (hibernateBean == null) {
       return null;
     }
-    return UniqueIdentifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
+    return UniqueId.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
   }
 
-  public static UniqueIdentifierBean uniqueIdentifierToUniqueIdentifierBean(final UniqueIdentifier identifier) {
-    return new UniqueIdentifierBean(identifier.getScheme(), identifier.getValue());
+  public static UniqueIdBean uniqueIdToUniqueIdBean(final UniqueId identifier) {
+    return new UniqueIdBean(identifier.getScheme(), identifier.getValue());
   }
 
   //-------------------------------------------------------------------------

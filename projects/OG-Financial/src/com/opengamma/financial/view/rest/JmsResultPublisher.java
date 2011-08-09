@@ -21,7 +21,7 @@ import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class JmsResultPublisher implements ViewResultListener {
   
   private final ViewClient _viewClient;
   private final FudgeContext _fudgeContext;
-  private final FudgeSerializationContext _fudgeSerializationContext;
+  private final FudgeSerializer _fudgeSerializationContext;
   private final ConnectionFactory _connectionFactory;
   private final ReentrantLock _lock = new ReentrantLock();
   private final AtomicLong _sequenceNumber = new AtomicLong();
@@ -67,7 +67,7 @@ public class JmsResultPublisher implements ViewResultListener {
   public JmsResultPublisher(ViewClient viewClient, FudgeContext fudgeContext, ConnectionFactory connectionFactory) {
     _viewClient = viewClient;
     _fudgeContext = fudgeContext;
-    _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
+    _fudgeSerializationContext = new FudgeSerializer(fudgeContext);
     _connectionFactory = connectionFactory;
   }
   
@@ -202,7 +202,7 @@ public class JmsResultPublisher implements ViewResultListener {
   private void send(Object result) {
     s_logger.debug("Result received to forward over JMS: {}", result);    
     MutableFudgeMsg resultMsg = _fudgeSerializationContext.objectToFudgeMsg(result);
-    FudgeSerializationContext.addClassHeader(resultMsg, result.getClass());
+    FudgeSerializer.addClassHeader(resultMsg, result.getClass());
     long sequenceNumber = _sequenceNumber.getAndIncrement();
     resultMsg.add(SEQUENCE_NUMBER_FIELD_NAME, sequenceNumber);
     s_logger.debug("Sending result as fudge message with sequence number {}: {}", sequenceNumber, resultMsg);

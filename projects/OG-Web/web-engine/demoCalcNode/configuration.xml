@@ -135,7 +135,7 @@
 	          </property>
 				  </bean>
         </constructor-arg>  
-		    <property name="identifierScheme">
+		    <property name="uniqueIdScheme">
 	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
 	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.configmaster.scheme" />
 	        </bean>
@@ -185,7 +185,7 @@
 						</property>
     		  </bean>
         </constructor-arg>
-		    <property name="identifierScheme">
+		    <property name="uniqueIdScheme">
 	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
 	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.exchangemaster.scheme" />
 	        </bean>
@@ -235,7 +235,7 @@
 	          </property>
           </bean>
 		    </constructor-arg>
-		    <property name="identifierScheme">
+		    <property name="uniqueIdScheme">
 	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
 	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.holidaymaster.scheme" />
 	        </bean>

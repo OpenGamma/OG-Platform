@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -50,38 +50,37 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketDataSnapshotDocument> implements
-    MarketDataSnapshotMaster {
+public class DbMarketDataSnapshotMaster
+    extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
+    implements MarketDataSnapshotMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSnp";
-
   /**
    * The Fudge context.
    */
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
-  
+  /**
+   * SQL select.
+   */
   private static final String SELECT_TEMPLATE = "SELECT " + "main.id AS doc_id, " + "main.oid AS doc_oid, "
       + "main.ver_from_instant AS ver_from_instant, " + "main.ver_to_instant AS ver_to_instant, "
       + "main.corr_from_instant AS corr_from_instant, " + "main.corr_to_instant AS corr_to_instant ";
-  
   /**
    * SQL select to be used when details aren't required
    * see PLAT-1378
    */
   protected static final String SELECT_NO_DETAILS = SELECT_TEMPLATE + ", main.name AS name ";
-  
   /**
    * SQL select to be used when details are required
    */
   protected static final String SELECT_DETAILS = SELECT_NO_DETAILS + ", main.detail AS detail ";
-  
   /**
    * SQL from.
    */
@@ -143,7 +142,7 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
 
   //-------------------------------------------------------------------------
   @Override
-  public MarketDataSnapshotDocument get(final UniqueIdentifier uniqueId) {
+  public MarketDataSnapshotDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new MarketDataSnapshotDocumentExtractor(true), "MarketDataSnapshot");
   }
 
@@ -169,7 +168,7 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
     final long docId = nextId("snp_snapshot_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     marketDataSnaphshot.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
 
@@ -244,7 +243,7 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
       final Timestamp versionTo = rs.getTimestamp("VER_TO_INSTANT");
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
-      UniqueIdentifier uid = createUniqueIdentifier(docOid, docId);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
       
       ManageableMarketDataSnapshot marketDataSnapshot;
       //PLAT-1378
@@ -260,10 +259,10 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
       } else {
         marketDataSnapshot = new ManageableMarketDataSnapshot();
         marketDataSnapshot.setName(rs.getString("NAME"));
-        marketDataSnapshot.setUniqueId(uid);
+        marketDataSnapshot.setUniqueId(uniqueId);
       }
       MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument();
-      doc.setUniqueId(uid);
+      doc.setUniqueId(uniqueId);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

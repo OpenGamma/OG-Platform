@@ -16,10 +16,10 @@
 <#-- SUBSECTION Main data -->
 <@subsection title="Amount">
     <@rowout label="Quantity">${position.quantity}</@rowout>
-<#list position.securityLink.weakId.identifiers as item>
+<#list position.securityLink.externalId.externalIds as item>
     <@rowout label="Security">${item.scheme.name} - ${item.value} <a href="${securityUris.securities(item)}">view</a></@rowout>
 </#list>
-<#if position.securityLink.weakId.identifiers?size != 1>
+<#if position.securityLink.externalId.externalIds?size != 1>
     <@rowout label="Best match"><a href="${securityUris.securities(position.securityLink)}">best matching securities</a></@rowout>
 </#if>
 </@subsection>
@@ -31,12 +31,12 @@
       <td>${item.quantity}</td>
       <td>${item.tradeDate}</td>
       <td>
-<#list item.securityLink.weakId.identifiers as id>
+<#list item.securityLink.externalId.externalIds as id>
 ${id.scheme.name} - ${id.value},
 </#list>
 <a href="${securityUris.securities(item.securityLink)}">view</a>
       </td>
-      <td>${item.counterpartyKey}</td>
+      <td>${item.counterpartyExternalId}</td>
   </@table>
 </@subsection>
 </@section>

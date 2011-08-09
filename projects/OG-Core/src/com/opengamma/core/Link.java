@@ -25,12 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -38,8 +38,8 @@ import com.opengamma.util.PublicAPI;
  * A flexible link between two parts of the system.
  * <p>
  * A link represents a connection from one entity to another in the object model.
- * The connection can be held strongly by an OpenGamma {@code ObjectIdentifier},
- * by an external {@code IdentifierBundle} or by a resolved reference to the object itself.
+ * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
+ * The link also stores a resolved reference to the object itself.
  * <p>
  * This class is mutable and not thread-safe.
  * 
@@ -48,7 +48,7 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 @BeanDefinition
 public class Link<T extends UniqueIdentifiable> extends DirectBean
-    implements ObjectIdentifiable, Iterable<Identifier>, Serializable, Cloneable {
+    implements ObjectIdentifiable, Iterable<ExternalId>, Serializable, Cloneable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -57,13 +57,13 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * The object identifier that strongly references the target.
    */
   @PropertyDefinition
-  private ObjectIdentifier _objectId;
+  private ObjectId _objectId;
   /**
    * The external identifier bundle that references the target.
    * An empty bundle is used if not referencing a target by external bundle.
    */
   @PropertyDefinition(validate = "notNull")
-  private IdentifierBundle _bundleId = IdentifierBundle.EMPTY;
+  private ExternalIdBundle _externalId = ExternalIdBundle.EMPTY;
   /**
    * The resolved target.
    */
@@ -81,7 +81,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * 
    * @param objectId  the object identifier, not null
    */
-  public Link(final ObjectIdentifier objectId) {
+  public Link(final ObjectId objectId) {
     ArgumentChecker.notNull(objectId, "objectId");
     setObjectId(objectId);
   }
@@ -92,7 +92,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * 
    * @param uniqueId  the unique identifier, not null
    */
-  public Link(final UniqueIdentifier uniqueId) {
+  public Link(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     setObjectId(uniqueId.getObjectId());
   }
@@ -100,11 +100,11 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   /**
    * Creates a link from an external identifier bundle.
    * 
-   * @param externalBundle  the identifier bundle, not null
+   * @param bundle  the identifier bundle, not null
    */
-  public Link(final IdentifierBundle externalBundle) {
-    ArgumentChecker.notNull(externalBundle, "externalBundle");
-    setBundleId(externalBundle);
+  public Link(final ExternalIdBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    setExternalId(bundle);
   }
 
   /**
@@ -146,10 +146,10 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     if (target == null) {
       throw new IllegalStateException("Cannot lock a null target");
     }
-    UniqueIdentifier uniqueId = target.getUniqueId();
+    UniqueId uniqueId = target.getUniqueId();
     if (uniqueId != null) {
       setObjectId(uniqueId.getObjectId());
-      setBundleId(IdentifierBundle.EMPTY);
+      setExternalId(ExternalIdBundle.EMPTY);
     }
   }
 
@@ -177,30 +177,30 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    */
   public Object getBest() {
     T target = getTarget();
-    ObjectIdentifier objectId = getObjectId();
-    IdentifierBundle bundle = getBundleId();
+    ObjectId objectId = getObjectId();
+    ExternalIdBundle bundle = getExternalId();
     return Objects.firstNonNull(target, Objects.firstNonNull(objectId, bundle));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds an identifier to the external reference bundle.
+   * Adds an external identifier to the bundle.
    * 
-   * @param identifier  the identifier to add, not null
+   * @param externalId  the identifier to add, not null
    */
-  public void addBundleId(final Identifier identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    setBundleId(getBundleId().withIdentifier(identifier));
+  public void addExternalId(final ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    setExternalId(getExternalId().withExternalId(externalId));
   }
 
   /**
-   * Adds identifiers to the external reference bundle.
+   * Adds external identifiers to the bundle.
    * 
-   * @param identifiers  the identifiers to add, not null
+   * @param externalIds  the identifiers to add, not null
    */
-  public void addBundleIds(final Iterable<Identifier> identifiers) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    setBundleId(getBundleId().withIdentifiers(identifiers));
+  public void addExternalIds(final Iterable<ExternalId> externalIds) {
+    ArgumentChecker.notNull(externalIds, "externalIds");
+    setExternalId(getExternalId().withExternalIds(externalIds));
   }
 
   //-------------------------------------------------------------------------
@@ -210,8 +210,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * @return the iterator, not null
    */
   @Override
-  public Iterator<Identifier> iterator() {
-    return getBundleId().iterator();
+  public Iterator<ExternalId> iterator() {
+    return getExternalId().iterator();
   }
 
   /**
@@ -220,22 +220,22 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * 
    * @return all the identifiers, not null
    */
-  public Set<Identifier> getIdentifiers() {
-    return getBundleId().getIdentifiers();
+  public Set<ExternalId> getExternalIds() {
+    return getExternalId().getExternalIds();
   }
 
   /**
    * Gets a set of all identifiers, including the object identifier
-   * expressed as an {@code Identifier}.
+   * expressed as an {@code ExternalId}.
    * 
    * @return all the identifiers, not null
    */
-  public Set<Identifier> getAllIdentifiers() {
-    Set<Identifier> identifiers = getBundleId().getIdentifiers();
-    ObjectIdentifier objectId = getObjectId();
+  public Set<ExternalId> getAllExternalIds() {
+    Set<ExternalId> identifiers = getExternalId().getExternalIds();
+    ObjectId objectId = getObjectId();
     if (objectId != null) {
-      Set<Identifier> set = new HashSet<Identifier>(identifiers);
-      set.add(Identifier.of(ObjectIdentifier.OID, objectId.toString()));
+      Set<ExternalId> set = new HashSet<ExternalId>(identifiers);
+      set.add(ExternalId.of(ObjectId.EXTERNAL_SCHEME, objectId.toString()));
       return set;
     }
     return identifiers;
@@ -267,8 +267,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     switch (propertyName.hashCode()) {
       case 90495162:  // objectId
         return getObjectId();
-      case -1294655171:  // bundleId
-        return getBundleId();
+      case -1699764666:  // externalId
+        return getExternalId();
       case -880905839:  // target
         return getTarget();
     }
@@ -280,10 +280,10 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 90495162:  // objectId
-        setObjectId((ObjectIdentifier) newValue);
+        setObjectId((ObjectId) newValue);
         return;
-      case -1294655171:  // bundleId
-        setBundleId((IdentifierBundle) newValue);
+      case -1699764666:  // externalId
+        setExternalId((ExternalIdBundle) newValue);
         return;
       case -880905839:  // target
         setTarget((T) newValue);
@@ -294,7 +294,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_bundleId, "bundleId");
+    JodaBeanUtils.notNull(_externalId, "externalId");
     super.validate();
   }
 
@@ -306,7 +306,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       Link<?> other = (Link<?>) obj;
       return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getBundleId(), other.getBundleId()) &&
+          JodaBeanUtils.equal(getExternalId(), other.getExternalId()) &&
           JodaBeanUtils.equal(getTarget(), other.getTarget());
     }
     return false;
@@ -316,7 +316,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
     return hash;
   }
@@ -326,7 +326,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * Gets the object identifier that strongly references the target.
    * @return the value of the property
    */
-  public ObjectIdentifier getObjectId() {
+  public ObjectId getObjectId() {
     return _objectId;
   }
 
@@ -334,7 +334,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * Sets the object identifier that strongly references the target.
    * @param objectId  the new value of the property
    */
-  public void setObjectId(ObjectIdentifier objectId) {
+  public void setObjectId(ObjectId objectId) {
     this._objectId = objectId;
   }
 
@@ -342,7 +342,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * Gets the the {@code objectId} property.
    * @return the property, not null
    */
-  public final Property<ObjectIdentifier> objectId() {
+  public final Property<ObjectId> objectId() {
     return metaBean().objectId().createProperty(this);
   }
 
@@ -352,27 +352,27 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
    * An empty bundle is used if not referencing a target by external bundle.
    * @return the value of the property, not null
    */
-  public IdentifierBundle getBundleId() {
-    return _bundleId;
+  public ExternalIdBundle getExternalId() {
+    return _externalId;
   }
 
   /**
    * Sets the external identifier bundle that references the target.
    * An empty bundle is used if not referencing a target by external bundle.
-   * @param bundleId  the new value of the property, not null
+   * @param externalId  the new value of the property, not null
    */
-  public void setBundleId(IdentifierBundle bundleId) {
-    JodaBeanUtils.notNull(bundleId, "bundleId");
-    this._bundleId = bundleId;
+  public void setExternalId(ExternalIdBundle externalId) {
+    JodaBeanUtils.notNull(externalId, "externalId");
+    this._externalId = externalId;
   }
 
   /**
-   * Gets the the {@code bundleId} property.
+   * Gets the the {@code externalId} property.
    * An empty bundle is used if not referencing a target by external bundle.
    * @return the property, not null
    */
-  public final Property<IdentifierBundle> bundleId() {
-    return metaBean().bundleId().createProperty(this);
+  public final Property<ExternalIdBundle> externalId() {
+    return metaBean().externalId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -414,13 +414,13 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     /**
      * The meta-property for the {@code objectId} property.
      */
-    private final MetaProperty<ObjectIdentifier> _objectId = DirectMetaProperty.ofReadWrite(
-        this, "objectId", Link.class, ObjectIdentifier.class);
+    private final MetaProperty<ObjectId> _objectId = DirectMetaProperty.ofReadWrite(
+        this, "objectId", Link.class, ObjectId.class);
     /**
-     * The meta-property for the {@code bundleId} property.
+     * The meta-property for the {@code externalId} property.
      */
-    private final MetaProperty<IdentifierBundle> _bundleId = DirectMetaProperty.ofReadWrite(
-        this, "bundleId", Link.class, IdentifierBundle.class);
+    private final MetaProperty<ExternalIdBundle> _externalId = DirectMetaProperty.ofReadWrite(
+        this, "externalId", Link.class, ExternalIdBundle.class);
     /**
      * The meta-property for the {@code target} property.
      */
@@ -433,7 +433,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "objectId",
-        "bundleId",
+        "externalId",
         "target");
 
     /**
@@ -447,8 +447,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
       switch (propertyName.hashCode()) {
         case 90495162:  // objectId
           return _objectId;
-        case -1294655171:  // bundleId
-          return _bundleId;
+        case -1699764666:  // externalId
+          return _externalId;
         case -880905839:  // target
           return _target;
       }
@@ -476,16 +476,16 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
      * The meta-property for the {@code objectId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ObjectIdentifier> objectId() {
+    public final MetaProperty<ObjectId> objectId() {
       return _objectId;
     }
 
     /**
-     * The meta-property for the {@code bundleId} property.
+     * The meta-property for the {@code externalId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierBundle> bundleId() {
-      return _bundleId;
+    public final MetaProperty<ExternalIdBundle> externalId() {
+      return _externalId;
     }
 
     /**

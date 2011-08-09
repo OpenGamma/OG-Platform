@@ -11,15 +11,15 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Fudge message builder for {@code PortfolioNode}. This is tightly coupled with the behavior of {@link PositionBuilder} so
@@ -51,48 +51,48 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   protected static final String FIELD_PARENT = "parent";
 
   // -------------------------------------------------------------------------
-  private static void encodePositions(final MutableFudgeMsg message, final FudgeSerializationContext context, final Collection<Position> collection) {
+  private static void encodePositions(final MutableFudgeMsg message, final FudgeSerializer serializer, final Collection<Position> collection) {
     if (!collection.isEmpty()) {
-      final MutableFudgeMsg msg = context.newMessage();
+      final MutableFudgeMsg msg = serializer.newMessage();
       for (Position position : collection) {
-        msg.add(null, null, PositionBuilder.buildMessageImpl(context, position));
+        msg.add(null, null, PositionBuilder.buildMessageImpl(serializer, position));
       }
       message.add(FIELD_POSITIONS, msg);
     }
   }
 
-  private static void encodeSubNodes(final MutableFudgeMsg message, final FudgeSerializationContext context, final Collection<PortfolioNode> collection) {
+  private static void encodeSubNodes(final MutableFudgeMsg message, final FudgeSerializer serializer, final Collection<PortfolioNode> collection) {
     if (!collection.isEmpty()) {
-      final MutableFudgeMsg msg = context.newMessage();
+      final MutableFudgeMsg msg = serializer.newMessage();
       for (PortfolioNode node : collection) {
-        msg.add(null, null, buildMessageImpl(context, node));
+        msg.add(null, null, buildMessageImpl(serializer, node));
       }
       message.add(FIELD_SUBNODES, msg);
     }
   }
 
-  private static MutableFudgeMsg buildMessageImpl(final FudgeSerializationContext context, final PortfolioNode node) {
-    final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, FIELD_IDENTIFIER, null, node.getUniqueId());
+  private static MutableFudgeMsg buildMessageImpl(final FudgeSerializer serializer, final PortfolioNode node) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, FIELD_IDENTIFIER, null, node.getUniqueId());
     message.add(FIELD_NAME, node.getName());
-    encodePositions(message, context, node.getPositions());
-    encodeSubNodes(message, context, node.getChildNodes());
+    encodePositions(message, serializer, node.getPositions());
+    encodeSubNodes(message, serializer, node.getChildNodes());
     return message;
   }
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final PortfolioNode node) {
-    final MutableFudgeMsg message = buildMessageImpl(context, node);
-    context.addToMessage(message, FIELD_PARENT, null, node.getParentNodeId());
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final PortfolioNode node) {
+    final MutableFudgeMsg message = buildMessageImpl(serializer, node);
+    serializer.addToMessage(message, FIELD_PARENT, null, node.getParentNodeId());
     return message;
   }
 
   // -------------------------------------------------------------------------
-  private static void readPositions(FudgeDeserializationContext context, FudgeMsg message, PortfolioNodeImpl node) {
+  private static void readPositions(FudgeDeserializer deserializer, FudgeMsg message, PortfolioNodeImpl node) {
     if (message != null) {
       for (FudgeField field : message) {
         if (field.getValue() instanceof FudgeMsg) {
-          final PositionImpl position = PositionBuilder.buildObjectImpl(context, (FudgeMsg) field.getValue());
+          final PositionImpl position = PositionBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
           position.setParentNodeId(node.getUniqueId());
           node.addPosition(position);
         }
@@ -100,11 +100,11 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     }
   }
 
-  private static void readSubNodes(FudgeDeserializationContext context, FudgeMsg message, PortfolioNodeImpl node) {
+  private static void readSubNodes(FudgeDeserializer deserializer, FudgeMsg message, PortfolioNodeImpl node) {
     if (message != null) {
       for (FudgeField field : message) {
         if (field.getValue() instanceof FudgeMsg) {
-          final PortfolioNodeImpl child = buildObjectImpl(context, (FudgeMsg) field.getValue());
+          final PortfolioNodeImpl child = buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
           child.setParentNodeId(node.getUniqueId());
           node.addChildNode(child);
         }
@@ -112,24 +112,24 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     }
   }
 
-  private static PortfolioNodeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
+  private static PortfolioNodeImpl buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final FudgeField idField = message.getByName(FIELD_IDENTIFIER);
-    final UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
+    final UniqueId id = idField != null ? deserializer.fieldValueToObject(UniqueId.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
     final PortfolioNodeImpl node = new PortfolioNodeImpl(name);
     if (id != null) {
       node.setUniqueId(id);
     }
-    readPositions(context, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_POSITIONS)), node);
-    readSubNodes(context, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_SUBNODES)), node);
+    readPositions(deserializer, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_POSITIONS)), node);
+    readSubNodes(deserializer, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_SUBNODES)), node);
     return node;
   }
 
   @Override
-  public PortfolioNode buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    final PortfolioNodeImpl node = buildObjectImpl(context, message);
+  public PortfolioNode buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    final PortfolioNodeImpl node = buildObjectImpl(deserializer, message);
     final FudgeField parentField = message.getByName(FIELD_PARENT);
-    final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;
+    final UniqueId parentId = (parentField != null) ? deserializer.fieldValueToObject(UniqueId.class, parentField) : null;
     if (parentId != null) {
       node.setParentNodeId(parentId);
     }

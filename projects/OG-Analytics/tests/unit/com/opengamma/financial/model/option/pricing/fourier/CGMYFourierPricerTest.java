@@ -30,7 +30,7 @@ public class CGMYFourierPricerTest {
   private static final double G = 0.001;
   private static final double M = 1.001;
   private static final double Y = 1.5;
-  private static final CharacteristicExponent CGMY_CE = new CGMYCharacteristicExponent(C, G, M, Y);
+  private static final MartingaleCharacteristicExponent CGMY_CE = new CGMYMartingaleCharacteristicExponent(C, G, M, Y);
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   @Test

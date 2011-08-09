@@ -34,11 +34,10 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -47,12 +46,12 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.#");
 
-  public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName) {
-    this(Currency.of(currency), definitionName);
+  public SwaptionSABRPresentValueSABRFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+    this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
 
-  public SwaptionSABRPresentValueSABRFunction(final Currency currency, final String definitionName) {
-    super(currency, definitionName, false);
+  public SwaptionSABRPresentValueSABRFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+    super(currency, definitionName, false, forwardCurveName, fundingCurveName);
   }
 
   @Override
@@ -61,14 +60,13 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SwaptionSecurity swaptionSecurity = (SwaptionSecurity) target.getSecurity();
     final FixedIncomeInstrumentConverter<?> swaptionDefinition = swaptionSecurity.accept(getConverter());
-    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
-    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(curveNames.getFirst(), curveNames.getSecond(), target, inputs));
-    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, curveNames.getFirst(), curveNames.getSecond());
+    final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final InterestRateDerivative swaption = swaptionDefinition.toDerivative(now, getForwardCurveName(), getFundingCurveName());
     final PresentValueSABRSensitivityDataBundle presentValue = CALCULATOR.visit(swaption, data);
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, swaptionSecurity.getCurrency().getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
         .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), resultProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), resultProperties);
@@ -88,13 +86,6 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
     return getResults(target.toSpecification(), resultProperties);
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
-    final ValueProperties resultProperties = getResultProperties((FinancialSecurity) target.getSecurity(), curveNames.getSecond(), curveNames.getFirst());
-    return getResults(target.toSpecification(), resultProperties);
-  }
-
   private Set<ValueSpecification> getResults(final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification alphaSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, resultProperties);
     final ValueSpecification nuSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, resultProperties);
@@ -105,7 +96,7 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map, final SwaptionSecurity security, final ZonedDateTime now) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
     final ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
-    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
+    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
     final ZonedDateTime swapMaturity = underlying.getMaturityDate();
     final double swaptionExpiryYears = DateUtil.getDifferenceInYears(now, swaptionExpiry);
     final double swapMaturityYears = DateUtil.getDifferenceInYears(now, swapMaturity);

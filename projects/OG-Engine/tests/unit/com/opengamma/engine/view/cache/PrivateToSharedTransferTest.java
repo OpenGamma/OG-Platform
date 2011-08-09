@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.MissingValueLoader;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -52,7 +52,7 @@ public class PrivateToSharedTransferTest {
     final IdentifierMap identifiers = new InMemoryIdentifierMap();
     final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers,
         FudgeContext.GLOBAL_DEFAULT, createInMemoryFudgeMessageStoreFactory(FudgeContext.GLOBAL_DEFAULT));
-    final ViewComputationCache cache = source.getCache(UniqueIdentifier.of("Test", "ViewCycle"), "Default");
+    final ViewComputationCache cache = source.getCache(UniqueId.of("Test", "ViewCycle"), "Default");
     final ValueSpecification[] specs = createValueSpecifications(4);
     cache.putPrivateValue(new ComputedValue(specs[0], "Zero"));
     cache.putSharedValue(new ComputedValue(specs[1], "One"));
@@ -73,7 +73,7 @@ public class PrivateToSharedTransferTest {
     final Set<Integer> missing = new HashSet<Integer>();
     final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers,
         FudgeContext.GLOBAL_DEFAULT, createInMemoryFudgeMessageStoreFactory(FudgeContext.GLOBAL_DEFAULT));
-    final UniqueIdentifier viewCycleId = UniqueIdentifier.of("Test", "ViewCycle");
+    final UniqueId viewCycleId = UniqueId.of("Test", "ViewCycle");
     source.setMissingValueLoader(new MissingValueLoader() {
 
       @Override
@@ -162,7 +162,7 @@ public class PrivateToSharedTransferTest {
             .createCacheManager());
     // Populate the test caches
     final ValueSpecification[] specs = createValueSpecifications(10);
-    UniqueIdentifier viewCycleId = UniqueIdentifier.of("Test", "ViewCycle");
+    UniqueId viewCycleId = UniqueId.of("Test", "ViewCycle");
     final ViewComputationCache serverCache = serverCacheSource.getCache(viewCycleId, "Default");
     final ViewComputationCache remoteCache1 = remoteCacheSource1.getCache(viewCycleId, "Default");
     final ViewComputationCache remoteCache2 = remoteCacheSource2.getCache(viewCycleId, "Default");

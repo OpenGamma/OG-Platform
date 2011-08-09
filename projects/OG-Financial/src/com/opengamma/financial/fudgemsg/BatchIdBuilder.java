@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.batch.BatchId;
 
@@ -33,15 +33,15 @@ public class BatchIdBuilder implements FudgeBuilder<BatchId> {
   private static final String TIME_KEY = "observationTime";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, BatchId object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BatchId object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(DATE_KEY, null, object.getObservationDate());
     msg.add(TIME_KEY, null, object.getObservationTime());
     return msg;
   }
 
   @Override
-  public BatchId buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public BatchId buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     FudgeField dateField = message.getByName(DATE_KEY);
     FudgeField timeField = message.getByName(TIME_KEY);
 

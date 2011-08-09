@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -43,7 +43,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no marketDataSnapshots.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _snapshotIds;
+  private List<ObjectId> _snapshotIds;
   
   /**
    * The marketDataSnapshot name, wildcards allowed, null to not match on name.
@@ -74,7 +74,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   public void addMarketDataSnapshotId(ObjectIdentifiable marketDataSnapshotId) {
     ArgumentChecker.notNull(marketDataSnapshotId, "marketDataSnapshotId");
     if (_snapshotIds == null) {
-      _snapshotIds = new ArrayList<ObjectIdentifier>();
+      _snapshotIds = new ArrayList<ObjectId>();
     }
     _snapshotIds.add(marketDataSnapshotId.getObjectId());
   }
@@ -89,7 +89,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
     if (marketDataSnapshotIds == null) {
       _snapshotIds = null;
     } else {
-      _snapshotIds = new ArrayList<ObjectIdentifier>();
+      _snapshotIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable marketDataSnapshotId : marketDataSnapshotIds) {
         _snapshotIds.add(marketDataSnapshotId.getObjectId());
       }
@@ -149,7 +149,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -168607148:  // snapshotIds
-        setSnapshotIds((List<ObjectIdentifier>) newValue);
+        setSnapshotIds((List<ObjectId>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -191,7 +191,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no marketDataSnapshots.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getSnapshotIds() {
+  public List<ObjectId> getSnapshotIds() {
     return _snapshotIds;
   }
 
@@ -200,7 +200,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no marketDataSnapshots.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> snapshotIds() {
+  public final Property<List<ObjectId>> snapshotIds() {
     return metaBean().snapshotIds().createProperty(this);
   }
 
@@ -274,7 +274,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code snapshotIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _snapshotIds = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<List<ObjectId>> _snapshotIds = DirectMetaProperty.ofReadWrite(
         this, "snapshotIds", MarketDataSnapshotSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
@@ -334,7 +334,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code snapshotIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> snapshotIds() {
+    public final MetaProperty<List<ObjectId>> snapshotIds() {
       return _snapshotIds;
     }
 

@@ -9,6 +9,8 @@ import java.net.URI;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -22,10 +24,12 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
+  private final ChangeManager _changeManager;
   
   public RemoteViewDefinitionRepository(URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
+    _changeManager = new BasicChangeManager();
   }
   
   @SuppressWarnings("unchecked")
@@ -56,6 +60,11 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
   
   protected FudgeRestClient getClient() {
     return _client;
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

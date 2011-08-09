@@ -9,12 +9,12 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.SyntheticIdentifierCurveInstrumentProvider;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -28,9 +28,9 @@ public class SyntheticIdentifierCurveInstrumentProviderBuilder implements FudgeB
    */
   public static final String TYPE = "Synthetic";
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, SyntheticIdentifierCurveInstrumentProvider object) {
-    MutableFudgeMsg message = context.newMessage();
-    FudgeSerializationContext.addClassHeader(message, SyntheticIdentifierCurveInstrumentProvider.class);
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SyntheticIdentifierCurveInstrumentProvider object) {
+    MutableFudgeMsg message = serializer.newMessage();
+    FudgeSerializer.addClassHeader(message, SyntheticIdentifierCurveInstrumentProvider.class);
     message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
     message.add("ccy", object.getCurrency().getCode());
     message.add("stripType", object.getType().name());
@@ -39,10 +39,10 @@ public class SyntheticIdentifierCurveInstrumentProviderBuilder implements FudgeB
   }
 
   @Override
-  public SyntheticIdentifierCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public SyntheticIdentifierCurveInstrumentProvider buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     Currency ccy = Currency.of(message.getString("ccy"));
     StripInstrumentType stripType = StripInstrumentType.valueOf(message.getString("stripType"));
-    IdentificationScheme scheme = IdentificationScheme.of(message.getString("scheme"));
+    ExternalScheme scheme = ExternalScheme.of(message.getString("scheme"));
     return new SyntheticIdentifierCurveInstrumentProvider(ccy, stripType, scheme);
   }
 

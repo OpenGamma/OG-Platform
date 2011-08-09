@@ -230,6 +230,6 @@
     "deleted": "${securityDoc.versionToInstant}",
     </#if>
     "securityType":"${security.securityType}" },
-    "identifiers": {<#list security.identifiers.identifiers as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
+    "identifiers": {<#list security.identifiers.externalIds as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
 }
 </#escape>

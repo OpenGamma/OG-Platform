@@ -49,7 +49,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -674,9 +674,9 @@ public class DependencyGraphBuilderTest {
 
   public void testTwoLevelConversion() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
-    final ComputationTarget target1 = new ComputationTarget(UniqueIdentifier.of("Target", "1"));
-    final ComputationTarget target2 = new ComputationTarget(UniqueIdentifier.of("Target", "2"));
-    final ComputationTarget target3 = new ComputationTarget(UniqueIdentifier.of("Target", "3"));
+    final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Target", "1"));
+    final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Target", "2"));
+    final ComputationTarget target3 = new ComputationTarget(UniqueId.of("Target", "3"));
     final String property = "Constraint";
     MockFunction source = new MockFunction("source1", target1);
     source.addResult(new ComputedValue(new ValueSpecification("A", target1.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "1").with(property, "Foo").get()), 1.0));

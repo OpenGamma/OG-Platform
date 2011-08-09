@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +32,9 @@ import edu.emory.mathcs.backport.java.util.Arrays;
   public SecurityInfo(final ComparisonContext context, final Security security) {
     super(security);
     s_logger.debug("Extracting core information from {}", security);
-    final FudgeSerializationContext fsc = context.getFudgeSerializationContext();
-    fsc.reset();
-    final FudgeMsg rawMsg = fsc.objectToFudgeMsg(security);
+    final FudgeSerializer serializer = context.getFudgeSerializer();
+    serializer.reset();
+    final FudgeMsg rawMsg = serializer.objectToFudgeMsg(security);
     s_logger.debug("Raw message = {}", rawMsg);
     final Iterator<FudgeField> itr = rawMsg.iterator();
     while (itr.hasNext()) {

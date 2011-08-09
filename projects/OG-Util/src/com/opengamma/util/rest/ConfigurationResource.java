@@ -16,7 +16,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 
@@ -55,18 +55,14 @@ public class ConfigurationResource {
     return _fudgeContext;
   }
 
-  protected FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
-  }
-
   @SuppressWarnings("unchecked")
-  private FudgeMsg mapToMessage(final FudgeSerializationContext context, final Map<?, ?> value) {
-    final MutableFudgeMsg message = context.newMessage();
+  private FudgeMsg mapToMessage(final FudgeSerializer serializer, final Map<?, ?> value) {
+    final MutableFudgeMsg message = serializer.newMessage();
     for (Map.Entry<Object, Object> config : ((Map<Object, Object>) value).entrySet()) {
       if (config.getValue() instanceof Map) {
-        message.add(config.getKey().toString(), mapToMessage(context, (Map<?, ?>) config.getValue()));
+        message.add(config.getKey().toString(), mapToMessage(serializer, (Map<?, ?>) config.getValue()));
       } else {
-        context.addToMessage(message, config.getKey().toString(), null, config.getValue());
+        serializer.addToMessage(message, config.getKey().toString(), null, config.getValue());
       }
     }
     return message;
@@ -74,7 +70,8 @@ public class ConfigurationResource {
 
   @GET
   public FudgeMsgEnvelope getResource() {
-    return new FudgeMsgEnvelope(mapToMessage(getFudgeSerializationContext(), getResources()));
+    FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    return new FudgeMsgEnvelope(mapToMessage(serializer, getResources()));
   }
 
   @SuppressWarnings("unchecked")
@@ -87,7 +84,8 @@ public class ConfigurationResource {
     if (object instanceof Map<?, ?>) {
       return new ConfigurationResource(getFudgeContext(), (Map<Object, Object>) object);
     } else {
-      return new FudgeFieldContainerBrowser(getFudgeSerializationContext().objectToFudgeMsg(object));
+      FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+      return new FudgeFieldContainerBrowser(serializer.objectToFudgeMsg(object));
     }
   }
 

@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.forex.ForexSecurityConverter;
+import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.forex.calculator.ForexConverter;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -37,8 +37,8 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
@@ -73,7 +73,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final ForexConverter<?> definition = _visitor.visitFXForwardSecurity(security);
-    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
+    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
     final String payCurveName = _payCurveName + "_" + payCurrency.getCode();
@@ -113,10 +113,10 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(IdentifierBundle.of(fxForward.getUnderlyingIdentifier()));
+    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingIdentifier()));
     final ValueRequirement payCurve = YieldCurveFunction.getCurveRequirement(fx.getPayCurrency(), _payCurveName, _payCurveName, _payCurveName);
     final ValueRequirement receiveCurve = YieldCurveFunction.getCurveRequirement(fx.getReceiveCurrency(), _receiveCurveName, _receiveCurveName, _receiveCurveName);
-    final Identifier spotIdentifier = FXUtils.getSpotIdentifier(fx, true);
+    final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fx, true);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     return Sets.newHashSet(payCurve, receiveCurve, spotRequirement);
   }

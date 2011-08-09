@@ -23,9 +23,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierBundleWithDates;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -95,9 +95,9 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
 
   //-------------------------------------------------------------------------
   public void test() throws Exception {
-    List<IdentifierBundleWithDates> identifiers = addAndTestTimeSeries();
-    for (IdentifierBundleWithDates identifierBundleWithDates : identifiers) {
-      UniqueIdentifier uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.asIdentifierBundle(), null, CONFIG_DOC_NAME);
+    List<ExternalIdBundleWithDates> identifiers = addAndTestTimeSeries();
+    for (ExternalIdBundleWithDates identifierBundleWithDates : identifiers) {
+      UniqueId uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.toBundle(), null, CONFIG_DOC_NAME);
       assertNotNull(uniqueId);
       HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(uniqueId);
       assertEquals(DEFAULT_DATA_SOURCE, doc.getInfo().getDataSource());
@@ -106,11 +106,11 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
     }
   }
 
-  protected List<IdentifierBundleWithDates> addAndTestTimeSeries() {
-    List<IdentifierBundleWithDates> result = new ArrayList<IdentifierBundleWithDates>(); 
+  protected List<ExternalIdBundleWithDates> addAndTestTimeSeries() {
+    List<ExternalIdBundleWithDates> result = new ArrayList<ExternalIdBundleWithDates>(); 
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      IdentifierBundle identifiers = IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
-      result.add(IdentifierBundleWithDates.of(identifiers));
+      ExternalIdBundle identifiers = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
+      result.add(ExternalIdBundleWithDates.of(identifiers));
       
       LocalDate start = DateUtil.previousWeekDay().minusDays(7);
       for (String dataSource : DATA_SOURCES) {
@@ -121,7 +121,7 @@ public class DefaultHistoricalTimeSeriesInfoResolverTest {
             series.setDataProvider(dataProvider);
             series.setDataSource(dataSource);
             series.setObservationTime(LCLOSE_OBSERVATION_TIME);
-            series.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
+            series.setExternalIdBundle(ExternalIdBundleWithDates.of(identifiers));
             HistoricalTimeSeriesInfoDocument doc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(series));
             assertNotNull(doc);
             assertNotNull(doc.getUniqueId());

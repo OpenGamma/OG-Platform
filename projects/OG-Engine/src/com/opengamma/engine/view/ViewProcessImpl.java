@@ -32,8 +32,8 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -45,11 +45,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
   
-  private final UniqueIdentifier _viewProcessId;
-  private final ViewDefinition _definition;
+  private final UniqueId _viewProcessId;
+  private final String _viewDefinitionName;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
-  private final ObjectIdentifier _cycleObjectId;
+  private final ObjectId _cycleObjectId;
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   
   private final AtomicLong _cycleVersion = new AtomicLong();
@@ -76,24 +76,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Constructs an instance.
    * 
    * @param viewProcessId  the unique identifier of the view process, not null
-   * @param definition  the view definition, not null
+   * @param viewDefinitionName  the name of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @param viewProcessContext  the process context, not null
    * @param cycleManager  the view cycle manager, not null
    * @param cycleObjectId  the object identifier of cycles, not null
    */
-  public ViewProcessImpl(UniqueIdentifier viewProcessId, ViewDefinition definition,
-      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext,
-      EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectIdentifier cycleObjectId) {
+  public ViewProcessImpl(UniqueId viewProcessId, String viewDefinitionName, ViewExecutionOptions executionOptions,
+      ViewProcessContext viewProcessContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
+      ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
-    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(cycleManager, "cycleManager");
     ArgumentChecker.notNull(cycleObjectId, "cycleObjectId");
 
     _viewProcessId = viewProcessId;
-    _definition = definition;
+    _viewDefinitionName = viewDefinitionName;
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
     _cycleManager = cycleManager;
@@ -102,18 +102,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _viewProcessId;
   }
   
   @Override
   public String getDefinitionName() {
-    return getDefinition().getName();
+    return _viewDefinitionName;
   }
-
+  
   @Override
-  public ViewDefinition getDefinition() {
-    return _definition;
+  public ViewDefinition getLatestViewDefinition() {
+    return getProcessContext().getViewDefinitionRepository().getDefinition(getDefinitionName());
   }
   
   @Override
@@ -197,9 +197,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   //-------------------------------------------------------------------------
-  public UniqueIdentifier generateCycleId() {
+  public UniqueId generateCycleId() {
     String cycleVersion = Long.toString(_cycleVersion.getAndIncrement());
-    return UniqueIdentifier.of(_cycleObjectId, cycleVersion);
+    return UniqueId.of(_cycleObjectId, cycleVersion);
   }
   
   public void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, MarketDataPermissionProvider permissionProvider) {
@@ -257,7 +257,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     ViewComputationResultModel previousResult = _latestResult.get();
     _latestResult.set(result);
     
-    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
     for (ViewResultListener listener : _listeners) {
       try {
         listener.cycleCompleted(result, deltaResult);
@@ -386,7 +386,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     try {
       if (_listeners.add(listener)) {
         if (_listeners.size() == 1) {
-          startComputationJob();
+          try {
+            startComputationJob();
+          } catch (Exception e) {
+            // Roll-back
+            _listeners.remove(listener);
+            s_logger.error("Failed to start computation job while adding listener for view process {}", this);
+            throw new OpenGammaRuntimeException("Failed to start computation job while adding listener for view process " + toString(), e);
+          }
         } else {
           // Push initial state to listener
           try {
@@ -458,15 +465,22 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         throw new IllegalStateException("A terminated view process cannot be used.");
     }
     
-    ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
-    Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
-
-    setComputationJob(computationJob);
-    setComputationThread(computationJobThread);
-    setState(ViewProcessState.RUNNING);
-    computationJobThread.start();
+    try {
+      ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
+      Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
+  
+      setComputationJob(computationJob);
+      setComputationThread(computationJobThread);
+      setState(ViewProcessState.RUNNING);
+      computationJobThread.start();
+    } catch (Exception e) {
+      // Roll-back
+      terminateComputationJob();
+      s_logger.error("Failed to start computation job for view process " + toString(), e);
+      throw new OpenGammaRuntimeException("Failed to start computation job for view process " + toString(), e);
+    }
     
-    s_logger.info("Started.");
+    s_logger.info("Started computation job for view process {}", this);
   }
 
   /**

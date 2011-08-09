@@ -47,8 +47,8 @@ import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
@@ -75,7 +75,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final ReentrantLock _processLock = new ReentrantLock();
   
   // Injected inputs
-  private final UniqueIdentifier _uniqueId;
+  private final UniqueId _uniqueId;
   private final ViewDefinitionRepository _viewDefinitionRepository;
   private final SecuritySource _securitySource;
   private final PositionSource _positionSource;
@@ -94,12 +94,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   /**
    * ConcurrentHashMap to allow access for querying processes independently and concurrently to client attachment.
    */
-  private final ConcurrentMap<UniqueIdentifier, ViewProcessImpl> _allProcessesById = new ConcurrentHashMap<UniqueIdentifier, ViewProcessImpl>();
+  private final ConcurrentMap<UniqueId, ViewProcessImpl> _allProcessesById = new ConcurrentHashMap<UniqueId, ViewProcessImpl>();
   private final Map<ViewProcessDescription, ViewProcessImpl> _sharedProcessesByDescription = new HashMap<ViewProcessDescription, ViewProcessImpl>();
   
-  private final ConcurrentMap<UniqueIdentifier, ViewClientImpl> _allClientsById = new ConcurrentHashMap<UniqueIdentifier, ViewClientImpl>();
+  private final ConcurrentMap<UniqueId, ViewClientImpl> _allClientsById = new ConcurrentHashMap<UniqueId, ViewClientImpl>();
   
-  private final Map<UniqueIdentifier, Pair<ViewProcessImpl, ViewResultListener>> _clientToProcess = new HashMap<UniqueIdentifier, Pair<ViewProcessImpl, ViewResultListener>>();
+  private final Map<UniqueId, Pair<ViewProcessImpl, ViewResultListener>> _clientToProcess = new HashMap<UniqueId, Pair<ViewProcessImpl, ViewResultListener>>();
   
   /**
    * The view processor event listener registry
@@ -110,7 +110,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private boolean _isSuspended;
   
   public ViewProcessorImpl(
-      UniqueIdentifier uniqueId,
+      UniqueId uniqueId,
       ViewDefinitionRepository viewDefinitionRepository,
       SecuritySource securitySource,
       PositionSource positionSource,
@@ -142,7 +142,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
   
@@ -163,7 +163,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
   
   @Override
-  public ViewProcessImpl getViewProcess(UniqueIdentifier viewProcessId) {
+  public ViewProcessImpl getViewProcess(UniqueId viewProcessId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     checkIdScheme(viewProcessId, PROCESS_SCHEME);
     ViewProcessImpl process = _allProcessesById.get(viewProcessId);
@@ -183,15 +183,23 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToSharedViewProcess(UniqueIdentifier clientId, ViewResultListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
+  public ViewPermissionProvider attachClientToSharedViewProcess(UniqueId clientId, ViewResultListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
     
     _processLock.lock();
+    ViewProcessImpl process = null;
     try {
-      ViewProcessImpl process = getOrCreateViewProcess(viewDefinitionName, executionOptions);
+      process = getOrCreateViewProcess(viewDefinitionName, executionOptions);
       return attachClientToViewProcessCore(client, listener, process, false);
+    } catch (Exception e) {
+      // Roll-back
+      if (process != null) {
+        removeViewProcessIfUnused(process);
+      }
+      s_logger.error("Error attaching client to shared view process", e);
+      throw new OpenGammaRuntimeException("Error attaching client to shared view process", e);
     } finally {
       _processLock.unlock();
     }
@@ -206,15 +214,23 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToPrivateViewProcess(UniqueIdentifier clientId, ViewResultListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
+  public ViewPermissionProvider attachClientToPrivateViewProcess(UniqueId clientId, ViewResultListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
     
+    ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      ViewProcessImpl process = createViewProcess(viewDefinitionName, executionOptions, true);
+      process = createViewProcess(viewDefinitionName, executionOptions, true);
       return attachClientToViewProcessCore(client, listener, process, true);
+    } catch (Exception e) {
+      // Roll-back
+      if (process != null) {
+        removeViewProcess(process);
+      }
+      s_logger.error("Error attaching client to private view process", e);
+      throw new OpenGammaRuntimeException("Error attaching client to private view process", e);
     } finally {
       _processLock.unlock();
     }
@@ -228,13 +244,17 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param processId  the unique identifier of the existing process, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToViewProcess(UniqueIdentifier clientId, ViewResultListener listener, UniqueIdentifier processId) {
+  public ViewPermissionProvider attachClientToViewProcess(UniqueId clientId, ViewResultListener listener, UniqueId processId) {
     ViewClientImpl client = getViewClient(clientId);
     
     _processLock.lock();
     try {
       ViewProcessImpl process = getViewProcess(processId);
       return attachClientToViewProcessCore(client, listener, process, false);
+    } catch (Exception e) {
+      // Nothing to roll back
+      s_logger.error("Error attaching client to existing view process", e);
+      throw new OpenGammaRuntimeException("Error attaching client to existing view process", e);
     } finally {
       _processLock.unlock();
     }
@@ -248,8 +268,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       if (existingAttachment != null) {
         throw new IllegalStateException("View client " + client.getUniqueId() + " is already attached to view process " + existingAttachment.getFirst().getUniqueId());
       }
+      ViewPermissionProvider permissionProvider = process.attachListener(listener);
       _clientToProcess.put(client.getUniqueId(), processListenerPair);
-      return process.attachListener(listener);
+      return permissionProvider;
     } finally {
       _processLock.unlock();
     }
@@ -261,7 +282,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * 
    * @param clientId  the unique identifier of the client, not null
    */
-  public void detachClientFromViewProcess(UniqueIdentifier clientId) {
+  public void detachClientFromViewProcess(UniqueId clientId) {
     ArgumentChecker.notNull(clientId, "clientId");
     _processLock.lock();
     try {
@@ -273,12 +294,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewResultListener listener = processAttachment.getSecond();
       process.detachListener(listener);
       
-      if (!process.hasExecutionDemand()) {
-        // REVIEW jonathan 2011-03-25 -- could have rules for keeping processes around for some time in case new clients
-        // come along, to avoid the overhead of reconstructing them. Batch and terminated processes would still want to 
-        // be torn down straight away.
-        removeViewProcess(process);
-      }
+      removeViewProcessIfUnused(process);
     } finally {
       _processLock.unlock();
     }
@@ -302,15 +318,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewProcessImpl createViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean privateProcess) {
     _processLock.lock();
     try {
-      ViewDefinition definition = getViewDefinitionRepository().getDefinition(viewDefinitionName);
-      if (definition == null) {
-        throw new OpenGammaRuntimeException("No view definition with the name '" + viewDefinitionName + "' exists");
-      }
       String idValue = generateIdValue(_processIdSource);
-      UniqueIdentifier viewProcessId = UniqueIdentifier.of(PROCESS_SCHEME, idValue);
-      ObjectIdentifier cycleObjectId = ObjectIdentifier.of(CYCLE_SCHEME, idValue);
+      UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
+      ObjectId cycleObjectId = ObjectId.of(CYCLE_SCHEME, idValue);
       ViewProcessContext viewProcessContext = createViewProcessContext();
-      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definition, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
+      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, viewDefinitionName, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
       
       // The view must be created in a locked state if this view processor is suspended
       _lifecycleLock.lock();
@@ -351,6 +363,15 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewProcessorEventListenerRegistry.notifyViewProcessRemoved(viewProcess.getUniqueId());
   }
   
+  private void removeViewProcessIfUnused(ViewProcessImpl process) {
+    if (!process.hasExecutionDemand()) {
+      // REVIEW jonathan 2011-03-25 -- could have rules for keeping processes around for some time in case new clients
+      // come along, to avoid the overhead of reconstructing them. Batch and terminated processes would still want to 
+      // be torn down straight away.
+      removeViewProcess(process);
+    }
+  }
+  
   //-------------------------------------------------------------------------
   
   /**
@@ -360,7 +381,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @return the live data override injector, not null
    * @throws IllegalStateException if the client is not associated with a view process
    */
-  public MarketDataInjector getLiveDataOverrideInjector(UniqueIdentifier clientId) {
+  public MarketDataInjector getLiveDataOverrideInjector(UniqueId clientId) {
     return getClientViewProcess(clientId).getLiveDataOverrideInjector();
   }
   
@@ -371,8 +392,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @return the view definition, not null
    * @throws IllegalStateException if the client is not associated with a view process
    */
-  public ViewDefinition getViewDefinition(UniqueIdentifier clientId) {
-    return getClientViewProcess(clientId).getDefinition();
+  public ViewDefinition getLatestViewDefinition(UniqueId clientId) {
+    return getClientViewProcess(clientId).getLatestViewDefinition();
   }
   
   /**
@@ -381,11 +402,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param clientId  the unique identifier of the client, not null
    * @throws IllegalStateException if the client is not associated with a view process
    */
-  public void triggerCycle(UniqueIdentifier clientId) {
+  public void triggerCycle(UniqueId clientId) {
     getClientViewProcess(clientId).triggerCycle();
   }
   
-  private ViewProcessImpl getClientViewProcess(UniqueIdentifier clientId) {
+  private ViewProcessImpl getClientViewProcess(UniqueId clientId) {
     checkIdScheme(clientId, CLIENT_SCHEME);
     _processLock.lock();
     try {
@@ -404,7 +425,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   public ViewClient createViewClient(UserPrincipal clientUser) {
     ArgumentChecker.notNull(clientUser, "clientUser");
     String idValue = generateIdValue(_clientIdSource);
-    UniqueIdentifier clientId = UniqueIdentifier.of(CLIENT_SCHEME, idValue);
+    UniqueId clientId = UniqueId.of(CLIENT_SCHEME, idValue);
     ViewClientImpl client = new ViewClientImpl(clientId, this, clientUser, _clientResultTimer);
     _allClientsById.put(clientId, client);
     _viewProcessorEventListenerRegistry.notifyViewClientAdded(clientId);
@@ -412,7 +433,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
 
   @Override
-  public ViewClientImpl getViewClient(UniqueIdentifier clientId) {
+  public ViewClientImpl getViewClient(UniqueId clientId) {
     ArgumentChecker.notNull(clientId, "clientId");
     checkIdScheme(clientId, CLIENT_SCHEME);
     ViewClientImpl client = _allClientsById.get(clientId);
@@ -427,7 +448,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * 
    * @param clientId  the unique identifier, not null
    */
-  public void removeViewClient(UniqueIdentifier clientId) {
+  public void removeViewClient(UniqueId clientId) {
     ArgumentChecker.notNull(clientId, "clientId");
     checkIdScheme(clientId, CLIENT_SCHEME);
     s_logger.info("Removing view client {}", clientId);
@@ -463,7 +484,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param viewClientId  the unique identifier of the view client, not null
    * @return the view process, not null
    */
-  public ViewProcessImpl getViewProcessForClient(UniqueIdentifier viewClientId) {
+  public ViewProcessImpl getViewProcessForClient(UniqueId viewClientId) {
     _processLock.lock();
     try {
       ViewProcessImpl process = _clientToProcess.get(viewClientId).getFirst();
@@ -476,7 +497,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
   
-  private void checkIdScheme(UniqueIdentifier id, String expectedScheme) {
+  private void checkIdScheme(UniqueId id, String expectedScheme) {
     if (!expectedScheme.equals(id.getScheme())) {
       throw new IllegalArgumentException("Object is not from this view processor: expected scheme " + PROCESS_SCHEME + " but identifier was " + id);
     }
@@ -484,6 +505,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private ViewProcessContext createViewProcessContext() {
     return new ViewProcessContext(
+        _viewDefinitionRepository,
         _viewPermissionProvider,
         _marketDataProviderFactoryResolver,
         _functionCompilationService,

@@ -42,8 +42,8 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.web.FreemarkerCustomRenderer;
@@ -106,7 +106,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private URI updateSecurity(SecurityDocument doc) {
-    IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
+    ExternalIdBundle identifierBundle = doc.getSecurity().getIdentifiers();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
     return WebSecurityResource.uri(data());
   }
@@ -169,7 +169,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
-        String identifierValue = bondFutureDeliverable.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_BUID);
+        String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
         result.put("BLOOMBERG BUID - " + identifierValue, bondFutureDeliverable.getConversionFactor());
       }
     }
@@ -264,7 +264,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * @param overrideSecurityId  the override security id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideSecurityId) {
+  public static URI uri(final WebSecuritiesData data, final UniqueId overrideSecurityId) {
     String securityId = data.getBestSecurityUriId(overrideSecurityId);
     return data.getUriInfo().getBaseUriBuilder().path(WebSecurityResource.class).build(securityId);
   }

@@ -9,22 +9,22 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Key to represent time-series data in a hash-map or cache.
  */
 /* package */ final class HistoricalTimeSeriesKey {
 
-  private final IdentifierBundle _identifiers;
+  private final ExternalIdBundle _externalIdBundle;
   private final LocalDate _currentDate;
   private final String _dataSource;
   private final String _dataProvider;
   private final String _dataField;
   private final String _configName;
 
-  /* package */ HistoricalTimeSeriesKey(String configName, LocalDate currentDate, IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
-    _identifiers = dsids;
+  /* package */ HistoricalTimeSeriesKey(String configName, LocalDate currentDate, ExternalIdBundle bundle, String dataSource, String dataProvider, String field) {
+    _externalIdBundle = bundle;
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _dataField = field;
@@ -33,8 +33,8 @@ import com.opengamma.id.IdentifierBundle;
   }
 
   //-------------------------------------------------------------------------
-  public IdentifierBundle getIdentifiers() {
-    return _identifiers;
+  public ExternalIdBundle getExternalIdBundle() {
+    return _externalIdBundle;
   }
 
   //-------------------------------------------------------------------------
@@ -46,7 +46,7 @@ import com.opengamma.id.IdentifierBundle;
     if ((object instanceof HistoricalTimeSeriesKey)) {
       HistoricalTimeSeriesKey other = (HistoricalTimeSeriesKey) object;
       return
-          ObjectUtils.equals(_identifiers, _identifiers) &&
+          ObjectUtils.equals(_externalIdBundle, _externalIdBundle) &&
           ObjectUtils.equals(_currentDate, other._currentDate) &&
           ObjectUtils.equals(_dataProvider, other._dataProvider) &&
           ObjectUtils.equals(_dataSource, other._dataSource) &&
@@ -58,7 +58,7 @@ import com.opengamma.id.IdentifierBundle;
 
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(_identifiers) ^
+    return ObjectUtils.hashCode(_externalIdBundle) ^
             ObjectUtils.hashCode(_currentDate) ^
             ObjectUtils.hashCode(_dataProvider) ^
             ObjectUtils.hashCode(_dataSource) ^

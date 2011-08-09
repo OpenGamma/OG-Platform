@@ -11,7 +11,7 @@ namespace com.opengamma.financial.security.future {
    * the 'deliverable basket'.
    */
   message BondFutureDeliverable {
-    required id.IdentifierBundle identifiers;
+    required id.ExternalIdBundle identifiers;
     required double conversionFactor;
   }
 

@@ -19,7 +19,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
@@ -35,8 +35,8 @@ public class SocketFudgeRequestConduitTest {
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
       @Override
-      public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-        MutableFudgeMsg response = context.getFudgeContext().newMessage();
+      public FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
+        MutableFudgeMsg response = deserializer.getFudgeContext().newMessage();
         response.add("TheTime", System.nanoTime());
         return response;
       }
@@ -93,7 +93,7 @@ public class SocketFudgeRequestConduitTest {
       private final AtomicInteger _concurrency = new AtomicInteger(0);
 
       @Override
-      public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+      public FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
         final int concurrency = _concurrency.incrementAndGet();
         if (concurrency > maxConcurrency.get()) {
           maxConcurrency.set(concurrency);

@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchMaster;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Data class for web-based batch management.
@@ -73,7 +73,7 @@ public class WebBatchData extends DirectBean {
    * @param overrideId  the override id, null derives the result from the data
    * @return the id, may be null
    */
-  public String getBestBatchUriId(final UniqueIdentifier overrideId) {
+  public String getBestBatchUriId(final UniqueId overrideId) {
     if (overrideId != null) {
       return overrideId.toLatest().toString();
     }

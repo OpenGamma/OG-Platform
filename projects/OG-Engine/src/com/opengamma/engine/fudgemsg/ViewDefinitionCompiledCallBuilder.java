@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
@@ -25,16 +25,16 @@ public class ViewDefinitionCompiledCallBuilder implements FudgeBuilder<ViewDefin
   private static final String HAS_MARKET_DATA_PERMISSIONS_FIELD = "hasMarketDataPermissions";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewDefinitionCompiledCall object) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, COMPILED_VIEW_DEFINITION_FIELD, null, object.getCompiledViewDefinition());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewDefinitionCompiledCall object) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, COMPILED_VIEW_DEFINITION_FIELD, null, object.getCompiledViewDefinition());
     msg.add(HAS_MARKET_DATA_PERMISSIONS_FIELD, object.hasMarketDataPermissions());
     return msg;
   }
 
   @Override
-  public ViewDefinitionCompiledCall buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    CompiledViewDefinition compiledViewDefinition = context.fieldValueToObject(CompiledViewDefinition.class, msg.getByName(COMPILED_VIEW_DEFINITION_FIELD));
+  public ViewDefinitionCompiledCall buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    CompiledViewDefinition compiledViewDefinition = deserializer.fieldValueToObject(CompiledViewDefinition.class, msg.getByName(COMPILED_VIEW_DEFINITION_FIELD));
     boolean hasMarketDataPermissions = msg.getBoolean(HAS_MARKET_DATA_PERMISSIONS_FIELD);
     return new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions);
   }

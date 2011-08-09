@@ -36,7 +36,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
@@ -115,7 +115,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(fxForward.getUnderlyingIdentifier()));
+    final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingIdentifier()));
     final String payCurveName = getPayCurveName();
     final String receiveCurveName = getReceiveCurveName();
     final Currency payCurrency = fx.getPayCurrency();
@@ -136,7 +136,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(fxForward.getUnderlyingIdentifier()));
+    final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingIdentifier()));
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
     return Sets.newHashSet(getPaySpec(target, payCurrency.getCode()), getReceiveSpec(target, receiveCurrency.getCode()));

@@ -16,8 +16,8 @@ import java.util.List;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -38,13 +38,13 @@ public class HistoricalTimeSeriesRatingTest {
     
     HistoricalTimeSeriesRating inputConfig = new HistoricalTimeSeriesRating(rules);
     
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
+    FudgeSerializer serializationContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputConfig);
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     assertNotNull(outputMsg);
     assertEquals(3, outputMsg.getNumFields());
     
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     HistoricalTimeSeriesRating outputConfig = deserializationContext.fudgeMsgToObject(HistoricalTimeSeriesRating.class, outputMsg);
     
     assertEquals(inputConfig, outputConfig);

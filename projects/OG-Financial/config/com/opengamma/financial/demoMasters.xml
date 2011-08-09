@@ -68,7 +68,7 @@
   <!-- ConfigMaster -->
   <bean id="sharedConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
     <constructor-arg ref="cfgDbSource" />
-    <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
   <!-- <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader,currencyMatrixLoader,surfaceLoader, cubeLoader"> -->
   <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader, currencyMatrixLoader, swaptionSurfaceLoader, irFutureSurfaceLoader, fxVolatilitySurfaceLoader, equityOptionSurfaceLoader, cubeLoader">
@@ -100,7 +100,7 @@
   <!-- ExchangeMaster -->
   <bean id="dbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.exchangemaster.scheme}" />
   </bean>
 
   <bean id="sharedExchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
@@ -110,7 +110,7 @@
   <!-- HolidayMaster -->
   <bean id="dbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
   <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySource">
     <constructor-arg ref="dbHolidayMaster"/>
@@ -118,11 +118,11 @@
   </bean>
 
   <!-- SecurityMaster -->
-  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="dbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="finDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
-    <property name="identifierScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
   </bean>
   <bean id="sharedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
     <constructor-arg>
@@ -136,11 +136,11 @@
   <!-- PortfolioMaster/PositionMaster --> 
   <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
   </bean>
   <bean id="dbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="identifierScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
   </bean>
   <bean id="sharedPositionSource" class="com.opengamma.core.position.impl.EHCachingPositionSource">
     <constructor-arg>
@@ -160,7 +160,7 @@
   <!-- TimeSeries database -->
   <bean id="dbHtsMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
     <constructor-arg ref="htsDbSource"/>
-    <property name="identifierScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
   <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
@@ -237,11 +237,11 @@
   </bean>
   
   <!-- MarketDataSnapshotMaster -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="finDbSource" />
     <property name="changeManager" ref="snapshotMasterChangeManager" />
-    <property name="identifierScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
   </bean>
   
   <!-- TODO EHCachingFinancialSnapshotSource -->

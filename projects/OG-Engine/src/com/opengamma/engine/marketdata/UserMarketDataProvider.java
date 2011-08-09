@@ -18,7 +18,7 @@ import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermission
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,14 +28,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
-  private final UniqueIdentifier _snapshotId;
+  private final UniqueId _snapshotId;
   private final CopyOnWriteArraySet<ValueRequirement> _listeningValueRequirements = new CopyOnWriteArraySet<ValueRequirement>();
   private final MarketDataSnapshotSource _snapshotSource;
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
   private final Object _listenerLock = new Object();
 
-  public UserMarketDataProvider(MarketDataSnapshotSource snapshotSource, UniqueIdentifier snapshotId) {
+  public UserMarketDataProvider(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     ArgumentChecker.notNull(snapshotId, "snapshotId");
     _snapshotSource = snapshotSource;
@@ -44,7 +44,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
     _snapshotSourceChangeListener = new MarketDataSnapshotChangeListener() {
       @Override
-      public void snapshotChanged(UniqueIdentifier uid) {
+      public void snapshotChanged(UniqueId uid) {
         valuesChanged(_listeningValueRequirements);
       }
     };
@@ -130,7 +130,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     return _snapshotSource;
   }
   
-  private UniqueIdentifier getSnapshotId() {
+  private UniqueId getSnapshotId() {
     return _snapshotId;
   }
 

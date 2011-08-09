@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.slf4j.Logger;
@@ -110,14 +110,14 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
   }
 
   @Override
-  protected final void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final T object) {
+  protected final void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final T object) {
     s_logger.debug("Building message from {}", object);
-    writeLabels(context, message, object.getXLabels(), X_LABELS_KEY, X_LABEL_TYPES_KEY);
-    writeXKeys(context, message, object.getXKeys());
-    writeLabels(context, message, object.getYLabels(), Y_LABELS_KEY, Y_LABEL_TYPES_KEY);
-    writeYKeys(context, message, object.getYKeys());
-    writeLabels(context, message, object.getZLabels(), Z_LABELS_KEY, Z_LABEL_TYPES_KEY);
-    writeZKeys(context, message, object.getZKeys());
+    writeLabels(serializer, message, object.getXLabels(), X_LABELS_KEY, X_LABEL_TYPES_KEY);
+    writeXKeys(serializer, message, object.getXKeys());
+    writeLabels(serializer, message, object.getYLabels(), Y_LABELS_KEY, Y_LABEL_TYPES_KEY);
+    writeYKeys(serializer, message, object.getYKeys());
+    writeLabels(serializer, message, object.getZLabels(), Z_LABELS_KEY, Z_LABEL_TYPES_KEY);
+    writeZKeys(serializer, message, object.getZKeys());
     writeValues(message, object.getValues());
     s_logger.debug("Built {}", message);
   }
@@ -125,21 +125,21 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
   /**
    * General purpose label writer.
    * 
-   * @param context serialization context
+   * @param serializer serialization context
    * @param message message to add the key to
    * @param labels labels to add
    * @param valueKey name of the field to hold label value information
    * @param typeKey name of the optional field to hold additional type information
    */
-  protected void writeLabels(final FudgeSerializationContext context, final MutableFudgeMsg message, final Object[] labels, final String valueKey, final String typeKey) {
-    final MutableFudgeMsg valueMsg = context.newMessage();
-    final MutableFudgeMsg typeMsg = context.newMessage();
+  protected void writeLabels(final FudgeSerializer serializer, final MutableFudgeMsg message, final Object[] labels, final String valueKey, final String typeKey) {
+    final MutableFudgeMsg valueMsg = serializer.newMessage();
+    final MutableFudgeMsg typeMsg = serializer.newMessage();
     boolean needsTypeInfo = false;
     for (Object label : labels) {
-      final FudgeFieldType type = context.getFudgeContext().getTypeDictionary().getByJavaType(label.getClass());
+      final FudgeFieldType type = serializer.getFudgeContext().getTypeDictionary().getByJavaType(label.getClass());
       if (type == null) {
-        context.addToMessage(valueMsg, null, null, label);
-        valueMsg.add(null, null, FudgeWireType.SUB_MESSAGE, context.objectToFudgeMsg(label));
+        serializer.addToMessage(valueMsg, null, null, label);
+        valueMsg.add(null, null, FudgeWireType.SUB_MESSAGE, serializer.objectToFudgeMsg(label));
         typeMsg.add(null, null, label.getClass().getName());
         needsTypeInfo = true;
       } else {
@@ -172,55 +172,55 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
   /**
    * General purpose key writer; defaults to {@link #writeKeys} - override in a subclass for more efficient handling.
    * 
-   * @param context serialization context
+   * @param serializer serialization context
    * @param message message to add the key to
    * @param keys keys to add
    */
-  protected void writeXKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final KX[] keys) {
-    writeKeys(context, message, keys, getXKeyClass(), X_KEYS_KEY);
+  protected void writeXKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final KX[] keys) {
+    writeKeys(serializer, message, keys, getXKeyClass(), X_KEYS_KEY);
   }
 
   /**
    * General purpose key writer; defaults to {@link #writeKeys} - override in a subclass for more efficient handling.
    * 
-   * @param context serialization context
+   * @param serializer serialization context
    * @param message message to add the key to
    * @param keys keys to add
    */
-  protected void writeYKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final KY[] keys) {
-    writeKeys(context, message, keys, getYKeyClass(), Y_KEYS_KEY);
+  protected void writeYKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final KY[] keys) {
+    writeKeys(serializer, message, keys, getYKeyClass(), Y_KEYS_KEY);
   }
 
   /**
    * General purpose key writer; defaults to {@link #writeKeys} - override in a subclass for more efficient handling.
    * 
-   * @param context serialization context
+   * @param serializer serialization context
    * @param message message to add the key to
    * @param keys keys to add
    */
-  protected void writeZKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final KZ[] keys) {
-    writeKeys(context, message, keys, getZKeyClass(), Z_KEYS_KEY);
+  protected void writeZKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final KZ[] keys) {
+    writeKeys(serializer, message, keys, getZKeyClass(), Z_KEYS_KEY);
   }
 
   /**
    * General purposes key writer; add each key as a field to a sub-message.
    * 
    * @param <K> type of key
-   * @param context serialization context
+   * @param serializer serialization context
    * @param message message to add the keys to
    * @param keys keys to add
    * @param keyClass common base type of the keys (as known to the receiver)
    * @param keysKey name of the field to add the keys as
    */
-  protected <K> void writeKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final K[] keys, final Class<K> keyClass, final String keysKey) {
-    final MutableFudgeMsg submsg = context.newMessage();
+  protected <K> void writeKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final K[] keys, final Class<K> keyClass, final String keysKey) {
+    final MutableFudgeMsg submsg = serializer.newMessage();
     for (K key : keys) {
-      context.addToMessageWithClassHeaders(submsg, null, null, key, keyClass);
+      serializer.addToMessageWithClassHeaders(submsg, null, null, key, keyClass);
     }
     message.add(keysKey, submsg);
   }
 
-  protected void writeDoubleKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final Double[] keys, final String keysKey) {
+  protected void writeDoubleKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys, final String keysKey) {
     final double[] arr = new double[keys.length];
     for (int i = 0; i < keys.length; i++) {
       arr[i] = keys[i];
@@ -250,14 +250,14 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
   }
 
   @Override
-  public final T buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public final T buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     s_logger.debug("Building object from {}", message);
-    final KX[] xKeys = readXKeys(context, message);
-    final Object[] xLabels = readLabels(context, message, X_LABELS_KEY, X_LABEL_TYPES_KEY);
-    final KY[] yKeys = readYKeys(context, message);
-    final Object[] yLabels = readLabels(context, message, Y_LABELS_KEY, Y_LABEL_TYPES_KEY);
-    final KZ[] zKeys = readZKeys(context, message);
-    final Object[] zLabels = readLabels(context, message, Z_LABELS_KEY, Z_LABEL_TYPES_KEY);
+    final KX[] xKeys = readXKeys(deserializer, message);
+    final Object[] xLabels = readLabels(deserializer, message, X_LABELS_KEY, X_LABEL_TYPES_KEY);
+    final KY[] yKeys = readYKeys(deserializer, message);
+    final Object[] yLabels = readLabels(deserializer, message, Y_LABELS_KEY, Y_LABEL_TYPES_KEY);
+    final KZ[] zKeys = readZKeys(deserializer, message);
+    final Object[] zLabels = readLabels(deserializer, message, Z_LABELS_KEY, Z_LABEL_TYPES_KEY);
     final double[][][] values = readValues(message, xKeys.length, yKeys.length, zKeys.length);
     final T result = createMatrix(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
     s_logger.debug("Built object {}", result);
@@ -267,13 +267,13 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
   /**
    * Inverse of {@link #writeLabels}.
    * 
-   * @param context deserialization context
+   * @param deserializer deserialization context
    * @param message message to read from
    * @param labelsKey name of the field containing label values
    * @param labelTypesKey name of the optional field containing additional type information
    * @return new labels array
    */
-  protected Object[] readLabels(final FudgeDeserializationContext context, final FudgeMsg message, final String labelsKey, final String labelTypesKey) {
+  protected Object[] readLabels(final FudgeDeserializer deserializer, final FudgeMsg message, final String labelsKey, final String labelTypesKey) {
     final FudgeMsg valueMsg = message.getMessage(labelsKey);
     if (valueMsg == null) {
       s_logger.warn("Message field {} not found in {}", labelsKey, message);
@@ -297,12 +297,12 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
             type = Object.class;
           }
         } else {
-          type = context.getFudgeContext().getTypeDictionary().getByTypeId(((Number) val).intValue()).getJavaType();
+          type = deserializer.getFudgeContext().getTypeDictionary().getByTypeId(((Number) val).intValue()).getJavaType();
         }
       } else {
         type = Object.class;
       }
-      labels[i++] = context.fieldValueToObject(type, itrValue.next());
+      labels[i++] = deserializer.fieldValueToObject(type, itrValue.next());
     }
     return labels;
   }
@@ -310,48 +310,48 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
   /**
    * Inverse of {@link #readXKeys}.
    * 
-   * @param context deserialization context
+   * @param deserializer deserialization context
    * @param message message to read from
    * @return the keys
    */
-  protected KX[] readXKeys(final FudgeDeserializationContext context, final FudgeMsg message) {
-    return readKeys(context, message, getXKeyClass(), X_KEYS_KEY);
+  protected KX[] readXKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    return readKeys(deserializer, message, getXKeyClass(), X_KEYS_KEY);
   }
 
   /**
    * Inverse of {@link #readXKeys}.
    * 
-   * @param context deserialization context
+   * @param deserializer deserialization context
    * @param message message to read from
    * @return the keys
    */
-  protected KY[] readYKeys(final FudgeDeserializationContext context, final FudgeMsg message) {
-    return readKeys(context, message, getYKeyClass(), Y_KEYS_KEY);
+  protected KY[] readYKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    return readKeys(deserializer, message, getYKeyClass(), Y_KEYS_KEY);
   }
 
   /**
    * Inverse of {@link #readXKeys}.
    * 
-   * @param context deserialization context
+   * @param deserializer deserialization context
    * @param message message to read from
    * @return the keys
    */
-  protected KZ[] readZKeys(final FudgeDeserializationContext context, final FudgeMsg message) {
-    return readKeys(context, message, getZKeyClass(), Z_KEYS_KEY);
+  protected KZ[] readZKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    return readKeys(deserializer, message, getZKeyClass(), Z_KEYS_KEY);
   }
 
   /**
    * Inverse of {@link #writeKeys}.
    * 
    * @param <K> key type
-   * @param context deserialization context
+   * @param deserializer deserialization context
    * @param message message to read from
    * @param keyClass common base type of the keys (as understood by the sender)
    * @param keysKey name of the field containing the keys
    * @return the keys
    */
   @SuppressWarnings("unchecked")
-  protected <K> K[] readKeys(final FudgeDeserializationContext context, final FudgeMsg message, final Class<K> keyClass, final String keysKey) {
+  protected <K> K[] readKeys(final FudgeDeserializer deserializer, final FudgeMsg message, final Class<K> keyClass, final String keysKey) {
     final FudgeMsg submsg = message.getMessage(keysKey);
     if (submsg == null) {
       s_logger.warn("Message field {} not found in {}", keysKey, message);
@@ -360,12 +360,12 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
     final K[] keys = (K[]) Array.newInstance(keyClass, submsg.getNumFields());
     int i = 0;
     for (FudgeField key : submsg) {
-      keys[i++] = context.fieldValueToObject(keyClass, key);
+      keys[i++] = deserializer.fieldValueToObject(keyClass, key);
     }
     return keys;
   }
 
-  protected Double[] readDoubleKeys(final FudgeDeserializationContext context, final FudgeMsg message, final String keysKey) {
+  protected Double[] readDoubleKeys(final FudgeDeserializer deserializer, final FudgeMsg message, final String keysKey) {
     final FudgeField field = message.getByName(keysKey);
     if (field == null) {
       s_logger.warn("Message field {} not found in {}", keysKey, message);
@@ -423,33 +423,33 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
     }
     
     @Override
-    protected void writeXKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final Double[] keys) {
-      writeDoubleKeys(context, message, keys, X_KEYS_KEY);
+    protected void writeXKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
+      writeDoubleKeys(serializer, message, keys, X_KEYS_KEY);
     }
 
     @Override
-    protected void writeYKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final Double[] keys) {
-      writeDoubleKeys(context, message, keys, Y_KEYS_KEY);
+    protected void writeYKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
+      writeDoubleKeys(serializer, message, keys, Y_KEYS_KEY);
     }
 
     @Override
-    protected void writeZKeys(final FudgeSerializationContext context, final MutableFudgeMsg message, final Double[] keys) {
-      writeDoubleKeys(context, message, keys, Z_KEYS_KEY);
+    protected void writeZKeys(final FudgeSerializer serializer, final MutableFudgeMsg message, final Double[] keys) {
+      writeDoubleKeys(serializer, message, keys, Z_KEYS_KEY);
     }
 
     @Override
-    protected Double[] readXKeys(final FudgeDeserializationContext context, final FudgeMsg message) {
-      return readDoubleKeys(context, message, X_KEYS_KEY);
+    protected Double[] readXKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      return readDoubleKeys(deserializer, message, X_KEYS_KEY);
     }
 
     @Override
-    protected Double[] readYKeys(final FudgeDeserializationContext context, final FudgeMsg message) {
-      return readDoubleKeys(context, message, Y_KEYS_KEY);
+    protected Double[] readYKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      return readDoubleKeys(deserializer, message, Y_KEYS_KEY);
     }
 
     @Override
-    protected Double[] readZKeys(final FudgeDeserializationContext context, final FudgeMsg message) {
-      return readDoubleKeys(context, message, Z_KEYS_KEY);
+    protected Double[] readZKeys(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      return readDoubleKeys(deserializer, message, Z_KEYS_KEY);
     }
 
     @Override

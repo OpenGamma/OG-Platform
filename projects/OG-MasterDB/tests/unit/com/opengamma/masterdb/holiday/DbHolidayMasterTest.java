@@ -60,7 +60,7 @@ public class DbHolidayMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_holMaster);
-    assertEquals(true, _holMaster.getIdentifierScheme().equals("DbHol"));
+    assertEquals(true, _holMaster.getUniqueIdScheme().equals("DbHol"));
     assertNotNull(_holMaster.getDbSource());
     assertNotNull(_holMaster.getTimeSource());
   }

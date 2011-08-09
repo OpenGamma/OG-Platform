@@ -16,9 +16,13 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -58,6 +62,14 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
    * The bond cache.
    */
   private final Cache _bondCache;
+  /**
+   * Listens for changes in the underlying security source.
+   */
+  private final ChangeListener _changeListener;
+  /**
+   * The local change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance over an underlying source specifying the cache manager.
@@ -76,6 +88,22 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
     _bondCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_BONDS_CACHE);
     _manager = cacheManager;
+    _changeManager = new BasicChangeManager();
+    _changeListener = new ChangeListener() {
+      
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        if (event.getBeforeId() != null) {
+          cleanCaches(event.getBeforeId());
+        }
+        if (event.getAfterId() != null) {
+          cleanCaches(event.getAfterId());
+        }
+        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
+      }
+      
+    };
+    underlying.changeManager().addChangeListener(_changeListener);
   }
 
   //-------------------------------------------------------------------------
@@ -99,7 +127,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     Element e = _uidCache.get(uid);
     Security result = null;
@@ -122,7 +150,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Element e = _bundleCache.get(bundle);
     Collection<Security> result = new HashSet<Security>();
@@ -146,7 +174,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Collection<Security> matched = getSecurities(bundle);
     if (matched.isEmpty()) {
@@ -203,15 +231,29 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
       _uidCache.remove(securityKey);
     }
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
 
   /**
    * Call this at the end of a unit test run to clear the state of EHCache.
    * It should not be part of a generic lifecycle method.
    */
   protected void shutdown() {
+    _underlying.changeManager().removeChangeListener(_changeListener);
     _manager.removeCache(SINGLE_SECURITY_CACHE);
     _manager.removeCache(MULTI_SECURITIES_CACHE);
     _manager.shutdown();
+  }
+  
+  //-------------------------------------------------------------------------
+  private void cleanCaches(UniqueId id) {
+    // Only care where the unversioned ID has been cached since it now represents something else
+    UniqueId latestId = id.toLatest();
+    _uidCache.remove(latestId);
   }
 
 }

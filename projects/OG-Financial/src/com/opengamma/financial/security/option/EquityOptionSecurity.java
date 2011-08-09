@@ -5,14 +5,14 @@ package com.opengamma.financial.security.option;
 public class EquityOptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept (EquityOptionSecurityVisitor<T> visitor) { return visitor.visitEquityOptionSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityOptionSecurity(this); }
-  private static final long serialVersionUID = 3443342415334005848l;
+  private static final long serialVersionUID = 7863146049426876661l;
   private com.opengamma.financial.security.option.OptionType _optionType;
   public static final String OPTION_TYPE_KEY = "optionType";
   private double _strike;
   public static final String STRIKE_KEY = "strike";
   private com.opengamma.util.money.Currency _currency;
   public static final String CURRENCY_KEY = "currency";
-  private com.opengamma.id.Identifier _underlyingIdentifier;
+  private com.opengamma.id.ExternalId _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
   private com.opengamma.financial.security.option.ExerciseType _exerciseType;
   public static final String EXERCISE_TYPE_KEY = "exerciseType";
@@ -23,7 +23,7 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
   private String _exchange;
   public static final String EXCHANGE_KEY = "exchange";
   public static final String SECURITY_TYPE = "EQUITY_OPTION";
-  public EquityOptionSecurity (com.opengamma.financial.security.option.OptionType optionType, double strike, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.util.time.Expiry expiry, double pointValue, String exchange) {
+  public EquityOptionSecurity (com.opengamma.financial.security.option.OptionType optionType, double strike, com.opengamma.util.money.Currency currency, com.opengamma.id.ExternalId underlyingIdentifier, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.util.time.Expiry expiry, double pointValue, String exchange) {
     super (SECURITY_TYPE);
     if (optionType == null) throw new NullPointerException ("optionType' cannot be null");
     _optionType = optionType;
@@ -46,8 +46,8 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
     _exchange = exchange;
   }
-  protected EquityOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeContext, fudgeMsg);
+  protected EquityOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (OPTION_TYPE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'optionType' is not present");
@@ -76,15 +76,15 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'underlyingIdentifier' is not present");
     try {
-      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'underlyingIdentifier' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
     }
     fudgeField = fudgeMsg.getByName (EXERCISE_TYPE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'exerciseType' is not present");
     try {
-      _exerciseType = com.opengamma.financial.security.option.ExerciseType.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _exerciseType = com.opengamma.financial.security.option.ExerciseType.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'exerciseType' is not ExerciseType message", e);
@@ -92,7 +92,7 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'expiry' is not present");
     try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'expiry' is not Expiry message", e);
@@ -114,7 +114,7 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
       throw new IllegalArgumentException ("Fudge message is not a EquityOptionSecurity - field 'exchange' is not string", e);
     }
   }
-  public EquityOptionSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.financial.security.option.OptionType optionType, double strike, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.util.time.Expiry expiry, double pointValue, String exchange) {
+  public EquityOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.financial.security.option.OptionType optionType, double strike, com.opengamma.util.money.Currency currency, com.opengamma.id.ExternalId underlyingIdentifier, com.opengamma.financial.security.option.ExerciseType exerciseType, com.opengamma.util.time.Expiry expiry, double pointValue, String exchange) {
     super (uniqueId, name, securityType, identifiers);
     if (optionType == null) throw new NullPointerException ("optionType' cannot be null");
     _optionType = optionType;
@@ -161,14 +161,14 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
   public EquityOptionSecurity clone () {
     return new EquityOptionSecurity (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (fudgeContext, msg);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
+    super.toFudgeMsg (serializer, msg);
     if (_optionType != null)  {
       msg.add (OPTION_TYPE_KEY, null, _optionType.name ());
     }
@@ -177,18 +177,18 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
       msg.add (CURRENCY_KEY, null, _currency);
     }
     if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.Identifier.class);
-      _underlyingIdentifier.toFudgeMsg (fudgeContext, fudge1);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
+      _underlyingIdentifier.toFudgeMsg (serializer, fudge1);
       msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
     }
     if (_exerciseType != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _exerciseType.getClass (), com.opengamma.financial.security.option.ExerciseType.class);
-      _exerciseType.toFudgeMsg (fudgeContext, fudge1);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _exerciseType.getClass (), com.opengamma.financial.security.option.ExerciseType.class);
+      _exerciseType.toFudgeMsg (serializer, fudge1);
       msg.add (EXERCISE_TYPE_KEY, null, fudge1);
     }
     if (_expiry != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
-      _expiry.toFudgeMsg (fudgeContext, fudge1);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
+      _expiry.toFudgeMsg (serializer, fudge1);
       msg.add (EXPIRY_KEY, null, fudge1);
     }
     msg.add (POINT_VALUE_KEY, null, _pointValue);
@@ -196,19 +196,19 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
       msg.add (EXCHANGE_KEY, null, _exchange);
     }
   }
-  public static EquityOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static EquityOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.option.EquityOptionSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.option.EquityOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.financial.security.option.EquityOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new EquityOptionSecurity (fudgeContext, fudgeMsg);
+    return new EquityOptionSecurity (deserializer, fudgeMsg);
   }
   public com.opengamma.financial.security.option.OptionType getOptionType () {
     return _optionType;
@@ -230,10 +230,10 @@ public class EquityOptionSecurity extends com.opengamma.financial.security.Finan
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
   }
-  public com.opengamma.id.Identifier getUnderlyingIdentifier () {
+  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
     return _underlyingIdentifier;
   }
-  public void setUnderlyingIdentifier (com.opengamma.id.Identifier underlyingIdentifier) {
+  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
       _underlyingIdentifier = underlyingIdentifier;

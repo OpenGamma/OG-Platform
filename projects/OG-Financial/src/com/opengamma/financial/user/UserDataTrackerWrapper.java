@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.user;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Tracks events trapped by the user data masters.
@@ -24,11 +24,11 @@ import com.opengamma.id.UniqueIdentifier;
     _type = type;
   }
 
-  public void created(final UniqueIdentifier identifier) {
+  public void created(final UniqueId identifier) {
     _tracker.created(_userName, _clientName, _type, identifier);
   }
 
-  public void deleted(final UniqueIdentifier identifier) {
+  public void deleted(final UniqueId identifier) {
     _tracker.deleted(_userName, _clientName, _type, identifier);
   }
 

@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  */
 //TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
-  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
 
   /** Type of the volatility quote */
   public enum FXVolQuoteType {
@@ -61,16 +61,16 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
   }
 
   @Override
-  public Identifier getInstrument(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType) {
+  public ExternalId getInstrument(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType) {
     return createFXVolatilityCode(tenor, volDeltaQuoteType);
   }
 
   @Override
-  public Identifier getInstrument(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType, final LocalDate surfaceDate) {
+  public ExternalId getInstrument(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType, final LocalDate surfaceDate) {
     return createFXVolatilityCode(tenor, volDeltaQuoteType);
   }
 
-  private Identifier createFXVolatilityCode(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType) {
+  private ExternalId createFXVolatilityCode(final Tenor tenor, final Pair<Number, FXVolQuoteType> volDeltaQuoteType) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_fxPrefix);
     final int delta = volDeltaQuoteType.getFirst().intValue();
@@ -109,7 +109,7 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(bbgCode);
     ticker.append(" ");
     ticker.append(_postfix);
-    return Identifier.of(SCHEME, ticker.toString());
+    return ExternalId.of(SCHEME, ticker.toString());
   }
 
   @Override

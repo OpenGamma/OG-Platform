@@ -11,11 +11,11 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Fudge message builder for {@code CalculationJobSpecification}.
@@ -28,8 +28,8 @@ public class CalculationJobSpecificationBuilder implements FudgeBuilder<Calculat
   private static final String JOB_ID_FIELD_NAME = "jobId";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CalculationJobSpecification object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CalculationJobSpecification object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(VIEW_CYCLE_ID_FIELD_NAME, object.getViewCycleId());
     msg.add(CALCULATION_CONFIGURATION_FIELD_NAME, object.getCalcConfigName());
     msg.add(VALUATION_TIME_FIELD_NAME, object.getValuationTime());
@@ -38,10 +38,10 @@ public class CalculationJobSpecificationBuilder implements FudgeBuilder<Calculat
   }
 
   @Override
-  public CalculationJobSpecification buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    UniqueIdentifier viewCycleId = msg.getValue(UniqueIdentifier.class, VIEW_CYCLE_ID_FIELD_NAME);
+  public CalculationJobSpecification buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    UniqueId viewCycleId = msg.getValue(UniqueId.class, VIEW_CYCLE_ID_FIELD_NAME);
     String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_FIELD_NAME);
-    Instant valuationTime = context.fieldValueToObject(Instant.class, msg.getByName(VALUATION_TIME_FIELD_NAME));
+    Instant valuationTime = deserializer.fieldValueToObject(Instant.class, msg.getByName(VALUATION_TIME_FIELD_NAME));
     long jobId = msg.getLong(JOB_ID_FIELD_NAME);
     return new CalculationJobSpecification(viewCycleId, calcConfigName, valuationTime, jobId);
   }

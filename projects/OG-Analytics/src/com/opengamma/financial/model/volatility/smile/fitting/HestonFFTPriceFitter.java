@@ -10,7 +10,7 @@ import java.util.BitSet;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -56,7 +56,7 @@ public class HestonFFTPriceFitter extends HestonFFTSmileFitter {
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D fp) {
-        final CharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
+        final MartingaleCharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
         final double[][] strikeNPrice = FFT_PRICER.price(forward, df, maturity, isCall, ce, lowStrike, highStrike, n, limitSigma, getAlpha(), getLimitTolerance());
         final int nStrikes = strikeNPrice.length;
         final double[] k = new double[nStrikes];

@@ -17,8 +17,8 @@
 <@subsection title="Detail">
     <@rowout label="Full name">${region.fullName}</@rowout>
     <@rowout label="Classification">${region.classification}</@rowout>
-    <@rowout label="Country code" if=region.countryISO??>${region.countryISO}</@rowout>
-<#list region.identifiers.identifiers as item>
+    <@rowout label="Country code" if=region.country??>${region.country}</@rowout>
+<#list region.externalIdBundle.externalIds as item>
     <@rowout label="Key">${item.scheme.name} - ${item.value}</@rowout>
 </#list>
 </@subsection>

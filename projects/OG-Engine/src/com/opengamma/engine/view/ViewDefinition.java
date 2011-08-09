@@ -20,7 +20,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -36,9 +36,9 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   private static final long serialVersionUID = 1L;
   
-  private UniqueIdentifier _uniqueIdentifier;
+  private UniqueId _uniqueIdentifier;
   private final String _name;
-  private final UniqueIdentifier _portfolioId;
+  private final UniqueId _portfolioId;
   private final UserPrincipal _marketDataUser;
 
   private final ResultModelDefinition _resultModelDefinition;
@@ -67,7 +67,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param portfolioId  the unique identifier of the reference portfolio for this view definition
    * @param userName  the name of the user who owns the view definition
    */
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, String userName) {
+  public ViewDefinition(String name, UniqueId portfolioId, String userName) {
     this(name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
   }
 
@@ -110,7 +110,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    *                     <code>null</code> if no reference portfolio is required
    * @param marketDataUser  the user who owns the view definition
    */
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal marketDataUser) {
+  public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
     this(name, portfolioId, marketDataUser, new ResultModelDefinition());
   }
 
@@ -123,7 +123,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @param marketDataUser  the user who owns the view definition
    * @param resultModelDefinition  configuration of the results from the view
    */
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
+  public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(marketDataUser, "User name");
     ArgumentChecker.notNull(resultModelDefinition, "Result model definition");
@@ -165,7 +165,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * 
    * @return  the unique identifier of the reference portfolio, possibly null.
    */
-  public UniqueIdentifier getPortfolioId() {
+  public UniqueId getPortfolioId() {
     return _portfolioId;
   }
 
@@ -463,12 +463,12 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   }
 
   @Override
-  public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
+  public void setUniqueId(final UniqueId uniqueIdentifier) {
     _uniqueIdentifier = uniqueIdentifier;
   }
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueIdentifier;
   }
 

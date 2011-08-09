@@ -22,9 +22,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -80,7 +80,7 @@ public abstract class AbstractDocument extends DirectBean
    * @return the unique identifier, may be null, not null when returned from a query
    */
   @Override
-  public abstract UniqueIdentifier getUniqueId();
+  public abstract UniqueId getUniqueId();
 
   /**
    * Sets the unique identifier of the document.
@@ -90,7 +90,7 @@ public abstract class AbstractDocument extends DirectBean
    * @param uniqueId  the unique identifier, may be null
    */
   @Override
-  public abstract void setUniqueId(UniqueIdentifier uniqueId);
+  public abstract void setUniqueId(UniqueId uniqueId);
 
   //-------------------------------------------------------------------------
   /**
@@ -101,7 +101,7 @@ public abstract class AbstractDocument extends DirectBean
    * @return the object identifier, may be null, not null when returned from a query
    */
   @Override
-  public ObjectIdentifier getObjectId() {
+  public ObjectId getObjectId() {
     return getUniqueId().getObjectId();
   }
 

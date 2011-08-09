@@ -5,9 +5,9 @@
  */
 package com.opengamma.core.exchange;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,7 +26,7 @@ public interface ExchangeSource {
    * @return the exchange, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Exchange getExchange(UniqueIdentifier uniqueId);
+  Exchange getExchange(UniqueId uniqueId);
 
   /**
    * Finds a specific exchange by identifier.
@@ -38,7 +38,7 @@ public interface ExchangeSource {
    * @return the exchange, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Exchange getSingleExchange(Identifier identifier);
+  Exchange getSingleExchange(ExternalId identifier);
 
   /**
    * Finds a specific exchange by identifier bundle.
@@ -50,6 +50,6 @@ public interface ExchangeSource {
    * @return the exchange, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
    */
-  Exchange getSingleExchange(IdentifierBundle identifierBundle);
+  Exchange getSingleExchange(ExternalIdBundle identifierBundle);
 
 }

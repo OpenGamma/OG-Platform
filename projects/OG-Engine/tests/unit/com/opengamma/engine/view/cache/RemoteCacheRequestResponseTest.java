@@ -33,7 +33,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -56,7 +56,7 @@ public class RemoteCacheRequestResponseTest {
 
     final ValueSpecification[] valueSpec = new ValueSpecification[10];
     for (int i = 0; i < valueSpec.length; i++) {
-      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))),
+      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk", "Value" + i))),
           "mockFunctionId");
     }
     // Make single value calls
@@ -93,7 +93,7 @@ public class RemoteCacheRequestResponseTest {
     Map<String, Long> _idsByValueName = new HashMap<String, Long>();
     for (int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk",
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
           valueName))), "mockFunctionId");
       long id = identifierMap.getIdentifier(valueSpec);
       _idsByValueName.put(valueName, id);
@@ -101,7 +101,7 @@ public class RemoteCacheRequestResponseTest {
 
     for (int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk",
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
           valueName))), "mockFunctionId");
       long id = identifierMap.getIdentifier(valueSpec);
       assertEquals(_idsByValueName.get(valueName), new Long(id));
@@ -131,7 +131,7 @@ public class RemoteCacheRequestResponseTest {
             for (int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk",
+              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
                   valueName))), "mockFunctionId");
               long id = identifierMap.getIdentifier(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
@@ -177,7 +177,7 @@ public class RemoteCacheRequestResponseTest {
             for (int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk",
+              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
                   valueName))), "mockFunctionId");
               long id = identifierMap.getIdentifier(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
@@ -210,7 +210,7 @@ public class RemoteCacheRequestResponseTest {
     DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
     conduit.connectEnd2  (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
-    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewCycle1"), "Config1"));
+    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueId.of("Test", "ViewCycle1"), "Config1"));
 
     // Single value
     final MutableFudgeMsg inputValue1 = s_fudgeContext.newMessage();
@@ -257,7 +257,7 @@ public class RemoteCacheRequestResponseTest {
     conduit.connectEnd2 (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(
-        UniqueIdentifier.of("Test", "ViewCycle1"), "Config1"));
+        UniqueId.of("Test", "ViewCycle1"), "Config1"));
     final MutableFudgeMsg inputValue = s_fudgeContext.newMessage();
     for (int i = 0; i < 32; i++) {
       inputValue.add(i, Integer.toString(i));

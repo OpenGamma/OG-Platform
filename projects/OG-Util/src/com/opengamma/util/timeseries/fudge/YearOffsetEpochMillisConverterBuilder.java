@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.timeseries.yearoffset.YearOffsetEpochMillisConverter;
 
@@ -24,18 +24,16 @@ import com.opengamma.util.timeseries.yearoffset.YearOffsetEpochMillisConverter;
 public class YearOffsetEpochMillisConverterBuilder implements FudgeBuilder<YearOffsetEpochMillisConverter> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, 
-                                                 YearOffsetEpochMillisConverter converter) {
-    final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, null, 0, converter.getClass().getName());
-    context.addToMessage(message, null, 1, converter.getTimeZone310());
-    context.addToMessage(message, null, 2, converter.getZonedOffset().toOffsetDateTime());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, YearOffsetEpochMillisConverter converter) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, null, 0, converter.getClass().getName());
+    serializer.addToMessage(message, null, 1, converter.getTimeZone310());
+    serializer.addToMessage(message, null, 2, converter.getZonedOffset().toOffsetDateTime());
     return message;
   }
 
   @Override
-  public YearOffsetEpochMillisConverter buildObject(FudgeDeserializationContext context, 
-                                                    FudgeMsg message) {
+  public YearOffsetEpochMillisConverter buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     TimeZone tz = message.getFieldValue(TimeZone.class, message.getByOrdinal(1));
     OffsetDateTime odt = message.getFieldValue(OffsetDateTime.class, message.getByOrdinal(2));
     return new YearOffsetEpochMillisConverter(odt.atZoneSameInstant(tz));

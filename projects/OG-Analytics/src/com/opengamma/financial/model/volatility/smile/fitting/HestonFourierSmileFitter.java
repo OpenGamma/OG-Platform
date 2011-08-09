@@ -11,8 +11,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
+import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -58,7 +58,7 @@ public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
-        final CharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
+        final MartingaleCharacteristicExponent ce = getCharacteristicExponent(transforms, fp);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
         final double price = FOURIER_PRICER.priceFromVol(blackData, option, ce, getAlpha(), getLimitTolerance(), true);
         final double vol = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(blackData, option, price);

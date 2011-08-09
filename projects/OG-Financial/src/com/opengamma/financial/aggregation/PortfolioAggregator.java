@@ -22,8 +22,8 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 
 /**
  * An aggregator of portfolios.
@@ -32,7 +32,7 @@ public class PortfolioAggregator {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioAggregator.class);
 
-  private static final UniqueIdentifierSupplier s_syntheticIdentifiers = new UniqueIdentifierSupplier("PortfolioAggregator");
+  private static final UniqueIdSupplier s_syntheticIdentifiers = new UniqueIdSupplier("PortfolioAggregator");
 
   private final List<AggregationFunction<?>> _aggregationFunctions;
 
@@ -44,16 +44,16 @@ public class PortfolioAggregator {
     _aggregationFunctions = new ArrayList<AggregationFunction<?>>(aggregationFunctions);
   }
 
-  private static UniqueIdentifier createSyntheticIdentifier() {
+  private static UniqueId createSyntheticIdentifier() {
     return s_syntheticIdentifiers.get();
   }
 
   public Portfolio aggregate(Portfolio inputPortfolio) {
-    UniqueIdentifier portfolioId = inputPortfolio.getUniqueId();
-    UniqueIdentifier aggId;
+    UniqueId portfolioId = inputPortfolio.getUniqueId();
+    UniqueId aggId;
     if (portfolioId != null) {
       String aggPortfolioId = buildPortfolioName(portfolioId.getValue());
-      aggId = UniqueIdentifier.of(portfolioId.getScheme(), aggPortfolioId);
+      aggId = UniqueId.of(portfolioId.getScheme(), aggPortfolioId);
     } else {
       aggId = createSyntheticIdentifier();
     }

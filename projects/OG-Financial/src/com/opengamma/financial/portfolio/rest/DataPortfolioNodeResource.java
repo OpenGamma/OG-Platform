@@ -12,7 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -31,7 +31,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
   /**
    * The identifier specified in the URI.
    */
-  private UniqueIdentifier _urlResourceId;
+  private UniqueId _urlResourceId;
 
   /**
    * Creates the resource.
@@ -39,7 +39,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
    * @param portfoliosResource  the parent resource, not null
    * @param nodeId  the node unique identifier, not null
    */
-  public DataPortfolioNodeResource(final DataPortfoliosResource portfoliosResource, final UniqueIdentifier nodeId) {
+  public DataPortfolioNodeResource(final DataPortfoliosResource portfoliosResource, final UniqueId nodeId) {
     ArgumentChecker.notNull(portfoliosResource, "portfoliosResource");
     ArgumentChecker.notNull(nodeId, "nodeId");
     _portfoliosResource = portfoliosResource;
@@ -61,7 +61,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
    * 
    * @return the unique identifier, not null
    */
-  public UniqueIdentifier getUrlNodeId() {
+  public UniqueId getUrlNodeId() {
     return _urlResourceId;
   }
 
@@ -90,7 +90,7 @@ public class DataPortfolioNodeResource extends AbstractDataResource {
    * @param nodeId  the resource identifier, not null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, UniqueIdentifier nodeId) {
+  public static URI uri(URI baseUri, UniqueId nodeId) {
     return UriBuilder.fromUri(baseUri).path("/portfolios/nodes/{nodeId}")
       .build(nodeId);
   }

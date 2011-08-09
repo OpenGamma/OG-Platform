@@ -27,9 +27,9 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -94,7 +94,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigDocument<?> get(UniqueIdentifier uniqueId) {
+  public ConfigDocument<?> get(UniqueId uniqueId) {
     return doGet(uniqueId, new ConfigDocumentExtractor(), "Config");
   }
 
@@ -121,7 +121,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     final long docId = nextId("cfg_config_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     document.setUniqueId(uniqueId);
     if (value instanceof MutableUniqueIdentifiable) {
       ((MutableUniqueIdentifiable) value).setUniqueId(uniqueId);
@@ -288,7 +288,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     }
     if (request.getConfigIds() != null) {
       StringBuilder buf = new StringBuilder(request.getConfigIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getConfigIds()) {
+      for (ObjectId objectId : request.getConfigIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -354,9 +354,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
       ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);
-      UniqueIdentifier uniqueIdentifier = createUniqueIdentifier(docOid, docId);
-      doc.setUniqueId(uniqueIdentifier);
-      UniqueIdentifiables.setInto(value, uniqueIdentifier);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
+      doc.setUniqueId(uniqueId);
+      IdUtils.setInto(value, uniqueId);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

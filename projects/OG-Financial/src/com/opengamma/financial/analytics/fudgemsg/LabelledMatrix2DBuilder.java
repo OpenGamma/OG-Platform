@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -40,7 +40,7 @@ final class LabelledMatrix2DBuilder {
   public static final class DoubleLabelledMatrix2DBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix2D> {
 
     @Override
-    public DoubleLabelledMatrix2D buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+    public DoubleLabelledMatrix2D buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
       FudgeMsg msg = message.getMessage(MATRIX_FIELD);
       Queue<String> xLabelTypes = new LinkedList<String>();
       Queue<FudgeField> xLabelValues = new LinkedList<FudgeField>();
@@ -100,7 +100,7 @@ final class LabelledMatrix2DBuilder {
             throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
           }
           final FudgeField labelValue = xLabelValues.remove();
-          final Object label = context.fieldValueToObject(labelClass, labelValue);
+          final Object label = deserializer.fieldValueToObject(labelClass, labelValue);
           xLabels.add(label);
         }
         if (!yLabelTypes.isEmpty() && !yLabelValues.isEmpty()) {
@@ -113,7 +113,7 @@ final class LabelledMatrix2DBuilder {
             throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
           }
           final FudgeField labelValue = yLabelValues.remove();
-          final Object label = context.fieldValueToObject(labelClass, labelValue);
+          final Object label = deserializer.fieldValueToObject(labelClass, labelValue);
           yLabels.add(label);
         }
       }
@@ -139,8 +139,8 @@ final class LabelledMatrix2DBuilder {
     }
 
     @Override
-    protected void buildMessage(FudgeSerializationContext context, MutableFudgeMsg message, DoubleLabelledMatrix2D object) {
-      MutableFudgeMsg msg = context.newMessage();
+    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, DoubleLabelledMatrix2D object) {
+      MutableFudgeMsg msg = serializer.newMessage();
 
       Double[] xKeys = object.getXKeys();
       Object[] xLabels = object.getXLabels();
@@ -152,12 +152,12 @@ final class LabelledMatrix2DBuilder {
       for (int i = 0; i < n; i++) {
         msg.add(Y_LABEL_TYPE_ORDINAL, yLabels[i].getClass().getName());
         msg.add(Y_KEY_ORDINAL, yKeys[i]);
-        context.addToMessage(msg, null, Y_LABEL_ORDINAL, yLabels[i]);
+        serializer.addToMessage(msg, null, Y_LABEL_ORDINAL, yLabels[i]);
         for (int j = 0; j < m; j++) {
           if (i == 0) {
             msg.add(X_LABEL_TYPE_ORDINAL, xLabels[j].getClass().getName());
             msg.add(X_KEY_ORDINAL, xKeys[j]);
-            context.addToMessage(msg, null, X_LABEL_ORDINAL, xLabels[j]);
+            serializer.addToMessage(msg, null, X_LABEL_ORDINAL, xLabels[j]);
           }
           msg.add(VALUE_ORDINAL, values[i][j]);
         }

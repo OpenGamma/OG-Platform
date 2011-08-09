@@ -33,9 +33,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
@@ -120,17 +120,17 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
-    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(
+    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(ExternalId.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
-    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle
+    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(ExternalIdBundle
         .of(conventionBundle.getSwapFloatingLegInitialRate()));
-    final Identifier initialRefRateId = referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId initialRefRateId = referenceRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
     return Collections.unmodifiableSet(result);
   }
 
   private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
-    final Map<UniqueIdentifier, Double> marketDataMap = new HashMap<UniqueIdentifier, Double>();
+    final Map<UniqueId, Double> marketDataMap = new HashMap<UniqueId, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
       final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
       marketDataMap.put(targetSpecification.getUniqueId(), (Double) value.getValue());

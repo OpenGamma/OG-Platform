@@ -9,6 +9,6 @@
  */
 namespace com.opengamma.core.region {
 
-  extern typedef Region = id.UniqueIdentifier;
+  extern typedef Region = id.UniqueId;
 
 }

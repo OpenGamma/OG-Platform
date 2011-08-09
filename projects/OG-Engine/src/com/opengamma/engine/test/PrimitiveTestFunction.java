@@ -15,7 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,7 +41,7 @@ public class PrimitiveTestFunction extends AbstractFunction.NonCompiled {
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, final ValueRequirement desiredValue) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, 
         ComputationTargetType.PRIMITIVE, 
-        UniqueIdentifier.of("foo", "bar"));
+        UniqueId.of("foo", "bar"));
     return Collections.singleton(requirement);
   }
 

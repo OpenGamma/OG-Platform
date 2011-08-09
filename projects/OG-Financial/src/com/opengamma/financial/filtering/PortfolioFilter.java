@@ -16,8 +16,8 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 
 /**
  * A filter of portfolios. One or more filters are applied to a portfolio to remove trades, positions, or
@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueIdentifierSupplier;
  */
 public class PortfolioFilter implements FilteringFunction {
 
-  private static final UniqueIdentifierSupplier s_syntheticIdentifiers = new UniqueIdentifierSupplier("PortfolioFilter");
+  private static final UniqueIdSupplier s_syntheticIdentifiers = new UniqueIdSupplier("PortfolioFilter");
 
   private final List<FilteringFunction> _filteringFunctions;
 
@@ -41,7 +41,7 @@ public class PortfolioFilter implements FilteringFunction {
     _filteringFunctions = new ArrayList<FilteringFunction>(filteringFunctions);
   }
 
-  private static UniqueIdentifier createSyntheticIdentifier() {
+  private static UniqueId createSyntheticIdentifier() {
     return s_syntheticIdentifiers.get();
   }
 
@@ -89,7 +89,7 @@ public class PortfolioFilter implements FilteringFunction {
   }
 
   public Portfolio filter(final Portfolio inputPortfolio) {
-    return new PortfolioImpl(UniqueIdentifier.of(inputPortfolio.getUniqueId().getScheme(), buildPortfolioName(inputPortfolio.getUniqueId().getValue())), buildPortfolioName(inputPortfolio.getName()),
+    return new PortfolioImpl(UniqueId.of(inputPortfolio.getUniqueId().getScheme(), buildPortfolioName(inputPortfolio.getUniqueId().getValue())), buildPortfolioName(inputPortfolio.getName()),
         filter(inputPortfolio.getRootNode()));
   }
 

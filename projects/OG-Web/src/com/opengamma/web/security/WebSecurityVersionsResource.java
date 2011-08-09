@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -87,7 +87,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   public WebSecurityVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     SecurityDocument doc = data().getSecurity();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       SecurityDocument versioned = data().getSecurityMaster().get(combined);
       data().setVersioned(versioned);

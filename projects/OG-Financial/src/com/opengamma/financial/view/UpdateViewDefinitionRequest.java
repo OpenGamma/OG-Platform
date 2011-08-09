@@ -9,8 +9,8 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -103,33 +103,33 @@ public final class UpdateViewDefinitionRequest {
 
   /**
    * Serializes to a Fudge message.
-   * @param context  the Fudge context, not null
+   * @param serializer  the Fudge context, not null
    * @return the Fudge message, not null
    */
-  public FudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    MutableFudgeMsg msg = context.newMessage();
+  public FudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    MutableFudgeMsg msg = serializer.newMessage();
     if (_name != null) {
       msg.add(NAME_FIELD_NAME, _name);
     }
     if (_viewDefinition != null) {
-      context.addToMessage(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
+      serializer.addToMessage(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
     }
     return msg;
   }
 
   /**
    * Deserializes from a Fudge message.
-   * @param context  the Fudge context, not null
+   * @param deserializer  the Fudge context, not null
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static UpdateViewDefinitionRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
+  public static UpdateViewDefinitionRequest fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     UpdateViewDefinitionRequest req = new UpdateViewDefinitionRequest();
     if (msg.hasField(NAME_FIELD_NAME)) {
       req.setName(msg.getString(NAME_FIELD_NAME));
     }
     if (msg.hasField(VIEW_DEFINITION_FIELD_NAME)) {
-      req.setViewDefinition(context.fieldValueToObject(ViewDefinition.class, msg.getByName(VIEW_DEFINITION_FIELD_NAME)));
+      req.setViewDefinition(deserializer.fieldValueToObject(ViewDefinition.class, msg.getByName(VIEW_DEFINITION_FIELD_NAME)));
     }
     return req;
   }

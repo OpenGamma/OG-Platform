@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Tests the PortfolioNodeTraverser class.
@@ -32,21 +32,21 @@ public class PortfolioNodeTraverserTest {
    
    */
 
-  private Position createTestPosition(final AtomicInteger nextIdentifier) {
+  private Position createTestPosition(final AtomicInteger nextId) {
     final PositionImpl position = new PositionImpl();
-    position.setUniqueId(UniqueIdentifier.of("Test", Integer.toString(nextIdentifier.getAndIncrement())));
+    position.setUniqueId(UniqueId.of("Test", Integer.toString(nextId.getAndIncrement())));
     return position;
   }
 
-  private PortfolioNode createTestPortfolioNode(final AtomicInteger nextIdentifier, final int depth) {
+  private PortfolioNode createTestPortfolioNode(final AtomicInteger nextId, final int depth) {
     final PortfolioNodeImpl node = new PortfolioNodeImpl();
-    node.setUniqueId(UniqueIdentifier.of("Test", Integer.toString(nextIdentifier.getAndIncrement())));
+    node.setUniqueId(UniqueId.of("Test", Integer.toString(nextId.getAndIncrement())));
     if (depth > 0) {
-      node.addChildNode(createTestPortfolioNode(nextIdentifier, depth - 1));
-      node.addChildNode(createTestPortfolioNode(nextIdentifier, depth - 1));
+      node.addChildNode(createTestPortfolioNode(nextId, depth - 1));
+      node.addChildNode(createTestPortfolioNode(nextId, depth - 1));
     }
-    node.addPosition(createTestPosition(nextIdentifier));
-    node.addPosition(createTestPosition(nextIdentifier));
+    node.addPosition(createTestPosition(nextId));
+    node.addPosition(createTestPosition(nextId));
     return node;
   }
 
@@ -59,9 +59,9 @@ public class PortfolioNodeTraverserTest {
 
     private final Queue<Integer> _visited = new LinkedList<Integer>();
 
-    private void visit(final int type, final UniqueIdentifiable uid) {
+    private void visit(final int type, final UniqueIdentifiable uniqueId) {
       _visited.add(type);
-      _visited.add(Integer.parseInt(uid.getUniqueId().getValue()));
+      _visited.add(Integer.parseInt(uniqueId.getUniqueId().getValue()));
     }
 
     @Override

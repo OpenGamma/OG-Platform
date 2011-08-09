@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Maintains ever increasing tallies.
@@ -28,10 +28,10 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
    */
   public static final class Statistics implements GraphExecutorStatisticsGatherer {
 
-    private final UniqueIdentifier _viewProcessId;
+    private final UniqueId _viewProcessId;
     private final ConcurrentMap<String, GraphExecutionStatistics> _statistics = new ConcurrentHashMap<String, GraphExecutionStatistics>();
 
-    private Statistics(final UniqueIdentifier viewProcessId) {
+    private Statistics(final UniqueId viewProcessId) {
       _viewProcessId = viewProcessId;
     }
 
@@ -73,14 +73,14 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
       return _statistics.isEmpty();
     }
     
-    public UniqueIdentifier getViewProcessId() {
+    public UniqueId getViewProcessId() {
       return _viewProcessId;
     }
 
   }
 
   @Override
-  protected Statistics createStatisticsGatherer(final UniqueIdentifier viewProcessId) {
+  protected Statistics createStatisticsGatherer(final UniqueId viewProcessId) {
     return new Statistics(viewProcessId);
   }
 

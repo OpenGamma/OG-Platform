@@ -8,8 +8,8 @@ public class LiveMarketDataSpecification extends com.opengamma.engine.marketdata
   public static final String DATA_SOURCE_KEY = "dataSource";
   public LiveMarketDataSpecification () {
   }
-  protected LiveMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeContext, fudgeMsg);
+  protected LiveMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (DATA_SOURCE_KEY);
     if (fudgeField != null)  {
@@ -32,31 +32,31 @@ public class LiveMarketDataSpecification extends com.opengamma.engine.marketdata
   public LiveMarketDataSpecification clone () {
     return new LiveMarketDataSpecification (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (fudgeContext, msg);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
+    super.toFudgeMsg (serializer, msg);
     if (_dataSource != null)  {
       msg.add (DATA_SOURCE_KEY, null, _dataSource);
     }
   }
-  public static LiveMarketDataSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static LiveMarketDataSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification".equals (className)) break;
       try {
-        return (com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new LiveMarketDataSpecification (fudgeContext, fudgeMsg);
+    return new LiveMarketDataSpecification (deserializer, fudgeMsg);
   }
   public String getDataSource () {
     return _dataSource;

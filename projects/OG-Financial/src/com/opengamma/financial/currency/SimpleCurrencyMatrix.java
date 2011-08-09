@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.currency;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -78,7 +78,7 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
    * @param target  the target currency
    * @param uniqueId  the unique identifier of the external data
    */
-  public void setLiveData(final Currency source, final Currency target, final UniqueIdentifier uniqueId) {
+  public void setLiveData(final Currency source, final Currency target, final UniqueId uniqueId) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(uniqueId, "uniqueId");

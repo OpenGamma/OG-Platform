@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
@@ -20,7 +22,7 @@ public class TimeChangeCharacteristicExponentTest {
   private static final double LARGE_ALPHA1 = 7;
   private static final double LARGE_ALPHA2 = 5;
   private static final CharacteristicExponent BASE = new MyCharacteristicExponent(SMALL_ALPHA1, LARGE_ALPHA1);
-  private static final CharacteristicExponent TIME_CHANGE = new MyCharacteristicExponent(SMALL_ALPHA2, LARGE_ALPHA2);
+  private static final StocasticClockCharcteristicExponent TIME_CHANGE = new MyCharacteristicExponent(SMALL_ALPHA2, LARGE_ALPHA2);
   private static final TimeChangedCharacteristicExponent EXPONENT = new TimeChangedCharacteristicExponent(BASE, TIME_CHANGE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -42,7 +44,7 @@ public class TimeChangeCharacteristicExponentTest {
     assertEquals(other.hashCode(), EXPONENT.hashCode());
     other = new TimeChangedCharacteristicExponent(TIME_CHANGE, TIME_CHANGE);
     assertFalse(other.equals(EXPONENT));
-    other = new TimeChangedCharacteristicExponent(BASE, BASE);
+    other = new TimeChangedCharacteristicExponent(BASE, (StocasticClockCharcteristicExponent)BASE);
     assertFalse(other.equals(EXPONENT));
   }
 
@@ -52,7 +54,7 @@ public class TimeChangeCharacteristicExponentTest {
     assertEquals(EXPONENT.getLargestAlpha(), LARGE_ALPHA2, 0);
   }
 
-  private static class MyCharacteristicExponent implements CharacteristicExponent {
+  private static class MyCharacteristicExponent implements StocasticClockCharcteristicExponent{
     private final double _small;
     private final double _large;
 
@@ -74,6 +76,21 @@ public class TimeChangeCharacteristicExponentTest {
     @Override
     public double getSmallestAlpha() {
       return _small;
+    }
+
+    @Override
+    public ComplexNumber getValue(ComplexNumber u, double t) {
+      return null;
+    }
+
+    @Override
+    public ComplexNumber[] getCharacteristicExponentAjoint(ComplexNumber u, double t) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Function1D<ComplexNumber, ComplexNumber[]> getAjointFunction(double t) {
+      throw new NotImplementedException();
     }
 
   }

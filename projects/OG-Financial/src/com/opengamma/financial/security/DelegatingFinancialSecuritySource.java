@@ -8,11 +8,13 @@ package com.opengamma.financial.security;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,9 +24,14 @@ import com.opengamma.util.ArgumentChecker;
  * If no scheme-specific handler has been registered, a default is used.
  */
 public class DelegatingFinancialSecuritySource
-    extends UniqueIdentifierSchemeDelegator<FinancialSecuritySource>
+    extends UniqueIdSchemeDelegator<FinancialSecuritySource>
     implements FinancialSecuritySource {
 
+  /**
+   * The change manager
+   */
+  private final ChangeManager _changeManager;
+  
   /**
    * Creates an instance specifying the default delegate.
    * 
@@ -32,6 +39,7 @@ public class DelegatingFinancialSecuritySource
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource) {
     super(defaultSource);
+    _changeManager = defaultSource.changeManager();
   }
 
   /**
@@ -42,17 +50,24 @@ public class DelegatingFinancialSecuritySource
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource, Map<String, FinancialSecuritySource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
+    
+    AggregatingChangeManager changeManager = new AggregatingChangeManager();
+    changeManager.addChangeManager(defaultSource.changeManager());
+    for (FinancialSecuritySource source : schemePrefixToSourceMap.values()) {
+      changeManager.addChangeManager(source.changeManager());
+    }
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
     return chooseDelegate(uid).getSecurity(uid);
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
@@ -65,7 +80,7 @@ public class DelegatingFinancialSecuritySource
   }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
@@ -87,6 +102,12 @@ public class DelegatingFinancialSecuritySource
       }
     }
     return getDefaultDelegate().getBondsWithIssuerName(issuerName);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

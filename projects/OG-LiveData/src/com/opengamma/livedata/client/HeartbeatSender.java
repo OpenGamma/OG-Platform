@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class HeartbeatSender {
       }
       s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
       Heartbeat heartbeat = new Heartbeat(liveDataSpecs);
-      FudgeMsg heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
+      FudgeMsg heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializer(getFudgeContext()));
       byte[] bytes = getFudgeContext().toByteArray(heartbeatMsg);
       getMessageSender().send(bytes);
     }

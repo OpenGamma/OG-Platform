@@ -10,7 +10,7 @@ namespace com.opengamma.financial.security.cash {
   
     required string securityType [default="CASH"];
     required com.opengamma.util.money.Currency currency;
-    required id.Identifier region;
+    required id.ExternalId region;
     required javax.time.calendar.ZonedDateTime maturity;
     required double rate;
     required double amount;
