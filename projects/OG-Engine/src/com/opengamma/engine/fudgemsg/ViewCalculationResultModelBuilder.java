@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -31,24 +31,24 @@ import com.opengamma.util.tuple.Pair;
 public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalculationResultModel> {
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewCalculationResultModel resultModel) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewCalculationResultModel resultModel) {
+    final MutableFudgeMsg message = serializer.newMessage();
     final Collection<ComputationTargetSpecification> targets = resultModel.getAllTargets();
     for (ComputationTargetSpecification target : targets) {
       final Collection<ComputedValue> values = resultModel.getAllValues(target);
       for (ComputedValue value : values) {
-        context.addToMessage(message, null, null, value);
+        serializer.addToMessage(message, null, null, value);
       }
     }
     return message;
   }
   
   @Override
-  public ViewCalculationResultModel buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public ViewCalculationResultModel buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     final Map<ComputationTargetSpecification, Map<Pair<String, ValueProperties>, ComputedValue>> mapNames =
       new HashMap<ComputationTargetSpecification, Map<Pair<String, ValueProperties>, ComputedValue>>();
     for (FudgeField field : message) {
-      final ComputedValue value = context.fieldValueToObject(ComputedValue.class, field);
+      final ComputedValue value = deserializer.fieldValueToObject(ComputedValue.class, field);
       final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
       if (!mapNames.containsKey(target)) {
         mapNames.put(target, new HashMap<Pair<String, ValueProperties>, ComputedValue>());

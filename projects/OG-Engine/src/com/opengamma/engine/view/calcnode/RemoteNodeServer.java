@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +85,8 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
 
   @Override
   public void connectionReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope message, final FudgeConnection connection) {
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
-    final RemoteCalcNodeMessage remoteCalcNodeMessage = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, message.getMessage());
+    final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    final RemoteCalcNodeMessage remoteCalcNodeMessage = deserializer.fudgeMsgToObject(RemoteCalcNodeMessage.class, message.getMessage());
     remoteCalcNodeMessage.accept(new RemoteCalcNodeMessageVisitor() {
 
       @Override

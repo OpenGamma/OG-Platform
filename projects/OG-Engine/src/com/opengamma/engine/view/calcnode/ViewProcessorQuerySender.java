@@ -9,8 +9,8 @@ import java.util.Collection;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.msg.DependentValueSpecificationsReply;
@@ -30,12 +30,12 @@ public class ViewProcessorQuerySender extends FudgeSynchronousClient {
 
   public Collection<ValueSpecification> getDependentValueSpecifications(CalculationJobSpecification jobSpec) {
     final long correlationId = getNextCorrelationId();
-    final FudgeSerializationContext sctx = new FudgeSerializationContext(getMessageSender().getFudgeContext());
+    final FudgeSerializer sctx = new FudgeSerializer(getMessageSender().getFudgeContext());
     final MutableFudgeMsg request = sctx.objectToFudgeMsg(new DependentValueSpecificationsRequest(correlationId, jobSpec));
-    FudgeSerializationContext.addClassHeader(request, DependentValueSpecificationsRequest.class, ViewProcessorQueryMessage.class);
+    FudgeSerializer.addClassHeader(request, DependentValueSpecificationsRequest.class, ViewProcessorQueryMessage.class);
     final FudgeMsg reply = sendRequestAndWaitForResponse(request, correlationId);
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getMessageSender().getFudgeContext());
-    final DependentValueSpecificationsReply replyObject = dctx.fudgeMsgToObject(DependentValueSpecificationsReply.class, reply);
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getMessageSender().getFudgeContext());
+    final DependentValueSpecificationsReply replyObject = deserializer.fudgeMsgToObject(DependentValueSpecificationsReply.class, reply);
     return replyObject.getValueSpecification();
   }
 

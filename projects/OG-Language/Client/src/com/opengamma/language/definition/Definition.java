@@ -18,7 +18,7 @@ public class Definition implements java.io.Serializable {
     if (name == null) throw new NullPointerException ("name' cannot be null");
     _name = name;
   }
-  protected Definition (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected Definition (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeField = fudgeMsg.getByName (NAME_KEY);
@@ -68,7 +68,7 @@ public class Definition implements java.io.Serializable {
       for (org.fudgemsg.FudgeField fudge2 : fudgeFields) {
         try {
           final com.opengamma.language.definition.Parameter fudge3;
-          fudge3 = com.opengamma.language.definition.Parameter.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge2));
+          fudge3 = com.opengamma.language.definition.Parameter.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge2));
           fudge1.add (fudge3);
         }
         catch (IllegalArgumentException e) {
@@ -125,13 +125,13 @@ public class Definition implements java.io.Serializable {
   public Definition clone () {
     return new Definition (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_name != null)  {
       msg.add (NAME_KEY, null, _name);
     }
@@ -148,25 +148,25 @@ public class Definition implements java.io.Serializable {
     }
     if (_parameter != null)  {
       for (com.opengamma.language.definition.Parameter fudge1 : _parameter) {
-        final org.fudgemsg.MutableFudgeMsg fudge2 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge1.getClass (), com.opengamma.language.definition.Parameter.class);
-        fudge1.toFudgeMsg (fudgeContext, fudge2);
+        final org.fudgemsg.MutableFudgeMsg fudge2 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), fudge1.getClass (), com.opengamma.language.definition.Parameter.class);
+        fudge1.toFudgeMsg (serializer, fudge2);
         msg.add (PARAMETER_KEY, null, fudge2);
       }
     }
   }
-  public static Definition fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static Definition fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.definition.Definition".equals (className)) break;
       try {
-        return (com.opengamma.language.definition.Definition)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.language.definition.Definition)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new Definition (fudgeContext, fudgeMsg);
+    return new Definition (deserializer, fudgeMsg);
   }
   public String getName () {
     return _name;

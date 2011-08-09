@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * Builder for converting objects to/from Fudge messages.
@@ -24,20 +24,20 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public class HistoricalTimeSeriesRatingBuilder implements FudgeBuilder<HistoricalTimeSeriesRating> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final HistoricalTimeSeriesRating object) {
-    MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final HistoricalTimeSeriesRating object) {
+    MutableFudgeMsg message = serializer.newMessage();
     for (HistoricalTimeSeriesRatingRule rule : object.getRules()) {
-      context.addToMessage(message, "rules", null, rule);
+      serializer.addToMessage(message, "rules", null, rule);
     }
     return message;
   }
 
   @Override
-  public HistoricalTimeSeriesRating buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public HistoricalTimeSeriesRating buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     Collection<FudgeField> fields = message.getAllByName("rules");
     final List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>(fields.size());
     for (FudgeField field : fields) {
-      HistoricalTimeSeriesRatingRule rule = context.fudgeMsgToObject(HistoricalTimeSeriesRatingRule.class, (FudgeMsg) field.getValue());
+      HistoricalTimeSeriesRatingRule rule = deserializer.fudgeMsgToObject(HistoricalTimeSeriesRatingRule.class, (FudgeMsg) field.getValue());
       rules.add(rule);
     }
     return new HistoricalTimeSeriesRating(rules);

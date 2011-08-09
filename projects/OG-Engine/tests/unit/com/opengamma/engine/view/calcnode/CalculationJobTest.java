@@ -17,8 +17,8 @@ import javax.time.Instant;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -49,11 +49,11 @@ public class CalculationJobTest {
     CalculationJob inputJob = new CalculationJob(spec, 123L, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
-    FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
+    FudgeSerializer serContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serContext.objectToFudgeMsg(inputJob);
     
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
@@ -84,10 +84,10 @@ public class CalculationJobTest {
     CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
+    FudgeSerializer serializationContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputJob);
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     
     assertNotNull(outputJob);

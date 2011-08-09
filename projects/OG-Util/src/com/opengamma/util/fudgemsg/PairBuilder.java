@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
 
@@ -37,8 +37,8 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
   public static final String SECOND_FIELD_NAME = "second";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Pair<?, ?> object) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Pair<?, ?> object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     if (object instanceof LongObjectPair || object instanceof LongDoublePair) {
       msg.add("firstLong", object.getFirst());
     } else if (object instanceof IntObjectPair || object instanceof IntDoublePair) {
@@ -47,43 +47,43 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
       msg.add("firstDouble", object.getFirst());
     } else {
       if (object.getFirst() != null) {
-        addToMessageWithClassHeaders(context, msg, FIRST_FIELD_NAME, object.getFirst());
+        addToMessageWithClassHeaders(serializer, msg, FIRST_FIELD_NAME, object.getFirst());
       }
     }
     if (object instanceof LongDoublePair || object instanceof IntDoublePair || object instanceof DoublesPair) {
       msg.add("secondDouble", object.getSecond());
     } else {
       if (object.getSecond() != null) {
-        addToMessageWithClassHeaders(context, msg, SECOND_FIELD_NAME, object.getSecond());
+        addToMessageWithClassHeaders(serializer, msg, SECOND_FIELD_NAME, object.getSecond());
       }
     }
     return msg;
   }
 
   /**
-   * This does almost the same thing as {@link FudgeSerializationContext.addToMessageWithClassHeaders} except:
+   * This does almost the same thing as {@link FudgeSerializer.addToMessageWithClassHeaders} except:
    * - If a secondary type or a builder could be used then the builder will be used
    * -- So that the class headers can be added
-   * @param context
+   * @param serializer
    * @param msg
    * @param fieldName
    * @param obj
    */
-  private void addToMessageWithClassHeaders(FudgeSerializationContext context, MutableFudgeMsg msg, String fieldName,
+  private void addToMessageWithClassHeaders(FudgeSerializer serializer, MutableFudgeMsg msg, String fieldName,
       Object obj) {
     if (obj == null) {
       return;
     }
     final Class<?> clazz = obj.getClass();
-    FudgeContext fudgeContext = context.getFudgeContext();
+    FudgeContext fudgeContext = serializer.getFudgeContext();
     FudgeTypeDictionary typeDictionary = fudgeContext.getTypeDictionary();
     final FudgeFieldType fieldType = typeDictionary.getByJavaType(clazz);
     if (isNative(fieldType, obj, typeDictionary)) {
       msg.add(fieldName, obj);
       return;
     }
-    MutableFudgeMsg valueMsg = context.objectToFudgeMsg(obj);
-    FudgeSerializationContext.addClassHeader(valueMsg, obj.getClass());
+    MutableFudgeMsg valueMsg = serializer.objectToFudgeMsg(obj);
+    FudgeSerializer.addClassHeader(valueMsg, obj.getClass());
     msg.add(fieldName, valueMsg);
   }
 
@@ -104,7 +104,7 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
   }
   
   @Override
-  public Pair<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public Pair<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final Long firstLong = msg.getLong("firstLong");
     if (firstLong != null) {
       final Double secondDouble = msg.getDouble("secondDouble");
@@ -112,7 +112,7 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
         return LongDoublePair.of(firstLong.longValue(), secondDouble.doubleValue());
       } else {
         final FudgeField secondField = msg.getByName(SECOND_FIELD_NAME);
-        final Object second = secondField != null ? context.fieldValueToObject(secondField) : null;
+        final Object second = secondField != null ? deserializer.fieldValueToObject(secondField) : null;
         return LongObjectPair.of(firstLong.longValue(), second);
       }
     }
@@ -123,7 +123,7 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
         return IntDoublePair.of(firstInt.intValue(), secondDouble.doubleValue());
       } else {
         final FudgeField secondField = msg.getByName(SECOND_FIELD_NAME);
-        final Object second = secondField != null ? context.fieldValueToObject(secondField) : null;
+        final Object second = secondField != null ? deserializer.fieldValueToObject(secondField) : null;
         return IntObjectPair.of(firstInt.intValue(), second);
       }
     }
@@ -133,9 +133,9 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
       return DoublesPair.of(firstDouble.doubleValue(), secondDouble.doubleValue());
     }
     final FudgeField firstField = msg.getByName(FIRST_FIELD_NAME);
-    final Object first = firstField != null ? context.fieldValueToObject(firstField) : null;
+    final Object first = firstField != null ? deserializer.fieldValueToObject(firstField) : null;
     final FudgeField secondField = msg.getByName(SECOND_FIELD_NAME);
-    final Object second = secondField != null ? context.fieldValueToObject(secondField) : null;
+    final Object second = secondField != null ? deserializer.fieldValueToObject(secondField) : null;
     return ObjectsPair.of(first, second);
   }
 

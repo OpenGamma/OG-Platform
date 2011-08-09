@@ -120,9 +120,9 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   }
 
   private FudgeMsg runPortfolioNodeTest(final PortfolioNode original) {
-    final FudgeMsg message = getFudgeSerializationContext().objectToFudgeMsg(original);
+    final FudgeMsg message = getFudgeSerializer().objectToFudgeMsg(original);
     s_logger.debug("Message = {}", message);
-    final PortfolioNode portfolio = getFudgeDeserializationContext().fudgeMsgToObject(PortfolioNode.class, message);
+    final PortfolioNode portfolio = getFudgeDeserializer().fudgeMsgToObject(PortfolioNode.class, message);
     assertPortfolioNodeEquals(original, portfolio);
     return message;
   }
@@ -158,9 +158,9 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   }
 
   private FudgeMsg runPositionTest(final Position original) {
-    final FudgeMsg message = getFudgeSerializationContext().objectToFudgeMsg(original);
+    final FudgeMsg message = getFudgeSerializer().objectToFudgeMsg(original);
     s_logger.debug("Message = {}", message);
-    final Position position = getFudgeDeserializationContext().fudgeMsgToObject(Position.class, message);
+    final Position position = getFudgeDeserializer().fudgeMsgToObject(Position.class, message);
     assertPositionEquals(original, position);
     return message;
   }

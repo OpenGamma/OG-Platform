@@ -16,8 +16,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -47,37 +47,37 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
   private static final String TERMINAL_OUTPUT_VALUES_FIELD = "terminalOutputValues";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, DependencyNode node) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, COMPUTATION_TARGET_FIELD, null, node.getComputationTarget());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, DependencyNode node) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, COMPUTATION_TARGET_FIELD, null, node.getComputationTarget());
     if (node.getFunction() != null) {
       msg.add(PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD, null, node.getFunction().getUniqueId());
-      context.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD, null, node.getFunction().getParameters());
+      serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD, null, node.getFunction().getParameters());
       FunctionDefinition functionDefinition = node.getFunction().getFunction().getFunctionDefinition();
       msg.add(FUNCTION_UNIQUE_ID_FIELD, functionDefinition.getUniqueId());
       msg.add(FUNCTION_SHORT_NAME_FIELD, functionDefinition.getShortName());
     }
-    context.addToMessage(msg, INPUT_VALUES_FIELD, null, node.getInputValues());
-    context.addToMessage(msg, OUTPUT_VALUES_FIELD, null, node.getOutputValues());
-    context.addToMessage(msg, TERMINAL_OUTPUT_VALUES_FIELD, null, node.getTerminalOutputValues());
+    serializer.addToMessage(msg, INPUT_VALUES_FIELD, null, node.getInputValues());
+    serializer.addToMessage(msg, OUTPUT_VALUES_FIELD, null, node.getOutputValues());
+    serializer.addToMessage(msg, TERMINAL_OUTPUT_VALUES_FIELD, null, node.getTerminalOutputValues());
     return msg;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public DependencyNode buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    ComputationTarget target = context.fieldValueToObject(ComputationTarget.class, msg.getByName(COMPUTATION_TARGET_FIELD));
+  public DependencyNode buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    ComputationTarget target = deserializer.fieldValueToObject(ComputationTarget.class, msg.getByName(COMPUTATION_TARGET_FIELD));
     
     String parameterizedFunctionUniqueId = msg.getString(PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD);
     FudgeField functionParametersField = msg.getByName(FUNCTION_PARAMETERS_FIELD);
-    FunctionParameters functionParameters = functionParametersField != null ? context.fieldValueToObject(FunctionParameters.class, functionParametersField) : null;
+    FunctionParameters functionParameters = functionParametersField != null ? deserializer.fieldValueToObject(FunctionParameters.class, functionParametersField) : null;
     
     String functionShortName = msg.getString(FUNCTION_SHORT_NAME_FIELD);
     String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD);
     
-    Set<ValueSpecification> inputValues = context.fieldValueToObject(Set.class, msg.getByName(INPUT_VALUES_FIELD));
-    Set<ValueSpecification> outputValues = context.fieldValueToObject(Set.class, msg.getByName(OUTPUT_VALUES_FIELD));
-    Set<ValueSpecification> terminalOutputValues = context.fieldValueToObject(Set.class, msg.getByName(TERMINAL_OUTPUT_VALUES_FIELD));
+    Set<ValueSpecification> inputValues = deserializer.fieldValueToObject(Set.class, msg.getByName(INPUT_VALUES_FIELD));
+    Set<ValueSpecification> outputValues = deserializer.fieldValueToObject(Set.class, msg.getByName(OUTPUT_VALUES_FIELD));
+    Set<ValueSpecification> terminalOutputValues = deserializer.fieldValueToObject(Set.class, msg.getByName(TERMINAL_OUTPUT_VALUES_FIELD));
     
     DependencyNode node = new DependencyNode(target);
     

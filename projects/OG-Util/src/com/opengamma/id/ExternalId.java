@@ -12,7 +12,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -305,7 +305,7 @@ public final class ExternalId
    * @param msg  the Fudge message, not null
    * @return the external identifier, not null
    */
-  public static ExternalId fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+  public static ExternalId fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
     return fromFudgeMsg(msg);
   }
 

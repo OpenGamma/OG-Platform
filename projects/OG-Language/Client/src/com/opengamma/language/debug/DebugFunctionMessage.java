@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class DebugFunctionMessage implements PublishedFunction {
     s_logger.debug("Foo = {}, Bar = {}", foo, bar);
     final FudgeContext ctx = FudgeContext.GLOBAL_DEFAULT;
     final MutableFudgeMsg msg = ctx.newMessage();
-    final FudgeSerializationContext sctx = new FudgeSerializationContext(ctx);
+    final FudgeSerializer sctx = new FudgeSerializer(ctx);
     sctx.addToMessageWithClassHeaders(msg, "foo", null, foo);
     sctx.addToMessageWithClassHeaders(msg, "bar", null, bar);
     return DataUtil.of(msg);

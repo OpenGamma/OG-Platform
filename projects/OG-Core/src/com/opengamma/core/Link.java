@@ -267,7 +267,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     switch (propertyName.hashCode()) {
       case 90495162:  // objectId
         return getObjectId();
-      case -1294655171:  // bundleId
+      case -1699764666:  // externalId
         return getExternalId();
       case -880905839:  // target
         return getTarget();
@@ -282,7 +282,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
       case 90495162:  // objectId
         setObjectId((ObjectId) newValue);
         return;
-      case -1294655171:  // bundleId
+      case -1699764666:  // externalId
         setExternalId((ExternalIdBundle) newValue);
         return;
       case -880905839:  // target
@@ -294,7 +294,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_externalId, "bundleId");
+    JodaBeanUtils.notNull(_externalId, "externalId");
     super.validate();
   }
 
@@ -359,20 +359,20 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
   /**
    * Sets the external identifier bundle that references the target.
    * An empty bundle is used if not referencing a target by external bundle.
-   * @param bundleId  the new value of the property, not null
+   * @param externalId  the new value of the property, not null
    */
-  public void setExternalId(ExternalIdBundle bundleId) {
-    JodaBeanUtils.notNull(bundleId, "bundleId");
-    this._externalId = bundleId;
+  public void setExternalId(ExternalIdBundle externalId) {
+    JodaBeanUtils.notNull(externalId, "externalId");
+    this._externalId = externalId;
   }
 
   /**
-   * Gets the the {@code bundleId} property.
+   * Gets the the {@code externalId} property.
    * An empty bundle is used if not referencing a target by external bundle.
    * @return the property, not null
    */
-  public final Property<ExternalIdBundle> bundleId() {
-    return metaBean().bundleId().createProperty(this);
+  public final Property<ExternalIdBundle> externalId() {
+    return metaBean().externalId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -417,10 +417,10 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     private final MetaProperty<ObjectId> _objectId = DirectMetaProperty.ofReadWrite(
         this, "objectId", Link.class, ObjectId.class);
     /**
-     * The meta-property for the {@code bundleId} property.
+     * The meta-property for the {@code externalId} property.
      */
-    private final MetaProperty<ExternalIdBundle> _bundleId = DirectMetaProperty.ofReadWrite(
-        this, "bundleId", Link.class, ExternalIdBundle.class);
+    private final MetaProperty<ExternalIdBundle> _externalId = DirectMetaProperty.ofReadWrite(
+        this, "externalId", Link.class, ExternalIdBundle.class);
     /**
      * The meta-property for the {@code target} property.
      */
@@ -433,7 +433,7 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
         "objectId",
-        "bundleId",
+        "externalId",
         "target");
 
     /**
@@ -447,8 +447,8 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
       switch (propertyName.hashCode()) {
         case 90495162:  // objectId
           return _objectId;
-        case -1294655171:  // bundleId
-          return _bundleId;
+        case -1699764666:  // externalId
+          return _externalId;
         case -880905839:  // target
           return _target;
       }
@@ -481,11 +481,11 @@ public class Link<T extends UniqueIdentifiable> extends DirectBean
     }
 
     /**
-     * The meta-property for the {@code bundleId} property.
+     * The meta-property for the {@code externalId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalIdBundle> bundleId() {
-      return _bundleId;
+    public final MetaProperty<ExternalIdBundle> externalId() {
+      return _externalId;
     }
 
     /**

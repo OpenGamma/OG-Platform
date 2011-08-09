@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -29,23 +29,23 @@ public class ViewCycleExecutionOptionsBuilder implements FudgeBuilder<ViewCycleE
 
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewCycleExecutionOptions object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewCycleExecutionOptions object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(VALUATION_TIME_FIELD, object.getValuationTime());
-    context.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATION, null, object.getMarketDataSpecification());
+    serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATION, null, object.getMarketDataSpecification());
     return msg;
   }
 
   @Override
-  public ViewCycleExecutionOptions buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ViewCycleExecutionOptions buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     ViewCycleExecutionOptions result = new ViewCycleExecutionOptions();
     FudgeField valuationTimeField = msg.getByName(VALUATION_TIME_FIELD);
     if (valuationTimeField != null) {
-      result.setValuationTime(context.fieldValueToObject(Instant.class, valuationTimeField));
+      result.setValuationTime(deserializer.fieldValueToObject(Instant.class, valuationTimeField));
     }
     FudgeField marketDataSpecificationField = msg.getByName(MARKET_DATA_SPECIFICATION);
     if (marketDataSpecificationField != null) {
-      result.setMarketDataSpecification(context.fieldValueToObject(MarketDataSpecification.class, marketDataSpecificationField));
+      result.setMarketDataSpecification(deserializer.fieldValueToObject(MarketDataSpecification.class, marketDataSpecificationField));
     }
     return result;
   }

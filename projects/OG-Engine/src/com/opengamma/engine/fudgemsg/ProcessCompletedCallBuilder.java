@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 
@@ -21,12 +21,12 @@ import com.opengamma.engine.view.listener.ProcessCompletedCall;
 public class ProcessCompletedCallBuilder implements FudgeBuilder<ProcessCompletedCall> {
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ProcessCompletedCall object) {
-    return context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ProcessCompletedCall object) {
+    return serializer.newMessage();
   }
 
   @Override
-  public ProcessCompletedCall buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public ProcessCompletedCall buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     return new ProcessCompletedCall();
   }
 

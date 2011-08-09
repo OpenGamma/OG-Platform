@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * Builder for converting object instances to/from Fudge messages.
@@ -19,8 +19,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public class HistoricalTimeSeriesRatingRuleBuilder implements FudgeBuilder<HistoricalTimeSeriesRatingRule> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, HistoricalTimeSeriesRatingRule object) {
-    MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, HistoricalTimeSeriesRatingRule object) {
+    MutableFudgeMsg message = serializer.newMessage();
     message.add("fieldName", object.getFieldName());
     message.add("fieldValue", object.getFieldValue());
     message.add("rating", object.getRating());
@@ -28,7 +28,7 @@ public class HistoricalTimeSeriesRatingRuleBuilder implements FudgeBuilder<Histo
   }
 
   @Override
-  public HistoricalTimeSeriesRatingRule buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public HistoricalTimeSeriesRatingRule buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String fieldName = message.getString("fieldName");
     if (fieldName == null) {
       throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesRatingRule - field 'fieldName' is not present");

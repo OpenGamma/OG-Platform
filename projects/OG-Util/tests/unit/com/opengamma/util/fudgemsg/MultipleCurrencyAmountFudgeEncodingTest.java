@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.fail;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -34,8 +34,8 @@ public class MultipleCurrencyAmountFudgeEncodingTest {
   }
 
   private void testFudgeMessage(final MultipleCurrencyAmount mca) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeMsg msg = context.objectToFudgeMsg(mca);
+    final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
+    FudgeMsg msg = serializer.objectToFudgeMsg(mca);
     s_logger.debug("MultipleCurrencyAmount {}", mca);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

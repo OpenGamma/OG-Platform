@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +152,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
       FudgeMsg response = null;
       try {
         s_logger.debug("Received message with {} fields. Dispatching to underlying.", envelope.getMessage().getNumFields());
-        response = getUnderlying().requestReceived(new FudgeDeserializationContext(_fudgeContext), envelope);
+        response = getUnderlying().requestReceived(new FudgeDeserializer(_fudgeContext), envelope);
       } catch (Exception e) {
         s_logger.warn("Unable to dispatch message to underlying receiver", e);
         return;
