@@ -47,7 +47,7 @@ public class VarianceSwapStaticReplication {
   private static final double EPS = 1.0e-12;
 
   /**
-   * Strike prices in Volatility surfaces may be parameterised in a number of ways. To clarify, we introduce this enum.
+   * Strike prices in Volatility surfaces may be parameterized in a number of ways. To clarify, we introduce this enum.
    * Types available: STRIKE, DELTA
    */
   public enum StrikeParameterization {
@@ -135,7 +135,7 @@ public class VarianceSwapStaticReplication {
    * @param lowerBound Lowest strike / delta in integral. Near zero.
    * @param upperBound Highest strike / delta in integral. Big => just shy of 1.0 in  delta space, multiples of the forward in fixed strike space. 
    * @param integrator Integration method
-   * @param cutoffType Whether the cutoff is parameterised as STRIKE, CALLDELTA or PUTDELTA
+   * @param cutoffType Whether the cutoff is parameterized as STRIKE, CALLDELTA or PUTDELTA
    * @param cutoffLevel First target of shifted lognormal model. Below this, the fit model will extrapolate to produce prices 
    * @param cutoffSpread Second target is cutoffLevel + cutoffSpread. Given as fraction of the forward (if STRIKE) else delta value 
    */
