@@ -67,14 +67,14 @@ $.register_module({
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
-                    var header_html = '\
+                    var header = '\
                         <header class="OG-header-generic">\
                           <div class="OG-toolbar"></div>\
                           <h1 class="og-js-name">' + master.name + '</h1>\
                           <br />(View Definition)\
                         </header>\
                     ';
-                    $('.ui-layout-inner-center .ui-layout-header').html(header_html);
+                    $('.ui-layout-inner-center .ui-layout-header').html(header);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                     if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');

@@ -16,6 +16,7 @@ $.register_module({
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
         'og.views.common.state',
+        'og.views.common.default_details',
         'og.views.configs.viewdefinition',
         'og.views.configs.yieldcurvedefinition',
         'og.views.configs.default'
@@ -121,22 +122,10 @@ $.register_module({
                     cache_for: 15 * 1000
                 });
             },
-            default_details_page = function () {
-                api.text({module: 'og.views.default', handler: function (template) {
-                    var layout = og.views.common.layout,
-                        $html = $.tmpl(template, {
-                        name: 'Configs',
-                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs'
-                    });
-                    $('.ui-layout-inner-center .ui-layout-header')
-                        .html($('<p/>').append($html.find('> header')).html());
-                    $('.ui-layout-inner-center .ui-layout-content')
-                        .html($('<p/>').append($html.find('> section')).html());
-                    layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                    toolbar('default');
-                    layout.inner.resizeAll();
-                }});
-            },
+            // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
+            // options passed in (options is set to null for default_details)
+            default_details = og.views.common.default_details
+                .partial(page_name, 'Configurations', null, toolbar.partial('default')),
             details_page = function (args, new_config_type) {
                 var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
                     if (result.error) return alert(result.message);
@@ -227,7 +216,7 @@ $.register_module({
                         masthead.menu.set_tab(page_name);
                     }}
                 ]});
-                if (!args.id && !args.config_type) default_details_page();
+                if (!args.id && !args.config_type) default_details();
             },
             load_filter: function (args) {
                 var search_filter = function () {

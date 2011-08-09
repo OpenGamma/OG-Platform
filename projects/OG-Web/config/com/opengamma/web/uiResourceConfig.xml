@@ -192,6 +192,7 @@
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
+    <fragment>/scripts/og/views/og.views.common.default_details.js</fragment>
   </bundle>
   <bundle id="views_default.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
