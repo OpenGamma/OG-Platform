@@ -95,7 +95,7 @@ $.register_module({
                                 + 'placeholder="Quantity" '
                                 + 'class="og-js-quantity-filter" '
                                 + 'style="width: 80px;">',
-                            field: 'quantity', width: 100, filter_type: 'input', toolTip: 'quantity'},
+                            field: 'quantity', width: 100, toolTip: 'quantity'},
                         {id: 'trades', name: 'Trades', field: 'trades', width: 60, toolTip: 'trades'}
                     ]
                 },

@@ -76,14 +76,11 @@ $.register_module({
                     'selector': '.OG-js-search', 'page_type': 'configs',
                     'columns': [
                         {
-                            id: 'type', toolTip: 'type',
-                            name: null,
-                            field: 'type', width: 100, filter_type: 'select'
+                            id: 'type', toolTip: 'type', name: null, field: 'type', width: 100
                         },
-                        {id: 'name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input',
+                        {id: 'name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name',
                             name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">',
-                            toolTip: 'name'
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },

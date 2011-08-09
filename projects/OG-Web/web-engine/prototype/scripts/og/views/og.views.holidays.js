@@ -36,28 +36,18 @@ $.register_module({
                     'selector': '.OG-js-search', 'page_type': 'holidays',
                     'columns': [
                         {
-                            id: 'name',
-                            name: '<input type="text" placeholder="name" '
-                                + 'class="og-js-name-filter" style="width: 80px;">',
-                            field: 'name',
-                            width: 100,
-                            cssClass: 'og-link',
-                            filter_type: 'input',
-                            toolTip: 'name'
+                            id: 'name', field: 'name', width: 100, cssClass: 'og-link', toolTip: 'name',
+                            name: '<input type="text" placeholder="name" class="og-js-name-filter" style="width: 80px;">'
                         },
                         {
-                            id: 'type',
-                            name: '<select class="og-js-type-filter" style="width: 180px">'
-                                + '  <option value="">Type</option>'
-                                + '  <option>CURRENCY</option>'
-                                + '  <option>BANK</option>'
-                                + '  <option>SETTLEMENT</option>'
-                                + '  <option>TRADING</option>'
-                                + '</select>',
-                            field: 'type', width: 200,
-                            filter_type: 'select',
-                            filter_type_options: ['CURRENCY', 'BANK', 'SETTLEMENT', 'TRADING'],
-                            toolTip: 'type'
+                            id: 'type', field: 'type', width: 200, toolTip: 'type',
+                            name: '<select class="og-js-type-filter" style="width: 180px">\
+                                     <option value="">Type</option>\
+                                     <option>CURRENCY</option>\
+                                     <option>BANK</option>\
+                                     <option>SETTLEMENT</option>\
+                                     <option>TRADING</option>\
+                                   </select>'
                         }
                     ]
                 },

@@ -104,31 +104,31 @@ $.register_module({
                             id: 'data_source', toolTip: 'data source',
                             name: '<input type="text" placeholder="data source" '
                                 + 'class="og-js-data_source-filter" style="width: 70px;">',
-                            field: 'data_source', width: 90, cssClass: 'og-uppercase', filter_type: 'input'
+                            field: 'data_source', width: 90, cssClass: 'og-uppercase'
                         },
                         {
                             id: 'identifier', toolTip: 'identifier',
                             name: '<input type="text" placeholder="identifier" '
                                 + 'class="og-js-identifier-filter" style="width: 130px;">',
-                            field: 'identifier', width: 150, cssClass: 'og-link', filter_type: 'input'
+                            field: 'identifier', width: 150, cssClass: 'og-link'
                         },
                         {
                             id: 'data_provider', toolTip: 'data provider',
                             name: '<input type="text" placeholder="data provider" '
                                 + 'class="og-js-data_provider-filter" style="width: 65px;">',
-                            field: 'data_provider', width: 85, cssClass: 'og-link', filter_type: 'input'
+                            field: 'data_provider', width: 85, cssClass: 'og-link'
                         },
                         {
                             id: 'data_field', toolTip: 'data field',
                             name: '<input type="text" placeholder="data field" '
                                 + 'class="og-js-data_field-filter" style="width: 50px;">',
-                            field: 'data_field', width: 70, cssClass: 'og-link', filter_type: 'input'
+                            field: 'data_field', width: 70, cssClass: 'og-link'
                         },
                         {
                             id: 'observation_time', toolTip: 'observation time',
                             name: '<input type="text" placeholder="observation time" '
                                 + 'class="og-js-observation_time-filter" style="width: 100px;">',
-                            field: 'observation_time', width: 120, cssClass: 'og-link', filter_type: 'input'
+                            field: 'observation_time', width: 120, cssClass: 'og-link'
                         }
                     ]
                 },

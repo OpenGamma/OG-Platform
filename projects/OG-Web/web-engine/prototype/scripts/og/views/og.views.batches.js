@@ -36,13 +36,13 @@ $.register_module({
                     'selector': '.OG-js-search', 'page_type': 'batches',
                     'columns': [
                         {
-                            id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link', filter_type: 'input',
+                            id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link',
                             name: '<input type="text" placeholder="observation date" '
                                 + 'class="og-js-ob_date-filter" style="width: 110px;">',
                             toolTip: 'observation date'
                         },
                         {
-                            id: 'ob_time', field: 'time', width: 130, filter_type: 'input',
+                            id: 'ob_time', field: 'time', width: 130,
                             name: '<input type="text" placeholder="observation time" '
                                 + 'class="og-js-ob_time-filter" style="width: 110px;">',
                             toolTip: 'observation time'

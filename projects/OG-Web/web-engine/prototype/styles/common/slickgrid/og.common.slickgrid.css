@@ -123,22 +123,8 @@
   right: 1px;
 }
 
-ie8.slick-header:before {
-  -webkit-border-bottom-right-radius: 2px;
-  -webkit-border-bottom-left-radius: 2px;
-  -moz-border-radius-bottomright: 2px;
-  -moz-border-radius-bottomleft: 2px;
-  border-bottom-right-radius: 2px;
-  border-bottom-left-radius: 2px;
-  background: #fff;
-  bottom: 50%;
-  content: '';
-  left: 1px;
-  opacity: 0.3;
-  filter: alpha(opacity=30);
-  position: absolute;
-  top: 1px;
-  right: 1px;
+.ie8 .slick-header-columns:before {
+  background: transparent;
 }
 
 .slick-resizable-handle {

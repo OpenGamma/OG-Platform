@@ -95,16 +95,11 @@ $.register_module({
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'securities',
                     'columns': [
+                        {id: 'type', toolTip: 'type', name: null, field: 'type', width: 100},
                         {
-                            id: 'type', toolTip: 'type',
-                            name: null,
-                            field: 'type', width: 100, filter_type: 'select'
-                        },
-                        {
-                            id: 'name', toolTip: 'name',
+                            id: 'name', toolTip: 'name', field: 'name', width: 300, cssClass: 'og-link',
                             name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">',
-                            field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
