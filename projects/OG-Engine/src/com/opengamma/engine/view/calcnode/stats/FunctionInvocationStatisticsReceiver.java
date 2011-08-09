@@ -7,7 +7,7 @@ package com.opengamma.engine.view.calcnode.stats;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.engine.view.calcnode.msg.Invocations;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
@@ -79,8 +79,8 @@ public class FunctionInvocationStatisticsReceiver implements FudgeMessageReceive
 
   @Override
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
-    final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
+    final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    final RemoteCalcNodeMessage message = deserializer.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
     if (message instanceof Invocations) {
       messageReceived(getUnderlying(), (Invocations) message);
     } else {

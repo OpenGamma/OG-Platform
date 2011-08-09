@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -41,15 +41,15 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
     private static final String TYPE_FIELD_NAME = "type";
 
     @Override
-    public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Interpolator1D<? extends Interpolator1DDataBundle> object) {
-      final MutableFudgeMsg message = context.newMessage();
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Interpolator1D<? extends Interpolator1DDataBundle> object) {
+      final MutableFudgeMsg message = serializer.newMessage();
       message.add(0, Interpolator1D.class.getName());
       message.add(TYPE_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(object));
       return message;
     }
 
     @Override
-    public Interpolator1D<? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    public Interpolator1D<? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       return Interpolator1DFactory.getInterpolator(message.getFieldValue(String.class, message.getByName(TYPE_FIELD_NAME)));
     }
   }
@@ -64,7 +64,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
     private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final CombinedInterpolatorExtrapolator<?> object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final CombinedInterpolatorExtrapolator<?> object) {
       final Interpolator1D<?> interpolator = object.getInterpolator();
       message.add(INTERPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(interpolator));
       message.add(LEFT_EXTRAPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(object.getLeftExtrapolator()));
@@ -73,7 +73,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    public CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String interpolatorName = message.getString(INTERPOLATOR_FIELD_NAME);
       final String leftExtrapolatorName = message.getString(LEFT_EXTRAPOLATOR_FIELD_NAME);
       final String rightExtrapolatorName = message.getString(RIGHT_EXTRAPOLATOR_FIELD_NAME);
@@ -103,17 +103,17 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
     private static final String Y_FIELD_NAME = "y";
 
     @Override
-    public void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message,
+    public void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message,
         final GridInterpolator2D<? extends Interpolator1DDataBundle, ? extends Interpolator1DDataBundle> object) {
-      context.addToMessage(message, X_FIELD_NAME, null, object.getXInterpolator());
-      context.addToMessage(message, Y_FIELD_NAME, null, object.getYInterpolator());
+      serializer.addToMessage(message, X_FIELD_NAME, null, object.getXInterpolator());
+      serializer.addToMessage(message, Y_FIELD_NAME, null, object.getYInterpolator());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public GridInterpolator2D<? extends Interpolator1DDataBundle, ? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      return new GridInterpolator2D(context.fieldValueToObject(Interpolator1D.class, message.getByName(X_FIELD_NAME)),
-          context.fieldValueToObject(Interpolator1D.class, message.getByName(Y_FIELD_NAME)));
+    public GridInterpolator2D<? extends Interpolator1DDataBundle, ? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      return new GridInterpolator2D(deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(X_FIELD_NAME)),
+          deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(Y_FIELD_NAME)));
     }
   }
 }

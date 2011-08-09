@@ -10,8 +10,8 @@ import java.lang.reflect.Constructor;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 /**
@@ -24,8 +24,8 @@ public class ExceptionBuilder implements FudgeBuilder<Exception> {
   private static final String MESSAGE_FIELD = "message";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Exception object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Exception object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(TYPE_FIELD, object.getClass().getName());
     msg.add(MESSAGE_FIELD, object.getMessage());
     return msg;
@@ -33,7 +33,7 @@ public class ExceptionBuilder implements FudgeBuilder<Exception> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Exception buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public Exception buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     String type = msg.getString(TYPE_FIELD);
     String message = msg.getString(MESSAGE_FIELD);
     try {

@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.db.Paging;
 
@@ -28,8 +28,8 @@ public final class PagingBuilder implements FudgeBuilder<Paging> {
   public static final String TOTAL_FIELD_NAME = "totalItems";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Paging object) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Paging object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add(PAGE_FIELD_NAME, object.getPage());
     msg.add(PAGING_SIZE_FIELD_NAME, object.getPagingSize());
     msg.add(TOTAL_FIELD_NAME, object.getTotalItems());
@@ -37,7 +37,7 @@ public final class PagingBuilder implements FudgeBuilder<Paging> {
   }
 
   @Override
-  public Paging buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public Paging buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final Integer page = msg.getInt(PAGE_FIELD_NAME);
     if (page == null) {
       throw new IllegalArgumentException("Fudge message is not a Paging - field 'page' is not present");

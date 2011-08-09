@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 
@@ -21,12 +21,12 @@ import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
 public class InfiniteViewCycleExecutionSequenceBuilder implements FudgeBuilder<InfiniteViewCycleExecutionSequence> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, InfiniteViewCycleExecutionSequence object) {
-    return context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, InfiniteViewCycleExecutionSequence object) {
+    return serializer.newMessage();
   }
 
   @Override
-  public InfiniteViewCycleExecutionSequence buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public InfiniteViewCycleExecutionSequence buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     return new InfiniteViewCycleExecutionSequence();
   }
 

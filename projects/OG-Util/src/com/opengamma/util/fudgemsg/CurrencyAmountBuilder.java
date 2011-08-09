@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -27,15 +27,15 @@ public final class CurrencyAmountBuilder implements FudgeBuilder<CurrencyAmount>
   public static final String AMOUNT_KEY = "amount";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CurrencyAmount object) {
-    final MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, CURRENCY_KEY, null, object.getCurrency());
-    context.addToMessage(msg, AMOUNT_KEY, null, object.getAmount());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurrencyAmount object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, CURRENCY_KEY, null, object.getCurrency());
+    serializer.addToMessage(msg, AMOUNT_KEY, null, object.getAmount());
     return msg;
   }
 
   @Override
-  public CurrencyAmount buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public CurrencyAmount buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final Currency currency = msg.getValue(Currency.class, CURRENCY_KEY);
     if (currency == null) {
       throw new IllegalArgumentException("Fudge message is not a CurrencyAmount - field 'currency' is not present");

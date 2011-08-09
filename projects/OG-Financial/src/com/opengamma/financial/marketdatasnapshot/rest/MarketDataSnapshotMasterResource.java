@@ -17,8 +17,8 @@ import javax.ws.rs.core.Response;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
@@ -29,65 +29,98 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * RESTful resource publishing details from a {link MarketDataSnapshotMaster}.
+ * RESTful resource publishing details from a {@code MarketDataSnapshotMaster}.
  */
 public class MarketDataSnapshotMasterResource {
-  private final MarketDataSnapshotMaster _snapshotMaster;
 
+  /**
+   * The underlying master.
+   */
+  private final MarketDataSnapshotMaster _snapshotMaster;
+  /**
+   * The Fudge context.
+   */
   private final FudgeContext _fudgeContext;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param snapshotMaster  the master, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
   public MarketDataSnapshotMasterResource(final MarketDataSnapshotMaster snapshotMaster, final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _snapshotMaster = snapshotMaster;
     _fudgeContext = fudgeContext;
   }
 
-  private FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
-  private MarketDataSnapshotMaster getSnapshotMaster() {
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying master..
+   * 
+   * @return the master
+   */
+  protected MarketDataSnapshotMaster getSnapshotMaster() {
     return _snapshotMaster;
   }
 
-  public FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
+  /**
+   * Gets the Fudge context.
+   * 
+   * @return the Fudge context
+   */
+  protected FudgeContext getFudgeContext() {
+    return _fudgeContext;
   }
 
-  public FudgeDeserializationContext getFudgeDeserializationContext() {
-    return new FudgeDeserializationContext(getFudgeContext());
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the serializer from the context.
+   * 
+   * @return the serializer, not null
+   */
+  public FudgeSerializer getFudgeSerializer() {
+    return new FudgeSerializer(getFudgeContext());
   }
 
+  /**
+   * Gets the deserializer from the context.
+   * 
+   * @return the deserializer, not null
+   */
+  public FudgeDeserializer getFudgeDeserializer() {
+    return new FudgeDeserializer(getFudgeContext());
+  }
+
+  //-------------------------------------------------------------------------
   @POST
   @Path("search")
   public FudgeMsgEnvelope search(final FudgeMsgEnvelope payload) {
-    final MarketDataSnapshotSearchResult result = searchImpl(payload);
-    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
-  }
-
-  private MarketDataSnapshotSearchResult searchImpl(final FudgeMsgEnvelope payload) {
-    final MarketDataSnapshotSearchRequest request = getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotSearchRequest.class, payload.getMessage());
+    final MarketDataSnapshotSearchRequest request = getFudgeDeserializer().fudgeMsgToObject(MarketDataSnapshotSearchRequest.class, payload.getMessage());
     final MarketDataSnapshotSearchResult result = getSnapshotMaster().search(request);
-    return result;
+    return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(result));
   }
 
   @POST
   @Path("history")
   public FudgeMsgEnvelope history(final FudgeMsgEnvelope payload) {
-    final MarketDataSnapshotHistoryRequest request = getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryRequest.class, payload.getMessage());
+    final MarketDataSnapshotHistoryRequest request = getFudgeDeserializer().fudgeMsgToObject(MarketDataSnapshotHistoryRequest.class, payload.getMessage());
     final MarketDataSnapshotHistoryResult result = getSnapshotMaster().history(request);
-    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
+    return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(result));
   }
 
   @POST
   @Path("add")
   public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final ManageableMarketDataSnapshot snapshotDefinition = dctx.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final ManageableMarketDataSnapshot snapshotDefinition = deserializer.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
 
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(snapshotDefinition);
-    document = _snapshotMaster.add(document);
+    document = getSnapshotMaster().add(document);
     if (document == null) {
       return null;
     }
@@ -101,8 +134,8 @@ public class MarketDataSnapshotMasterResource {
   public FudgeMsgEnvelope get(@PathParam("uid") final String uidString) {
     final UniqueId uid = UniqueId.parse(uidString);
     try {
-      final MarketDataSnapshotDocument document = _snapshotMaster.get(uid);
-      final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
+      final MarketDataSnapshotDocument document = getSnapshotMaster().get(uid);
+      final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
       
       MutableFudgeMsg resp = sctx.objectToFudgeMsg(document);
       return new FudgeMsgEnvelope(resp);
@@ -116,7 +149,7 @@ public class MarketDataSnapshotMasterResource {
   public FudgeMsgEnvelope remove(@PathParam("uid") final String uidString) {
     final UniqueId uid = UniqueId.parse(uidString);
     try {
-      _snapshotMaster.remove(uid);
+      getSnapshotMaster().remove(uid);
       return null;
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -127,12 +160,12 @@ public class MarketDataSnapshotMasterResource {
   @Path("snapshots/{uid}")
   public FudgeMsgEnvelope update(@PathParam("uid") final String uidString, final FudgeMsgEnvelope payload) {
     final UniqueId uid = UniqueId.parse(uidString);
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final ManageableMarketDataSnapshot snapshot = dctx.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final ManageableMarketDataSnapshot snapshot = deserializer.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
 
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(uid, snapshot);
     try {
-      document = _snapshotMaster.update(document);
+      document = getSnapshotMaster().update(document);
       if (document == null) {
         return null;
       }
@@ -155,7 +188,8 @@ public class MarketDataSnapshotMasterResource {
   public FudgeMsgEnvelope getDebugInfo() {
     final MutableFudgeMsg message = getFudgeContext().newMessage();
     message.add("fudgeContext", getFudgeContext().toString());
-    message.add("snapshotMaster", _snapshotMaster.toString());
+    message.add("snapshotMaster", getSnapshotMaster().toString());
     return new FudgeMsgEnvelope(message);
   }
+
 }

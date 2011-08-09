@@ -34,8 +34,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeMsgWriter;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -90,12 +90,12 @@ public class RestClient {
     return _fudgeContext;
   }
 
-  public FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
+  public FudgeSerializer getFudgeSerializer() {
+    return new FudgeSerializer(getFudgeContext());
   }
 
-  public FudgeDeserializationContext getFudgeDeserializationContext() {
-    return new FudgeDeserializationContext(getFudgeContext());
+  public FudgeDeserializer getFudgeDeserializer() {
+    return new FudgeDeserializer(getFudgeContext());
   }
 
   protected <T extends AbstractHttpMessage> T setRequestHeaders(final T request) {
@@ -281,7 +281,7 @@ public class RestClient {
     if (field == null) {
       return null;
     }
-    return getFudgeDeserializationContext().fieldValueToObject(clazz, field);
+    return getFudgeDeserializer().fieldValueToObject(clazz, field);
   }
 
   public <T> T getSingleValue(final Class<T> clazz, final RestTarget target, final int returnFieldOrdinal) {
@@ -293,7 +293,7 @@ public class RestClient {
     if (field == null) {
       return null;
     }
-    return getFudgeDeserializationContext().fieldValueToObject(clazz, field);
+    return getFudgeDeserializer().fieldValueToObject(clazz, field);
   }
 
   public <T> T getSingleValueNotNull(final Class<T> clazz, final RestTarget target, final String returnFieldName) {
@@ -305,7 +305,7 @@ public class RestClient {
     if (field == null) {
       throw new OpenGammaRuntimeException(target + " did not return a field '" + returnFieldName + "'");
     }
-    return getFudgeDeserializationContext().fieldValueToObject(clazz, field);
+    return getFudgeDeserializer().fieldValueToObject(clazz, field);
   }
 
   public <T> T getSingleValueNotNull(final Class<T> clazz, final RestTarget target, final int returnFieldOrdinal) {
@@ -317,7 +317,7 @@ public class RestClient {
     if (field == null) {
       throw new OpenGammaRuntimeException(target + " did not return a field " + returnFieldOrdinal);
     }
-    return getFudgeDeserializationContext().fieldValueToObject(clazz, field);
+    return getFudgeDeserializer().fieldValueToObject(clazz, field);
   }
 
   //-------------------------------------------------------------------------

@@ -10,8 +10,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -29,8 +29,8 @@ public final class MultipleCurrencyAmountBuilder implements FudgeBuilder<Multipl
   public static final String AMOUNTS_KEY = "amounts";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, MultipleCurrencyAmount object) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, MultipleCurrencyAmount object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     CurrencyAmount[] currencyAmounts = object.getCurrencyAmounts();
     Currency[] currencies = new Currency[currencyAmounts.length];
     double[] amounts = new double[currencyAmounts.length];
@@ -39,13 +39,13 @@ public final class MultipleCurrencyAmountBuilder implements FudgeBuilder<Multipl
       currencies[i] = ca.getCurrency();
       amounts[i++] = ca.getAmount();
     }
-    context.addToMessage(msg, CURRENCIES_KEY, null, currencies);
-    context.addToMessage(msg, AMOUNTS_KEY, null, amounts);
+    serializer.addToMessage(msg, CURRENCIES_KEY, null, currencies);
+    serializer.addToMessage(msg, AMOUNTS_KEY, null, amounts);
     return msg;
   }
 
   @Override
-  public MultipleCurrencyAmount buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public MultipleCurrencyAmount buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     FudgeField currenciesField = msg.getByName(CURRENCIES_KEY);
     if (currenciesField == null) {
       throw new IllegalArgumentException("Fudge message is not a MultipleCurrencyAmount - field 'currencies' is not present");
@@ -54,13 +54,13 @@ public final class MultipleCurrencyAmountBuilder implements FudgeBuilder<Multipl
     if (amountsField == null) {
       throw new IllegalArgumentException("Fudge message is not a MultipleCurrencyAmount - field 'amounts' is not present");
     }
-    String[] currencyNames = context.fieldValueToObject(String[].class, currenciesField);
+    String[] currencyNames = deserializer.fieldValueToObject(String[].class, currenciesField);
     int length = currencyNames.length;
     Currency[] currencies = new Currency[length];
     for (int i = 0; i < length; i++) {
       currencies[i] = Currency.of(currencyNames[i]);
     }
-    double[] amounts = context.fieldValueToObject(double[].class, amountsField);
+    double[] amounts = deserializer.fieldValueToObject(double[].class, amountsField);
     return MultipleCurrencyAmount.of(currencies, amounts);
   }
 

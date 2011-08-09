@@ -20,8 +20,8 @@ public class IdentifierLookupRequest extends com.opengamma.engine.view.cache.msg
       _specification = fudge0;
     }
   }
-  protected IdentifierLookupRequest (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeContext, fudgeMsg);
+  protected IdentifierLookupRequest (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (deserializer, fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (SPECIFICATION_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a IdentifierLookupRequest - field 'specification' is not present");
@@ -29,7 +29,7 @@ public class IdentifierLookupRequest extends com.opengamma.engine.view.cache.msg
     for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
       try {
         final com.opengamma.engine.value.ValueSpecification fudge2;
-        fudge2 = fudgeContext.fieldValueToObject (com.opengamma.engine.value.ValueSpecification.class, fudge1);
+        fudge2 = deserializer.fieldValueToObject (com.opengamma.engine.value.ValueSpecification.class, fudge1);
         _specification.add (fudge2);
       }
       catch (IllegalArgumentException e) {
@@ -67,33 +67,33 @@ public class IdentifierLookupRequest extends com.opengamma.engine.view.cache.msg
   public IdentifierLookupRequest clone () {
     return new IdentifierLookupRequest (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (fudgeContext, msg);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
+    super.toFudgeMsg (serializer, msg);
     if (_specification != null)  {
       for (com.opengamma.engine.value.ValueSpecification fudge1 : _specification) {
-        fudgeContext.addToMessageWithClassHeaders (msg, SPECIFICATION_KEY, null, fudge1, com.opengamma.engine.value.ValueSpecification.class);
+        serializer.addToMessageWithClassHeaders (msg, SPECIFICATION_KEY, null, fudge1, com.opengamma.engine.value.ValueSpecification.class);
       }
     }
   }
-  public static IdentifierLookupRequest fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static IdentifierLookupRequest fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.view.cache.msg.IdentifierLookupRequest".equals (className)) break;
       try {
-        return (com.opengamma.engine.view.cache.msg.IdentifierLookupRequest)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.engine.view.cache.msg.IdentifierLookupRequest)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new IdentifierLookupRequest (fudgeContext, fudgeMsg);
+    return new IdentifierLookupRequest (deserializer, fudgeMsg);
   }
   public java.util.List<com.opengamma.engine.value.ValueSpecification> getSpecification () {
     return java.util.Collections.unmodifiableList (_specification);

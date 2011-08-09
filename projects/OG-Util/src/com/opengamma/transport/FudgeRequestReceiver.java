@@ -7,16 +7,14 @@ package com.opengamma.transport;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 /**
  * Similar to {@link ByteArrayRequestReceiver}, except that all messages are
  * extracted to a {@link FudgeMsgEnvelope} before transmission.
- *
- * @author kirk
  */
 public interface FudgeRequestReceiver {
-  
-  FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope);
+
+  FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope);
 
 }

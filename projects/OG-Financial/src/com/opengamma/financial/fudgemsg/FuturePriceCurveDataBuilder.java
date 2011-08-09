@@ -18,8 +18,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
 import com.opengamma.id.UniqueIdentifiable;
@@ -31,22 +31,22 @@ import com.opengamma.id.UniqueIdentifiable;
 public class FuturePriceCurveDataBuilder implements FudgeBuilder<FuturePriceCurveData<?>> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final FuturePriceCurveData<?> object) {
-    final MutableFudgeMsg message = context.newMessage();
-    message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
-    context.addToMessage(message, "target", null, object.getTarget());
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FuturePriceCurveData<?> object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
+    serializer.addToMessage(message, "target", null, object.getTarget());
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
     for (final Object x : object.getXs()) {
       if (x != null) {
-        message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+        message.add("xs", null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(x), x.getClass()));
       }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
       final Object x = entry.getKey();
-      final MutableFudgeMsg subMessage = context.newMessage();
+      final MutableFudgeMsg subMessage = serializer.newMessage();
       if (x != null) {
-        subMessage.add("x", null, context.objectToFudgeMsg(x));
+        subMessage.add("x", null, serializer.objectToFudgeMsg(x));
         subMessage.add("value", null, entry.getValue());
         message.add("values", null, subMessage);
       }
@@ -55,15 +55,15 @@ public class FuturePriceCurveDataBuilder implements FudgeBuilder<FuturePriceCurv
   }
 
   @Override
-  public FuturePriceCurveData<?> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-    final UniqueIdentifiable target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+  public FuturePriceCurveData<?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final UniqueIdentifiable target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     final String definitionName = message.getString("definitionName");
     final String specificationName = message.getString("specificationName");
     final List<FudgeField> xsFields = message.getAllByName("xs");
     final List<Object> xs = new ArrayList<Object>();
     Object[] xsArray = null;
     for (final FudgeField xField : xsFields) {
-      final Object x = context.fieldValueToObject(xField);
+      final Object x = deserializer.fieldValueToObject(xField);
       xs.add(x);
       if (xsArray == null) {
         xsArray = (Object[]) Array.newInstance(x.getClass(), 0);
@@ -75,7 +75,7 @@ public class FuturePriceCurveDataBuilder implements FudgeBuilder<FuturePriceCurv
       final List<FudgeField> valuesFields = message.getAllByName("values");
       for (final FudgeField valueField : valuesFields) {
         final FudgeMsg subMessage = (FudgeMsg) valueField.getValue();
-        final Object x = context.fieldValueToObject(xClazz, subMessage.getByName("x"));
+        final Object x = deserializer.fieldValueToObject(xClazz, subMessage.getByName("x"));
         final Double value = subMessage.getDouble("value");
         values.put(x, value);
       }

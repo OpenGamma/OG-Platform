@@ -11,8 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +39,8 @@ public class AnalyticsTestBase {
   @SuppressWarnings("unchecked")
   protected <T> T cycleObject(final Class<T> clazz, final T object) {
     s_logger.info("object {}", object);
-    final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(getFudgeContext());
-    final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext(getFudgeContext());
+    final FudgeSerializer fudgeSerializationContext = new FudgeSerializer(getFudgeContext());
+    final FudgeDeserializer fudgeDeserializationContext = new FudgeDeserializer(getFudgeContext());
     FudgeMsg message = fudgeSerializationContext.objectToFudgeMsg(object);
     assertNotNull(message);
     s_logger.info("message {}", message);

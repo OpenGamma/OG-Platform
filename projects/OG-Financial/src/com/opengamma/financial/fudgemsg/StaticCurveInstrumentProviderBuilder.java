@@ -10,8 +10,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.id.ExternalId;
@@ -26,18 +26,18 @@ public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<Static
    */
   public static final String TYPE = "Static";
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, StaticCurveInstrumentProvider object) {
-    MutableFudgeMsg message = context.newMessage();
-    FudgeSerializationContext.addClassHeader(message, StaticCurveInstrumentProvider.class);
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, StaticCurveInstrumentProvider object) {
+    MutableFudgeMsg message = serializer.newMessage();
+    FudgeSerializer.addClassHeader(message, StaticCurveInstrumentProvider.class);
     message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
-    context.addToMessage(message, "instrument", null, object.getInstrument(null, null));
+    serializer.addToMessage(message, "instrument", null, object.getInstrument(null, null));
     return message; 
   }
 
   @Override
-  public StaticCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public StaticCurveInstrumentProvider buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     FudgeField instrumentIdentifier = message.getByName("instrument");
-    ExternalId identifier = context.fieldValueToObject(ExternalId.class, instrumentIdentifier);
+    ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, instrumentIdentifier);
     return new StaticCurveInstrumentProvider(identifier);
   }
 

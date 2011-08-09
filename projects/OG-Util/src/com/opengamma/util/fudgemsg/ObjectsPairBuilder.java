@@ -8,8 +8,8 @@ package com.opengamma.util.fudgemsg;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.util.tuple.ObjectsPair;
@@ -26,28 +26,28 @@ public final class ObjectsPairBuilder implements FudgeBuilder<ObjectsPair<?, ?>>
   public static final String SECOND_FIELD_NAME = "second";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ObjectsPair<?, ?> object) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ObjectsPair<?, ?> object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     if (object.getFirst() != null) {
-      context.addToMessageWithClassHeaders(msg, FIRST_FIELD_NAME, null, object.getFirst());
+      serializer.addToMessageWithClassHeaders(msg, FIRST_FIELD_NAME, null, object.getFirst());
     }
     if (object.getSecond() != null) {
-      context.addToMessageWithClassHeaders(msg, SECOND_FIELD_NAME, null, object.getSecond());
+      serializer.addToMessageWithClassHeaders(msg, SECOND_FIELD_NAME, null, object.getSecond());
     }
     return msg;
   }
 
   @Override
-  public ObjectsPair<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ObjectsPair<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     Object first;
     if (msg.hasField(FIRST_FIELD_NAME)) {
-      first = context.fieldValueToObject(msg.getByName(FIRST_FIELD_NAME));
+      first = deserializer.fieldValueToObject(msg.getByName(FIRST_FIELD_NAME));
     } else {
       first = null;
     }
     Object second;
     if (msg.hasField(SECOND_FIELD_NAME)) {
-      second = context.fieldValueToObject(msg.getByName(SECOND_FIELD_NAME));
+      second = deserializer.fieldValueToObject(msg.getByName(SECOND_FIELD_NAME));
     } else {
       second = null;
     }

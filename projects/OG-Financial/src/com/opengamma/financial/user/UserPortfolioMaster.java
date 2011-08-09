@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.user;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -91,6 +92,12 @@ public class UserPortfolioMaster implements PortfolioMaster {
   @Override
   public ManageablePortfolioNode getNode(UniqueId nodeId) {
     return _underlying.getNode(nodeId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }
