@@ -34,11 +34,11 @@ import com.opengamma.util.test.Timeout;
 @Test
 public class SocketFudgeConnectionConduitTest {
   
-  private final AtomicInteger _uid = new AtomicInteger();
+  private final AtomicInteger _counter = new AtomicInteger();
 
   private FudgeMsg createMessage() {
     final MutableFudgeMsg message = FudgeContext.GLOBAL_DEFAULT.newMessage();
-    message.add("uid", _uid.incrementAndGet());
+    message.add("counter", _counter.incrementAndGet());
     return message;
   }
 

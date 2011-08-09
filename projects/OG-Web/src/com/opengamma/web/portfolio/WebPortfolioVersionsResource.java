@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
@@ -87,7 +87,7 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
   public WebPortfolioVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     PortfolioDocument doc = data().getPortfolio();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       PortfolioDocument versioned = data().getPortfolioMaster().get(combined);
       data().setVersioned(versioned);

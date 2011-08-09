@@ -4,8 +4,8 @@
 package com.opengamma.financial.security.swap;
 public class FloatingInterestRateLeg extends com.opengamma.financial.security.swap.InterestRateLeg implements java.io.Serializable {
   public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }
-  private static final long serialVersionUID = -844249679190015272l;
-  private final com.opengamma.id.Identifier _floatingReferenceRateIdentifier;
+  private static final long serialVersionUID = -916431960834911563l;
+  private final com.opengamma.id.ExternalId _floatingReferenceRateIdentifier;
   public static final String FLOATING_REFERENCE_RATE_IDENTIFIER_KEY = "floatingReferenceRateIdentifier";
   private final Double _initialFloatingRate;
   public static final String INITIAL_FLOATING_RATE_KEY = "initialFloatingRate";
@@ -16,22 +16,22 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
   public static class Builder {
     private com.opengamma.financial.convention.daycount.DayCount _dayCount;
     private com.opengamma.financial.convention.frequency.Frequency _frequency;
-    private com.opengamma.id.Identifier _regionIdentifier;
+    private com.opengamma.id.ExternalId _regionIdentifier;
     private com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
     private com.opengamma.financial.security.swap.Notional _notional;
-    private org.fudgemsg.mapping.FudgeDeserializationContext _fudgeContext;
-    protected org.fudgemsg.mapping.FudgeDeserializationContext getFudgeContext () {
-      return _fudgeContext;
+    private org.fudgemsg.mapping.FudgeDeserializer _deserializer;
+    protected org.fudgemsg.mapping.FudgeDeserializer getDeserializer () {
+      return _deserializer;
     }
     private org.fudgemsg.FudgeMsg _fudgeRoot;
     protected org.fudgemsg.FudgeMsg getFudgeRoot () {
       return _fudgeRoot;
     }
-    private com.opengamma.id.Identifier _floatingReferenceRateIdentifier;
+    private com.opengamma.id.ExternalId _floatingReferenceRateIdentifier;
     private Double _initialFloatingRate;
     private double _spread;
     private boolean _isIBOR;
-    public Builder (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, double spread, boolean isIBOR) {
+    public Builder (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.ExternalId floatingReferenceRateIdentifier, double spread, boolean isIBOR) {
       _dayCount = dayCount;
       _frequency = frequency;
       _regionIdentifier = regionIdentifier;
@@ -41,17 +41,17 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
       spread (spread);
       isIBOR (isIBOR);
     }
-    protected Builder (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    protected Builder (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
       _fudgeRoot = fudgeMsg;
-      _fudgeContext = fudgeContext;
+      _deserializer = deserializer;
       org.fudgemsg.FudgeField fudgeField;
       fudgeField = fudgeMsg.getByName (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY);
       if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not present");
       try {
-        _floatingReferenceRateIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+        _floatingReferenceRateIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not Identifier message", e);
+        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not ExternalId message", e);
       }
       fudgeField = fudgeMsg.getByName (SPREAD_KEY);
       if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not present");
@@ -79,7 +79,7 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
         }
       }
     }
-    public Builder floatingReferenceRateIdentifier (com.opengamma.id.Identifier floatingReferenceRateIdentifier) {
+    public Builder floatingReferenceRateIdentifier (com.opengamma.id.ExternalId floatingReferenceRateIdentifier) {
       if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
       else {
         _floatingReferenceRateIdentifier = floatingReferenceRateIdentifier;
@@ -99,7 +99,7 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
       return this;
     }
     public FloatingInterestRateLeg build () {
-      return (getFudgeRoot () != null) ? new FloatingInterestRateLeg (getFudgeContext (), getFudgeRoot (), this) : new FloatingInterestRateLeg (this);
+      return (getFudgeRoot () != null) ? new FloatingInterestRateLeg (getDeserializer (), getFudgeRoot (), this) : new FloatingInterestRateLeg (this);
     }
   }
   protected FloatingInterestRateLeg (final Builder builder) {
@@ -112,8 +112,8 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     _spread = builder._spread;
     _isIBOR = builder._isIBOR;
   }
-  protected FloatingInterestRateLeg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg, final Builder builder) {
-    super (fudgeContext, fudgeMsg);
+  protected FloatingInterestRateLeg (final org.fudgemsg.mapping.FudgeDeserializer serializer, final org.fudgemsg.FudgeMsg fudgeMsg, final Builder builder) {
+    super (serializer, fudgeMsg);
     if (builder._floatingReferenceRateIdentifier == null) _floatingReferenceRateIdentifier = null;
     else {
       _floatingReferenceRateIdentifier = builder._floatingReferenceRateIdentifier;
@@ -122,7 +122,7 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     _spread = builder._spread;
     _isIBOR = builder._isIBOR;
   }
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.Identifier floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
+  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.ExternalId floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
     else {
@@ -143,17 +143,17 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     _spread = source._spread;
     _isIBOR = source._isIBOR;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (fudgeContext, msg);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
+    super.toFudgeMsg (serializer, msg);
     if (_floatingReferenceRateIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.Identifier.class);
-      _floatingReferenceRateIdentifier.toFudgeMsg (fudgeContext, fudge1);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.ExternalId.class);
+      _floatingReferenceRateIdentifier.toFudgeMsg (serializer, fudge1);
       msg.add (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, null, fudge1);
     }
     if (_initialFloatingRate != null)  {
@@ -162,21 +162,21 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     msg.add (SPREAD_KEY, null, _spread);
     msg.add (IS_IBOR_KEY, null, _isIBOR);
   }
-  public static FloatingInterestRateLeg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static FloatingInterestRateLeg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.swap.FloatingInterestRateLeg".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.swap.FloatingInterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.financial.security.swap.FloatingInterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new Builder (fudgeContext, fudgeMsg).build ();
+    return new Builder (deserializer, fudgeMsg).build ();
   }
-  public com.opengamma.id.Identifier getFloatingReferenceRateIdentifier () {
+  public com.opengamma.id.ExternalId getFloatingReferenceRateIdentifier () {
     return _floatingReferenceRateIdentifier;
   }
   public Double getInitialFloatingRate () {

@@ -8,25 +8,25 @@ package com.opengamma.financial.analytics.ircurve;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
  * This should be pulled from the configuration.
  */
 public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
-  private Identifier _identifier;
+  private ExternalId _identifier;
   
-  public StaticCurveInstrumentProvider(Identifier identifier) {
+  public StaticCurveInstrumentProvider(ExternalId identifier) {
     _identifier = identifier;
   }
   @Override
-  public Identifier getInstrument(LocalDate curveDate, Tenor tenor) {
+  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
     return _identifier;
   }
   
   @Override
-  public Identifier getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
     throw new OpenGammaRuntimeException("futures not supported by this class");
   }
   

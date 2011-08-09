@@ -5,7 +5,7 @@ package com.opengamma.financial.security.fx;
 public class FXSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
            public <T> T accept (FXSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
          public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
-  private static final long serialVersionUID = -8963298799780577930l;
+  private static final long serialVersionUID = -8963298799861909741l;
   private com.opengamma.util.money.Currency _payCurrency;
   public static final String PAY_CURRENCY_KEY = "payCurrency";
   private com.opengamma.util.money.Currency _receiveCurrency;
@@ -14,10 +14,10 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
   public static final String PAY_AMOUNT_KEY = "payAmount";
   private double _receiveAmount;
   public static final String RECEIVE_AMOUNT_KEY = "receiveAmount";
-  private com.opengamma.id.Identifier _region;
+  private com.opengamma.id.ExternalId _region;
   public static final String REGION_KEY = "region";
   public static final String SECURITY_TYPE = "FX";
-  public FXSecurity (com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.Identifier region) {
+  public FXSecurity (com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.ExternalId region) {
     super (SECURITY_TYPE);
     if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
     _payCurrency = payCurrency;
@@ -30,8 +30,8 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
       _region = region;
     }
   }
-  protected FXSecurity (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (fudgeContext, fudgeMsg);
+  protected FXSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
+    super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (PAY_CURRENCY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'payCurrency' is not present");
@@ -68,13 +68,13 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     fudgeField = fudgeMsg.getByName (REGION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'region' is not present");
     try {
-      _region = com.opengamma.id.Identifier.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _region = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'region' is not Identifier message", e);
+      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'region' is not ExternalId message", e);
     }
   }
-  public FXSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.Identifier region) {
+  public FXSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.ExternalId region) {
     super (uniqueId, name, securityType, identifiers);
     if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
     _payCurrency = payCurrency;
@@ -102,14 +102,14 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
   public FXSecurity clone () {
     return new FXSecurity (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (fudgeContext, msg);
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
+    super.toFudgeMsg (serializer, msg);
     if (_payCurrency != null)  {
       msg.add (PAY_CURRENCY_KEY, null, _payCurrency);
     }
@@ -119,24 +119,24 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
     msg.add (PAY_AMOUNT_KEY, null, _payAmount);
     msg.add (RECEIVE_AMOUNT_KEY, null, _receiveAmount);
     if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _region.getClass (), com.opengamma.id.Identifier.class);
-      _region.toFudgeMsg (fudgeContext, fudge1);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
+      _region.toFudgeMsg (serializer, fudge1);
       msg.add (REGION_KEY, null, fudge1);
     }
   }
-  public static FXSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static FXSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.fx.FXSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.fx.FXSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.financial.security.fx.FXSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new FXSecurity (fudgeContext, fudgeMsg);
+    return new FXSecurity (deserializer, fudgeMsg);
   }
   public com.opengamma.util.money.Currency getPayCurrency () {
     return _payCurrency;
@@ -164,10 +164,10 @@ public class FXSecurity extends com.opengamma.financial.security.FinancialSecuri
   public void setReceiveAmount (double receiveAmount) {
     _receiveAmount = receiveAmount;
   }
-  public com.opengamma.id.Identifier getRegion () {
+  public com.opengamma.id.ExternalId getRegion () {
     return _region;
   }
-  public void setRegion (com.opengamma.id.Identifier region) {
+  public void setRegion (com.opengamma.id.ExternalId region) {
     if (region == null) throw new NullPointerException ("'region' cannot be null");
     else {
       _region = region;

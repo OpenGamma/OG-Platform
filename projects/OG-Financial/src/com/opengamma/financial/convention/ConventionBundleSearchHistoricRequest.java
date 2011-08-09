@@ -7,8 +7,8 @@ package com.opengamma.financial.convention;
 
 import javax.time.Instant;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * A historic search request to retrieve convention set information.
@@ -16,15 +16,15 @@ import com.opengamma.id.IdentifierBundle;
 public class ConventionBundleSearchHistoricRequest {
   private Instant _version;
   private Instant _correction;
-  private IdentifierBundle _identifiers;
+  private ExternalIdBundle _identifiers;
   
-  public ConventionBundleSearchHistoricRequest(Instant version, Instant correction, Identifier identifier) {
+  public ConventionBundleSearchHistoricRequest(Instant version, Instant correction, ExternalId identifier) {
     _version = version;
     _correction = correction;
-    _identifiers = IdentifierBundle.of(identifier);
+    _identifiers = ExternalIdBundle.of(identifier);
   }
   
-  public ConventionBundleSearchHistoricRequest(Instant version, Instant correction, IdentifierBundle identifiers) {
+  public ConventionBundleSearchHistoricRequest(Instant version, Instant correction, ExternalIdBundle identifiers) {
     _version = version;
     _correction = correction;
     _identifiers = identifiers;
@@ -38,7 +38,7 @@ public class ConventionBundleSearchHistoricRequest {
     return _correction;
   }
   
-  public IdentifierBundle getIdentifiers() {
+  public ExternalIdBundle getIdentifiers() {
     return _identifiers;
   }
 }

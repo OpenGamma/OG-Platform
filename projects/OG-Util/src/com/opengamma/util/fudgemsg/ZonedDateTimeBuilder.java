@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * Fudge builder for {@code ZonedDateTime}.
@@ -28,15 +28,15 @@ public final class ZonedDateTimeBuilder implements FudgeBuilder<ZonedDateTime> {
   public static final String ZONE_FIELD_NAME = "zone";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ZonedDateTime object) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ZonedDateTime object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add(DATETIME_FIELD_NAME, object.toOffsetDateTime());
     msg.add(ZONE_FIELD_NAME, object.getZone().getID());
     return msg;
   }
 
   @Override
-  public ZonedDateTime buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ZonedDateTime buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final OffsetDateTime odt = msg.getValue(OffsetDateTime.class, DATETIME_FIELD_NAME);
     if (odt == null) {
       throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'datetime' is not present");

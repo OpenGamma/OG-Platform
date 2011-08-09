@@ -22,7 +22,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -40,7 +40,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       Client local, Client remote) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
         EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "undefined"); 
+        remote, "Loading..."); 
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());
@@ -49,7 +49,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   }
   
   @Override
-  protected void addRowDetails(UniqueIdentifier target, int rowId, Map<String, Object> details) {
+  protected void addRowDetails(UniqueId target, int rowId, Map<String, Object> details) {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
     details.put("indent", row.getDepth());
     if (row.getParentRow() != null) {
@@ -74,8 +74,8 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     return rowName;
   }
   
-  private static List<UniqueIdentifier> getTargets(List<PortfolioRow> rows) {
-    List<UniqueIdentifier> targets = new ArrayList<UniqueIdentifier>();
+  private static List<UniqueId> getTargets(List<PortfolioRow> rows) {
+    List<UniqueId> targets = new ArrayList<UniqueId>();
     for (PortfolioRow row : rows) {
       targets.add(row.getTarget().getUniqueId());
     }

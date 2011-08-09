@@ -18,9 +18,9 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -36,9 +36,9 @@ import com.opengamma.util.i18n.Country;
 @Test
 public class MasterExchangeSourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
-  private static final Identifier ID = Identifier.of("C", "D");
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
+  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final ExternalId ID = ExternalId.of("C", "D");
+  private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
@@ -89,7 +89,7 @@ public class MasterExchangeSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSingleExchange_Identifier_found() throws Exception {
+  public void test_getSingleExchange_ExternalId_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
@@ -107,7 +107,7 @@ public class MasterExchangeSourceTest {
     assertEquals(example(), testResult);
   }
 
-  public void test_getSingleExchange_Identifier_noFound() throws Exception {
+  public void test_getSingleExchange_ExternalId_notFound() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
     request.setPagingRequest(PagingRequest.ONE);
@@ -125,7 +125,7 @@ public class MasterExchangeSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSingleExchange_IdentifierBundle_found() throws Exception {
+  public void test_getSingleExchange_ExternalIdBundle_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE);
     request.setPagingRequest(PagingRequest.ONE);
@@ -147,7 +147,7 @@ public class MasterExchangeSourceTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UID);
     exchange.setName("NYSE");
-    exchange.setRegionKey(IdentifierBundle.of(RegionUtils.countryRegionId(Country.US)));
+    exchange.setRegionIdBundle(ExternalIdBundle.of(RegionUtils.countryRegionId(Country.US)));
     return exchange;
   }
 

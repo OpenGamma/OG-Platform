@@ -37,13 +37,13 @@ public class LiveDataSubscriptionRequest implements java.io.Serializable {
       _specifications = fudge0;
     }
   }
-  protected LiveDataSubscriptionRequest (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected LiveDataSubscriptionRequest (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeField = fudgeMsg.getByName (USER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a LiveDataSubscriptionRequest - field 'user' is not present");
     try {
-      _user = fudgeContext.fieldValueToObject (com.opengamma.livedata.UserPrincipal.class, fudgeField);
+      _user = deserializer.fieldValueToObject (com.opengamma.livedata.UserPrincipal.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a LiveDataSubscriptionRequest - field 'user' is not UserPrincipal message", e);
@@ -62,7 +62,7 @@ public class LiveDataSubscriptionRequest implements java.io.Serializable {
     for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
       try {
         final com.opengamma.livedata.LiveDataSpecification fudge2;
-        fudge2 = fudgeContext.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudge1);
+        fudge2 = deserializer.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudge1);
         _specifications.add (fudge2);
       }
       catch (IllegalArgumentException e) {
@@ -90,38 +90,38 @@ public class LiveDataSubscriptionRequest implements java.io.Serializable {
   public LiveDataSubscriptionRequest clone () {
     return new LiveDataSubscriptionRequest (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_user != null)  {
-      fudgeContext.addToMessageWithClassHeaders (msg, USER_KEY, null, _user, com.opengamma.livedata.UserPrincipal.class);
+      serializer.addToMessageWithClassHeaders (msg, USER_KEY, null, _user, com.opengamma.livedata.UserPrincipal.class);
     }
     if (_type != null)  {
       msg.add (TYPE_KEY, null, _type.name ());
     }
     if (_specifications != null)  {
       for (com.opengamma.livedata.LiveDataSpecification fudge1 : _specifications) {
-        fudgeContext.addToMessageWithClassHeaders (msg, SPECIFICATIONS_KEY, null, fudge1, com.opengamma.livedata.LiveDataSpecification.class);
+        serializer.addToMessageWithClassHeaders (msg, SPECIFICATIONS_KEY, null, fudge1, com.opengamma.livedata.LiveDataSpecification.class);
       }
     }
   }
-  public static LiveDataSubscriptionRequest fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static LiveDataSubscriptionRequest fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.livedata.msg.LiveDataSubscriptionRequest".equals (className)) break;
       try {
-        return (com.opengamma.livedata.msg.LiveDataSubscriptionRequest)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.livedata.msg.LiveDataSubscriptionRequest)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new LiveDataSubscriptionRequest (fudgeContext, fudgeMsg);
+    return new LiveDataSubscriptionRequest (deserializer, fudgeMsg);
   }
   public com.opengamma.livedata.UserPrincipal getUser () {
     return _user;

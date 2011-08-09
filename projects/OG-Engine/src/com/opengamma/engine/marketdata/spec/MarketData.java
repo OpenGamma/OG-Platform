@@ -7,7 +7,7 @@ package com.opengamma.engine.marketdata.spec;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -68,7 +68,7 @@ public class MarketData {
    * @param snapshotId  the unique identifier of the snapshot, not {@code null}
    * @return the user market data specification, not {@code null}
    */
-  public static UserMarketDataSpecification user(UniqueIdentifier snapshotId) {
+  public static UserMarketDataSpecification user(UniqueId snapshotId) {
     return new UserMarketDataSpecification(snapshotId);
   }
   

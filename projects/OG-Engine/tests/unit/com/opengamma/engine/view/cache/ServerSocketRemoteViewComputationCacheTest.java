@@ -28,7 +28,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
@@ -107,11 +107,11 @@ public class ServerSocketRemoteViewComputationCacheTest {
     final AtomicLong getTime = new AtomicLong(0);
     final AtomicLong putTime = new AtomicLong(0);
     List<Thread> threads = new ArrayList<Thread>();
-    UniqueIdentifier cycle0Id = UniqueIdentifier.of("Test", "MultiThreadedTestViewCycle", "0");
-    UniqueIdentifier cycle1Id = UniqueIdentifier.of("Test", "MultiThreadedTestViewCycle", "1");
+    UniqueId cycle0Id = UniqueId.of("Test", "MultiThreadedTestViewCycle", "0");
+    UniqueId cycle1Id = UniqueId.of("Test", "MultiThreadedTestViewCycle", "1");
     for (int i = 0; i < NUM_THREADS; i++) {
       // Half the threads on one cycle, half on another
-      final UniqueIdentifier cycleId = ((i & 1) == 0) ? cycle0Id : cycle1Id;
+      final UniqueId cycleId = ((i & 1) == 0) ? cycle0Id : cycle1Id;
       Thread t = new Thread(new Runnable() {
         @Override
         public void run() {
@@ -123,7 +123,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
               ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value",
-                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk",
+                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
                       valueName))), "mockFunctionId");
 
               boolean putValue = true;

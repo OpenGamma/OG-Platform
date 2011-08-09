@@ -9,14 +9,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,29 +33,29 @@ public class MockPositionSource implements PositionSource {
   /**
    * The portfolios.
    */
-  private final Map<UniqueIdentifier, Portfolio> _portfolios = new ConcurrentHashMap<UniqueIdentifier, Portfolio>();
+  private final Map<UniqueId, Portfolio> _portfolios = new ConcurrentHashMap<UniqueId, Portfolio>();
   /**
    * A cache of nodes by identifier.
    */
-  private final Map<UniqueIdentifier, PortfolioNode> _nodes = new ConcurrentHashMap<UniqueIdentifier, PortfolioNode>();
+  private final Map<UniqueId, PortfolioNode> _nodes = new ConcurrentHashMap<UniqueId, PortfolioNode>();
   /**
    * A cache of positions by identifier.
    */
-  private final Map<UniqueIdentifier, Position> _positions = new ConcurrentHashMap<UniqueIdentifier, Position>();
+  private final Map<UniqueId, Position> _positions = new ConcurrentHashMap<UniqueId, Position>();
   /**
    * A cache of trades by identifier.
    */
-  private final Map<UniqueIdentifier, Trade> _trades = new ConcurrentHashMap<UniqueIdentifier, Trade>();
+  private final Map<UniqueId, Trade> _trades = new ConcurrentHashMap<UniqueId, Trade>();
   /**
    * The suppler of unique identifiers.
    */
-  private final UniqueIdentifierSupplier _uidSupplier;
+  private final UniqueIdSupplier _uniqueIdSupplier;
 
   /**
-   * Creates an instance using the default scheme for each {@link UniqueIdentifier} created.
+   * Creates an instance using the default scheme for each {@link UniqueId} created.
    */
   public MockPositionSource() {
-    _uidSupplier = new UniqueIdentifierSupplier("Mock");
+    _uniqueIdSupplier = new UniqueIdSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
@@ -62,7 +64,7 @@ public class MockPositionSource implements PositionSource {
    * 
    * @return the portfolio identifiers, unmodifiable, not null
    */
-  public Set<UniqueIdentifier> getPortfolioIds() {
+  public Set<UniqueId> getPortfolioIds() {
     return _portfolios.keySet();
   }
 
@@ -72,7 +74,7 @@ public class MockPositionSource implements PositionSource {
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */
-  public Portfolio getPortfolio(UniqueIdentifier identifier) {
+  public Portfolio getPortfolio(UniqueId identifier) {
     return identifier == null ? null : _portfolios.get(identifier);
   }
 
@@ -82,7 +84,7 @@ public class MockPositionSource implements PositionSource {
    * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
-  public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
+  public PortfolioNode getPortfolioNode(UniqueId identifier) {
     return identifier == null ? null : _nodes.get(identifier);
   }
 
@@ -92,19 +94,25 @@ public class MockPositionSource implements PositionSource {
    * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
-  public Position getPosition(UniqueIdentifier identifier) {
+  public Position getPosition(UniqueId identifier) {
     return identifier == null ? null : _positions.get(identifier);
   }
 
   /**
    * Finds a specific trade from any portfolio by identifier.
    * 
-   * @param uid  the identifier, null returns null
+   * @param uniqueId  the identifier, null returns null
    * @return the trade, null if not found
    */
   @Override
-  public Trade getTrade(UniqueIdentifier uid) {
-    return uid == null ? null : _trades.get(uid);
+  public Trade getTrade(UniqueId uniqueId) {
+    return uniqueId == null ? null : _trades.get(uniqueId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
@@ -126,11 +134,11 @@ public class MockPositionSource implements PositionSource {
    * @param portfolioId  the id, not null
    * @param node  the node to add, not null
    */
-  private void addToCache(String portfolioId, UniqueIdentifier parentNode, PortfolioNode node) {
+  private void addToCache(String portfolioId, UniqueId parentNode, PortfolioNode node) {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
-      nodeImpl.setUniqueId(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+      nodeImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
       nodeImpl.setParentNodeId(parentNode);
     }
     _nodes.put(node.getUniqueId(), node);
@@ -139,12 +147,12 @@ public class MockPositionSource implements PositionSource {
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
-        positionImpl.setUniqueId(_uidSupplier.getWithValuePrefix(portfolioId + "-"));
+        positionImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
         positionImpl.setParentNodeId(node.getUniqueId());
         
         //add trades
         for (Trade trade : positionImpl.getTrades()) {
-          UniqueIdentifiables.setInto(trade, _uidSupplier.getWithValuePrefix(portfolioId + "-"));
+          IdUtils.setInto(trade, _uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
           _trades.put(trade.getUniqueId(), trade);
         }
       }

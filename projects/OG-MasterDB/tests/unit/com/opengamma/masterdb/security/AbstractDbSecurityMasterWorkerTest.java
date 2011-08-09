@@ -22,9 +22,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -121,67 +121,67 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
 
   //-------------------------------------------------------------------------
   protected void assert101(final SecurityDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
+    UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueId());
+    assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
   protected void assert102(final SecurityDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "102", "0");
+    UniqueId uniqueId = UniqueId.of("DbSec", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueId());
+    assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity102", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "HI")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI")), security.getIdentifiers());
   }
 
   protected void assert201(final SecurityDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
+    UniqueId uniqueId = UniqueId.of("DbSec", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueId());
+    assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity201", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
   protected void assert202(final SecurityDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "1");
+    UniqueId uniqueId = UniqueId.of("DbSec", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity security = test.getSecurity();
     assertNotNull(security);
-    assertEquals(uid, security.getUniqueId());
+    assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity202", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
   }
 
 }

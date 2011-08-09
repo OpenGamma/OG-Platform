@@ -31,7 +31,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
@@ -53,7 +53,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
   }
 
   // REVIEW: jim 8-Oct-2010 -- we might want to move this logic inside the RegionMaster.
-  protected Calendar getCalendar(final Identifier regionId) {
+  protected Calendar getCalendar(final ExternalId regionId) {
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
       final String[] regions = regionId.getValue().split("\\+");
       final Set<Region> resultRegions = new HashSet<Region>();
@@ -94,7 +94,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
     final Calendar calendar = getCalendar(payLeg.getRegionIdentifier());
 
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
-    final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
+    final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
 
     final AnnuityCouponIbor pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate, fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/,
         conventions.getBasisSwapPayFloatingLegSettlementDays(), true);

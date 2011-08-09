@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 
 import com.opengamma.engine.function.FunctionParameters;
@@ -34,13 +34,13 @@ public class SimpleResolutionRuleTransformBuilder implements FudgeBuilder<Simple
   private static final String PRIORITY_FIELD = "priorityAdjustment";
   private static final String FILTER_FIELD = "targetFilter";
 
-  private static FudgeMsg adjustToFudgeMsg(final FudgeSerializationContext context, final Adjust adjust) {
-    final MutableFudgeMsg message = context.newMessage();
+  private static FudgeMsg adjustToFudgeMsg(final FudgeSerializer serializer, final Adjust adjust) {
+    final MutableFudgeMsg message = serializer.newMessage();
     if (adjust.getParameters() != null) {
-      context.addToMessageWithClassHeaders(message, PARAMETERS_FIELD, null, adjust.getParameters(), FunctionParameters.class);
+      serializer.addToMessageWithClassHeaders(message, PARAMETERS_FIELD, null, adjust.getParameters(), FunctionParameters.class);
     }
     if (adjust.getComputationTargetFilter() != null) {
-      context.addToMessageWithClassHeaders(message, FILTER_FIELD, null, adjust.getComputationTargetFilter(), ComputationTargetFilter.class);
+      serializer.addToMessageWithClassHeaders(message, FILTER_FIELD, null, adjust.getComputationTargetFilter(), ComputationTargetFilter.class);
     }
     if (adjust.getPriorityAdjustment() != null) {
       message.add(PRIORITY_FIELD, adjust.getPriorityAdjustment());
@@ -49,8 +49,8 @@ public class SimpleResolutionRuleTransformBuilder implements FudgeBuilder<Simple
   }
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final SimpleResolutionRuleTransform object) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SimpleResolutionRuleTransform object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     message.add(0, SimpleResolutionRuleTransform.class.getName());
     for (Map.Entry<String, Action> functionTransformation : object.getFunctionTransformations().entrySet()) {
       final String functionName = functionTransformation.getKey();
@@ -58,10 +58,10 @@ public class SimpleResolutionRuleTransformBuilder implements FudgeBuilder<Simple
       if (action instanceof DontUse) {
         message.add(functionName, IndicatorType.INSTANCE);
       } else if (action instanceof Adjust) {
-        message.add(functionName, adjustToFudgeMsg(context, (Adjust) action));
+        message.add(functionName, adjustToFudgeMsg(serializer, (Adjust) action));
       } else if (action instanceof MultipleAdjust) {
         for (Adjust adjust : ((MultipleAdjust) action).getAdjusts()) {
-          message.add(functionName, adjustToFudgeMsg(context, adjust));
+          message.add(functionName, adjustToFudgeMsg(serializer, adjust));
         }
       } else {
         throw new IllegalArgumentException("Unexpected value " + action);
@@ -71,7 +71,7 @@ public class SimpleResolutionRuleTransformBuilder implements FudgeBuilder<Simple
   }
 
   @Override
-  public SimpleResolutionRuleTransform buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public SimpleResolutionRuleTransform buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final SimpleResolutionRuleTransform transform = new SimpleResolutionRuleTransform();
     for (FudgeField field : message) {
       if (field.getName() != null) {
@@ -82,7 +82,7 @@ public class SimpleResolutionRuleTransformBuilder implements FudgeBuilder<Simple
           final FudgeField parameters = action.getByName(PARAMETERS_FIELD);
           final FudgeField filter = action.getByName(FILTER_FIELD);
           final FudgeField priority = action.getByName(PRIORITY_FIELD);
-          transform.adjustRule(field.getName(), (parameters != null) ? context.fieldValueToObject(FunctionParameters.class, parameters) : null, (filter != null) ? context.fieldValueToObject(
+          transform.adjustRule(field.getName(), (parameters != null) ? deserializer.fieldValueToObject(FunctionParameters.class, parameters) : null, (filter != null) ? deserializer.fieldValueToObject(
               ComputationTargetFilter.class, filter) : null, (priority != null) ? message.getFieldValue(Integer.class, priority) : null);
         }
       }

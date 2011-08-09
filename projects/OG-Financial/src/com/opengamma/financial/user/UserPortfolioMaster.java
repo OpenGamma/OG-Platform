@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.user;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -49,7 +50,7 @@ public class UserPortfolioMaster implements PortfolioMaster {
   }
 
   @Override
-  public PortfolioDocument get(UniqueIdentifier uniqueId) {
+  public PortfolioDocument get(UniqueId uniqueId) {
     return _underlying.get(uniqueId);
   }
 
@@ -73,7 +74,7 @@ public class UserPortfolioMaster implements PortfolioMaster {
   }
 
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
     _tracker.deleted(_userName, _clientName, UserDataType.PORTFOLIO, uniqueId);
   }
@@ -89,8 +90,14 @@ public class UserPortfolioMaster implements PortfolioMaster {
   }
 
   @Override
-  public ManageablePortfolioNode getNode(UniqueIdentifier nodeId) {
+  public ManageablePortfolioNode getNode(UniqueId nodeId) {
     return _underlying.getNode(nodeId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }

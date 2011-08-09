@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -79,7 +79,7 @@ public class ComputedValueTest {
 
   private ValueSpecification createValueSpecification() {
     return new ValueSpecification(
-        new ValueRequirement("test", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("foo", "bar")),
+        new ValueRequirement("test", ComputationTargetType.PRIMITIVE, UniqueId.of("foo", "bar")),
         "mockFunctionId");
   }
 

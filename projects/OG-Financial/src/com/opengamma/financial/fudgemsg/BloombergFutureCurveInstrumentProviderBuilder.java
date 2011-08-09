@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 
@@ -25,9 +25,9 @@ public class BloombergFutureCurveInstrumentProviderBuilder implements FudgeBuild
   public static final String TYPE = "Future";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, BloombergFutureCurveInstrumentProvider object) {
-    MutableFudgeMsg message = context.newMessage();
-    FudgeSerializationContext.addClassHeader(message, BloombergFutureCurveInstrumentProvider.class);
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BloombergFutureCurveInstrumentProvider object) {
+    MutableFudgeMsg message = serializer.newMessage();
+    FudgeSerializer.addClassHeader(message, BloombergFutureCurveInstrumentProvider.class);
     message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
     message.add("prefix", object.getFuturePrefix());
     message.add("marketSector", object.getMarketSector());
@@ -35,7 +35,7 @@ public class BloombergFutureCurveInstrumentProviderBuilder implements FudgeBuild
   }
 
   @Override
-  public BloombergFutureCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public BloombergFutureCurveInstrumentProvider buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     return new BloombergFutureCurveInstrumentProvider(message.getString("prefix"), message.getString("marketSector"));
   }
 

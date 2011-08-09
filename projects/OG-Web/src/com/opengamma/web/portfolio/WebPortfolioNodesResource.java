@@ -11,7 +11,7 @@ import java.util.Stack;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.sleepycat.je.DatabaseNotFoundException;
@@ -34,9 +34,9 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
   @Path("{nodeId}")
   public WebPortfolioNodeResource findNode(@PathParam("nodeId") String idStr) {
     data().setUriNodeId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     PortfolioDocument portfolioDoc = data().getPortfolio();
-    Stack<ManageablePortfolioNode> nodes = portfolioDoc.getPortfolio().getRootNode().findNodeStackByObjectIdentifier(oid);
+    Stack<ManageablePortfolioNode> nodes = portfolioDoc.getPortfolio().getRootNode().findNodeStackByObjectId(oid);
     if (nodes.isEmpty()) {
       throw new DatabaseNotFoundException("PortfoloNode not found: " + idStr);
     }

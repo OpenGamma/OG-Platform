@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.util.db.PagingRequest;
@@ -39,7 +39,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     SecurityHistoryResult test = _secMaster.history(request);
     
@@ -50,7 +50,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   @Test
   public void test_history_documentCountWhenMultipleSecuritys() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "102");
+    ObjectId oid = ObjectId.of("DbSec", "102");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     SecurityHistoryResult test = _secMaster.history(request);
     
@@ -63,7 +63,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     SecurityHistoryResult test = _secMaster.history(request);
     
@@ -79,7 +79,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants_pageOne() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setPagingRequest(PagingRequest.of(1, 1));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -94,7 +94,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   @Test
   public void test_history_noInstants_pageTwo() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setPagingRequest(PagingRequest.of(2, 1));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -113,7 +113,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsFrom_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -127,7 +127,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -141,7 +141,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   @Test
   public void test_history_versionsFrom_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -155,7 +155,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsTo_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -167,7 +167,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   @Test
   public void test_history_versionsTo_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
     SecurityHistoryResult test = _secMaster.history(request);
@@ -180,7 +180,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
 
   @Test
   public void test_history_versionsTo_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
+    ObjectId oid = ObjectId.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     SecurityHistoryResult test = _secMaster.history(request);

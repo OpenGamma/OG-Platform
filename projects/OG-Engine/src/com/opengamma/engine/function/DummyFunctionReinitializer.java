@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Implementation of the function re-initialization hook that discards any requests.
@@ -20,12 +20,12 @@ public class DummyFunctionReinitializer implements FunctionReinitializer {
   private static final Logger s_logger = LoggerFactory.getLogger(DummyFunctionReinitializer.class);
 
   @Override
-  public void reinitializeFunction(final FunctionDefinition function, final UniqueIdentifier identifier) {
+  public void reinitializeFunction(final FunctionDefinition function, final UniqueId identifier) {
     s_logger.info("Reinitialize {} on changes to {}", function, identifier);
   }
 
   @Override
-  public void reinitializeFunction(final FunctionDefinition function, final Collection<UniqueIdentifier> identifiers) {
+  public void reinitializeFunction(final FunctionDefinition function, final Collection<UniqueId> identifiers) {
     s_logger.info("Reinitialize {} on changes to {}", function, identifiers);
   }
 

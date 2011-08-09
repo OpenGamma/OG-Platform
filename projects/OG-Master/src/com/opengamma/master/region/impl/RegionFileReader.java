@@ -26,7 +26,7 @@ import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
@@ -172,7 +172,7 @@ public class RegionFileReader {
     String name = null;
     try {
       Map<String, ManageableRegion> regions = new HashMap<String, ManageableRegion>();
-      Map<UniqueIdentifier, Set<String>> subRegions = new HashMap<UniqueIdentifier, Set<String>>();
+      Map<UniqueId, Set<String>> subRegions = new HashMap<UniqueId, Set<String>>();
       
       // open CSV file
       CSVReader reader = new CSVReader(in);
@@ -208,7 +208,7 @@ public class RegionFileReader {
         region.setFullName(fullName);
         if (countryISO != null) {
           region.setCountry(Country.of(countryISO));
-          region.addIdentifier(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
+          region.addExternalId(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
         }
         if (currencyISO != null) {
           region.setCurrency(Currency.of(currencyISO));
@@ -220,7 +220,7 @@ public class RegionFileReader {
           }
           region.getParentRegionIds().add(parent.getUniqueId());
         }
-        for (Entry<UniqueIdentifier, Set<String>> entry : subRegions.entrySet()) {
+        for (Entry<UniqueId, Set<String>> entry : subRegions.entrySet()) {
           if (entry.getValue().remove(name)) {
             region.getParentRegionIds().add(entry.getKey());
           }

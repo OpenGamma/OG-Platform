@@ -18,9 +18,9 @@ import javax.time.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -34,10 +34,10 @@ import com.opengamma.master.security.SecuritySearchResult;
 @Test
 public class MasterSecuritySourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
-  private static final Identifier ID1 = Identifier.of("C", "D");
-  private static final Identifier ID2 = Identifier.of("E", "F");
-  private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID1, ID2);
+  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final ExternalId ID1 = ExternalId.of("C", "D");
+  private static final ExternalId ID2 = ExternalId.of("E", "F");
+  private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID1, ID2);
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
@@ -88,11 +88,11 @@ public class MasterSecuritySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSecuritiesByIdentifierBundle() throws Exception {
+  public void test_getSecuritiesByExternalIdBundle() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKey(ID1);
-    request.addSecurityKey(ID2);
+    request.addExternalId(ID1);
+    request.addExternalId(ID2);
     request.setVersionCorrection(VC);
     ManageableSecurity security = example();
     SecuritySearchResult result = new SecuritySearchResult();
@@ -108,11 +108,11 @@ public class MasterSecuritySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSecurity_Identifier() throws Exception {
+  public void test_getSecurity_ExternalId() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKey(ID1);
-    request.addSecurityKey(ID2);
+    request.addExternalId(ID1);
+    request.addExternalId(ID2);
     request.setVersionCorrection(VC);
     ManageableSecurity security = example();
     SecuritySearchResult result = new SecuritySearchResult();
@@ -129,7 +129,7 @@ public class MasterSecuritySourceTest {
 
   //-------------------------------------------------------------------------
   protected ManageableSecurity example() {
-    return new ManageableSecurity(UID, "Test", "EQUITY", IdentifierBundle.EMPTY);
+    return new ManageableSecurity(UID, "Test", "EQUITY", ExternalIdBundle.EMPTY);
   }
 
 }

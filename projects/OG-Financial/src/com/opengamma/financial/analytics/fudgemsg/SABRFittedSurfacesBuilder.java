@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
@@ -41,13 +41,13 @@ public final class SABRFittedSurfacesBuilder extends AbstractFudgeBuilder<SABRFi
   private static final String CURRENCY_NAME = "Currency";
 
   @Override
-  public SABRFittedSurfaces buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-    final VolatilitySurface alphaSurface = context.fieldValueToObject(VolatilitySurface.class, message.getByName(ALPHA_SURFACE_NAME));
-    final VolatilitySurface betaSurface = context.fieldValueToObject(VolatilitySurface.class, message.getByName(BETA_SURFACE_NAME));
-    final VolatilitySurface nuSurface = context.fieldValueToObject(VolatilitySurface.class, message.getByName(NU_SURFACE_NAME));
-    final VolatilitySurface rhoSurface = context.fieldValueToObject(VolatilitySurface.class, message.getByName(RHO_SURFACE_NAME));
-    final Currency currency = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_NAME));
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(context.fieldValueToObject(String.class, message.getByName(DAYCOUNT_NAME)));
+  public SABRFittedSurfaces buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final VolatilitySurface alphaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(ALPHA_SURFACE_NAME));
+    final VolatilitySurface betaSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(BETA_SURFACE_NAME));
+    final VolatilitySurface nuSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(NU_SURFACE_NAME));
+    final VolatilitySurface rhoSurface = deserializer.fieldValueToObject(VolatilitySurface.class, message.getByName(RHO_SURFACE_NAME));
+    final Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName(CURRENCY_NAME));
+    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(deserializer.fieldValueToObject(String.class, message.getByName(DAYCOUNT_NAME)));
     final List<FudgeField> pairFields = message.getAllByName(INVERSE_JACOBIANS_PAIRS);
     final List<FudgeField> matricesFields = message.getAllByName(INVERSE_JACOBIANS_MATRICES);
     if (pairFields.size() != matricesFields.size()) {
@@ -55,24 +55,24 @@ public final class SABRFittedSurfacesBuilder extends AbstractFudgeBuilder<SABRFi
     }
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
     for (int i = 0; i < pairFields.size(); i++) {
-      final DoubleMatrix2D matrix = context.fieldValueToObject(DoubleMatrix2D.class, matricesFields.get(i));
-      inverseJacobians.put((DoublesPair) context.fieldValueToObject(Pair.class, pairFields.get(i)), matrix);
+      final DoubleMatrix2D matrix = deserializer.fieldValueToObject(DoubleMatrix2D.class, matricesFields.get(i));
+      inverseJacobians.put((DoublesPair) deserializer.fieldValueToObject(Pair.class, pairFields.get(i)), matrix);
     }
     return new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, currency, dayCount);
   }
 
   @Override
-  protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final SABRFittedSurfaces object) {
-    context.addToMessage(message, ALPHA_SURFACE_NAME, null, object.getAlphaSurface());
-    context.addToMessage(message, BETA_SURFACE_NAME, null, object.getBetaSurface());
-    context.addToMessage(message, NU_SURFACE_NAME, null, object.getNuSurface());
-    context.addToMessage(message, RHO_SURFACE_NAME, null, object.getRhoSurface());
-    context.addToMessage(message, CURRENCY_NAME, null, object.getCurrency());
-    context.addToMessage(message, DAYCOUNT_NAME, null, object.getDayCount().getConventionName());
+  protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SABRFittedSurfaces object) {
+    serializer.addToMessage(message, ALPHA_SURFACE_NAME, null, object.getAlphaSurface());
+    serializer.addToMessage(message, BETA_SURFACE_NAME, null, object.getBetaSurface());
+    serializer.addToMessage(message, NU_SURFACE_NAME, null, object.getNuSurface());
+    serializer.addToMessage(message, RHO_SURFACE_NAME, null, object.getRhoSurface());
+    serializer.addToMessage(message, CURRENCY_NAME, null, object.getCurrency());
+    serializer.addToMessage(message, DAYCOUNT_NAME, null, object.getDayCount().getConventionName());
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = object.getInverseJacobians();
     for (final Map.Entry<DoublesPair, DoubleMatrix2D> entry : inverseJacobians.entrySet()) {
-      message.add(INVERSE_JACOBIANS_PAIRS, null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(entry.getKey()), entry.getKey().getClass()));
-      message.add(INVERSE_JACOBIANS_MATRICES, null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(entry.getValue()), entry.getValue().getClass()));
+      message.add(INVERSE_JACOBIANS_PAIRS, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getKey()), entry.getKey().getClass()));
+      message.add(INVERSE_JACOBIANS_MATRICES, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getValue()), entry.getValue().getClass()));
     }
   }
 

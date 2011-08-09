@@ -11,8 +11,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
 
@@ -26,17 +26,17 @@ public class ViewDefinitionCompilationFailedCallBuilder implements FudgeBuilder<
   private static final String EXCEPTION_FIELD = "exception";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewDefinitionCompilationFailedCall object) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, VALUATION_TIME_FIELD, null, object.getValuationTime());
-    context.addToMessage(msg, EXCEPTION_FIELD, null, object.getException());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewDefinitionCompilationFailedCall object) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, VALUATION_TIME_FIELD, null, object.getValuationTime());
+    serializer.addToMessage(msg, EXCEPTION_FIELD, null, object.getException());
     return msg;
   }
 
   @Override
-  public ViewDefinitionCompilationFailedCall buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    Instant valuationTime = context.fieldValueToObject(Instant.class, msg.getByName(VALUATION_TIME_FIELD));
-    Exception exception = context.fieldValueToObject(Exception.class, msg.getByName(EXCEPTION_FIELD));
+  public ViewDefinitionCompilationFailedCall buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    Instant valuationTime = deserializer.fieldValueToObject(Instant.class, msg.getByName(VALUATION_TIME_FIELD));
+    Exception exception = deserializer.fieldValueToObject(Exception.class, msg.getByName(EXCEPTION_FIELD));
     return new ViewDefinitionCompilationFailedCall(valuationTime, exception);
   }
 

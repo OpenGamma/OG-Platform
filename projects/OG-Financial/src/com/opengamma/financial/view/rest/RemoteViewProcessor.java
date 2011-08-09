@@ -19,7 +19,7 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -43,9 +43,9 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_UNIQUE_ID).build();
-    return _client.access(uri).get(UniqueIdentifier.class);
+    return _client.access(uri).get(UniqueId.class);
   }
 
   @Override
@@ -56,7 +56,7 @@ public class RemoteViewProcessor implements ViewProcessor {
 
   //-------------------------------------------------------------------------
   @Override
-  public ViewProcess getViewProcess(UniqueIdentifier viewProcessId) {
+  public ViewProcess getViewProcess(UniqueId viewProcessId) {
     URI uri = DataViewProcessorResource.uriViewProcess(_baseUri, viewProcessId);
     return new RemoteViewProcess(uri);
   }
@@ -74,7 +74,7 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
 
   @Override
-  public ViewClient getViewClient(UniqueIdentifier clientId) {
+  public ViewClient getViewClient(UniqueId clientId) {
     URI clientsBaseUri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLIENTS).build();
     URI clientUri = DataViewProcessorResource.uriClient(clientsBaseUri, clientId);
     return new RemoteViewClient(this, clientUri, OpenGammaFudgeContext.getInstance(), _connectionFactory, _scheduler);

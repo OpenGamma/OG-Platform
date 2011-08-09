@@ -15,7 +15,7 @@ import net.sf.ehcache.CacheException;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,7 +25,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   
   private final TotallingGraphStatisticsGathererProvider _statisticsProvider;
   
-  private final UniqueIdentifier _viewProcessId;
+  private final UniqueId _viewProcessId;
   
   private final String _viewDefinitionName;
   
@@ -41,7 +41,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
    * @param viewProcessorId  the view processor identifier
    * @param calcConfigName  the calculation configuration name
    */
-  public GraphExecutionStatistics(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, UniqueIdentifier viewProcessorId, String calcConfigName) {
+  public GraphExecutionStatistics(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, UniqueId viewProcessorId, String calcConfigName) {
     ArgumentChecker.notNull(statisticsProvider, "TotallingGraphStatisticsGathererProvider");
     ArgumentChecker.notNull(viewProcessorId, "viewProcessorId");
     ArgumentChecker.notNull(viewProcess, "View Process");
@@ -56,7 +56,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   /**
    * Creates an object name using the scheme "com.opengamma:type=GraphExecutionStatistics,ViewProcessor=<viewProcessorName>,View=<viewName>,name=<calcConfigName>"
    */
-  static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewProcessId, String calcConfigName) {
+  static ObjectName createObjectName(UniqueId viewProcessorId, UniqueId viewProcessId, String calcConfigName) {
     ObjectName objectName;
     try {
       objectName = new ObjectName("com.opengamma:type=GraphExecutionStatistics,ViewProcessor=ViewProcessor " + viewProcessorId.getValue()
@@ -68,7 +68,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   }
 
   @Override
-  public UniqueIdentifier getViewProcessId() {
+  public UniqueId getViewProcessId() {
     return _viewProcessId;
   }
   

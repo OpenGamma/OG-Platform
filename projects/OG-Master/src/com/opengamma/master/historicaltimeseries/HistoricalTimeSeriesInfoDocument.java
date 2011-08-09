@@ -18,7 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -65,7 +65,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
    * @return the unique identifier
    */
   @DerivedProperty
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return getInfo().getUniqueId();
   }
 
@@ -75,7 +75,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
    * 
    * @param uniqueId  the new unique identifier
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     getInfo().setUniqueId(uniqueId);
   }
 
@@ -184,7 +184,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
    * 
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -206,8 +206,8 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadOnly(
-        this, "uniqueId", HistoricalTimeSeriesInfoDocument.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadOnly(
+        this, "uniqueId", HistoricalTimeSeriesInfoDocument.class, UniqueId.class);
     /**
      * The meta-properties.
      */
@@ -261,7 +261,7 @@ public class HistoricalTimeSeriesInfoDocument extends AbstractDocument {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 

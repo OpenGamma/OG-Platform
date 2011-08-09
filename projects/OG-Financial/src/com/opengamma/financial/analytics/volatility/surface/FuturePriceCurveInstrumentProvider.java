@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 /**
  * Provides instruments for each point on the curve
@@ -16,9 +16,9 @@ import com.opengamma.id.Identifier;
 //TODO probably best to combine this and CurveInstrumentProvider
 public interface FuturePriceCurveInstrumentProvider<X> {
 
-  Identifier getInstrument(X xAxis);
+  ExternalId getInstrument(X xAxis);
 
-  Identifier getInstrument(X xAxis, LocalDate curveDate);
+  ExternalId getInstrument(X xAxis, LocalDate curveDate);
 
   String getDataFieldName();
 }

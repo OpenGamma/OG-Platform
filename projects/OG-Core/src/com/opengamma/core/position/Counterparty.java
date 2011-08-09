@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.position;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -18,10 +18,10 @@ import com.opengamma.util.PublicSPI;
 public interface Counterparty {
 
   /**
-   * Gets the identifier of the counterparty.
+   * Gets the external identifier of the counterparty.
    * 
    * @return the identifier, not null
    */
-  Identifier getIdentifier();
+  ExternalId getExternalId();
 
 }

@@ -20,7 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -34,7 +34,7 @@ public class AddValueRequest extends DirectBean {
   private ValueRequirement _valueRequirement;
   
   @PropertyDefinition
-  private Identifier _identifier;
+  private ExternalId _identifier;
   
   @PropertyDefinition
   private String _valueName;
@@ -82,7 +82,7 @@ public class AddValueRequest extends DirectBean {
         setValueRequirement((ValueRequirement) newValue);
         return;
       case -1618432855:  // identifier
-        setIdentifier((Identifier) newValue);
+        setIdentifier((ExternalId) newValue);
         return;
       case -765894756:  // valueName
         setValueName((String) newValue);
@@ -149,7 +149,7 @@ public class AddValueRequest extends DirectBean {
    * Gets the identifier.
    * @return the value of the property
    */
-  public Identifier getIdentifier() {
+  public ExternalId getIdentifier() {
     return _identifier;
   }
 
@@ -157,7 +157,7 @@ public class AddValueRequest extends DirectBean {
    * Sets the identifier.
    * @param identifier  the new value of the property
    */
-  public void setIdentifier(Identifier identifier) {
+  public void setIdentifier(ExternalId identifier) {
     this._identifier = identifier;
   }
 
@@ -165,7 +165,7 @@ public class AddValueRequest extends DirectBean {
    * Gets the the {@code identifier} property.
    * @return the property, not null
    */
-  public final Property<Identifier> identifier() {
+  public final Property<ExternalId> identifier() {
     return metaBean().identifier().createProperty(this);
   }
 
@@ -237,8 +237,8 @@ public class AddValueRequest extends DirectBean {
     /**
      * The meta-property for the {@code identifier} property.
      */
-    private final MetaProperty<Identifier> _identifier = DirectMetaProperty.ofReadWrite(
-        this, "identifier", AddValueRequest.class, Identifier.class);
+    private final MetaProperty<ExternalId> _identifier = DirectMetaProperty.ofReadWrite(
+        this, "identifier", AddValueRequest.class, ExternalId.class);
     /**
      * The meta-property for the {@code valueName} property.
      */
@@ -308,7 +308,7 @@ public class AddValueRequest extends DirectBean {
      * The meta-property for the {@code identifier} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> identifier() {
+    public final MetaProperty<ExternalId> identifier() {
       return _identifier;
     }
 

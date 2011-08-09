@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test PortfolioImpl.
@@ -77,8 +77,8 @@ public class PortfolioImplTest {
     new PortfolioImpl(id("Scheme", "Id"), "Name", null);
   }
 
-  private UniqueIdentifier id(String scheme, String value) {
-    return UniqueIdentifier.of(scheme, value);
+  private UniqueId id(String scheme, String value) {
+    return UniqueId.of(scheme, value);
   }
 
   //-------------------------------------------------------------------------

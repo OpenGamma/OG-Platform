@@ -34,14 +34,14 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -103,15 +103,15 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     if (timeSeriesField == null) {
       throw new IllegalArgumentException(HISTORICALTIMESERIESSOURCE_TIMESERIES + " not present in message");
     }
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(getRestClient().getFudgeContext());
-    UniqueIdentifier uniqueId = context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField);
-    LocalDateDoubleTimeSeries ts = context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getRestClient().getFudgeContext());
+    UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, uniqueIdField);
+    LocalDateDoubleTimeSeries ts = deserializer.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
     return new HistoricalTimeSeriesImpl(uniqueId, ts);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueIdentifier uniqueId) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_UID).resolve(uniqueId.toString());
     return decodeMessage(getRestClient().getMsg(target));
@@ -119,7 +119,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueIdentifier uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(end, "end");
@@ -135,13 +135,13 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
     return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
+      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, String dataProvider, String dataField) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "dataField");
@@ -154,14 +154,14 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start,
+      ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      IdentifierBundle identifierBundle, LocalDate currentDate, String dataSource, 
+      ExternalIdBundle identifierBundle, LocalDate currentDate, String dataSource, 
       String dataProvider, String dataField, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
     ArgumentChecker.notNull(dataSource, "dataSource");
@@ -183,13 +183,13 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, String resolutionKey) {
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
     return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, LocalDate currentDate, String resolutionKey) {
+      String dataField, ExternalIdBundle identifierBundle, LocalDate currentDate, String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
     final RestTarget target = getTargetBase().resolveBase(REQUEST_RESOLVED)
@@ -202,14 +202,14 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, inclusiveStart, end, exclusiveEnd);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, IdentifierBundle identifierBundle, LocalDate currentDate, String resolutionKey, 
+      String dataField, ExternalIdBundle identifierBundle, LocalDate currentDate, String resolutionKey, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
@@ -231,11 +231,11 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public Map<IdentifierBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
-      Set<IdentifierBundle> identifierSet, String dataSource, String dataProvider, String dataField,
+  public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
+      Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());
+    FudgeSerializer serializationContext = new FudgeSerializer(getRestClient().getFudgeContext());
     MutableFudgeMsg msg = serializationContext.newMessage();
     serializationContext.addToMessage(msg, REQUEST_IDENTIFIER_SET, null, identifierSet);
     serializationContext.addToMessage(msg, REQUEST_DATA_SOURCE, null, dataSource);
@@ -247,7 +247,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     serializationContext.addToMessage(msg, REQUEST_EXCLUSIVE_END, null, exclusiveEnd);
     
     FudgeMsgEnvelope result = getRestClient().post(target, msg);
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getRestClient().getFudgeContext());
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(getRestClient().getFudgeContext());
     return deserializationContext.fudgeMsgToObject(Map.class, result.getMessage().getMessage(HISTORICALTIMESERIESSOURCE_TIMESERIES));
   }
 

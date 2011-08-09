@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.user;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -44,7 +44,7 @@ public class UserSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public SecurityDocument get(UniqueIdentifier uniqueId) {
+  public SecurityDocument get(UniqueId uniqueId) {
     return _underlying.get(uniqueId);
   }
 
@@ -68,7 +68,7 @@ public class UserSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
     _tracker.deleted(uniqueId);
   }
@@ -85,7 +85,7 @@ public class UserSecurityMaster implements SecurityMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _underlying.changeManager();
   }
 

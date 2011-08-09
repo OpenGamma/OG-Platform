@@ -19,8 +19,8 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -200,10 +200,10 @@ public class DemoBondPortfolioLoader {
   protected ManageablePosition createPosition(BondSecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    Identifier buid = security.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_BUID);
-    IdentifierBundle bundle;
+    ExternalId buid = security.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+    ExternalIdBundle bundle;
     if (buid != null) {
-      bundle = IdentifierBundle.of(buid);
+      bundle = ExternalIdBundle.of(buid);
     } else {
       bundle = security.getIdentifiers();
     }

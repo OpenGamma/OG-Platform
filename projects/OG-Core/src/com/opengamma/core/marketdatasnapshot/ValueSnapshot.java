@@ -10,8 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.util.PublicSPI;
@@ -107,8 +107,8 @@ public class ValueSnapshot implements Serializable {
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     if (getMarketValue() != null) {
       msg.add("marketValue", null, FudgeWireType.DOUBLE, getMarketValue().doubleValue());
     }
@@ -118,7 +118,7 @@ public class ValueSnapshot implements Serializable {
     return msg;
   }
 
-  public static ValueSnapshot fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
+  public static ValueSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double marketValue = msg.getDouble("marketValue");
     Double overrideValue = msg.getDouble("overrideValue");
     return new ValueSnapshot(marketValue, overrideValue);

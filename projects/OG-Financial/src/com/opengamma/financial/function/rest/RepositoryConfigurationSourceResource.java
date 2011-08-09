@@ -11,7 +11,7 @@ import javax.ws.rs.Path;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
@@ -42,7 +42,7 @@ public class RepositoryConfigurationSourceResource {
   public FudgeMsgEnvelope getRepositoryConfiguration() {
     final RepositoryConfiguration configuration = getUnderlying().getRepositoryConfiguration();
     final MutableFudgeMsg msg = getFudgeContext().newMessage();
-    msg.add("repositoryConfiguration", configuration.toFudgeMsg(new FudgeSerializationContext(getFudgeContext())));
+    msg.add("repositoryConfiguration", configuration.toFudgeMsg(new FudgeSerializer(getFudgeContext())));
     return new FudgeMsgEnvelope(msg);
   }
 

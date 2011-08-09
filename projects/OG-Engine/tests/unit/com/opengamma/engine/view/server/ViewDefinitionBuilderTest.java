@@ -16,7 +16,7 @@ import com.opengamma.engine.view.NumberDeltaComparer;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -33,7 +33,7 @@ public class ViewDefinitionBuilderTest {
   }
   
   public void testSerializationCycle() {
-    ViewDefinition viewDef = new ViewDefinition("Test View", UniqueIdentifier.of("Test Scheme", "Port1"), "someuser");
+    ViewDefinition viewDef = new ViewDefinition("Test View", UniqueId.of("Test Scheme", "Port1"), "someuser");
     viewDef.setMaxDeltaCalculationPeriod(1000L);
     viewDef.setMaxFullCalculationPeriod(60000L);
     viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);
@@ -42,7 +42,7 @@ public class ViewDefinitionBuilderTest {
     calcConfig.addPortfolioRequirementName("SecType", "Req1");
     calcConfig.addPortfolioRequirementName("SecType", "Req2");
     calcConfig.addPortfolioRequirementName("SecType2", "Req1");
-    calcConfig.addSpecificRequirement(new ValueRequirement("Req3", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme2", "USD")));
+    calcConfig.addSpecificRequirement(new ValueRequirement("Req3", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme2", "USD")));
     calcConfig.getDeltaDefinition().setNumberComparer(new NumberDeltaComparer(2));
     viewDef.addViewCalculationConfiguration(calcConfig);
     

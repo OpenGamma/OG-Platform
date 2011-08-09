@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -37,7 +37,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
    * The swap tenors
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   
   /**
    * The swap tenors
@@ -116,7 +116,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case -1091346138:  // swapTenors
         setSwapTenors((List<Tenor>) newValue);
@@ -161,7 +161,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
    * Gets the swap tenors
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -169,7 +169,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
    * Sets the swap tenors
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -177,7 +177,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
    * Gets the the {@code uniqueId} property.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -269,8 +269,8 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", VolatilityCubeDefinition.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", VolatilityCubeDefinition.class, UniqueId.class);
     /**
      * The meta-property for the {@code swapTenors} property.
      */
@@ -340,7 +340,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 

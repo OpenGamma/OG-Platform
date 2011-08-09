@@ -40,11 +40,11 @@
   <!-- User supplied Positions --> 
   <bean id="userFinancialPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="userFinancialDbSource" />
-    <property name="identifierScheme" value="${opengamma.financial-user.db.portfoliomaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.portfoliomaster.scheme}" />
   </bean>
   <bean id="userFinancialPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="userFinancialDbSource" />
-    <property name="identifierScheme" value="${opengamma.financial-user.db.positionmaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.positionmaster.scheme}" />
   </bean>
   <bean id="userFinancialPositionSource" class="com.opengamma.master.position.impl.MasterPositionSource">
     <constructor-arg ref="userFinancialPortfolioMaster" />
@@ -60,11 +60,11 @@
   </bean>
   
   <!-- User supplied Securities -->
-  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="userFinancialSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="userFinancialDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
-    <property name="identifierScheme" value="${opengamma.financial-user.db.securitymaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.securitymaster.scheme}" />
   </bean>
   <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
     <constructor-arg ref="userFinancialSecurityMaster" />
@@ -79,11 +79,11 @@
   </bean>
   
   <!-- User market data snapshots -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
     <property name="changeManager" ref="snapshotMasterChangeManager" />
-    <property name="identifierScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>
   <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
     <constructor-arg ref="userFinancialSnapshotMaster" />
@@ -99,7 +99,7 @@
   
   <!-- User Yield curves -->
   <bean id="userInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
-    <property name="identifierScheme" value="UserCurves" />
+    <property name="uniqueIdScheme" value="UserCurves" />
   </bean>
   <bean id="combinedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.AggregatingInterpolatedYieldCurveDefinitionSource">
     <constructor-arg>
@@ -135,8 +135,8 @@
   
   <bean id="testUser" class="${testUser.factory}" />  
   <!-- ViewDefinitionRepository -->
-  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.DbViewDefinitionRepositoryFactoryBean">
-  	<constructor-arg ref="sharedConfigMaster"/>
+  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.ConfigDbViewDefinitionRepositoryFactoryBean">
+  	<property name="configMaster" ref="sharedConfigMaster" />
   </bean>
   
   <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />

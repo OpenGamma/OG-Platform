@@ -15,7 +15,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
@@ -55,7 +55,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /**
    * Gets the user for whom the view client was created. This user necessarily has sufficient permissions on the
@@ -121,7 +121,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @param processId  the unique identifier of the view process, not null
    */
-  void attachToViewProcess(UniqueIdentifier processId);
+  void attachToViewProcess(UniqueId processId);
   
   /**
    * Detaches the client from the view process, if any, to which it is currently attached.
@@ -142,14 +142,17 @@ public interface ViewClient extends UniqueIdentifiable {
   MarketDataInjector getLiveDataOverrideInjector();
   
   /**
-   * Gets the view definition currently being operated on by the view process to which the client is attached. This
-   * could be a newer version than the one used in the computation of the latest result as seen by this client; to
-   * access a specific version use the appropriate {@link CompiledViewDefinition} or {@link ViewCycle}.
+   * Gets the latest view definition referenced by the view process to which the client is attached. This could be a
+   * different version from the one used in the computation of the latest result as seen by this client; to access a
+   * specific version use the appropriate {@link CompiledViewDefinition} or {@link ViewCycle}.
    * 
    * @return the view definition currently being operated on by the view process, not null
    * @throws IllegalStateException if the view client is not attached to a view process
    */
-  ViewDefinition getViewDefinition();
+  // NOTE jonathan 2011-08-04 -- Some operations will need to ensure that the view definition does not change. When we
+  // reference view definitions by unique identifier, these would attach to a specific version rather than the latest
+  // version. At the moment, we only support attaching to the latest version.
+  ViewDefinition getLatestViewDefinition();
   
   //-------------------------------------------------------------------------
   /**
@@ -286,7 +289,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * @param cycleId  the unique identifier of the view cycle, not null
    * @return a reference to the view cycle, or {@code null} if not found
    */
-  EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueIdentifier cycleId);
+  EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId);
 
   //-------------------------------------------------------------------------
   /**

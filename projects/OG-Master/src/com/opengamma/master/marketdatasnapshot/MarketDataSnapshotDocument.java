@@ -17,7 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -35,7 +35,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The snapshot.
    */
@@ -54,7 +54,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
    * @param uniqueId  the unique identifier, may be null
    * @param snapshot  the snapshot, not null
    */
-  public MarketDataSnapshotDocument(final UniqueIdentifier uniqueId, final ManageableMarketDataSnapshot snapshot) {
+  public MarketDataSnapshotDocument(final UniqueId uniqueId, final ManageableMarketDataSnapshot snapshot) {
     ArgumentChecker.notNull(snapshot, "snapshot");
     setUniqueId(uniqueId);
     setSnapshot(snapshot);
@@ -116,7 +116,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case 284874180:  // snapshot
         setSnapshot((ManageableMarketDataSnapshot) newValue);
@@ -153,7 +153,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
    * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -162,7 +162,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
    * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -171,7 +171,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
    * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -213,8 +213,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", MarketDataSnapshotDocument.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", MarketDataSnapshotDocument.class, UniqueId.class);
     /**
      * The meta-property for the {@code snapshot} property.
      */
@@ -265,7 +265,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 

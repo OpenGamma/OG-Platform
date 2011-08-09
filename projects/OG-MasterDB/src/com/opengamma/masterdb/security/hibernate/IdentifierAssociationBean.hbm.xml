@@ -30,8 +30,7 @@
     </any>
     <!-- component means that it's 'part of' the object, although Java models it as a reference, I wanted
          the actual identifier to be a separate class -->
-    <component name="identifier"
-               class="IdentifierBean">
+    <component name="identifier" class="ExternalIdBean">
       <property name="scheme" type="string" not-null="true" unique-key="unique_associations"/>
       <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
     </component>

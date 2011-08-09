@@ -7,11 +7,11 @@ package com.opengamma.financial.position.rest;
 
 import java.net.URI;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.BasicMasterChangeManager;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -41,7 +41,7 @@ public class RemotePositionMaster implements PositionMaster {
   /**
    * The change manager.
    */
-  private final MasterChangeManager _changeManager;
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -49,7 +49,7 @@ public class RemotePositionMaster implements PositionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemotePositionMaster(final URI baseUri) {
-    this(baseUri, new BasicMasterChangeManager());
+    this(baseUri, new BasicChangeManager());
   }
 
   /**
@@ -58,7 +58,7 @@ public class RemotePositionMaster implements PositionMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    * @param changeManager  the change manager, not null
    */
-  public RemotePositionMaster(final URI baseUri, MasterChangeManager changeManager) {
+  public RemotePositionMaster(final URI baseUri, ChangeManager changeManager) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
@@ -78,7 +78,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionDocument get(final UniqueIdentifier uniqueId) {
+  public PositionDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
@@ -121,7 +121,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataPositionResource.uri(_baseUri, uniqueId, VersionCorrection.LATEST);
@@ -152,7 +152,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableTrade getTrade(final UniqueIdentifier tradeId) {
+  public ManageableTrade getTrade(final UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
     
     URI uri = DataPositionResource.uriTrade(_baseUri, tradeId);
@@ -161,7 +161,7 @@ public class RemotePositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public MasterChangeManager changeManager() {
+  public ChangeManager changeManager() {
     return _changeManager;
   }
 

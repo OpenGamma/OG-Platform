@@ -11,7 +11,7 @@ import java.util.List;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -43,7 +43,7 @@ public class PortfolioStructure {
   }
 
   private PortfolioNode getParentNodeImpl(final PortfolioNode node) {
-    final UniqueIdentifier parent = node.getParentNodeId();
+    final UniqueId parent = node.getParentNodeId();
     if (parent != null) {
       return getPositionSource().getPortfolioNode(parent);
     } else {
@@ -72,7 +72,7 @@ public class PortfolioStructure {
    */
   public PortfolioNode getParentNode(final Position position) {
     ArgumentChecker.notNull(position, "position");
-    final UniqueIdentifier parent = position.getParentNodeId();
+    final UniqueId parent = position.getParentNodeId();
     if (parent != null) {
       return getPositionSource().getPortfolioNode(parent);
     } else {
@@ -81,7 +81,7 @@ public class PortfolioStructure {
   }
 
   private PortfolioNode getRootPortfolioNodeImpl(PortfolioNode node) {
-    UniqueIdentifier parent = node.getParentNodeId();
+    UniqueId parent = node.getParentNodeId();
     while (parent != null) {
       node = getPositionSource().getPortfolioNode(parent);
       if (node == null) {

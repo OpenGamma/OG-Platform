@@ -9,8 +9,8 @@ import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import java.util.Collection;
@@ -33,11 +33,11 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
 /**
@@ -57,14 +57,14 @@ public final class FutureSecurityBeanOperation extends
 
   private static BondFutureDeliverable futureBundleBeanToBondFutureDeliverable(
       final FutureBundleBean futureBundleBean) {
-    final Set<IdentifierBean> identifierBeans = futureBundleBean
+    final Set<ExternalIdBean> identifierBeans = futureBundleBean
         .getIdentifiers();
-    final Set<Identifier> identifiers = new HashSet<Identifier>(
+    final Set<ExternalId> identifiers = new HashSet<ExternalId>(
         identifierBeans.size());
-    for (IdentifierBean identifierBean : identifierBeans) {
-      identifiers.add(identifierBeanToIdentifier(identifierBean));
+    for (ExternalIdBean identifierBean : identifierBeans) {
+      identifiers.add(externalIdBeanToExternalId(identifierBean));
     }
-    return new BondFutureDeliverable(IdentifierBundle.of(identifiers),
+    return new BondFutureDeliverable(ExternalIdBundle.of(identifiers),
         futureBundleBean.getConversionFactor());
   }
 
@@ -117,7 +117,7 @@ public final class FutureSecurityBeanOperation extends
                 bean.getSettlementExchange().getName(),
                 currencyBeanToCurrency(bean.getCurrency1()),
                 bean.getUnitAmount(),
-                identifierBeanToIdentifier(bean.getUnderlying()));
+                externalIdBeanToExternalId(bean.getUnderlying()));
           }
 
           @Override
@@ -150,7 +150,7 @@ public final class FutureSecurityBeanOperation extends
             if (bean.getUnitName() != null) {
               security.setUnitName(bean.getUnitName().getName());
             }
-            security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean
+            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -168,7 +168,7 @@ public final class FutureSecurityBeanOperation extends
             if (bean.getUnitName() != null) {
               security.setUnitName(bean.getUnitName().getName());
             }
-            security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean
+            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -181,7 +181,7 @@ public final class FutureSecurityBeanOperation extends
                 bean.getSettlementExchange().getName(),
                 currencyBeanToCurrency(bean.getCurrency1()),
                 bean.getUnitAmount());
-            security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean
+            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -194,7 +194,7 @@ public final class FutureSecurityBeanOperation extends
                 bean.getSettlementExchange().getName(),
                 currencyBeanToCurrency(bean.getCurrency1()),
                 bean.getUnitAmount());
-            security.setUnderlyingIdentifier(identifierBeanToIdentifier(bean
+            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -430,12 +430,12 @@ public final class FutureSecurityBeanOperation extends
           deliverableBean.setFuture(bean);
           deliverableBean.setConversionFactor(deliverable
               .getConversionFactor());
-          final Set<Identifier> identifiers = deliverable
-              .getIdentifiers().getIdentifiers();
-          final Set<IdentifierBean> identifierBeans = new HashSet<IdentifierBean>();
-          for (Identifier identifier : identifiers) {
+          final Set<ExternalId> identifiers = deliverable
+              .getIdentifiers().getExternalIds();
+          final Set<ExternalIdBean> identifierBeans = new HashSet<ExternalIdBean>();
+          for (ExternalId identifier : identifiers) {
             identifierBeans
-                .add(identifierToIdentifierBean(identifier));
+                .add(externalIdToExternalIdBean(identifier));
           }
           deliverableBean.setIdentifiers(identifierBeans);
           basketBeans.add(deliverableBean);
@@ -448,9 +448,9 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitEnergyFutureSecurity(
           EnergyFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        Identifier underlying = security.getUnderlyingIdentifier();
+        ExternalId underlying = security.getUnderlyingIdentifier();
         if (underlying != null) {
-          bean.setUnderlying(identifierToIdentifierBean(underlying));
+          bean.setUnderlying(externalIdToExternalIdBean(underlying));
         }
         return bean;
       }
@@ -473,7 +473,7 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitInterestRateFutureSecurity(
           InterestRateFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+        bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
         return bean;
       }
 
@@ -481,9 +481,9 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        Identifier underlying = security.getUnderlyingIdentifier();
+        ExternalId underlying = security.getUnderlyingIdentifier();
         if (underlying != null) {
-          bean.setUnderlying(identifierToIdentifierBean(security
+          bean.setUnderlying(externalIdToExternalIdBean(security
               .getUnderlyingIdentifier()));
         }
         return bean;
@@ -493,7 +493,7 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitIndexFutureSecurity(
           IndexFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security
+        bean.setUnderlying(externalIdToExternalIdBean(security
             .getUnderlyingIdentifier()));
         return bean;
       }
@@ -502,7 +502,7 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitStockFutureSecurity(
           StockFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security
+        bean.setUnderlying(externalIdToExternalIdBean(security
             .getUnderlyingIdentifier()));
         return bean;
       }
@@ -512,7 +512,7 @@ public final class FutureSecurityBeanOperation extends
           EquityFutureSecurity security) {
         // TODO Case: Confirm this add is correct
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security
+        bean.setUnderlying(externalIdToExternalIdBean(security
             .getUnderlyingIdentifier()));
         return bean;
       }
@@ -522,7 +522,7 @@ public final class FutureSecurityBeanOperation extends
           EquityIndexDividendFutureSecurity security) {
         // TODO Case: Confirm this add is correct
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security
+        bean.setUnderlying(externalIdToExternalIdBean(security
             .getUnderlyingIdentifier()));
         return bean;
       }

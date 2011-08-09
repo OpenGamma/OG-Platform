@@ -9,12 +9,16 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.position.Trade;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -66,6 +70,14 @@ public class EHCachingPositionSource implements PositionSource {
    * The trade cache.
    */
   private final Cache _tradeCache;
+  /**
+   * Listens for changes in the underlying position source.
+   */
+  private final ChangeListener _changeListener;
+  /**
+   * Local change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates the cache around an underlying position source.
@@ -86,6 +98,22 @@ public class EHCachingPositionSource implements PositionSource {
     _portfolioNodeCache = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
     _positionCache = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
     _tradeCache = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
+    _changeManager = new BasicChangeManager();
+    _changeListener = new ChangeListener() {
+      
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        if (event.getBeforeId() != null) {
+          cleanCaches(event.getBeforeId());
+        }
+        if (event.getAfterId() != null) {
+          cleanCaches(event.getAfterId());
+        }
+        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
+      }
+      
+    };
+    underlying.changeManager().addChangeListener(_changeListener);
   }
 
   //-------------------------------------------------------------------------
@@ -109,7 +137,7 @@ public class EHCachingPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueIdentifier identifier) {
+  public Portfolio getPortfolio(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getPortfolio(identifier);
     }
@@ -126,7 +154,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
+  public PortfolioNode getPortfolioNode(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getPortfolioNode(identifier);
     }
@@ -143,7 +171,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   @Override
-  public Position getPosition(UniqueIdentifier identifier) {
+  public Position getPosition(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getPosition(identifier);
     }
@@ -160,7 +188,7 @@ public class EHCachingPositionSource implements PositionSource {
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier identifier) {
+  public Trade getTrade(UniqueId identifier) {
     if (identifier.isLatest()) {
       return getUnderlying().getTrade(identifier);
     }
@@ -175,17 +203,34 @@ public class EHCachingPositionSource implements PositionSource {
       return t;
     }
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
+  }
 
   /**
    * Call this at the end of a unit test run to clear the state of EHCache.
    * It should not be part of a generic lifecycle method.
    */
   protected void shutdown() {
+    _underlying.changeManager().removeChangeListener(_changeListener);
     _cacheManager.removeCache(PORTFOLIO_CACHE);
     _cacheManager.removeCache(PORTFOLIONODE_CACHE);
     _cacheManager.removeCache(POSITION_CACHE);
     _cacheManager.removeCache(TRADE_CACHE);
     _cacheManager.shutdown();
+  }
+  
+  //-------------------------------------------------------------------------
+  private void cleanCaches(UniqueId id) {
+    // Only care where the unversioned ID has been cached since it now represents something else
+    UniqueId latestId = id.toLatest();
+    _portfolioNodeCache.remove(latestId);
+    _portfolioCache.remove(latestId);
+    _positionCache.remove(latestId);
+    _tradeCache.remove(latestId);
   }
 
 }

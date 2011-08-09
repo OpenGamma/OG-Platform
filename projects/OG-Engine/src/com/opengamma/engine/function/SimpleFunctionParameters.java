@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * An implementation of {@link FunctionParameters} that is a trivial map of strings to values.
@@ -46,17 +46,17 @@ public class SimpleFunctionParameters implements FunctionParameters {
     return (T) _parameters.get(parameter);
   }
 
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeMsg message) {
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
     for (Map.Entry<String, Object> parameter : _parameters.entrySet()) {
-      context.addToMessageWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
+      serializer.addToMessageWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
     }
   }
 
-  public static SimpleFunctionParameters fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public static SimpleFunctionParameters fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final SimpleFunctionParameters parameters = new SimpleFunctionParameters();
     for (FudgeField field : message) {
       if (field.getName() != null) {
-        parameters.setValue(field.getName(), context.fieldValueToObject(field));
+        parameters.setValue(field.getName(), deserializer.fieldValueToObject(field));
       }
     }
     return parameters;

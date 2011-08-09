@@ -9,7 +9,7 @@
     <many-to-one name="frequency" column="frequency_id" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" not-null="true" />
   	<property name="cap" column="is_cap" type="boolean" not-null="true"/>
   	<property name="payer" column="is_payer" type="boolean" not-null="true"/>
-  	<component name="longIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="longIdentifier" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="long_scheme" type="string" />
       <property name="identifier" column="long_identifier" type="string" />
     </component>
@@ -18,7 +18,7 @@
       <property name="zone" column="maturity_zone" type="string" not-null="true" />
     </component>
   	<property name="notional" type="double" not-null="true"/>
-  	<component name="shortIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="shortIdentifier" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="short_scheme" type="string" />
       <property name="identifier" column="short_identifier" type="string" />
     </component>

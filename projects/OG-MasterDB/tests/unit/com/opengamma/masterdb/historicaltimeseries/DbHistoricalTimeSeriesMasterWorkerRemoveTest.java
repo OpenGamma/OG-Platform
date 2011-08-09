@@ -17,7 +17,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.util.test.DBTest;
 
@@ -39,30 +39,30 @@ public class DbHistoricalTimeSeriesMasterWorkerRemoveTest extends AbstractDbHist
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeHistoricalTimeSeries_versioned_notFoundId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "0", "0");
-    _htsMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbHts", "0", "0");
+    _htsMaster.remove(uniqueId);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeHistoricalTimeSeries_versioned_notFoundVersion() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "101", "1");
-    _htsMaster.remove(uid);
+    UniqueId uniqueId = UniqueId.of("DbHts", "101", "1");
+    _htsMaster.remove(uniqueId);
   }
 
   @Test
   public void test_removeHistoricalTimeSeries_removed() {
     Instant now = Instant.now(_htsMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHts", "102", "0");
-    _htsMaster.remove(uid);
-    HistoricalTimeSeriesInfoDocument test = _htsMaster.get(uid);
+    UniqueId uniqueId = UniqueId.of("DbHts", "102", "0");
+    _htsMaster.remove(uniqueId);
+    HistoricalTimeSeriesInfoDocument test = _htsMaster.get(uniqueId);
     
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(now, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
-    assertEquals(uid, test.getInfo().getUniqueId());
+    assertEquals(uniqueId, test.getInfo().getUniqueId());
   }
 
   //-------------------------------------------------------------------------

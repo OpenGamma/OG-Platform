@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.security;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -16,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface SecurityMaster extends AbstractMaster<SecurityDocument>, NotifyingMaster {
+public interface SecurityMaster extends AbstractMaster<SecurityDocument>, ChangeProvider {
 
   /**
    * Queries the meta-data about the master.

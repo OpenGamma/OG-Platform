@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -29,16 +29,16 @@ public class ComputationTargetBuilder implements FudgeBuilder<ComputationTarget>
   private static final String VALUE_FIELD = "value";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ComputationTarget object) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, TYPE_FIELD, null, object.getType());
-    context.addToMessageWithClassHeaders(msg, VALUE_FIELD, null, object.getValue());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputationTarget object) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, TYPE_FIELD, null, object.getType());
+    serializer.addToMessageWithClassHeaders(msg, VALUE_FIELD, null, object.getValue());
     return msg;
   }
 
   @Override
-  public ComputationTarget buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    ComputationTargetType type = context.fieldValueToObject(ComputationTargetType.class, message.getByName(TYPE_FIELD));
+  public ComputationTarget buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    ComputationTargetType type = deserializer.fieldValueToObject(ComputationTargetType.class, message.getByName(TYPE_FIELD));
     
     // Same type assumptions as made in ComputationTarget itself
     Class<?> expectedTargetType;
@@ -60,7 +60,7 @@ public class ComputationTargetBuilder implements FudgeBuilder<ComputationTarget>
         break;
     }
     
-    Object value = context.fieldValueToObject(expectedTargetType, message.getByName(VALUE_FIELD));
+    Object value = deserializer.fieldValueToObject(expectedTargetType, message.getByName(VALUE_FIELD));
     return new ComputationTarget(type, value);
   }
 

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 
@@ -58,7 +58,7 @@ public abstract class DataEngineResourceManagerResource<T extends UniqueIdentifi
   
   @POST
   @Consumes(FudgeRest.MEDIA)
-  public Response createReference(UniqueIdentifier uniqueId) {
+  public Response createReference(UniqueId uniqueId) {
     EngineResourceReference<? extends T> reference = _manager.createReference(uniqueId);
     if (reference == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);

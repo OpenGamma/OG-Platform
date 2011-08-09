@@ -8,7 +8,7 @@ package com.opengamma.core.position;
 import java.util.List;
 
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,14 +26,14 @@ public interface PortfolioNode extends UniqueIdentifiable {
    * 
    * @return the unique identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * Gets the unique identifier of the parent node, or {@code null} if this is a root node.
    * 
    * @return the unique identifier, null if root node
    */
-  UniqueIdentifier getParentNodeId();
+  UniqueId getParentNodeId();
 
   /**
    * Gets the name of the node intended for display purposes.

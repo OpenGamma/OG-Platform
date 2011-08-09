@@ -6,8 +6,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
@@ -21,9 +21,9 @@ import com.opengamma.livedata.server.MockLiveDataServer;
 public class PriorityResolvingCombiningLiveDataServerTest {
 
     
-    private IdentificationScheme _domainB;
-    private IdentificationScheme _domainC;
-    private IdentificationScheme _domainD;
+    private ExternalScheme _domainB;
+    private ExternalScheme _domainC;
+    private ExternalScheme _domainD;
     private MockLiveDataServer _serverB;
     private MockLiveDataServer _serverC;
     private PriorityResolvingCombiningLiveDataServer _combiningServer;
@@ -31,12 +31,12 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     @BeforeMethod
     public void setUp() {
       
-      _domainB = IdentificationScheme.of("B");
+      _domainB = ExternalScheme.of("B");
       _serverB = new MockLiveDataServer(_domainB);
       _serverB.setDistributionSpecificationResolver(new MockDistributionSpecificationResolver(_domainB));
       _serverB.connect();
       
-      _domainC = IdentificationScheme.of("C");
+      _domainC = ExternalScheme.of("C");
       _serverC = new MockLiveDataServer(_domainC);
       _serverC.setDistributionSpecificationResolver(new MockDistributionSpecificationResolver(_domainC));
       _serverC.connect();
@@ -44,19 +44,19 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC));
       _combiningServer.start();
       
-      _domainD = IdentificationScheme.of("D");
+      _domainD = ExternalScheme.of("D");
     }
     
     @Test(expectedExceptions =  Throwable.class)
     public void defaultSubscription() {
-      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", Identifier.of(_domainD, "X"));
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainD, "X"));
       _combiningServer.subscribe(spec, false);
     }
     
     @Test(expectedExceptions =  Throwable.class)
     public void failingSubscriptionsDontStopWorking() {
-      LiveDataSpecification specWorking = new LiveDataSpecification("No Normalization", Identifier.of(_domainC, "X"));
-      LiveDataSpecification specFailed = new LiveDataSpecification("No Normalization", Identifier.of(_domainD, "X"));
+      LiveDataSpecification specWorking = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
+      LiveDataSpecification specFailed = new LiveDataSpecification("No Normalization", ExternalId.of(_domainD, "X"));
       LiveDataSubscriptionResponseMsg subscriptionRequestMade = _combiningServer.subscriptionRequestMade(new LiveDataSubscriptionRequest(UserPrincipal.getLocalUser(), SubscriptionType.NON_PERSISTENT,  Lists.newArrayList(specWorking, specFailed)));
       
       assertEquals(2, subscriptionRequestMade.getResponses().size());
@@ -77,7 +77,7 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     }
     @Test
     public void matchingSubscription() {
-      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", Identifier.of(_domainC, "X"));
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
       LiveDataSubscriptionResponse result = _combiningServer.subscribe(spec, false);
       assertEquals(LiveDataSubscriptionResult.SUCCESS, result.getSubscriptionResult());
       
@@ -87,7 +87,7 @@ public class PriorityResolvingCombiningLiveDataServerTest {
     }
     @Test
     public void prioritySubscription() {
-      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", Identifier.of(_domainB, "X"), Identifier.of(_domainC, "X"));
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainB, "X"), ExternalId.of(_domainC, "X"));
       LiveDataSubscriptionResponse result = _combiningServer.subscribe(spec, false);
       assertEquals(LiveDataSubscriptionResult.SUCCESS, result.getSubscriptionResult());
       

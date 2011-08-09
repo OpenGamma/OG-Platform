@@ -18,6 +18,6 @@ public interface ObjectIdentifiable {
    * 
    * @return the object identifier, may be null
    */
-  ObjectIdentifier getObjectId();
+  ObjectId getObjectId();
 
 }

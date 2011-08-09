@@ -20,7 +20,7 @@
     <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean" />
     <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
     <many-to-one name="unitName" column="unitname_id" class="UnitBean" />
-    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="underlying_scheme" type="string" />
       <property name="identifier" column="underlying_identifier" type="string" />
     </component>

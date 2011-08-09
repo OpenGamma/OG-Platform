@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
@@ -89,7 +89,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   public WebConfigVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     ConfigDocument<?> doc = data().getConfig();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       ConfigDocument<?> versioned = data().getConfigMaster().get(combined);
       data().setVersioned(versioned);

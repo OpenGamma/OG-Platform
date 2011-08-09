@@ -38,8 +38,8 @@ import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImplie
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -80,7 +80,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     }
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
     SecuritySource securityMaster = context.getSecuritySource();
-    Security underlying = securityMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
+    Security underlying = securityMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingIdentifier()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
     final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueId());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueId());
@@ -106,7 +106,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
     SecuritySource secMaster = executionContext.getSecuritySource();
-    Security underlying = secMaster.getSecurity(IdentifierBundle.of(optionSec.getUnderlyingIdentifier()));
+    Security underlying = secMaster.getSecurity(ExternalIdBundle.of(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:
     final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueId());
@@ -150,11 +150,11 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return ComputationTargetType.SECURITY;
   }
 
-  private ValueRequirement getPriceRequirement(final UniqueIdentifier uid) {
+  private ValueRequirement getPriceRequirement(final UniqueId uid) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
   }
 
-  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueId uid) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 }

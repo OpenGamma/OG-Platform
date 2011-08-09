@@ -90,15 +90,15 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
       case BANK:
         boolean isHoliday = false;
         for (final Region region : _regions) {
-          isHoliday |= _holidaySource.isHoliday(date, _type, region.getIdentifiers());
+          isHoliday |= _holidaySource.isHoliday(date, _type, region.getExternalIdBundle());
         }
         return !isHoliday;
       case CURRENCY:
         return !_holidaySource.isHoliday(date, _currency);
       case SETTLEMENT:
-        return !_holidaySource.isHoliday(date, _type, _exchange.getIdentifiers());
+        return !_holidaySource.isHoliday(date, _type, _exchange.getExternalIdBundle());
       case TRADING:
-        return !_holidaySource.isHoliday(date, _type, _exchange.getIdentifiers());
+        return !_holidaySource.isHoliday(date, _type, _exchange.getExternalIdBundle());
     }
     throw new OpenGammaRuntimeException("switch doesn't support " + _type);
   }

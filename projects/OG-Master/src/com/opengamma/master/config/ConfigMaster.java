@@ -6,10 +6,10 @@
 package com.opengamma.master.config;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.util.PublicSPI;
  * Many different kinds of configuration element may be stored in a single master.
  */
 @PublicSPI
-public interface ConfigMaster extends NotifyingMaster {
+public interface ConfigMaster extends ChangeProvider {
 
   /**
    * Gets a document by unique identifier.
@@ -34,7 +34,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  ConfigDocument<?> get(UniqueIdentifier uniqueId);
+  ConfigDocument<?> get(UniqueId uniqueId);
 
   /**
    * Gets a document by object identifier and version-correction locator.
@@ -63,7 +63,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  <T> ConfigDocument<T> get(UniqueIdentifier uniqueId, Class<T> clazz);
+  <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz);
 
   /**
    * Gets a document by object identifier and version-correction locator.
@@ -175,6 +175,6 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  void remove(final UniqueIdentifier uniqueId);
+  void remove(final UniqueId uniqueId);
 
 }

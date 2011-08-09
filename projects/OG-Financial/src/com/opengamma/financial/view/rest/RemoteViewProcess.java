@@ -14,7 +14,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**
@@ -32,9 +32,9 @@ public class RemoteViewProcess implements ViewProcess {
   
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_UNIQUE_ID).build();
-    return _client.access(uri).get(UniqueIdentifier.class);
+    return _client.access(uri).get(UniqueId.class);
   }
   
   @Override
@@ -44,7 +44,7 @@ public class RemoteViewProcess implements ViewProcess {
   }
   
   @Override
-  public ViewDefinition getDefinition() {
+  public ViewDefinition getLatestViewDefinition() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION).build();
     return _client.access(uri).get(ViewDefinition.class);
   }

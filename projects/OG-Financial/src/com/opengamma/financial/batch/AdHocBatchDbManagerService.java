@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 /**
  * RESTful backend for {@link AdHocBatchDbManager}.
@@ -60,8 +60,8 @@ public class AdHocBatchDbManagerService {
   //-------------------------------------------------------------------------
   @POST
   public void post(final FudgeMsgEnvelope payload) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final AdHocBatchResult batchResult = dctx.fieldValueToObject(AdHocBatchResult.class, payload.getMessage().getByName("batch"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final AdHocBatchResult batchResult = deserializer.fieldValueToObject(AdHocBatchResult.class, payload.getMessage().getByName("batch"));
     getUnderlying().write(batchResult);
   }
 

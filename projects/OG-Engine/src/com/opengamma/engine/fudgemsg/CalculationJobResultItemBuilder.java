@@ -11,8 +11,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
@@ -32,27 +32,27 @@ public class CalculationJobResultItemBuilder implements FudgeBuilder<Calculation
   private static final String MISSING_INPUTS_FIELD_NAME = "missingInputs";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CalculationJobResultItem object) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, ITEM_FIELD_NAME, null, object.getItem());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CalculationJobResultItem object) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, ITEM_FIELD_NAME, null, object.getItem());
     msg.add(INVOCATION_RESULT_FIELD_NAME, object.getResult().name());
     msg.add(EXCEPTION_CLASS_FIELD_NAME, object.getExceptionClass());
     msg.add(EXCEPTION_MSG_FIELD_NAME, object.getExceptionMsg());
     msg.add(STACK_TRACE_FIELD_NAME, object.getStackTrace());
-    context.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
+    serializer.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
     return msg;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public CalculationJobResultItem buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    CalculationJobItem item = context.fudgeMsgToObject(CalculationJobItem.class, message.getMessage(ITEM_FIELD_NAME));
+  public CalculationJobResultItem buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    CalculationJobItem item = deserializer.fudgeMsgToObject(CalculationJobItem.class, message.getMessage(ITEM_FIELD_NAME));
     String resultName = message.getString(INVOCATION_RESULT_FIELD_NAME);
     InvocationResult result = InvocationResult.valueOf(resultName);
     String exceptionClass = message.getString(EXCEPTION_CLASS_FIELD_NAME);
     String exceptionMsg = message.getString(EXCEPTION_MSG_FIELD_NAME);
     String stackTrace = message.getString(STACK_TRACE_FIELD_NAME);
-    Set<ValueSpecification> missingInputs = context.fieldValueToObject(Set.class, message.getByName(MISSING_INPUTS_FIELD_NAME));
+    Set<ValueSpecification> missingInputs = deserializer.fieldValueToObject(Set.class, message.getByName(MISSING_INPUTS_FIELD_NAME));
     return CalculationJobResultItem.create(item, result, exceptionClass, exceptionMsg, stackTrace, missingInputs);
   }
 

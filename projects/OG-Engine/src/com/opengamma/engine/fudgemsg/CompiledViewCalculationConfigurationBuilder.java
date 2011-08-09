@@ -11,8 +11,8 @@ import java.util.Set;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.ComputationTarget;
@@ -33,22 +33,22 @@ public class CompiledViewCalculationConfigurationBuilder implements FudgeBuilder
   private static final String MARKET_DATA_REQUIREMENTS_FIELD = "marketDataRequirements";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CompiledViewCalculationConfiguration object) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, NAME_FIELD, null, object.getName());
-    context.addToMessage(msg, COMPUTATION_TARGETS_FIELD, null, object.getComputationTargets());
-    context.addToMessage(msg, TERMINAL_OUTPUT_SPECIFICATIONS_FIELD, null, object.getTerminalOutputSpecifications());
-    context.addToMessage(msg, MARKET_DATA_REQUIREMENTS_FIELD, null, object.getMarketDataRequirements());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CompiledViewCalculationConfiguration object) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, NAME_FIELD, null, object.getName());
+    serializer.addToMessage(msg, COMPUTATION_TARGETS_FIELD, null, object.getComputationTargets());
+    serializer.addToMessage(msg, TERMINAL_OUTPUT_SPECIFICATIONS_FIELD, null, object.getTerminalOutputSpecifications());
+    serializer.addToMessage(msg, MARKET_DATA_REQUIREMENTS_FIELD, null, object.getMarketDataRequirements());
     return msg;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public CompiledViewCalculationConfiguration buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public CompiledViewCalculationConfiguration buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String name = message.getString(NAME_FIELD);
-    Set<ComputationTarget> computationTargets = context.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
-    Set<ValueSpecification> terminalOutputSpecifications = context.fieldValueToObject(Set.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));
-    Map<ValueRequirement, ValueSpecification> marketDataRequirements = context.fieldValueToObject(Map.class, message.getByName(MARKET_DATA_REQUIREMENTS_FIELD));
+    Set<ComputationTarget> computationTargets = deserializer.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
+    Set<ValueSpecification> terminalOutputSpecifications = deserializer.fieldValueToObject(Set.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));
+    Map<ValueRequirement, ValueSpecification> marketDataRequirements = deserializer.fieldValueToObject(Map.class, message.getByName(MARKET_DATA_REQUIREMENTS_FIELD));
     return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataRequirements);
   }
 

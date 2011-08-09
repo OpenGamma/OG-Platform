@@ -26,8 +26,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -112,81 +112,81 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
 
   //-------------------------------------------------------------------------
   protected void assert101(final HolidayDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
+    UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueId());
-    assertEquals(Identifier.of("COPP_CLARK", "1"), test.getProviderKey());
+    assertEquals(uniqueId, holiday.getUniqueId());
+    assertEquals(ExternalId.of("COPP_CLARK", "1"), test.getProviderId());
     assertEquals("TestHoliday101", test.getName());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionKey());
-    assertEquals(null, holiday.getExchangeKey());
+    assertEquals(null, holiday.getRegionExternalId());
+    assertEquals(null, holiday.getExchangeExternalId());
     assertEquals("GBP", holiday.getCurrency().getCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 1)), holiday.getHolidayDates());
   }
 
   protected void assert102(final HolidayDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "102", "0");
+    UniqueId uniqueId = UniqueId.of("DbHol", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueId());
+    assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday102", test.getName());
-    assertEquals(Identifier.of("COPP_CLARK", "2"), test.getProviderKey());
+    assertEquals(ExternalId.of("COPP_CLARK", "2"), test.getProviderId());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionKey());
-    assertEquals(null, holiday.getExchangeKey());
+    assertEquals(null, holiday.getRegionExternalId());
+    assertEquals(null, holiday.getExchangeExternalId());
     assertEquals("EUR", holiday.getCurrency().getCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 1, 2), LocalDate.of(2010, 1, 3)), holiday.getHolidayDates());
   }
 
   protected void assert201(final HolidayDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "0");
+    UniqueId uniqueId = UniqueId.of("DbHol", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueId());
+    assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday201", test.getName());
-    assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderKey());
+    assertEquals(ExternalId.of("COPP_CLARK", "3"), test.getProviderId());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionKey());
-    assertEquals(null, holiday.getExchangeKey());
+    assertEquals(null, holiday.getRegionExternalId());
+    assertEquals(null, holiday.getExchangeExternalId());
     assertEquals("GBP", holiday.getCurrency().getCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 2, 1)), holiday.getHolidayDates());
   }
 
   protected void assert202(final HolidayDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "1");
+    UniqueId uniqueId = UniqueId.of("DbHol", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableHoliday holiday = test.getHoliday();
     assertNotNull(holiday);
-    assertEquals(uid, holiday.getUniqueId());
+    assertEquals(uniqueId, holiday.getUniqueId());
     assertEquals("TestHoliday202", test.getName());
-    assertEquals(Identifier.of("COPP_CLARK", "3"), test.getProviderKey());
+    assertEquals(ExternalId.of("COPP_CLARK", "3"), test.getProviderId());
     assertEquals(HolidayType.CURRENCY, holiday.getType());
-    assertEquals(null, holiday.getRegionKey());
-    assertEquals(null, holiday.getExchangeKey());
+    assertEquals(null, holiday.getRegionExternalId());
+    assertEquals(null, holiday.getExchangeExternalId());
     assertEquals("GBP", holiday.getCurrency().getCode());
     assertEquals(Arrays.asList(LocalDate.of(2010, 2, 1)), holiday.getHolidayDates());
   }

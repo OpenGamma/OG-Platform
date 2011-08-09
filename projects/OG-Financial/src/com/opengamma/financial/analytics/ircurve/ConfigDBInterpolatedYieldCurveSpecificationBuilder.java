@@ -14,7 +14,7 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
@@ -55,7 +55,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (FixedIncomeStrip strip : curveDefinition.getStrips()) {
       CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
-      Identifier identifier;
+      ExternalId identifier;
       switch (strip.getInstrumentType()) {
         case CASH:
           identifier = builderConfig.getCashSecurity(curveDate, strip.getCurveNodePointTime());

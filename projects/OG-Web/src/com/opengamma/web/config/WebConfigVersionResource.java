@@ -24,7 +24,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
@@ -120,7 +120,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData data, final UniqueIdentifier overrideVersionId) {
+  public static URI uri(final WebConfigData data, final UniqueId overrideVersionId) {
     String configId = data.getBestConfigUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
     return data.getUriInfo().getBaseUriBuilder().path(WebConfigVersionResource.class).build(configId, versionId);

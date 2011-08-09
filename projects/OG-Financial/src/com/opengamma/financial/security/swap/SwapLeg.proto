@@ -12,7 +12,7 @@ namespace com.opengamma.financial.security.swap {
   abstract message SwapLeg {
     required readonly com.opengamma.financial.convention.daycount.DayCount dayCount;
     required readonly com.opengamma.financial.convention.frequency.Frequency frequency;
-    required readonly id.Identifier regionIdentifier;
+    required readonly id.ExternalId regionIdentifier;
     required readonly com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention;
     required readonly Notional notional;
     
@@ -39,7 +39,7 @@ namespace com.opengamma.financial.security.swap {
    * Represents a floating interest rate leg of a swap.
    */
   message FloatingInterestRateLeg extends InterestRateLeg {
-    required readonly id.Identifier floatingReferenceRateIdentifier;
+    required readonly id.ExternalId floatingReferenceRateIdentifier;
     optional readonly double initialFloatingRate;
     required readonly double spread;
     required readonly boolean isIBOR;
