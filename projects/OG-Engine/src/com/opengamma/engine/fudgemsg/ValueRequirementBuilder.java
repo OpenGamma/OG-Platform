@@ -11,8 +11,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
@@ -33,26 +33,26 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
   public static final String CONSTRAINTS_FIELD_NAME = "constraints";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ValueRequirement object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ValueRequirement object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     String valueName = object.getValueName();
     msg.add(VALUE_NAME_FIELD_NAME, valueName);
-    ComputationTargetSpecificationBuilder.addMessageFields(context, msg, object.getTargetSpecification());
+    ComputationTargetSpecificationBuilder.addMessageFields(serializer, msg, object.getTargetSpecification());
     if (!object.getConstraints().isEmpty()) {
-      context.addToMessage(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
+      serializer.addToMessage(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
     }
     return msg;
   }
 
   @Override
-  public ValueRequirement buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public ValueRequirement buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String valueName = message.getString(VALUE_NAME_FIELD_NAME);
     Validate.notNull(valueName, "Fudge message is not a ValueRequirement - field 'valueName' is not present");
-    ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationBuilder.buildObjectImpl(context, message);
+    ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationBuilder.buildObjectImpl(deserializer, message);
     Validate.notNull(targetSpecification, "Fudge message is not a ValueRequirement - field 'computationTargetSpecification' is not present");
     FudgeField constraints = message.getByName(CONSTRAINTS_FIELD_NAME);
     if (constraints != null) {
-      return new ValueRequirement(valueName, targetSpecification, context.fieldValueToObject(ValueProperties.class, constraints));
+      return new ValueRequirement(valueName, targetSpecification, deserializer.fieldValueToObject(ValueProperties.class, constraints));
     } else {
       return new ValueRequirement(valueName, targetSpecification);
     }

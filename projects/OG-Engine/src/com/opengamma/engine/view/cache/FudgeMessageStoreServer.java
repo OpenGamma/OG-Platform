@@ -23,8 +23,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,8 +117,8 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
    */
   protected void broadcast(final CacheMessage message) {
     final MutableFudgeMsg msg = getUnderlying().getFudgeContext().newMessage();
-    message.toFudgeMsg(new FudgeSerializationContext(getUnderlying().getFudgeContext()), msg);
-    FudgeSerializationContext.addClassHeader(msg, message.getClass(), CacheMessage.class);
+    message.toFudgeMsg(new FudgeSerializer(getUnderlying().getFudgeContext()), msg);
+    FudgeSerializer.addClassHeader(msg, message.getClass(), CacheMessage.class);
     for (Map.Entry<FudgeConnection, Object> connectionEntry : getConnections().entrySet()) {
       final FudgeConnection connection = connectionEntry.getKey();
       _executorService.execute(new Runnable() {
@@ -338,8 +338,8 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
 
     @Override
     public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-      final FudgeDeserializationContext dctx = new FudgeDeserializationContext(fudgeContext);
-      final CacheMessage request = dctx.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
+      final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+      final CacheMessage request = deserializer.fudgeMsgToObject(CacheMessage.class, msgEnvelope.getMessage());
       CacheMessage response = request.accept(this);
       if (response == null) {
         if (request.getCorrelationId() != null) {
@@ -348,10 +348,10 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
       }
       if (response != null) {
         response.setCorrelationId(request.getCorrelationId());
-        final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
+        final FudgeSerializer sctx = new FudgeSerializer(fudgeContext);
         final MutableFudgeMsg responseMsg = sctx.objectToFudgeMsg(response);
         // We have only one response for each request type, so don't really need the headers
-        // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
+        // FudgeSerializer.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
         getConnection().getFudgeMessageSender().send(responseMsg);
       }
     }

@@ -13,8 +13,8 @@ import java.util.WeakHashMap;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +37,9 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
   private Map<CalculationJobSpecification, DependencyGraph> _jobToDepGraphMap = new WeakHashMap<CalculationJobSpecification, DependencyGraph>();
 
   @Override
-  public synchronized FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+  public synchronized FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
     ArgumentChecker.notNullInjected(_jobToDepGraphMap, "Job Specification to Dependency Graph Map");
-    Object message = context.fudgeMsgToObject(requestEnvelope.getMessage());
+    Object message = deserializer.fudgeMsgToObject(requestEnvelope.getMessage());
     if (message instanceof DependentValueSpecificationsRequest) {
       DependentValueSpecificationsRequest request = (DependentValueSpecificationsRequest) message;
       DependencyGraph dependencyGraph = _jobToDepGraphMap.get(request.getJob());
@@ -47,9 +47,9 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
       for (DependencyNode root : dependencyGraph.getRootNodes()) {
         collectAllValueSpecifications(root, valueSpecs);
       }
-      FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(context.getFudgeContext());
+      FudgeSerializer fudgeSerializationContext = new FudgeSerializer(deserializer.getFudgeContext());
       MutableFudgeMsg msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getCorrelationId(), valueSpecs));
-      FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsReply.class);
+      FudgeSerializer.addClassHeader(msg, DependentValueSpecificationsReply.class);
       return msg;
     } else {
       throw new OpenGammaRuntimeException("Unrecognized message object " + message);

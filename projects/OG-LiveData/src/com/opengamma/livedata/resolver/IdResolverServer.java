@@ -7,8 +7,8 @@ package com.opengamma.livedata.resolver;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +36,9 @@ public class IdResolverServer implements FudgeRequestReceiver {
   }
   
   @Override
-  public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+  public FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
     FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
-    ResolveRequest resolveRequest = ResolveRequest.fromFudgeMsg(context, requestFudgeMsg);
+    ResolveRequest resolveRequest = ResolveRequest.fromFudgeMsg(deserializer, requestFudgeMsg);
     s_logger.debug("Received resolve request for {}", resolveRequest.getRequestedSpecification());
     
     LiveDataSpecification requestedSpec = resolveRequest.getRequestedSpecification();
@@ -48,7 +48,7 @@ public class IdResolverServer implements FudgeRequestReceiver {
         resolvedId);
     
     ResolveResponse response = new ResolveResponse(resolvedSpec);
-    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializer(deserializer.getFudgeContext()));
     return responseFudgeMsg;
   }
   

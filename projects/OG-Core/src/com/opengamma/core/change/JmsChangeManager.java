@@ -11,7 +11,7 @@ import javax.jms.MessageListener;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -128,8 +128,8 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
     FudgeMsg msg = msgEnvelope.getMessage();
     s_logger.debug("Source changed: Received message {}", msg);
-    FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
-    ChangeEvent event = context.fudgeMsgToObject(ChangeEvent.class, msg);
+    FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    ChangeEvent event = deserializer.fudgeMsgToObject(ChangeEvent.class, msg);
     fireEntityChanged(event);
   }
 

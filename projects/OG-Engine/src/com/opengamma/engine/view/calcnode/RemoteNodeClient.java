@@ -10,8 +10,8 @@ import java.util.Collection;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -155,8 +155,8 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   private void sendMessage(final RemoteCalcNodeMessage message) {
     final FudgeMessageSender sender = getConnection().getFudgeMessageSender();
-    final FudgeSerializationContext context = new FudgeSerializationContext(sender.getFudgeContext());
-    final FudgeMsg msg = FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class);
+    final FudgeSerializer serializer = new FudgeSerializer(sender.getFudgeContext());
+    final FudgeMsg msg = FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class);
     s_logger.debug("Sending message ({} fields) to {}", msg.getNumFields(), _connection);
     sender.send(msg);
   }
@@ -177,8 +177,8 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
     final FudgeMsg msg = msgEnvelope.getMessage();
     s_logger.debug("Received ({} fields) from {}", msg.getNumFields(), _connection);
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
-    final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
+    final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    final RemoteCalcNodeMessage message = deserializer.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
     message.accept(_messageVisitor);
   }
 

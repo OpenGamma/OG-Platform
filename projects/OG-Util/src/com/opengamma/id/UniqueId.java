@@ -13,7 +13,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -437,7 +437,7 @@ public final class UniqueId
    * @param msg  the Fudge message, not null
    * @return the unique identifier
    */
-  public static UniqueId fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+  public static UniqueId fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     String version = msg.getString(VERSION_FUDGE_FIELD_NAME);

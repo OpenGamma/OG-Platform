@@ -10,8 +10,8 @@ import java.util.TimeZone;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 
@@ -22,15 +22,15 @@ public abstract class DateTimeConverterBuilder<T extends DateTimeConverter<?>> i
   public abstract T makeConverter(TimeZone timeZone);
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, T converter) {
-    final MutableFudgeMsg message = context.newMessage();
-    context.addToMessage(message, null, 0, converter.getClass().getName());
-    context.addToMessage(message, null, 1, converter.getTimeZone());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, T converter) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, null, 0, converter.getClass().getName());
+    serializer.addToMessage(message, null, 1, converter.getTimeZone());
     return message;
   }
   
   @Override
-  public T buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public T buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     return makeConverter(message.getFieldValue(TimeZone.class, message.getByOrdinal(1)));
   }
 }

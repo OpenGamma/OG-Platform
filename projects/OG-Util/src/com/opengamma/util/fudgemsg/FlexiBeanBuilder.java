@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -39,26 +39,26 @@ public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
 
   //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FlexiBean bean) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FlexiBean bean) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     Map<String, Object> data = bean.toMap();
     for (Entry<String, Object> entry : data.entrySet()) {
       Object value = entry.getValue();
       if (value == null) {
         msg.add(entry.getKey(), null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else {
-        context.addToMessage(msg, entry.getKey(), null, value);
+        serializer.addToMessage(msg, entry.getKey(), null, value);
       }
     }
     return msg;
   }
 
   @Override
-  public FlexiBean buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public FlexiBean buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final FlexiBean bean = new FlexiBean();
     List<FudgeField> fields = msg.getAllFields();
     for (FudgeField field : fields) {
-      Object value = context.fieldValueToObject(field);
+      Object value = deserializer.fieldValueToObject(field);
       value = (value instanceof IndicatorType) ? null : value;
       bean.set(field.getName(), value);
     }

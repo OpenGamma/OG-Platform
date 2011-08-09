@@ -10,8 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -125,15 +125,15 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("target", _target.toString());
     msg.add("name", _name);
     msg.add("instrumentType", _instrumentType);
     return msg;
   }
 
-  public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
+  public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     UniqueId targetUid;
     String target = msg.getString("target");
     if (target == null) {

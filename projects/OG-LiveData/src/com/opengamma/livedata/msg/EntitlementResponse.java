@@ -17,12 +17,12 @@ public class EntitlementResponse implements java.io.Serializable {
     }
     _isEntitled = isEntitled;
   }
-  protected EntitlementResponse (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected EntitlementResponse (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (LIVE_DATA_SPECIFICATION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EntitlementResponse - field 'liveDataSpecification' is not present");
     try {
-      _liveDataSpecification = fudgeContext.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudgeField);
+      _liveDataSpecification = deserializer.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EntitlementResponse - field 'liveDataSpecification' is not LiveDataSpecification message", e);
@@ -65,34 +65,34 @@ public class EntitlementResponse implements java.io.Serializable {
   public EntitlementResponse clone () {
     return new EntitlementResponse (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_liveDataSpecification != null)  {
-      fudgeContext.addToMessageWithClassHeaders (msg, LIVE_DATA_SPECIFICATION_KEY, null, _liveDataSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      serializer.addToMessageWithClassHeaders (msg, LIVE_DATA_SPECIFICATION_KEY, null, _liveDataSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
     msg.add (IS_ENTITLED_KEY, null, _isEntitled);
     if (_msg != null)  {
       msg.add (MSG_KEY, null, _msg);
     }
   }
-  public static EntitlementResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static EntitlementResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.livedata.msg.EntitlementResponse".equals (className)) break;
       try {
-        return (com.opengamma.livedata.msg.EntitlementResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.livedata.msg.EntitlementResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new EntitlementResponse (fudgeContext, fudgeMsg);
+    return new EntitlementResponse (deserializer, fudgeMsg);
   }
   public com.opengamma.livedata.LiveDataSpecification getLiveDataSpecification () {
     return _liveDataSpecification;

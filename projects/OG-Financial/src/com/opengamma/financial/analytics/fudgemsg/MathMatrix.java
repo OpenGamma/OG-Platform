@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -30,13 +30,13 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
     private static final String DATA_FIELD_NAME = "data";
 
     @Override
-    public DoubleMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    public DoubleMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       double[] data = message.getFieldValue(double[].class, message.getByName(DATA_FIELD_NAME));
       return new DoubleMatrix1D(data);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DoubleMatrix1D object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DoubleMatrix1D object) {
       message.add(DATA_FIELD_NAME, null, object.getData());
     }
 
@@ -50,14 +50,14 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
     private static final String DATA_FIELD_NAME = "data";
 
     @Override
-    public DoubleMatrix2D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final double[][] data = context.fieldValueToObject(double[][].class, message.getByName(DATA_FIELD_NAME));
+    public DoubleMatrix2D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double[][] data = deserializer.fieldValueToObject(double[][].class, message.getByName(DATA_FIELD_NAME));
       return new DoubleMatrix2D(data);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DoubleMatrix2D object) {
-      context.addToMessage(message, DATA_FIELD_NAME, null, object.getData());
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DoubleMatrix2D object) {
+      serializer.addToMessage(message, DATA_FIELD_NAME, null, object.getData());
     }
   }
 

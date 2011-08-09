@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
@@ -32,19 +32,19 @@ public final class ExternalIdSearchBuilder implements FudgeBuilder<ExternalIdSea
   public static final String SEARCH_TYPE_KEY = "searchType";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ExternalIdSearch object) {
-    final MutableFudgeMsg msg = context.newMessage();
-    final MutableFudgeMsg ids = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExternalIdSearch object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    final MutableFudgeMsg ids = serializer.newMessage();
     for (ExternalId identifier : object.getExternalIds()) {
-      context.addToMessage(ids, null, null, identifier);
+      serializer.addToMessage(ids, null, null, identifier);
     }
-    context.addToMessage(msg, IDENTIFIERS_KEY, null, ids);
-    context.addToMessage(msg, SEARCH_TYPE_KEY, null, object.getSearchType().name());
+    serializer.addToMessage(msg, IDENTIFIERS_KEY, null, ids);
+    serializer.addToMessage(msg, SEARCH_TYPE_KEY, null, object.getSearchType().name());
     return msg;
   }
 
   @Override
-  public ExternalIdSearch buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ExternalIdSearch buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final FudgeMsg idMsg = msg.getMessage(IDENTIFIERS_KEY);
     if (idMsg == null) {
       throw new IllegalArgumentException("Fudge message is not a ExternalIdSearch - field 'identifiers' is not present");
@@ -55,7 +55,7 @@ public final class ExternalIdSearchBuilder implements FudgeBuilder<ExternalIdSea
     }
     final Set<ExternalId> identifiers = new HashSet<ExternalId>();
     for (FudgeField field : idMsg) {
-      identifiers.add(context.fieldValueToObject(ExternalId.class, field));
+      identifiers.add(deserializer.fieldValueToObject(ExternalId.class, field));
     }
     ExternalIdSearchType type = ExternalIdSearchType.valueOf(msg.getString("searchType"));
     return new ExternalIdSearch(identifiers, type);

@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
@@ -41,14 +41,14 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
   private static final String WITHOUT_FIELD = "without";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final ValueProperties object) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ValueProperties object) {
+    final MutableFudgeMsg message = serializer.newMessage();
 
     if (!object.isEmpty()) {
       if (object.getProperties().isEmpty()) {
         //Infinite or NearlyInfinite
 
-        MutableFudgeMsg withoutMessage = context.newMessage();
+        MutableFudgeMsg withoutMessage = serializer.newMessage();
         message.add(WITHOUT_FIELD, withoutMessage);
 
         if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(object)) {
@@ -60,14 +60,14 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
         }
 
       } else {
-        MutableFudgeMsg withMessage = context.newMessage();
+        MutableFudgeMsg withMessage = serializer.newMessage();
         message.add(WITH_FIELD, withMessage);
 
         for (String propertyName : object.getProperties()) {
           final Set<String> propertyValues = object.getValues(propertyName);
           final boolean optional = object.isOptional(propertyName);
           if ((propertyValues.size() > 1) || optional) {
-            final MutableFudgeMsg subMessage = context.newMessage();
+            final MutableFudgeMsg subMessage = serializer.newMessage();
             if (optional) {
               subMessage.add("optional", null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
             }
@@ -88,7 +88,7 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
   }
 
   @Override
-  public ValueProperties buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public ValueProperties buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     if (message.isEmpty()) {
       return ValueProperties.none();
     }
