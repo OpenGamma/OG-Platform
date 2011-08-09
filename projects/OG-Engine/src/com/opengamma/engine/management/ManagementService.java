@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.management;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.engine.view.ViewProcessorImpl;
@@ -175,7 +177,11 @@ public final class ManagementService implements ViewProcessorEventListener {
     } catch (Exception e) {
       s_logger.warn("Error registering view for management for " + viewManagement.getObjectName() + " . Error was " + e.getMessage(), e);
     }
-    Set<String> configurationNames = view.getLatestViewDefinition().getAllCalculationConfigurationNames();
+    ViewDefinition definition = view.getLatestViewDefinition();
+    Set<String> configurationNames = Collections.emptySet();
+    if (definition != null) {
+      configurationNames = definition.getAllCalculationConfigurationNames();
+    }
     _calcConfigByViewProcessId.putIfAbsent(viewProcessId, configurationNames);
     for (String calcConfigName : configurationNames) {
       com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =
