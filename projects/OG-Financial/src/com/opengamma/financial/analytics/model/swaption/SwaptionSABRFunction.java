@@ -93,9 +93,6 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-//    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(context, desiredValue);
-//    final String forwardCurveName = curveNames.getFirst();
-//    final String fundingCurveName = curveNames.getSecond();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getCubeRequirement(target));
     if (_forwardCurveName.equals(_fundingCurveName)) {
