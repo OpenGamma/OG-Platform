@@ -7,10 +7,6 @@ package com.opengamma.web.server.conversion;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,126 +30,9 @@ public class DoubleConverter implements ResultConverter<Object> {
   // currently located here. This kind of formatting logic should be moved to a more central place eventually, where
   // user configs can be taken into account, and the entire set of formatting rules can be shared between different
   // types of client.
-  
-  private abstract static class DoubleValueFormatter {
-    
-    private static final int GROUP_SIZE = 3;
-    
-    private static final char s_decimalSeparator;
-    private static final char s_groupingSeparator;
-    
-    private final boolean _isCurrencyAmount;
-    
-    static {
-      DecimalFormatSymbols formatSymbols = DecimalFormatSymbols.getInstance();
-      s_decimalSeparator = formatSymbols.getDecimalSeparator();
-      s_groupingSeparator = formatSymbols.getGroupingSeparator();
-    }
-
-    public DoubleValueFormatter(boolean isCurrencyAmount) {
-      _isCurrencyAmount = isCurrencyAmount;
-    }
-    
-    public boolean isCurrencyAmount() {
-      return _isCurrencyAmount;
-    }
-    
-    protected abstract String formatPlainString(double value);
-    
-    public String format(double value) {
-      String plainString = formatPlainString(value);
-      return addGroupings(plainString);
-    }
-    
-    private String addGroupings(String plainNumber) {
-      int decimalIdx = plainNumber.indexOf(s_decimalSeparator);
-      String integerPart = decimalIdx > -1 ? plainNumber.substring(0, decimalIdx) : plainNumber;
-      int minusOffset = integerPart.charAt(0) == '-' ? 1 : 0;
-      int integerPartLength = integerPart.length() - minusOffset;
-      StringBuilder sb = new StringBuilder();
-      int firstGroupEndIdx = integerPartLength % GROUP_SIZE;
-      if (firstGroupEndIdx == 0) {
-        firstGroupEndIdx = GROUP_SIZE;
-      }
-      firstGroupEndIdx += minusOffset;
-      if (firstGroupEndIdx == integerPartLength) {
-        // No groups needed
-        return plainNumber;
-      }
-      sb.append(integerPart.substring(0, firstGroupEndIdx));
-      for (int i = firstGroupEndIdx; i < integerPartLength + minusOffset; i += GROUP_SIZE) {
-        sb.append(s_groupingSeparator).append(integerPart.substring(i, i + 3));
-      }
-      if (decimalIdx > -1) {
-        sb.append(s_decimalSeparator);
-        sb.append(plainNumber.substring(decimalIdx + 1));        
-      }
-      return sb.toString();
-    }
-    
-  }
-
-  private static class DoubleValueDecimalPlaceFormatter extends DoubleValueFormatter {
-
-    public static final DoubleValueDecimalPlaceFormatter NON_CCY_2DP = DoubleValueDecimalPlaceFormatter.of(2, false);
-    public static final DoubleValueDecimalPlaceFormatter NON_CCY_4DP = DoubleValueDecimalPlaceFormatter.of(4, false);
-    public static final DoubleValueDecimalPlaceFormatter NON_CCY_6DP = DoubleValueDecimalPlaceFormatter.of(6, false);
-    public static final DoubleValueDecimalPlaceFormatter CCY_2DP = DoubleValueDecimalPlaceFormatter.of(2, true);
-    public static final DoubleValueDecimalPlaceFormatter CCY_4DP = DoubleValueDecimalPlaceFormatter.of(4, true);
-    public static final DoubleValueDecimalPlaceFormatter CCY_6DP = DoubleValueDecimalPlaceFormatter.of(6, true);
-
-    private final int _decimalPlaces;
-    
-    public DoubleValueDecimalPlaceFormatter(int decimalPlaces, boolean isCurrencyAmount) {
-      super(isCurrencyAmount);
-      _decimalPlaces = decimalPlaces;
-    }
-
-    public static DoubleValueDecimalPlaceFormatter of(int decimalPlaces, boolean isCurrencyAmount) {
-      return new DoubleValueDecimalPlaceFormatter(decimalPlaces, isCurrencyAmount);
-    }
-    
-    @Override
-    public String formatPlainString(double value) {
-      BigDecimal bd = BigDecimal.valueOf(value);
-      bd = bd.setScale(_decimalPlaces, RoundingMode.HALF_UP);
-      return bd.toPlainString();
-    }
-
-  }
-  
-  private static class DoubleValueSignificantFiguresFormatter extends DoubleValueFormatter {
-    
-    public static final DoubleValueSignificantFiguresFormatter NON_CCY_5SF = DoubleValueSignificantFiguresFormatter.of(5, false);
-    
-    private final long _maxValueForSigFig;
-    private final MathContext _sigFigMathContext;
-    
-    public DoubleValueSignificantFiguresFormatter(int significantFigures, boolean isCurrencyAmount) {
-      super(isCurrencyAmount);
-      _maxValueForSigFig = (long) Math.pow(10, significantFigures - 1);
-      _sigFigMathContext = new MathContext(significantFigures, RoundingMode.HALF_UP);
-    }
-    
-    public static DoubleValueSignificantFiguresFormatter of(int significantFigures, boolean isCurrencyAmount) {
-      return new DoubleValueSignificantFiguresFormatter(significantFigures, isCurrencyAmount);
-    }
-    
-    @Override
-    public String formatPlainString(double value) {
-      if (value > _maxValueForSigFig) {
-        return Long.toString(Math.round(value));
-      } else {
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.round(_sigFigMathContext);
-        return bd.toPlainString();
-      }
-    }
-    
-  }
 
   private static final DoubleValueFormatter DEFAULT_CONVERSION = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
-  private static final Map<String, DoubleValueFormatter> VALUE_CONVERSION_MAP = new HashMap<String, DoubleConverter.DoubleValueFormatter>();
+  private static final Map<String, DoubleValueFormatter> VALUE_CONVERSION_MAP = new HashMap<String, DoubleValueFormatter>();
 
   static {   
     // General
@@ -226,10 +105,8 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA,
-        DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA,
-        DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Traditional Risk-Reward
     addConversion(ValueRequirementNames.SHARPE_RATIO, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
