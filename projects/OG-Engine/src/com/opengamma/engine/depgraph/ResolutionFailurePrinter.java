@@ -71,11 +71,7 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor {
   }
 
   protected String toString(final ValueSpecification valueSpecification) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(valueSpecification.getValueName());
-    sb.append(toString(valueSpecification.getProperties()));
-    sb.append(" on ").append(toString(valueSpecification.getTargetSpecification()));
-    return sb.toString();
+    return valueSpecification.getValueName() + ' ' + toString(valueSpecification.getProperties()) + " on " + toString(valueSpecification.getTargetSpecification());
   }
 
   protected String toString(final ParameterizedFunction function) {
@@ -186,7 +182,7 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor {
   @Override
   protected void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
-    println("Provisional result " + toString(desiredOutput) + " not in function output after late resolution" + toString(desiredOutput));
+    println("Provisional result " + toString(desiredOutput) + " not in function output after late resolution");
   }
 
 }

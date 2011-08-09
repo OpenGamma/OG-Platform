@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+    s_logger.debug("Failed for {}", value);
     storeFailure(failure);
     boolean deferredPump;
     synchronized (this) {
@@ -47,8 +48,8 @@ import com.opengamma.engine.value.ValueRequirement;
         _deferredPump = false;
       } else {
         // If finished; do a deferred pump to complete
-        if (_pendingTasks == 0) {
-          deferredPump = _pumps.isEmpty();
+        if (_pendingTasks < 1) {
+          deferredPump = true;
         }
       }
     }
@@ -124,11 +125,9 @@ import com.opengamma.engine.value.ValueRequirement;
         if (_pumps.isEmpty()) {
           pumps = Collections.emptySet();
         } else {
-          if (_deferredPump) {
-            _deferredPump = false;
-            pumps = new ArrayList<ResolutionPump>(_pumps);
-            _pumps.clear();
-          }
+          _deferredPump = false;
+          pumps = new ArrayList<ResolutionPump>(_pumps);
+          _pumps.clear();
         }
       }
     }

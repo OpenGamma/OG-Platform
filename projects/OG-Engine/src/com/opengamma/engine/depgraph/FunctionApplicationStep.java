@@ -330,6 +330,7 @@ import com.opengamma.util.tuple.Pair;
 
         @Override
         public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+          s_logger.debug("Resolved additional requirement {} to {}", valueRequirement, resolvedValue);
           inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
           if (lock.decrementAndGet() == 0) {
             s_logger.debug("Additional requirements complete");
