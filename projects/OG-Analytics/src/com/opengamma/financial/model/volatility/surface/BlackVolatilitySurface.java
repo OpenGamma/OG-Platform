@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication.StrikeParameterisation;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
@@ -16,21 +16,21 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class BlackVolatilitySurface extends VolatilitySurface {
 
-  private final StrikeParameterisation _strikeParameterisation;
+  private final StrikeParameterization _strikeParameterisation;
 
   /**
    * @param surface The time to maturity should be the first coordinate and the strike the second 
    */
   public BlackVolatilitySurface(final Surface<Double, Double, Double> surface) {
     super(surface);
-    _strikeParameterisation = StrikeParameterisation.STRIKE;
+    _strikeParameterisation = StrikeParameterization.STRIKE;
   }
 
   /**
    * @param surface The time to maturity should be the first coordinate and the strike the second 
    * @param strikeType StrikeParameterisation defines how to interpret the strike axis
    */
-  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface, final StrikeParameterisation strikeType) {
+  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {
     super(surface);
     _strikeParameterisation = strikeType;
   }
@@ -63,7 +63,7 @@ public class BlackVolatilitySurface extends VolatilitySurface {
    * Gets the strikeParameterisation.
    * @return the strikeParameterisation
    */
-  public final StrikeParameterisation getStrikeParameterisation() {
+  public final StrikeParameterization getStrikeParameterisation() {
     return _strikeParameterisation;
   }
 }

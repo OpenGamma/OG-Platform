@@ -297,7 +297,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   public void setNotional (double notional) {
     _notional = notional;
   }
-  public boolean getParameterisedAsVariance () {
+  public boolean getParameterizedAsVariance () {
     return _parameterisedAsVariance;
   }
   public void setParameterisedAsVariance (boolean parameterisedAsVariance) {

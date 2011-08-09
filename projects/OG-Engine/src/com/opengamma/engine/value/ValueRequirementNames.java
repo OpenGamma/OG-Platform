@@ -214,6 +214,7 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   
   // Fixed income analytics
+  public static final String FORWARD = "Forward";
   public static final String PRESENT_VALUE = "Present Value";
   public static final String PV01 = "PV01";
   public static final String PAR_RATE = "Par Rate";

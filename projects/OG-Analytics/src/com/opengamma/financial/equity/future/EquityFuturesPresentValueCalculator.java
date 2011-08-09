@@ -10,7 +10,7 @@ import com.opengamma.financial.equity.EquityDerivative;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.financial.equity.future.pricing.EquityFutureMarkToMarket;
-import com.opengamma.financial.equity.varswap.derivative.VarianceSwap;
+import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 
 import org.apache.commons.lang.Validate;
 
