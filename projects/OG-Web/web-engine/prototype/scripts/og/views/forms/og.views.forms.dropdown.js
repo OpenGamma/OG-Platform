@@ -37,9 +37,9 @@ $.register_module({
                                     });
                                 }
                                 if (!options) $select.attr('disabled', 'disabled');
-                                handler($html.html());
+                                handler($.outer($select[0]));
                             }
-                        }, rest_options), $html = $('<p><select/></p>'), $select = $html.find('select');
+                        }, rest_options), $select = $('<select/>');
                         if (name) $select.attr('name', name);
                         if (classes) $select.attr('class', classes);
                         $select.attr('id', id);
@@ -52,7 +52,7 @@ $.register_module({
                                 $select.append($option);
                             });
                             if (!data.length) $select.attr('disabled', 'disabled');
-                            return handler($html.html());
+                            return handler($.outer($select[0]));
                         });
                     },
                     handlers: config.handlers || []
