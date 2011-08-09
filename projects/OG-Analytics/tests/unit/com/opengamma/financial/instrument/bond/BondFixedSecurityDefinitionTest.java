@@ -154,7 +154,7 @@ public class BondFixedSecurityDefinitionTest {
   @Test
   public void toDerivativeUST() {
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-    AnnuityPaymentFixedDefinition nominalDefinition = BOND_SECURITY_DEFINITION.getNominal();
+    AnnuityPaymentFixedDefinition nominalDefinition = (AnnuityPaymentFixedDefinition) BOND_SECURITY_DEFINITION.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION.getCoupon();
     ZonedDateTime spotDate1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR, SETTLEMENT_DAYS);
     nominalDefinition = nominalDefinition.trimBefore(spotDate1);
@@ -169,7 +169,7 @@ public class BondFixedSecurityDefinitionTest {
     double factorPeriod = DAY_COUNT.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition
         .getNthPayment(0).getAccrualEndDate(), RATE, COUPON_PER_YEAR);
     double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
-    BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, YIELD_CONVENTION, COUPON_PER_YEAR, REPO_CURVE_NAME);
+    BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, YIELD_CONVENTION, COUPON_PER_YEAR, REPO_CURVE_NAME, "");
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getAccrualFactorToNextCoupon(), bondExpected.getAccrualFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getAccruedInterest(), bondExpected.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getYieldConvention(), bondExpected.getYieldConvention());
@@ -209,7 +209,7 @@ public class BondFixedSecurityDefinitionTest {
   @Test
   public void toDerivativeUKT() {
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION_G.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-    AnnuityPaymentFixedDefinition nominalDefinition = BOND_SECURITY_DEFINITION_G.getNominal();
+    AnnuityPaymentFixedDefinition nominalDefinition = (AnnuityPaymentFixedDefinition) BOND_SECURITY_DEFINITION_G.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION_G.getCoupon();
     ZonedDateTime spotDate1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR_G, SETTLEMENT_DAYS_G);
     nominalDefinition = nominalDefinition.trimBefore(spotDate1);
@@ -225,7 +225,7 @@ public class BondFixedSecurityDefinitionTest {
     double factorPeriod = DAY_COUNT_G.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition
         .getNthPayment(0).getAccrualEndDate(), RATE_G, COUPON_PER_YEAR_G);
     double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
-    BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G, REPO_CURVE_NAME);
+    BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G, REPO_CURVE_NAME, "");
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
@@ -235,7 +235,7 @@ public class BondFixedSecurityDefinitionTest {
   public void toDerivativeUKTExCoupon() {
     final ZonedDateTime referenceDate2 = DateUtil.getUTCDate(2011, 9, 2); // Ex-dividend is 30-Aug-2011
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION_G.toDerivative(referenceDate2, CURVES_NAME);
-    AnnuityPaymentFixedDefinition nominalDefinition = BOND_SECURITY_DEFINITION_G.getNominal();
+    AnnuityPaymentFixedDefinition nominalDefinition = (AnnuityPaymentFixedDefinition) BOND_SECURITY_DEFINITION_G.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION_G.getCoupon();
     ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(referenceDate2, CALENDAR_G, SETTLEMENT_DAYS_G);
     nominalDefinition = nominalDefinition.trimBefore(spotDate);
@@ -254,7 +254,7 @@ public class BondFixedSecurityDefinitionTest {
     double factorPeriod = DAY_COUNT_G.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition
         .getNthPayment(0).getAccrualEndDate(), RATE_G, COUPON_PER_YEAR_G);
     double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
-    BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G, REPO_CURVE_NAME);
+    BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G, REPO_CURVE_NAME, "");
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());

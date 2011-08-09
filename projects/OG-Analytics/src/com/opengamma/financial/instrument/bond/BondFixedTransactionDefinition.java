@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -19,7 +20,7 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 /**
  * Describes a transaction on a fixed coupon bond issue.
  */
-public class BondFixedTransactionDefinition extends BondTransactionDefinition<CouponFixedDefinition> {
+public class BondFixedTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponFixedDefinition> {
 
   /**
    * Accrued interest at settlement date.

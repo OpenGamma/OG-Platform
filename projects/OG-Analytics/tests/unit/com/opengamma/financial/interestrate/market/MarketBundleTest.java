@@ -1,6 +1,13 @@
-package com.opengamma.financial.interestrate;
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.interestrate.market;
 
 import static org.testng.AssertJUnit.assertEquals;
+
+import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
@@ -33,7 +40,8 @@ public class MarketBundleTest {
   private static final IborIndex EURIBOR_6M = new Euribor6M(CALENDAR_EUR);
   private static final IborIndex USDLIBOR_3M = new UsdLibor3M(CALENDAR_USD);
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
-  private static final PriceIndex PRICE_INDEX_EUR = new PriceIndex(NAME_EUR_PRICE_INDEX, Currency.EUR, Currency.EUR);
+  private static final Period LAG = Period.ofDays(14);
+  private static final PriceIndex PRICE_INDEX_EUR = new PriceIndex(NAME_EUR_PRICE_INDEX, Currency.EUR, Currency.EUR, LAG);
   private static double[] INDEX_VALUE = new double[] {108.23, 108.64, 111.0, 119.0, 129.0, 149.0};
   private static double[] TIME_VALUE = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(TIME_VALUE, INDEX_VALUE, new LinearInterpolator1D());

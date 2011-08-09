@@ -18,9 +18,10 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponFirstOfMonthDefinition;
-import com.opengamma.financial.interestrate.MarketBundle;
-import com.opengamma.financial.interestrate.MarketDataSets;
+import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponFirstOfMonth;
+import com.opengamma.financial.interestrate.market.MarketBundle;
+import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
@@ -42,21 +43,47 @@ public class CouponInflationZeroCouponFirstOfMonthDiscountingMethodTest {
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
   private static final double INDEX_1MAY_2008 = 108.23; // 3 m before Aug: May / 1 May index = May index: 108.23
-  private static final CouponInflationZeroCouponFirstOfMonthDefinition ZERO_COUPON_1_DEFINITION = CouponInflationZeroCouponFirstOfMonthDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL,
-      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG);
   private static final ZonedDateTime PRICING_DATE = DateUtil.getUTCDate(2011, 8, 3);
-  private static final CouponInflationZeroCouponFirstOfMonth ZERO_COUPON_1 = ZERO_COUPON_1_DEFINITION.toDerivative(PRICING_DATE, "not used");
+  private static final CouponInflationZeroCouponFirstOfMonthDefinition ZERO_COUPON_NO_DEFINITION = CouponInflationZeroCouponFirstOfMonthDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL,
+      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, false);
+  private static final CouponInflationZeroCouponFirstOfMonth ZERO_COUPON_NO = ZERO_COUPON_NO_DEFINITION.toDerivative(PRICING_DATE, "not used");
+  private static final CouponInflationZeroCouponFirstOfMonthDefinition ZERO_COUPON_WITH_DEFINITION = CouponInflationZeroCouponFirstOfMonthDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL,
+      PRICE_INDEX_EUR, INDEX_1MAY_2008, MONTH_LAG, true);
+  private static final CouponInflationZeroCouponFirstOfMonth ZERO_COUPON_WITH = ZERO_COUPON_WITH_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponFirstOfMonthDiscountingMethod METHOD = new CouponInflationZeroCouponFirstOfMonthDiscountingMethod();
+  private static final PresentValueInflationCalculator PVC = PresentValueInflationCalculator.getInstance();
 
   @Test
   /**
    * Tests the present value.
    */
-  public void presentValueFirstOfmonth() {
-    CurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_1, MARKET);
-    double df = MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getDiscountFactor(ZERO_COUPON_1.getPaymentTime());
-    double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime());
+  public void presentValueNoNotional() {
+    CurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_NO, MARKET);
+    double df = MARKET.getCurve(ZERO_COUPON_NO.getCurrency()).getDiscountFactor(ZERO_COUPON_NO.getPaymentTime());
+    double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_NO.getReferenceEndTime());
     double pvExpected = (finalIndex / INDEX_1MAY_2008 - 1) * df * NOTIONAL;
+    assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the present value: Method vs Calculator.
+   */
+  public void presentValueMethodVsCalculator() {
+    CurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_NO, MARKET);
+    CurrencyAmount pvCalculator = PVC.visit(ZERO_COUPON_NO, MARKET);
+    assertEquals("Zero-coupon inflation: Present value", pvMethod, pvCalculator);
+  }
+
+  @Test
+  /**
+   * Tests the present value.
+   */
+  public void presentValueWithNotional() {
+    CurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_WITH, MARKET);
+    double df = MARKET.getCurve(ZERO_COUPON_WITH.getCurrency()).getDiscountFactor(ZERO_COUPON_WITH.getPaymentTime());
+    double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
+    double pvExpected = (finalIndex / INDEX_1MAY_2008) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(), 1.0E-2);
   }
 

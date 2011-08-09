@@ -9,6 +9,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -138,6 +139,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, S data);
 
+  T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, S data);
+
   // One argument
 
   T visit(InterestRateDerivative derivative);
@@ -223,6 +226,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon);
 
   T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon);
+
+  T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   //TODO cap / floor CMS spread
 }

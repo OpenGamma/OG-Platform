@@ -87,7 +87,7 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void presentValueFixedMiddle() {
-    final AnnuityPaymentFixed nominal = BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_1);
     final double pvNominal = PVC.visit(nominal, CURVES);
@@ -98,7 +98,7 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void presentValueFixedOnCoupon() {
-    final AnnuityPaymentFixed nominal = BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_FIXED_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     AnnuityCouponFixed coupon = BOND_FIXED_SECURITY_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_2, CURVES_NAME);
     coupon = coupon.trimBefore(REFERENCE_TIME_2);
     final double pvNominal = PVC.visit(nominal, CURVES);

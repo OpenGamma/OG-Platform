@@ -45,6 +45,10 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
    * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
    */
   private final double _fixingEndTime;
+  /**
+   * Flag indicating if the notional is paid (true) or not (false).
+   */
+  private final boolean _payNotional;
 
   /**
    * Inflation zero-coupon constructor.
@@ -56,11 +60,12 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
    * @param priceIndex The price index associated to the coupon.
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
-   * @param weight TODO
+   * @param weight The weight on the first month index in the interpolation.
    * @param fixingEndTime The time on which the end index is expected to be known.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationZeroCouponInterpolation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
-      double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime) {
+      double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     this._priceIndex = priceIndex;
@@ -68,6 +73,7 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
     this._referenceEndTime = referenceEndTime;
     this._fixingEndTime = fixingEndTime;
     _weight = weight;
+    _payNotional = payNotional;
   }
 
   /**
@@ -108,6 +114,14 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
    */
   public double getWeight() {
     return _weight;
+  }
+
+  /**
+   * Gets the pay notional flag.
+   * @return The flag.
+   */
+  public boolean payNotional() {
+    return _payNotional;
   }
 
   @Override

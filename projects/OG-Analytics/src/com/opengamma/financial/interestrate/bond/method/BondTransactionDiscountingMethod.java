@@ -14,6 +14,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
@@ -57,7 +58,7 @@ public final class BondTransactionDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public double presentValue(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves) {
+  public double presentValue(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final YieldCurveBundle curves) {
     final double pvNominal = PVC.visit(bond.getBondTransaction().getNominal(), curves);
     final double pvCoupon = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
     final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
@@ -73,7 +74,7 @@ public final class BondTransactionDiscountingMethod {
    * @param cleanPrice The bond clean price.
    * @return The present value.
    */
-  public double presentValueFromCleanPrice(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves, final double cleanPrice) {
+  public double presentValueFromCleanPrice(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final YieldCurveBundle curves, final double cleanPrice) {
     Validate.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
     final BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
     final double dfSettle = curves.getCurve(bondFixed.getBondStandard().getRepoCurveName()).getDiscountFactor(bondFixed.getBondTransaction().getSettlementTime());
@@ -93,7 +94,7 @@ public final class BondTransactionDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value sensitivity.
    */
-  public PresentValueSensitivity presentValueSensitivity(final BondTransaction<? extends BondSecurity<? extends Payment>> bond, final YieldCurveBundle curves) {
+  public PresentValueSensitivity presentValueSensitivity(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final YieldCurveBundle curves) {
     final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getNominal(), curves));
     final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getCoupon(), curves));
     final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()

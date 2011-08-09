@@ -6,6 +6,7 @@
 package com.opengamma.financial.instrument;
 
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
@@ -181,4 +182,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data);
 
   U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon);
+
+  U visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, T data);
+
+  U visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond);
+
 }

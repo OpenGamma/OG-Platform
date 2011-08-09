@@ -33,7 +33,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Describes a fixed coupon bond issue.
  */
-public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFixedDefinition> {
+public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponFixedDefinition> {
 
   /**
    * The default notional for the security.
@@ -55,6 +55,10 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
    * Flag indicating if the bond uses the end-of-month convention.
    */
   private final boolean _isEOM;
+  /**
+   * The coupon day count convention.
+   */
+  private final DayCount _dayCount;
 
   /**
    * Fixed coupon bond constructor from all the bond details.
@@ -69,11 +73,12 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
    */
   public BondFixedSecurityDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponFixedDefinition coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount,
       YieldConvention yieldConvention, boolean isEOM) {
-    super(nominal, coupon, exCouponDays, settlementDays, calendar, dayCount);
+    super(nominal, coupon, exCouponDays, settlementDays, calendar);
     Validate.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
     _couponPerYear = (int) Math.round(1.0 / coupon.getNthPayment(0).getPaymentYearFraction());
     _isEOM = isEOM;
+    _dayCount = dayCount;
   }
 
   /**
@@ -91,11 +96,12 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
    */
   public BondFixedSecurityDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponFixedDefinition coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount,
       YieldConvention yieldConvention, boolean isEOM, final String issuer, final String repoType) {
-    super(nominal, coupon, exCouponDays, settlementDays, calendar, dayCount, issuer, repoType);
+    super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, repoType);
     Validate.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
     _couponPerYear = (int) Math.round(1.0 / coupon.getNthPayment(0).getPaymentYearFraction());
     _isEOM = isEOM;
+    _dayCount = dayCount;
   }
 
   /**
@@ -282,6 +288,14 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     return _isEOM;
   }
 
+  /**
+   * Gets the coupon day count.
+   * @return The day count.
+   */
+  public DayCount getDayCount() {
+    return _dayCount;
+  }
+
   @Override
   public AnnuityCouponFixedDefinition getCoupon() {
     return (AnnuityCouponFixedDefinition) super.getCoupon();
@@ -309,7 +323,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     } else {
       spotTime = actAct.getDayCountFraction(date, spot);
     }
-    final AnnuityPaymentFixed nominal = getNominal().toDerivative(date, creditCurveName);
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
     AnnuityCouponFixedDefinition couponDefinition = getCoupon();
     couponDefinition = getCoupon().trimBefore(spot);
     CouponFixedDefinition[] couponExPeriodArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
@@ -330,7 +344,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<CouponFi
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factor = (factorPeriod - factorSpot) / factorPeriod;
-    final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, spotTime, accruedInterestAtSpot, factor, getYieldConvention(), _couponPerYear, riskFreeCurveName);
+    final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, spotTime, accruedInterestAtSpot, factor, getYieldConvention(), _couponPerYear, riskFreeCurveName, "");
     return bondStandard;
 
   }

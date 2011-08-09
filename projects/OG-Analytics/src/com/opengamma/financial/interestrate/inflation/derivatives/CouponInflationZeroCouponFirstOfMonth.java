@@ -39,6 +39,10 @@ public class CouponInflationZeroCouponFirstOfMonth extends Coupon {
    * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
    */
   private final double _fixingEndTime;
+  /**
+   * Flag indicating if the notional is paid (true) or not (false).
+   */
+  private final boolean _payNotional;
 
   /**
    * Inflation zero-coupon constructor.
@@ -51,15 +55,17 @@ public class CouponInflationZeroCouponFirstOfMonth extends Coupon {
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param fixingEndTime The time on which the end index is expected to be known.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationZeroCouponFirstOfMonth(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
-      double indexStartValue, double referenceEndTime, double fixingEndTime) {
+      double indexStartValue, double referenceEndTime, double fixingEndTime, boolean payNotional) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     this._priceIndex = priceIndex;
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     this._fixingEndTime = fixingEndTime;
+    _payNotional = payNotional;
   }
 
   /**
@@ -94,6 +100,14 @@ public class CouponInflationZeroCouponFirstOfMonth extends Coupon {
     return _fixingEndTime;
   }
 
+  /**
+   * Gets the pay notional flag.
+   * @return The flag.
+   */
+  public boolean payNotional() {
+    return _payNotional;
+  }
+
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponInflationZeroCouponFirstOfMonth(this, data);
@@ -118,7 +132,8 @@ public class CouponInflationZeroCouponFirstOfMonth extends Coupon {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _priceIndex.hashCode();
+    result = prime * result + (_payNotional ? 1231 : 1237);
+    result = prime * result + ((_priceIndex == null) ? 0 : _priceIndex.hashCode());
     temp = Double.doubleToLongBits(_referenceEndTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -140,6 +155,9 @@ public class CouponInflationZeroCouponFirstOfMonth extends Coupon {
       return false;
     }
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
+      return false;
+    }
+    if (_payNotional != other._payNotional) {
       return false;
     }
     if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {

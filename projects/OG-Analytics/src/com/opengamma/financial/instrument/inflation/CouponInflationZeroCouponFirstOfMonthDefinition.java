@@ -10,8 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
 import com.opengamma.financial.instrument.index.PriceIndex;
@@ -21,6 +19,7 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -51,6 +50,10 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
    * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
    */
   private final ZonedDateTime _fixingEndDate;
+  /**
+   * Flag indicating if the notional is paid (true) or not (false).
+   */
+  private final boolean _payNotional;
 
   /**
    * Constructor for zero-coupon inflation coupon.
@@ -65,9 +68,10 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndDate The reference date for the index at the coupon end.
    * @param fixingEndDate The date on which the end index is expected to be known.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
   public CouponInflationZeroCouponFirstOfMonthDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction,
-      double notional, PriceIndex priceIndex, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate) {
+      double notional, PriceIndex priceIndex, ZonedDateTime referenceStartDate, double indexStartValue, ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate, boolean payNotional) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     Validate.notNull(referenceStartDate, "Reference start date");
@@ -78,11 +82,12 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
     this._indexStartValue = indexStartValue;
     this._referenceEndDate = referenceEndDate;
     this._fixingEndDate = fixingEndDate;
+    _payNotional = payNotional;
   }
 
   /**
    * Builder for inflation zero-coupon. 
-   * The accrualStartDate is used for the referenceStartDate. The paymentDate is used for accrualEndDate. The paymentYearFraction is 1.0.
+   * The accrualStartDate is used for the referenceStartDate. The paymentDate is used for accrualEndDate. The paymentYearFraction is 1.0. The notional is not paid in the coupon.
    * @param accrualStartDate Start date of the accrual period.
    * @param paymentDate The payment date.
    * @param notional Coupon notional.
@@ -96,29 +101,29 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
       ZonedDateTime referenceEndDate, ZonedDateTime fixingEndDate) {
     Validate.notNull(priceIndex, "Price index");
     return new CouponInflationZeroCouponFirstOfMonthDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, accrualStartDate, indexStartValue,
-        referenceEndDate, fixingEndDate);
+        referenceEndDate, fixingEndDate, false);
   }
 
   /**
-   * Builder for inflation zero-coupon based on an inflation lag and a mid month publication. The fixing date is two weeks after the start of the last reference month.
+   * Builder for inflation zero-coupon based on an inflation lag and index publication. The fixing date is the publication lag after the last reference month.
    * @param accrualStartDate Start date of the accrual period.
    * @param paymentDate The payment date.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon. 
    * @param indexStartValue The index value at the start of the coupon.
    * @param monthLag The lag in month between the index validity and the coupon dates.
+   * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
   public static CouponInflationZeroCouponFirstOfMonthDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final PriceIndex priceIndex,
-      final double indexStartValue, final int monthLag) {
-    int nbWeekPublication = 2; // Two weeks in the month after the reference month.
+      final double indexStartValue, final int monthLag, boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);
     referenceEndDate = referenceEndDate.withDayOfMonth(1);
-    ZonedDateTime fixingDate = referenceEndDate.minusDays(1).withDayOfMonth(1).plusMonths(2).plusWeeks(nbWeekPublication);
+    ZonedDateTime fixingDate = referenceEndDate.minusDays(1).withDayOfMonth(1).plusMonths(2).plus(priceIndex.getPublicationLag());
     return new CouponInflationZeroCouponFirstOfMonthDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, referenceStartDate, indexStartValue,
-        referenceEndDate, fixingDate);
+        referenceEndDate, fixingDate, payNotional);
   }
 
   /**
@@ -161,6 +166,14 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
     return _fixingEndDate;
   }
 
+  /**
+   * Gets the pay notional flag.
+   * @return The flag.
+   */
+  public boolean payNotional() {
+    return _payNotional;
+  }
+
   @Override
   public CouponInflationZeroCouponFirstOfMonth toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
@@ -168,23 +181,22 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
-    double referenceEndTime = actAct.getDayCountFraction(date, getReferenceEndDate());
-    double fixingTime = actAct.getDayCountFraction(date, getFixingEndDate());
+    double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
+    double fixingTime = TimeCalculator.getTimeBetween(date, getFixingEndDate());
     final String discountingCurveName = yieldCurveNames[0];
     return new CouponInflationZeroCouponFirstOfMonth(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), _priceIndex, _indexStartValue, referenceEndTime,
-        fixingTime);
+        fixingTime, _payNotional);
   }
 
   @Override
   public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final String discountingCurveName = yieldCurveNames[0];
     boolean fixingKnown = false;
     double rate = 0.0;
@@ -193,7 +205,7 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
       Double knownIndex = priceIndexTimeSeries.getValue(requiredIndexDate);
       if (knownIndex != null) { // Fixing known
         fixingKnown = true;
-        rate = knownIndex / _indexStartValue - 1.0;
+        rate = knownIndex / _indexStartValue - (_payNotional ? 0.0 : 1.0);
       }
     }
     if (fixingKnown) {
@@ -201,16 +213,12 @@ public class CouponInflationZeroCouponFirstOfMonthDefinition extends CouponDefin
     }
     double fixingTime = 0; // The reference index is expected to be known but is not known yet.
     if (_fixingEndDate.isAfter(date)) {
-      fixingTime = actAct.getDayCountFraction(date, _fixingEndDate);
+      fixingTime = TimeCalculator.getTimeBetween(date, _fixingEndDate);
     }
     double referenceEndTime = 0.0;
-    if (_referenceEndDate.isAfter(date)) {
-      referenceEndTime = actAct.getDayCountFraction(date, _referenceEndDate);
-    } else {
-      referenceEndTime = -actAct.getDayCountFraction(_referenceEndDate, date);
-    }
+    referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
     return new CouponInflationZeroCouponFirstOfMonth(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), _priceIndex, _indexStartValue, referenceEndTime,
-        fixingTime);
+        fixingTime, _payNotional);
   }
 
   @Override

@@ -8,8 +8,8 @@ package com.opengamma.financial.interestrate.inflation.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.MarketBundle;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponFirstOfMonth;
+import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -29,14 +29,17 @@ public class CouponInflationZeroCouponFirstOfMonthDiscountingMethod implements P
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
     double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    double pv = (estimatedIndex / coupon.getIndexStartValue() - 1) * discountFactor * coupon.getNotional();
+    double pv = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return CurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
   @Override
   public CurrencyAmount presentValue(InterestRateDerivative instrument, MarketBundle market) {
-    Validate.isTrue(instrument instanceof CouponInflationZeroCouponFirstOfMonth, "Zer-coupon inflation with start of month reference date.");
+    Validate.isTrue(instrument instanceof CouponInflationZeroCouponFirstOfMonth, "Zero-coupon inflation with start of month reference date.");
     return presentValue((CouponInflationZeroCouponFirstOfMonth) instrument, market);
   }
+
+  // TODO: discounting curve sensitivity
+  // TODO: price index curve sensitivity
 
 }

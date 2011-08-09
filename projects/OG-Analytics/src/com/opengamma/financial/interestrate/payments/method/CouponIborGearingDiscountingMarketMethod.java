@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.payments.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.MarketBundle;
+import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.util.money.CurrencyAmount;

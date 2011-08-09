@@ -6,7 +6,7 @@
 package com.opengamma.financial.interestrate.method;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.MarketBundle;
+import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

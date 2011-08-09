@@ -31,7 +31,8 @@ public class CouponInflationZeroCouponInterpolationTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
-  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION);
+  private static final Period LAG = Period.ofDays(14);
+  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2008, 8, 18);
@@ -58,11 +59,11 @@ public class CouponInflationZeroCouponInterpolationTest {
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   private static final double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getMonthOfYear().getLastDayOfMonth(PAYMENT_DATE.isLeapYear());
   private static final CouponInflationZeroCouponInterpolation ZERO_COUPON = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
-      INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME);
+      INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME);
+    new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME, false);
   }
 
   @Test
@@ -83,18 +84,18 @@ public class CouponInflationZeroCouponInterpolationTest {
   public void equalHash() {
     assertEquals(ZERO_COUPON, ZERO_COUPON);
     CouponInflationZeroCouponInterpolation couponDuplicate = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
-        REFERENCE_END_TIME, WEIGHT, FIXING_TIME);
+        REFERENCE_END_TIME, WEIGHT, FIXING_TIME, false);
     assertEquals(ZERO_COUPON, couponDuplicate);
     assertEquals(ZERO_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationZeroCouponInterpolation modified;
-    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, WEIGHT, FIXING_TIME);
+    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, WEIGHT, FIXING_TIME, false);
     assertFalse(ZERO_COUPON.equals(modified));
     double[] modifiedReferenceTime = new double[2];
     modifiedReferenceTime[0] = REFERENCE_END_TIME[0];
     modifiedReferenceTime[1] = REFERENCE_END_TIME[1] + 0.1;
-    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, modifiedReferenceTime, WEIGHT, FIXING_TIME);
+    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, modifiedReferenceTime, WEIGHT, FIXING_TIME, false);
     assertFalse(ZERO_COUPON.equals(modified));
-    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME + 0.1);
+    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME + 0.1, false);
     assertFalse(ZERO_COUPON.equals(modified));
   }
 

@@ -11,6 +11,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -456,22 +457,32 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
 
   @Override
   public T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborFixed()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponFirstOfMonth()");
   }
 
   @Override
   public T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborFixed()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponFirstOfMonth()");
   }
 
   @Override
   public T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborFixed()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolation()");
   }
 
   @Override
   public T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborFixed()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolation()");
+  }
+
+  @Override
+  public T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedSecurity()");
+  }
+
+  @Override
+  public T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedSecurity()");
   }
 
 }
