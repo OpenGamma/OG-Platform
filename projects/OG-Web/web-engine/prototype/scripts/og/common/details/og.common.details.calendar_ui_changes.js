@@ -16,19 +16,21 @@ $.register_module({
                 return '<select>' + html.join('') + '</select>';
             },
             update_pagination = function () {
-                var year = parseFloat($('.ui-datepicker-year').html());
+                var year = +$('.ui-datepicker-year').html();
                 $('.OG-holiday .og-js-prev').html(year - 1);
                 $('.OG-holiday .og-js-next').html(year + 1);
                 $('.OG-holiday .og-js-pagination select').val(year);
             };
         return calendar_ui_changes = function (dates) {
-            var year = $('.ui-datepicker-year').html(),
-                $prev = $('.ui-datepicker-prev').html(+year - 1).addClass('og-js-prev'),
-                $next = $('.ui-datepicker-next').html(+year + 1).addClass('og-js-next'),
-                onclick = $('.ui-datepicker-next').attr('onclick'), val = $(this).val(),
-                diff = val < year ? year - val : val - year, months = diff * 12;
+            var year = +$('.ui-datepicker-year').html(),
+                $prev = $('.ui-datepicker-prev').html(year - 1).addClass('og-js-prev'),
+                $next = $('.ui-datepicker-next').html(year + 1).addClass('og-js-next');
             $('.OG-holiday .og-js-pagination').css('display', 'inline').append($prev).append(build_selector(dates))
-                .append($next).find('select').change(onclick).css('display', 'inline');
+                .append($next).find('select').css('display', 'inline').change(function (e) {
+                    var year = +$('.ui-datepicker-year').html(), val = +$(this).val();
+                    (new Function($next.attr('onclick').replace('+12', (val - year) * 12)))();
+                    update_pagination();
+                });
             $('.OG-holiday .og-js-pagination select').val(year);
             $('.og-js-pagination a').click(update_pagination);
         };

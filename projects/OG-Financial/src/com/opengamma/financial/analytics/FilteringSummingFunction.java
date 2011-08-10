@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionAccumulator;
@@ -137,7 +136,8 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
     */
     
     if (requirements.size() == 0) {
-      throw new OpenGammaRuntimeException("Nothing to aggregate");
+      // Nothing to aggregate
+      return null;
     }
     
     return requirements;
@@ -156,6 +156,10 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
     // Just ensure mutual compatibility across aggregation properties
     ValueProperties resultProperties = inputs.isEmpty() ? getResultProperties() : getResultProperties(inputs.keySet());
+    if (resultProperties == null) {
+      // Propagate failure from getResultProperties
+      return null;
+    }
     ValueSpecification resultSpec = getResultSpec(target, resultProperties);
     return Collections.singleton(resultSpec);
   }

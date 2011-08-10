@@ -34,7 +34,11 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public abstract class ValueProperties implements Serializable, Comparable<ValueProperties> {
 
-  // -------------------------------------------------------------------------
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Builder pattern for constructing {@link ValueProperties} objects.
    */
@@ -216,11 +220,15 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
-  // -------------------------------------------------------------------------
   /**
    * A value properties implementation holding a set of properties.
    */
   public static final class ValuePropertiesImpl extends ValueProperties {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     /**
      * The properties.
      */
@@ -264,7 +272,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public boolean isSatisfiedBy(final ValueProperties properties) {
       assert properties != null;
-    nextProperty:
+      nextProperty: // CSIGNORE [DVI-122]
       for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
@@ -339,7 +347,8 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       final Map<String, Set<String>> composed = new HashMap<String, Set<String>>();
       Set<String> optional = null;
       int otherAvailable = 0;
-      nextProperty: for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
+      nextProperty: // CSIGNORE [DVI-122]
+      for (Map.Entry<String, Set<String>> property : _properties.entrySet()) {
         final Set<String> available = properties.getValues(property.getKey());
         if (available == null) {
           // Other is not defined, so use current value
@@ -457,7 +466,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         boolean firstValue = true;
         for (String value : property.getValue()) {
           if (firstValue) {
-            firstValue = false; 
+            firstValue = false;
           } else {
             sb.append(",");
           }
@@ -475,7 +484,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       return sb.toString();
     }
-    
+
     @Override
     public String toSimpleString() {
       return toString(_properties, _optional, false);
@@ -486,11 +495,11 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       return toString(_properties, _optional, true);
     }
   }
-  
+
   private static String escape(Pattern p, String s) {
     return p.matcher(s).replaceAll("\\\\$0");
   }
-  
+
   /**
    * Parses value property strings of the forms:
    * <ul>
@@ -518,7 +527,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public static ValueProperties parse(String s) {
     // REVIEW jonathan 2011-05-11 -- this is bordering on being complex enough to write a grammar and auto-generate the
     // lexer, but it works and ValueProperties is unlikely to change.
-    
+    // REVIEW andrew 2011-08-08 -- even as a big fan of crazy-mad home brew state machines I'd use an auto-generated lexer
     if (StringUtils.isBlank(s) || EMPTY.toString().equals(s)) {
       return EMPTY;
     }
@@ -536,12 +545,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     } else {
       builder = builder();
     }
-    
+
     if (s.charAt(0) == '{' && s.charAt(s.length() - 1) == '}') {
       // Strip away any curly brace wrappers
       s = s.substring(1, s.length() - 1);
     }
-    
+
     int pos = 0;
     boolean isOptional = false;
     StringBuilder substring = new StringBuilder();
@@ -551,7 +560,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     boolean inValue = false;
     while (pos <= s.length()) {
       char next = pos < s.length() ? s.charAt(pos) : 0;
-      if (next == '\\') {  // Begin escape sequence
+      if (next == '\\') { // Begin escape sequence
         pos++;
         if (pos < s.length()) {
           char escapedCharacter = s.charAt(pos);
@@ -565,7 +574,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         } else {
           throw new IllegalArgumentException("Unexpected end of ValueProperties string: " + s);
         }
-      } else if (next == '=') {  // Separator between name and values
+      } else if (next == '=') { // Separator between name and values
         if (inValue) {
           throw new IllegalArgumentException("Unexpected '=' at position " + pos);
         }
@@ -576,13 +585,13 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
           bracketedValue = true;
           pos++;
         }
-      } else if (next == ']') {  // End of values
+      } else if (next == ']') { // End of values
         inValue = false;
         if (s.length() > pos + 1 && s.charAt(pos + 1) == '?') {
           isOptional = true;
           pos++;
         }
-      } else if (next == ',' || next == 0) {  // Separator between values in a group or between properties
+      } else if (next == ',' || next == 0) { // Separator between values in a group or between properties
         if (substring.length() > 0) {
           if (name == null) {
             name = substring.toString();
@@ -619,24 +628,28 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
       pos++;
     }
-    
+
     if (name != null || substring.length() > 0) {
       throw new IllegalArgumentException("Unexpected end of ValueProperties string: " + s);
     }
-    
+
     return nearlyInfinite ? nearlyInfiniteResult : builder.get();
   }
 
-  // -------------------------------------------------------------------------
   /**
    * A value properties implementation representing a nearly infinite property set.
    */
   public static final class NearlyInfinitePropertiesImpl extends ValueProperties {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     /**
      * The set of properties not included.
      */
     private final Set<String> _without;
-    
+
     /**
      * Gets the properties not included
      * @return the properties not included
@@ -743,7 +756,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     public String toSimpleString() {
       return toString();
     }
-    
+
     @Override
     public boolean equals(final Object o) {
       if (o == this) {
@@ -778,7 +791,6 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
   }
 
-  // -------------------------------------------------------------------------
   /**
    * The infinite property set.
    */
@@ -790,11 +802,16 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public static final class InfinitePropertiesImpl extends ValueProperties {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * Creates an instance.
      */
     private InfinitePropertiesImpl() {
     }
-    
+
     @Override
     public ValueProperties compose(final ValueProperties properties) {
       // Composition yields the infinite set
@@ -866,7 +883,6 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
   }
 
-  // -------------------------------------------------------------------------
   /**
    * The empty set.
    */
@@ -876,6 +892,11 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * A value properties implementation representing an empty property set.
    */
   private static final class EmptyPropertiesImpl extends ValueProperties {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
     @Override
     public ValueProperties compose(ValueProperties properties) {
@@ -935,7 +956,6 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
   }
 
-  // -------------------------------------------------------------------------
   /**
    * Returns the empty property set, typically indicating no value constraints.
    * 
@@ -957,7 +977,6 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     return INFINITE;
   }
 
-  // -------------------------------------------------------------------------
   /**
    * Creates a builder for constructing value properties.
    * <p>
@@ -1110,7 +1129,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   public ValueProperties withoutAny(final String propertyName) {
     return copy().withoutAny(propertyName).get();
   }
-  
+
   /**
    * Returns a simple string representation of the {@link ValueProperties} instance. This simple representation omits
    * unnecessary brackets for better readability. The output remains valid as the input to {@link #parse(String)}.
@@ -1119,7 +1138,6 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    */
   public abstract String toSimpleString();
 
-  // -------------------------------------------------------------------------
   /**
    * Compares two sets.
    * 

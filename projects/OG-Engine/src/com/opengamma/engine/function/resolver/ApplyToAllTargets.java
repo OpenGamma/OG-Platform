@@ -5,12 +5,12 @@
  */
 package com.opengamma.engine.function.resolver;
 
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.ComputationTarget;
 
 /**
  * Computation target filter that applies to all nodes in the dependency graph.
  */
-public final class ApplyToAllTargets implements ComputationTargetFilter {
+public final class ApplyToAllTargets extends ComputationTargetFilter {
 
   /**
    * Standard instance, singleton not enforced.
@@ -26,7 +26,7 @@ public final class ApplyToAllTargets implements ComputationTargetFilter {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean accept(DependencyNode node) {
+  public boolean accept(ComputationTarget target) {
     return true;
   }
 

@@ -67,7 +67,7 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION;
+    return (target.getType() == ComputationTargetType.POSITION) && !target.getPosition().getTrades().isEmpty();
   }
 
   @Override
@@ -75,6 +75,7 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
     final Position position = target.getPosition();
     final Set<Trade> trades = position.getTrades();
     if (trades.isEmpty()) {
+      // Shouldn't happen; canApplyTo will reject it
       throw new OpenGammaRuntimeException("Position has no trades");
     }
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();

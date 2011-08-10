@@ -5,14 +5,20 @@
  */
 package com.opengamma.engine.function.resolver;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 
 /**
- * Strategy for filtering computation targets as dependency nodes.
- * <p>
- * This interface is used to decide whether a specific node should be
- * included in the sub-graph.
+ * 
  */
-public interface ComputationTargetFilter extends DependencyNodeFilter {
+public abstract class ComputationTargetFilter implements DependencyNodeFilter {
+
+  @Override
+  public boolean accept(DependencyNode node) {
+    return accept(node.getComputationTarget());
+  }
+
+  public abstract boolean accept(ComputationTarget target);
 
 }

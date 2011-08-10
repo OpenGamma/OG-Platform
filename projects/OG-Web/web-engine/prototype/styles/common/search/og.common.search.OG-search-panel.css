@@ -5,7 +5,7 @@
 * @license See distribution for license
 */
 
-.OG-js-search-panel .OG-message {
-  bottom: 7px;
-  right: 7px;
+.OG-search .OG-message {
+  bottom: 6px;
+  right: 1px;
 }
