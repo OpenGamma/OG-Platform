@@ -11,7 +11,8 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
-<div class="ui-layout-container">
+<div class="OG-js-loading" style="padding: 10px">Loading...</div>
+<div class="ui-layout-container" style="display: none">
   <div class="ui-layout-center">
     <div class="ui-layout-inner-center">
       <div class="ui-layout-header">&nbsp;</div>
