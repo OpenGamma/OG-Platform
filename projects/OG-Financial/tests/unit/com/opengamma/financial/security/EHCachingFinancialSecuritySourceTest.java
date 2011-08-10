@@ -215,7 +215,8 @@ public class EHCachingFinancialSecuritySourceTest {
       assertEquals(0, sec2Element.getHitCount());
     }
     
-    _cachingSecuritySource.refresh(secKey);
+    _cachingSecuritySource.refresh(_security1.getUniqueId());
+    _cachingSecuritySource.refresh(_security2.getUniqueId());
     assertEquals(0, singleSecCache.getSize());
     sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
     sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());

@@ -225,10 +225,10 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /**
    * Refreshes the value for the specified security key.
    * 
-   * @param securityKey  the security key, not null
+   * @param securityId  the security identifier, not null
    */
-  public void refresh(Object securityKey) {
-    _uidCache.remove(securityKey);
+  public void refresh(UniqueId securityId) {
+    _uidCache.remove(securityId);
   }
   
   //-------------------------------------------------------------------------
