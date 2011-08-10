@@ -17,15 +17,24 @@ $.register_module({
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler;
             og.dev.log('json!', json);
             api.text({module: module.name, handler: function (template, error) {
+                var header, content;
+                header = '\
+                    <header class="OG-header-generic">\
+                      <div class="OG-toolbar"></div>\
+                      <h1 class="og-js-name">' + json.name + '</h1>\
+                    </header>\
+                ';
+                $('.ui-layout-inner-center .ui-layout-header').html(header);
                 json.config_data = is_new ? '' :
                     json.configJSON ? JSON.stringify(json.configJSON, null, 4)
                         : json.configXML ? json.configXML : '';
-                $.tmpl(template, json).appendTo($(selector).empty());
+                content = $.outer($.tmpl(template, json)[0]);
+                $(selector).html(content);
                 if (deleted || is_new)
                     $(selector + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                 if (is_new) $(selector + ' .og-js-submit[value=save_as_new]').html('Save');
                 $(selector + ' [name=name]').bind('keyup', function (e) {
-                    $(selector + ' .og-js-name').text($(e.target).val());
+                    $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                 });
                 $(selector + ' .og-js-submit').click(function (e) {submit_type = $(e.target).val();});
                 $(selector + ' form').bind('submit', function (e) {

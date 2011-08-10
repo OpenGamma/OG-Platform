@@ -19,8 +19,8 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -470,6 +470,11 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   @Override
   public UniqueId getUniqueId() {
     return _uniqueIdentifier;
+  }
+
+  @Override
+  public String toString() {
+    return "ViewDefinition[" + getName() + "]";
   }
 
 }

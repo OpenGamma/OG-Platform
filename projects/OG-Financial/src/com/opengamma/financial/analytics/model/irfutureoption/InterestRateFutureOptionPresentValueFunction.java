@@ -25,8 +25,8 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
 public class InterestRateFutureOptionPresentValueFunction extends InterestRateFutureOptionFunction {
   private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 
-  public InterestRateFutureOptionPresentValueFunction(final String surfaceName) {
-    super(surfaceName, ValueRequirementNames.PRESENT_VALUE);
+  public InterestRateFutureOptionPresentValueFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
+    super(forwardCurveName, fundingCurveName, surfaceName, ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override

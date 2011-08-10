@@ -14,9 +14,9 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.common.layout.resize',
         'og.views.common.layout',
-        'og.views.common.state'
+        'og.views.common.state',
+        'og.views.common.default_details'
     ],
     obj: function () {
         var api = og.api,
@@ -25,14 +25,12 @@ $.register_module({
             history = common.util.history,
             masthead = common.masthead,
             routes = common.routes,
-            search = common.search_results.core(),
+            search,
             ui = common.util.ui,
-            layout = og.views.common.layout,
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             securities,
-            resize = common.layout.resize,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -97,16 +95,11 @@ $.register_module({
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': 'securities',
                     'columns': [
+                        {id: 'type', toolTip: 'type', name: null, field: 'type', width: 100},
                         {
-                            id: 'type',
-                            name: null,
-                            field: 'type', width: 100, filter_type: 'select'
-                        },
-                        {
-                            id: 'name',
+                            id: 'name', toolTip: 'name', field: 'name', width: 300, cssClass: 'og-link',
                             name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">',
-                            field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'
+                                + 'class="og-js-name-filter" style="width: 280px;">'
                         }
                     ]
                 },
@@ -133,16 +126,7 @@ $.register_module({
                 securities.search(args);
                 routes.go(routes.hash(module.rules.load_securities, args));
             },
-            default_details_page = function () {
-                api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
-                        name: 'Securities',
-                        recent_list: history.get_html('history.securities.recent') || 'no recently viewed securities'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
-                    ui.toolbar(options.toolbar['default']);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
-                }});
-            },
+            default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
                 api.rest.securities.get({
                     handler: function (result) {
@@ -160,17 +144,28 @@ $.register_module({
                                 og.dev.warn('using default security template for security type: ' + security_type);
                                 return api.text({module: module.name + '.default', handler: text_handler});
                             }
-                            var $warning, warning_message = 'This security has been deleted',
+                            var error_html = '\
+                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                        This security has been deleted\
+                                    </section>\
+                                ',
+                                $html = $.tmpl(template, json.template_data),
+                                layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
-                            $.tmpl(template, json.template_data)
-                                .appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $warning = $('.OG-js-details-panel .og-box-error');
+                            header = $.outer($html.find('> header')[0]);
+                            content = $.outer($html.find('> section')[0]);
+                            $('.ui-layout-inner-center .ui-layout-header').html(header);
+                            $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
-                                $warning.html(warning_message).show();
-                                resize();
+                                $('.ui-layout-inner-north').html(error_html);
+                                layout.inner.sizePane('north', '0');
+                                layout.inner.open('north');
                                 $('.OG-toolbar .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {$warning.empty().hide(), resize();}
+                            } else {
+                                layout.inner.close('north');
+                                $('.ui-layout-inner-north').empty();
+                            }
                             for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) {
                                     html.push('<tr><td><span>', json_id[id].split('-')[0],
@@ -178,16 +173,14 @@ $.register_module({
                                 }
                             }
                             $('.OG-security .og-js-identifiers').html(html.join(''));
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
                             details.favorites();
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '.OG-js-details-panel',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     }
@@ -214,11 +207,10 @@ $.register_module({
                     {new_page: function () {
                         securities.search(args);
                         masthead.menu.set_tab(page_name);
-                        layout('default');
                     }}
                 ]});
                 if (args.id) return;
-                default_details_page();
+                default_details();
             },
             load_filter: function (args) {
                 var search_filter = function () {
@@ -246,6 +238,7 @@ $.register_module({
                 securities.details(args);
             },
             search: function (args) {
+                if (!search) search = common.search_results.core();
                 if (options.slickgrid.columns[0].name === 'loading')
                     return setTimeout(securities.search.partial(args), 500);
                 if (options.slickgrid.columns[0].name === null) return api.rest.securities.get({

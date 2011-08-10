@@ -23,4 +23,9 @@ public class EmptyFunctionParameters implements FunctionParameters {
     return EqualsBuilder.reflectionEquals(this, obj);
   }
 
+  @Override
+  public String toString() {
+    return "{}";
+  }
+
 }
