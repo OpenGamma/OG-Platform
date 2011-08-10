@@ -409,11 +409,11 @@ import com.opengamma.util.tuple.Pair;
       }
       if (originalOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
+        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         return;
       }
       final Set<ValueSpecification> resolvedOutputValues;
@@ -439,11 +439,11 @@ import com.opengamma.util.tuple.Pair;
       }
       if (inputRequirements == null) {
         s_logger.info("Function {} returned NULL for getRequirements on {}", functionDefinition, getValueRequirement());
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getRequirementsFailed();
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
+        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
