@@ -55,21 +55,22 @@ public class LongPollingTest {
   }
 
   private String readFromPath(String path) throws IOException {
-    String result;
     BufferedReader reader = null;
+    StringBuilder builder;
     try {
-      List<String> results = new ArrayList<String>();
+      char[] chars = new char[512];
+      builder = new StringBuilder();
       reader = new BufferedReader(new InputStreamReader(url(path).openStream()));
-      while ((result = reader.readLine()) != null) {
-        results.add(result);
+      int bytesRead;
+      while ((bytesRead = reader.read(chars)) != -1) {
+        builder.append(chars, 0, bytesRead);
       }
-      result = Joiner.on('\n').join(results);
     } finally {
       if (reader != null) {
         reader.close();
       }
     }
-    return result;
+    return builder.toString();
   }
 
   @BeforeClass
@@ -79,10 +80,7 @@ public class LongPollingTest {
     connector.setPort(8080);
     WebAppContext context = new WebAppContext();
     context.setContextPath("/");
-    // TODO is a resource base needed if there are no resources? what about the classpath?
-    // TODO IDEA project should build to the same place
     context.setResourceBase("build/classes");
-    // TODO is this relative to the resource base? or the pwd?
     context.setDescriptor("web-push/WEB-INF/web.xml");
     Map<String, String> params = new HashMap<String, String>();
     params.put("contextConfigLocation", "classpath:/com/opengamma/web/test-web-push.xml");
