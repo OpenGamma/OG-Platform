@@ -50,12 +50,12 @@ public class CouponInflationZeroCouponFirstOfMonthTest {
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
   //  private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-  private static final CouponInflationZeroCouponFirstOfMonth ZERO_COUPON = new CouponInflationZeroCouponFirstOfMonth(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
+  private static final CouponInflationZeroCouponMonthly ZERO_COUPON = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
       INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponFirstOfMonth(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME, false);
+    new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME, false);
   }
 
   @Test
@@ -75,16 +75,16 @@ public class CouponInflationZeroCouponFirstOfMonthTest {
    */
   public void equalHash() {
     assertEquals(ZERO_COUPON, ZERO_COUPON);
-    CouponInflationZeroCouponFirstOfMonth couponDuplicate = new CouponInflationZeroCouponFirstOfMonth(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
+    CouponInflationZeroCouponMonthly couponDuplicate = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
         REFERENCE_END_TIME, FIXING_TIME, false);
     assertEquals(ZERO_COUPON, couponDuplicate);
     assertEquals(ZERO_COUPON.hashCode(), couponDuplicate.hashCode());
-    CouponInflationZeroCouponFirstOfMonth modified;
-    modified = new CouponInflationZeroCouponFirstOfMonth(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, FIXING_TIME, false);
+    CouponInflationZeroCouponMonthly modified;
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, FIXING_TIME, false);
     assertFalse(ZERO_COUPON.equals(modified));
-    modified = new CouponInflationZeroCouponFirstOfMonth(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, FIXING_TIME, false);
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, FIXING_TIME, false);
     assertFalse(ZERO_COUPON.equals(modified));
-    modified = new CouponInflationZeroCouponFirstOfMonth(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME + 0.1, false);
+    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME + 0.1, false);
     assertFalse(ZERO_COUPON.equals(modified));
   }
 

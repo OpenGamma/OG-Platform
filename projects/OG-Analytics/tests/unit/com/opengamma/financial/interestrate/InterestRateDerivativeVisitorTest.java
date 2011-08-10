@@ -22,6 +22,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -38,8 +39,10 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponFirstOfMonth;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -499,7 +502,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon, Object data) {
+    public Class<?> visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon, Object data) {
       return null;
     }
 
@@ -509,7 +512,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon) {
+    public Class<?> visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon) {
       return null;
     }
 
@@ -525,6 +528,36 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon) {
       return null;
     }
   };

@@ -10,6 +10,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -26,8 +27,10 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponFirstOfMonth;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -135,11 +138,17 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
 
-  T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon, S data);
+  T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon, S data);
+
+  T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon, S data);
 
   T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon, S data);
 
+  T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon, S data);
+
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, S data);
+
+  T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, S data);
 
   // One argument
 
@@ -223,11 +232,17 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitForwardRateAgreement(ForwardRateAgreement fra);
 
-  T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon);
+  T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon);
+
+  T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon);
 
   T visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolation coupon);
 
+  T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon);
+
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
+
+  T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
 
   //TODO cap / floor CMS spread
 }

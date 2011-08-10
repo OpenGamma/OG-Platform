@@ -12,6 +12,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -28,8 +29,10 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponFirstOfMonth;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -456,13 +459,23 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponFirstOfMonth()");
+  public T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthly()");
   }
 
   @Override
-  public T visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponFirstOfMonth coupon, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponFirstOfMonth()");
+  public T visitCouponInflationZeroCouponMonthly(CouponInflationZeroCouponMonthly coupon, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthly()");
+  }
+
+  @Override
+  public T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthlyGearing()");
+  }
+
+  @Override
+  public T visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponMonthlyGearing()");
   }
 
   @Override
@@ -476,6 +489,16 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
+  public T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolationGearing()");
+  }
+
+  @Override
+  public T visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearing coupon, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponInflationZeroCouponInterpolationGearing()");
+  }
+
+  @Override
   public T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedSecurity()");
   }
@@ -483,6 +506,16 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   @Override
   public T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond, S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedSecurity()");
+  }
+
+  @Override
+  public T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
+  }
+
+  @Override
+  public T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
   }
 
 }

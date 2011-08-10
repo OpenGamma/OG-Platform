@@ -16,11 +16,13 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.index.PriceIndex;
-import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponFirstOfMonthDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -42,6 +44,8 @@ public class BondCapitalIndexedSecurityTest {
   private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final boolean IS_EOM_GILT_1 = false;
   private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2002, 7, 11);
   private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2003, 1, 26);
   private static final ZonedDateTime MATURITY_DATE = DateUtil.getUTCDate(2035, 1, 26);
@@ -49,13 +53,15 @@ public class BondCapitalIndexedSecurityTest {
   private static final int MONTH_LAG = 8;
   private static final double INDEX_START = 173.60; // November 2001 
   private static final double REAL_RATE = 0.02;
+  private static final double NOTIONAL_GILT_1 = 1.00;
   private static final Period COUPON_PERIOD = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final String ISSUER_UK = "UK GOVT";
   private static final ZonedDateTime PRICING_DATE = DateUtil.getUTCDate(2011, 8, 8);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR, SETTLEMENT_DAYS);
-  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponFirstOfMonthDefinition> BOND_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromFirstOfMonth(
-      PRICE_INDEX, MONTH_LAG, START_DATE, INDEX_START, FIRST_COUPON_DATE, MATURITY_DATE, COUPON_PERIOD, REAL_RATE, BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR, YIELD_CONVENTION, ISSUER_UK);
+  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(PRICE_INDEX,
+      MONTH_LAG, START_DATE, INDEX_START, FIRST_COUPON_DATE, MATURITY_DATE, COUPON_PERIOD, NOTIONAL_GILT_1, REAL_RATE, BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_GILT_1, YIELD_CONVENTION,
+      IS_EOM_GILT_1, ISSUER_UK);
   private static final double SETTLEMENT_TIME = TimeCalculator.getTimeBetween(PRICING_DATE, SPOT_DATE);
   private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MarketDataSets.ukRpiFrom2010();
   @SuppressWarnings("unchecked")

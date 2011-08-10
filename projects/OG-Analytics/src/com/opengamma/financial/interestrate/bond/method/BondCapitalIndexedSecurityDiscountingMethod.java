@@ -18,8 +18,11 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Pricing method for inflation bond. The price is computed by index estimation and discounting.
  */
-public class BondCapitalIndexedSecurityDiscountingMethod implements PricingMarketMethod {
+public final class BondCapitalIndexedSecurityDiscountingMethod implements PricingMarketMethod {
 
+  /**
+   * The present value inflation calculator (for the different parts of the bond transaction).
+   */
   private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
 
   /**
