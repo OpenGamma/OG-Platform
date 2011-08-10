@@ -61,7 +61,8 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
 
 
-  private void checkListenerAttach() {
+  private void checkListenerAttach() { 
+    //TODO: dedupe with CombinedMarketDataProvider
     synchronized (_listenerLock) {
       boolean anyListeners = getListeners().size() > 0;
 
