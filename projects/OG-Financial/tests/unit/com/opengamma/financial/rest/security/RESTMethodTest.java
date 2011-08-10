@@ -14,6 +14,7 @@ import static org.testng.AssertJUnit.assertNull;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.time.Instant;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -90,17 +91,22 @@ public class RESTMethodTest {
   @Test
   public void testGetSecurityByIdentifier() {
     final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(_uid1.toString());
-    assertNotNull(fme);
-    final FudgeMsg msg = fme.getMessage();
-    assertNotNull(msg);
-    FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeMsg security = msg.getFieldValue(FudgeMsg.class, msg.getByName(SECURITYSOURCE_SECURITY));
-    assertNotNull(security);
+    checkSecurityMessage(fme);
   }
 
   @Test
   public void testGetSecurityByBundle() {
-    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"), null, null);
+    checkSecurityMessage(fme);
+  }
+  
+  @Test
+  public void testGetSecurityByBundleVersionCorrection() {
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"), Instant.now().toString(), Instant.now().toString());
+    checkSecurityMessage(fme);
+  }
+  
+  private void checkSecurityMessage(final FudgeMsgEnvelope fme) {
     assertNotNull(fme);
     final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
@@ -111,7 +117,17 @@ public class RESTMethodTest {
 
   @Test
   public void testGetSecurities() {
-    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"), null, null);
+    checkSecuritiesMessage(fme);
+  }
+  
+  @Test
+  public void testGetSecuritiesVersionCorrection() {
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"), Instant.now().toString(), Instant.now().toString());
+    checkSecuritiesMessage(fme);
+  }
+  
+  private void checkSecuritiesMessage(final FudgeMsgEnvelope fme) {
     assertNotNull(fme);
     final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);

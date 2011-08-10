@@ -29,6 +29,7 @@ import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -165,7 +166,7 @@ public final class PortfolioCompiler {
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the securities in the portfolio.
+   * Resolves the securities in the portfolio at the latest version-correction.
    * 
    * @param portfolio  the portfolio to resolve, not null
    * @param executorService  the threading service, not null
@@ -173,8 +174,21 @@ public final class PortfolioCompiler {
    * @return the resolved portfolio, not null
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
+    return resolvePortfolio(portfolio, executorService, securitySource, VersionCorrection.LATEST);
+  }
+  
+  /**
+   * Resolves the securities in the portfolio at the given version-correction.
+   * 
+   * @param portfolio  the portfolio to resolve, not null
+   * @param executorService  the threading service, not null
+   * @param securitySource  the security source, not null
+   * @param versionCorrection  the version-correction for security resolution, not null
+   * @return the resolved portfolio, not null
+   */
+  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource, final VersionCorrection versionCorrection) {
     Portfolio cloned = new PortfolioImpl(portfolio);
-    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(cloned.getRootNode());
+    new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
     return cloned;
   }
 

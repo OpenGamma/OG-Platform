@@ -11,6 +11,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
@@ -53,26 +54,57 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
   //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity getSecurity(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     SecurityDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getSecurity() : null);
+    return doc != null ? doc.getSecurity() : null;
   }
-
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  
   @Override
-  public Collection<Security> getSecurities(final ExternalIdBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addExternalIds(securityKey);
-    request.setVersionCorrection(getVersionCorrection());
-    return (Collection) search(request).getSecurities();  // cast safe as supplied list will not be altered
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    SecurityDocument doc = getDocument(objectId, versionCorrection);
+    return doc != null ? doc.getSecurity() : null;
   }
 
   @Override
-  public Security getSecurity(final ExternalIdBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    final Collection<Security> securities = getSecurities(securityKey);
+  public Collection<Security> getSecurities(final ExternalIdBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    return getSecuritiesInternal(bundle, getVersionCorrection());
+  }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    VersionCorrection overrideVersionCorrection = getVersionCorrection();
+    return getSecuritiesInternal(bundle, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
+  }
+
+  @Override
+  public Security getSecurity(final ExternalIdBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    Collection<Security> securities = getSecuritiesInternal(bundle, getVersionCorrection());
     // simply picks the first returned security
     return securities.isEmpty() ? null : securities.iterator().next();
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    VersionCorrection overrideVersionCorrection = getVersionCorrection();
+    final Collection<Security> securities = getSecuritiesInternal(bundle, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
+    // simply picks the first returned security
+    return securities.isEmpty() ? null : securities.iterator().next();
+  }
+  
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private Collection<Security> getSecuritiesInternal(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    final SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addExternalIds(bundle);
+    request.setVersionCorrection(versionCorrection);
+    return (Collection) search(request).getSecurities();  // cast safe as supplied list will not be altered    
   }
 
   //-------------------------------------------------------------------------
