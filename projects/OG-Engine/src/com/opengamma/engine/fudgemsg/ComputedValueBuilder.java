@@ -11,8 +11,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
@@ -32,27 +32,27 @@ public class ComputedValueBuilder implements FudgeBuilder<ComputedValue> {
   private static final String VALUE_KEY = "value";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ComputedValue object) {
-    MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ComputedValue object) {
+    MutableFudgeMsg msg = serializer.newMessage();
     ValueSpecification specification = object.getSpecification();
     if (specification != null) {
-      context.addToMessage(msg, SPECIFICATION_KEY, null, specification);
+      serializer.addToMessage(msg, SPECIFICATION_KEY, null, specification);
     }
     Object value = object.getValue();
     if (value != null) {
-      context.addToMessageWithClassHeaders(msg, VALUE_KEY, null, value);
+      serializer.addToMessageWithClassHeaders(msg, VALUE_KEY, null, value);
     }
     return msg;
   }
 
   @Override
-  public ComputedValue buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public ComputedValue buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     FudgeField fudgeField = message.getByName(SPECIFICATION_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'specification' is not present");
-    ValueSpecification valueSpec = context.fieldValueToObject(ValueSpecification.class, fudgeField);
+    ValueSpecification valueSpec = deserializer.fieldValueToObject(ValueSpecification.class, fudgeField);
     fudgeField = message.getByName(VALUE_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'value' is not present");
-    Object valueObject = context.fieldValueToObject(fudgeField);
+    Object valueObject = deserializer.fieldValueToObject(fudgeField);
     return new ComputedValue(valueSpec, valueObject);
   }
 

@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -45,9 +45,9 @@ public class VolatilityCubeDefinitionSourceResource {
     if (definition == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeMsg msg = context.newMessage();
-    context.addToMessageWithClassHeaders(msg, "definition", null, definition, VolatilityCubeDefinition.class);
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, "definition", null, definition, VolatilityCubeDefinition.class);
     return new FudgeMsgEnvelope(msg);
   }
 

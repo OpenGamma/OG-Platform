@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -440,7 +440,7 @@ public class ExternalIdBundleTest {
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
 
-    ExternalIdBundle decoded = ExternalIdBundle.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    ExternalIdBundle decoded = ExternalIdBundle.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(input, decoded);
   }
 

@@ -13,7 +13,7 @@ import javax.ws.rs.Path;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionParameters;
@@ -44,12 +44,12 @@ public class FunctionRepositoryResource {
   @Path("/functionsByUniqueId")
   public FudgeMsgEnvelope getFunctionsByUniqueId() {
     final Collection<FunctionDefinition> allFunctions = getUnderlying().getAllFunctions();
-    final FudgeSerializationContext fsc = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeMsg msg = fsc.newMessage();
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
     for (FunctionDefinition function : allFunctions) {
-      final MutableFudgeMsg submsg = fsc.newMessage();
+      final MutableFudgeMsg submsg = serializer.newMessage();
       submsg.add("shortName", function.getShortName());
-      fsc.addToMessageWithClassHeaders(submsg, "defaultParameters", null, function.getDefaultParameters(), FunctionParameters.class);
+      serializer.addToMessageWithClassHeaders(submsg, "defaultParameters", null, function.getDefaultParameters(), FunctionParameters.class);
       msg.add(function.getUniqueId(), submsg);
     }
     return new FudgeMsgEnvelope(msg);
@@ -59,12 +59,12 @@ public class FunctionRepositoryResource {
   @Path("/functionsByShortName")
   public FudgeMsgEnvelope getFunctionsByShortName() {
     final Collection<FunctionDefinition> allFunctions = getUnderlying().getAllFunctions();
-    final FudgeSerializationContext fsc = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeMsg msg = fsc.newMessage();
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
     for (FunctionDefinition function : allFunctions) {
-      final MutableFudgeMsg submsg = fsc.newMessage();
+      final MutableFudgeMsg submsg = serializer.newMessage();
       submsg.add("uniqueId", function.getUniqueId());
-      fsc.addToMessageWithClassHeaders(submsg, "defaultParameters", null, function.getDefaultParameters(), FunctionParameters.class);
+      serializer.addToMessageWithClassHeaders(submsg, "defaultParameters", null, function.getDefaultParameters(), FunctionParameters.class);
       msg.add(function.getShortName(), submsg);
     }
     return new FudgeMsgEnvelope(msg);

@@ -7,7 +7,7 @@ package com.opengamma.livedata;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -27,7 +27,7 @@ public class LiveDataSpecificationTest {
     FudgeContext fudgeContext = new FudgeContext();
     FudgeMsg container = TEST_LIVE_DATA_SPEC.toFudgeMsg(fudgeContext);
     
-    LiveDataSpecification deserialized = LiveDataSpecification.fromFudgeMsg(new FudgeDeserializationContext(fudgeContext), container);
+    LiveDataSpecification deserialized = LiveDataSpecification.fromFudgeMsg(new FudgeDeserializer(fudgeContext), container);
     AssertJUnit.assertNotNull(deserialized);
     AssertJUnit.assertEquals("Foo", deserialized.getNormalizationRuleSetId());    
     AssertJUnit.assertEquals("baz", deserialized.getIdentifier(ExternalScheme.of("bar")));

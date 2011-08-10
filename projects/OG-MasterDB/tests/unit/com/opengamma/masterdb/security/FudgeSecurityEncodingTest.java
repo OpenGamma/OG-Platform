@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.fail;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -27,8 +27,8 @@ public class FudgeSecurityEncodingTest extends SecurityTestCase {
 
   @Override
   protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeMsg msg = context.objectToFudgeMsg(security);
+    final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
+    FudgeMsg msg = serializer.objectToFudgeMsg(security);
     s_logger.debug("Security {}", security);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

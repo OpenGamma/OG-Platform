@@ -8,8 +8,8 @@ package com.opengamma.financial.marketdatasnapshot.rest;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
@@ -51,12 +51,12 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
     return getRestClient().getFudgeContext();
   }
 
-  private FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
+  private FudgeSerializer getFudgeSerializer() {
+    return new FudgeSerializer(getFudgeContext());
   }
 
-  private FudgeDeserializationContext getFudgeDeserializationContext() {
-    return new FudgeDeserializationContext(getFudgeContext());
+  private FudgeDeserializer getFudgeDeserializer() {
+    return new FudgeDeserializer(getFudgeContext());
   }
 
   private RestTarget getTargetBase() {
@@ -66,8 +66,8 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   @Override
   public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     try {
-      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("search"), getFudgeSerializationContext().objectToFudgeMsg(request));
-      return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotSearchResult.class, response.getMessage());
+      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("search"), getFudgeSerializer().objectToFudgeMsg(request));
+      return getFudgeDeserializer().fudgeMsgToObject(MarketDataSnapshotSearchResult.class, response.getMessage());
     } catch (RestRuntimeException ex) {
       throw ex.translate();
     }
@@ -76,8 +76,8 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   @Override
   public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
     try {
-      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("history"), getFudgeSerializationContext().objectToFudgeMsg(request));
-      return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryResult.class, response.getMessage());
+      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("history"), getFudgeSerializer().objectToFudgeMsg(request));
+      return getFudgeDeserializer().fudgeMsgToObject(MarketDataSnapshotHistoryResult.class, response.getMessage());
     } catch (RestRuntimeException ex) {
       throw ex.translate();
     }
@@ -101,9 +101,8 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
       if (response == null) {
         throw new DataNotFoundException("Unique identifier " + uniqueId + " not found");
       }
-      final FudgeDeserializationContext fdc = getFudgeDeserializationContext();
-      
-      MarketDataSnapshotDocument document = fdc.fudgeMsgToObject(MarketDataSnapshotDocument.class, response);
+      final FudgeDeserializer deserializer = getFudgeDeserializer();
+      MarketDataSnapshotDocument document = deserializer.fudgeMsgToObject(MarketDataSnapshotDocument.class, response);
       return document;
     } catch (RestRuntimeException ex) {
       throw ex.translate();

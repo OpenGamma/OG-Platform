@@ -12,8 +12,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.json.FudgeJSONStreamReader;
@@ -34,13 +34,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   protected static final String UNIQUE_ID_FIELD = "uniqueId";
   
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  private final FudgeSerializationContext _serialization = new FudgeSerializationContext(_fudgeContext);
-  private final FudgeDeserializationContext _deserialization = new FudgeDeserializationContext(_fudgeContext);
+  private final FudgeSerializer _serializer = new FudgeSerializer(_fudgeContext);
+  private final FudgeDeserializer _deserializer = new FudgeDeserializer(_fudgeContext);
 
   protected FudgeMsg removeRedundantFields(final FudgeMsg message) {
     MutableFudgeMsg result = _fudgeContext.newMessage();
     for (FudgeField fudgeField : message) {
-      if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != FudgeSerializationContext.TYPES_HEADER_ORDINAL)) {
+      if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != FudgeSerializer.TYPES_HEADER_ORDINAL)) {
         if (fudgeField.getValue() instanceof FudgeMsg) {
           FudgeMsg subMsg = (FudgeMsg) fudgeField.getValue();
           subMsg = removeRedundantFields(subMsg);
@@ -55,7 +55,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   
   protected <E> E convertJsonToObject(Class<E> clazz, JSONObject json) {
     FudgeMsg fudgeMsg = convertJSONToFudgeMsg(json);
-    return _deserialization.fudgeMsgToObject(clazz, fudgeMsg);
+    return _deserializer.fudgeMsgToObject(clazz, fudgeMsg);
   }
 
   protected FudgeMsg convertJSONToFudgeMsg(final JSONObject jsonDoc) {
@@ -71,7 +71,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     if (obj == null) {
       return null;
     }
-    MutableFudgeMsg fudgeMsg = _serialization.objectToFudgeMsg(obj);
+    MutableFudgeMsg fudgeMsg = _serializer.objectToFudgeMsg(obj);
     StringWriter buf = new StringWriter(1024);  
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, buf));
     if (removeRedundantFields) {

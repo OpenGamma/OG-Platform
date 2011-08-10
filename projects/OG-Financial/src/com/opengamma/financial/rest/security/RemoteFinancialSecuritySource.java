@@ -14,7 +14,7 @@ import java.util.Collections;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -104,11 +104,11 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
     final FudgeMsg message = getRestClient().getMsg(target);
-    final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
+    final FudgeDeserializer deserializer = getRestClient().getFudgeDeserializer();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
     for (FudgeField security : message) {
       if (SECURITYSOURCE_SECURITY.equals(security.getName())) {
-        securities.add(context.fieldValueToObject(Security.class, security));
+        securities.add(deserializer.fieldValueToObject(Security.class, security));
       }
     }
     return securities;
@@ -126,11 +126,11 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(issuerName, "issuerName");
     final RestTarget target = _targetBase.resolve("bonds").resolveQuery("issuerName", Collections.singletonList(issuerName));
     final FudgeMsg message = getRestClient().getMsg(target);
-    final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
+    final FudgeDeserializer deserializer = getRestClient().getFudgeDeserializer();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
     for (FudgeField security : message) {
       if (SECURITYSOURCE_SECURITY.equals(security.getName())) {
-        securities.add(context.fieldValueToObject(Security.class, security));
+        securities.add(deserializer.fieldValueToObject(Security.class, security));
       }
     }
     return securities;

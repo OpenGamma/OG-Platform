@@ -1,6 +1,7 @@
 package com.opengamma.financial.analytics;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,92 +20,75 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueProperties.Builder;
 
 public class PropertyPreservingFunctionTest {
-
 
   private MockPropertyPreservingFunction getFunction() {
     MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop", "A", "B", "C", "D", "E", "F"), new ArrayList<String>());
     return func;
   }
-  
+
   @Test
-  public void EmptyProperties()
-  {
+  public void EmptyProperties() {
     MockPropertyPreservingFunction func = getFunction();
-    
     ValueProperties props = ValueProperties.none();
-    
     ValueProperties expected = ValueProperties.none();
-    
     assertEqual(expected, func, props);
   }
 
   @Test
-  public void SingleMatchingProperty()
-  {
+  public void SingleMatchingProperty() {
     MockPropertyPreservingFunction func = getFunction();
-    
     assertEqual(ValueProperties.builder().with("A", "V").get(), func, ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "V").get());
   }
-  
-  @Test(expectedExceptions=IllegalArgumentException.class)
-  public void SingleNonMatchingProperty()
-  {
+
+  @Test
+  public void SingleNonMatchingProperty() {
     MockPropertyPreservingFunction func = getFunction();
     List<ValueSpecification> specses = getSpecs(ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "X").get());
-    func.getResultProperties(specses);
+    assertNull(func.getResultProperties(specses));
   }
-  
-  
+
   @Test
-  public void SingleNonMatchingOtherProperty()
-  {
+  public void SingleNonMatchingOtherProperty() {
     MockPropertyPreservingFunction func = getFunction();
     assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("Z", "A").get(), ValueProperties.builder().with("Z", "B").get());
   }
-  
+
   @Test
-  public void SingleMatchingOtherProperty()
-  {
+  public void SingleMatchingOtherProperty() {
     MockPropertyPreservingFunction func = getFunction();
     assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("Z", "A").get(), ValueProperties.builder().with("Z", "A").get());
   }
-  
+
   @Test
-  public void OptionalProperty()
-  {
+  public void OptionalProperty() {
     MockPropertyPreservingFunction func = getFunction();
-    
+
     ValueProperties p = ValueProperties.builder().withOptional("C").withAny("C").with("D", "X").withOptional("D").get();
     assertEqual(p, func, p, p);
   }
-  
+
   private void assertEqual(ValueProperties expected, MockPropertyPreservingFunction func, ValueProperties... inputs) {
     List<ValueSpecification> specses = getSpecs(inputs);
-    
     //Check even empty sets
     assertEqualOrdered(expected, func, specses);
-    
     //Try and check a few permutations
     //TODO: check non rotation permutations
-    for (int i = 0; i < specses.size(); i++)
-    {
+    for (int i = 0; i < specses.size(); i++) {
       assertEqualOrdered(expected, func, specses);
       Collections.rotate(specses, 1);
     }
-    
     //Check repeats, since there are 2 code branches
     List<ValueSpecification> doubled = new ArrayList<ValueSpecification>(inputs.length * 2);
     doubled.addAll(specses);
     doubled.addAll(specses);
     assertEqualOrdered(expected, func, doubled);
   }
-
 
   private void assertEqualOrdered(ValueProperties expected, MockPropertyPreservingFunction func, Collection<ValueSpecification> specses) {
     ValueProperties resultProperties = func.getResultProperties(specses);
@@ -115,23 +99,22 @@ public class PropertyPreservingFunctionTest {
   private List<ValueSpecification> getSpecs(ValueProperties... props) {
     return getSpecs(Lists.newArrayList(props));
   }
+
   private List<ValueSpecification> getSpecs(Collection<ValueProperties> props) {
     List<ValueSpecification> ret = new ArrayList<ValueSpecification>();
-    
     for (ValueProperties valueProp : props) {
       ret.add(getSpec(valueProp));
     }
     return ret;
   }
+
   private ValueSpecification getSpec(ValueProperties props) {
     Builder realProps = props.copy().with(ValuePropertyNames.FUNCTION, "SomeFunc");
     ValueSpecification spec = ValueSpecification.of("X", null, realProps.get());
     return spec;
   }
-  
-  
-  private class MockPropertyPreservingFunction extends PropertyPreservingFunction
-  {
+
+  private class MockPropertyPreservingFunction extends PropertyPreservingFunction {
 
     private Collection<String> _preservedProperties;
     private Collection<String> _optionalPreservedProperties;
@@ -179,6 +162,6 @@ public class PropertyPreservingFunctionTest {
     protected Collection<String> getOptionalPreservedProperties() {
       return _optionalPreservedProperties;
     }
-    
+
   }
 }

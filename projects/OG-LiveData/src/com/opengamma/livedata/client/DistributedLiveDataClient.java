@@ -13,8 +13,8 @@ import java.util.Map;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +119,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     
     // Build request message
     LiveDataSubscriptionRequest subReqMessage = new LiveDataSubscriptionRequest(user, type, specs);
-    FudgeMsg requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
+    FudgeMsg requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializer(getFudgeContext()));
     
     // Build response receiver
     FudgeMessageReceiver responseReceiver;
@@ -180,7 +180,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         }
         FudgeMsg msg = envelope.getMessage();
         
-        LiveDataSubscriptionResponseMsg responseMessage = LiveDataSubscriptionResponseMsg.fromFudgeMsg(new FudgeDeserializationContext(getFudgeContext()), msg);
+        LiveDataSubscriptionResponseMsg responseMessage = LiveDataSubscriptionResponseMsg.fromFudgeMsg(new FudgeDeserializer(getFudgeContext()), msg);
         if (responseMessage.getResponses().isEmpty()) {
           throw new OpenGammaRuntimeException("Got empty subscription response " + responseMessage);
         }
@@ -378,7 +378,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {
     FudgeMsg fudgeMsg = msgEnvelope.getMessage();
-    LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(new FudgeDeserializationContext(fudgeContext), fudgeMsg);
+    LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(new FudgeDeserializer(fudgeContext), fudgeMsg);
     valueUpdate(update);
   }
 

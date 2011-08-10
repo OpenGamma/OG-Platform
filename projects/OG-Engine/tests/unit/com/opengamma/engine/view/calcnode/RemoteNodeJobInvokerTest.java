@@ -13,8 +13,8 @@ import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -52,7 +52,7 @@ public class RemoteNodeJobInvokerTest {
     remoteNode.setFudgeMessageReceiver(new FudgeMessageReceiver() {
       @Override
       public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-        final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(fudgeContext);
+        final FudgeDeserializer dcontext = new FudgeDeserializer(fudgeContext);
         s_logger.debug("message = {}", msgEnvelope.getMessage());
         final RemoteCalcNodeMessage message = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
         assertNotNull(message);
@@ -60,8 +60,8 @@ public class RemoteNodeJobInvokerTest {
         assertTrue(message instanceof Execute);
         final Execute job = (Execute) message;
         final Result result = new Result(JobDispatcherTest.createTestJobResult(job.getJob().getSpecification(), 0, "Test"));
-        final FudgeSerializationContext scontext = new FudgeSerializationContext(fudgeContext);
-        remoteNode.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(result), result.getClass(), RemoteCalcNodeMessage.class));
+        final FudgeSerializer scontext = new FudgeSerializer(fudgeContext);
+        remoteNode.getFudgeMessageSender().send(FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(result), result.getClass(), RemoteCalcNodeMessage.class));
       }
     });
     jobDispatcher.dispatchJob(JobDispatcherTest.createTestJob(), resultReceiver);
@@ -79,7 +79,7 @@ public class RemoteNodeJobInvokerTest {
     remoteNode.setFudgeMessageReceiver(new FudgeMessageReceiver() {
       @Override
       public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-        final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(fudgeContext);
+        final FudgeDeserializer dcontext = new FudgeDeserializer(fudgeContext);
         final RemoteCalcNodeMessage message = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
         assertNotNull(message);
         assertTrue(message instanceof Execute);
@@ -89,8 +89,8 @@ public class RemoteNodeJobInvokerTest {
         } catch (InterruptedException e) {
         }
         final Result result = new Result(JobDispatcherTest.createTestJobResult(job.getJob().getSpecification(), 0, "Test"));
-        final FudgeSerializationContext scontext = new FudgeSerializationContext(fudgeContext);
-        remoteNode.getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(result), result.getClass(), RemoteCalcNodeMessage.class));
+        final FudgeSerializer scontext = new FudgeSerializer(fudgeContext);
+        remoteNode.getFudgeMessageSender().send(FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(result), result.getClass(), RemoteCalcNodeMessage.class));
       }
     });
     final TestJobResultReceiver[] resultReceivers = new TestJobResultReceiver[100];

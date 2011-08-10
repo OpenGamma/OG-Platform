@@ -35,8 +35,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -91,15 +91,6 @@ public class HistoricalTimeSeriesSourceResource {
     return _source;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the serialization context derived from the main Fudge context.
-   * @return the context, not null
-   */
-  protected FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
-  }
-
   private ExternalIdBundle identifiersToBundle(final List<String> identifiers) {
     ExternalIdBundle bundle = ExternalIdBundle.EMPTY;
     for (String identifier : identifiers) {
@@ -112,10 +103,10 @@ public class HistoricalTimeSeriesSourceResource {
     if (result == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeMsg message = context.newMessage();
-    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueId.class);
-    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result.getTimeSeries(), LocalDateDoubleTimeSeries.class);
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_UNIQUEID, null, result.getUniqueId(), UniqueId.class);
+    serializer.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result.getTimeSeries(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
 
@@ -226,7 +217,7 @@ public class HistoricalTimeSeriesSourceResource {
     // same problem and the solution is not clear.
     
     FudgeMsg msg = request.getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(getFudgeContext());
     Set<ExternalIdBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
     String dataSource = msg.getString(REQUEST_DATA_SOURCE);
     String dataProvider = msg.getString(REQUEST_DATA_PROVIDER);
@@ -238,9 +229,9 @@ public class HistoricalTimeSeriesSourceResource {
     
     Map<ExternalIdBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
-    FudgeSerializationContext context = getFudgeSerializationContext();
-    MutableFudgeMsg message = context.newMessage();
-    context.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result, Map.class);
+    FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result, Map.class);
     return new FudgeMsgEnvelope(message); 
   }
 

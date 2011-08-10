@@ -8,7 +8,7 @@ package com.opengamma.livedata.server;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   }
   
   public void messageReceived(FudgeMsg msg) {
-    Heartbeat heartbeat = Heartbeat.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
+    Heartbeat heartbeat = Heartbeat.fromFudgeMsg(new FudgeDeserializer(_fudgeContext), msg);
     for (LiveDataSpecification fullyQualifiedLiveDataSpec : heartbeat.getLiveDataSpecifications()) {
       s_logger.debug("Heartbeat received on live data specification {}", fullyQualifiedLiveDataSpec);
       getActiveSecurityPublicationManager().extendPublicationTimeout(fullyQualifiedLiveDataSpec);

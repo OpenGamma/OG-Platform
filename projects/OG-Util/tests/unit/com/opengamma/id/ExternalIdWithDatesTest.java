@@ -14,7 +14,7 @@ import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -140,7 +140,7 @@ public class ExternalIdWithDatesTest {
     assertNotNull(msg);
     assertEquals(4, msg.getNumFields());
     
-    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(test, decoded);
   }
   
@@ -153,7 +153,7 @@ public class ExternalIdWithDatesTest {
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(test, decoded);
   }
   
@@ -166,7 +166,7 @@ public class ExternalIdWithDatesTest {
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
-    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(test, decoded);
   }
   

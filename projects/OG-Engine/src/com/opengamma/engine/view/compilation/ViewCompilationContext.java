@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.time.Instant;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
@@ -54,8 +55,9 @@ public class ViewCompilationContext {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
     final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(valuationTime);
     final Collection<ResolutionRule> rules = functionResolver.getAllResolutionRules();
+    final DependencyGraphBuilderFactory builderFactory = new DependencyGraphBuilderFactory();
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
-      final DependencyGraphBuilder builder = new DependencyGraphBuilder();
+      final DependencyGraphBuilder builder = builderFactory.newInstance();
       builder.setCalculationConfigurationName(configName);
       builder.setMarketDataAvailabilityProvider(compilationServices.getMarketDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());

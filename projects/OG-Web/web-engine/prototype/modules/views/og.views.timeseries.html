@@ -1,31 +1,31 @@
-<div class="OG-toolbar"></div>
-<header class="OG-header-generic">
-  <h1>${name}</h1>
-</header>
-<div class="OG-details-container">
-<div class="og-details-content OG-timeseries">
-  <section class="OG-c10 og-grid-last OG-max-width-m">
-
-      <div class="og-identifiers og-js-identifiers"></div>
-      <div class="og-plotHeader">
-        <select>
-          <option>${data_field}</option>
-        </select>
-        <div>Observation time: ${observation_time}</div>
-      </div>
-      <div class="og-timeseriesPlot og-js-timeseriesPlot"></div>
-      <div class="og-plotMeta">
-        <div class="og-source">Source: ${data_source}</div>
-        <div class="og-provider">Provider: ${data_provider}</div>
-      </div>
-      <div class="og-dataPoints">
-        <div class="OG-clearFix">
-          <h2>Data Points</h2>
-          <button class="og-button-secondary og-js-timeSeriesCsv">Download (CSV)</button>
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-toolbar"></div>
+    <h1>${name}</h1>
+  </header>
+  <section>
+    <div class="og-details-content OG-timeseries OG-js-details-panel">
+      <section class="OG-c10 og-grid-last OG-max-width-m">
+        <div class="og-identifiers og-js-identifiers"></div>
+        <div class="og-plotHeader">
+          <select>
+            <option>${data_field}</option>
+          </select>
+          <div>Observation time: ${observation_time}</div>
         </div>
-        <div class="og-js-table"></div>
-      </div>
-
+        <div class="og-timeseriesPlot og-js-timeseriesPlot"></div>
+        <div class="og-plotMeta">
+          <div class="og-source">Source: ${data_source}</div>
+          <div class="og-provider">Provider: ${data_provider}</div>
+        </div>
+        <div class="og-dataPoints">
+          <div class="OG-clearFix">
+            <h2>Data Points</h2>
+            <button class="og-button-secondary og-js-timeSeriesCsv">Download (CSV)</button>
+          </div>
+          <div class="og-js-table"></div>
+        </div>
+      </section>
+    </div>
   </section>
-</div>
-</div>
+</article>

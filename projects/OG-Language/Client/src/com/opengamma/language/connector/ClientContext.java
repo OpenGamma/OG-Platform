@@ -10,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.util.ArgumentChecker;
@@ -43,7 +43,7 @@ public final class ClientContext {
     _heartbeatTimeout = heartbeatTimeout;
     _terminationTimeout = terminationTimeout;
     _heartbeatMessage = new FudgeMsgEnvelope(new ConnectorMessage(ConnectorMessage.Operation.HEARTBEAT)
-        .toFudgeMsg(new FudgeSerializationContext(fudgeContext)), 0, MessageDirectives.CLIENT);
+        .toFudgeMsg(new FudgeSerializer(fudgeContext)), 0, MessageDirectives.CLIENT);
     _messageHandler = messageHandler;
   }
 

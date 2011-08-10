@@ -15,7 +15,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -252,7 +252,7 @@ public final class ExternalIdWithDates
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static ExternalIdWithDates fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+  public static ExternalIdWithDates fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
     ExternalId identifier = ExternalId.fromFudgeMsg(fudgeContext, msg);
     FudgeField field = msg.getByName(VALID_FROM_FUDGE_FIELD_NAME);
     LocalDate validFrom = null;

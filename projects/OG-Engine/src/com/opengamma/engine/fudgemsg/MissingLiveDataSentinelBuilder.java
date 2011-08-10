@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 
@@ -20,13 +20,13 @@ import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 @FudgeBuilderFor(MissingMarketDataSentinel.class)
 public class MissingLiveDataSentinelBuilder implements FudgeBuilder<MissingMarketDataSentinel> {
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final MissingMarketDataSentinel sentinel) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final MissingMarketDataSentinel sentinel) {
+    final MutableFudgeMsg message = serializer.newMessage();
     return message;
   }
 
   @Override
-  public MissingMarketDataSentinel buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public MissingMarketDataSentinel buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     return MissingMarketDataSentinel.getInstance();
   }
 

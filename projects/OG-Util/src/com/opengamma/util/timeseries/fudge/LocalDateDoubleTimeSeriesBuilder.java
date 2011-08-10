@@ -8,8 +8,8 @@ package com.opengamma.util.timeseries.fudge;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -19,13 +19,13 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class LocalDateDoubleTimeSeriesBuilder implements FudgeBuilder<LocalDateDoubleTimeSeries> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, LocalDateDoubleTimeSeries object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, LocalDateDoubleTimeSeries object) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public LocalDateDoubleTimeSeries buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public LocalDateDoubleTimeSeries buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     // TODO Auto-generated method stub
     return null;
   }
