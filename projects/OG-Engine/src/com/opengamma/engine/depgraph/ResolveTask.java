@@ -105,6 +105,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private final ResolveTask _parent;
 
   /**
+   * Pre-calculated hashcode.
+   */
+  private final int _hashCode;
+
+  /**
    * Current state.
    */
   private volatile State _state;
@@ -117,6 +122,7 @@ import com.opengamma.engine.value.ValueSpecification;
   public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent) {
     super(valueRequirement);
     _parent = parent;
+    _hashCode = (parent != null) ? valueRequirement.hashCode() * 31 + parent.hashCode() : valueRequirement.hashCode();
     setState(new ResolveTargetStep(this));
   }
 
@@ -190,7 +196,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public int hashCode() {
-    return getValueRequirement().hashCode();
+    return _hashCode;
   }
 
   @Override

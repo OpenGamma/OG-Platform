@@ -9,9 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -22,6 +24,8 @@ import com.opengamma.engine.value.ValueSpecification;
  * cost of a more complex querying/inspection algorithm.  
  */
 public final class ResolutionFailure implements Cloneable {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ResolutionFailure.class);
 
   private static enum Status {
     ADDITIONAL_REQUIREMENT,
@@ -36,7 +40,7 @@ public final class ResolutionFailure implements Cloneable {
   }
 
   private final ValueRequirement _valueRequirement;
-  private final List<Object> _events = new LinkedList<Object>();
+  private final LinkedList<Object> _events = new LinkedList<Object>();
   private int _resultCount;
 
   // Construction
@@ -234,7 +238,20 @@ public final class ResolutionFailure implements Cloneable {
     assert getValueRequirement().getTargetSpecification().equals(failure.getValueRequirement().getTargetSpecification())
         && getValueRequirement().getValueName().equals(failure.getValueRequirement().getValueName());
     synchronized (failure) {
-      _events.addAll(failure._events);
+      final Iterator<Object> itrThis = _events.descendingIterator();
+      final Iterator<Object> itrNew = failure._events.descendingIterator();
+      boolean match = true;
+      while (itrNew.hasNext() && itrThis.hasNext()) {
+        if (!itrThis.next().equals(itrNew.next())) {
+          match = false;
+          break;
+        }
+      }
+      if (match) {
+        s_logger.debug("Discarding merge of {} event(s) into existing {} event(s)", failure._events.size(), _events.size());
+      } else {
+        _events.addAll(failure._events);
+      }
     }
   }
 
@@ -251,6 +268,31 @@ public final class ResolutionFailure implements Cloneable {
     copy._resultCount = _resultCount;
     copy._events.addAll(_events);
     return copy;
+  }
+
+  /**
+   * Tests this resolution failure object with another for equality. Note that the caller must ensure that the monitor for
+   * both is held, or a suitable exclusion lock is held at an outer level.
+   * 
+   * @param o object to compare to
+   * @return {@code true} if the objects are equal, {@code false} otherwise
+   */
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof ResolutionFailure)) {
+      return false;
+    }
+    final ResolutionFailure other = (ResolutionFailure) o;
+    return getValueRequirement().equals(other.getValueRequirement())
+        && _events.equals(other._events);
+  }
+
+  @Override
+  public int hashCode() {
+    return getValueRequirement().hashCode();
   }
 
 }
