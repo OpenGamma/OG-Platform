@@ -80,13 +80,14 @@ public class UniqueIdSchemeDelegator<T> {
 
   //-------------------------------------------------------------------------
   /**
-   * Chooses the delegate for a specific unique identifier.
+   * Chooses the delegate for a specific identifier scheme.
    * 
-   * @param uniqueId  the unique identifier, not null
+   * @param scheme  the identifier scheme, not null
    * @return the delegate, not null
    */
-  protected T chooseDelegate(final UniqueId uniqueId) {
-    String[] schemeParts = StringUtils.split(uniqueId.getScheme(), "-", 2);
+  protected T chooseDelegate(final String scheme) {
+    ArgumentChecker.notNull(scheme, "scheme");
+    String[] schemeParts = StringUtils.split(scheme, "-", 2);
     String schemePrefix = schemeParts[0];
     final T delegate = _schemeToDelegateMap.get(schemePrefix);
     return (delegate != null) ? delegate : _defaultDelegate;

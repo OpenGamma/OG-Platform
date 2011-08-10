@@ -22,6 +22,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
@@ -151,7 +152,7 @@ public class SecurityLink extends Link<Security> {
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the security using a security source.
+   * Resolves the security for the latest version-correction using a security source.
    * 
    * @param source  the source to use to resolve, not null
    * @return the resolved security, not null
@@ -159,13 +160,22 @@ public class SecurityLink extends Link<Security> {
    * @throws RuntimeException if an error occurs while resolving
    */
   public Security resolve(SecuritySource source) {
-    Security target = getTarget();
-    if (target != null) {
-      return target;
-    }
+    return resolve(source, VersionCorrection.LATEST);
+  }
+  
+  /**
+   * Resolves the security using a security source.
+   * 
+   * @param source  the source to use to resolve, not null
+   * @param versionCorrection  the version-correction, not null
+   * @return the resolved security, not null
+   * @throws DataNotFoundException if the security could not be resolved
+   * @throws RuntimeException if an error occurs while resolving
+   */
+  public Security resolve(SecuritySource source, VersionCorrection versionCorrection) {
     ObjectId objectId = getObjectId();
     if (objectId != null) {
-      target = source.getSecurity(objectId.atLatestVersion());
+      Security target = source.getSecurity(objectId, versionCorrection);
       if (target != null) {
         setTarget(target);
         return target;
@@ -173,7 +183,7 @@ public class SecurityLink extends Link<Security> {
     }
     ExternalIdBundle bundle = getExternalId();
     if (bundle.size() > 0) {
-      target = source.getSecurity(bundle);
+      Security target = source.getSecurity(bundle, versionCorrection);
       if (target != null) {
         setTarget(target);
         return target;
