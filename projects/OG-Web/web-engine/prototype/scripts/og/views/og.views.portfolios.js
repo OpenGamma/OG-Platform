@@ -70,9 +70,8 @@ $.register_module({
                                             args_obj.node = json.template_data.parent_node_id;
                                             args_obj.id = json.template_data.object_id;
                                         }
-                                        routes.go(routes.hash(module.rules.load_delete,
-                                                $.extend(true, {}, last.args, {deleted: true}, args_obj)
-                                        ));
+                                        portfolios.deleted = true;
+                                        routes.handler();
                                     }
                                 };
                                 if (routes.last().args.node) obj.node = routes.last().args.node;
