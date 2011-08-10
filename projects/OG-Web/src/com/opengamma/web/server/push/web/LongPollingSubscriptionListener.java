@@ -46,7 +46,7 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
   }
 
   private void sendUpdate(String url) {
-    _continuation.setAttribute(SubscriptionServlet.RESULTS, url);
+    _continuation.setAttribute(LongPollingServlet.RESULTS, url);
     _continuation.resume();
     _continuation = null;
   }

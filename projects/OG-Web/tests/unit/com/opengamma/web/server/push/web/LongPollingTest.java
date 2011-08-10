@@ -105,12 +105,12 @@ public class LongPollingTest {
   @Test
   public void longPollBlocking() throws IOException, ExecutionException, InterruptedException {
     final String clientId = readFromPath("handshake");
-    Executors.newSingleThreadExecutor().execute(new Runnable() {
+    new Thread(new Runnable() {
       @Override
       public void run() {
         waitAndSend(clientId, RESULT1);
       }
-    });
+    }).start();
     String result = readFromPath("subscription/" + clientId);
     assertEquals(RESULT1, result);
   }
@@ -142,7 +142,7 @@ public class LongPollingTest {
   @Test
   public void repeatingLongPoll() throws IOException {
     final String clientId = readFromPath("handshake");
-    Executors.newSingleThreadExecutor().execute(new Runnable() {
+    new Thread(new Runnable() {
       @Override
       public void run() {
         waitAndSend(clientId, RESULT1);
@@ -151,7 +151,7 @@ public class LongPollingTest {
         waitAndSend(clientId, RESULT2);
         waitAndSend(clientId, RESULT1);
       }
-    });
+    }).start();
     String path = "subscription/" + clientId;
     assertEquals(RESULT1, readFromPath(path));
     assertEquals(RESULT2, readFromPath(path));
@@ -161,13 +161,13 @@ public class LongPollingTest {
   }
 
   /**
-   * Waits until the clients is connected before sending the result
+   * Waits until the client is connected before sending the result to its listener
    */
   private void waitAndSend(String clientId, String result) {
     // wait for the request to block
     while (!_longPollingConnectionManager.isClientConnected(clientId)) {
       try {
-        Thread.sleep(1000);
+        Thread.sleep(200);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

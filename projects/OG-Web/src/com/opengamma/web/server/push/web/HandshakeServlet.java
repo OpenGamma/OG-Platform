@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -16,19 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- *
+ * Sets up a connection for a client.  A connection corresponds to one view, e.g. a single browser tab or
+ * window.  A user can have multiple simultaneous client connections.  The client ID that identifies the
+ * connection is sent in the response.  This ID must be passed to all other operations for this client.
  */
-public class HandshakeServlet extends HttpServlet {
+public class HandshakeServlet extends SpringConfiguredServlet {
 
+  @Autowired
   private LongPollingConnectionManager _connectionManager;
-
-  // TODO isn't there a spring base class that does this so I can just annotate the field with @Injet, @Resource or something?
-  @Override
-  public void init(ServletConfig config) throws ServletException {
-    super.init(config);
-    ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(config.getServletContext());
-    _connectionManager = (LongPollingConnectionManager) ctx.getBean("longPollingConnectionManager");
-  }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

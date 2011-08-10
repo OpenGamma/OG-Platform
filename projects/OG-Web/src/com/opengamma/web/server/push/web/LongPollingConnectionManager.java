@@ -36,6 +36,15 @@ public class LongPollingConnectionManager {
   }
 
   // invoked when a long-polling http connection is established
+
+  /**
+   * Associates a continuation with a client connection so asynchronous updates can be pushed to the client.
+   * @param userId The ID of the user
+   * @param clientId The client ID of the connection
+   * @param continuation For sending an async response to the client
+   * @return {@code true} if the connection was successful, {@code false} if the client ID doesn't correspond to
+   * an existing connection
+   */
   boolean connect(String userId, String clientId, Continuation continuation) {
     // TODO check userId and clientId correspond
     LongPollingSubscriptionListener connection = _connections.get(clientId);

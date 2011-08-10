@@ -7,8 +7,10 @@ package com.opengamma.web.server.push.subscription;
 
 import com.opengamma.web.server.push.web.LongPollingTest;
 
+import java.util.List;
+
 /**
- *
+ * Test subscription manager that can have a maximum of one connection.
  */
 public class TestSubscriptionManager implements SubscriptionManager {
 
@@ -23,6 +25,11 @@ public class TestSubscriptionManager implements SubscriptionManager {
   @Override
   public void closeConnection(String userId, String clientId) {
     throw new UnsupportedOperationException("closeConnection not used in this test");
+  }
+
+  @Override
+  public boolean subscribe(String userId, String clientId, List<String> urls) {
+    throw new UnsupportedOperationException("subscribe not used in this test");
   }
 
   public void sendUpdate(String update) {

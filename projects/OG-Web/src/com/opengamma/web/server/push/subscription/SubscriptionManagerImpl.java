@@ -12,12 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TODO what's the policy on arg checking? public API only?
  * TODO refactor so stack isn't so deep? create objects in here and pass into connections? will that work?
+ * TODO the API might not be right - how does the servlet know what type of subscription it is and whether it's reactivating?
  */
 public class SubscriptionManagerImpl implements SubscriptionManager {
 
@@ -55,8 +57,18 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
     
   }
 
+  // TODO need to work out what the url is for? or just pass to the ClientConnection and let that figure it out?
+  @Override
+  public boolean subscribe(String userId, String clientId, List<String> urls) {
+    throw new UnsupportedOperationException("subscribe not implemented");
+  }
+
   //
   // TODO need to generate a URL to GET the viewport data. lastest view data available from /viewport/{viewportId}?
+  // TODO is this still correct? does Viewport create the viewport and notify this class? the request arg should be viewportId
+  // TODO maybe the API should be completely different - Viewports manages the clients and this class receives events when they change
+  // TODO but what about closing subscriptions? the client connection needs to know about its viewports
+  // TODO or the ViewportManager could key on client ID and implement a disconnect() method
   public String createViewportSubscription(String userId, String clientId, ViewportSubscriptionRequest request) {
     getConnection(userId, clientId).createViewportSubscription(request);
     return viewportId(clientId);
@@ -68,14 +80,17 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
     throw new UnsupportedOperationException("TODO");
   }
 
+  // TODO redundant?
   public void activateViewportSubscription(String userId, String clientId, String viewportId) {
     getConnection(userId, clientId).activateViewportSubscription(viewportId);
   }
 
+  // TODO redundant?
   public void cancelViewportSubscription(String userId, String clientId, String viewportId) {
 
   }
 
+  // TODO redundant?
   public void createEntitySubscription(String userId, String clientId, UniqueId entityId) {
 
   }

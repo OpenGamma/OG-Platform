@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.server.push.subscription;
 
+import java.util.List;
+
 /**
  * TODO move more methods from SubscriptionManagerImpl into here
  */
@@ -14,4 +16,6 @@ public interface SubscriptionManager {
   String newConnection(String userId, SubscriptionListener listener);
 
   void closeConnection(String userId, String clientId);
+
+  boolean subscribe(String userId, String clientId, List<String> urls);
 }

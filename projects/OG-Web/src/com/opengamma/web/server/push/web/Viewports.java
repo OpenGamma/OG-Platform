@@ -7,7 +7,7 @@ package com.opengamma.web.server.push.web;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.subscription.SubscriptionManager;
-import com.opengamma.web.server.push.subscription.SubscriptionRequest;
+import com.opengamma.web.server.push.subscription.ViewportSubscriptionRequest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -20,10 +20,9 @@ import javax.ws.rs.core.MediaType;
 /**
  *
  */
-@Path("viewports")
+@Path("viewport")
 public class Viewports {
 
-  // TODO this needs to be initialized by Spring
   private final SubscriptionManager _subscriptionManager;
 
   public Viewports(SubscriptionManager subscriptionManager) {
@@ -31,13 +30,13 @@ public class Viewports {
   }
 
   /**
-   * @param subscriptionRequest Details of the subscription
+   * @param request Details of the viewport
    * @return URI of the new viewport
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
-  String createViewport(SubscriptionRequest subscriptionRequest) {
+  String createViewport(ViewportSubscriptionRequest request) {
     //_subscriptionManager.
     throw new UnsupportedOperationException("TODO");
   }

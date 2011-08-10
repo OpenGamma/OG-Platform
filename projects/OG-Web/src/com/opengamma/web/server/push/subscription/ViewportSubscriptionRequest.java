@@ -12,23 +12,25 @@ import java.util.List;
 /**
  *
  */
-public class ViewportSubscriptionRequest extends SubscriptionRequest {
+public class ViewportSubscriptionRequest {
 
   private final UniqueId _viewClientId;
+  private final String _clientId;
   // TODO timestamps? not sure what they're used for
   private final List<Integer> _rows;
   private final String _handle;
 
-  public ViewportSubscriptionRequest(UniqueId viewClientId, List<Integer> rows, String handle) {
+  public ViewportSubscriptionRequest(UniqueId viewClientId, String clientId, List<Integer> rows, String handle) {
     // TODO check args
     _viewClientId = viewClientId;
+    _clientId = clientId;
     _rows = rows;
     _handle = handle;
   }
 
-  @Override
-  public void submit(String userId, String clientId, SubscriptionManagerImpl subscriptionManager) {
-    subscriptionManager.createViewportSubscription(userId, clientId, this);
+  // this should allow Jersey to create the object from JSON
+  public static ViewportSubscriptionRequest valueOf(String json) {
+    throw new UnsupportedOperationException("TODO");
   }
 
   public UniqueId getViewClientId() {
@@ -46,5 +48,9 @@ public class ViewportSubscriptionRequest extends SubscriptionRequest {
   public ViewportBounds getViewportBounds() {
     // TODO implement ViewportSubscriptionRequest.getViewportBounds()
     throw new UnsupportedOperationException("getViewportBounds not implemented");
+  }
+
+  public String getClientId() {
+    return _clientId;
   }
 }

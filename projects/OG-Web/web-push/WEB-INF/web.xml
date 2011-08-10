@@ -60,7 +60,7 @@
 
   <servlet>
     <servlet-name>subscription</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.web.SubscriptionServlet</servlet-class>
+    <servlet-class>com.opengamma.web.server.push.web.LongPollingServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
