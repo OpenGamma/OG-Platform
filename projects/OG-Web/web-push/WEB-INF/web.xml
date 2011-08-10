@@ -65,7 +65,7 @@
 
   <servlet-mapping>
     <servlet-name>subscription</servlet-name>
-    <url-pattern>/subscription</url-pattern>
+    <url-pattern>/subscription/*</url-pattern>
   </servlet-mapping>
 
 </web-app>

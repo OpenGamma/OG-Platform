@@ -18,8 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * this manages long-polling http requests
- * TODO use JAX-RS instead? /subscriptions/{clientId} instead of query param?
+ * This manages long-polling http requests.  It assumes the URL will be {@code <servlet path>/{clientId}}.
  */
 public class SubscriptionServlet extends HttpServlet {
 
@@ -37,23 +36,32 @@ public class SubscriptionServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // if we need to get asynchronous results
     String results = (String) request.getAttribute(RESULTS);
     if (results == null) {
-      final Continuation continuation = ContinuationSupport.getContinuation(request);
+      Continuation continuation = ContinuationSupport.getContinuation(request);
 
       if (continuation.isExpired()) {
-        response.getWriter().write("TIMEOUT"); // TODO do this properly
+        response.getWriter().write("TIMEOUT"); // TODO what is the best approach here?
         return;
       }
       // suspend the request
       continuation.suspend(); // always suspend before registration
       String userId = request.getRemoteUser(); // TODO is this right?
-      String clientId = request.getParameter("clientId");
-      if (clientId == null) {
-        response.sendError(404);
+      // this is the portion of the URL after the part used to direct it to this servlet
+      // i.e. if the full URL is http://host/subscription/abcd then suffix=/abcd
+      String suffix = request.getRequestURI().substring(request.getServletPath().length());
+      boolean connected;
+      // get the client ID from the URL suffix and pass the continuation to the connection manager for the next updates
+      if (suffix.length() > 1) {
+        String clientId = suffix.substring(1);
+        connected = _connectionManager.connect(userId, clientId, continuation);
       } else {
-        _connectionManager.connectionEstablished(userId, clientId, continuation);
+        connected = false;
+      }
+      if (!connected) {
+        // couldn't get the client ID from the URL
+        response.sendError(404);
+        continuation.complete();
       }
     } else {
       // Send the results

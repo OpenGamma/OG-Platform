@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.server.push.web;
 
-import com.google.common.base.Joiner;
 import com.opengamma.web.server.push.subscription.TestSubscriptionManager;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -21,9 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -34,7 +31,7 @@ import java.util.concurrent.Future;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- *
+ * Tests pushing results to a long polling HTTP connection.
  */
 @Test
 public class LongPollingTest {
@@ -102,43 +99,80 @@ public class LongPollingTest {
     assertEquals(CLIENT_ID, result);
   }
 
-  /** Tests sending an update to a client that is blocked on a long poll request */
+  /**
+   * Tests sending an update to a client that is blocked on a long poll request
+   */
   @Test
   public void longPollBlocking() throws IOException, ExecutionException, InterruptedException {
     final String clientId = readFromPath("handshake");
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<String> future = executor.submit(new Callable<String>() {
+    Executors.newSingleThreadExecutor().execute(new Runnable() {
       @Override
-      public String call() throws Exception {
-        return readFromPath("subscription?clientId=" + clientId);
+      public void run() {
+        waitAndSend(clientId, RESULT1);
       }
     });
-    // wait for the request to block
-    while (!_longPollingConnectionManager.isClientConnected(clientId)) {
-      Thread.sleep(1000);
-    }
-    _subscriptionManager.sendUpdate(RESULT1);
-    String result = future.get();
+    String result = readFromPath("subscription/" + clientId);
     assertEquals(RESULT1, result);
   }
 
+  /**
+   * Tests sending a single update to a client's connection when it's not connected and then connecting.
+   */
   @Test
   public void longPollNotBlocking() throws IOException {
-    final String clientId = readFromPath("handshake");
+    String clientId = readFromPath("handshake");
     _subscriptionManager.sendUpdate(RESULT1);
-    String result = readFromPath("subscription?clientId=" + clientId);
+    String result = readFromPath("subscription/" + clientId);
     assertEquals(RESULT1, result);
   }
 
-  /** Tests sending multiple updates to a connection where the client isn't currently connected. */
+  /**
+   * Tests sending multiple updates to a connection where the client isn't currently connected.
+   */
   @Test
   public void longPollQueue() throws IOException {
-    final String clientId = readFromPath("handshake");
+    String clientId = readFromPath("handshake");
     _subscriptionManager.sendUpdate(RESULT1);
     _subscriptionManager.sendUpdate(RESULT2);
     _subscriptionManager.sendUpdate(RESULT3);
-    String result = readFromPath("subscription?clientId=" + clientId);
+    String result = readFromPath("subscription/" + clientId);
     assertEquals(RESULT1 + "\n" + RESULT2 + "\n" + RESULT3, result);
+  }
+
+  @Test
+  public void repeatingLongPoll() throws IOException {
+    final String clientId = readFromPath("handshake");
+    Executors.newSingleThreadExecutor().execute(new Runnable() {
+      @Override
+      public void run() {
+        waitAndSend(clientId, RESULT1);
+        waitAndSend(clientId, RESULT2);
+        waitAndSend(clientId, RESULT3);
+        waitAndSend(clientId, RESULT2);
+        waitAndSend(clientId, RESULT1);
+      }
+    });
+    String path = "subscription/" + clientId;
+    assertEquals(RESULT1, readFromPath(path));
+    assertEquals(RESULT2, readFromPath(path));
+    assertEquals(RESULT3, readFromPath(path));
+    assertEquals(RESULT2, readFromPath(path));
+    assertEquals(RESULT1, readFromPath(path));
+  }
+
+  /**
+   * Waits until the clients is connected before sending the result
+   */
+  private void waitAndSend(String clientId, String result) {
+    // wait for the request to block
+    while (!_longPollingConnectionManager.isClientConnected(clientId)) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    _subscriptionManager.sendUpdate(result);
   }
 
   @AfterClass

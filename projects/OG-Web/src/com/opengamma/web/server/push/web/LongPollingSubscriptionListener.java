@@ -35,7 +35,7 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     }
   }
 
-  public void connectionEstablished(Continuation continuation) {
+  public void connect(Continuation continuation) {
     synchronized (_lock) {
       _continuation = continuation;
       // if there are updates queued sent them immediately otherwise save the continuation until an update
@@ -51,6 +51,7 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     _continuation = null;
   }
 
+  // TODO better name? isBlocking? isWaiting?
   // for testing
   boolean isConnected() {
     synchronized (_lock) {

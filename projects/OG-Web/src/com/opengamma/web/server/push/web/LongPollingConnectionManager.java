@@ -36,14 +36,14 @@ public class LongPollingConnectionManager {
   }
 
   // invoked when a long-polling http connection is established
-  // TODO do we need the response for setting the status when things go wrong?
-  void connectionEstablished(String userId, String clientId, Continuation continuation) {
+  boolean connect(String userId, String clientId, Continuation continuation) {
     // TODO check userId and clientId correspond
     LongPollingSubscriptionListener connection = _connections.get(clientId);
     if (connection != null) {
-      connection.connectionEstablished(continuation);
+      connection.connect(continuation);
+      return true;
     } else {
-      // TODO what here? exception? response status
+      return false;
     }
   }
 
