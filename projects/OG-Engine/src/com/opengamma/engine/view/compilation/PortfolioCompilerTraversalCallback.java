@@ -88,14 +88,14 @@ import com.opengamma.util.tuple.Pair;
   }
 
   private void addTradeRequirements(PortfolioNode portfolioNode) {
-    Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-    Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getTradeRequirementsBySecurityType();
+    final Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
+    final Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getTradeRequirementsBySecurityType();
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (String secType : subNodeSecurityTypes) {
-      Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
+      final Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
       if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
         continue;
       }
-      Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       // add requirements for trades as well
       if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
         for (Position position : portfolioNode.getPositions()) {
@@ -109,38 +109,36 @@ import com.opengamma.util.tuple.Pair;
               requirements.add(new ValueRequirement(requiredOutput.getFirst(), trade, requiredOutput.getSecond()));
             }
           }
-          _dependencyGraphBuilder.addTarget(requirements);
         }
       }
     }
+    _dependencyGraphBuilder.addTarget(requirements);
   }
 
   private void addPortfolioRequirements(PortfolioNode portfolioNode) {
-    Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-    Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
+    final Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
+    final Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (String secType : subNodeSecurityTypes) {
-      Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
+      final Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
       if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
         continue;
       }
-      Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       // If the outputs are not even required in the results then there's no point adding them as terminal outputs
       if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
         for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
           requirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
         }
-        _dependencyGraphBuilder.addTarget(requirements);
       }
       if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
         for (Position position : portfolioNode.getPositions()) {
-          requirements.clear();
           for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
             requirements.add(new ValueRequirement(requiredOutput.getFirst(), position, requiredOutput.getSecond()));
           }
-          _dependencyGraphBuilder.addTarget(requirements);
         }
       }
     }
+    _dependencyGraphBuilder.addTarget(requirements);
   }
   
 }

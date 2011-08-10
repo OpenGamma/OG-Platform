@@ -273,6 +273,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     ValueProperties resultProperties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, _curveCalculationType)
         .with(ValuePropertyNames.CURVE, _forwardCurveName)
@@ -283,6 +284,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
     result.add(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
     resultProperties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, _curveCalculationType)
         .with(ValuePropertyNames.CURVE, _fundingCurveName)
