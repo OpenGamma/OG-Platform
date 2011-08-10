@@ -115,6 +115,7 @@ import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingF
 import com.opengamma.financial.analytics.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.volatility.surface.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
+import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
 import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
@@ -295,9 +296,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class.getName(), Arrays.asList("USD", "DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("DEFAULT")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
@@ -453,7 +457,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityCurrencyConversionFunction.class.getName(), Arrays.asList(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(PortfolioNodeDefaultCurrencyFunction.class.getName(), Arrays.asList(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)));
 
-    functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyMatrixSourcingFunction.class.getName(), Collections.singleton("BloombergLiveData")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyMatrixSourcingFunction.class.getName(), Collections.singleton(CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyMatrixSourcingFunction.class.getName(), Collections.singleton(CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA)));
     functionConfigs.add(new StaticFunctionConfiguration(DefaultCurrencyInjectionFunction.class.getName()));
     // functionConfigs.add(new StaticFunctionConfiguration(CurrencyInversionFunction.class.getName()));
     // functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyCrossRateFunction.class.getName(), Collections.singleton("USD")));
@@ -484,6 +489,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
    * @param functionConfigs
    */
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
+    // single/single
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class.getName(), Arrays.asList("SINGLE", "SINGLE")));
@@ -492,6 +498,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList("SINGLE", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
         .asList("SINGLE", "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)));
+    //forward/funding
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING")));
@@ -501,7 +508,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
         .asList("FORWARD", "FUNDING", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)));
     functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivitiesSummingFunction.class.getName()));
-
+    //swap only -- should this still be here? the swap only curve was added as an example only a while ago
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName(), Arrays.asList("SWAP_ONLY", "SWAP_ONLY")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName(), Arrays.asList("SWAP_ONLY", "SWAP_ONLY")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class.getName(), Arrays.asList("SWAP_ONLY", "SWAP_ONLY")));
@@ -511,6 +518,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
         .asList("SWAP_ONLY", "SWAP_ONLY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)));
     functionConfigs.add(new StaticFunctionConfiguration(YieldCurveNodeSensitivitiesSummingFunction.class.getName()));
+    //secondary
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPresentValueFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentPV01Function.class.getName(), Arrays.asList("SECONDARY", "SECONDARY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
+        .asList("SECONDARY", "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays
+        .asList("SECONDARY", "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)));
   }
 
   public static RepositoryConfigurationSource constructRepositoryConfigurationSource() {

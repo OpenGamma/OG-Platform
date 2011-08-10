@@ -207,7 +207,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     }
     final Set<String> possibleCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (possibleCurrencies == null) {
-      throw new IllegalArgumentException("Must specify a currency constraint; use DefaultCurrencyFunction instead");
+      s_logger.debug("Must specify a currency constraint; use DefaultCurrencyFunction instead");
+      return null;
     } else if (possibleCurrencies.isEmpty()) {
       if (isAllowViewDefaultCurrency()) {
         // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
@@ -220,7 +221,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
             ValuePropertyNames.CURRENCY, defaultCurrencyISO).get()));
         return req;
       } else {
-        throw new IllegalArgumentException("Cannot satisfy a wildcard currency constraint");
+        s_logger.debug("Cannot satisfy a wildcard currency constraint");
+        return null;
       }
     } else {
       // Actual input requirement is desired requirement with the currency wild-carded

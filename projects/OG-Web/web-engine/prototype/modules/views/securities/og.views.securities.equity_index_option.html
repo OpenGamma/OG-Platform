@@ -1,18 +1,38 @@
-<div class="OG-security">
-  <div class="OG-warning-message"></div>
-  <h1>
-    <span class="OG-editable">${name}</span>
-  </h1>
-  <div class="og-box">
-    <div class="og-lbl">
-        <div>Type</div>
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-toolbar"></div>
+    <h1>${name}</h1>
+  </header>
+  <section>
+    <div class="og-details-content OG-security OG-js-details-panel">
+      <div class="OG-c10 og-grid-last OG-max-width-l">
+        <section class="OG-mod-1 OG-c6">
+          <table>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+            <thead>
+              <tr>
+                <td>${securityType}</td><td></td>
+              </tr>
+            </thead>
+            <tbody class="og-mod-content og-dotted">
+              <tr><td><span>&nbsp;</span></td><td>&nbsp;</td></tr>
+            </tbody>
+          </table>
+        </section>
+        <section class="OG-mod-1 og-style-2 OG-c4">
+          <table>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+              <thead>
+              <tr>
+                <td>Identifiers</td><td></td>
+              </tr>
+            </thead>
+            <tbody class="og-js-identifiers og-mod-content og-dotted"></tbody>
+          </table>
+        </section>
+      </div>
     </div>
-    <div class="og-cnt">
-      <div><strong>${securityType}</strong>&nbsp;</div>
-    </div>
-  </div>
-  <div class="og-box">
-    <div class="og-lbl">Identifiers</div>
-    <div class="og-cnt og-js-identifiers"></div>
-  </div>
-</div>
+  </section>
+</article>

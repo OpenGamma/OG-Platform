@@ -5,56 +5,53 @@
 $.register_module({
     name: 'og.views.regions',
     dependencies: [
-        'og.common.routes',
+        'og.api.rest',
+        'og.api.text',
         'og.common.masthead.menu',
+        'og.common.routes',
         'og.common.search_results.core',
+        'og.common.util.history',
+        'og.common.util.ui.dialog',
         'og.common.util.ui.message',
-        'og.views.common.layout',
-        'og.common.layout.resize',
         'og.common.util.ui.toolbar',
-        'og.common.util.history'
+        'og.views.common.layout',
+        'og.views.common.state',
+        'og.views.common.default_details'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
-            masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
+            masthead = og.common.masthead, search, details = og.common.details,
+            ui = og.common.util.ui, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
-            resize = og.common.layout.resize,
             check_state = og.views.common.state.check.partial('/' + page_name),
-            search_options = {
-                'selector': '.OG-js-search', 'page_type': 'regions',
-                'columns': [
-                    {id: 'name', field: 'name',width: 300, cssClass: 'og-link', filter_type: 'input',
-                        name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'}
-                ]
+            options = {
+                toolbar: {
+                    active: {
+                        buttons: [
+                            {name: 'delete', enabled: 'OG-disabled'},
+                            {name: 'new', enabled: 'OG-disabled'}
+                        ],
+                        location: '.OG-toolbar'
+                    },
+                    'default': {
+                        buttons: [
+                            {name: 'delete', enabled: 'OG-disabled'},
+                            {name: 'new', enabled: 'OG-disabled'}
+                        ],
+                        location: '.OG-toolbar'
+                    }
+                },
+                slickgrid: {
+                    'selector': '.OG-js-search', 'page_type': 'regions',
+                    'columns': [
+                        {id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
+                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'}
+                    ]
+                }
             },
-            default_toolbar_options = {
-                buttons: [
-                    {name: 'delete', enabled: 'OG-disabled'},
-                    {name: 'new', enabled: 'OG-disabled'}
-                ],
-                location: '.OG-toolbar'
-            },
-            active_toolbar_options = {
-                buttons: [
-                    {name: 'delete', enabled: 'OG-disabled'},
-                    {name: 'new', enabled: 'OG-disabled'}
-                ],
-                location: '.OG-toolbar'
-            },
-            default_page = function () {
-                og.api.text({module: 'og.views.default', handler: function (template) {
-                    $.tmpl(template, {
-                        name: 'Regions',
-                        recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions'
-                    }).appendTo($('.OG-js-details-panel .OG-details').empty());
-                    ui.toolbar(default_toolbar_options);
-                    $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
-               }});
-            },
+            default_details = og.views.common.default_details.partial(page_name, 'Regions', options),
             new_page = function (args) {
                 masthead.menu.set_tab(page_name);
-                layout('default');
                 regions.search(args);
             };
         module.rules = {
@@ -75,22 +72,25 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.template_data).appendTo($('.OG-js-details-panel .OG-details').empty());
-                            $('.OG-js-details-panel .og-box-error').empty().hide(), resize();
+                            var layout = og.views.common.layout, header, content,
+                                $html = $.tmpl(template, json.template_data);
+                            header = $.outer($html.find('> header')[0]);
+                            content = $.outer($html.find('> section')[0]);
+                            $('.ui-layout-inner-center .ui-layout-header').html(header);
+                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.render_keys('.OG-region .og-js-keys', json.keys);
                             f.render_regions('.OG-region .og-js-parent_regions', json.parent);
                             f.render_regions('.OG-region .og-js-child_regions', json.child);
-                            ui.message({location: '.OG-js-details-panel', destroy: true});
-                            ui.toolbar(active_toolbar_options);
-                            resize({element: '.OG-details-container', offsetpx: -41});
-                            resize({element: '.OG-details-container .og-details-content', offsetpx: -48});
-                            details.favorites();
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            ui.toolbar(options.toolbar.active);
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     loading: function () {
                         ui.message({
-                            location: '#OG-details',
+                            location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     },
@@ -99,7 +99,7 @@ $.register_module({
             },
             load: function (args) {
                 check_state({args: args, conditions: [{new_page: new_page}]});
-                if (!args.id) default_page();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [{
@@ -116,7 +116,10 @@ $.register_module({
                 check_state({args: args, conditions: [{new_page: regions.load}]});
                 regions.details(args);
             },
-            search: function (args) {search.load($.extend(search_options, {url: args}));},
+            search: function (args) {
+                if (!search) search = og.common.search_results.core();
+                search.load($.extend(options.slickgrid, {url: args}));
+            },
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

@@ -29,8 +29,9 @@ import com.opengamma.util.tuple.DoublesPair;
 public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestRateFutureOptionFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
-  public InterestRateFutureOptionSABRSensitivitiesFunction(final String surfaceName) {
-    super(surfaceName, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
+  public InterestRateFutureOptionSABRSensitivitiesFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
+    super(forwardCurveName, fundingCurveName, surfaceName, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, 
+        ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY);
   }
 
   @Override

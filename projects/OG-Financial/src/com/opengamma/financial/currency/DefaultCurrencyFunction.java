@@ -63,9 +63,13 @@ public class DefaultCurrencyFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints().copy().with(ValuePropertyNames.CURRENCY, DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context)).get();
-    final ValueRequirement required = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), constraints);
-    return Collections.singleton(required);
+    try {
+      final ValueProperties constraints = desiredValue.getConstraints().copy().with(ValuePropertyNames.CURRENCY, DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context)).get();
+      final ValueRequirement required = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), constraints);
+      return Collections.singleton(required);
+    } catch (IllegalStateException e) {
+      return null;
+    }
   }
 
   @Override

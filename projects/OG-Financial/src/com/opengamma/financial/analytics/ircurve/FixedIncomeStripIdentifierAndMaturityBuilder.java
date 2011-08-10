@@ -21,6 +21,8 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
@@ -34,6 +36,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Tenor;
@@ -183,7 +186,16 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       }
     }
     if (initialRate == null) {
-      throw new OpenGammaRuntimeException("Could not get initial rate");
+      //try using unique id from secMaster
+      Security security = _secSource.getSecurity(floatRateConvention.getIdentifiers());
+      if (security != null) {
+        UniqueId uniqueId = security.getUniqueId();
+        ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uniqueId).getIdentifier();
+        initialRate = marketValues.get(identifier);
+      }
+      if (initialRate == null) {
+        throw new OpenGammaRuntimeException("Could not get initial rate for " + floatRateConvention.getIdentifiers());
+      }
     }
     final double spread = 0;
     if (rate == null) {

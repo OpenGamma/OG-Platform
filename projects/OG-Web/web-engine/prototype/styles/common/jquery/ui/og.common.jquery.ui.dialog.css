@@ -49,6 +49,10 @@
   right: 1px;
 }
 
+.ie8 .ui-dialog-titlebar:before {
+  background: transparent;
+}
+
 .ui-dialog .ui-dialog-content {
   color: #555;
   margin: 20px 0 30px 0;

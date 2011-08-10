@@ -178,8 +178,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   @Override
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name,
-      final String capmRiskFreeRateName, final String capmMarketName) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(name, capmRiskFreeRateName, capmMarketName);
+      final ExternalIdBundle capmRiskFreeRate, final ExternalIdBundle capmMarket) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(name, capmRiskFreeRate, capmMarket);
     return add(bundle, convention);
   }
 
@@ -603,7 +603,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(11), 2, false, null);
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0012M Index"),
-            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURLIBORP6M")), "EUR LIBOR 12m", act360, modified,
+            ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURLIBORP12M")), "EUR LIBOR 12m", act360, modified,
         Period.ofMonths(12), 2, false, null);
 
     //TODO holiday associated with EUR swaps is TARGET
@@ -619,65 +619,65 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         act360, following, 2, false);
 
     //Identifiers for external data 
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP1D")), "EURCASHP1D", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP1D"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP1D")), "EURCASHP1D", act360,
         following, Period.ofDays(1), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP1M")), "EURCASHP1M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP1M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP1M")), "EURCASHP1M", act360,
         modified, Period.ofMonths(1), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP2M")), "EURCASHP2M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP2M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP2M")), "EURCASHP2M", act360,
         modified, Period.ofMonths(2), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP3M")), "EURCASHP3M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP3M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP3M")), "EURCASHP3M", act360,
         modified, Period.ofMonths(3), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP4M")), "EURCASHP4M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP4M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP4M")), "EURCASHP4M", act360,
         modified, Period.ofMonths(4), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP5M")), "EURCASHP5M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP5M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP5M")), "EURCASHP5M", act360,
         modified, Period.ofMonths(5), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP6M")), "EURCASHP6M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP6M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP6M")), "EURCASHP6M", act360,
         modified, Period.ofMonths(6), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP7M")), "EURCASHP7M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP7M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP7M")), "EURCASHP7M", act360,
         modified, Period.ofMonths(7), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP8M")), "EURCASHP8M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP8M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP8M")), "EURCASHP8M", act360,
         modified, Period.ofMonths(8), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP9M")), "EURCASHP9M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP9M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP9M")), "EURCASHP9M", act360,
         modified, Period.ofMonths(9), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP10M")), "EURCASHP10M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP10M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP10M")), "EURCASHP10M", act360,
         modified, Period.ofMonths(10), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP11M")), "EURCASHP11M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP11M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP11M")), "EURCASHP11M", act360,
         modified, Period.ofMonths(1), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP12M")), "EURCASHP12M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURCASHP12M"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURCASHP12M")), "EURCASHP12M", act360,
         modified, Period.ofMonths(12), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP2Y")), "EURSWAPP2Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP2Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP2Y")), "EURSWAPP2Y", thirty360,
         modified, Period.ofYears(2), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP3Y")), "EURSWAPP3Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP3Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP3Y")), "EURSWAPP3Y", thirty360,
         modified, Period.ofYears(3), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP4Y")), "EURSWAPP4Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP4Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP4Y")), "EURSWAPP4Y", thirty360,
         modified, Period.ofYears(4), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP5Y")), "EURSWAPP5Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP5Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP5Y")), "EURSWAPP5Y", thirty360,
         modified, Period.ofYears(5), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP6Y")), "EURSWAPP6Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP6Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP6Y")), "EURSWAPP6Y", thirty360,
         modified, Period.ofYears(6), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP7Y")), "EURSWAPP7Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP7Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP7Y")), "EURSWAPP7Y", thirty360,
         modified, Period.ofYears(7), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP8Y")), "EURSWAPP8Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP8Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP8Y")), "EURSWAPP8Y", thirty360,
         modified, Period.ofYears(8), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP9Y")), "EURSWAPP9Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP9Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP9Y")), "EURSWAPP9Y", thirty360,
         modified, Period.ofYears(9), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP10Y")), "EURSWAPP10Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP10Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP10Y")), "EURSWAPP10Y",
         thirty360, modified, Period.ofYears(10), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP12Y")), "EURSWAPP12Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP12Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP12Y")), "EURSWAPP12Y",
         thirty360, modified, Period.ofYears(12), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP15Y")), "EURSWAPP15Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP15Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP15Y")), "EURSWAPP15Y",
         thirty360, modified, Period.ofYears(15), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP20Y")), "EURSWAPP20Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP20Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP20Y")), "EURSWAPP20Y",
         thirty360, modified, Period.ofYears(20), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP25Y")), "EURSWAPP25Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP25Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP25Y")), "EURSWAPP25Y",
         thirty360, modified, Period.ofYears(25), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP30Y")), "EURSWAPP30Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP30Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP30Y")), "EURSWAPP30Y",
         thirty360, modified, Period.ofYears(30), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP40Y")), "EURSWAPP40Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP40Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP40Y")), "EURSWAPP40Y",
         thirty360, modified, Period.ofYears(40), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP50Y")), "EURSWAPP50Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP50Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP50Y")), "EURSWAPP50Y",
         thirty360, modified, Period.ofYears(50), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP80Y")), "EURSWAPP80Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EURSWAPP80Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "EURSWAPP80Y")), "EURSWAPP80Y",
         thirty360, modified, Period.ofYears(80), 2, false, null);
   }
 
@@ -762,6 +762,68 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO check this
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPY_IBOR_INDEX")), "JPY_IBOR_INDEX",
         act360, following, 2, false);
+    
+    //Identifiers for external data 
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP1D"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP1D")), "JPYCASHP1D", act360,
+        following, Period.ofDays(1), 0, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP1M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP1M")), "JPYCASHP1M", act360,
+        modified, Period.ofMonths(1), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP2M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP2M")), "JPYCASHP2M", act360,
+        modified, Period.ofMonths(2), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP3M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP3M")), "JPYCASHP3M", act360,
+        modified, Period.ofMonths(3), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP4M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP4M")), "JPYCASHP4M", act360,
+        modified, Period.ofMonths(4), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP5M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP5M")), "JPYCASHP5M", act360,
+        modified, Period.ofMonths(5), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP6M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP6M")), "JPYCASHP6M", act360,
+        modified, Period.ofMonths(6), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP7M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP7M")), "JPYCASHP7M", act360,
+        modified, Period.ofMonths(7), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP8M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP8M")), "JPYCASHP8M", act360,
+        modified, Period.ofMonths(8), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP9M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP9M")), "JPYCASHP9M", act360,
+        modified, Period.ofMonths(9), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP10M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP10M")), "JPYCASHP10M", act360,
+        modified, Period.ofMonths(10), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP11M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP11M")), "JPYCASHP11M", act360,
+        modified, Period.ofMonths(1), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYCASHP12M"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYCASHP12M")), "JPYCASHP12M", act360,
+        modified, Period.ofMonths(12), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP2Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP2Y")), "JPYSWAPP2Y", act365,
+        modified, Period.ofYears(2), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP3Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP3Y")), "JPYSWAPP3Y", act365,
+        modified, Period.ofYears(3), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP4Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP4Y")), "JPYSWAPP4Y", act365,
+        modified, Period.ofYears(4), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP5Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP5Y")), "JPYSWAPP5Y", act365,
+        modified, Period.ofYears(5), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP6Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP6Y")), "JPYSWAPP6Y", act365,
+        modified, Period.ofYears(6), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP7Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP7Y")), "JPYSWAPP7Y", act365,
+        modified, Period.ofYears(7), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP8Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP8Y")), "JPYSWAPP8Y", act365,
+        modified, Period.ofYears(8), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP9Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP9Y")), "JPYSWAPP9Y", act365,
+        modified, Period.ofYears(9), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP10Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP10Y")), "JPYSWAPP10Y",
+        act365, modified, Period.ofYears(10), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP12Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP12Y")), "JPYSWAPP12Y",
+        act365, modified, Period.ofYears(12), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP15Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP15Y")), "JPYSWAPP15Y",
+        act365, modified, Period.ofYears(15), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP20Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP20Y")), "JPYSWAPP20Y",
+        act365, modified, Period.ofYears(20), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP25Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP25Y")), "JPYSWAPP25Y",
+        act365, modified, Period.ofYears(25), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP30Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP30Y")), "JPYSWAPP30Y",
+        act365, modified, Period.ofYears(30), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP40Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP40Y")), "JPYSWAPP40Y",
+        act365, modified, Period.ofYears(40), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP50Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP50Y")), "JPYSWAPP50Y",
+        act365, modified, Period.ofYears(50), 2, false, null);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPYSWAPP80Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "JPYSWAPP80Y")), "JPYSWAPP80Y",
+        act365, modified, Period.ofYears(80), 2, false, null);
   }
 
   private void addCAFixedIncomeInstruments() {
@@ -894,65 +956,65 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBP_IBOR_INDEX")), "GBP_IBOR_INDEX",
         act365, modified, 0, false);
 
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP1D")), "GBPCASHP1D", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP1D"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP1D")), "GBPCASHP1D", act365,
         following, Period.ofDays(1), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP1M")), "GBPCASHP1M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP1M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP1M")), "GBPCASHP1M", act365,
         modified, Period.ofMonths(1), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP2M")), "GBPCASHP2M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP2M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP2M")), "GBPCASHP2M", act365,
         modified, Period.ofMonths(2), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP3M")), "GBPCASHP3M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP3M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP3M")), "GBPCASHP3M", act365,
         modified, Period.ofMonths(3), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP4M")), "GBPCASHP4M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP4M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP4M")), "GBPCASHP4M", act365,
         modified, Period.ofMonths(4), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP5M")), "GBPCASHP5M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP5M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP5M")), "GBPCASHP5M", act365,
         modified, Period.ofMonths(5), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP6M")), "GBPCASHP6M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP6M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP6M")), "GBPCASHP6M", act365,
         modified, Period.ofMonths(6), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP7M")), "GBPCASHP7M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP7M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP7M")), "GBPCASHP7M", act365,
         modified, Period.ofMonths(7), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP8M")), "GBPCASHP8M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP8M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP8M")), "GBPCASHP8M", act365,
         modified, Period.ofMonths(8), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP9M")), "GBPCASHP9M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP9M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP9M")), "GBPCASHP9M", act365,
         modified, Period.ofMonths(9), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP10M")), "GBPCASHP10M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP10M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP10M")), "GBPCASHP10M", act365,
         modified, Period.ofMonths(10), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP11M")), "GBPCASHP11M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP11M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP11M")), "GBPCASHP11M", act365,
         modified, Period.ofMonths(1), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP12M")), "GBPCASHP12M", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPCASHP12M"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPCASHP12M")), "GBPCASHP12M", act365,
         modified, Period.ofMonths(12), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP2Y")), "GBPSWAPP2Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP2Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP2Y")), "GBPSWAPP2Y", act365,
         modified, Period.ofYears(2), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP3Y")), "GBPSWAPP3Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP3Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP3Y")), "GBPSWAPP3Y", act365,
         modified, Period.ofYears(3), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP4Y")), "GBPSWAPP4Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP4Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP4Y")), "GBPSWAPP4Y", act365,
         modified, Period.ofYears(4), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP5Y")), "GBPSWAPP5Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP5Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP5Y")), "GBPSWAPP5Y", act365,
         modified, Period.ofYears(5), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP6Y")), "GBPSWAPP6Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP6Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP6Y")), "GBPSWAPP6Y", act365,
         modified, Period.ofYears(6), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP7Y")), "GBPSWAPP7Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP7Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP7Y")), "GBPSWAPP7Y", act365,
         modified, Period.ofYears(7), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP8Y")), "GBPSWAPP8Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP8Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP8Y")), "GBPSWAPP8Y", act365,
         modified, Period.ofYears(8), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP9Y")), "GBPSWAPP9Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP9Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP9Y")), "GBPSWAPP9Y", act365,
         modified, Period.ofYears(9), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP10Y")), "GBPSWAPP10Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP10Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP10Y")), "GBPSWAPP10Y", act365,
         modified, Period.ofYears(10), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP12Y")), "GBPSWAPP12Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP12Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP12Y")), "GBPSWAPP12Y", act365,
         modified, Period.ofYears(12), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP15Y")), "GBPSWAPP15Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP15Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP15Y")), "GBPSWAPP15Y", act365,
         modified, Period.ofYears(15), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP20Y")), "GBPSWAPP20Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP20Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP20Y")), "GBPSWAPP20Y", act365,
         modified, Period.ofYears(20), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP25Y")), "GBPSWAPP25Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP25Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP25Y")), "GBPSWAPP25Y", act365,
         modified, Period.ofYears(25), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP30Y")), "GBPSWAPP30Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP30Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP30Y")), "GBPSWAPP30Y", act365,
         modified, Period.ofYears(30), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP40Y")), "GBPSWAPP40Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP40Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP40Y")), "GBPSWAPP40Y", act365,
         modified, Period.ofYears(40), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP50Y")), "GBPSWAPP50Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP50Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP50Y")), "GBPSWAPP50Y", act365,
         modified, Period.ofYears(50), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP80Y")), "GBPSWAPP80Y", act365,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBPSWAPP80Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "GBPSWAPP80Y")), "GBPSWAPP80Y", act365,
         modified, Period.ofYears(80), 0, false, null);
   }
 
@@ -1071,65 +1133,65 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         act360, following, 2, false);
 
     //Identifiers for external data 
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP1D")), "CHFCASHP1D", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP1D"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP1D")), "CHFCASHP1D", act360,
         following, Period.ofDays(1), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP1M")), "CHFCASHP1M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP1M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP1M")), "CHFCASHP1M", act360,
         modified, Period.ofMonths(1), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP2M")), "CHFCASHP2M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP2M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP2M")), "CHFCASHP2M", act360,
         modified, Period.ofMonths(2), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP3M")), "CHFCASHP3M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP3M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP3M")), "CHFCASHP3M", act360,
         modified, Period.ofMonths(3), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP4M")), "CHFCASHP4M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP4M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP4M")), "CHFCASHP4M", act360,
         modified, Period.ofMonths(4), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP5M")), "CHFCASHP5M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP5M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP5M")), "CHFCASHP5M", act360,
         modified, Period.ofMonths(5), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP6M")), "CHFCASHP6M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP6M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP6M")), "CHFCASHP6M", act360,
         modified, Period.ofMonths(6), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP7M")), "CHFCASHP7M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP7M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP7M")), "CHFCASHP7M", act360,
         modified, Period.ofMonths(7), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP8M")), "CHFCASHP8M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP8M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP8M")), "CHFCASHP8M", act360,
         modified, Period.ofMonths(8), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP9M")), "CHFCASHP9M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP9M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP9M")), "CHFCASHP9M", act360,
         modified, Period.ofMonths(9), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP10M")), "CHFCASHP10M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP10M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP10M")), "CHFCASHP10M", act360,
         modified, Period.ofMonths(10), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP11M")), "CHFCASHP11M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP11M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP11M")), "CHFCASHP11M", act360,
         modified, Period.ofMonths(1), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP12M")), "CHFCASHP12M", act360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFCASHP12M"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFCASHP12M")), "CHFCASHP12M", act360,
         modified, Period.ofMonths(12), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP2Y")), "CHFSWAPP2Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP2Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP2Y")), "CHFSWAPP2Y", thirty360,
         modified, Period.ofYears(2), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP3Y")), "CHFSWAPP3Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP3Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP3Y")), "CHFSWAPP3Y", thirty360,
         modified, Period.ofYears(3), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP4Y")), "CHFSWAPP4Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP4Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP4Y")), "CHFSWAPP4Y", thirty360,
         modified, Period.ofYears(4), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP5Y")), "CHFSWAPP5Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP5Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP5Y")), "CHFSWAPP5Y", thirty360,
         modified, Period.ofYears(5), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP6Y")), "CHFSWAPP6Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP6Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP6Y")), "CHFSWAPP6Y", thirty360,
         modified, Period.ofYears(6), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP7Y")), "CHFSWAPP7Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP7Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP7Y")), "CHFSWAPP7Y", thirty360,
         modified, Period.ofYears(7), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP8Y")), "CHFSWAPP8Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP8Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP8Y")), "CHFSWAPP8Y", thirty360,
         modified, Period.ofYears(8), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP9Y")), "CHFSWAPP9Y", thirty360,
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP9Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP9Y")), "CHFSWAPP9Y", thirty360,
         modified, Period.ofYears(9), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP10Y")), "CHFSWAPP10Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP10Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP10Y")), "CHFSWAPP10Y",
         thirty360, modified, Period.ofYears(10), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP12Y")), "CHFSWAPP12Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP12Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP12Y")), "CHFSWAPP12Y",
         thirty360, modified, Period.ofYears(12), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP15Y")), "CHFSWAPP15Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP15Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP15Y")), "CHFSWAPP15Y",
         thirty360, modified, Period.ofYears(15), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP20Y")), "CHFSWAPP20Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP20Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP20Y")), "CHFSWAPP20Y",
         thirty360, modified, Period.ofYears(20), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP25Y")), "CHFSWAPP25Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP25Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP25Y")), "CHFSWAPP25Y",
         thirty360, modified, Period.ofYears(25), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP30Y")), "CHFSWAPP30Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP30Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP30Y")), "CHFSWAPP30Y",
         thirty360, modified, Period.ofYears(30), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP40Y")), "CHFSWAPP40Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP40Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP40Y")), "CHFSWAPP40Y",
         thirty360, modified, Period.ofYears(40), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP50Y")), "CHFSWAPP50Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP50Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP50Y")), "CHFSWAPP50Y",
         thirty360, modified, Period.ofYears(50), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP80Y")), "CHFSWAPP80Y",
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHFSWAPP80Y"), ExternalId.of(OG_SYNTHETIC_TICKER, "CHFSWAPP80Y")), "CHFSWAPP80Y",
         thirty360, modified, Period.ofYears(80), 2, false, null);
   }
 
@@ -1522,7 +1584,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   private void addUSCAPMDefinition() {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "USD_CAPM")), "USD_CAPM",
-        "US0003M Index", "SPX Index");
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("US0003M Index"), ExternalId.of(OG_SYNTHETIC_TICKER, "USDLIBORP3M")),
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("SPX Index"), ExternalId.of(OG_SYNTHETIC_TICKER, "SPX")));
   }
 
   private void addUSTreasuryBondConvention() {

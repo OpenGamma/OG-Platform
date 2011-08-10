@@ -67,6 +67,14 @@ $.register_module({
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
+                    var header = '\
+                        <header class="OG-header-generic">\
+                          <div class="OG-toolbar"></div>\
+                          <h1 class="og-js-name">' + master.name + '</h1>\
+                          <br />(View Definition)\
+                        </header>\
+                    ';
+                    $('.ui-layout-inner-center .ui-layout-header').html(header);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
                     if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
@@ -114,7 +122,7 @@ $.register_module({
                             $(form_id + ' select[name=currency]').val(master.currency);
                         }},
                         {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
-                            $(form_id + ' h1').text($(e.target).val());
+                            $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                         }}
                     ]
                 }),

@@ -37,7 +37,7 @@ public interface CompiledFunctionDefinition {
    * While this can be determined by the subgraph, it is provided at this
    * level for ease of programming, and for performance purposes.
    *  
-   * @return The target type to which this instance can apply.
+   * @return The target type to which this instance can apply, not {@code null}
    */
   ComputationTargetType getTargetType();
 
@@ -60,8 +60,9 @@ public interface CompiledFunctionDefinition {
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
    * @param desiredValue The output the function has been selected to satisfy; i.e. one of the
-   * values returned by {@link #getResults} satisfies satisfy it.
-   * @return All input requirements to execute this function on the specified target with the specified configuration.
+   * values returned by {@link #getResults} satisfies it.
+   * @return All input requirements to execute this function on the specified target with the specified configuration. A return
+   *         value of {@code null} indicates that the function cannot produce the desired value.
    */
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue);
 
@@ -88,7 +89,8 @@ public interface CompiledFunctionDefinition {
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
-   * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
+   * @return All results <b>possible</b> to be computed by this function for this target, {@code null} or the empty set
+   *         if no values are possible.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 
@@ -106,7 +108,8 @@ public interface CompiledFunctionDefinition {
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
    * @param inputs The resolved inputs to the function, mapped to the originally requested requirements
-   * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
+   * @return All results <b>possible</b> to be computed by this function for this target with these parameters. A return value of
+   *         {@code null} or the empty set indicates that the function cannot operate on the resolved inputs.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs);
 

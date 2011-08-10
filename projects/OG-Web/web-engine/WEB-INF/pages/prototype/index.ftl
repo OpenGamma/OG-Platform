@@ -11,27 +11,28 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
-<div class="OG-container" style="display: none">
-  <#include "modules/common/og.common.masthead.ftl">
-  <section class="OG-main">
-      <div class="OG-grid">
-      <div class="OG-c3 OG-js-search-panel OG-search-panel">
-        <#include "modules/common/og.common.search_results.ftl">
-        <div class="OG-resizeBar"></div>
-      </div>
-      <div class="OG-c7 og-grid-last OG-js-details-panel">
-        <#include "modules/common/og.common.details.ftl">
-      </div>
-      <div class="OG-c10 OG-js-analytics-panel">
-        <#include "modules/common/og.common.analytics.ftl">
-      </div>
+<div class="ui-layout-container">
+  <div class="ui-layout-center">
+    <div class="ui-layout-inner-center">
+      <div class="ui-layout-header">&nbsp;</div>
+      <div class="ui-layout-content">&nbsp;</div>
     </div>
-  </section>
-  <section class="OG-footer">
-    <div class="OG-logo-light"><small class="OG-txt-shadow">&copy; 2011 OpenGamma Limited</small></div>
-  </section>
+    <div class="ui-layout-inner-north">&nbsp;</div>
+    <div class="ui-layout-inner-south">&nbsp;</div>
+  </div>
+  <div class="ui-layout-north">
+    <#include "modules/common/og.common.masthead.ftl">
+  </div>
+  <div class="ui-layout-south">
+    <#include "modules/common/og.common.footer.ftl">
+  </div>
+  <div class="ui-layout-east">&nbsp;</div>
+  <div class="ui-layout-west">
+      <#include "modules/common/og.common.search_results.ftl">
+  </div>
 </div>
-<!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
-${ogScript.print('og_all.js',false)}
+${ogScript.print('og_common.js',false)}
+<!--[if lt IE 9]>${ogScript.print('ie.js',false)}<![endif]-->
+${ogScript.print('og_main.js',false)}
 </body>
 </html>

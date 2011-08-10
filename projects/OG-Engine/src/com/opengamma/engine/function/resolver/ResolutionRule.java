@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -92,44 +91,34 @@ public class ResolutionRule {
    * output only if:
    * <ol>
    * <li>The function can produce the output
-   * <li>The function (applied to the same computation target) is not already
-   * in the dependency graph above the current node (i.e., no cycles)
    * <li>This resolution rule applies to the given computation target  
    * </ol>
    * <p>
    * The implementation has been split into two accessible components to allow
    * a resolver to cache the intermediate results.
-   * <p>
-   * Note that because the method is called during dependency graph construction,
-   * you can only validly access:
-   * <ul>
-   * <li>The computation target of the node
-   * <li>Functions and computation targets of the nodes above this node
-   * </ul>  
    * 
-   * @param output  the output you want the function to produce, not null
-   * @param atNode  where in the dependency graph this function would be applied, not null
-   * @param context  the context, not null
-   * @return the valid value specification returned by the function, not composed against
-   *  the requirement constraints, null if the function cannot produce the desired output
+   * @param output Output you want the function to produce
+   * @param target Computation target  
+   * @param context Function compilation context
+   * @return Null if this the function advertised by this rule cannot produce 
+   * the desired output, a valid ValueSpecification otherwise - as returned by
+   * the function. The specification is not composed against the requirement
+   * constraints.
    */
-  public ValueSpecification getResult(ValueRequirement output, DependencyNode atNode, FunctionCompilationContext context) {
-    // REVIEW 2011-07-28 SJC: removed comment suggesting that context should be factored out
-    final Set<ValueSpecification> resultSpecs = getResults(atNode.getComputationTarget(), context);
+  public ValueSpecification getResult(ValueRequirement output, ComputationTarget target, FunctionCompilationContext context) {
+    final Set<ValueSpecification> resultSpecs = getResults(target, context);
     if (resultSpecs == null) {
       return null;
     }
-    return getResult(output, atNode, context, resultSpecs);
+    return getResult(output, target, resultSpecs);
   }
 
   /**
-   * Gets the set of matching value specifications.
-   * <p>
-   * This is the first half of the algorithm.
-   * It returns the set of all function outputs for use by the second half.
+   * The first half of the full {@link #getResult(ValueRequirement,ComputationTarget,FunctionCompilationContext)} implementation
+   * returning the set of all function outputs for use by {@link #getResult(ValueRequirement,ComputationTarget,FunctionCompilationContext,Set)}.
    * 
-   * @param target  the computation target, not null
-   * @param context  the context, not null
+   * @param target the computation target
+   * @param context Function compilation context
    * @return the set of all value specifications produced by the function, null if none can be produced
    */
   public Set<ValueSpecification> getResults(final ComputationTarget target, final FunctionCompilationContext context) {
@@ -139,37 +128,24 @@ public class ResolutionRule {
       return null;
     }
     // return the maximal set of results the function can produce for the target
-    try {
-      return function.getResults(context, target);
-    } catch (Throwable t) {
-      s_logger.debug("Exception thrown by getResults", t);
-    }
-    return null;
+    return function.getResults(context, target);
   }
 
   /**
-   * Picks the value specification from the supplied set.
-   * <p>
-   * This is the second half of the algorithm.
-   * It checks to see if the output is satisfied by the input specifications.
-   * <p>
-   * Note that because the method is called during dependency graph construction,
-   * you can only validly access:
-   * <ul>
-   * <li>The computation target of the node
-   * <li>Functions and computation targets of the nodes above this node
-   * </ul>  
+   * The second half of the full
+   * {@link #getResult(ValueRequirement, ComputationTarget, FunctionCompilationContext)})
+   * implementation taking the set of all function outputs produced by {@link #getResults}.
    * 
-   * @param output  the output you want the function to produce, not null
-   * @param atNode  where in the dependency graph this function would be applied, not null
-   * @param context  the context, not null
-   * @param resultSpecs  the specifications to examine, not null
-   * @return the valid value specification returned by the function, not composed against
-   *  the requirement constraints, null if the function cannot produce the desired output
+   * @param output Output you want the function to produce
+   * @param target Computation target
+   * @param resultSpecs The results from {@code getResults()}, not null
+   * @return Null if this the function advertised by this rule cannot produce 
+   * the desired output, a valid ValueSpecification otherwise - as returned by
+   * the function. The specification is not composed against the requirement
+   * constraints.
    */
-  public ValueSpecification getResult(final ValueRequirement output, final DependencyNode atNode, final FunctionCompilationContext context, final Set<ValueSpecification> resultSpecs) {
-    final ComputationTarget target = atNode.getComputationTarget();
-    // of the maximal outputs, is one valid for the requirement
+  public ValueSpecification getResult(final ValueRequirement output, final ComputationTarget target, final Set<ValueSpecification> resultSpecs) {
+    // Of the maximal outputs, is one valid for the requirement
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {
       //s_logger.debug("Considering {} for {}", resultSpec, output);
@@ -180,46 +156,13 @@ public class ResolutionRule {
     if (validSpec == null) {
       return null;
     }
-    // has the function been used in the graph above the node - i.e. can we introduce it without
-    // creating a cycle
-    if (!checkDependentNodes(getFunction(), target, atNode.getDependentNodes())) {
-      return null;
-    }
-    // apply the target filter for this rule (this is applied last because filters probably rarely exclude compared to the other tests)
-    if (!_computationTargetFilter.accept(atNode)) {
+    // Apply the target filter for this rule (this is applied last because filters probably rarely exclude compared to the other tests)
+    if (!_computationTargetFilter.accept(target)) {
       return null;
     }
     return validSpec;
   }
 
-  /**
-   * Checks dependent nodes.
-   * <p>
-   * Note that because the method is called during dependency graph construction,
-   * you can only validly access:
-   * <ul>
-   * <li>The computation target of the node
-   * <li>Functions and computation targets of the nodes above this node
-   * </ul>  
-   * 
-   * @param function  the parameterized function, not null
-   * @param target  the target, not null
-   * @param nodes  the set of nodes, not null
-   * @return true if there is no cycle in the graph
-   */
-  private static boolean checkDependentNodes(final ParameterizedFunction function, final ComputationTarget target, final Set<DependencyNode> nodes) {
-    for (DependencyNode node : nodes) {
-      if (function.equals(node.getFunction()) && target.equals(node.getComputationTarget())) {
-        return false;
-      }
-      if (!checkDependentNodes(function, target, node.getDependentNodes())) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return "ResolutionRule[" + getFunction() + " at priority " + getPriority() + "]";

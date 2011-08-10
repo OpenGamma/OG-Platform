@@ -18,8 +18,10 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.IdUtils;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.RegexUtils;
 
@@ -50,7 +52,16 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   //-------------------------------------------------------------------------
   @Override
   public Security getSecurity(UniqueId identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
     return identifier == null ? null : _securities.get(identifier);
+  }
+  
+  @Override
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return objectId == null
+        || (versionCorrection != null && !versionCorrection.equals(VersionCorrection.LATEST)) ? null : _securities.get(objectId.atLatestVersion());
   }
 
   @Override
@@ -64,6 +75,12 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     }
     return result;
   }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    // Versioning not supported
+    return getSecurities(bundle);
+  }
 
   @Override
   public Security getSecurity(ExternalIdBundle bundle) {
@@ -76,6 +93,12 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
       }
     }
     return null;
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    // Versioning not supported
+    return getSecurity(bundle);
   }
 
   @Override
@@ -107,5 +130,5 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   public ChangeManager changeManager() {
     return DummyChangeManager.INSTANCE;
   }
-
+  
 }

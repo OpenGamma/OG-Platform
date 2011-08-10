@@ -221,5 +221,12 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
   }
+  
+  public int getPriority() {
+    if (_currencyMatrixName.contains(CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA)) {
+      return -1;
+    }
+    return 0;
+  }
 
 }

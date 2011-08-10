@@ -13,8 +13,10 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -63,7 +65,14 @@ public class DelegatingFinancialSecuritySource
   @Override
   public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
-    return chooseDelegate(uid).getSecurity(uid);
+    return chooseDelegate(uid.getScheme()).getSecurity(uid);
+  }
+  
+  @Override
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(objectId.getScheme()).getSecurity(objectId, versionCorrection);
   }
 
   @Override
@@ -78,6 +87,20 @@ public class DelegatingFinancialSecuritySource
     }
     return getDefaultDelegate().getSecurities(bundle);
   }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // best implementation is to return first matching result
+    for (SecuritySource delegateSource : getDelegates().values()) {
+      Collection<Security> result = delegateSource.getSecurities(bundle, versionCorrection);
+      if (!result.isEmpty()) {
+        return result;
+      }
+    }
+    return getDefaultDelegate().getSecurities(bundle, versionCorrection);
+  }
 
   @Override
   public Security getSecurity(ExternalIdBundle bundle) {
@@ -90,6 +113,21 @@ public class DelegatingFinancialSecuritySource
       }
     }
     return getDefaultDelegate().getSecurity(bundle);
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ArgumentChecker.notNull(bundle, "bundle");
+    // best implementation is to return first matching result
+    for (SecuritySource delegateSource : getDelegates().values()) {
+      Security result = delegateSource.getSecurity(bundle, versionCorrection);
+      if (result != null) {
+        return result;
+      }
+    }
+    return getDefaultDelegate().getSecurity(bundle, versionCorrection);
   }
 
   @Override
