@@ -21,11 +21,6 @@
   margin: 0 10px 0 0;
 }
 
-.OG-form .og-with > label:last-child,
-.OG-form .og-without > label:last-child {
-  float: none;
-}
-
 .OG-form .og-constraints label {
   margin-bottom: 0;
   color: #555;

@@ -12,14 +12,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
 <div class="ui-layout-container">
-  <div class="ui-layout-center">
-    <div class="ui-layout-inner-center">
-      <div class="ui-layout-header">&nbsp;</div>
-      <div class="ui-layout-content">&nbsp;</div>
-    </div>
-    <div class="ui-layout-inner-north">&nbsp;</div>
-    <div class="ui-layout-inner-south">&nbsp;</div>
-  </div>
+  <div class="ui-layout-center">put analytics here</div>
   <div class="ui-layout-north">
     <#include "modules/common/og.common.masthead.ftl">
   </div>
@@ -27,12 +20,10 @@ ${ogStyle.print('og_all.css', 'all',false)}
     <#include "modules/common/og.common.footer.ftl">
   </div>
   <div class="ui-layout-east">&nbsp;</div>
-  <div class="ui-layout-west">
-      <#include "modules/common/og.common.search_results.ftl">
-  </div>
+  <div class="ui-layout-west">&nbsp;</div>
 </div>
+<!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_common.js',false)}
-<!--[if lt IE 9]>${ogScript.print('ie.js',false)}<![endif]-->
-${ogScript.print('og_main.js',false)}
+${ogScript.print('og_analytics.js',false)}
 </body>
 </html>

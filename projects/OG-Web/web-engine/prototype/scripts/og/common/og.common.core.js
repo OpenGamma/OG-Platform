@@ -36,6 +36,12 @@
         });
     };
     $.extend({
+        outer: function (node) {
+            if (!node) return '';
+            var div = document.createElement('div');
+            div.appendChild(node);
+            return div.innerHTML;
+        },
         register_module: function (module) {
             var self = 'register_module', name = module.name, new_module, levels, last, last_parent;
             if (!name) throw new TypeError(self + ': module name is undefined');

@@ -4,29 +4,27 @@
  */
 $.register_module({
     name: 'og.common.util.ui.toolbar',
-    dependencies: ['og.common.util.ui.tooltip'],
+    dependencies: [],
     obj: function () {
         return function (obj) {
             var $new_obj = [], html,
+                toolbar_tmpl = '<div class="og-${name} og-js-${name} ${enabled}"><span>${name}</span></div>',
                 buttons = [
-                    {name: 'delete', 'tooltip': 'DELETE', 'level': 'danger'},
-                    {name: 'new', 'tooltip': 'NEW'}
+                    {name: 'delete', 'level': 'danger'},
+                    {name: 'new'}
                 ];
             if (!obj) throw new Error('obj is a required input for toolbar');
             if (!obj.location) throw new Error('You need to supply a selector/location for a toolbar to be placed');
-            $.each(obj.buttons, function (i) { // Apply 'off' level to disabled tooltips
+            $.each(obj.buttons, function (i) {
                 if (obj.buttons[i]['enabled'] === 'OG-disabled') obj.buttons[i]['level'] = 'off';
             });
-            html = $.tmpl('<div class="og-${name} og-js-${name} ${enabled}"><span>${name}</span></div>',
-                    $.extend(true, buttons, obj.buttons)
-            );
+            // must convert rendered template into a string
+            html = $('<p/>').append($.tmpl(toolbar_tmpl, $.extend(true, buttons, obj.buttons))).html();
             $(obj.location).html(html); // Add the buttons to the page
             // Implement handlers
             $.each(($.extend(true, $new_obj, {'buttons': buttons}, obj)).buttons, function (i, val) {
                 $('.' + obj.location + ' .og-js-' + val.name).unbind('mousedown').bind('mousedown', val.handler);
             });
-
-            og.common.util.ui.tooltip(obj.location);
         };
     }
 });
