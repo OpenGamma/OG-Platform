@@ -46,5 +46,11 @@ public class LongPollingConnectionManager {
       // TODO what here? exception? response status
     }
   }
+
+  // for testing
+  boolean isClientConnected(String clientId) {
+    LongPollingSubscriptionListener listener = _connections.get(clientId);
+    return listener != null && listener.isConnected();
+  }
 }
 

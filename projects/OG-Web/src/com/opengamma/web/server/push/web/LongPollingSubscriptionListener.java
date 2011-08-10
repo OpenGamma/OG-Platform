@@ -20,7 +20,7 @@ import java.util.Queue;
 class LongPollingSubscriptionListener implements SubscriptionListener {
 
   private final Object _lock = new Object();
-  private final Queue<SubscriptionEvent> _updates = new LinkedList<SubscriptionEvent>();
+  private final Queue<String> _updates = new LinkedList<String>();
 
   private Continuation _continuation;
 
@@ -30,7 +30,7 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
       if (_continuation != null) {
         sendUpdate(event.getUrl());
       } else {
-        _updates.add(event);
+        _updates.add(event.getUrl());
       }
     }
   }
@@ -45,9 +45,16 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     }
   }
 
-  private void sendUpdate(String urls) {
-    _continuation.setAttribute(SubscriptionServlet.RESULTS, urls);
+  private void sendUpdate(String url) {
+    _continuation.setAttribute(SubscriptionServlet.RESULTS, url);
     _continuation.resume();
     _continuation = null;
+  }
+
+  // for testing
+  boolean isConnected() {
+    synchronized (_lock) {
+      return _continuation != null;
+    }
   }
 }

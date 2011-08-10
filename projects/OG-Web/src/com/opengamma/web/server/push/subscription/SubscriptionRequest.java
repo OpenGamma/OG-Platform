@@ -15,6 +15,6 @@ public abstract class SubscriptionRequest {
 
   // this should allow Jersey to create the object from JSON
   public SubscriptionRequest valueOf(String json) {
-
+    throw new UnsupportedOperationException("TODO");
   }
 }

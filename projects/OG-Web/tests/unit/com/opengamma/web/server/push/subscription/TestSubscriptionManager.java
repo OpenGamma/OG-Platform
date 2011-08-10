@@ -25,12 +25,7 @@ public class TestSubscriptionManager implements SubscriptionManager {
     throw new UnsupportedOperationException("closeConnection not used in this test");
   }
 
-  void sendUpdate(String update) {
+  public void sendUpdate(String update) {
     _listener.itemUpdated(new SubscriptionEvent(update));
-  }
-
-  // TODO how am I going to wangle this one? make sure there's no connection available somehow
-  void sendUpdates(String... updates) {
-
   }
 }

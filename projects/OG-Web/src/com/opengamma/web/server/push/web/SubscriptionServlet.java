@@ -38,7 +38,7 @@ public class SubscriptionServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // if we need to get asynchronous results
-    Object results = request.getAttribute("results");
+    String results = (String) request.getAttribute(RESULTS);
     if (results == null) {
       final Continuation continuation = ContinuationSupport.getContinuation(request);
 
@@ -57,7 +57,7 @@ public class SubscriptionServlet extends HttpServlet {
       }
     } else {
       // Send the results
-      //sendMyResultResponse(response, results);
+      response.getWriter().write(results);
     }
   }
 }

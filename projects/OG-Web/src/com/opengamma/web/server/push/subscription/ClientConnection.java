@@ -6,8 +6,6 @@
 package com.opengamma.web.server.push.subscription;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
 
 import java.util.ArrayList;
 import java.util.Collection;

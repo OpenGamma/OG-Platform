@@ -14,7 +14,7 @@ public class ViewChangeEvent extends SubscriptionEvent {
 
   private final String _handle;
 
-  public ViewChangeEvent(URL url, String handle) {
+  public ViewChangeEvent(String url, String handle) {
     super(url);
     _handle = handle;
   }

@@ -32,6 +32,7 @@
     <url-pattern>/</url-pattern>
   </servlet-mapping>-->
 
+<!--
   <servlet>
     <servlet-name>resttest</servlet-name>
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -44,6 +45,27 @@
   <servlet-mapping>
     <servlet-name>resttest</servlet-name>
     <url-pattern>/</url-pattern>
+  </servlet-mapping>
+-->
+
+  <servlet>
+    <servlet-name>handshake</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.web.HandshakeServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>handshake</servlet-name>
+    <url-pattern>/handshake</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>subscription</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.web.SubscriptionServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>subscription</servlet-name>
+    <url-pattern>/subscription</url-pattern>
   </servlet-mapping>
 
 </web-app>

@@ -21,6 +21,6 @@ public class ViewportResults {
   }
 
   public String toJSON() {
-    
+    throw new UnsupportedOperationException("TODO");
   }
 }

@@ -7,7 +7,6 @@ package com.opengamma.web.server.push.subscription;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.util.ArgumentChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +28,13 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
   private final ViewportFactory _viewportFactory;
 
   // TODO what has this been replaced with?
-  private final MasterChangeManager _masterChangeManager;
+  //private final MasterChangeManager _masterChangeManager;
   // TODO what map impl? concurrent? or handle concurrency somewhere else?
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connections = new HashMap<String, ClientConnection>();
 
-  public SubscriptionManagerImpl(MasterChangeManager masterChangeManager, ViewportFactory viewportFactory) {
-    _masterChangeManager = masterChangeManager;
+  public SubscriptionManagerImpl(/*MasterChangeManager masterChangeManager, */ViewportFactory viewportFactory) {
+    //_masterChangeManager = masterChangeManager;
     _viewportFactory = viewportFactory;
   }
 
@@ -65,7 +64,8 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
   private String viewportId(String clientId) {
     // TODO need a new unique viewport ID
-    return ;
+    //return ;
+    throw new UnsupportedOperationException("TODO");
   }
 
   public void activateViewportSubscription(String userId, String clientId, String viewportId) {
@@ -115,5 +115,6 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
   // TODO return type
   public ViewportResults getLatestViewportResults(String userId, String clientId, String viewportId) {
     // TODO what if the viewportId is stale, i.e. the subscription has changed?  should the viewport persist? 404?
+    throw new UnsupportedOperationException("TODO");
   }
 }
