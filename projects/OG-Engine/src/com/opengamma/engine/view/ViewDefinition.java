@@ -17,7 +17,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -244,11 +243,6 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(calcConfig, "calculation configuration");
     ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
-    if (getDefaultCurrency() != null) {
-      if (calcConfig.getDefaultProperties().getValues(ValuePropertyNames.CURRENCY) == null) {
-        calcConfig.setDefaultProperties(calcConfig.getDefaultProperties().copy().with(ValuePropertyNames.CURRENCY, getDefaultCurrency().getCode()).get());
-      }
-    }
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
 

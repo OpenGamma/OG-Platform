@@ -13,8 +13,14 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -44,7 +50,7 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class YieldCurveMarketDataFunction extends AbstractFunction {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveMarketDataFunction.class);
   private ValueSpecification _marketDataResult;
   private Set<ValueSpecification> _results;
   private final YieldCurveFunctionHelper _helper;
@@ -124,8 +130,18 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
     final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(ExternalIdBundle
         .of(conventionBundle.getSwapFloatingLegInitialRate()));
-    final ExternalId initialRefRateId = referenceRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
-    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
+    
+    SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    Security security = securitySource.getSecurity(referenceRateConvention.getIdentifiers());
+    
+    if (security == null) {
+      s_logger.warn("No security returned for {} from security source", referenceRateConvention.getIdentifiers());
+      final ExternalId initialRefRateId = referenceRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
+    } else {
+      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,  ComputationTargetType.SECURITY, security.getUniqueId()));
+    }
+    
     return Collections.unmodifiableSet(result);
   }
 
@@ -142,8 +158,13 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context,
-        atInstant);
-    return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
+    try {
+      Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
+      return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
+    } catch (OpenGammaRuntimeException ogre) {
+      s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...", new Object[] {getShortName(), _helper.getCurveName(), _helper.getCurrency() });
+      throw ogre;
+    }
+    
   }
 }

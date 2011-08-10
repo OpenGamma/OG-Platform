@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurv
 import com.opengamma.financial.analytics.model.bond.BondZSpreadCountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
+import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyFunction;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -81,6 +82,10 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         if (function instanceof MarketInstrumentImpliedYieldCurveFunction) {
           MarketInstrumentImpliedYieldCurveFunction yieldCurveFunction = (MarketInstrumentImpliedYieldCurveFunction) function;
           return yieldCurveFunction.getPriority();
+        }
+        if (function instanceof CurrencyMatrixSourcingFunction) {
+          CurrencyMatrixSourcingFunction currencyMatrixSourcingFunction = (CurrencyMatrixSourcingFunction) function;
+          return currencyMatrixSourcingFunction.getPriority();
         }
         return 0;
       }
