@@ -43,6 +43,7 @@ import com.opengamma.engine.value.ValueRequirement;
     boolean deferredPump;
     synchronized (this) {
       _pendingTasks--;
+      s_logger.debug("{} pending tasks", _pendingTasks);
       deferredPump = _deferredPump;
       if (deferredPump) {
         _deferredPump = false;
@@ -89,6 +90,7 @@ import com.opengamma.engine.value.ValueRequirement;
         pumps = new ArrayList<ResolutionPump>(_pumps);
         s_logger.debug("Pumping {}", pumps);
         _pumps.clear();
+        setPendingTasks(pumps.size());
       } else {
         s_logger.debug("Deferring pump while {} task(s) pending", getPendingTasks());
         _deferredPump = true;
@@ -96,13 +98,11 @@ import com.opengamma.engine.value.ValueRequirement;
     }
     if (pumps != null) {
       if (pumps.isEmpty()) {
-        // We have nothing to pump, so must have failed
+        // We have nothing to pump, so must have finished (failed)
+        s_logger.debug("Finished {}", this);
         finished(context);
       } else {
-        synchronized (this) {
-          s_logger.debug("Pumping {} origin tasks", pumps.size());
-          setPendingTasks(pumps.size());
-        }
+        s_logger.debug("Pumping {} origin tasks", pumps.size());
         for (ResolutionPump pump : pumps) {
           context.pump(pump);
         }
@@ -113,7 +113,7 @@ import com.opengamma.engine.value.ValueRequirement;
   public void addProducer(final GraphBuildingContext context, final ResolvedValueProducer producer) {
     synchronized (this) {
       _pendingTasks++;
-      s_logger.debug("pendingTasks={}", _pendingTasks);
+      s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
     }
     producer.addCallback(context, this);
   }
@@ -125,9 +125,11 @@ import com.opengamma.engine.value.ValueRequirement;
         if (_pumps.isEmpty()) {
           pumps = Collections.emptySet();
         } else {
-          _deferredPump = false;
-          pumps = new ArrayList<ResolutionPump>(_pumps);
-          _pumps.clear();
+          if (_deferredPump) {
+            _deferredPump = false;
+            pumps = new ArrayList<ResolutionPump>(_pumps);
+            _pumps.clear();
+          }
         }
       }
     }

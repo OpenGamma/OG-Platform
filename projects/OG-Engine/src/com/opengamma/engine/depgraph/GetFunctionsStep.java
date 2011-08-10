@@ -41,7 +41,7 @@ import com.opengamma.util.tuple.Pair;
     @Override
     public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
       final AtomicReference<ResolvedValueCallback> callbackRef = new AtomicReference<ResolvedValueCallback>(callback);
-      callback.resolved(context, _valueRequirement, _resolvedValue, new ResolutionPump() {
+      context.resolved(callback, _valueRequirement, _resolvedValue, new ResolutionPump() {
         @Override
         public void pump(final GraphBuildingContext context) {
           final ResolvedValueCallback callback = callbackRef.getAndSet(null);
