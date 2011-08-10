@@ -7,31 +7,37 @@ $.register_module({
     dependencies: [],
     obj: function () {
         var main_layout_settings = {
-            defaults: {},
+            defaults: {
+                enableCursorHotkey: false
+            },
             north: {
-              spacing_open: 0,
-              paneClass: 'ui-layout-masthead',
-              size: 43
+                spacing_open: 0,
+                paneClass: 'ui-layout-masthead',
+                size: 43
             },
             south: {
-              spacing_open: 0,
-              paneClass: 'ui-layout-footer',
-              size: 36
+                spacing_open: 0,
+                paneClass: 'ui-layout-footer',
+                size: 36
             },
             east: {
-              initClosed: true,
-              spacing_closed: 0
+                initClosed: true,
+                spacing_closed: 0
             },
             west: {
               size: '33%',
               paneClass: 'ui-layout-search',
-              contentSelector: '.ui-layout-content'
+              contentSelector: '.ui-layout-content',
+              enableCursorHotkey: true
             },
             center: {
               paneClass: 'ui-layout-details'
             }
         },
         details_layout_settings = {
+            defaults: {
+                enableCursorHotkey: false
+            },
             center: {
                 paneSelector: '.ui-layout-inner-center',
                 contentSelector: '.ui-layout-content',
@@ -50,34 +56,37 @@ $.register_module({
                 paneClass: 'ui-layout-inner-south',
                 size: 100,
                 initClosed: true,
-                spacing_closed: 0
+                spacing_closed: 0,
+                enableCursorHotkey: true
             }
         },
         analytics = {
-            defaults: {},
+            defaults: {
+                enableCursorHotkey: false
+            },
             north: {
-              spacing_open: 0,
-              paneClass: 'ui-layout-masthead',
-              size: 43
+                spacing_open: 0,
+                paneClass: 'ui-layout-masthead',
+                size: 43
             },
             south: {
-              spacing_open: 0,
-              paneClass: 'ui-layout-footer',
-              size: 36
+                spacing_open: 0,
+                paneClass: 'ui-layout-footer',
+                size: 36
             },
             east: {
-              initClosed: true,
-              spacing_closed: 0
+                initClosed: true,
+                spacing_closed: 0
             },
             west: {
-              size: '33%',
-              initClosed: true,
-              spacing_closed: 0,
-              spacing_open: 0
+                size: '33%',
+                initClosed: true,
+                spacing_closed: 0,
+                spacing_open: 0
             },
             center: {
-              paneClass: 'ui-layout-analytics',
-              contentSelector: '.ui-layout-content'
+                paneClass: 'ui-layout-analytics',
+                contentSelector: '.ui-layout-content'
             }
         },
         default_view = function () {
