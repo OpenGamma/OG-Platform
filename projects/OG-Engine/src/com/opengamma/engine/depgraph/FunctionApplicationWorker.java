@@ -27,6 +27,8 @@ import com.opengamma.engine.value.ValueSpecification;
   private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
   private int _validInputs;
+  private boolean _invokingFunction;
+  private boolean _deferredPump;
   private FunctionApplicationStep.PumpingState _taskState;
   private boolean _closed;
 
@@ -39,6 +41,11 @@ import com.opengamma.engine.value.ValueSpecification;
     Collection<ResolutionPump> pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
+      if (_invokingFunction) {
+        s_logger.debug("Deferring pump until after function invocation");
+        _deferredPump = true;
+        return;
+      }
       if (_pendingInputs < 1) {
         if (_pumps.isEmpty()) {
           if (_validInputs == 0) {
@@ -140,6 +147,7 @@ import com.opengamma.engine.value.ValueSpecification;
             resolvedValues.put(input.getValue(), input.getKey());
           }
           state = _taskState;
+          _invokingFunction = true;
           s_logger.debug("Full input set available");
         } else {
           s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
@@ -150,7 +158,15 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     if (resolvedValues != null) {
-      if (!state.inputsAvailable(context, resolvedValues)) {
+      boolean inputsAccepted = state.inputsAvailable(context, resolvedValues);
+      synchronized (this) {
+        _invokingFunction = false;
+        if (_deferredPump) {
+          inputsAccepted = false;
+          _deferredPump = false;
+        }
+      }
+      if (!inputsAccepted) {
         pumpImpl(context);
       }
     }
@@ -212,6 +228,7 @@ import com.opengamma.engine.value.ValueSpecification;
               resolvedValues.put(input.getValue(), input.getKey());
             }
             state = _taskState;
+            _invokingFunction = true;
             s_logger.debug("Full input set available at {}", this);
           } else {
             // We've got no valid inputs
@@ -233,7 +250,12 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     if (resolvedValues != null) {
-      if (!state.inputsAvailable(context, resolvedValues)) {
+      boolean inputsAccepted = state.inputsAvailable(context, resolvedValues);
+      if (_deferredPump) {
+        inputsAccepted = false;
+        _deferredPump = false;
+      }
+      if (!inputsAccepted) {
         pumpImpl(context);
       }
     } else if (pumps != null) {

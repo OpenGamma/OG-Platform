@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -338,6 +339,8 @@ import com.opengamma.util.tuple.Pair;
       final AtomicInteger lock = new AtomicInteger(1);
       final ResolvedValueCallback callback = new ResolvedValueCallback() {
 
+        private final AtomicBoolean _pumped = new AtomicBoolean(false);
+
         @Override
         public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
           s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
@@ -347,7 +350,9 @@ import com.opengamma.util.tuple.Pair;
             substituteWorker.storeFailure(additionalRequirement);
             substituteWorker.finished(context);
           }
-          pump(context);
+          if (!_pumped.getAndSet(true)) {
+            pump(context);
+          }
         }
 
         @Override
