@@ -12,6 +12,12 @@
     </property>
   </bean>  
   
+  <!-- Embedded Active MQ broker -->
+  <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
+    <property name="config" value="classpath:activemq.xml" />
+    <property name="start" value="true" />
+  </bean>
+  
   <import resource="classpath:com/opengamma/web/web-beans.xml" />
   
   <import resource="classpath:com/opengamma/financial/demoViewProcessor.xml" />
