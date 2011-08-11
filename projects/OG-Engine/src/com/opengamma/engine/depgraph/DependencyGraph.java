@@ -429,11 +429,11 @@ public class DependencyGraph {
           if (node.getOutputValues().isEmpty()) {
             unnecessaryNodes.add(node);
           }
-        }
-        for (ValueSpecification unnecessaryValue : unnecessaryValues) {
-          DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
-          if (removed == null) {
-            throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+          for (ValueSpecification unnecessaryValue : unnecessaryValues) {
+            DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
+            if (removed == null) {
+              throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+            }
           }
         }
       }

@@ -9,7 +9,7 @@ classes should alter those!
 .slick-header.ui-state-default, .slick-headerrow.ui-state-default {
 	width: 100%;
 	overflow: hidden;
-	border-left: 0px;
+	border-left: 0;
 }
 
 .slick-header-columns, .slick-headerrow-columns {
@@ -99,7 +99,7 @@ classes should alter those!
 	z-index: 1;
 	padding: 1px 2px 2px 1px;
     margin: 0;
-    
+
 	white-space: nowrap;
 
 	cursor: default;

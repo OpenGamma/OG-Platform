@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -159,7 +159,7 @@ public class ExternalIdTest {
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
 
-    ExternalId decoded = ExternalId.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    ExternalId decoded = ExternalId.fromFudgeMsg(new FudgeDeserializer(context), msg);
     assertEquals(test, decoded);
   }
 

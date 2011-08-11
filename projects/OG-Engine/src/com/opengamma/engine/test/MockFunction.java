@@ -205,4 +205,9 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return results;
   }
 
+  @Override
+  public String toString() {
+    return getShortName() + " (" + getUniqueId() + ")";
+  }
+
 }

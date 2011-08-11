@@ -7,6 +7,8 @@ package com.opengamma.financial.portfolio.rest;
 
 import java.net.URI;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -35,6 +37,10 @@ public class RemotePortfolioMaster implements PortfolioMaster {
    * The client API.
    */
   private final FudgeRestClient _client;
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates an instance.
@@ -42,8 +48,21 @@ public class RemotePortfolioMaster implements PortfolioMaster {
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemotePortfolioMaster(final URI baseUri) {
+    this(baseUri, new BasicChangeManager());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemotePortfolioMaster(final URI baseUri, ChangeManager changeManager) {
+    ArgumentChecker.notNull(baseUri, "baseUri");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -138,6 +157,12 @@ public class RemotePortfolioMaster implements PortfolioMaster {
     
     URI uri = DataPortfolioNodeResource.uri(_baseUri, nodeId);
     return accessRemote(uri).get(ManageablePortfolioNode.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
   //-------------------------------------------------------------------------

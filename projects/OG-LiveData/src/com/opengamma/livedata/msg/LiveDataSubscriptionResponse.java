@@ -24,12 +24,12 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
     if (subscriptionResult == null) throw new NullPointerException ("subscriptionResult' cannot be null");
     _subscriptionResult = subscriptionResult;
   }
-  protected LiveDataSubscriptionResponse (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  protected LiveDataSubscriptionResponse (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (REQUESTED_SPECIFICATION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a LiveDataSubscriptionResponse - field 'requestedSpecification' is not present");
     try {
-      _requestedSpecification = fudgeContext.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudgeField);
+      _requestedSpecification = deserializer.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a LiveDataSubscriptionResponse - field 'requestedSpecification' is not LiveDataSpecification message", e);
@@ -55,7 +55,7 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
     if (fudgeField != null)  {
       try {
         final com.opengamma.livedata.LiveDataSpecification fudge1;
-        fudge1 = fudgeContext.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudgeField);
+        fudge1 = deserializer.fieldValueToObject (com.opengamma.livedata.LiveDataSpecification.class, fudgeField);
         setFullyQualifiedSpecification (fudge1);
       }
       catch (IllegalArgumentException e) {
@@ -75,7 +75,7 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
     if (fudgeField != null)  {
       try {
         final com.opengamma.livedata.LiveDataValueUpdateBean fudge1;
-        fudge1 = fudgeContext.fieldValueToObject (com.opengamma.livedata.LiveDataValueUpdateBean.class, fudgeField);
+        fudge1 = deserializer.fieldValueToObject (com.opengamma.livedata.LiveDataValueUpdateBean.class, fudgeField);
         setSnapshot (fudge1);
       }
       catch (IllegalArgumentException e) {
@@ -122,15 +122,15 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
   public LiveDataSubscriptionResponse clone () {
     return new LiveDataSubscriptionResponse (this);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
-    toFudgeMsg (fudgeContext, msg);
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
+    if (serializer == null) throw new NullPointerException ("serializer must not be null");
+    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
+    toFudgeMsg (serializer, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_requestedSpecification != null)  {
-      fudgeContext.addToMessageWithClassHeaders (msg, REQUESTED_SPECIFICATION_KEY, null, _requestedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      serializer.addToMessageWithClassHeaders (msg, REQUESTED_SPECIFICATION_KEY, null, _requestedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
     if (_subscriptionResult != null)  {
       msg.add (SUBSCRIPTION_RESULT_KEY, null, _subscriptionResult.name ());
@@ -139,28 +139,28 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
       msg.add (USER_MESSAGE_KEY, null, _userMessage);
     }
     if (_fullyQualifiedSpecification != null)  {
-      fudgeContext.addToMessageWithClassHeaders (msg, FULLY_QUALIFIED_SPECIFICATION_KEY, null, _fullyQualifiedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      serializer.addToMessageWithClassHeaders (msg, FULLY_QUALIFIED_SPECIFICATION_KEY, null, _fullyQualifiedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
     if (_tickDistributionSpecification != null)  {
       msg.add (TICK_DISTRIBUTION_SPECIFICATION_KEY, null, _tickDistributionSpecification);
     }
     if (_snapshot != null)  {
-      fudgeContext.addToMessageWithClassHeaders (msg, SNAPSHOT_KEY, null, _snapshot, com.opengamma.livedata.LiveDataValueUpdateBean.class);
+      serializer.addToMessageWithClassHeaders (msg, SNAPSHOT_KEY, null, _snapshot, com.opengamma.livedata.LiveDataValueUpdateBean.class);
     }
   }
-  public static LiveDataSubscriptionResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
+  public static LiveDataSubscriptionResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.livedata.msg.LiveDataSubscriptionResponse".equals (className)) break;
       try {
-        return (com.opengamma.livedata.msg.LiveDataSubscriptionResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.livedata.msg.LiveDataSubscriptionResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
       }
     }
-    return new LiveDataSubscriptionResponse (fudgeContext, fudgeMsg);
+    return new LiveDataSubscriptionResponse (deserializer, fudgeMsg);
   }
   public com.opengamma.livedata.LiveDataSpecification getRequestedSpecification () {
     return _requestedSpecification;

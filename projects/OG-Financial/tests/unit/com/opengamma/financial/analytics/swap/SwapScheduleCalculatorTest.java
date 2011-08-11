@@ -11,7 +11,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.region.RegionUtils;
@@ -39,7 +39,7 @@ public class SwapScheduleCalculatorTest {
   private static final Notional NOTIONAL = new Notional() {
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
       // Okay to return NULL as we're not doing any messaging with this
       return null;
     }
@@ -78,7 +78,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
       return null;
     }
 
@@ -92,7 +92,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
       return null;
     }
 

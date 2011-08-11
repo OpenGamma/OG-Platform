@@ -9,9 +9,9 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeObjectBuilder;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
@@ -33,25 +33,25 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
   public static final class InvokedSerializedFormBuilder extends AbstractFudgeMessageBuilder<InvokedSerializedForm> implements FudgeObjectBuilder<Object> {
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InvokedSerializedForm object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final InvokedSerializedForm object) {
       if (object.getOuterClass() != null) {
         message.add(null, null, object.getOuterClass().getName());
       } else {
-        context.addToMessage(message, null, null, substituteObject(object.getOuterInstance()));
+        serializer.addToMessage(message, null, null, substituteObject(object.getOuterInstance()));
       }
       if (object.getParameters().length == 0) {
         message.add(object.getMethod(), null, IndicatorType.INSTANCE);
       } else {
-        final MutableFudgeMsg parameters = context.newMessage();
+        final MutableFudgeMsg parameters = serializer.newMessage();
         for (Object parameter : object.getParameters()) {
-          context.addToMessage(parameters, null, null, substituteObject(parameter));
+          serializer.addToMessage(parameters, null, null, substituteObject(parameter));
         }
         message.add(object.getMethod(), null, parameters);
       }
     }
 
     @Override
-    public Object buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    public Object buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       Object outer = null;
       String method = null;
       Object[] parameters = null;
@@ -65,7 +65,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
                 throw new OpenGammaRuntimeException("Class not found", e);
               }
             } else {
-              outer = context.fieldValueToObject(field);
+              outer = deserializer.fieldValueToObject(field);
             }
           }
         } else {
@@ -79,7 +79,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
               parameters = new Object[params.getNumFields()];
               int i = 0;
               for (FudgeField param : params) {
-                parameters[i++] = context.fieldValueToObject(param);
+                parameters[i++] = deserializer.fieldValueToObject(param);
               }
               break;
             }

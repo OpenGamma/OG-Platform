@@ -16,7 +16,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -54,8 +54,8 @@ public class DataPositionSourceResourceTest {
   }
   
   private <T> T decodeResponse (final Class<T> clazz, final String field, final FudgeMsgEnvelope response) {
-    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (_resource.getFudgeContext ());
-    return fdc.fieldValueToObject(clazz, response.getMessage ().getByName(field));
+    final FudgeDeserializer deserializer = new FudgeDeserializer (_resource.getFudgeContext ());
+    return deserializer.fieldValueToObject(clazz, response.getMessage ().getByName(field));
   }
 
   //-------------------------------------------------------------------------

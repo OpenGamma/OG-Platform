@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
@@ -28,27 +28,27 @@ public class CurveInstrumentProviderBuilder implements FudgeBuilder<CurveInstrum
   private StaticCurveInstrumentProviderBuilder _staticBuilder = new StaticCurveInstrumentProviderBuilder();
   private SyntheticIdentifierCurveInstrumentProviderBuilder _syntheticBuilder = new SyntheticIdentifierCurveInstrumentProviderBuilder();
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CurveInstrumentProvider object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurveInstrumentProvider object) {
     if (object instanceof BloombergFutureCurveInstrumentProvider) {
-      return _bloombergFutureBuilder.buildMessage(context, (BloombergFutureCurveInstrumentProvider) object);
+      return _bloombergFutureBuilder.buildMessage(serializer, (BloombergFutureCurveInstrumentProvider) object);
     } else if (object instanceof StaticCurveInstrumentProvider) {
-      return _staticBuilder.buildMessage(context, (StaticCurveInstrumentProvider) object);
+      return _staticBuilder.buildMessage(serializer, (StaticCurveInstrumentProvider) object);
     } else if (object instanceof SyntheticIdentifierCurveInstrumentProvider) {
-      return _syntheticBuilder.buildMessage(context, (SyntheticIdentifierCurveInstrumentProvider) object);
+      return _syntheticBuilder.buildMessage(serializer, (SyntheticIdentifierCurveInstrumentProvider) object);
     } else {
       throw new OpenGammaRuntimeException("Unsupported subclass - needs explicit support for mongo serialization");
     }
   }
 
   @Override
-  public CurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public CurveInstrumentProvider buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String type = message.getString("type");
     if (type.equals(BloombergFutureCurveInstrumentProviderBuilder.TYPE)) {
-      return _bloombergFutureBuilder.buildObject(context, message);
+      return _bloombergFutureBuilder.buildObject(deserializer, message);
     } else if (type.equals(StaticCurveInstrumentProviderBuilder.TYPE)) {
-      return _staticBuilder.buildObject(context, message);
+      return _staticBuilder.buildObject(deserializer, message);
     } else if (type.equals(SyntheticIdentifierCurveInstrumentProviderBuilder.TYPE)) {
-      return _syntheticBuilder.buildObject(context, message);
+      return _syntheticBuilder.buildObject(deserializer, message);
     } else {
       throw new OpenGammaRuntimeException("Unsupported subclass type ('" + type + "') - needs explicit support for mongo serialization");
     }

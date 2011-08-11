@@ -21,6 +21,7 @@
   border: none;
   color: #fff;
   position: relative;
+  margin-bottom: 5px;
 }
 
 .OG-box.og-box-glass:after {

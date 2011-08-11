@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform;
 
@@ -21,14 +21,14 @@ import com.opengamma.engine.function.resolver.IdentityResolutionRuleTransform;
 public class IdentityResolutionRuleTransformBuilder implements FudgeBuilder<IdentityResolutionRuleTransform> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final IdentityResolutionRuleTransform object) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IdentityResolutionRuleTransform object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     message.add(0, IdentityResolutionRuleTransform.class.getName());
     return message;
   }
 
   @Override
-  public IdentityResolutionRuleTransform buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public IdentityResolutionRuleTransform buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     return IdentityResolutionRuleTransform.INSTANCE;
   }
 }

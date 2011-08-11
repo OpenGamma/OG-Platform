@@ -18,7 +18,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
@@ -438,7 +438,7 @@ public final class ExternalIdBundle
    * @param msg  the Fudge message, not null
    * @return the bundle, not null
    */
-  public static ExternalIdBundle fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+  public static ExternalIdBundle fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
     Set<ExternalId> ids = new HashSet<ExternalId>();
     for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
       if (field.getValue() instanceof FudgeMsg == false) {

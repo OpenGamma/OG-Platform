@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
@@ -112,14 +112,14 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
 
   //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Expiry expiry) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Expiry expiry) {
+    final MutableFudgeMsg message = serializer.newMessage();
     toFudgeMsg(expiry, message);
     return message;
   }
 
   @Override
-  public Expiry buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public Expiry buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     return fromFudgeMsg(message);
   }
 

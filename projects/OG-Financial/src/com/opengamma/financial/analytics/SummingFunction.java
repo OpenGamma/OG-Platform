@@ -132,7 +132,11 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.keySet()));
+    final ValueProperties properties = getResultProperties(inputs.keySet());
+    if (properties == null) {
+      return null;
+    }
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), properties);
     return Collections.singleton(result);
   }
 

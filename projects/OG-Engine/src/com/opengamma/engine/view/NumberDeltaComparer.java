@@ -8,8 +8,8 @@ package com.opengamma.engine.view;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * Allows two {@link Number}s to be compared to see whether they differ sufficiently for the change to be considered
@@ -49,13 +49,13 @@ public class NumberDeltaComparer implements DeltaComparer<Number> {
     return previousCompare != newCompare;
   }
   
-  public FudgeMsg toFudgeMsg(FudgeSerializationContext fudgeContext) {
+  public FudgeMsg toFudgeMsg(FudgeSerializer fudgeContext) {
     MutableFudgeMsg msg = fudgeContext.newMessage();
     msg.add(DECIMAL_PLACES_FIELD, _decimalPlaces);
     return msg;
   }
   
-  public static NumberDeltaComparer fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
+  public static NumberDeltaComparer fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
     return new NumberDeltaComparer(msg.getInt(DECIMAL_PLACES_FIELD));
   }
 

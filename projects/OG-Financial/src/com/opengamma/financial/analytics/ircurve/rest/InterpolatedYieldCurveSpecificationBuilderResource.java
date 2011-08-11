@@ -13,8 +13,8 @@ import javax.ws.rs.PathParam;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
@@ -45,10 +45,10 @@ public class InterpolatedYieldCurveSpecificationBuilderResource {
   @Path("{curveDate}")
   public FudgeMsgEnvelope buildCurve(@PathParam("curveDate") String curveDateString, final FudgeMsgEnvelope payload) {
     final LocalDate curveDate = LocalDate.parse(curveDateString);
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final YieldCurveDefinition curveDefinition = deserializer.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
     final InterpolatedYieldCurveSpecification curveSpecification = getUnderlying().buildCurve(curveDate, curveDefinition);
-    final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
+    final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg msg = sctx.newMessage();
     sctx.addToMessageWithClassHeaders(msg, "specification", null, curveSpecification, InterpolatedYieldCurveSpecification.class);
     return new FudgeMsgEnvelope(msg);

@@ -31,6 +31,8 @@ import com.opengamma.util.tuple.Pair;
 @PublicAPI
 public class ViewCalculationConfiguration implements Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
   private final ViewDefinition _viewDefinition;
   private final String _name;
 

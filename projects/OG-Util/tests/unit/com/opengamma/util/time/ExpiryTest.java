@@ -16,8 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.fudgemsg.ExpiryBuilder;
@@ -41,11 +41,11 @@ public class ExpiryTest {
   }
 
   private static void testExpiry(final Expiry expiry) {
-    final FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
-    final MutableFudgeMsg messageIn = serContext.newMessage();
-    serContext.addToMessage(messageIn, "test", null, expiry);
+    final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
+    final MutableFudgeMsg messageIn = serializer.newMessage();
+    serializer.addToMessage(messageIn, "test", null, expiry);
     final FudgeMsg messageOut = cycleMessage(messageIn);
-    final FudgeDeserializationContext dsrContext = new FudgeDeserializationContext(s_fudgeContext);
+    final FudgeDeserializer dsrContext = new FudgeDeserializer(s_fudgeContext);
     final Expiry result = dsrContext.fieldValueToObject(Expiry.class, messageOut.getByName("test"));
     assertEquals(expiry, result);
     assertEquals(expiry.getExpiry().getZone(), result.getExpiry().getZone());

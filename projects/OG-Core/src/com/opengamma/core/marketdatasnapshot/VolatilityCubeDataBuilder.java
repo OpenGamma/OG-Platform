@@ -14,8 +14,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -36,33 +36,33 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
   private static final String STRIKE_FIELD_NAME = "strike";
   
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilityCubeData object) {
-    MutableFudgeMsg ret = context.newMessage();
-    FudgeSerializationContext.addClassHeader(ret, VolatilityCubeData.class);
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, VolatilityCubeData object) {
+    MutableFudgeMsg ret = serializer.newMessage();
+    FudgeSerializer.addClassHeader(ret, VolatilityCubeData.class);
     
-    context.addToMessage(ret, DATA_POINTS_FIELD_NAME, null, object.getDataPoints());
-    context.addToMessage(ret, OTHER_DATA_FIELD_NAME, null, object.getOtherData());
+    serializer.addToMessage(ret, DATA_POINTS_FIELD_NAME, null, object.getDataPoints());
+    serializer.addToMessage(ret, OTHER_DATA_FIELD_NAME, null, object.getOtherData());
     
     
     if (object.getStrikes() != null) {
-      MutableFudgeMsg strikesMessage = context.newMessage();
+      MutableFudgeMsg strikesMessage = serializer.newMessage();
       for (Entry<Pair<Tenor, Tenor>, Double> entry : object.getStrikes().entrySet()) {
-        MutableFudgeMsg strikeMessage = context.newMessage();
-        context.addToMessage(strikeMessage, SWAP_TENOR_FIELD_NAME, null, entry.getKey().getFirst());
-        context.addToMessage(strikeMessage, OPTION_EXPIRY_FIELD_NAME, null, entry.getKey().getSecond());
-        context.addToMessage(strikeMessage, STRIKE_FIELD_NAME, null, entry.getValue());        
+        MutableFudgeMsg strikeMessage = serializer.newMessage();
+        serializer.addToMessage(strikeMessage, SWAP_TENOR_FIELD_NAME, null, entry.getKey().getFirst());
+        serializer.addToMessage(strikeMessage, OPTION_EXPIRY_FIELD_NAME, null, entry.getKey().getSecond());
+        serializer.addToMessage(strikeMessage, STRIKE_FIELD_NAME, null, entry.getValue());        
         
         strikesMessage.add(null, null, strikeMessage);
       }
       ret.add(STRIKES_FIELD_NAME, strikesMessage);
     }
     if (object.getATMVolatilities() != null) {
-      MutableFudgeMsg atmVolsMessage = context.newMessage();
+      MutableFudgeMsg atmVolsMessage = serializer.newMessage();
       for (Entry<Pair<Tenor, Tenor>, Double> entry : object.getATMVolatilities().entrySet()) {
-        MutableFudgeMsg atmVolMessage = context.newMessage();
-        context.addToMessage(atmVolMessage, SWAP_TENOR_FIELD_NAME, null, entry.getKey().getFirst());
-        context.addToMessage(atmVolMessage, OPTION_EXPIRY_FIELD_NAME, null, entry.getKey().getSecond());
-        context.addToMessage(atmVolMessage, ATM_VOLS_FIELD_NAME, null, entry.getValue());        
+        MutableFudgeMsg atmVolMessage = serializer.newMessage();
+        serializer.addToMessage(atmVolMessage, SWAP_TENOR_FIELD_NAME, null, entry.getKey().getFirst());
+        serializer.addToMessage(atmVolMessage, OPTION_EXPIRY_FIELD_NAME, null, entry.getKey().getSecond());
+        serializer.addToMessage(atmVolMessage, ATM_VOLS_FIELD_NAME, null, entry.getValue());        
         
         atmVolsMessage.add(null, null, atmVolMessage);
       }
@@ -73,16 +73,16 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
 
   
   @Override
-  public VolatilityCubeData buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+  public VolatilityCubeData buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
 
     Class<?> mapClass = (Class<?>) Map.class;
     FudgeField pointsField = message.getByName(DATA_POINTS_FIELD_NAME);
     
     @SuppressWarnings("unchecked")
-    Map<VolatilityPoint, Double> dataPoints = (Map<VolatilityPoint, Double>) (pointsField == null ? null : context.fieldValueToObject(mapClass, pointsField));
+    Map<VolatilityPoint, Double> dataPoints = (Map<VolatilityPoint, Double>) (pointsField == null ? null : deserializer.fieldValueToObject(mapClass, pointsField));
     
     FudgeField otherField = message.getByName(OTHER_DATA_FIELD_NAME);
-    SnapshotDataBundle otherData = otherField == null ? null : context.fieldValueToObject(SnapshotDataBundle.class, otherField);
+    SnapshotDataBundle otherData = otherField == null ? null : deserializer.fieldValueToObject(SnapshotDataBundle.class, otherField);
     
     VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
@@ -96,9 +96,9 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
       Map<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();      
       for (FudgeField strikeField : strikesMsg) {
         FudgeMsg strikeMsg = (FudgeMsg) strikeField.getValue();
-        Tenor swapTenor = context.fieldValueToObject(Tenor.class, strikeMsg.getByName(SWAP_TENOR_FIELD_NAME));
-        Tenor optionExpiry = context.fieldValueToObject(Tenor.class, strikeMsg.getByName(OPTION_EXPIRY_FIELD_NAME));
-        Double strike = context.fieldValueToObject(Double.class, strikeMsg.getByName(STRIKE_FIELD_NAME));
+        Tenor swapTenor = deserializer.fieldValueToObject(Tenor.class, strikeMsg.getByName(SWAP_TENOR_FIELD_NAME));
+        Tenor optionExpiry = deserializer.fieldValueToObject(Tenor.class, strikeMsg.getByName(OPTION_EXPIRY_FIELD_NAME));
+        Double strike = deserializer.fieldValueToObject(Double.class, strikeMsg.getByName(STRIKE_FIELD_NAME));
         strikes.put(Pair.of(swapTenor, optionExpiry), strike);
       }
       ret.setStrikes(strikes);
@@ -109,9 +109,9 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
       Map<Pair<Tenor, Tenor>, Double> atmVols = new HashMap<Pair<Tenor, Tenor>, Double>();      
       for (FudgeField atmVolField : atmVolatilitiesMsg) {
         FudgeMsg atmVolatilityMsg = (FudgeMsg) atmVolField.getValue();
-        Tenor swapTenor = context.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(SWAP_TENOR_FIELD_NAME));
-        Tenor optionExpiry = context.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(OPTION_EXPIRY_FIELD_NAME));
-        Double atmVol = context.fieldValueToObject(Double.class, atmVolatilityMsg.getByName(ATM_VOLS_FIELD_NAME));
+        Tenor swapTenor = deserializer.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(SWAP_TENOR_FIELD_NAME));
+        Tenor optionExpiry = deserializer.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(OPTION_EXPIRY_FIELD_NAME));
+        Double atmVol = deserializer.fieldValueToObject(Double.class, atmVolatilityMsg.getByName(ATM_VOLS_FIELD_NAME));
         atmVols.put(Pair.of(swapTenor, optionExpiry), atmVol);
       }
       ret.setATMVolatilities(atmVols);
