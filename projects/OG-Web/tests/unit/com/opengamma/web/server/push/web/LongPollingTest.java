@@ -24,11 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -114,7 +110,7 @@ public class LongPollingTest {
         waitAndSend(clientId, RESULT1);
       }
     }).start();
-    String result = readFromPath("subscription/" + clientId);
+    String result = readFromPath("updates/" + clientId);
     assertEquals(RESULT1, result);
   }
 
@@ -125,7 +121,7 @@ public class LongPollingTest {
   public void longPollNotBlocking() throws IOException {
     String clientId = readFromPath("handshake");
     _subscriptionManager.sendUpdate(RESULT1);
-    String result = readFromPath("subscription/" + clientId);
+    String result = readFromPath("updates/" + clientId);
     assertEquals(RESULT1, result);
   }
 
@@ -138,7 +134,7 @@ public class LongPollingTest {
     _subscriptionManager.sendUpdate(RESULT1);
     _subscriptionManager.sendUpdate(RESULT2);
     _subscriptionManager.sendUpdate(RESULT3);
-    String result = readFromPath("subscription/" + clientId);
+    String result = readFromPath("updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
     assertEquals(3, results.size());
@@ -158,7 +154,7 @@ public class LongPollingTest {
     _subscriptionManager.sendUpdate(RESULT2);
     _subscriptionManager.sendUpdate(RESULT3);
     _subscriptionManager.sendUpdate(RESULT2);
-    String result = readFromPath("subscription/" + clientId);
+    String result = readFromPath("updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
     assertEquals(3, results.size());
@@ -180,7 +176,7 @@ public class LongPollingTest {
         waitAndSend(clientId, RESULT1);
       }
     }).start();
-    String path = "subscription/" + clientId;
+    String path = "updates/" + clientId;
     assertEquals(RESULT1, readFromPath(path));
     assertEquals(RESULT2, readFromPath(path));
     assertEquals(RESULT3, readFromPath(path));

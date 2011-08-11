@@ -69,6 +69,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
   // TODO maybe the API should be completely different - Viewports manages the clients and this class receives events when they change
   // TODO but what about closing subscriptions? the client connection needs to know about its viewports
   // TODO or the ViewportManager could key on client ID and implement a disconnect() method
+  // TODO making everying go through ClientConnection might make concurrency easier to manage
   public String createViewportSubscription(String userId, String clientId, ViewportSubscriptionRequest request) {
     getConnection(userId, clientId).createViewportSubscription(request);
     return viewportId(clientId);

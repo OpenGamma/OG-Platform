@@ -60,12 +60,22 @@
 
   <servlet>
     <servlet-name>subscription</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.web.LongPollingServlet</servlet-class>
+    <servlet-class>com.opengamma.web.server.push.web.SubscriptionsServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>subscription</servlet-name>
     <url-pattern>/subscription/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>updates</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.web.LongPollingServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>updates</servlet-name>
+    <url-pattern>/updates/*</url-pattern>
   </servlet-mapping>
 
 </web-app>
