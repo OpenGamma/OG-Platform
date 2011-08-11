@@ -364,8 +364,8 @@ public final class DependencyGraphBuilder {
             resolver = new RequirementResolver(requirement, dependent);
           }
           resolver.addTask(this, task);
-          task.release(this);
         }
+        task.release(this);
       }
       if (resolver != null) {
         resolver.start(this);
@@ -448,10 +448,7 @@ public final class DependencyGraphBuilder {
     public void discardUnfinishedTask(final ResolveTask task) {
       synchronized (_requirements) {
         final Map<ResolveTask, ResolveTask> tasks = _requirements.get(task.getValueRequirement());
-        if (tasks == null) {
-          return;
-        }
-        if ((tasks == null) || (tasks.remove(task) == null)) {
+        if (tasks.remove(task) == null) {
           // Wasn't in the set
           return;
         }

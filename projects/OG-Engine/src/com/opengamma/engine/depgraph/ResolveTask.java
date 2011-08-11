@@ -33,7 +33,6 @@ import com.opengamma.engine.value.ValueSpecification;
   protected abstract static class State {
 
     private final int _objectId = s_nextObjectId.getAndIncrement();
-    // The task held is not ref-counted
     private final ResolveTask _task;
 
     protected State(final ResolveTask task) {
@@ -98,6 +97,14 @@ import com.opengamma.engine.value.ValueSpecification;
       throw new UnsupportedOperationException("Not pumpable state (" + toString() + ")");
     }
 
+    /**
+     * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the
+     * parent task is going to neither call {@link #run} nor {@link #pump}
+     * 
+     * @return {@code true} if the state is active, {@code false} otherwise
+     */
+    protected abstract boolean isActive();
+
   }
 
   /**
@@ -135,6 +142,10 @@ import com.opengamma.engine.value.ValueSpecification;
   private void setState(final State state) {
     assert state != null;
     s_logger.debug("State transition {} to {}", _state, state);
+    if (_state == null) {
+      // Increase the ref-count as the state holds a reference to us 
+      addRef();
+    }
     _state = state;
   }
 
@@ -144,7 +155,10 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   protected boolean finished(final GraphBuildingContext context) {
+    assert _state != null;
     _state = null;
+    // Decrease the ref-count as the state no longer holds a reference to us
+    release(context);
     return super.finished(context);
   }
 
@@ -160,6 +174,7 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public void run(final GraphBuildingContext context) {
     getState().run(context);
+    // Release the lock that the context added before we got queued
     release(context);
   }
 
@@ -249,13 +264,16 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public int release(final GraphBuildingContext context) {
     final int count = super.release(context);
-    if (count == 1) {
-      if (isFinished()) {
-        s_logger.debug("Leave finished 'resolveTask' in the cache");
-      } else {
-        s_logger.debug("Remove unfinished 'resolveTask' from the cache");
-        context.discardUnfinishedTask(this);
+    if (getState() != null) {
+      if (count == 2) {
+        // References held from the cache and the simulated one from our state
+        if (!getState().isActive()) {
+          s_logger.debug("Remove unfinished {} from the cache", this);
+          context.discardUnfinishedTask(this);
+        }
       }
+    } else {
+      s_logger.debug("Leave finished {} in the cache", this);
     }
     return count;
   }

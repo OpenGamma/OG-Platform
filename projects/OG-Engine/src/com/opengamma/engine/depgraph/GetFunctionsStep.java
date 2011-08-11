@@ -113,6 +113,12 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  protected boolean isActive() {
+    // Get functions has no background behavior - if run isn't called, nothing will happen
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "GET_FUNCTIONS" + getObjectId();
   }

@@ -28,6 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
   private int _pendingInputs;
   private int _validInputs;
   private FunctionApplicationStep.PumpingState _taskState;
+  private boolean _closed;
 
   public FunctionApplicationWorker(final ValueRequirement valueRequirement) {
     super(valueRequirement);
@@ -255,9 +256,17 @@ import com.opengamma.engine.value.ValueSpecification;
   public int release(final GraphBuildingContext context) {
     final int count = super.release(context);
     if (count == 1) {
-      s_logger.debug("Last reference should be from the state object");
+      // Last reference left will be from the state object
+      _closed = true;
     }
     return count;
+  }
+
+  /**
+   * {@see ResolveTask.State#isActive}
+   */
+  protected boolean isActive() {
+    return !_closed;
   }
 
 }

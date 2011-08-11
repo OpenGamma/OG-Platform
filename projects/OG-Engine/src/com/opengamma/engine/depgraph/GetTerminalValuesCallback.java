@@ -133,31 +133,36 @@ import com.opengamma.util.ArgumentChecker;
         s_logger.debug("Finding node productions for {}", input);
         final Map<ResolveTask, ResolvedValueProducer> resolver = context.getTasksProducing(input);
         if (!resolver.isEmpty()) {
-          for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
-            resolvedEntry.getValue().addCallback(context, new ResolvedValueCallback() {
+          final ResolvedValueCallback callback = new ResolvedValueCallback() {
 
-              @Override
-              public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
-                // This shouldn't happen; if the value we're considering was produced once then the producer should be able to
-                // produce it again.
-                s_logger.error("Failed production for {} ({})", input, value);
-                assert false;
-              }
+            private boolean _resolved;
 
-              @Override
-              public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-                synchronized (GetTerminalValuesCallback.this) {
+            @Override
+            public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+              // This shouldn't happen; if the value we're considering was produced once then at least one producer should be able
+              // to produce it again.
+            }
+
+            @Override
+            public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+              synchronized (GetTerminalValuesCallback.this) {
+                if (!_resolved) {
+                  _resolved = true;
                   final DependencyNode inputNode = getOrCreateNode(context, valueRequirement, resolvedValue);
                   node.addInputNode(inputNode);
                 }
               }
+              context.close(pump);
+            }
 
-              @Override
-              public String toString() {
-                return "node productions for " + input;
-              }
+            @Override
+            public String toString() {
+              return "node productions for " + input;
+            }
 
-            });
+          };
+          for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
+            resolvedEntry.getValue().addCallback(context, callback);
             // Only the values are ref-counted
             resolvedEntry.getValue().release(context);
           }

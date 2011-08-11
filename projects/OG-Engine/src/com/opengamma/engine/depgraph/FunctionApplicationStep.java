@@ -96,6 +96,12 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
+    protected boolean isActive() {
+      // Only active if pump has been called
+      return _pump == null;
+    }
+
+    @Override
     public String toString() {
       return "Delegate" + getObjectId();
     }
@@ -293,6 +299,12 @@ import com.opengamma.util.tuple.Pair;
       }
 
       @Override
+      protected final boolean isActive() {
+        // Only active if a resolve has been received, and there is no failure (i.e. it is waiting on the task to pump it)
+        return _pump == null;
+      }
+
+      @Override
       public String toString() {
         return "ResolutionSubstituteDelegate" + getObjectId() + "[" + getFunction() + ", " + getValueSpecification() + "]";
       }
@@ -394,6 +406,11 @@ import com.opengamma.util.tuple.Pair;
     protected void pump(final GraphBuildingContext context) {
       s_logger.debug("Pumping worker {} from {}", getWorker(), this);
       getWorker().pumpImpl(context);
+    }
+
+    @Override
+    protected boolean isActive() {
+      return getWorker().isActive();
     }
 
     @Override

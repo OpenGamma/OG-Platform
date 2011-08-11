@@ -70,6 +70,12 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  protected boolean isActive() {
+    // Won't do anything unless {@link #run} is called
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "NEXT_FUNCTION" + getObjectId();
   }

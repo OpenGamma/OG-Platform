@@ -233,6 +233,7 @@ import com.opengamma.engine.value.ValueSpecification;
       for (Callback callback : pumped) {
         s_logger.debug("Pushing failure to {}", callback._callback);
         context.failed(callback._callback, getValueRequirement(), failure);
+        release(context);
       }
     } else {
       s_logger.debug("No pumped callbacks");
