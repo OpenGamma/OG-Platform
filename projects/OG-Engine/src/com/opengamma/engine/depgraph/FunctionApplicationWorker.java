@@ -17,7 +17,6 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.Cancellable;
 
 /* package */final class FunctionApplicationWorker extends AbstractResolvedValueProducer implements ResolvedValueCallback {
 
@@ -111,7 +110,7 @@ import com.opengamma.util.Cancellable;
       s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
       for (Cancellable handle : unsubscribes) {
         if (handle != null) {
-          handle.cancel(false);
+          handle.cancel(context);
         }
       }
     }
@@ -250,6 +249,15 @@ import com.opengamma.util.Cancellable;
   @Override
   public String toString() {
     return "Worker" + getObjectId() + "[" + getValueRequirement() + "]";
+  }
+
+  @Override
+  public int release(final GraphBuildingContext context) {
+    final int count = super.release(context);
+    if (count == 1) {
+      s_logger.debug("Last reference should be from the state object");
+    }
+    return count;
   }
 
 }

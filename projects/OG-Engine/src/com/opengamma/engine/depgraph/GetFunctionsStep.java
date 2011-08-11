@@ -17,7 +17,6 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.Cancellable;
 import com.opengamma.util.tuple.Pair;
 
 /* package */final class GetFunctionsStep extends ResolveTask.State {
@@ -32,6 +31,7 @@ import com.opengamma.util.tuple.Pair;
 
     private final ValueRequirement _valueRequirement;
     private final ResolvedValue _resolvedValue;
+    private int _refCount = 1;
 
     public LiveDataResolvedValueProducer(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
       _valueRequirement = valueRequirement;
@@ -42,6 +42,7 @@ import com.opengamma.util.tuple.Pair;
     public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
       final AtomicReference<ResolvedValueCallback> callbackRef = new AtomicReference<ResolvedValueCallback>(callback);
       context.resolved(callback, _valueRequirement, _resolvedValue, new ResolutionPump() {
+
         @Override
         public void pump(final GraphBuildingContext context) {
           final ResolvedValueCallback callback = callbackRef.getAndSet(null);
@@ -50,13 +51,29 @@ import com.opengamma.util.tuple.Pair;
             context.failed(callback, _valueRequirement, null);
           }
         }
+
+        @Override
+        public void close(final GraphBuildingContext context) {
+          callbackRef.set(null);
+        }
+
       });
       return new Cancellable() {
         @Override
-        public boolean cancel(final boolean mayInterruptIfRunning) {
+        public boolean cancel(final GraphBuildingContext context) {
           return callbackRef.getAndSet(null) != null;
         }
       };
+    }
+
+    @Override
+    public synchronized void addRef() {
+      _refCount++;
+    }
+
+    @Override
+    public synchronized int release(final GraphBuildingContext context) {
+      return --_refCount;
     }
 
   }
@@ -68,10 +85,13 @@ import com.opengamma.util.tuple.Pair;
       final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
       final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
           .singleton(function.getResult()));
-      context.declareTaskProducing(function.getResult(), getTask(), new LiveDataResolvedValueProducer(getValueRequirement(), result));
+      final LiveDataResolvedValueProducer producer = new LiveDataResolvedValueProducer(getValueRequirement(), result);
+      final ResolvedValueProducer existing = context.declareTaskProducing(function.getResult(), getTask(), producer);
       if (!pushResult(context, result)) {
         throw new IllegalStateException(result + " rejected by pushResult");
       }
+      producer.release(context);
+      existing.release(context);
       // Leave in current state; will go to finished after being pumped
     } else {
       final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());

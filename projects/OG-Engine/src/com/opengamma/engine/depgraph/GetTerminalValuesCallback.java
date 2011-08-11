@@ -158,6 +158,8 @@ import com.opengamma.util.ArgumentChecker;
               }
 
             });
+            // Only the values are ref-counted
+            resolvedEntry.getValue().release(context);
           }
         } else {
           s_logger.warn("No registered node production for {}", input);
@@ -175,6 +177,7 @@ import com.opengamma.util.ArgumentChecker;
     s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
     getOrCreateNode(context, valueRequirement, resolvedValue);
     _resolvedValues.put(valueRequirement, resolvedValue.getValueSpecification());
+    context.close(pump);
   }
 
   @Override

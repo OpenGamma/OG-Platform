@@ -8,17 +8,18 @@ package com.opengamma.engine.depgraph;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +72,7 @@ public final class DependencyGraphBuilder {
 
     private final ResolveTask _parentTask;
     private final Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
+    private ResolveTask _fallback;
 
     public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
       super(valueRequirement);
@@ -80,6 +82,7 @@ public final class DependencyGraphBuilder {
 
     protected void addTask(final GraphBuildingContext context, final ResolveTask task) {
       if (_tasks.add(task)) {
+        task.addRef();
         addProducer(context, task);
       }
     }
@@ -94,22 +97,46 @@ public final class DependencyGraphBuilder {
         }
       }
       if (addFallback) {
-        final ResolveTask task = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
-        if (_tasks.add(task)) {
-          s_loggerResolver.debug("Creating fallback task {}", task);
-          task.addCallback(context, this);
+        _fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
+        if (_tasks.add(_fallback)) {
+          _fallback.addRef();
+          s_loggerResolver.debug("Creating fallback task {}", _fallback);
+          _fallback.addCallback(context, this);
           return false;
-        } else {
-          return super.finished(context);
         }
+      }
+      if (super.finished(context)) {
+        if (_fallback != null) {
+          // Discard the fallback task if another has produced the same set of results for the requirement
+          s_loggerContext.debug("Discarding finished task");
+          context.discardFinishedTask(getResults(), _fallback);
+          _fallback.release(context);
+          _fallback = null;
+        }
+        return true;
       } else {
-        return super.finished(context);
+        return false;
       }
     }
 
     @Override
     public String toString() {
       return "Resolve" + getObjectId() + "[" + getValueRequirement() + ", " + _parentTask + "]";
+    }
+
+    @Override
+    public int release(final GraphBuildingContext context) {
+      final int count = super.release(context);
+      if (count == 0) {
+        if (_fallback != null) {
+          // Discard the fallback task
+          s_loggerContext.debug("Discarding unfinished fallback task");
+          context.discardUnfinishedTask(_fallback);
+          _fallback.release(context);
+          _fallback = null;
+        }
+      }
+      return count;
     }
 
   }
@@ -128,12 +155,19 @@ public final class DependencyGraphBuilder {
     private ComputationTargetResolver _targetResolver;
     private CompiledFunctionResolver _functionResolver;
     private FunctionCompilationContext _compilationContext;
+
     // Note that the requirements and specifications maps could use "soft" or "weak" references; if data is missing then the work
     // will simply be repeated. This will not be time efficient, but could be useful in low memory situations or for big graphs as
     // the intermediate resolution fragments for securities that have already been processed and are disjoint from other parts of
     // the graph will not be needed again.
-    private final ConcurrentMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>> _requirements;
-    private final ConcurrentMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>> _specifications;
+
+    // The resolve task is ref-counted once for the map (it is being used as a set)
+    private final Map<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
+
+    // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
+    private final Map<ValueSpecification, Map<ResolveTask, ResolvedValueProducer>> _specifications;
+
+    private final Set<List<ResolvedValue>> _preferredProducers;
 
     // This data is per-thread
 
@@ -142,8 +176,9 @@ public final class DependencyGraphBuilder {
 
     private GraphBuildingContext() {
       s_loggerContext.info("Created new context");
-      _requirements = new ConcurrentHashMap<ValueRequirement, ConcurrentMap<ResolveTask, ResolveTask>>();
-      _specifications = new ConcurrentHashMap<ValueSpecification, ConcurrentMap<ResolveTask, ResolvedValueProducer>>();
+      _requirements = new HashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
+      _specifications = new HashMap<ValueSpecification, Map<ResolveTask, ResolvedValueProducer>>();
+      _preferredProducers = new HashSet<List<ResolvedValue>>();
     }
 
     private GraphBuildingContext(final GraphBuildingContext copyFrom) {
@@ -154,6 +189,7 @@ public final class DependencyGraphBuilder {
       setCompilationContext(copyFrom.getCompilationContext());
       _requirements = copyFrom._requirements;
       _specifications = copyFrom._specifications;
+      _preferredProducers = copyFrom._preferredProducers;
     }
 
     // Configuration & resources
@@ -207,6 +243,7 @@ public final class DependencyGraphBuilder {
      */
     public void run(final ResolveTask runnable) {
       s_loggerContext.debug("Running {}", runnable);
+      runnable.addRef();
       addToRunQueue(runnable);
     }
 
@@ -222,6 +259,22 @@ public final class DependencyGraphBuilder {
         addToRunQueue(new ResolutionPump.Pump(pump));
       } else {
         pump.pump(this);
+      }
+      _stackDepth--;
+    }
+
+    /**
+     * Trigger an underlying close operation. This may happen before returning or be deferred if the stack is past a
+     * depth threshold.
+     * 
+     * @param pump underlying operation
+     */
+    public void close(final ResolutionPump pump) {
+      s_loggerContext.debug("Closing {}", pump);
+      if (++_stackDepth > MAX_CALLBACK_DEPTH) {
+        addToRunQueue(new ResolutionPump.Close(pump));
+      } else {
+        pump.close(this);
       }
       _stackDepth--;
     }
@@ -277,6 +330,8 @@ public final class DependencyGraphBuilder {
         s_loggerResolver.debug("Can't introduce a ValueRequirement loop");
         return new ResolvedValueProducer() {
 
+          private int _refCount = 1;
+
           @Override
           public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
             context.failed(callback, requirement, ResolutionFailure.recursiveRequirement(requirement));
@@ -288,18 +343,29 @@ public final class DependencyGraphBuilder {
             return "ResolvedValueProducer[" + requirement + "]";
           }
 
+          @Override
+          public synchronized void addRef() {
+            assert _refCount > 0;
+            _refCount++;
+          }
+
+          @Override
+          public synchronized int release(final GraphBuildingContext context) {
+            assert _refCount > 0;
+            return --_refCount;
+          }
+
         };
       }
       RequirementResolver resolver = null;
       for (ResolveTask task : getTasksResolving(requirement)) {
-        if ((dependent != null) && dependent.hasParent(task)) {
-          // Can't use this task; a loop would be introduced
-          continue;
+        if ((dependent == null) || !dependent.hasParent(task)) {
+          if (resolver == null) {
+            resolver = new RequirementResolver(requirement, dependent);
+          }
+          resolver.addTask(this, task);
+          task.release(this);
         }
-        if (resolver == null) {
-          resolver = new RequirementResolver(requirement, dependent);
-        }
-        resolver.addTask(this, task);
       }
       if (resolver != null) {
         resolver.start(this);
@@ -311,60 +377,104 @@ public final class DependencyGraphBuilder {
     }
 
     private ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
-      final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask);
-      ConcurrentMap<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
-      if (tasks == null) {
-        tasks = new ConcurrentHashMap<ResolveTask, ResolveTask>();
-        tasks.put(newTask, newTask);
-        tasks = _requirements.putIfAbsent(valueRequirement, tasks);
+      ResolveTask newTask = new ResolveTask(valueRequirement, parentTask);
+      ResolveTask task;
+      synchronized (_requirements) {
+        Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
         if (tasks == null) {
-          addToRunQueue(newTask);
-          return newTask;
+          tasks = new HashMap<ResolveTask, ResolveTask>();
+          _requirements.put(valueRequirement, tasks);
+        }
+        task = tasks.get(newTask);
+        if (task == null) {
+          tasks.put(newTask, newTask);
         }
       }
-      final ResolveTask existingTask = tasks.putIfAbsent(newTask, newTask);
-      if (existingTask == null) {
-        addToRunQueue(newTask);
-        return newTask;
+      if (task != null) {
+        task.addRef();
+        return task;
       } else {
-        return existingTask;
+        run(newTask);
+        newTask.addRef();
+        return newTask;
       }
     }
 
     private Set<ResolveTask> getTasksResolving(final ValueRequirement valueRequirement) {
-      final ConcurrentMap<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
-      if (tasks == null) {
-        return Collections.emptySet();
-      } else {
-        return tasks.keySet();
+      final Set<ResolveTask> result;
+      synchronized (_requirements) {
+        final Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
+        if (tasks == null) {
+          return Collections.emptySet();
+        }
+        result = new HashSet<ResolveTask>(tasks.keySet());
       }
+      for (ResolveTask task : result) {
+        task.addRef();
+      }
+      return result;
     }
 
     public Map<ResolveTask, ResolvedValueProducer> getTasksProducing(final ValueSpecification valueSpecification) {
-      final Map<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
-      if (tasks == null) {
-        return Collections.emptyMap();
-      } else {
-        return tasks;
+      final Map<ResolveTask, ResolvedValueProducer> result;
+      synchronized (_specifications) {
+        final Map<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
+        if (tasks == null) {
+          return Collections.emptyMap();
+        }
+        result = new HashMap<ResolveTask, ResolvedValueProducer>(tasks);
       }
+      for (Map.Entry<ResolveTask, ResolvedValueProducer> task : result.entrySet()) {
+        // Don't ref-count the tasks; they're just used for parent comparisons
+        task.getValue().addRef();
+      }
+      return result;
+    }
+
+    private void discardFinishedTask(final ResolvedValue[] outputs, final ResolveTask task) {
+      final List<ResolvedValue> results = Arrays.asList(outputs);
+      synchronized (_preferredProducers) {
+        if (!_preferredProducers.add(results)) {
+          // This is a unique result
+          return;
+        }
+      }
+      // The produces the same output as another, so it is not preferred and may be discarded
+      discardUnfinishedTask(task);
+    }
+
+    private void discardUnfinishedTask(final ResolveTask task) {
+      synchronized (_requirements) {
+        final Map<ResolveTask, ResolveTask> tasks = _requirements.get(task.getValueRequirement());
+        if (tasks == null) {
+          return;
+        }
+        if ((tasks == null) || (tasks.remove(task) == null)) {
+          // Wasn't in the set
+          return;
+        }
+      }
+      task.release(this);
     }
 
     public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
-      ConcurrentMap<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
-      if (tasks == null) {
-        tasks = new ConcurrentHashMap<ResolveTask, ResolvedValueProducer>();
-        tasks.put(task, producer);
-        tasks = _specifications.putIfAbsent(valueSpecification, tasks);
+      ResolvedValueProducer result;
+      synchronized (_specifications) {
+        Map<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
         if (tasks == null) {
-          return producer;
+          tasks = new ConcurrentHashMap<ResolveTask, ResolvedValueProducer>();
+          _specifications.put(valueSpecification, tasks);
+        }
+        result = tasks.get(task);
+        if (result == null) {
+          // Don't ref-count the task; they're just used for value comparisons
+          producer.addRef();
+          tasks.put(task, producer);
+          result = producer;
         }
       }
-      final ResolvedValueProducer existing = tasks.putIfAbsent(task, producer);
-      if (existing == null) {
-        return producer;
-      } else {
-        return existing;
-      }
+      result.addRef();
+      return result;
     }
 
     // Collation
@@ -394,6 +504,23 @@ public final class DependencyGraphBuilder {
         result.put(exception.getException(), exception.getCount());
       }
       return result;
+    }
+
+    private void reportStateSize() {
+      synchronized (_requirements) {
+        int count = 0;
+        for (Map<ResolveTask, ResolveTask> entries : _requirements.values()) {
+          count += entries.size();
+        }
+        s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
+      }
+      synchronized (_specifications) {
+        int count = 0;
+        for (Map<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
+          count += entries.size();
+        }
+        s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
+      }
     }
 
   };
@@ -543,6 +670,7 @@ public final class DependencyGraphBuilder {
     checkInjectedInputs();
     final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
     resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
+    resolvedValue.release(getContext());
     // If the run-queue was empty, we won't have started a thread, so double check 
     startBackgroundConstructionJob();
   }
@@ -561,6 +689,7 @@ public final class DependencyGraphBuilder {
     for (ValueRequirement requirement : requirements) {
       final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
       resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
+      resolvedValue.release(getContext());
     }
     // If the run-queue was empty, we may not have started enough threads, so double check 
     startBackgroundConstructionJob();
@@ -593,6 +722,7 @@ public final class DependencyGraphBuilder {
       public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
         s_loggerBuilder.info("Resolved target {} to {}", valueRequirement, resolvedValue.getValueSpecification());
         exception.set(null);
+        context.close(pump);
         latch.countDown();
       }
 
@@ -602,6 +732,7 @@ public final class DependencyGraphBuilder {
       }
 
     });
+    resolvedValue.release(getContext());
     try {
       boolean failed = true;
       for (int clock = 0; clock < 120; clock++) {
@@ -908,6 +1039,7 @@ public final class DependencyGraphBuilder {
       graph.dumpStructureASCII(ps);
       ps.close();
     }
+    getContext().reportStateSize();
     return graph;
   }
 

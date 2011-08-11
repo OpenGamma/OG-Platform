@@ -150,6 +150,28 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
+  public int release(final GraphBuildingContext context) {
+    final int count = super.release(context);
+    if (count == 0) {
+      List<ResolutionPump> pumps;
+      synchronized (this) {
+        s_logger.debug("Releasing {} - with {} pumped inputs", this, _pumps.size());
+        if (_pumps.isEmpty()) {
+          return count;
+        }
+        pumps = new ArrayList<ResolutionPump>(_pumps);
+        _pumps.clear();
+      }
+      for (ResolutionPump pump : pumps) {
+        context.close(pump);
+      }
+    } else {
+      s_logger.debug("Releasing {} with {} locks remaining", this, count);
+    }
+    return count;
+  }
+
+  @Override
   public String toString() {
     return "AGGREGATE" + getObjectId();
   }

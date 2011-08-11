@@ -23,6 +23,13 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
   void pump(final GraphBuildingContext context);
 
   /**
+   * Discard the pump; it must not call any further methods on the {@link ResolvedValueCallback}.
+   * 
+   * @param context the graph building context
+   */
+  void close(final GraphBuildingContext context);
+
+  /**
    * {@link ContextRunnable} form of the {@link #pump} method.
    */
   class Pump implements ContextRunnable {
@@ -36,6 +43,24 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
     @Override
     public void run(final GraphBuildingContext context) {
       _instance.pump(context);
+    }
+
+  }
+
+  /**
+   * {@link ContextRunnable} form of the {@link #close} method.
+   */
+  class Close implements ContextRunnable {
+
+    private final ResolutionPump _instance;
+
+    public Close(final ResolutionPump instance) {
+      _instance = instance;
+    }
+
+    @Override
+    public void run(final GraphBuildingContext context) {
+      _instance.close(context);
     }
 
   }

@@ -56,14 +56,16 @@ import com.opengamma.util.tuple.Pair;
       setTaskState(state);
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
       for (Map.Entry<ResolveTask, ResolvedValueProducer> existingTask : existingTasks.entrySet()) {
-        if (getTask().hasParent(existingTask.getKey())) {
-          // Can't use this task; there would be a loop
-          continue;
+        if (!getTask().hasParent(existingTask.getKey())) {
+          // Can use this task without creating a loop
+          aggregate.addProducer(context, existingTask.getValue());
         }
-        aggregate.addProducer(context, existingTask.getValue());
+        // Only the values are ref-counted
+        existingTask.getValue().release(context);
       }
       aggregate.addCallback(context, state);
       aggregate.start(context);
+      aggregate.release(context);
     }
   }
 

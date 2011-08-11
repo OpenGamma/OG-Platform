@@ -33,6 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
   protected abstract static class State {
 
     private final int _objectId = s_nextObjectId.getAndIncrement();
+    // The task held is not ref-counted
     private final ResolveTask _task;
 
     protected State(final ResolveTask task) {
@@ -100,7 +101,8 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   /**
-   * Parent resolve task (i.e. chain of previous value requirements) so that loops can be detected and avoided.
+   * Parent resolve task (i.e. chain of previous value requirements) so that loops can be detected and avoided. This is not
+   * ref-counted.
    */
   private final ResolveTask _parent;
 
@@ -158,6 +160,7 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public void run(final GraphBuildingContext context) {
     getState().run(context);
+    release(context);
   }
 
   private ResolveTask getParent() {
@@ -241,6 +244,15 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public String toString() {
     return "ResolveTask" + getObjectId() + "[" + getValueRequirement() + ", " + getState() + "]";
+  }
+
+  @Override
+  public int release(final GraphBuildingContext context) {
+    final int count = super.release(context);
+    if (count == 1) {
+      s_logger.debug("Last reference should be from the context cache");
+    }
+    return count;
   }
 
 }

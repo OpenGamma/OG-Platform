@@ -116,6 +116,7 @@ import com.opengamma.util.tuple.Pair;
       _valueSpecification = valueSpecification;
       _outputs = outputs;
       _function = function;
+      worker.addRef();
       _worker = worker;
     }
 
@@ -203,6 +204,8 @@ import com.opengamma.util.tuple.Pair;
           // Task that's not our parent may produce the value for us
           aggregate.addProducer(context, reducingTask.getValue());
         }
+        // Only the values are ref-counted
+        reducingTask.getValue().release(context);
       }
       final ValueSpecification resolvedOutputCopy = resolvedOutput;
       final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
@@ -216,6 +219,7 @@ import com.opengamma.util.tuple.Pair;
       setTaskState(delegate);
       aggregate.addCallback(context, delegate);
       aggregate.start(context);
+      aggregate.release(context);
       return true;
     }
 
@@ -224,8 +228,13 @@ import com.opengamma.util.tuple.Pair;
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = context.declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
-        return getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
+        producer.release(context);
+        // The new worker is going to produce the value specification
+        boolean result = getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
+        newWorker.release(context);
+        return result;
       } else {
+        newWorker.release(context);
         // An equivalent task is producing the revised value specification
         final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
           @Override
@@ -235,6 +244,7 @@ import com.opengamma.util.tuple.Pair;
         };
         setTaskState(delegate);
         producer.addCallback(context, delegate);
+        producer.release(context);
         return true;
       }
     }
@@ -350,6 +360,7 @@ import com.opengamma.util.tuple.Pair;
         final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask());
         lock.incrementAndGet();
         inputProducer.addCallback(context, callback);
+        inputProducer.release(context);
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
@@ -397,6 +408,7 @@ import com.opengamma.util.tuple.Pair;
     final FunctionApplicationWorker worker = new FunctionApplicationWorker(getValueRequirement());
     final ResolvedValueProducer producer = context.declareTaskProducing(getResolvedOutput(), getTask(), worker);
     if (producer == worker) {
+      producer.release(context);
       // Populate the worker and position this task in the chain for pumping alternative resolutions to dependents
       s_logger.debug("Registered worker {} for {} production", worker, getResolvedOutput());
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
@@ -414,6 +426,7 @@ import com.opengamma.util.tuple.Pair;
         worker.finished(context);
         storeFailure(failure);
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        worker.release(context);
         return;
       }
       final Set<ValueSpecification> resolvedOutputValues;
@@ -444,6 +457,7 @@ import com.opengamma.util.tuple.Pair;
         worker.finished(context);
         storeFailure(failure);
         setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        worker.release(context);
         return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
@@ -461,15 +475,19 @@ import com.opengamma.util.tuple.Pair;
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask());
           worker.addInput(context, inputRequirement, inputProducer);
+          inputProducer.release(context);
         }
         worker.start(context);
       }
+      worker.release(context);
     } else {
+      worker.release(context);
       // Another task is working on this, so delegate to it
       s_logger.debug("Delegating production of {} to worker {}", getResolvedOutput(), producer);
       final DelegateState state = new DelegateState(getTask(), getFunctions());
       setTaskState(state);
       producer.addCallback(context, state);
+      producer.release(context);
     }
   }
 
