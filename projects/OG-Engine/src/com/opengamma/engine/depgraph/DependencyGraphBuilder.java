@@ -387,15 +387,17 @@ public final class DependencyGraphBuilder {
         }
         task = tasks.get(newTask);
         if (task == null) {
+          newTask.addRef();
           tasks.put(newTask, newTask);
+        } else {
+          task.addRef();
         }
       }
       if (task != null) {
-        task.addRef();
+        newTask.release(this);
         return task;
       } else {
         run(newTask);
-        newTask.addRef();
         return newTask;
       }
     }
@@ -408,9 +410,9 @@ public final class DependencyGraphBuilder {
           return Collections.emptySet();
         }
         result = new HashSet<ResolveTask>(tasks.keySet());
-      }
-      for (ResolveTask task : result) {
-        task.addRef();
+        for (ResolveTask task : result) {
+          task.addRef();
+        }
       }
       return result;
     }
@@ -423,10 +425,10 @@ public final class DependencyGraphBuilder {
           return Collections.emptyMap();
         }
         result = new HashMap<ResolveTask, ResolvedValueProducer>(tasks);
-      }
-      for (Map.Entry<ResolveTask, ResolvedValueProducer> task : result.entrySet()) {
-        // Don't ref-count the tasks; they're just used for parent comparisons
-        task.getValue().addRef();
+        for (Map.Entry<ResolveTask, ResolvedValueProducer> task : result.entrySet()) {
+          // Don't ref-count the tasks; they're just used for parent comparisons
+          task.getValue().addRef();
+        }
       }
       return result;
     }
@@ -443,7 +445,7 @@ public final class DependencyGraphBuilder {
       discardUnfinishedTask(task);
     }
 
-    private void discardUnfinishedTask(final ResolveTask task) {
+    public void discardUnfinishedTask(final ResolveTask task) {
       synchronized (_requirements) {
         final Map<ResolveTask, ResolveTask> tasks = _requirements.get(task.getValueRequirement());
         if (tasks == null) {
@@ -472,8 +474,8 @@ public final class DependencyGraphBuilder {
           tasks.put(task, producer);
           result = producer;
         }
+        result.addRef();
       }
-      result.addRef();
       return result;
     }
 

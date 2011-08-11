@@ -33,6 +33,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -51,18 +52,24 @@ public final class SecurityLinkResolver {
    * The caching security source.
    */
   private final CachedSecuritySource _securitySource;
+  /**
+   * The version-correction.
+   */
+  private final VersionCorrection _versionCorrection;
 
   /**
    * Creates an instance.
    * 
    * @param executorService  the threading service, not null
    * @param securitySource  the security source, not null
+   * @param versionCorrection  the version correction, not null
    */
-  public SecurityLinkResolver(final ExecutorService executorService, final SecuritySource securitySource) {
+  public SecurityLinkResolver(final ExecutorService executorService, final SecuritySource securitySource, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _executorService = executorService;
     _securitySource = new CachedSecuritySource(securitySource);
+    _versionCorrection = versionCorrection;
   }
 
   /**
@@ -71,7 +78,7 @@ public final class SecurityLinkResolver {
    * @param viewCompilationContext  the context, not null
    */
   public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext) {
-    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource());
+    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource(), VersionCorrection.LATEST);
   }
 
   //-------------------------------------------------------------------------
@@ -92,7 +99,7 @@ public final class SecurityLinkResolver {
       Security security = link.getTarget();
       if (security == null) {
         if (link.getObjectId() != null || link.getExternalId().size() > 0) {
-          SecurityResolutionJob task = new SecurityResolutionJob(link, _securitySource);
+          SecurityResolutionJob task = new SecurityResolutionJob(link, _securitySource, _versionCorrection);
           submitted.add(completionService.submit(task));
         } else {
           throw new OpenGammaRuntimeException("Unable to resolve empty security link");
@@ -137,7 +144,7 @@ public final class SecurityLinkResolver {
    * @throws RuntimeException if unable to resolve the security
    */
   public Security resolveSecurity(final SecurityLink link) {
-    return link.resolve(_securitySource);
+    return link.resolve(_securitySource, _versionCorrection);
   }
 
   /**
@@ -188,22 +195,27 @@ public final class SecurityLinkResolver {
   static class SecurityResolutionJob implements Callable<SecurityLink> {
     private final SecurityLink _link;
     private final SecuritySource _securitySource;
+    private final VersionCorrection _versionCorrection;
 
-    SecurityResolutionJob(SecurityLink link, SecuritySource securitySource) {
+    SecurityResolutionJob(SecurityLink link, SecuritySource securitySource, VersionCorrection versionCorrection) {
       _securitySource = securitySource;
       _link = link;
+      _versionCorrection = versionCorrection;
     }
 
     @Override
     public SecurityLink call() {
-      _link.resolve(_securitySource);
+      _link.resolve(_securitySource, _versionCorrection);
       return _link;
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Encapsulate caching.
+   * Encapsulates caching.
+   * <p>
+   * This is designed to be used by a single resolution pass, for the efficiency of
+   * resolving the same security multiple times.
    */
   static class CachedSecuritySource implements SecuritySource {
     private final SecuritySource _underlying;
@@ -231,10 +243,27 @@ public final class SecurityLinkResolver {
       }
       return security;
     }
+    
+    @Override
+    public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+      Security security = _objectIdCache.get(objectId);
+      if (security == null) {
+        security = _underlying.getSecurity(objectId, versionCorrection);
+        if (security != null) {
+          _objectIdCache.putIfAbsent(objectId, security);
+        }
+      }
+      return security;
+    }
 
     @Override
     public Collection<Security> getSecurities(ExternalIdBundle bundle) {
       return _underlying.getSecurities(bundle);
+    }
+    
+    @Override
+    public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+      return _underlying.getSecurities(bundle, versionCorrection);
     }
 
     @Override
@@ -248,11 +277,24 @@ public final class SecurityLinkResolver {
       }
       return security;
     }
+    
+    @Override
+    public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+      Security security = _weakIdCache.get(bundle);
+      if (security == null) {
+        security = _underlying.getSecurity(bundle, versionCorrection);
+        if (security != null) {
+          _weakIdCache.putIfAbsent(bundle, security);
+        }
+      }
+      return security;
+    }
 
     @Override
     public ChangeManager changeManager() {
       return DummyChangeManager.INSTANCE;
     }
+
   }
 
 }

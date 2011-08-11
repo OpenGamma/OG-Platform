@@ -45,8 +45,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   private Double _yearFraction;
 
   //Equity models
-  private String _capmRiskFreeRateName;
-  private String _capmMarketName;
+  private ExternalIdBundle _capmRiskFreeRate;
+  private ExternalIdBundle _capmMarket;
 
   // basis swaps
   private DayCount _basisSwapPayFloatingLegDayCount;
@@ -194,13 +194,13 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   //equity CAPM
-  public ConventionBundleImpl(final String name, final String capmRiskFreeRateName, final String capmMarketName) {
+  public ConventionBundleImpl(final String name, final ExternalIdBundle capmRiskFreeRate, final ExternalIdBundle capmMarket) {
     Validate.notNull(name, "name");
-    Validate.notNull(capmRiskFreeRateName, "CAPM risk free rate name");
-    Validate.notNull(capmMarketName, "CAPM market name");
+    Validate.notNull(capmRiskFreeRate, "CAPM risk free rate");
+    Validate.notNull(capmMarket, "CAPM market");
     _name = name;
-    _capmRiskFreeRateName = capmRiskFreeRateName;
-    _capmMarketName = capmMarketName;
+    _capmRiskFreeRate = capmRiskFreeRate;
+    _capmMarket = capmMarket;
   }
 
   //Bonds
@@ -399,8 +399,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the name
    */
   @Override
-  public String getCAPMRiskFreeRateName() {
-    return _capmRiskFreeRateName;
+  public ExternalIdBundle getCAPMRiskFreeRate() {
+    return _capmRiskFreeRate;
   }
 
   /**
@@ -408,8 +408,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the name
    */
   @Override
-  public String getCAPMMarketName() {
-    return _capmMarketName;
+  public ExternalIdBundle getCAPMMarket() {
+    return _capmMarket;
   }
 
   @Override

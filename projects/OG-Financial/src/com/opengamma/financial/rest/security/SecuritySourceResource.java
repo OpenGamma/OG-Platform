@@ -24,7 +24,9 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -89,16 +91,37 @@ public class SecuritySourceResource {
     serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
+  
+  /**
+   * RESTful method to get a security by object identifier and version-correction.
+   * 
+   * @param oidStr  the object identifier from the URI, not null
+   * @param versionAsOfStr  the version as of string from the URI, not null
+   * @param correctedToStr  the corrected to string from the URI, not null
+   * @return the security, null if not found
+   */
+  @GET
+  @Path("security/{oid}/{versionAsOf}/{correctedTo}")
+  public FudgeMsgEnvelope getSecurity(@PathParam("oid") String oidStr, @PathParam("versionAsOf") String versionAsOfStr, @PathParam("correctedTo") String correctedToStr) {
+    final ObjectId oid = ObjectId.parse(oidStr);
+    final VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, correctedToStr);
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(oid, versionCorrection));
+    return new FudgeMsgEnvelope(msg);
+  }
 
   /**
    * RESTful method to get securities by identifier bundle.
    * 
    * @param idStrs  the identifiers from the URI, not null
+   * @param versionAsOfStr  the version as of string from the URI
+   * @param correctedToStr  the corrected to string from the URI
    * @return the securities, null if not found
    */
   @GET
   @Path("securities")
-  public FudgeMsgEnvelope getSecurities(@QueryParam("id") List<String> idStrs) {
+  public FudgeMsgEnvelope getSecurities(@QueryParam("id") List<String> idStrs, @QueryParam("versionAsOf") String versionAsOfStr, @QueryParam("correctedTo") String correctedToStr) {
     ArgumentChecker.notEmpty(idStrs, "identifiers");
     ExternalIdBundle bundle = ExternalIdBundle.EMPTY;
     for (String idStr : idStrs) {
@@ -106,7 +129,13 @@ public class SecuritySourceResource {
     }
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg msg = serializer.newMessage();
-    final Collection<Security> securities = getSecuritySource().getSecurities(bundle);
+    final Collection<Security> securities;
+    if (versionAsOfStr == null && correctedToStr == null) {
+      securities = getSecuritySource().getSecurities(bundle);
+    } else {
+      VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, correctedToStr);
+      securities = getSecuritySource().getSecurities(bundle, versionCorrection);
+    }
     for (Security security : securities) {
       serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
     }
@@ -117,11 +146,13 @@ public class SecuritySourceResource {
    * RESTful method to get a security by identifier bundle.
    * 
    * @param idStrs  the identifiers from the URI, not null
+   * @param versionAsOfStr  the version as of string from the URI
+   * @param correctedToStr  the corrected to string from the URI
    * @return the security, null if not found
    */
   @GET
   @Path("securities/security")
-  public FudgeMsgEnvelope getSecurity(@QueryParam("id") List<String> idStrs) {
+  public FudgeMsgEnvelope getSecurity(@QueryParam("id") List<String> idStrs, @QueryParam("versionAsOf") String versionAsOfStr, @QueryParam("correctedTo") String correctedToStr) {
     ArgumentChecker.notEmpty(idStrs, "identifiers");
     ExternalIdBundle bundle = ExternalIdBundle.EMPTY;
     for (String idStr : idStrs) {
@@ -129,7 +160,14 @@ public class SecuritySourceResource {
     }
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
+    final Security security;
+    if (versionAsOfStr == null && correctedToStr == null) {
+      security = getSecuritySource().getSecurity(bundle);
+    } else {
+      VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, correctedToStr);
+      security = getSecuritySource().getSecurity(bundle, versionCorrection);
+    }
+    serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 

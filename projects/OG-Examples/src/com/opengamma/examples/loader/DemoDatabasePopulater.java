@@ -5,6 +5,8 @@
  */
 package com.opengamma.examples.loader;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -13,9 +15,11 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
+import com.google.common.collect.Sets;
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
@@ -90,6 +94,10 @@ public class DemoDatabasePopulater {
         DemoMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = appContext.getBean("demoMultiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
         System.out.println("Creating example multi currency swap portfolio");
         multiCurrSwapLoader.createPortfolio();
+        System.out.println("Finished");
+        
+        System.out.println("Creating libor raw securities");
+        PortfolioLoaderHelper.persistLiborRawSecurities(Sets.newHashSet(Arrays.asList(DemoMultiCurrencySwapPortfolioLoader.s_currencies)), swapLoader.getLoaderContext());
         System.out.println("Finished");
         
         DemoViewsPopulater populator = appContext.getBean("demoViewsPopulater", DemoViewsPopulater.class);

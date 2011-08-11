@@ -250,7 +250,12 @@ import com.opengamma.engine.value.ValueSpecification;
   public int release(final GraphBuildingContext context) {
     final int count = super.release(context);
     if (count == 1) {
-      s_logger.debug("Last reference should be from the context cache");
+      if (isFinished()) {
+        s_logger.debug("Leave finished 'resolveTask' in the cache");
+      } else {
+        s_logger.debug("Remove unfinished 'resolveTask' from the cache");
+        context.discardUnfinishedTask(this);
+      }
     }
     return count;
   }

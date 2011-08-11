@@ -165,8 +165,6 @@ import com.opengamma.engine.value.ValueRequirement;
       for (ResolutionPump pump : pumps) {
         context.close(pump);
       }
-    } else {
-      s_logger.debug("Releasing {} with {} locks remaining", this, count);
     }
     return count;
   }
