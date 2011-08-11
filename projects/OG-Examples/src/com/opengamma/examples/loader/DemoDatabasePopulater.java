@@ -5,6 +5,8 @@
  */
 package com.opengamma.examples.loader;
 
+import java.util.Arrays;
+import java.net.URL;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -65,7 +67,8 @@ public class DemoDatabasePopulater {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(lc);
       lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
+      URL logbackResource = ClassLoader.getSystemResource("com/opengamma/examples/server/logback.xml");
+      configurator.doConfigure(logbackResource);
       
       // Set the run mode to EXAMPLE so we use the HSQLDB example database.
       PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
