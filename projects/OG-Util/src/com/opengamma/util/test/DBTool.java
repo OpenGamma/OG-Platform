@@ -275,7 +275,7 @@ public class DBTool extends Task {
   }
   
   public void setCreateVersion(final String createVersion) {
-    _createVersion = Integer.parseInt(createVersion);
+    _createVersion = createVersion != null ? Integer.parseInt(createVersion) : null;
   }
   
   public void setCreateVersion(final Integer createVersion) {
@@ -287,7 +287,7 @@ public class DBTool extends Task {
   }
   
   public void setTargetVersion(final String targetVersion) {
-    _targetVersion = Integer.parseInt(targetVersion);
+    _targetVersion = targetVersion != null ? Integer.parseInt(targetVersion) : null;
   }
   
   public void setTargetVersion(final Integer targetVersion) {
