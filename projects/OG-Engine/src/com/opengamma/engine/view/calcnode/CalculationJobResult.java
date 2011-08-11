@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.util.ArgumentChecker;
@@ -18,9 +21,12 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class CalculationJobResult implements Serializable {
-  
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(CalculationJobResult.class);
+  /** Serialization. */
   private static final long serialVersionUID = 1L;
-  
+
   private final CalculationJobSpecification _specification;
   private final List<CalculationJobResultItem> _resultItems;
   private final long _durationNanos;
@@ -34,7 +40,9 @@ public class CalculationJobResult implements Serializable {
     ArgumentChecker.notNull(specification, "Calculation job spec");
     ArgumentChecker.notNull(resultItems, "Result items");
     if (durationNanos < 0) {
-      throw new IllegalArgumentException("Duration must be non-negative");
+      // avoid failing for this, as nanoTime() may not work correctly
+      s_logger.warn("Duration must be non-negative: " + durationNanos);
+      durationNanos = 0;
     }
     ArgumentChecker.notNull(nodeId, "Node ID the job was executed on");
     
