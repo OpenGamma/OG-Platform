@@ -25,9 +25,8 @@ public class LongPollingServlet extends SpringConfiguredServlet {
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // if this is the first time the request has been dispatched the results will be null
-    // if the request has been dispatched before and is being dispatched again after its continuation was
-    // resumed the results will be populated
+    // if this is the first time the request has been dispatched the results will be null. if the request has been
+    // dispatched before and is being dispatched again after its continuation was resumed the results will be populated
     String results = (String) request.getAttribute(RESULTS);
     if (results == null) {
       setUpConnection(request, response);
@@ -46,7 +45,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
     // suspend the request
     continuation.suspend(); // always suspend before registration
     String userId = request.getRemoteUser(); // TODO is this right?
-    // get the client ID from the URL suffix and pass the continuation to the connection manager for the next updates
+    // get the client ID from the URL and pass the continuation to the connection manager for the next updates
     String clientId = getClientId(request);
     boolean connected = (clientId != null) && _connectionManager.connect(userId, clientId, continuation);
     if (!connected) {
@@ -57,7 +56,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
   }
 
   /**
-   * Extracts the client ID from the URL.  If the URL is {@code http://host/subscription/12345} the client ID is 12345.
+   * Extracts the client ID from the URL.  If the URL is {@code http://<host>/<servlet path>/12345} the client ID is 12345.
    * @param request The request
    * @return The client ID from {@code request}'s URL or {@code null} if it's missing
    */

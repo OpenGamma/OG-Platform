@@ -10,17 +10,20 @@ import com.opengamma.web.server.push.subscription.SubscriptionEvent;
 import com.opengamma.web.server.push.subscription.SubscriptionListener;
 import org.eclipse.jetty.continuation.Continuation;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * TODO needs to queue updates if there is no continuation and dispatch when a connection is established
+ * {@link SubscriptionListener} that pushes updates over a long-polling HTTP connection using Jetty's continuations.
+ * If any updates arrive while there is no connection they are queued and sent as soon as the connection
+ * is re-established.  If multiple updates for the same object are queued only one is sent.  All updates
+ * only contain the ID of the updated object so they are identical.
  * TODO listener on the continuation? timeout?
  */
 class LongPollingSubscriptionListener implements SubscriptionListener {
 
   private final Object _lock = new Object();
-  private final Queue<String> _updates = new LinkedList<String>();
+  private final Set<String> _updates = new HashSet<String>();
 
   private Continuation _continuation;
 
@@ -45,8 +48,8 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     }
   }
 
-  private void sendUpdate(String url) {
-    _continuation.setAttribute(LongPollingServlet.RESULTS, url);
+  private void sendUpdate(String urls) {
+    _continuation.setAttribute(LongPollingServlet.RESULTS, urls);
     _continuation.resume();
     _continuation = null;
   }

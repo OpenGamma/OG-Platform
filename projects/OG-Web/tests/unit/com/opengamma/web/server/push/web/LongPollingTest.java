@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Tests pushing results to a long polling HTTP connection.
@@ -39,11 +42,11 @@ public class LongPollingTest {
   public static final String CLIENT_ID = "CLIENT_ID";
 
   private static final String s_urlBase = "http://localhost:8080/";
-
-  private Server _server;
   private static final String RESULT1 = "RESULT1";
   private static final String RESULT2 = "RESULT2";
   private static final String RESULT3 = "RESULT3";
+
+  private Server _server;
   private TestSubscriptionManager _subscriptionManager;
   private LongPollingConnectionManager _longPollingConnectionManager;
 
@@ -72,7 +75,7 @@ public class LongPollingTest {
 
   @BeforeClass
   void createJettyServer() throws Exception {
-    // TODO this stuff probably won't work in bamboo - need to find out what the pwd is for the tests
+    // TODO this stuff might not work in bamboo - need to find out what the pwd is for the tests
     SelectChannelConnector connector = new SelectChannelConnector();
     connector.setPort(8080);
     WebAppContext context = new WebAppContext();
@@ -136,7 +139,32 @@ public class LongPollingTest {
     _subscriptionManager.sendUpdate(RESULT2);
     _subscriptionManager.sendUpdate(RESULT3);
     String result = readFromPath("subscription/" + clientId);
-    assertEquals(RESULT1 + "\n" + RESULT2 + "\n" + RESULT3, result);
+    // can't depend on the order when multiple updates are sent at once
+    List<String> results = Arrays.asList(result.split("\n"));
+    assertEquals(3, results.size());
+    assertTrue(results.contains(RESULT1));
+    assertTrue(results.contains(RESULT2));
+    assertTrue(results.contains(RESULT3));
+  }
+
+  /**
+   * test multiple updates for the same url get squashed into a single update
+   */
+  @Test
+  public void longPollQueueMultipleUpdates() throws IOException {
+    String clientId = readFromPath("handshake");
+    _subscriptionManager.sendUpdate(RESULT1);
+    _subscriptionManager.sendUpdate(RESULT1);
+    _subscriptionManager.sendUpdate(RESULT2);
+    _subscriptionManager.sendUpdate(RESULT3);
+    _subscriptionManager.sendUpdate(RESULT2);
+    String result = readFromPath("subscription/" + clientId);
+    // can't depend on the order when multiple updates are sent at once
+    List<String> results = Arrays.asList(result.split("\n"));
+    assertEquals(3, results.size());
+    assertTrue(results.contains(RESULT1));
+    assertTrue(results.contains(RESULT2));
+    assertTrue(results.contains(RESULT3));
   }
 
   @Test

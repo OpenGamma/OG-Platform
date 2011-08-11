@@ -8,14 +8,27 @@ package com.opengamma.web.server.push.subscription;
 import java.util.List;
 
 /**
- * TODO move more methods from SubscriptionManagerImpl into here
+ *
  */
 public interface SubscriptionManager {
 
-  // handshake method that returns the client ID, must be called before any of the long-polling subscribe methods
+  /**
+   * Handshake method that returns the client ID needed to identify the connection when calling all other operations.
+   * @param userId
+   * @param listener
+   * @return The client ID needed to identify the connection when calling all other operations
+   */
   String newConnection(String userId, SubscriptionListener listener);
 
   void closeConnection(String userId, String clientId);
 
-  boolean subscribe(String userId, String clientId, List<String> urls);
+  /**
+   * Subscribes for updates for entities and viewports.  The {@link SubscriptionListener} associated with the
+   * client will be called when something is updated.
+   * @param userId ID of the user
+   * @param clientId ID of the connection
+   * @param urls REST URLs of the objects the client wants to see updates for
+   * @return {@code false} if {@code clientId} doesn't correspond to an existing client connection
+   */
+  boolean subscribe(String userId, String clientId, List<String> urls); 
 }
