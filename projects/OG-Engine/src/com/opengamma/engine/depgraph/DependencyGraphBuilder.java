@@ -604,7 +604,7 @@ public final class DependencyGraphBuilder {
     });
     try {
       boolean failed = true;
-      for (int clock = 0; clock < 60; clock++) {
+      for (int clock = 0; clock < 120; clock++) {
         if (latch.await(250, TimeUnit.MILLISECONDS)) {
           failed = false;
           break;
@@ -755,9 +755,9 @@ public final class DependencyGraphBuilder {
         // One or more active jobs, so can't be built yet
         return false;
       }
+      // no active jobs, so built if there is nothing in the run queue
+      return _runQueue.isEmpty();
     }
-    // no active jobs, so built if there is nothing in the run queue
-    return _runQueue.isEmpty();
   }
 
   /**

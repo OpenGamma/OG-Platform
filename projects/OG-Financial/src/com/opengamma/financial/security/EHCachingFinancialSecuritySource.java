@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import net.sf.ehcache.Cache;
@@ -22,7 +23,9 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -147,6 +150,17 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     }
     return result;
   }
+  
+  @Override
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Security result = getUnderlying().getSecurity(objectId, versionCorrection);
+    if (result != null) {
+      _uidCache.put(new Element(result.getUniqueId(), result));
+    }
+    return result;
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -165,11 +179,21 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
       result = getUnderlying().getSecurities(bundle);
       if (result != null) {
         _bundleCache.put(new Element(bundle, result));
-        for (Security security : result) {
-          _uidCache.put(new Element(security.getUniqueId(), security));
-        }
+        cacheSecurities(result);
       }
     }
+    return result;
+  }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Collection<Security> result = getUnderlying().getSecurities(bundle, versionCorrection);
+    if (result == null) {
+      return Collections.emptySet();
+    }
+    cacheSecurities(result);
     return result;
   }
 
@@ -177,6 +201,17 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     Collection<Security> matched = getSecurities(bundle);
+    if (matched.isEmpty()) {
+      return null;
+    }
+    return matched.iterator().next();
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Collection<Security> matched = getSecurities(bundle, versionCorrection);
     if (matched.isEmpty()) {
       return null;
     }
@@ -200,9 +235,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
       result = getUnderlying().getBondsWithIssuerName(issuerType);
       if (result != null) {
         _bondCache.put(new Element(issuerType, result));
-        for (Security security : result) {
-          _uidCache.put(new Element(security.getUniqueId(), security));
-        }
+        cacheSecurities(result);
       }
     }
     return result;
@@ -254,6 +287,12 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     // Only care where the unversioned ID has been cached since it now represents something else
     UniqueId latestId = id.toLatest();
     _uidCache.remove(latestId);
+  }
+  
+  private void cacheSecurities(Collection<Security> securities) {
+    for (Security security : securities) {
+      _uidCache.put(new Element(security.getUniqueId(), security));
+    }
   }
 
 }

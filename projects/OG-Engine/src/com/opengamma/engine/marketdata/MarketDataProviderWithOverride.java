@@ -35,6 +35,11 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
   private final MarketDataProvider _override;
   private final Set<MarketDataListener> _listeners = new CopyOnWriteArraySet<MarketDataListener>();
   private final Map<ValueRequirement, PendingCombinedMarketDataSubscription> _pendingSubscriptions = new ConcurrentHashMap<ValueRequirement, PendingCombinedMarketDataSubscription>();
+  
+  private final Object _listenerLock = new Object();
+  private boolean _listenerAttached;
+  private CombinedLiveDataSnapshotListener _underlyingListener;
+  private CombinedLiveDataSnapshotListener _overrideListener;
 
   private class CombinedLiveDataSnapshotListener implements MarketDataListener {
     
@@ -96,21 +101,40 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(override, "override");
     _underlying = underlying;
-    _underlying.addListener(new CombinedLiveDataSnapshotListener(_underlying));
+    _underlyingListener = new CombinedLiveDataSnapshotListener(_underlying);
     _override = override;
-    _override.addListener(new CombinedLiveDataSnapshotListener(_override));
+    _overrideListener = new CombinedLiveDataSnapshotListener(_override);
   }
   
   //--------------------------------------------------------------------------
   @Override
   public void addListener(MarketDataListener listener) {
     _listeners.add(listener);
+    checkListenerAttach();
   }
-  
+
   @Override
   public void removeListener(MarketDataListener listener) {
     _listeners.remove(listener);
+    checkListenerAttach();
   }
+
+  private void checkListenerAttach() { 
+    synchronized (_listenerLock) {
+      boolean anyListeners = _listeners.size() > 0;
+
+      if (anyListeners && !_listenerAttached) {
+        _underlying.addListener(_underlyingListener);
+        _override.addListener(_overrideListener);
+        _listenerAttached = true;
+      } else if (!anyListeners && _listenerAttached) {
+        _underlying.removeListener(_underlyingListener);
+        _override.removeListener(_overrideListener);
+        _listenerAttached = false;
+      }
+    }
+  }
+
 
   //-------------------------------------------------------------------------
   @Override

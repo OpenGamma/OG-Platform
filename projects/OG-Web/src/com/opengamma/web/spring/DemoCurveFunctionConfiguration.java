@@ -87,10 +87,10 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
         if (_conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
-//          if (curveNames.contains("SECONDARY")) {
-//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-//          }
+          if (curveNames.contains("SECONDARY")) {
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);

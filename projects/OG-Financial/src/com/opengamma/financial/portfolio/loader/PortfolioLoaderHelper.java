@@ -7,6 +7,7 @@ package com.opengamma.financial.portfolio.loader;
 
 import java.text.DecimalFormat;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
@@ -14,14 +15,36 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.RawSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.money.Currency;
 
 
 /**
  * 
  */
 public class PortfolioLoaderHelper {
+  /**
+   * Logger
+   */
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderHelper.class);
+  
+  /**
+   * Raw security type for libor rates
+   */
+  private static final String LIBOR_RATE_SECURITY_TYPE = "LIBOR_RATE";
+  
   /** File name option flag */
   public static final String FILE_NAME_OPT = "f";
   /** Portfolio name option flag*/
@@ -98,5 +121,39 @@ public class PortfolioLoaderHelper {
 
   public static LoaderContext getLoaderContext(AbstractApplicationContext context) {
     return (LoaderContext) context.getBean("loaderContext");
+  }
+  
+  public static void persistLiborRawSecurities(Set<Currency> currencies, LoaderContext loaderContext) {
+    SecurityMaster securityMaster = loaderContext.getSecurityMaster();
+    byte[] rawData = new byte[] {0};
+    StringBuilder sb = new StringBuilder();
+    sb.append("Created ").append(currencies.size()).append(" libor securities:\n");
+    for (Currency ccy : currencies) {
+      ConventionBundle swapConvention = getSwapConventionBundle(ccy, loaderContext.getConventionBundleSource());
+      ConventionBundle liborConvention = getLiborConventionBundle(swapConvention, loaderContext.getConventionBundleSource());
+      sb.append("\t").append(liborConvention.getIdentifiers()).append("\n");
+      RawSecurity rawSecurity = new RawSecurity(LIBOR_RATE_SECURITY_TYPE, rawData);
+      rawSecurity.setIdentifiers(liborConvention.getIdentifiers());
+      SecurityDocument secDoc = new SecurityDocument();
+      secDoc.setSecurity(rawSecurity);
+      securityMaster.add(secDoc);
+    }
+    s_logger.info(sb.toString());
+  }
+  
+  private static ConventionBundle getSwapConventionBundle(Currency ccy, ConventionBundleSource conventionSource) {
+    ConventionBundle swapConvention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
+    if (swapConvention == null) {
+      throw new OpenGammaRuntimeException("Couldn't get swap convention for " + ccy.getCode());
+    }
+    return swapConvention;
+  }
+  
+  private static ConventionBundle getLiborConventionBundle(ConventionBundle swapConvention, ConventionBundleSource conventionSource) {
+    ConventionBundle liborConvention = conventionSource.getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
+    if (liborConvention == null) {
+      throw new OpenGammaRuntimeException("Couldn't get libor convention for " + swapConvention.getSwapFloatingLegInitialRate());
+    }
+    return liborConvention;
   }
 }

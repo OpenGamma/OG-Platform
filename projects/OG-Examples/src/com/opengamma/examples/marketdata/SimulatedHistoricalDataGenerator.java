@@ -97,6 +97,7 @@ public class SimulatedHistoricalDataGenerator {
   
   public void run() {
     Random random = new Random(); // noMarket need for SecureRandom here..
+    StringBuilder buf = new StringBuilder("loading ").append(_initialValues.size()).append(" timeseries");
     for (Entry<Pair<ExternalId, String>, Double> entry : _initialValues.entrySet()) {
       ExternalId identifier = entry.getKey().getFirst();
       String dataField = entry.getKey().getSecond();
@@ -110,11 +111,12 @@ public class SimulatedHistoricalDataGenerator {
       ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
       ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
       info.setExternalIdBundle(bundle);
-      s_logger.info("loading timeseries for {} {}/{}/{}", new Object[]{identifier, dataField, OG_DATA_SOURCE, OG_DATA_PROVIDER});
+      buf.append("\t").append(identifier).append(" ").append(dataField).append("\n");
       HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
       LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, startValue, TS_LENGTH);
       _htsMaster.updateTimeSeriesDataPoints(addedDoc.getInfo().getTimeSeriesObjectId(), timeSeries);
     }
+    s_logger.info(buf.toString());
   }
   
   private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {

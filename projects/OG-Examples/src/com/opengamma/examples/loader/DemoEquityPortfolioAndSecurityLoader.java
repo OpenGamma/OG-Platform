@@ -133,25 +133,25 @@ public class DemoEquityPortfolioAndSecurityLoader {
       // create portfolio structure
       ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
       if (sectorNode == null) {
-        s_logger.warn("Creating node for sector {}", sector);
+        s_logger.debug("Creating node for sector {}", sector);
         sectorNode = new ManageablePortfolioNode(sector);
         rootNode.addChildNode(sectorNode);
       }
       ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
       if (groupNode == null) {
-        s_logger.warn("Creating node for industry group {}", industryGroup);
+        s_logger.debug("Creating node for industry group {}", industryGroup);
         groupNode = new ManageablePortfolioNode("Group " + industryGroup);
         sectorNode.addChildNode(groupNode);
       }
       ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
       if (industryNode == null) {
-        s_logger.warn("Creating node for industry {}", industry);
+        s_logger.debug("Creating node for industry {}", industry);
         industryNode = new ManageablePortfolioNode("Industry " + industry);
         groupNode.addChildNode(industryNode);
       }
       ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
       if (subIndustryNode == null) {
-        s_logger.warn("Creating node for sub industry {}", subIndustry);
+        s_logger.debug("Creating node for sub industry {}", subIndustry);
         subIndustryNode = new ManageablePortfolioNode("Sub industry " + subIndustry);
         industryNode.addChildNode(subIndustryNode);
       }
@@ -275,7 +275,7 @@ public class DemoEquityPortfolioAndSecurityLoader {
    * @return the position, not null
    */
   protected ManageablePosition createPositionAndTrade(EquitySecurity security) {
-    s_logger.warn("Creating position {}", security);
+    s_logger.debug("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
     
     ExternalIdBundle bundle = security.getIdentifiers(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
