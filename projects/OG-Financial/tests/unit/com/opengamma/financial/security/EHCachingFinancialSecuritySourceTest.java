@@ -5,18 +5,20 @@
  */
 package com.opengamma.financial.security;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+
 import java.util.Collection;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.test.MockSecurity;
@@ -215,8 +217,7 @@ public class EHCachingFinancialSecuritySourceTest {
       assertEquals(0, sec2Element.getHitCount());
     }
     
-    _cachingSecuritySource.refresh(_security1.getUniqueId());
-    _cachingSecuritySource.refresh(_security2.getUniqueId());
+    _cachingSecuritySource.refresh(secKey);
     assertEquals(0, singleSecCache.getSize());
     sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
     sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
