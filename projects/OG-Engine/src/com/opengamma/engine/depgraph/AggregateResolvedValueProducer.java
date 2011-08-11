@@ -32,51 +32,38 @@ import com.opengamma.engine.value.ValueRequirement;
     return _pendingTasks;
   }
 
-  protected void setPendingTasks(final int pendingTasks) {
-    _pendingTasks = pendingTasks;
-  }
-
   @Override
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Failed for {}", value);
     storeFailure(failure);
-    boolean deferredPump;
+    Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       _pendingTasks--;
       s_logger.debug("{} pending tasks", _pendingTasks);
-      deferredPump = _deferredPump;
-      if (deferredPump) {
+      if (getPendingTasks() < 1) {
         _deferredPump = false;
-      } else {
-        // If finished; do a deferred pump to complete
-        if (_pendingTasks < 1) {
-          deferredPump = true;
-        }
+        pumps = pumpImpl();
       }
     }
-    if (deferredPump) {
-      s_logger.debug("Running deferred pump");
-      pumpImpl(context);
-    }
+    pumpImpl(context, pumps);
   }
 
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     s_logger.debug("Received {} for {}", value, valueRequirement);
     if (pushResult(context, value)) {
-      boolean deferredPump;
+      Collection<ResolutionPump> pumps = null;
       synchronized (this) {
         _pendingTasks--;
         _pumps.add(pump);
-        deferredPump = _deferredPump;
-        if (deferredPump) {
-          _deferredPump = false;
+        if (_deferredPump) {
+          if (getPendingTasks() < 1) {
+            _deferredPump = false;
+            pumps = pumpImpl();
+          }
         }
       }
-      if (deferredPump) {
-        s_logger.debug("Running deferred pump");
-        pumpImpl(context);
-      }
+      pumpImpl(context, pumps);
     } else {
       context.pump(pump);
     }
@@ -86,16 +73,29 @@ import com.opengamma.engine.value.ValueRequirement;
   protected void pumpImpl(final GraphBuildingContext context) {
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
-      if (getPendingTasks() < 1) {
-        pumps = new ArrayList<ResolutionPump>(_pumps);
-        s_logger.debug("Pumping {}", pumps);
-        _pumps.clear();
-        setPendingTasks(pumps.size());
+      if (_pendingTasks < 1) {
+        pumps = pumpImpl();
       } else {
         s_logger.debug("Deferring pump while {} task(s) pending", getPendingTasks());
         _deferredPump = true;
       }
     }
+    pumpImpl(context, pumps);
+  }
+
+  // Caller must hold the monitor
+  private Collection<ResolutionPump> pumpImpl() {
+    if (_pumps.isEmpty()) {
+      return Collections.emptyList();
+    } else {
+      final List<ResolutionPump> pumps = new ArrayList<ResolutionPump>(_pumps);
+      _pumps.clear();
+      _pendingTasks = pumps.size();
+      return pumps;
+    }
+  }
+
+  private void pumpImpl(final GraphBuildingContext context, final Collection<ResolutionPump> pumps) {
     if (pumps != null) {
       if (pumps.isEmpty()) {
         // We have nothing to pump, so must have finished (failed)
@@ -122,31 +122,15 @@ import com.opengamma.engine.value.ValueRequirement;
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
       if (--_pendingTasks == 0) {
-        if (_pumps.isEmpty()) {
-          pumps = Collections.emptySet();
-        } else {
-          if (_deferredPump) {
-            _deferredPump = false;
-            pumps = new ArrayList<ResolutionPump>(_pumps);
-            _pumps.clear();
-          }
+        if (_deferredPump) {
+          _deferredPump = false;
+          pumps = pumpImpl();
+        } else if (_pumps.isEmpty()) {
+          pumps = Collections.emptyList();
         }
       }
     }
-    if (pumps != null) {
-      if (pumps.isEmpty()) {
-        finished(context);
-      } else {
-        synchronized (this) {
-          s_logger.debug("Pumping {} origin tasks", pumps.size());
-          setPendingTasks(pumps.size());
-        }
-        for (ResolutionPump pump : pumps) {
-          context.pump(pump);
-        }
-      }
-    }
-
+    pumpImpl(context, pumps);
   }
 
   @Override

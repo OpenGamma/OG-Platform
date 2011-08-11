@@ -89,19 +89,16 @@ public final class DependencyGraphBuilder {
 
     @Override
     protected boolean finished(final GraphBuildingContext context) {
-      boolean addFallback = false;
+      final boolean addFallback;
       synchronized (this) {
-        if (getPendingTasks() == 0) {
-          addFallback = true;
-          setPendingTasks(-1);
-        }
+        addFallback = (getPendingTasks() == 0) && (_fallback == null);
       }
       if (addFallback) {
         _fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
         if (_tasks.add(_fallback)) {
           _fallback.addRef();
           s_loggerResolver.debug("Creating fallback task {}", _fallback);
-          _fallback.addCallback(context, this);
+          addProducer(context, _fallback);
           return false;
         }
       }
