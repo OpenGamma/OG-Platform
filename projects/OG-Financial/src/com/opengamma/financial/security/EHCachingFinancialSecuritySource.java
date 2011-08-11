@@ -40,6 +40,8 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingFinancialSecuritySource.class);
   /** The single security cache key. */
   /* package for testing */ static final String SINGLE_SECURITY_CACHE = "single-security-cache";
+  /** The multiple security cache key. */
+  /* package for testing */ static final String MULTI_SECURITIES_CACHE = "multi-securities-cache";
   /** The mulitple bonds cache key */
   /* package for testing */ static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
 
@@ -55,6 +57,10 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
    * The single security cache.
    */
   private final Cache _uidCache;
+  /**
+   * The multiple security cache.
+   */
+  private final Cache _bundleCache;
   /**
    * The bond cache.
    */
@@ -79,8 +85,10 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
+    EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
     EHCacheUtils.addCache(cacheManager, MULTI_BONDS_CACHE);
     _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
+    _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
     _bondCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_BONDS_CACHE);
     _manager = cacheManager;
     _changeManager = new BasicChangeManager();
@@ -154,14 +162,26 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    Collection<Security> result = getUnderlying().getSecurities(bundle);
-    if (result == null) {
-      return Collections.emptySet();
+    Element e = _bundleCache.get(bundle);
+    Collection<Security> result = new HashSet<Security>();
+    if (e != null) {
+      Serializable value = e.getValue();
+      if (value instanceof Collection<?>) {
+        result.addAll((Collection<Security>) value);
+      } else {
+        s_logger.warn("returned object {} from cache is not a Collection<Security>", value);
+      }
+    } else {
+      result = getUnderlying().getSecurities(bundle);
+      if (result != null) {
+        _bundleCache.put(new Element(bundle, result));
+        cacheSecurities(result);
+      }
     }
-    cacheSecurities(result);
     return result;
   }
   
@@ -186,7 +206,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     }
     return matched.iterator().next();
   }
-
+  
   @Override
   public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -197,7 +217,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     }
     return matched.iterator().next();
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Security> getBondsWithIssuerName(String issuerType) {
@@ -225,10 +245,24 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /**
    * Refreshes the value for the specified security key.
    * 
-   * @param securityId  the security identifier, not null
+   * @param securityKey  the security key, not null
    */
-  public void refresh(UniqueId securityId) {
-    _uidCache.remove(securityId);
+  @SuppressWarnings("unchecked")
+  public void refresh(Object securityKey) {
+    ArgumentChecker.notNull(securityKey, "securityKey");
+    Element element = _bundleCache.get(securityKey);
+    if (element != null) {
+      Serializable value = element.getValue();
+      if (value instanceof Collection<?>) {
+        Collection<Security> securities = (Collection<Security>) value;
+        for (Security sec : securities) {
+          _uidCache.remove(sec.getUniqueId());
+        }
+      }
+      _bundleCache.remove(securityKey);
+    } else {
+      _uidCache.remove(securityKey);
+    }
   }
   
   //-------------------------------------------------------------------------
@@ -244,6 +278,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   protected void shutdown() {
     _underlying.changeManager().removeChangeListener(_changeListener);
     _manager.removeCache(SINGLE_SECURITY_CACHE);
+    _manager.removeCache(MULTI_SECURITIES_CACHE);
     _manager.shutdown();
   }
   
