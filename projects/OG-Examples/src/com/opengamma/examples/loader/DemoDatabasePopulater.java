@@ -5,7 +5,7 @@
  */
 package com.opengamma.examples.loader;
 
-import java.util.Arrays;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,7 @@ import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
+import com.opengamma.util.money.Currency;
 
 /**
  * Example code to create a demo portfolio and view
@@ -35,6 +36,8 @@ public class DemoDatabasePopulater {
   /** Logger. */
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DemoDatabasePopulater.class);
+  
+  private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
 
   /**
    * The context.
@@ -97,7 +100,7 @@ public class DemoDatabasePopulater {
         System.out.println("Finished");
         
         System.out.println("Creating libor raw securities");
-        PortfolioLoaderHelper.persistLiborRawSecurities(Sets.newHashSet(Arrays.asList(DemoMultiCurrencySwapPortfolioLoader.s_currencies)), swapLoader.getLoaderContext());
+        PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), swapLoader.getLoaderContext());
         System.out.println("Finished");
         
         DemoViewsPopulater populator = appContext.getBean("demoViewsPopulater", DemoViewsPopulater.class);
@@ -113,6 +116,10 @@ public class DemoDatabasePopulater {
       ex.printStackTrace();
     }
     System.exit(0);
+  }
+
+  private static Set<Currency> getAllCurrencies() {    
+    return s_currencies;
   }
   
   public static void populateYieldCurveConfig(ConfigMaster configMaster) {
