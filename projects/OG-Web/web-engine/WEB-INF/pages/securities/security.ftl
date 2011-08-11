@@ -101,7 +101,11 @@
         <@rowout label="Option type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
-        <@rowout label="Underlying identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        <#if underlyingSecurity?has_content>
+            <@rowout label="Underlying security"><a href="${uris.security(underlyingSecurity)}">${underlyingSecurity.name}</a></@rowout>
+        <#else>
+            <@rowout label="Underlying identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        </#if>
         <#break>
       <#case "SWAP">
         <@rowout label="Trade date">${security.tradeDate.toLocalDate()} - ${security.tradeDate.zone}</@rowout>
