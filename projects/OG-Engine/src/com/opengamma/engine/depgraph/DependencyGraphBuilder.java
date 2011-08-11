@@ -72,6 +72,7 @@ public final class DependencyGraphBuilder {
 
     private final ResolveTask _parentTask;
     private final Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
+    private boolean _fallbackAdded;
     private ResolveTask _fallback;
 
     public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
@@ -89,31 +90,41 @@ public final class DependencyGraphBuilder {
 
     @Override
     protected boolean finished(final GraphBuildingContext context) {
-      final boolean addFallback;
+      boolean fallbackAdded;
+      ResolveTask fallback;
       synchronized (this) {
-        addFallback = (getPendingTasks() == 0) && (_fallback == null);
+        assert getPendingTasks() == 0;
+        fallbackAdded = _fallbackAdded;
+        fallback = _fallback;
+        _fallback = null;
       }
-      if (addFallback) {
-        _fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
-        if (_tasks.add(_fallback)) {
-          _fallback.addRef();
-          s_loggerResolver.debug("Creating fallback task {}", _fallback);
-          addProducer(context, _fallback);
+      if (!fallbackAdded) {
+        fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
+        synchronized (this) {
+          if (_tasks.add(fallback)) {
+            fallback.addRef();
+            _fallback = fallback;
+            fallbackAdded = true;
+          }
+          _fallbackAdded = true;
+        }
+        if (fallbackAdded) {
+          s_loggerResolver.debug("Creating fallback task {}", fallback);
+          addProducer(context, fallback);
           return false;
+        } else {
+          fallback.release(context);
+          fallback = null;
         }
       }
-      if (super.finished(context)) {
-        if (_fallback != null) {
-          // Discard the fallback task if another has produced the same set of results for the requirement
-          s_loggerContext.debug("Discarding finished task");
-          context.discardFinishedTask(getResults(), _fallback);
-          _fallback.release(context);
-          _fallback = null;
-        }
-        return true;
-      } else {
-        return false;
+      final boolean result = super.finished(context);
+      if (fallback != null) {
+        // Discard the fallback task if another has produced the same set of results for the requirement
+        s_loggerContext.debug("Discarding finished task");
+        context.discardFinishedTask(getResults(), fallback);
+        fallback.release(context);
       }
+      return result;
     }
 
     @Override
@@ -125,12 +136,16 @@ public final class DependencyGraphBuilder {
     public int release(final GraphBuildingContext context) {
       final int count = super.release(context);
       if (count == 0) {
-        if (_fallback != null) {
+        ResolveTask fallback;
+        synchronized (this) {
+          fallback = _fallback;
+          _fallback = null;
+        }
+        if (fallback != null) {
           // Discard the fallback task
           s_loggerContext.debug("Discarding unfinished fallback task");
-          context.discardUnfinishedTask(_fallback);
-          _fallback.release(context);
-          _fallback = null;
+          context.discardUnfinishedTask(fallback);
+          fallback.release(context);
         }
       }
       return count;

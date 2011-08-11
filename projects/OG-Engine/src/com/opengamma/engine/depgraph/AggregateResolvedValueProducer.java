@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueRequirement;
     storeFailure(failure);
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
+      assert _pendingTasks > 0;
       _pendingTasks--;
       s_logger.debug("{} pending tasks", _pendingTasks);
       if (getPendingTasks() < 1) {
@@ -54,6 +55,7 @@ import com.opengamma.engine.value.ValueRequirement;
     if (pushResult(context, value)) {
       Collection<ResolutionPump> pumps = null;
       synchronized (this) {
+        assert _pendingTasks > 0;
         _pendingTasks--;
         _pumps.add(pump);
         if (_deferredPump) {
@@ -73,6 +75,7 @@ import com.opengamma.engine.value.ValueRequirement;
   protected void pumpImpl(final GraphBuildingContext context) {
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
+      assert _pendingTasks >= 0;
       if (_pendingTasks < 1) {
         pumps = pumpImpl();
       } else {
@@ -112,6 +115,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   public void addProducer(final GraphBuildingContext context, final ResolvedValueProducer producer) {
     synchronized (this) {
+      assert _pendingTasks >= 0;
       _pendingTasks++;
       s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
     }
@@ -121,6 +125,7 @@ import com.opengamma.engine.value.ValueRequirement;
   public void start(final GraphBuildingContext context) {
     Collection<ResolutionPump> pumps = null;
     synchronized (this) {
+      assert _pendingTasks > 0;
       if (--_pendingTasks == 0) {
         if (_deferredPump) {
           _deferredPump = false;
@@ -131,6 +136,17 @@ import com.opengamma.engine.value.ValueRequirement;
       }
     }
     pumpImpl(context, pumps);
+  }
+
+  @Override
+  protected boolean finished(final GraphBuildingContext context) {
+    synchronized (this) {
+      if (_pendingTasks > 0) {
+        s_logger.debug("Another thread has attached another producer - {} pending task(s)", _pendingTasks);
+        return false;
+      }
+    }
+    return super.finished(context);
   }
 
   @Override

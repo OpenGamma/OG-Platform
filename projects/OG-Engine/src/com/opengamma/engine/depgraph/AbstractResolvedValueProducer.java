@@ -173,7 +173,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue value) {
     assert value != null;
-    assert !_finished; // The error seen as [PLAT-1483] is probably when this gets hit
+    assert !_finished;
     assert getValueRequirement().isSatisfiedBy(value.getValueSpecification());
     Collection<Callback> pumped = null;
     final ResolvedValue[] newResults;
