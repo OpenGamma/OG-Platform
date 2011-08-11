@@ -94,7 +94,9 @@
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
-        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        "underlyingExternalId":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        "underlyingName":"${underlyingSecurity.name}",
+        "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
     
       <#case "SWAP">
