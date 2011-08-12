@@ -8,7 +8,7 @@ package com.opengamma.engine.function.resolver;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -21,6 +21,20 @@ import com.opengamma.util.tuple.Pair;
 @PublicAPI
 public interface CompiledFunctionResolver {
 
+  // PLAT-1049 version
+  //  /**
+  //   * Resolves the requirement for a node to one or more functions.
+  //   * <p>
+  //   * The resolution finds functions that are capable of satisfying the requirement.
+  //   * If multiple functions can satisfy, they should be returned from highest priority
+  //   * to lowest priority.
+  //   * 
+  //   * @param requirement Output requirement to satisfy
+  //   * @param target Target to satisfy the requirement on
+  //   * @return the function(s) found
+  //   */
+  //  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
+
   /**
    * Resolves the requirement for a node to one or more functions.
    * <p>
@@ -29,10 +43,10 @@ public interface CompiledFunctionResolver {
    * to lowest priority.
    * 
    * @param requirement Output requirement to satisfy
-   * @param target Target to satisfy the requirement on
+   * @param atNode The node in a dependency graph the function would be assigned to
    * @return the function(s) found
    */
-  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
+  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
 
   /**
    * Gets the full set of resolution rules backing the resolver.

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 
 /**
  * Deferred source of a {@link ResolvedValue}.
