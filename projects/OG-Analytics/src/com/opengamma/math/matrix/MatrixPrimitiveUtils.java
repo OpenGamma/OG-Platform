@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.matrix;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
  *
  */
@@ -115,4 +117,30 @@ public class MatrixPrimitiveUtils {
       return false;
     }
   }
+
+  /**
+   * Mangles a full matrix into something sane for packing as a symmetric matrix.
+   * (basically knocks out the lower triangle).
+   * @param aMatrix which is the array of arrays to be manipulated
+   * @return a double array of arrays with the lower triangle set to zero
+   */
+  public static double[][] removeLowerTriangle(double[][] aMatrix) {
+    if (isRagged(aMatrix)) {
+      throw new NotImplementedException("Construction from ragged array is not implemented");
+    }
+    if (!isSquare(aMatrix)) {
+      throw new NotImplementedException("Matrix is not square so removing lower triangle isn't clear cut enough to be implemented");
+    }
+    int rows = aMatrix.length;
+    int cols = aMatrix[0].length;
+
+    double[][] tmp = new double[rows][cols];
+    for (int i = 0; i < rows; i++) {
+      for (int j = i; j < cols; j++) {
+        tmp[i][j] = aMatrix[i][j];
+      }
+    }
+    return tmp;
+  }
+
 }
