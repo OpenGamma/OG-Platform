@@ -37,14 +37,14 @@ public class DependencyGraphBuilderFactory {
         }
       };
       t.setDaemon(true);
-      t.setName(DependencyGraphBuilder.class.getSimpleName() + "-" + _nextJobThreadId.incrementAndGet());
+      t.setName(DependencyGraphBuilderPLAT1049.class.getSimpleName() + "-" + _nextJobThreadId.incrementAndGet());
       return t;
     }
 
   });
 
-  private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
-  private int _maxAdditionalThreads = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
+  private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilderPLAT1049.getDefaultMaxAdditionalThreads();
+  private int _maxAdditionalThreads = DependencyGraphBuilderPLAT1049.getDefaultMaxAdditionalThreads();
 
   public DependencyGraphBuilderFactory() {
   }
@@ -65,13 +65,17 @@ public class DependencyGraphBuilderFactory {
     return _maxAdditionalThreads;
   }
 
+  //  public DependencyGraphBuilder_PLAT1049 newInstance() {
+  //    final DependencyGraphBuilder_PLAT1049 builder = new DependencyGraphBuilder_PLAT1049(createExecutor());
+  //    configureBuilder(builder);
+  //    return builder;
+  //  }
+
   public DependencyGraphBuilder newInstance() {
-    final DependencyGraphBuilder builder = new DependencyGraphBuilder(createExecutor());
-    configureBuilder(builder);
-    return builder;
+    return new DependencyGraphBuilder();
   }
 
-  protected void configureBuilder(final DependencyGraphBuilder builder) {
+  protected void configureBuilder(final DependencyGraphBuilderPLAT1049 builder) {
     builder.setMaxAdditionalThreads(getMaxAdditionalThreadsPerBuilder());
   }
 

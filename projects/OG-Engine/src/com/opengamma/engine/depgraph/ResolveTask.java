@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -97,10 +97,19 @@ import com.opengamma.engine.value.ValueSpecification;
       throw new UnsupportedOperationException("Not pumpable state (" + toString() + ")");
     }
 
+    /**
+     * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the
+     * parent task is going to neither call {@link #run} nor {@link #pump}
+     * 
+     * @return {@code true} if the state is active, {@code false} otherwise
+     */
+    protected abstract boolean isActive();
+
   }
 
   /**
-   * Parent resolve task (i.e. chain of previous value requirements) so that loops can be detected and avoided.
+   * Parent resolve task (i.e. chain of previous value requirements) so that loops can be detected and avoided. This is not
+   * ref-counted.
    */
   private final ResolveTask _parent;
 
@@ -133,6 +142,10 @@ import com.opengamma.engine.value.ValueSpecification;
   private void setState(final State state) {
     assert state != null;
     s_logger.debug("State transition {} to {}", _state, state);
+    if (_state == null) {
+      // Increase the ref-count as the state holds a reference to us 
+      addRef();
+    }
     _state = state;
   }
 
@@ -142,7 +155,10 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   protected boolean finished(final GraphBuildingContext context) {
+    assert _state != null;
     _state = null;
+    // Decrease the ref-count as the state no longer holds a reference to us
+    release(context);
     return super.finished(context);
   }
 
@@ -158,6 +174,8 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public void run(final GraphBuildingContext context) {
     getState().run(context);
+    // Release the lock that the context added before we got queued
+    release(context);
   }
 
   private ResolveTask getParent() {
@@ -241,6 +259,23 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public String toString() {
     return "ResolveTask" + getObjectId() + "[" + getValueRequirement() + ", " + getState() + "]";
+  }
+
+  @Override
+  public int release(final GraphBuildingContext context) {
+    final int count = super.release(context);
+    if (getState() != null) {
+      if (count == 2) {
+        // References held from the cache and the simulated one from our state
+        if (!getState().isActive()) {
+          s_logger.debug("Remove unfinished {} from the cache", this);
+          context.discardUnfinishedTask(this);
+        }
+      }
+    } else {
+      s_logger.debug("Leave finished {} in the cache", this);
+    }
+    return count;
   }
 
 }

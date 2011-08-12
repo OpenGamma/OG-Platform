@@ -4,6 +4,7 @@
     <publications>
       <artifact name="og-masterdb" type="jar"/>
       <artifact name="og-masterdb" type="source" ext="jar" />
+      <artifact name="og-masterdb" type="sql" ext="zip" />
     </publications>
     <dependencies>
         <dependency name="og-financial" rev="latest.integration" />

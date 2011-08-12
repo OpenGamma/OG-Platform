@@ -11,7 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -56,15 +56,23 @@ import com.opengamma.util.tuple.Pair;
       setTaskState(state);
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
       for (Map.Entry<ResolveTask, ResolvedValueProducer> existingTask : existingTasks.entrySet()) {
-        if (getTask().hasParent(existingTask.getKey())) {
-          // Can't use this task; there would be a loop
-          continue;
+        if (!getTask().hasParent(existingTask.getKey())) {
+          // Can use this task without creating a loop
+          aggregate.addProducer(context, existingTask.getValue());
         }
-        aggregate.addProducer(context, existingTask.getValue());
+        // Only the values are ref-counted
+        existingTask.getValue().release(context);
       }
       aggregate.addCallback(context, state);
       aggregate.start(context);
+      aggregate.release(context);
     }
+  }
+
+  @Override
+  protected boolean isActive() {
+    // Won't do anything unless {@link #run} is called
+    return false;
   }
 
   @Override
