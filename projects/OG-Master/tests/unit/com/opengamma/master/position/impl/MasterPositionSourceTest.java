@@ -5,22 +5,22 @@
  */
 package com.opengamma.master.position.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
 
 import javax.time.Instant;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -35,6 +35,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.security.ManageableSecurityLink;
 
 /**
  * Test MasterPositionSource.
@@ -100,12 +101,12 @@ public class MasterPositionSourceTest {
     
     ManageableTrade manTrade = new ManageableTrade();
     manTrade.setQuantity(BigDecimal.valueOf(1234));
-    manTrade.setSecurityLink(new SecurityLink(ExternalId.of("CC", "DD")));
+    manTrade.setSecurityLink(new ManageableSecurityLink(ExternalId.of("CC", "DD")));
     manTrade.setUniqueId(UID5);
     manTrade.setParentPositionId(UID4);
     ManageablePosition manPos = new ManageablePosition();
     manPos.setQuantity(BigDecimal.valueOf(1235));
-    manPos.setSecurityLink(new SecurityLink(ExternalId.of("AA", "BB")));
+    manPos.setSecurityLink(new ManageableSecurityLink(ExternalId.of("AA", "BB")));
     manPos.setUniqueId(UID4);
     manPos.addTrade(manTrade);
     PositionDocument posDoc = new PositionDocument(manPos);

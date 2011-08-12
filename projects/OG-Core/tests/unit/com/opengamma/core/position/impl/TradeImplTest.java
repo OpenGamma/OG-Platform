@@ -7,9 +7,9 @@ package com.opengamma.core.position.impl;
 
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.assertFalse;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -41,7 +42,7 @@ public class TradeImplTest {
   private static final ExternalIdBundle BUNDLE = POSITION.getSecurityLink().getExternalId();
 
   public void test_construction_UniqueId_ExternalIdBundle_BigDecimal_Counterparty_LocalDate_OffsetTime() {
-    TradeImpl test = new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl test = new TradeImpl(POSITION.getUniqueId(), new SimpleSecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertNull(test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityLink().getExternalId().size());
@@ -55,7 +56,7 @@ public class TradeImplTest {
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueId_ExternalIdBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullUniqueId() {
-    new TradeImpl(null, new SecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(null, new SimpleSecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -65,17 +66,17 @@ public class TradeImplTest {
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueId_ExternalIdBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullBigDecimal() {
-    new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), null, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), new SimpleSecurityLink(BUNDLE), null, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueId_ExternalIdBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullCounterparty() {
-    new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), BigDecimal.ONE, null, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), new SimpleSecurityLink(BUNDLE), BigDecimal.ONE, null, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueId_ExternalIdBundle_BigDecimal_Counterparty_LocalDate_OffsetTime_nullLocalDate() {
-    new TradeImpl(POSITION.getUniqueId(), new SecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, null, TRADE_OFFSET_DATETIME.toOffsetTime());
+    new TradeImpl(POSITION.getUniqueId(), new SimpleSecurityLink(BUNDLE), BigDecimal.ONE, COUNTERPARTY, null, TRADE_OFFSET_DATETIME.toOffsetTime());
   }
 
   public void test_construction_UniqueId_Security_BigDecimal_Counterparty_Instant() {
@@ -94,7 +95,7 @@ public class TradeImplTest {
   }
 
   public void test_construction_copyFromPosition() {
-    TradeImpl trade = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trade.addAttribute("A", "B");
     trade.addAttribute("C", "D");
     
@@ -105,17 +106,17 @@ public class TradeImplTest {
   public void test_collectionsOfTradesWithDifferentFields() {
     Set<TradeImpl> trades = Sets.newHashSet();
     
-    TradeImpl trade1 = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade1 = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trades.add(trade1);
     
-    TradeImpl trade2 = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("C", "D")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade2 = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("C", "D")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trade2.setPremium(100.00);
     trade2.setPremiumCurrency(Currency.USD);
     trade2.setPremiumDate(TRADE_OFFSET_DATETIME.toLocalDate().plusDays(1));
     trade2.setPremiumTime(TRADE_OFFSET_DATETIME.toOffsetTime().plusHours(1));
     trades.add(trade2);
     
-    TradeImpl trade3 = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("E", "F")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade3 = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("E", "F")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     trades.add(trade3);
     
     trades.add(new TradeImpl(trade3));
@@ -150,20 +151,20 @@ public class TradeImplTest {
   //------------------------------------------------------------------------
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_addAttribute_null_key() {
-    TradeImpl trade = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertTrue(trade.getAttributes().isEmpty());
     trade.addAttribute(null, "B");
   }
   
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_addAttribute_null_value() {
-    TradeImpl trade = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertTrue(trade.getAttributes().isEmpty());
     trade.addAttribute("A", null);
   }
   
   public void test_addAttribute() {
-    TradeImpl trade = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertTrue(trade.getAttributes().isEmpty());
     trade.addAttribute("A", "B");
     assertEquals(1, trade.getAttributes().size());
@@ -174,7 +175,7 @@ public class TradeImplTest {
   }
   
   public void test_removeAttribute() {
-    TradeImpl trade = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertTrue(trade.getAttributes().isEmpty());
     trade.addAttribute("A", "B");
     trade.addAttribute("C", "D");
@@ -185,7 +186,7 @@ public class TradeImplTest {
   }
   
   public void test_clearAttributes() {
-    TradeImpl trade = new TradeImpl(POSITION_UID, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    TradeImpl trade = new TradeImpl(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertTrue(trade.getAttributes().isEmpty());
     trade.addAttribute("A", "B");
     trade.addAttribute("C", "D");

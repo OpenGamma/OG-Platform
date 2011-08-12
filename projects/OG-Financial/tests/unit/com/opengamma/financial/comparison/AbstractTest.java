@@ -18,7 +18,7 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -64,7 +64,7 @@ import com.opengamma.util.time.Expiry;
     final TradeImpl trade = new TradeImpl();
     trade.setQuantity(new BigDecimal(quantity));
     trade.setUniqueId(createUniqueId("Trade"));
-    trade.setSecurityLink(SecurityLink.ofBundleId(security));
+    trade.setSecurityLink(SimpleSecurityLink.ofBundleId(security));
     if (attr1Value != null) {
       trade.addAttribute("Attr1", attr1Value);
     }
@@ -77,7 +77,7 @@ import com.opengamma.util.time.Expiry;
   protected Position createPosition(final String uid, final int quantity, final Security security, final String attr1Value, final String attr2Value, final Trade trade1, final Trade trade2) {
     final PositionImpl position = new PositionImpl(new BigDecimal(quantity), security.getIdentifiers());
     position.setParentNodeId(createUniqueId("Node"));
-    position.getSecurityLink().setTarget(security);
+    position.setSecurityLink(SimpleSecurityLink.of(security));
     if (attr1Value != null) {
       position.addAttribute("Attr1", attr1Value);
     }

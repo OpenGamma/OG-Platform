@@ -13,16 +13,20 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Utilities and constants for securities.
+ * Utility class providing tools for {@code Security}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 @PublicAPI
 public class SecurityUtils {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class); 
 
   /**
@@ -176,7 +180,7 @@ public class SecurityUtils {
     }
     return ExternalId.of(BLOOMBERG_TICKER, ticker);
   }
-  
+
   /**
    * Creates a Bloomberg ticker coupon maturity identifier.
    * <p>
@@ -240,7 +244,7 @@ public class SecurityUtils {
     }
     return ExternalId.of(RIC, code);
   }
-  
+
   /**
    * Creates an ActivFeed ticker.
    * <p>

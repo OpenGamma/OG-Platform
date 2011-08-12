@@ -47,8 +47,8 @@ public class CSVPositionSourceTest {
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
     
-    assertEquals(1, position.getSecurityLink().getExternalIds().size());
-    ExternalId id = position.getSecurityLink().getExternalIds().iterator().next();
+    assertEquals(1, position.getSecurityLink().getExternalId().size());
+    ExternalId id = position.getSecurityLink().getExternalId().iterator().next();
     assertNotNull(id);
     assertNotNull(id.getScheme());
     assertEquals("KIRK", id.getScheme().getName());
@@ -63,9 +63,9 @@ public class CSVPositionSourceTest {
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
     
-    assertEquals(3, position.getSecurityLink().getExternalIds().size());
+    assertEquals(3, position.getSecurityLink().getExternalId().size());
     
-    for (ExternalId id : position.getSecurityLink().getExternalIds()) {
+    for (ExternalId id : position.getSecurityLink().getExternalId()) {
       assertNotNull(id);
       assertNotNull(id.getScheme());
       assertNotNull(id.getValue());

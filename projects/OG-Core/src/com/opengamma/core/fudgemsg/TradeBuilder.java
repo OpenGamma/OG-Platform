@@ -22,6 +22,7 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -145,7 +146,22 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   }
 
   protected static TradeImpl buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    SimpleSecurityLink secLink = new SimpleSecurityLink();
+    if (message.hasField(FIELD_SECURITYKEY)) {
+      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
+      if (secKeyField != null) {
+        secLink.setExternalId(deserializer.fieldValueToObject(ExternalIdBundle.class, secKeyField));
+      }
+    }
+    if (message.hasField(FIELD_SECURITYID)) {
+      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
+      if (secIdField != null) {
+        secLink.setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
+      }
+    }
+    
     TradeImpl trade = new TradeImpl();
+    trade.setSecurityLink(secLink);
     if (message.hasField(FIELD_UNIQUE_ID)) {
       FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
       if (uniqueIdField != null) {
@@ -156,18 +172,6 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
       FudgeField quantityField = message.getByName(FIELD_QUANTITY);
       if (quantityField != null) {
         trade.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
-      }
-    }
-    if (message.hasField(FIELD_SECURITYKEY)) {
-      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
-      if (secKeyField != null) {
-        trade.getSecurityLink().setExternalId(deserializer.fieldValueToObject(ExternalIdBundle.class, secKeyField));
-      }
-    }
-    if (message.hasField(FIELD_SECURITYID)) {
-      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
-      if (secIdField != null) {
-        trade.getSecurityLink().setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
       }
     }
     if (message.hasField(FIELD_COUNTERPARTY)) {

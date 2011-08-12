@@ -23,6 +23,8 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.SecurityLinkUtils;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -89,7 +91,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * Creates a trade which must be initialized by calling methods.
    */
   public TradeImpl() {
-    _securityLink = new SecurityLink();
+    _securityLink = new SimpleSecurityLink();
   }
 
   /**
@@ -137,7 +139,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
     _parentPositionId = parentPositionId;
-    _securityLink = SecurityLink.of(security);
+    _securityLink = SimpleSecurityLink.of(security);
   }
 
   /**
@@ -153,7 +155,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
     _tradeDate = copyFrom.getTradeDate();
     _tradeTime = copyFrom.getTradeTime();
     _parentPositionId = copyFrom.getParentPositionId();
-    _securityLink = copyFrom.getSecurityLink().clone();
+    _securityLink = new SimpleSecurityLink(copyFrom.getSecurityLink());
     setAttributes(copyFrom.getAttributes());
   }
 
@@ -450,7 +452,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
         .append(", ")
         .append(getQuantity())
         .append(' ')
-        .append(getSecurityLink().getBest())
+        .append(SecurityLinkUtils.best(getSecurityLink()))
         .append(" PositionID:")
         .append(getParentPositionId())
         .append(" ")

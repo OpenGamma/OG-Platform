@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -38,7 +38,7 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setUniqueId(UniqueId.of("A", "B"));
     trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
-    trade.setSecurityLink(new SecurityLink(ExternalId.of("E", "F")));
+    trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new CounterpartyImpl(ExternalId.of("G", "H")));
     trade.setTradeDate(LocalDate.of(2011, 1, 5));
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
@@ -50,7 +50,7 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setUniqueId(UniqueId.of("A", "B"));
     trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
-    trade.setSecurityLink(new SecurityLink(ExternalId.of("E", "F")));
+    trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new CounterpartyImpl(ExternalId.of("G", "H")));
     trade.setTradeDate(LocalDate.of(2011, 1, 5));
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
@@ -72,7 +72,7 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setUniqueId(UniqueId.of("A", "B"));
     trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
-    trade.setSecurityLink(new SecurityLink(ObjectId.of("E", "F")));
+    trade.setSecurityLink(new SimpleSecurityLink(ObjectId.of("E", "F")));
     trade.setCounterparty(new CounterpartyImpl(ExternalId.of("G", "H")));
     trade.setTradeDate(LocalDate.of(2011, 1, 5));
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
@@ -90,7 +90,7 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setUniqueId(UniqueId.of("A", "B"));
     trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
-    trade.setSecurityLink(new SecurityLink(ExternalId.of("E", "F")));
+    trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new CounterpartyImpl(ExternalId.of("G", "H")));
     trade.setTradeDate(LocalDate.of(2011, 1, 5));
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));

@@ -22,6 +22,8 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.SecurityLinkUtils;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -65,7 +67,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
    * Construct an empty instance that must be populated via setters.
    */
   public PositionImpl() {
-    _securityLink = new SecurityLink();
+    _securityLink = new SimpleSecurityLink();
   }
 
   /**
@@ -78,7 +80,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = new SimpleSecurityLink(securityKey);
   }
 
   /**
@@ -91,7 +93,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = new SimpleSecurityLink(securityKey);
   }
 
   /**
@@ -107,7 +109,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(securityKey, "securityKey");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = new SimpleSecurityLink(securityKey);
   }
 
   /**
@@ -123,7 +125,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(securityKey, "securityKey");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityKey);
+    _securityLink = new SimpleSecurityLink(securityKey);
   }
 
   /**
@@ -139,7 +141,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     ArgumentChecker.notNull(security, "security");
     _uniqueId = uniqueId;
     _quantity = quantity;
-    _securityLink = SecurityLink.of(security);
+    _securityLink = SimpleSecurityLink.of(security);
   }
 
   /**
@@ -152,7 +154,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
     _uniqueId = copyFrom.getUniqueId();
     _parentNodeId = copyFrom.getParentNodeId();
     _quantity = copyFrom.getQuantity();
-    _securityLink = copyFrom.getSecurityLink().clone();
+    _securityLink = new SimpleSecurityLink(copyFrom.getSecurityLink());
     for (Trade trade : copyFrom.getTrades()) {
       TradeImpl clonedTrade = new TradeImpl(trade);
       clonedTrade.setParentPositionId(_uniqueId);
@@ -387,7 +389,7 @@ public class PositionImpl implements Position, MutableUniqueIdentifiable, Serial
         .append(", ")
         .append(getQuantity())
         .append(' ')
-        .append(getSecurityLink().getBest())
+        .append(SecurityLinkUtils.best(getSecurityLink()))
         .append(']')
         .toString();
   }

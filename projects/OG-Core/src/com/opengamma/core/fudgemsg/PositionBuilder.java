@@ -20,6 +20,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -103,7 +104,22 @@ public class PositionBuilder implements FudgeBuilder<Position> {
   }
 
   protected static PositionImpl buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    SimpleSecurityLink secLink = new SimpleSecurityLink();
+    if (message.hasField(FIELD_SECURITYKEY)) {
+      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
+      if (secKeyField != null) {
+        secLink.setExternalId(deserializer.fieldValueToObject(ExternalIdBundle.class, secKeyField));
+      }
+    }
+    if (message.hasField(FIELD_SECURITYID)) {
+      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
+      if (secIdField != null) {
+        secLink.setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
+      }
+    }
+    
     PositionImpl position = new PositionImpl();
+    position.setSecurityLink(secLink);
     if (message.hasField(FIELD_UNIQUE_ID)) {
       FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
       if (uniqueIdField != null) {
@@ -114,18 +130,6 @@ public class PositionBuilder implements FudgeBuilder<Position> {
       FudgeField quantityField = message.getByName(FIELD_QUANTITY);
       if (quantityField != null) {
         position.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
-      }
-    }
-    if (message.hasField(FIELD_SECURITYKEY)) {
-      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
-      if (secKeyField != null) {
-        position.getSecurityLink().setExternalId(deserializer.fieldValueToObject(ExternalIdBundle.class, secKeyField));
-      }
-    }
-    if (message.hasField(FIELD_SECURITYID)) {
-      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
-      if (secIdField != null) {
-        position.getSecurityLink().setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
       }
     }
     readTrades(deserializer, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_TRADES)), position);

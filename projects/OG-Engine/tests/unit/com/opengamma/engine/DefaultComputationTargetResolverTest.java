@@ -23,8 +23,8 @@ import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.ExternalId;
@@ -92,7 +92,7 @@ public class DefaultComputationTargetResolverTest {
     MockPositionSource posSource = new MockPositionSource();
     PortfolioImpl portfolio = new PortfolioImpl(UniqueId.of("Test", "1"), "Name");
     PositionImpl position = new PositionImpl(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
-    TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(), new BigDecimal(1), new CounterpartyImpl(ExternalId.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
+    TradeImpl trade = new TradeImpl(position.getUniqueId(), new SimpleSecurityLink(), new BigDecimal(1), new CounterpartyImpl(ExternalId.of("CPARTY", "C100")), now.toLocalDate(), now.toOffsetTime());
     trade.setUniqueId(UniqueId.of("TradeScheme", "1"));
     position.addTrade(trade);
     portfolio.getRootNode().addPosition(position);

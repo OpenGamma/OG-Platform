@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -189,8 +190,8 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   public void test_setSecurityLink() {
     PositionImpl test = new PositionImpl(UniqueId.of("B", "C"), BigDecimal.ONE, ExternalId.of("A", "B"));
-    test.setSecurityLink(new SecurityLink());
-    assertEquals(new SecurityLink(), test.getSecurityLink());
+    test.setSecurityLink(new SimpleSecurityLink());
+    assertEquals(new SimpleSecurityLink(), test.getSecurityLink());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -298,7 +299,7 @@ public class PositionImplTest {
   }
 
   private SecurityLink createLink(String scheme, String value) {
-    return new SecurityLink(ExternalId.of(scheme, value));
+    return new SimpleSecurityLink(ExternalId.of(scheme, value));
   }
 
 }

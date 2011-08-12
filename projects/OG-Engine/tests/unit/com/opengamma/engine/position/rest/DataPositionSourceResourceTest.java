@@ -31,7 +31,7 @@ import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -86,7 +86,7 @@ public class DataPositionSourceResourceTest {
   public void testGetPosition() {
     final PositionImpl position = new PositionImpl(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
     position.setParentNodeId(UID2);
-    final TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, new CounterpartyImpl(ExternalId.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
+    final TradeImpl trade = new TradeImpl(position.getUniqueId(), new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, new CounterpartyImpl(ExternalId.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
     position.addTrade(trade);
     when(_underlying.getPosition(eq(UID1))).thenReturn(position);
     
@@ -95,7 +95,7 @@ public class DataPositionSourceResourceTest {
 
   public void testGetTrade() {
     final Counterparty cparty = new CounterpartyImpl(ExternalId.of("C", "D"));
-    final TradeImpl trade = new TradeImpl(UID2, new SecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, cparty, LocalDate.of(2010, 12, 6), null);
+    final TradeImpl trade = new TradeImpl(UID2, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, cparty, LocalDate.of(2010, 12, 6), null);
     trade.setUniqueId(UID1);
     when(_underlying.getTrade(eq(UID1))).thenReturn(trade);
     
