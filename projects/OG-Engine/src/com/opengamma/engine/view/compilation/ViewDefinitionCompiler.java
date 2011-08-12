@@ -97,7 +97,7 @@ public final class ViewDefinitionCompiler {
       completer.submit(new Callable<DependencyGraphBuilder>() {
         @Override
         public DependencyGraphBuilder call() {
-          builder.getDependencyGraph(false);
+          builder.getDependencyGraph(/*false*/);
           return builder;
         }
       });

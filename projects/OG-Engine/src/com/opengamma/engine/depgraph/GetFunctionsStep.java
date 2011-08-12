@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -94,7 +94,10 @@ import com.opengamma.util.tuple.Pair;
       existing.release(context);
       // Leave in current state; will go to finished after being pumped
     } else {
-      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
+      // PLAT-1049
+      final DependencyNode node = new DependencyNode(getComputationTarget());
+      final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), node);
+      //final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
       if (itr.hasNext()) {
         s_logger.debug("Found functions for {}", getValueRequirement());
         setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
