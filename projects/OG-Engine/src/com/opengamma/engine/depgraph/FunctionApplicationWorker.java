@@ -70,10 +70,10 @@ import com.opengamma.engine.value.ValueSpecification;
         context.pump(pump);
       }
     } else if (finished != null) {
-      if (finished(context)) {
-        s_logger.debug("Calling finished on {} from {}", finished, this);
-        finished.finished(context);
-      }
+      s_logger.debug("Finished producing function applications from {}", this);
+      finished(context);
+      s_logger.debug("Calling finished on {} from {}", finished, this);
+      finished.finished(context);
     }
   }
 
@@ -124,10 +124,9 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     // Propagate the failure message to anything subscribing to us
     if (state != null) {
-      if (finished(context)) {
-        s_logger.debug("Calling finished on {}", state);
-        state.finished(context);
-      }
+      finished(context);
+      s_logger.debug("Calling finished on {}", state);
+      state.finished(context);
     }
   }
 

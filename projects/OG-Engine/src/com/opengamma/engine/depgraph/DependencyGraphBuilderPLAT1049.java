@@ -60,7 +60,7 @@ public final class DependencyGraphBuilderPLAT1049 {
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
   private static final AtomicInteger s_nextDebugId = new AtomicInteger();
 
-  private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
+  private static final boolean NO_BACKGROUND_THREADS = true; // DON'T CHECK IN WITH =true
   private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
   private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false; // DON'T CHECK IN WITH =true
   private static final boolean DEBUG_DUMP_FAILURE_INFO = false; // DON'T CHECK IN WITH =true
@@ -76,7 +76,6 @@ public final class DependencyGraphBuilderPLAT1049 {
 
     private final ResolveTask _parentTask;
     private final Set<ResolveTask> _tasks = new HashSet<ResolveTask>();
-    private boolean _fallbackAdded;
     private ResolveTask _fallback;
 
     public RequirementResolver(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
@@ -93,42 +92,31 @@ public final class DependencyGraphBuilderPLAT1049 {
     }
 
     @Override
-    protected boolean finished(final GraphBuildingContext context) {
-      boolean fallbackAdded;
-      ResolveTask fallback;
-      synchronized (this) {
-        assert getPendingTasks() == 0;
-        fallbackAdded = _fallbackAdded;
-        fallback = _fallback;
-        _fallback = null;
-      }
-      if (!fallbackAdded) {
-        fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
-        synchronized (this) {
-          if (_tasks.add(fallback)) {
-            fallback.addRef();
-            _fallback = fallback;
-            fallbackAdded = true;
-          }
-          _fallbackAdded = true;
-        }
-        if (fallbackAdded) {
-          s_loggerResolver.debug("Creating fallback task {}", fallback);
-          addProducer(context, fallback);
-          return false;
+    protected void finished(final GraphBuildingContext context) {
+      assert getPendingTasks() == 0;
+      if (_fallback == null) {
+        _fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
+        if (_tasks.add(_fallback)) {
+          _fallback.addRef();
+          s_loggerResolver.debug("Creating fallback task {}", _fallback);
+          addProducer(context, _fallback);
+          return;
         } else {
-          fallback.release(context);
-          fallback = null;
+          _fallback.release(context);
+          _fallback = null;
         }
       }
-      final boolean result = super.finished(context);
-      if (fallback != null) {
+      super.finished(context);
+      if (_fallback != null) {
         // Discard the fallback task if another has produced the same set of results for the requirement
         s_loggerContext.debug("Discarding finished task");
-        context.discardFinishedTask(getResults(), fallback);
-        fallback.release(context);
+        context.discardFinishedTask(getResults(), _fallback);
+        _fallback.release(context);
       }
-      return result;
+      // Release any other tasks
+      for (ResolveTask task : _tasks) {
+        task.release(context);
+      }
     }
 
     @Override

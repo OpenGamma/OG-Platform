@@ -213,15 +213,16 @@ import com.opengamma.engine.value.ValueSpecification;
    */
   protected abstract void pumpImpl(final GraphBuildingContext context);
 
-  protected boolean finished(final GraphBuildingContext context) {
+  /**
+   * Call when there are no more values that can be pushed. Any callbacks that have had pump called on them will
+   * receive a failure notification. This must only be called once.
+   */
+  protected void finished(final GraphBuildingContext context) {
     s_logger.debug("Finished producing results at {}", this);
+    assert !_finished;
     Collection<Callback> pumped = null;
     ResolutionFailure failure = null;
     synchronized (this) {
-      if (_finished) {
-        s_logger.debug("Already finished on other thread");
-        return false;
-      }
       _finished = true;
       if (!_pumped.isEmpty()) {
         failure = _failure;
@@ -238,7 +239,6 @@ import com.opengamma.engine.value.ValueSpecification;
     } else {
       s_logger.debug("No pumped callbacks");
     }
-    return true;
   }
 
   protected void storeFailure(final ResolutionFailure failure) {

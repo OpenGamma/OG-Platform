@@ -42,6 +42,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolverPLAT1049;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
@@ -66,7 +68,8 @@ public class DependencyGraphBuilderTest_PLAT1049 {
       final DependencyGraphBuilderPLAT1049 builder1049 = new DependencyGraphBuilderPLAT1049();
       builder1049.setCalculationConfigurationName(builder.getCalculationConfigurationName());
       builder1049.setCompilationContext(builder.getCompilationContext());
-      builder1049.setFunctionResolver(builder.getFunctionResolver());
+      final DefaultCompiledFunctionResolver resolver = (DefaultCompiledFunctionResolver)builder.getFunctionResolver();
+      builder1049.setFunctionResolver(new DefaultCompiledFunctionResolverPLAT1049(builder.getCompilationContext(), resolver.getAllResolutionRules()));
       builder1049.setMarketDataAvailabilityProvider(builder.getMarketDataAvailabilityProvider());
       builder1049.setTargetResolver(builder.getTargetResolver());
       return builder1049;
