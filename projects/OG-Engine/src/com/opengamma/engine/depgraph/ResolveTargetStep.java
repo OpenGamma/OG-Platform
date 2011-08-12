@@ -37,6 +37,12 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
   }
 
   @Override
+  protected boolean isActive() {
+    // No background state
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "RESOLVE" + getObjectId();
   }

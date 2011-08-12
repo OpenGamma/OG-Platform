@@ -76,6 +76,8 @@ public class JmsChangeManagerTest {
     while (!_container.isRunning()) {
       Thread.sleep(10l);
     }
+    //TODO: this is a hack.  The context doesn't seem to have always set up the consumer completely yet
+    Thread.sleep(500l);
   }
 
   //-------------------------------------------------------------------------

@@ -153,7 +153,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     
     Currency jpy = Currency.JPY;
     ExternalId jpyRegion = RegionUtils.countryRegionId(Country.JP);
-    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(true, false, false), Tenor.ofYears(1), 3, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 35, 40})));
+    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
 //    Currency nzd = Currency.of("NZD");
 //    Identifier nzdRegion = RegionUtils.countryRegionId(Country.NZ);
 //    singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));

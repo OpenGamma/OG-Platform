@@ -161,6 +161,7 @@ public class DemoSwapPortfolioLoader {
 
   /**
    * Loads the test portfolio into the position master.
+   * @return
    */
   public void createExamplePortfolio() {
     InputStream inputStream = DemoSwapPortfolioLoader.class.getResourceAsStream("demo-swap-portfolio.csv");  

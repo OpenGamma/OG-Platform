@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -96,6 +97,12 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
+    protected boolean isActive() {
+      // Only active if pump has been called
+      return _pump == null;
+    }
+
+    @Override
     public String toString() {
       return "Delegate" + getObjectId();
     }
@@ -116,6 +123,7 @@ import com.opengamma.util.tuple.Pair;
       _valueSpecification = valueSpecification;
       _outputs = outputs;
       _function = function;
+      worker.addRef();
       _worker = worker;
     }
 
@@ -203,6 +211,8 @@ import com.opengamma.util.tuple.Pair;
           // Task that's not our parent may produce the value for us
           aggregate.addProducer(context, reducingTask.getValue());
         }
+        // Only the values are ref-counted
+        reducingTask.getValue().release(context);
       }
       final ValueSpecification resolvedOutputCopy = resolvedOutput;
       final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
@@ -216,6 +226,7 @@ import com.opengamma.util.tuple.Pair;
       setTaskState(delegate);
       aggregate.addCallback(context, delegate);
       aggregate.start(context);
+      aggregate.release(context);
       return true;
     }
 
@@ -224,8 +235,13 @@ import com.opengamma.util.tuple.Pair;
       final FunctionApplicationWorker newWorker = new FunctionApplicationWorker(getValueRequirement());
       final ResolvedValueProducer producer = context.declareTaskProducing(resolvedOutput, getTask(), newWorker);
       if (producer == newWorker) {
-        return getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
+        producer.release(context);
+        // The new worker is going to produce the value specification
+        boolean result = getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
+        newWorker.release(context);
+        return result;
       } else {
+        newWorker.release(context);
         // An equivalent task is producing the revised value specification
         final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {
           @Override
@@ -235,6 +251,7 @@ import com.opengamma.util.tuple.Pair;
         };
         setTaskState(delegate);
         producer.addCallback(context, delegate);
+        producer.release(context);
         return true;
       }
     }
@@ -283,6 +300,12 @@ import com.opengamma.util.tuple.Pair;
       }
 
       @Override
+      protected final boolean isActive() {
+        // Only active if a resolve has been received, and there is no failure (i.e. it is waiting on the task to pump it)
+        return _pump == null;
+      }
+
+      @Override
       public String toString() {
         return "ResolutionSubstituteDelegate" + getObjectId() + "[" + getFunction() + ", " + getValueSpecification() + "]";
       }
@@ -316,6 +339,8 @@ import com.opengamma.util.tuple.Pair;
       final AtomicInteger lock = new AtomicInteger(1);
       final ResolvedValueCallback callback = new ResolvedValueCallback() {
 
+        private final AtomicBoolean _pumped = new AtomicBoolean(false);
+
         @Override
         public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
           s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
@@ -325,7 +350,9 @@ import com.opengamma.util.tuple.Pair;
             substituteWorker.storeFailure(additionalRequirement);
             substituteWorker.finished(context);
           }
-          pump(context);
+          if (!_pumped.getAndSet(true)) {
+            pump(context);
+          }
         }
 
         @Override
@@ -350,6 +377,7 @@ import com.opengamma.util.tuple.Pair;
         final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask());
         lock.incrementAndGet();
         inputProducer.addCallback(context, callback);
+        inputProducer.release(context);
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
@@ -386,6 +414,11 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
+    protected boolean isActive() {
+      return getWorker().isActive();
+    }
+
+    @Override
     public String toString() {
       return "WaitForInputs" + getObjectId() + "[" + getFunction() + ", " + getValueSpecification() + "]";
     }
@@ -397,6 +430,7 @@ import com.opengamma.util.tuple.Pair;
     final FunctionApplicationWorker worker = new FunctionApplicationWorker(getValueRequirement());
     final ResolvedValueProducer producer = context.declareTaskProducing(getResolvedOutput(), getTask(), worker);
     if (producer == worker) {
+      producer.release(context);
       // Populate the worker and position this task in the chain for pumping alternative resolutions to dependents
       s_logger.debug("Registered worker {} for {} production", worker, getResolvedOutput());
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
@@ -409,11 +443,12 @@ import com.opengamma.util.tuple.Pair;
       }
       if (originalOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
+        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        worker.release(context);
         return;
       }
       final Set<ValueSpecification> resolvedOutputValues;
@@ -439,11 +474,12 @@ import com.opengamma.util.tuple.Pair;
       }
       if (inputRequirements == null) {
         s_logger.info("Function {} returned NULL for getRequirements on {}", functionDefinition, getValueRequirement());
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
         final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getRequirementsFailed();
         worker.storeFailure(failure);
         worker.finished(context);
         storeFailure(failure);
+        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        worker.release(context);
         return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
@@ -461,15 +497,19 @@ import com.opengamma.util.tuple.Pair;
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask());
           worker.addInput(context, inputRequirement, inputProducer);
+          inputProducer.release(context);
         }
         worker.start(context);
       }
+      worker.release(context);
     } else {
+      worker.release(context);
       // Another task is working on this, so delegate to it
       s_logger.debug("Delegating production of {} to worker {}", getResolvedOutput(), producer);
       final DelegateState state = new DelegateState(getTask(), getFunctions());
       setTaskState(state);
       producer.addCallback(context, state);
+      producer.release(context);
     }
   }
 

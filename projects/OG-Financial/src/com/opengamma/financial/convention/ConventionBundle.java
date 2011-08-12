@@ -147,13 +147,13 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * Gets the name of the risk free rate for CAPM.
    * @return the name
    */
-  String getCAPMRiskFreeRateName();
+  ExternalIdBundle getCAPMRiskFreeRate();
 
   /**
    * Gets the name of the market for CAPM.
    * @return the name
    */
-  String getCAPMMarketName();
+  ExternalIdBundle getCAPMMarket();
 
   /**
    * Gets the basisSwapPayFloatingLegDayCount field.

@@ -7,6 +7,7 @@ package com.opengamma.master;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -90,7 +91,7 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
    * <p>
    * This overrides the version in the unique identifier if set to do so.
    * 
-   * @param uniqueId  the unique identifier
+   * @param uniqueId  the unique identifier, not null
    * @return the document, null if not found
    */
   public D getDocument(UniqueId uniqueId) {
@@ -103,6 +104,26 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
         return getMaster().get(uniqueId);
       }
     } catch (DataNotFoundException ex) {
+      return null;
+    }
+  }
+  
+  /**
+   * Gets a document from the master by object identifier and version-correction.
+   * <p>
+   * The specified version-correction may be overridden if set to do so.
+   * 
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction, null for the latest
+   * @return the document, null if not found
+   */
+  public D getDocument(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    VersionCorrection overrideVersionCorrection = getVersionCorrection();
+    try {
+      return getMaster().get(objectId, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
+    } catch (DataNotFoundException e) {
       return null;
     }
   }

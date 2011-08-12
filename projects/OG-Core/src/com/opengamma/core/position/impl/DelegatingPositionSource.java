@@ -63,25 +63,25 @@ public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSo
   @Override
   public Portfolio getPortfolio(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getPortfolio(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getPortfolio(uniqueId);
   }
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getPortfolioNode(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getPortfolioNode(uniqueId);
   }
 
   @Override
   public Position getPosition(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getPosition(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getPosition(uniqueId);
   }
 
   @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getTrade(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getTrade(uniqueId);
   }
 
   //-------------------------------------------------------------------------

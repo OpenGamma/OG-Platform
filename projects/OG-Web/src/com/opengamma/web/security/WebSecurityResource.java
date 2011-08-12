@@ -38,14 +38,19 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
@@ -151,7 +156,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
-    if (security.getSecurityType().equals("SWAP")) {
+    if (security.getSecurityType().equals(SwapSecurity.SECURITY_TYPE)) {
       SwapSecurity swapSecurity = (SwapSecurity) security;
       out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
       out.put("receiveLegType", swapSecurity.getReceiveLeg().accept(new SwapLegClassifierVisitor()));
@@ -161,8 +166,23 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       out.put("futureSecurityType", futureSecurity.accept(new FutureSecurityTypeVisitor()));
       out.put("basket", getBondFutureBasket(security));
     }
+    if (security.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
+      EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
+      out.put("underlyingSecurity", getSecurity(equityOption.getUnderlyingIdentifier()));
+    }
   }
   
+  private ManageableSecurity getSecurity(ExternalId underlyingIdentifier) {
+    if (underlyingIdentifier == null) {
+      return null;
+    }
+    SecurityMaster securityMaster = data().getSecurityMaster();
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addExternalId(underlyingIdentifier);
+    SecuritySearchResult search = securityMaster.search(request);
+    return search.getFirstSecurity();
+  }
+
   private Map<String, Double> getBondFutureBasket(ManageableSecurity security) {
     Map<String, Double> result = Maps.newHashMap();
     if (security instanceof BondFutureSecurity) {

@@ -18,8 +18,10 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.IdUtils;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -49,7 +51,16 @@ public class MockSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   @Override
   public Security getSecurity(UniqueId identifier) {
-    return identifier == null ? null : _securities.get(identifier);
+    ArgumentChecker.notNull(identifier, "identifier");
+    return _securities.get(identifier);
+  }
+  
+  @Override
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // Mock source doesn't support versioning
+    return getSecurity(objectId.atLatestVersion());
   }
 
   @Override
@@ -63,6 +74,14 @@ public class MockSecuritySource implements SecuritySource {
     }
     return result;
   }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // Mock source doesn't support versioning
+    return getSecurities(bundle);
+  }
 
   @Override
   public Security getSecurity(ExternalIdBundle bundle) {
@@ -75,6 +94,14 @@ public class MockSecuritySource implements SecuritySource {
       }
     }
     return null;
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // Mock source doesn't support versioning
+    return getSecurity(bundle);
   }
   
   //-------------------------------------------------------------------------

@@ -205,6 +205,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(currency, labelledMatrix, curveName);
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties resultProperties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, _curveCalculationType)
         .with(ValuePropertyNames.CURVE, curveName)

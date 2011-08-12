@@ -47,8 +47,6 @@ public interface ConventionBundleMaster {
       DayCount basisSwapReceiveFloatingLegDayCount, BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, Frequency basisSwapReceiveFloatingLegFrequency,
       Integer basisSwapReceiveFloatingLegSettlementDays, ExternalId basisSwapReceiveFloatingLegInitialRate, ExternalId basisSwapReceiveFloatingLegRegion);
 
-  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, String capmRiskFreeRateName, String capmMarketName);
-
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays,
       boolean rollToSettlement);
 
@@ -56,4 +54,6 @@ public interface ConventionBundleMaster {
       BusinessDayConvention businessDayConvention, YieldConvention yieldConvention);
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, boolean isCashSettled);
+
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, ExternalIdBundle capmRiskFreeRate, ExternalIdBundle capmMarket);
 }
