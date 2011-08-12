@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.calcnode.stats;
+package com.opengamma.masterdb.engine.stats;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,6 +19,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
+import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;

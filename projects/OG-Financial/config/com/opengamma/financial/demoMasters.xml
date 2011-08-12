@@ -153,7 +153,7 @@
   </bean>
 
   <!-- FunctionCostsMaster --> 
-  <bean id="dbFunctionCostsMaster" class="com.opengamma.engine.view.calcnode.stats.DbFunctionCostsMaster">
+  <bean id="dbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
     <constructor-arg ref="finDbSource" />
   </bean>
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.calcnode.stats;
+package com.opengamma.masterdb.engine.stats;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view.calcnode.stats;
+package com.opengamma.masterdb.engine.stats;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -18,6 +18,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
 import com.opengamma.util.test.DBTest;
 
 /**
