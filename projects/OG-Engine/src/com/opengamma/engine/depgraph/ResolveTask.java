@@ -273,7 +273,9 @@ import com.opengamma.engine.value.ValueSpecification;
         }
       }
     } else {
-      s_logger.debug("Leave finished {} in the cache", this);
+      if (count == 0) {
+        s_logger.debug("Leave finished {} in the cache", this);
+      }
     }
     return count;
   }

@@ -123,38 +123,38 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor {
   }
 
   @Override
-  protected void visitCouldNotResolve(final ValueRequirement valueRequirement) {
+  protected synchronized void visitCouldNotResolve(final ValueRequirement valueRequirement) {
     println("Could not resolve " + toString(valueRequirement));
   }
 
   @Override
-  protected void visitNoFunctions(final ValueRequirement valueRequirement) {
+  protected synchronized void visitNoFunctions(final ValueRequirement valueRequirement) {
     println("No functions available for " + toString(valueRequirement));
   }
 
   @Override
-  protected void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
+  protected synchronized void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
     println("Recursive requirement on " + toString(valueRequirement) + " for function(s) producing it");
   }
 
   @Override
-  protected void visitUnsatisfied(final ValueRequirement valueRequirement) {
+  protected synchronized void visitUnsatisfied(final ValueRequirement valueRequirement) {
     println("Unsatisfied requirement " + toString(valueRequirement));
   }
 
   @Override
-  protected void visitResolvedValue(final ValueRequirement valueRequirement, final ResolvedValue value) {
+  protected synchronized void visitResolvedValue(final ValueRequirement valueRequirement, final ResolvedValue value) {
     println("Resolved " + toString(valueRequirement) + " to " + toString(value));
   }
 
   @Override
-  protected void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
     println("Applied " + toString(function) + " for " + toString(valueRequirement));
   }
 
   @Override
-  protected void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
     println("Couldn't satisfy " + toString(unsatisfied) + " to produce " + toString(desiredOutput));
     println("Caused by:");
@@ -164,23 +164,23 @@ public class ResolutionFailurePrinter extends ResolutionFailureVisitor {
   }
 
   @Override
-  protected void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     println("getAdditionalRequirements method failed on " + toString(function) + " with inputs " + toString(requirements));
   }
 
   @Override
-  protected void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected synchronized void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
     println("getResults method failed on " + toString(function));
   }
 
   @Override
-  protected void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected synchronized void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
     println("getRequirements method failed on " + toString(function) + " for " + toString(desiredOutput));
   }
 
   @Override
-  protected void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     println("Provisional result " + toString(desiredOutput) + " not in function output after late resolution");
   }

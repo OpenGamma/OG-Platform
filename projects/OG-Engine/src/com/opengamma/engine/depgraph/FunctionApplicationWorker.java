@@ -250,9 +250,12 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     if (resolvedValues != null) {
       boolean inputsAccepted = state.inputsAvailable(context, resolvedValues);
-      if (_deferredPump) {
-        inputsAccepted = false;
-        _deferredPump = false;
+      synchronized (this) {
+        _invokingFunction = false;
+        if (_deferredPump) {
+          inputsAccepted = false;
+          _deferredPump = false;
+        }
       }
       if (!inputsAccepted) {
         pumpImpl(context);

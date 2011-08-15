@@ -35,6 +35,8 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.fudgemsg.DependencyGraphBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolverPLAT1049;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -60,7 +62,7 @@ public final class DependencyGraphBuilderPLAT1049 {
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
   private static final AtomicInteger s_nextDebugId = new AtomicInteger();
 
-  private static final boolean NO_BACKGROUND_THREADS = true; // DON'T CHECK IN WITH =true
+  private static final boolean NO_BACKGROUND_THREADS = false; // DON'T CHECK IN WITH =true
   private static final int MAX_ADDITIONAL_THREADS = -1; // DON'T CHECK IN WITH !=-1
   private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = false; // DON'T CHECK IN WITH =true
   private static final boolean DEBUG_DUMP_FAILURE_INFO = false; // DON'T CHECK IN WITH =true
@@ -605,6 +607,11 @@ public final class DependencyGraphBuilderPLAT1049 {
    * @param functionResolver the functionResolver to set
    */
   public void setFunctionResolver(CompiledFunctionResolver functionResolver) {
+    // PLAT-1049
+    if (functionResolver instanceof DefaultCompiledFunctionResolver) {
+      final DefaultCompiledFunctionResolver fr = (DefaultCompiledFunctionResolver) functionResolver;
+      functionResolver = new DefaultCompiledFunctionResolverPLAT1049(getCompilationContext(), fr.getAllResolutionRules());
+    }
     getContext().setFunctionResolver(functionResolver);
   }
 
