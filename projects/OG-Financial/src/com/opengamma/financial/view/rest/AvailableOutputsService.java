@@ -6,7 +6,6 @@
 package com.opengamma.financial.view.rest;
 
 import javax.time.Instant;
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -66,13 +65,11 @@ public class AvailableOutputsService {
     return PortfolioCompiler.resolvePortfolio(rawPortfolio, getCompiledFunctions().getExecutorService(), getSecuritySource());
   }
 
-  @GET
   @Path("now")
   public AvailableOutputsResource now() {
     return new AvailableOutputsResource(this, getCompiledFunctions().compileFunctionRepository(Instant.now()));
   }
 
-  @GET
   @Path("{timestamp}")
   public AvailableOutputsResource timestamp(@PathParam("timestamp") long timestamp) {
     return new AvailableOutputsResource(this, getCompiledFunctions().compileFunctionRepository(timestamp));

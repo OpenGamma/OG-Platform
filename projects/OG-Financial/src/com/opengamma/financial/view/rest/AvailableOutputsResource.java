@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.view.rest;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
@@ -41,7 +40,6 @@ public class AvailableOutputsResource {
     return _compiledFunctions;
   }
 
-  @GET
   @Path("{portfolio}")
   public FudgeFieldContainerBrowser portfolioOutputs(@PathParam("portfolio") String portfolioUid) {
     final FudgeSerializer fudgeContext = new FudgeSerializer(getService().getFudgeContext());
