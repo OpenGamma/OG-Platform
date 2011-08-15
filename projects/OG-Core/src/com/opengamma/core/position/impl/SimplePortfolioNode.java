@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A simple mutable implementation of {@code PortfolioNode}.
  */
-public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiable, Serializable {
+public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -58,7 +58,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   /**
    * Creates a portfolio node with an empty name.
    */
-  public PortfolioNodeImpl() {
+  public SimplePortfolioNode() {
     _name = "";
   }
 
@@ -67,7 +67,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * 
    * @param name  the name of the portfolio node, null treated as empty
    */
-  public PortfolioNodeImpl(String name) {
+  public SimplePortfolioNode(String name) {
     _name = StringUtils.defaultString(name);
   }
 
@@ -77,7 +77,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * @param uniqueId  the unique identifier, not null
    * @param name  the name to use, null treated as empty
    */
-  public PortfolioNodeImpl(UniqueId uniqueId, String name) {
+  public SimplePortfolioNode(UniqueId uniqueId, String name) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;
     _name = StringUtils.defaultString(name);
@@ -88,17 +88,17 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
    * 
    * @param copyFrom  the instance to copy fields from, not null
    */
-  public PortfolioNodeImpl(final PortfolioNode copyFrom) {
+  public SimplePortfolioNode(final PortfolioNode copyFrom) {
     ArgumentChecker.notNull(copyFrom, "copyFrom");
     _uniqueId = copyFrom.getUniqueId();
     _name = copyFrom.getName();
     for (PortfolioNode child : copyFrom.getChildNodes()) {
-      PortfolioNodeImpl clonedNode = new PortfolioNodeImpl(child);
+      SimplePortfolioNode clonedNode = new SimplePortfolioNode(child);
       clonedNode.setParentNodeId(_uniqueId);
       _childNodes.add(clonedNode);
     }
     for (Position position : copyFrom.getPositions()) {
-      PositionImpl clonedPosition = new PositionImpl(position);
+      SimplePosition clonedPosition = new SimplePosition(position);
       clonedPosition.setParentNodeId(_uniqueId);
       _positions.add(clonedPosition);
     }
@@ -201,7 +201,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   public void addChildNode(PortfolioNode childNode) {
     ArgumentChecker.notNull(childNode, "child node");
     if (!ObjectUtils.equals(getUniqueId(), childNode.getParentNodeId())) {
-      final PortfolioNodeImpl newChildNode = new PortfolioNodeImpl(childNode);
+      final SimplePortfolioNode newChildNode = new SimplePortfolioNode(childNode);
       newChildNode.setParentNodeId(getUniqueId());
       childNode = newChildNode;
     }
@@ -253,7 +253,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   public void addPosition(Position position) {
     ArgumentChecker.notNull(position, "child node");
     if (!ObjectUtils.equals(getUniqueId(), position.getParentNodeId())) {
-      final PositionImpl newPosition = new PositionImpl(position);
+      final SimplePosition newPosition = new SimplePosition(position);
       newPosition.setParentNodeId(getUniqueId());
       position = newPosition;
     }
@@ -359,8 +359,8 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     childBuf.append("[");
     for (int i = 0; i < getChildNodes().size(); i++) {
       PortfolioNode child = getChildNodes().get(i);
-      if (child instanceof PortfolioNodeImpl) {
-        childBuf.append(((PortfolioNodeImpl) child).toLongString());
+      if (child instanceof SimplePortfolioNode) {
+        childBuf.append(((SimplePortfolioNode) child).toLongString());
       } else {
         childBuf.append(child.toString());
       }
@@ -385,8 +385,8 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     if (obj == this) {
       return true;
     }
-    if (obj instanceof PortfolioNodeImpl) {
-      final PortfolioNodeImpl other = (PortfolioNodeImpl) obj;
+    if (obj instanceof SimplePortfolioNode) {
+      final SimplePortfolioNode other = (SimplePortfolioNode) obj;
       final List<PortfolioNode> otherChildNodes = other.getChildNodes();
       final List<Position> otherPositions = other.getPositions();
       return ObjectUtils.equals(getUniqueId(), other.getUniqueId()) &&

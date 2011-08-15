@@ -8,18 +8,21 @@ package com.opengamma.core.historicaltimeseries.impl;
 import java.io.Serializable;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * A simple implementation of {@code HistoricalTimeSeries}.
+ * Simple immutable implementation of {@code HistoricalTimeSeries}.
  * <p>
- * This class holds data in an immutable manner, however the time-series itself
- * is mutable, thus this class is not itself immutable unless used as such.
+ * This is the an immutable implementation of the {@link HistoricalTimeSeries} interface.
+ * <p>
+ * This class is immutable and thread-safe providing the time-series is immutable.
+ * It is intended to be used in the engine via the read-only {@code HistoricalTimeSeries} interface.
  */
-public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, UniqueIdentifiable, Serializable {
+public final class SimpleHistoricalTimeSeries
+    implements HistoricalTimeSeries, UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -39,7 +42,7 @@ public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, Uni
    * @param uniqueId  the unique identifier, not null
    * @param timeSeries  the time-series, not null
    */
-  public HistoricalTimeSeriesImpl(UniqueId uniqueId, LocalDateDoubleTimeSeries timeSeries) {
+  public SimpleHistoricalTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeSeries) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     _uniqueId = uniqueId;
@@ -74,8 +77,8 @@ public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, Uni
    * @param timeSeries  the new time-series data points, not null
    * @return a time-series based on this one with different data points, not null
    */
-  public HistoricalTimeSeriesImpl withTimeSeries(LocalDateDoubleTimeSeries timeSeries) {
-    return new HistoricalTimeSeriesImpl(getUniqueId(), timeSeries);
+  public SimpleHistoricalTimeSeries withTimeSeries(LocalDateDoubleTimeSeries timeSeries) {
+    return new SimpleHistoricalTimeSeries(getUniqueId(), timeSeries);
   }
 
   //-------------------------------------------------------------------------
@@ -84,8 +87,8 @@ public final class HistoricalTimeSeriesImpl implements HistoricalTimeSeries, Uni
     if (this == obj) {
       return true;
     }
-    if (obj instanceof HistoricalTimeSeriesImpl) {
-      HistoricalTimeSeriesImpl other = (HistoricalTimeSeriesImpl) obj;
+    if (obj instanceof SimpleHistoricalTimeSeries) {
+      SimpleHistoricalTimeSeries other = (SimpleHistoricalTimeSeries) obj;
       return getUniqueId().equals(other.getUniqueId()) &&
               getTimeSeries().equals(other.getTimeSeries());
     }

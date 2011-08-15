@@ -96,10 +96,10 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
    */
   public D getDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    final VersionCorrection vc = getVersionCorrection();  // lock against change
+    final VersionCorrection vc = getVersionCorrection(); // lock against change
     try {
       if (vc != null) {
-        return getMaster().get(uniqueId, vc);
+        return getMaster().get(uniqueId.getObjectId(), vc);
       } else {
         return getMaster().get(uniqueId);
       }
@@ -107,14 +107,14 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
       return null;
     }
   }
-  
+
   /**
    * Gets a document from the master by object identifier and version-correction.
    * <p>
    * The specified version-correction may be overridden if set to do so.
    * 
    * @param objectId  the object identifier, not null
-   * @param versionCorrection  the version-correction, null for the latest
+   * @param versionCorrection  the version-correction, not null
    * @return the document, null if not found
    */
   public D getDocument(ObjectId objectId, VersionCorrection versionCorrection) {
@@ -123,7 +123,7 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
     VersionCorrection overrideVersionCorrection = getVersionCorrection();
     try {
       return getMaster().get(objectId, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
-    } catch (DataNotFoundException e) {
+    } catch (DataNotFoundException ex) {
       return null;
     }
   }

@@ -5,13 +5,15 @@
  */
 package com.opengamma.core.exchange;
 
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Utilities and constants for exchanges.
+ * Utilities and constants for {@code Exchange}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 @PublicAPI
 public class ExchangeUtils {
