@@ -154,12 +154,12 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  protected boolean finished(final GraphBuildingContext context) {
+  protected void finished(final GraphBuildingContext context) {
     assert _state != null;
     _state = null;
     // Decrease the ref-count as the state no longer holds a reference to us
     release(context);
-    return super.finished(context);
+    super.finished(context);
   }
 
   protected void setComputationTarget(final ComputationTarget target) {
@@ -273,7 +273,9 @@ import com.opengamma.engine.value.ValueSpecification;
         }
       }
     } else {
-      s_logger.debug("Leave finished {} in the cache", this);
+      if (count == 0) {
+        s_logger.debug("Leave finished {} in the cache", this);
+      }
     }
     return count;
   }

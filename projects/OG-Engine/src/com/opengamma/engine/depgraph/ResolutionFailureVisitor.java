@@ -30,32 +30,32 @@ public abstract class ResolutionFailureVisitor {
   public static final ResolutionFailureVisitor DEFAULT_INSTANCE = new ResolutionFailureVisitor() {
   };
 
-  protected void visitCouldNotResolve(final ValueRequirement valueRequirement) {
+  protected synchronized void visitCouldNotResolve(final ValueRequirement valueRequirement) {
     s_logger.info("Could not resolve {}", valueRequirement);
   }
 
-  protected void visitNoFunctions(final ValueRequirement valueRequirement) {
+  protected synchronized void visitNoFunctions(final ValueRequirement valueRequirement) {
     s_logger.info("No functions available for {}", valueRequirement);
   }
 
-  protected void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
+  protected synchronized void visitRecursiveRequirement(final ValueRequirement valueRequirement) {
     s_logger.info("Recursive requirement on {} for function(s) producing it", valueRequirement);
   }
 
-  protected void visitUnsatisfied(final ValueRequirement valueRequirement) {
+  protected synchronized void visitUnsatisfied(final ValueRequirement valueRequirement) {
     s_logger.info("Unsatisfied requirement {}", valueRequirement);
   }
 
-  protected void visitResolvedValue(final ValueRequirement valueRequirement, final ResolvedValue value) {
+  protected synchronized void visitResolvedValue(final ValueRequirement valueRequirement, final ResolvedValue value) {
     s_logger.info("Resolved {} to {}", valueRequirement, value);
   }
 
-  protected void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
     s_logger.info("Applied {} for {}", function, valueRequirement);
   }
 
-  protected void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
     s_logger.info("Couldn't satisfy {} to produce {}", unsatisfied, desiredOutput);
     s_logger.info("Caused by:");
@@ -64,7 +64,7 @@ public abstract class ResolutionFailureVisitor {
     }
   }
 
-  protected void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
     if (unsatisfied.isEmpty()) {
       visitFailedFunction(valueRequirement, function, desiredOutput, satisfied, unsatisfiedAdditional);
@@ -77,7 +77,7 @@ public abstract class ResolutionFailureVisitor {
     }
   }
 
-  protected void visitFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
     if (unsatisfied.isEmpty() && unsatisfiedAdditional.isEmpty()) {
       visitSuccessfulFunction(valueRequirement, function, desiredOutput, satisfied);
@@ -86,20 +86,20 @@ public abstract class ResolutionFailureVisitor {
     }
   }
 
-  protected void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     s_logger.info("getAdditionalRequirements method failed on {} with inputs {}", function, requirements);
   }
 
-  protected void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected synchronized void visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
     s_logger.info("getResults method failed on {}", function);
   }
 
-  protected void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected synchronized void visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
     s_logger.info("getRequirements method failed on {} for {}", function, desiredOutput);
   }
 
-  protected void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected synchronized void visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     s_logger.info("Provisional result {} not in function output after late resolution", desiredOutput);
   }

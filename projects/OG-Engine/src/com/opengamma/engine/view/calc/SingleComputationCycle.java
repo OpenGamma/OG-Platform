@@ -40,6 +40,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
@@ -291,11 +292,37 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _state = ViewCycleState.EXECUTED;
   }
  
-  //-------------------------------------------------------------------------
+  // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
+  // Map contains computation cache and NULL for no shift or the number to multiple the raw amount by
+  private Map<ViewComputationCache, Double> getCacheMarketDataInfo() {
+    final Map<ViewComputationCache, Double> shifts = new HashMap<ViewComputationCache, Double>();
+    for (ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
+      Double shift = null;
+      final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues("MARKET_DATA_SHIFT");
+      if (marketDataShift != null) {
+        if (marketDataShift.size() != 1) {
+          // This doesn't really mean much
+          s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
+        } else {
+          final String shiftString = marketDataShift.iterator().next();
+          try {
+            shift = Double.parseDouble(shiftString);
+          } catch (NumberFormatException e) {
+            s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), shiftString);
+          }
+        }
+      }
+      shifts.put(getComputationCache(calcConfig.getName()), shift);
+    }
+    return shifts;
+  }
+
   private void prepareInputs(MarketDataSnapshot snapshot) {
     Set<ValueSpecification> missingMarketData = new HashSet<ValueSpecification>();
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = getCompiledViewDefinition().getMarketDataRequirements();
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
+    // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
+    Map<ViewComputationCache, Double> cacheMarketDataInfo = getCacheMarketDataInfo();
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
@@ -313,9 +340,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
         getResultModel().addMarketData(dataAsValue);
       }
-      addToAllCaches(dataAsValue);
+      addToAllCaches(dataAsValue, cacheMarketDataInfo);
     }
-    
     if (!missingMarketData.isEmpty()) {
       s_logger.warn("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
     }
@@ -348,9 +374,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   /**
    * @param dataAsValue
    */
-  private void addToAllCaches(ComputedValue dataAsValue) {
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      getComputationCache(calcConfigurationName).putSharedValue(dataAsValue);
+  private void addToAllCaches(final ComputedValue dataAsValue, final Map<ViewComputationCache, Double> cacheMarketDataInfo) {
+    for (Map.Entry<ViewComputationCache, Double> cacheMarketData : cacheMarketDataInfo.entrySet()) {
+      final ViewComputationCache cache = cacheMarketData.getKey();
+      final ComputedValue cacheValue;
+      if (cacheMarketData.getValue() == null) {
+        cacheValue = dataAsValue;
+      } else {
+        if (dataAsValue.getValue() instanceof Double) {
+          final Double value = (Double) dataAsValue.getValue();
+          cacheValue = new ComputedValue(dataAsValue.getSpecification(), value * cacheMarketData.getValue());
+        } else {
+          s_logger.warn("Can't shift market data {} - not a double", dataAsValue);
+          cacheValue = dataAsValue;
+        }
+      }
+      cache.putSharedValue(cacheValue);
     }
   }
   
