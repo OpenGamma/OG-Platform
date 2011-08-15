@@ -19,9 +19,9 @@ import java.util.concurrent.Executors;
 import javax.time.Instant;
 
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -53,10 +53,10 @@ public class ViewDefinitionCompilerTest {
 
   public void testEmptyView() {
     ExternalId secIdentifier = ExternalId.of("SEC", "1");
-    PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
-    PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
+    SimplePosition pos = new SimplePosition(new BigDecimal(1), secIdentifier);
+    SimplePortfolioNode pn = new SimplePortfolioNode("node");
     pn.addPosition(pos);
-    PortfolioImpl p = new PortfolioImpl(UniqueId.of("FOO", "BAR"), "portfolio");
+    SimplePortfolio p = new SimplePortfolio(UniqueId.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
 
     MockPositionSource positionSource = new MockPositionSource();
@@ -93,10 +93,10 @@ public class ViewDefinitionCompilerTest {
 
   public void testSingleValueNoLiveData() {
     ExternalId secIdentifier = ExternalId.of("SEC", "1");
-    PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
-    PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
+    SimplePosition pos = new SimplePosition(new BigDecimal(1), secIdentifier);
+    SimplePortfolioNode pn = new SimplePortfolioNode("node");
     pn.addPosition(pos);
-    PortfolioImpl p = new PortfolioImpl(UniqueId.of("FOO", "BAR"), "portfolio");
+    SimplePortfolio p = new SimplePortfolio(UniqueId.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
 
     MockPositionSource positionSource = new MockPositionSource();
@@ -149,10 +149,10 @@ public class ViewDefinitionCompilerTest {
   public void testSingleValueExternalDependency() {
     ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
     ExternalId secIdentifier2 = ExternalId.of("SEC", "2");
-    PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier1);
-    PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
+    SimplePosition pos = new SimplePosition(new BigDecimal(1), secIdentifier1);
+    SimplePortfolioNode pn = new SimplePortfolioNode("node");
     pn.addPosition(pos);
-    PortfolioImpl p = new PortfolioImpl(UniqueId.of("FOO", "BAR"), "portfolio");
+    SimplePortfolio p = new SimplePortfolio(UniqueId.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
 
     MockPositionSource positionSource = new MockPositionSource();

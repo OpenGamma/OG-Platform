@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.region;
 
-import com.opengamma.util.PublicSPI;
+import com.opengamma.util.PublicAPI;
 
 /**
  * The classification of a region.
@@ -14,7 +14,7 @@ import com.opengamma.util.PublicSPI;
  * The naming and classification of regions is the source of many political and diplomatic disagreements.
  * The comments used here are indicative of the data stored in the underlying data source.
  */
-@PublicSPI
+@PublicAPI
 public enum RegionClassification {
 
   /**

@@ -6,15 +6,19 @@
 package com.opengamma.master.config.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.time.Instant;
 
+import com.google.common.collect.Maps;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -32,7 +36,7 @@ public class MockConfigSource extends MasterConfigSource {
   /**
    * The configuration documents keyed by identifier.
    */
-  private final Map<UniqueId, ConfigDocument<?>> _configs = new HashMap<UniqueId, ConfigDocument<?>>();
+  private final Map<ObjectId, ConfigDocument<?>> _configs = Maps.newHashMap();
   /**
    * The next index for the identifier.
    */
@@ -63,9 +67,21 @@ public class MockConfigSource extends MasterConfigSource {
   }
 
   @Override
-  public <T> T get(Class<T> clazz, UniqueId uniqueId) {
+  public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
     ConfigDocument<T> doc = getDocument(clazz, uniqueId);
     return (doc != null ? doc.getValue() : null);
+  }
+
+  @Override
+  public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    ConfigDocument<T> doc = getDocument(clazz, objectId, versionCorrection);
+    return (doc != null ? doc.getValue() : null);
+  }
+
+  @Override
+  public <T> Collection<? extends T> getConfigs(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
+    ConfigDocument<T> doc = getDocumentByName(clazz, configName, null);
+    return (doc != null ? Collections.<T>singleton(doc.getValue()) : Collections.<T>emptySet());
   }
 
   @Override
@@ -84,7 +100,20 @@ public class MockConfigSource extends MasterConfigSource {
   public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uniqueId);
+    ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uniqueId.getObjectId());
+    if (clazz.isInstance(config.getValue())) {
+      return config;
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> getDocument(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(objectId);
     if (clazz.isInstance(config.getValue())) {
       return config;
     }
@@ -108,11 +137,14 @@ public class MockConfigSource extends MasterConfigSource {
   //-------------------------------------------------------------------------
   /**
    * Adds a config document to the master.
+   * 
    * @param configDoc  the config document to add, not null
    */
   public void add(ConfigDocument<?> configDoc) {
     ArgumentChecker.notNull(configDoc, "doc");
-    _configs.put(_uniqueIdSupplier.get(), configDoc);
+    UniqueId uniqueId = _uniqueIdSupplier.get();
+    configDoc.setUniqueId(uniqueId);
+    _configs.put(uniqueId.getObjectId(), configDoc);
   }
 
 }

@@ -13,12 +13,14 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
  * A key used to identify a volatility surface.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable<VolatilitySurfaceKey>, Serializable {
 
@@ -37,11 +39,13 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * The instrument type.
    */
   private final String _instrumentType;
-  
+
   /**
-   * @param target the target
-   * @param name the name
-   * @param instrumentType the instrument type
+   * Creates an instance.
+   * 
+   * @param target  the target
+   * @param name  the name
+   * @param instrumentType  the instrument type
    */
   public VolatilitySurfaceKey(UniqueIdentifiable target, String name, String instrumentType) {
     super();
@@ -49,20 +53,26 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     _name = name;
     _instrumentType = instrumentType;
   }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the target field.
+   * 
    * @return the target
    */
   public UniqueId getTarget() {
     return _target;
   }
+
   /**
    * Gets the name field.
+   * 
    * @return the name
    */
   public String getName() {
     return _name;
   }
+
   /**
    * Gets the instrumentType field.
    * @return the instrumentType
@@ -70,7 +80,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   public String getInstrumentType() {
     return _instrumentType;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Compares this key to another, by currency then name.
@@ -88,7 +98,6 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     if (nameCompare != 0) {
       return nameCompare;
     }
-
     return _instrumentType.compareTo(other._instrumentType);
   }
 

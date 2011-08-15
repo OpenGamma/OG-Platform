@@ -21,7 +21,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.test.MockSecurity;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -36,8 +36,8 @@ public class EHCachingFinancialSecuritySourceTest {
   private EHCachingFinancialSecuritySource _cachingSecuritySource = null;
   private ExternalId _secId1 = ExternalId.of("d1", "v1");
   private ExternalId _secId2 = ExternalId.of("d1", "v2");
-  private MockSecurity _security1 = new MockSecurity("");
-  private MockSecurity _security2 = new MockSecurity("");
+  private SimpleSecurity _security1 = new SimpleSecurity("");
+  private SimpleSecurity _security2 = new SimpleSecurity("");
 
   @BeforeMethod
   public void setUp() throws Exception {    

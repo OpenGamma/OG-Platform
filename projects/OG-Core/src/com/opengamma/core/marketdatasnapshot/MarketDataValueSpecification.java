@@ -12,9 +12,12 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An immutable specification of an individual piece of unstructured market data.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class MarketDataValueSpecification {
   //TODO This is a whole lot like LiveDataSpecification, but decoupled.  We may want to unify them
@@ -31,11 +34,12 @@ public class MarketDataValueSpecification {
   /**
    * Creates an instance for a type of market data and a unique identifier.
    * 
-   * @param type  the type of market data this refers to 
-   * @param uniqueId  the unique identifier of the data this refers to
+   * @param type  the type of market data this refers to, not null
+   * @param uniqueId  the unique identifier of the data this refers to, not null
    */
   public MarketDataValueSpecification(MarketDataValueType type, UniqueId uniqueId) {
-    super();
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     _type = type;
     _uniqueId = uniqueId;
   }
@@ -100,9 +104,9 @@ public class MarketDataValueSpecification {
   }
 
   public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return new MarketDataValueSpecification(
-        deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type")), deserializer.fieldValueToObject(
-            UniqueId.class, msg.getByName("uniqueId")));
+    MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
+    UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, msg.getByName("uniqueId"));
+    return new MarketDataValueSpecification(type, uniqueId);
   }
 
 }
