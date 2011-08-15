@@ -74,10 +74,10 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
           tradeDate, true, tradeDate, false);
       
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security + " for " + _markDataField + " using " + _resolutionKey);
+        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey);
       }
       if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
-        throw new NullPointerException("Could not get mark to market value for security " + security + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
+        throw new NullPointerException("Could not get mark to market value for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
       }
       
       final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
