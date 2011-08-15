@@ -33,7 +33,9 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MockConfigSource;
 import com.opengamma.util.money.Currency;
@@ -158,6 +160,14 @@ public class BatchJobTest {
   public void dateRangeCommandLineHolidayMaster() throws Exception {
     HolidaySource holidaySource = new HolidaySource() {
       @Override
+      public Holiday getHoliday(UniqueId uniqueId) {
+        throw new UnsupportedOperationException();
+      }
+      @Override
+      public Holiday getHoliday(ObjectId objectId, VersionCorrection versionCorrection) {
+        throw new UnsupportedOperationException();
+      }
+      @Override
       public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
@@ -168,10 +178,6 @@ public class BatchJobTest {
       @Override
       public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
-      }
-      @Override
-      public Holiday getHoliday(UniqueId uid) {
-        throw new UnsupportedOperationException();
       }
     };
     

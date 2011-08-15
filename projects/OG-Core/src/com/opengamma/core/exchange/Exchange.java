@@ -8,8 +8,8 @@ package com.opengamma.core.exchange;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -17,33 +17,35 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * Financial products are often traded at a specific location known as an exchange.
  * This interface represents details of the exchange.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface Exchange extends UniqueIdentifiable {
 
   /**
-   * The unique identifier of the exchange.
+   * Gets the unique identifier of the exchange.
+   * <p>
+   * This specifies a single version-correction of the exchange.
    * 
-   * @return the unique identifier for this exchange entry, not null
+   * @return the unique identifier for this exchange, not null
    */
   UniqueId getUniqueId();
 
   /**
-   * Gets the bundle of identifiers that define the exchange.
+   * Gets the external identifier bundle defining the exchange.
+   * <p>
+   * Each external system has one or more identifiers by which they refer to the exchange.
+   * Some of these may be unique within that system, while others may be more descriptive.
+   * This bundle stores the set of these external identifiers.
    * 
-   * @return the bundle of identifiers, not null
+   * @return the bundle, null if not applicable
    */
   ExternalIdBundle getExternalIdBundle();
 
   /**
-   * Gets the name of the exchange intended for display purposes.
-   * 
-   * @return the name of the exchange, not null
-   */
-  String getName();
-
-  /**
-   * Gets the region key identifier bundle that defines where the exchange is located.
+   * Gets the region external identifier bundle that defines where the exchange is located.
    * 
    * @return the region key identifier bundle of the exchange, null if no location
    */
@@ -55,5 +57,12 @@ public interface Exchange extends UniqueIdentifiable {
    * @return the time-zone of the exchange, null if time-zone unknown
    */
   TimeZone getTimeZone();
+
+  /**
+   * Gets the name of the exchange intended for display purposes.
+   * 
+   * @return the name of the exchange, not null
+   */
+  String getName();
 
 }

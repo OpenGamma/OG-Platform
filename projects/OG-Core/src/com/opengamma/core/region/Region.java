@@ -68,20 +68,6 @@ public interface Region extends UniqueIdentifiable {
   Set<UniqueId> getParentRegionIds();
 
   /**
-   * Gets the short descriptive name of the region.
-   * 
-   * @return the name of the region, not null
-   */
-  String getName();
-
-  /**
-   * Gets the full descriptive name of the region.
-   * 
-   * @return the full name of the region, not null
-   */
-  String getFullName();
-
-  /**
    * Gets the country.
    * 
    * @return the country, null if not applicable
@@ -103,6 +89,20 @@ public interface Region extends UniqueIdentifiable {
    * @return the time-zone, null if not applicable
    */
   TimeZone getTimeZone();
+
+  /**
+   * Gets the short descriptive name of the region.
+   * 
+   * @return the name of the region, not null
+   */
+  String getName();
+
+  /**
+   * Gets the full descriptive name of the region.
+   * 
+   * @return the full name of the region, not null
+   */
+  String getFullName();
 
   /**
    * Gets the extensible data store for additional information.

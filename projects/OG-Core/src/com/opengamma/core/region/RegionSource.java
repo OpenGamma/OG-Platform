@@ -76,6 +76,7 @@ public interface RegionSource {
    * 
    * @param regionId  the region identifier to find, not null
    * @return the region, null if not found
+   * @throws RuntimeException if an error occurs
    */
   Region getHighestLevelRegion(ExternalId regionId);
 
@@ -86,6 +87,7 @@ public interface RegionSource {
    * 
    * @param bundle  the bundle of region identifiers to find, not null
    * @return the region, null if not found
+   * @throws RuntimeException if an error occurs
    */
   Region getHighestLevelRegion(ExternalIdBundle bundle);
 
