@@ -33,18 +33,16 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicSPI;
 
 /**
  * A flexible link between an object and a security.
  * <p>
- * The security link represents a connection from an entity to a security.
+ * A security link represents a connection from an entity to a security.
  * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
- * The link also holds a resolved reference to the security itself.
  * <p>
  * This class is mutable and not thread-safe.
+ * It is intended to be used in the engine via the read-only {@code SecurityLink} interface.
  */
-@PublicSPI
 @BeanDefinition
 public class SimpleSecurityLink extends DirectBean implements SecurityLink {
 

@@ -29,7 +29,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.security.test.MockSecurity;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
@@ -394,7 +394,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   public void getComputationTarget() {
     UniqueId uniqueId = UniqueId.of("foo", "bar", "1");
     
-    MockSecurity mockSecurity = new MockSecurity("option");
+    SimpleSecurity mockSecurity = new SimpleSecurity("option");
     mockSecurity.setUniqueId(uniqueId);
     mockSecurity.setName("myOption");
     
@@ -413,7 +413,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   public void updateComputationTarget() {
     UniqueId uniqueId = UniqueId.of("foo", "bar");
     
-    MockSecurity mockSecurity = new MockSecurity("option");
+    SimpleSecurity mockSecurity = new SimpleSecurity("option");
     mockSecurity.setUniqueId(uniqueId);
     mockSecurity.setName("myOption");
     

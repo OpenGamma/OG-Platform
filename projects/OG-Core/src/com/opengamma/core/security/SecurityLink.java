@@ -17,7 +17,8 @@ import com.opengamma.util.PublicAPI;
  * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
  * The link also holds a resolved reference to the security itself.
  * <p>
- * This class is mutable and not thread-safe.
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicAPI
 public interface SecurityLink extends Link<Security> {

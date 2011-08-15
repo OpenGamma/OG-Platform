@@ -22,8 +22,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
-import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -81,8 +81,8 @@ public class TradeImplTest {
 
   public void test_construction_UniqueId_Security_BigDecimal_Counterparty_Instant() {
     ExternalIdBundle securityKey = ExternalIdBundle.of(ExternalId.of("A", "B"));
-    MockSecurity security = new MockSecurity("A");
-    security.setExternalIdBundle(securityKey);
+    SimpleSecurity security = new SimpleSecurity("A");
+    security.setIdentifiers(securityKey);
     
     TradeImpl test = new TradeImpl(POSITION_UID, security, BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
     assertNull(test.getUniqueId());

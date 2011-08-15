@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Utility class providing tools for {@code Security}.
+ * Utilities and constants for {@code Security}.
  * <p>
  * This is a thread-safe static utility class.
  */
@@ -27,7 +27,7 @@ import com.opengamma.util.PublicAPI;
 public class SecurityUtils {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class); 
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class);
 
   /**
    * Identification scheme for the ISIN code.
@@ -99,9 +99,9 @@ public class SecurityUtils {
     if (code.length() == 0) {
       throw new IllegalArgumentException("ISIN code is invalid: " + code);
     }
-//    if (code.matches("[A-Z]{2}[A-Z0-9]{9}[0-9]") == false) {
-//      throw new IllegalArgumentException("ISIN code is invalid: " + code);
-//    }
+    //    if (code.matches("[A-Z]{2}[A-Z0-9]{9}[0-9]") == false) {
+    //      throw new IllegalArgumentException("ISIN code is invalid: " + code);
+    //    }
     return ExternalId.of(ISIN, code);
   }
 
@@ -120,9 +120,9 @@ public class SecurityUtils {
     if (code.length() == 0) {
       throw new IllegalArgumentException("CUSIP code is invalid: " + code);
     }
-//    if (code.matches("[A-Z0-9]{8}[0-9]?") == false) {
-//      throw new IllegalArgumentException("CUSIP code is invalid: " + code);
-//    }
+    //    if (code.matches("[A-Z0-9]{8}[0-9]?") == false) {
+    //      throw new IllegalArgumentException("CUSIP code is invalid: " + code);
+    //    }
     return ExternalId.of(CUSIP, code);
   }
 
@@ -141,9 +141,9 @@ public class SecurityUtils {
     if (code.length() == 0) {
       throw new IllegalArgumentException("SEDOL1 code is invalid: " + code);
     }
-//    if (code.matches("[A-Z0-9]{6}[0-9]?") == false) {
-//      throw new IllegalArgumentException("SEDOL1 code is invalid: " + code);
-//    }
+    //    if (code.matches("[A-Z0-9]{6}[0-9]?") == false) {
+    //      throw new IllegalArgumentException("SEDOL1 code is invalid: " + code);
+    //    }
     return ExternalId.of(SEDOL1, code);
   }
 
@@ -223,7 +223,7 @@ public class SecurityUtils {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       } catch (CalendricalException ce) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
-      }  
+      }
     }
     return ExternalId.of(BLOOMBERG_TCM, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
   }

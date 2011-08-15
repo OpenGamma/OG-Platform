@@ -11,17 +11,17 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Utility class providing tool for {@code SecurityLink}.
+ * Utilities and constants for {@code SecurityLink}.
  * <p>
  * This is a thread-safe static utility class.
  */
 @PublicAPI
-public final class SecurityLinkUtils {
+public class SecurityLinkUtils {
 
   /**
    * Restricted constructor.
    */
-  private SecurityLinkUtils() {
+  protected SecurityLinkUtils() {
     super();
   }
 

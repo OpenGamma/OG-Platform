@@ -21,8 +21,8 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
-import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -127,8 +127,8 @@ public class PositionImplTest {
 
   //-------------------------------------------------------------------------
   public void test_construction_UniqueId_BigDecimal_Security() {
-    MockSecurity sec = new MockSecurity("A");
-    sec.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B")));
+    SimpleSecurity sec = new SimpleSecurity("A");
+    sec.setIdentifiers(ExternalIdBundle.of(ExternalId.of("A", "B")));
     PositionImpl test = new PositionImpl(UniqueId.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueId.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());

@@ -22,7 +22,8 @@ import com.opengamma.util.PublicAPI;
  * Best match selection may use a version-correction, configuration or code as appropriate.
  * Implementations of this interface must specify the rules they use to best match.
  * <p>
- * This interface must be implemented to be thread-safe.
+ * This interface is read-only.
+ * Implementations must be thread-safe.
  */
 @PublicAPI
 public interface SecurityResolver extends LinkResolver<Security> {
