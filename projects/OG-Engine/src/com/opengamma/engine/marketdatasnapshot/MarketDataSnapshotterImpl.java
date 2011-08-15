@@ -20,6 +20,10 @@ import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
@@ -41,6 +45,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
+  private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
+  private final VolatilityCubeSnapper _volatilityCubeSnapper = new VolatilityCubeSnapper();
+  
   @Override
   public StructuredMarketDataSnapshot createSnapshot(ViewClient client, ViewCycle cycle) {
     CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
@@ -62,15 +69,15 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     UnstructuredMarketDataSnapshot globalValues = getGlobalValues(results, graphs);
 
     Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
-    /* TODO 
-     *
-    var volCubeDefinitions = CubeSnapper.GetValues(results, graphs, viewCycle, remoteEngineContext);
-    var volSurfaceDefinitions = SurfaceSnapper.GetValues(results, graphs, viewCycle, remoteEngineContext);
-    */
+    Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
+    Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
+    
     ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
     ret.setYieldCurves(yieldCurves);
+    ret.setVolatilitySurfaces(surfaces);
+    ret.setVolatilityCubes(cubes);
     return ret;
   }
 

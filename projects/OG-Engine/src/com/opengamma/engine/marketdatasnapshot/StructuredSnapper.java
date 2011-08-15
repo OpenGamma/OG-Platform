@@ -17,16 +17,25 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
+import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -56,6 +65,16 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
       ret.put(entry.getKey(), snapshot);
     }
     return ret;
+  }
+  
+  protected static String getSingleProperty(ValueSpecification spec, String propertyName) {
+    ValueProperties properties = spec.getProperties();
+    Set<String> curves = properties.getValues(propertyName);
+    if (curves.size() != 1) {
+      throw new IllegalArgumentException("Couldn't find curve property from " + spec);
+    }
+    String curve = Iterables.get(curves, 0);
+    return curve;
   }
 
   private Map<TKey, TCalculatedValue> getValues(ViewCycle viewCycle, Map<String, DependencyGraph> dependencyGraphs) {
@@ -138,6 +157,30 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
     return ret;
   }
 
+  protected static ManageableUnstructuredMarketDataSnapshot getUnstructured(SnapshotDataBundle bundle) {
+    Set<Entry<UniqueId, Double>> bundlePoints = bundle.getDataPoints().entrySet();
+    ImmutableMap<MarketDataValueSpecification, Entry<UniqueId, Double>> bySpec =
+      Maps.uniqueIndex(bundlePoints, new Function<Entry<UniqueId, Double>, MarketDataValueSpecification>() {
+        @Override
+        public MarketDataValueSpecification apply(Entry<UniqueId, Double> from) {
+          return new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, from.getKey());
+        }
+      });
+    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> data = Maps.transformValues(bySpec,
+        new Function<Entry<UniqueId, Double>, Map<String, ValueSnapshot>>() {
+
+          @Override
+          public Map<String, ValueSnapshot> apply(Entry<UniqueId, Double> from) {
+            HashMap<String, ValueSnapshot> ret = new HashMap<String, ValueSnapshot>();
+            ret.put(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(from.getValue()));
+            return ret;
+          }
+        });
+    ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
+    snapshot.setValues(data);
+    return snapshot;
+  }
+  
   abstract TKey getKey(ValueSpecification spec);
 
   abstract TSnapshot buildSnapshot(ViewComputationResultModel resultModel, TKey key, TCalculatedValue calculated);
