@@ -11,7 +11,7 @@ else
     # No java executable in the path either
     echo "Error: Cannot find a JRE or JDK. Please set JAVA_HOME"
     exit 1
-  fi 
+  fi
 fi
 
 CLASSPATH=config:og-examples.jar
@@ -31,14 +31,25 @@ $JAVA  -cp "$CLASSPATH" \
   -create true \
   -createtables true \
   -dbscriptbasedir .
-  
+
+$JAVA  -cp "$CLASSPATH" \
+  com.opengamma.util.test.DBTool \
+  -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user \
+  -database og-financial \
+  -user "" \
+  -password "" \
+  -drop true \
+  -create true \
+  -createtables true \
+  -dbscriptbasedir .
+
 echo "### Adding example data"
 
 $JAVA  -cp "$CLASSPATH" \
-  com.opengamma.examples.loader.DemoDatabasePopulater \
   -Xms1024M \
   -Xmx4096M \
   -Dlogback.configurationFile=jetty-logback.xml \
   -Dopengamma.platform.runmode=example \
   -Dopengamma.platform.marketdatasource=direct \
-  -Dopengamma.platform.os=posix
+  -Dopengamma.platform.os=posix \
+  com.opengamma.examples.loader.DemoDatabasePopulater
