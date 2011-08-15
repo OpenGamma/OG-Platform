@@ -180,13 +180,13 @@ public class AvailableOutputsTest {
       return null;
     }
 
-    protected ValueProperties.Builder properties () {
-      return ValueProperties.with (ValuePropertyNames.FUNCTION, _id);
+    protected ValueProperties.Builder properties() {
+      return ValueProperties.with(ValuePropertyNames.FUNCTION, _id);
     }
 
     @Override
     public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-      throw new UnsupportedOperationException();
+      return getResults(context, target);
     }
 
     @Override
@@ -227,9 +227,9 @@ public class AvailableOutputsTest {
     }
 
   }
-  
+
   private static abstract class MockPositionFunction extends MockFunction<Position> {
-    
+
     public MockPositionFunction(final String id) {
       super(id, ComputationTargetType.POSITION);
     }
@@ -269,9 +269,9 @@ public class AvailableOutputsTest {
       @Override
       public boolean canApplyTo(final Position position) {
         // TODO: try with just "return true" and rely on the downstream function 
-        return SECURITY_TYPE_1.equals (position.getSecurity ().getSecurityType ());
+        return SECURITY_TYPE_1.equals(position.getSecurity().getSecurityType());
       }
-      
+
       @Override
       public Set<ValueSpecification> getResults(final ComputationTargetSpecification targetSpec, final Position position) {
         return Collections.singleton(new ValueSpecification(VALUE_1, targetSpec, properties().with(ValuePropertyNames.CURRENCY, position.getSecurity().getName()).get()));

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +56,33 @@ public class AvailableOutputs {
     return result;
   }
 
+  private static final class SingleItem<T> implements Iterator<T> {
+
+    private T _item;
+
+    public SingleItem(final T item) {
+      _item = item;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return _item != null;
+    }
+
+    @Override
+    public T next() {
+      final T item = _item;
+      _item = null;
+      return item;
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+
   /**
    * Constructs a new output set.
    * 
@@ -88,7 +116,8 @@ public class AvailableOutputs {
 
       private final FunctionCompilationContext _context = functionRepository.getCompilationContext();
 
-      private boolean canSatisfy(final Set<CompiledFunctionDefinition> visited, final ComputationTarget target, final ValueRequirement requirement) {
+      private Set<ValueSpecification> satisfyRequirement(final Set<CompiledFunctionDefinition> visited, final ComputationTarget target, final ValueRequirement requirement) {
+        Set<ValueSpecification> allResults = null;
         for (CompiledFunctionDefinition function : functions) {
           if (visited.add(function)) {
             try {
@@ -96,8 +125,12 @@ public class AvailableOutputs {
                 final Set<ValueSpecification> results = function.getResults(_context, target);
                 for (ValueSpecification result : results) {
                   if (requirement.isSatisfiedBy(result)) {
-                    if (canSatisfyRequirementsFor(visited, function, target, requirement)) {
-                      return true;
+                    final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visited, function, target, requirement, result.compose(requirement));
+                    if (resolved != null) {
+                      if (allResults == null) {
+                        allResults = new HashSet<ValueSpecification>();
+                      }
+                      allResults.addAll(resolved);
                     }
                   }
                 }
@@ -108,18 +141,19 @@ public class AvailableOutputs {
             }
           }
         }
-        return false;
+        return allResults;
       }
 
-      private boolean canSatisfyRequirementsFor(final Set<CompiledFunctionDefinition> visited, final CompiledFunctionDefinition function,
-          final ComputationTarget target, final ValueRequirement result) {
-        final Set<ValueRequirement> requirements = function.getRequirements(_context, target, result);
+      private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<CompiledFunctionDefinition> visited, final CompiledFunctionDefinition function,
+          final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
+        final Set<ValueRequirement> requirements = function.getRequirements(_context, target, requiredOutputValue);
         if (requirements == null) {
-          return false;
+          return null;
         }
         if (requirements.isEmpty()) {
-          return true;
+          return Collections.singleton(resolvedOutputValue);
         }
+        final Map<Iterator<ValueSpecification>, ValueRequirement> inputs = new HashMap<Iterator<ValueSpecification>, ValueRequirement>();
         for (ValueRequirement requirement : requirements) {
           final ComputationTargetSpecification targetSpec = requirement.getTargetSpecification();
           if (targetSpec.getUniqueId() != null) {
@@ -129,16 +163,48 @@ public class AvailableOutputs {
               if (visited != null) {
                 visitedCopy.addAll(visited);
               }
-              if (!canSatisfy(visitedCopy, new ComputationTarget(requirementTarget), requirement)) {
+              final Set<ValueSpecification> satisfied = satisfyRequirement(visitedCopy, new ComputationTarget(requirementTarget), requirement);
+              if (satisfied == null) {
                 s_logger.debug("Can't satisfy {} for function {}", requirement, function);
-                return false;
+                return null;
               }
+              inputs.put(satisfied.iterator(), requirement);
             } else {
               s_logger.debug("No target cached for {}, assuming ok", targetSpec);
+              inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
             }
+          } else {
+            s_logger.debug("No unique ID for {}, assuming ok", targetSpec);
+            inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
           }
         }
-        return true;
+        final Set<ValueSpecification> outputs = new HashSet<ValueSpecification>();
+        Map<ValueSpecification, ValueRequirement> inputSet = new HashMap<ValueSpecification, ValueRequirement>();
+        do {
+          for (Map.Entry<Iterator<ValueSpecification>, ValueRequirement> input : inputs.entrySet()) {
+            if (!input.getKey().hasNext()) {
+              inputSet.clear();
+              break;
+            }
+            inputSet.put(input.getKey().next(), input.getValue());
+          }
+          if (inputSet.isEmpty()) {
+            break;
+          } else {
+            for (ValueSpecification result : function.getResults(_context, target, inputSet)) {
+              if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
+                outputs.add(result);
+              }
+            }
+            inputSet.clear();
+          }
+        } while (true);
+        if (outputs.isEmpty()) {
+          s_logger.debug("Provisional result {} not in results after late resolution", resolvedOutputValue);
+          return null;
+        } else {
+          return outputs;
+        }
       }
 
       @Override
@@ -149,8 +215,11 @@ public class AvailableOutputs {
             if ((function.getTargetType() == ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
-                if (canSatisfyRequirementsFor(null, function, target, new ValueRequirement(result.getValueName(), result.getTargetSpecification()))) {
-                  portfolioNodeOutput(result);
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(null, function, target, new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
+                if (resolved != null) {
+                  for (ValueSpecification resolvedItem : resolved) {
+                    portfolioNodeOutput(resolvedItem);
+                  }
                 }
               }
             }
@@ -169,8 +238,11 @@ public class AvailableOutputs {
             if ((function.getTargetType() == ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
-                if (canSatisfyRequirementsFor(null, function, target, new ValueRequirement(result.getValueName(), result.getTargetSpecification()))) {
-                  positionOutput(result, position.getSecurity().getSecurityType());
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(null, function, target, new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
+                if (resolved != null) {
+                  for (ValueSpecification resolvedItem : resolved) {
+                    positionOutput(resolvedItem, position.getSecurity().getSecurityType());
+                  }
                 }
               }
             }
