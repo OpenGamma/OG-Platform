@@ -81,6 +81,9 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_PHYS_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
 
   @Test(enabled = true)
+  /**
+   * Tests the present value v hard-coded values. 
+   */
   public void presentValue() {
     //    double pvSABR = METHOD_CASH_SABR.presentValue(SWAPTION_PAYER_LONG, SABR_BUNDLE);
     CurrencyAmount pvPayerTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_LONG, SABR_BUNDLE);

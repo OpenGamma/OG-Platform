@@ -14,17 +14,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.Cancellable;
 
 /* package */abstract class AbstractResolvedValueProducer implements ResolvedValueProducer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractResolvedValueProducer.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
 
-  // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck 
+  // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck
 
   private final class Callback implements ResolutionPump, Cancellable {
 
@@ -32,6 +31,7 @@ import com.opengamma.util.Cancellable;
     private final ResolvedValueCallback _callback;
     private ResolvedValue[] _results;
     private int _resultsPushed;
+    private boolean _closed;
 
     public Callback(final ResolvedValueCallback callback) {
       _callback = callback;
@@ -40,6 +40,7 @@ import com.opengamma.util.Cancellable;
     @Override
     public void pump(final GraphBuildingContext context) {
       s_logger.debug("Pump called on {}", this);
+      assert !_closed;
       ResolvedValue nextValue = null;
       boolean finished = false;
       ResolutionFailure failure = null;
@@ -90,11 +91,27 @@ import com.opengamma.util.Cancellable;
     }
 
     @Override
-    public boolean cancel(final boolean mayInterruptIfRunning) {
+    public void close(final GraphBuildingContext context) {
+      s_logger.debug("Closing callback {}", this);
+      synchronized (AbstractResolvedValueProducer.this) {
+        assert !_closed;
+        _closed = true;
+      }
+      release(context);
+    }
+
+    @Override
+    public boolean cancel(final GraphBuildingContext context) {
       s_logger.debug("Cancelling callback {}", this);
       synchronized (AbstractResolvedValueProducer.this) {
-        _pumped.remove(this);
+        if (_pumped.remove(this)) {
+          // Was in a pumped state; close and release the parent resolver
+          _closed = true;
+        } else {
+          return false;
+        }
       }
+      release(context);
       return true;
     }
 
@@ -109,6 +126,7 @@ import com.opengamma.util.Cancellable;
   private final Set<Callback> _pumped = new HashSet<Callback>();
   private final int _objectId = s_nextObjectId.getAndIncrement();
   private final Set<ValueSpecification> _resolvedValues = new HashSet<ValueSpecification>();
+  private int _refCount;
   private ResolvedValue[] _results;
   private boolean _finished;
   private ResolutionFailure _failure;
@@ -116,11 +134,12 @@ import com.opengamma.util.Cancellable;
   public AbstractResolvedValueProducer(final ValueRequirement valueRequirement) {
     _valueRequirement = valueRequirement;
     _results = new ResolvedValue[0];
-    _finished = false;
+    _refCount = 1;
   }
 
   @Override
   public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
+    addRef();
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
     boolean finished = false;
@@ -146,6 +165,8 @@ import com.opengamma.util.Cancellable;
     } else if (finished) {
       s_logger.debug("Pushing failure");
       context.failed(valueCallback, getValueRequirement(), failure);
+      release(context);
+      return null;
     }
     return callback;
   }
@@ -192,15 +213,16 @@ import com.opengamma.util.Cancellable;
    */
   protected abstract void pumpImpl(final GraphBuildingContext context);
 
-  protected boolean finished(final GraphBuildingContext context) {
+  /**
+   * Call when there are no more values that can be pushed. Any callbacks that have had pump called on them will
+   * receive a failure notification. This must only be called once.
+   */
+  protected void finished(final GraphBuildingContext context) {
     s_logger.debug("Finished producing results at {}", this);
+    assert !_finished;
     Collection<Callback> pumped = null;
     ResolutionFailure failure = null;
     synchronized (this) {
-      if (_finished) {
-        s_logger.debug("Already finished on other thread");
-        return false;
-      }
       _finished = true;
       if (!_pumped.isEmpty()) {
         failure = _failure;
@@ -212,11 +234,11 @@ import com.opengamma.util.Cancellable;
       for (Callback callback : pumped) {
         s_logger.debug("Pushing failure to {}", callback._callback);
         context.failed(callback._callback, getValueRequirement(), failure);
+        release(context);
       }
     } else {
       s_logger.debug("No pumped callbacks");
     }
-    return true;
   }
 
   protected void storeFailure(final ResolutionFailure failure) {
@@ -237,12 +259,30 @@ import com.opengamma.util.Cancellable;
     }
   }
 
+  protected ResolvedValue[] getResults() {
+    assert _finished;
+    return _results;
+  }
+
   public ValueRequirement getValueRequirement() {
     return _valueRequirement;
   }
 
   protected int getObjectId() {
     return _objectId;
+  }
+
+  @Override
+  public synchronized void addRef() {
+    assert _refCount > 0;
+    _refCount++;
+  }
+
+  @Override
+  public synchronized int release(final GraphBuildingContext context) {
+    assert _refCount > 0;
+    s_logger.debug("Release called on {}, refCount={}", this, _refCount);
+    return --_refCount;
   }
 
 }

@@ -34,11 +34,13 @@ public class MarketDataSets {
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   //  private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
   private static final MarketBundle MARKET_1 = new MarketBundle();
-  private static final YieldAndDiscountCurve CURVE_50 = new YieldCurve(ConstantDoublesCurve.from(0.0500));
-  private static final YieldAndDiscountCurve CURVE_45 = new YieldCurve(ConstantDoublesCurve.from(0.0450));
-  private static final YieldAndDiscountCurve CURVE_40 = new YieldCurve(ConstantDoublesCurve.from(0.0400));
-  private static final YieldAndDiscountCurve CURVE_35 = new YieldCurve(ConstantDoublesCurve.from(0.0350));
-  private static final YieldAndDiscountCurve CURVE_30 = new YieldCurve(ConstantDoublesCurve.from(0.0300));
+  private static final YieldAndDiscountCurve CURVE_EUR_50 = new YieldCurve(ConstantDoublesCurve.from(0.0500, "EUR 5.00"));
+  private static final YieldAndDiscountCurve CURVE_EUR_45 = new YieldCurve(ConstantDoublesCurve.from(0.0450, "EUR 4.50"));
+  private static final YieldAndDiscountCurve CURVE_EUR_40 = new YieldCurve(ConstantDoublesCurve.from(0.0400, "EUR 4.00"));
+  private static final YieldAndDiscountCurve CURVE_GBP_35 = new YieldCurve(ConstantDoublesCurve.from(0.0350, "GBP 3.50"));
+  private static final YieldAndDiscountCurve CURVE_GBP_30 = new YieldCurve(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
+  private static final YieldAndDiscountCurve CURVE_USD_35 = new YieldCurve(ConstantDoublesCurve.from(0.0350, "USD 3.50"));
+  private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(ConstantDoublesCurve.from(0.0300, "USD 3.00"));
   private static final IborIndex EURIBOR_3M = new Euribor3M(CALENDAR_EUR);
   private static final IborIndex EURIBOR_6M = new Euribor6M(CALENDAR_EUR);
   private static final IborIndex USDLIBOR_3M = new UsdLibor3M(CALENDAR_USD);
@@ -48,7 +50,7 @@ public class MarketDataSets {
   private static final PriceIndex PRICE_INDEX_EUR = new PriceIndex(NAME_EUR_PRICE_INDEX, Currency.EUR, Currency.EUR, LAG_EUR);
   private static final double[] INDEX_VALUE_EUR = new double[] {113.11, 113.10, 115.12, 123.23, 133.33, 155.55}; // May11, June11, 1Y, 5Y, 10Y, 20Y
   private static final double[] TIME_VALUE_EUR = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0};
-  private static final InterpolatedDoublesCurve CURVE_EUR = InterpolatedDoublesCurve.from(TIME_VALUE_EUR, INDEX_VALUE_EUR, new LinearInterpolator1D());
+  private static final InterpolatedDoublesCurve CURVE_EUR = InterpolatedDoublesCurve.from(TIME_VALUE_EUR, INDEX_VALUE_EUR, new LinearInterpolator1D(), NAME_EUR_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_EUR = new PriceIndexCurve(CURVE_EUR);
 
   private static final String NAME_GBP_PRICE_INDEX = "UK RPI";
@@ -56,7 +58,7 @@ public class MarketDataSets {
   private static final PriceIndex PRICE_INDEX_GBP = new PriceIndex(NAME_GBP_PRICE_INDEX, Currency.GBP, Currency.GBP, LAG_GBP);
   private static final double[] INDEX_VALUE_GBP = new double[] {228.4, 232.0, 240.0, 251.1, 275.2, 456.7}; // Dec10, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_GBP = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0};
-  private static final InterpolatedDoublesCurve CURVE_GBP = InterpolatedDoublesCurve.from(TIME_VALUE_GBP, INDEX_VALUE_GBP, new LinearInterpolator1D());
+  private static final InterpolatedDoublesCurve CURVE_GBP = InterpolatedDoublesCurve.from(TIME_VALUE_GBP, INDEX_VALUE_GBP, new LinearInterpolator1D(), NAME_GBP_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_GBP = new PriceIndexCurve(CURVE_GBP);
 
   private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
@@ -64,23 +66,23 @@ public class MarketDataSets {
   private static final PriceIndex PRICE_INDEX_USD = new PriceIndex(NAME_USD_PRICE_INDEX, Currency.USD, Currency.USD, LAG_USD);
   private static final double[] INDEX_VALUE_USD = new double[] {225.964, 225.722, 230.0, 251.1, 280.2, 452.7}; // May11, June11, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0};
-  private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D());
+  private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_USD = new PriceIndexCurve(CURVE_USD);
 
   private static final String ISSUER_UK_GOVT = "UK GOVT";
   private static final String ISSUER_US_GOVT = "US GOVT";
   static {
-    MARKET_1.setCurve(Currency.EUR, CURVE_40);
-    MARKET_1.setCurve(Currency.USD, CURVE_30);
-    MARKET_1.setCurve(Currency.GBP, CURVE_35);
-    MARKET_1.setCurve(EURIBOR_3M, CURVE_45);
-    MARKET_1.setCurve(EURIBOR_6M, CURVE_50);
-    MARKET_1.setCurve(USDLIBOR_3M, CURVE_35);
+    MARKET_1.setCurve(Currency.EUR, CURVE_EUR_40);
+    MARKET_1.setCurve(Currency.USD, CURVE_USD_30);
+    MARKET_1.setCurve(Currency.GBP, CURVE_GBP_35);
+    MARKET_1.setCurve(EURIBOR_3M, CURVE_EUR_45);
+    MARKET_1.setCurve(EURIBOR_6M, CURVE_EUR_50);
+    MARKET_1.setCurve(USDLIBOR_3M, CURVE_USD_35);
     MARKET_1.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     MARKET_1.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     MARKET_1.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
-    MARKET_1.setCurve(ISSUER_UK_GOVT, CURVE_40);
-    MARKET_1.setCurve(ISSUER_US_GOVT, CURVE_30);
+    MARKET_1.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
+    MARKET_1.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
   }
   // Price index data
   private static final double[] UKRPI_VALUE = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4, 229, 231.3, 232.5, 234.4, 235.2, 235.2};

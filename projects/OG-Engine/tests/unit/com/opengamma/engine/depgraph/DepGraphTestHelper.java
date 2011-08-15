@@ -154,7 +154,9 @@ public class DepGraphTestHelper {
     if (_builder == null) {
       _builder = new DependencyGraphBuilder();
       _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
-      final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+      final FunctionCompilationContext context = new FunctionCompilationContext();
+      _builder.setCompilationContext(context);
+      final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
       final DefaultFunctionResolver resolver;
       if (prioritizer != null) {
         resolver = new DefaultFunctionResolver(compilationService, prioritizer);

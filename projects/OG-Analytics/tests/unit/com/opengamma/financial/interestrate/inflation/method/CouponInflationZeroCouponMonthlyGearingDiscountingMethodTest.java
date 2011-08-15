@@ -7,6 +7,8 @@ package com.opengamma.financial.interestrate.inflation.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.List;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -22,9 +24,13 @@ import com.opengamma.financial.interestrate.PresentValueInflationCalculator;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
+import com.opengamma.financial.interestrate.market.PresentValueCurveSensitivityMarket;
+import com.opengamma.financial.interestrate.method.SensitivityFiniteDifferenceMarket;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the present value and its sensitivities for zero-coupon with reference index on the first of the month.
@@ -86,6 +92,74 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
     double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
     double pvExpected = FACTOR * (finalIndex / INDEX_1MAY_2008) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Test the present value curves sensitivity.
+   */
+  public void presentValueCurveSensitivityNoNotional() {
+    final PresentValueCurveSensitivityMarket pvs = METHOD.presentValueCurveSensitivity(ZERO_COUPON_NO, MARKET);
+    pvs.clean();
+    final double deltaTolerancePrice = 1.0E+1;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
+    final double deltaShift = 1.0E-6;
+    // 2. Discounting curve sensitivity
+    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_NO.getPaymentTime()};
+    final double[] sensiDisc = SensitivityFiniteDifferenceMarket
+        .curveSensitivity(ZERO_COUPON_NO, MARKET, ZERO_COUPON_NO.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
+    assertEquals("Sensitivity finite difference method: number of node", 1, sensiDisc.length);
+    final List<DoublesPair> sensiPvDisc = pvs.getYieldCurveSensitivities().get(MARKET.getCurve(ZERO_COUPON_NO.getCurrency()).getCurve().getName());
+    for (int loopnode = 0; loopnode < sensiDisc.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvDisc.get(loopnode);
+      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDisc[loopnode], deltaTolerancePrice);
+    }
+    // 3. Price index curve sensitivity
+    final double[] nodeTimesPrice = new double[] {ZERO_COUPON_NO.getReferenceEndTime()};
+    final double[] sensiPrice = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_NO, MARKET, ZERO_COUPON_NO.getPriceIndex(), nodeTimesPrice, deltaShift, METHOD,
+        FiniteDifferenceType.CENTRAL);
+    assertEquals("Sensitivity finite difference method: number of node", 1, sensiPrice.length);
+    final List<DoublesPair> sensiPvPrice = pvs.getPriceCurveSensitivities().get(MARKET.getCurve(ZERO_COUPON_NO.getPriceIndex()).getCurve().getName());
+    for (int loopnode = 0; loopnode < sensiPrice.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvPrice.get(loopnode);
+      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesPrice[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiPrice[loopnode], deltaTolerancePrice);
+    }
+  }
+
+  @Test
+  /**
+   * Test the present value curves sensitivity.
+   */
+  public void presentValueCurveSensitivityWithNotional() {
+    final PresentValueCurveSensitivityMarket pvs = METHOD.presentValueCurveSensitivity(ZERO_COUPON_WITH, MARKET);
+    pvs.clean();
+    final double deltaTolerancePrice = 1.0E+1;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
+    final double deltaShift = 1.0E-6;
+    // 2. Discounting curve sensitivity
+    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_WITH.getPaymentTime()};
+    final double[] sensiDisc = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_WITH, MARKET, ZERO_COUPON_WITH.getCurrency(), nodeTimesDisc, deltaShift, METHOD,
+        FiniteDifferenceType.CENTRAL);
+    assertEquals("Sensitivity finite difference method: number of node", 1, sensiDisc.length);
+    final List<DoublesPair> sensiPvDisc = pvs.getYieldCurveSensitivities().get(MARKET.getCurve(ZERO_COUPON_WITH.getCurrency()).getCurve().getName());
+    for (int loopnode = 0; loopnode < sensiDisc.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvDisc.get(loopnode);
+      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDisc[loopnode], deltaTolerancePrice);
+    }
+    // 3. Price index curve sensitivity
+    final double[] nodeTimesPrice = new double[] {ZERO_COUPON_WITH.getReferenceEndTime()};
+    final double[] sensiPrice = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_WITH, MARKET, ZERO_COUPON_WITH.getPriceIndex(), nodeTimesPrice, deltaShift, METHOD,
+        FiniteDifferenceType.CENTRAL);
+    assertEquals("Sensitivity finite difference method: number of node", 1, sensiPrice.length);
+    final List<DoublesPair> sensiPvPrice = pvs.getPriceCurveSensitivities().get(MARKET.getCurve(ZERO_COUPON_WITH.getPriceIndex()).getCurve().getName());
+    for (int loopnode = 0; loopnode < sensiPrice.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvPrice.get(loopnode);
+      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesPrice[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiPrice[loopnode], deltaTolerancePrice);
+    }
   }
 
 }

@@ -37,4 +37,16 @@
 			<arg value="og_financial"/>
 		</exec>
 	</target>
+  
+    <target name="publish" depends="zip-resources,common.publish" />
+    
+    <target name="publish-local" depends="zip-resources,common.publish-local" />
+    
+    <target name="zip-resources" description="--> create resources file for publishing">
+        <mkdir dir="${dist.dir}" />
+        <zip destfile="${dist.dir}/og-masterdb-sql.zip">
+            <zipfileset prefix="install" dir="${basedir}/install" />
+        </zip>
+    </target>
+  
 </project>

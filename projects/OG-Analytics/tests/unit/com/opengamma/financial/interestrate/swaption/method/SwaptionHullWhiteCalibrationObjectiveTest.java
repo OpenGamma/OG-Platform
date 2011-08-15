@@ -139,7 +139,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     // Performance note: calibration: 15-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 260 ms for 100 calibration with 5 swaptions.
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests the price sensitivity with calibration for cash-settled swaptions in Hull-White one factor model. In normal testing, "enabled = false".
    */
@@ -224,7 +224,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     // Performance note: calibration: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 225 ms for 1000 SABR risk.
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests the price sensitivity with calibration for cash-settled swaptions in Hull-White one factor model. In normal testing, "enabled = false".
    */

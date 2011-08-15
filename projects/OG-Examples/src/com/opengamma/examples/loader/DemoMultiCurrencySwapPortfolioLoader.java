@@ -77,7 +77,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   /**
    * Size of securities in portfolio
    */
-  private static final int SECURITIES_SIZE = 100;
+  private static final int SECURITIES_SIZE = 200;
   
   /**
    * The name of the portfolio.

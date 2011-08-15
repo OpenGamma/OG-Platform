@@ -1,0 +1,44 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.interestrate.market;
+
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.instrument.index.PriceIndex;
+
+/**
+ * A market bundle decorated for a given price index curve and a specific time. The price index is shifted by the shift provided.
+ */
+public class MarketPriceIndexTimeDecorated extends MarketBundle {
+  private final PriceIndex _index;
+  private final double _time;
+  private final double _shift;
+
+  /**
+   * Constructor from an exiting market, the currency and a time to be decorated for discounting.
+   * @param market The original market.
+   * @param index The price index.
+   * @param time The time.
+   * @param shift The shift.
+   */
+  public MarketPriceIndexTimeDecorated(MarketBundle market, PriceIndex index, double time, double shift) {
+    super(market);
+    Validate.notNull(index, "Index");
+    _index = index;
+    _time = time;
+    _shift = shift;
+  }
+
+  @Override
+  public double getPriceIndex(PriceIndex index, Double time) {
+    double price = super.getPriceIndex(index, time);
+    if ((index == _index) && (_time == time)) {
+      return price + _shift;
+    }
+    return price;
+  }
+
+}
