@@ -33,13 +33,13 @@ public class PortfolioNodeTraverserTest {
    */
 
   private Position createTestPosition(final AtomicInteger nextId) {
-    final PositionImpl position = new PositionImpl();
+    final SimplePosition position = new SimplePosition();
     position.setUniqueId(UniqueId.of("Test", Integer.toString(nextId.getAndIncrement())));
     return position;
   }
 
   private PortfolioNode createTestPortfolioNode(final AtomicInteger nextId, final int depth) {
-    final PortfolioNodeImpl node = new PortfolioNodeImpl();
+    final SimplePortfolioNode node = new SimplePortfolioNode();
     node.setUniqueId(UniqueId.of("Test", Integer.toString(nextId.getAndIncrement())));
     if (depth > 0) {
       node.addChildNode(createTestPortfolioNode(nextId, depth - 1));

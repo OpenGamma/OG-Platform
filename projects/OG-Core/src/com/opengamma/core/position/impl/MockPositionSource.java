@@ -115,8 +115,8 @@ public class MockPositionSource implements PositionSource {
    */
   private void addToCache(String portfolioId, UniqueId parentNode, PortfolioNode node) {
     // node
-    if (node instanceof PortfolioNodeImpl) {
-      PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
+    if (node instanceof SimplePortfolioNode) {
+      SimplePortfolioNode nodeImpl = (SimplePortfolioNode) node;
       nodeImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
       nodeImpl.setParentNodeId(parentNode);
     }
@@ -124,8 +124,8 @@ public class MockPositionSource implements PositionSource {
     
     // position
     for (Position position : node.getPositions()) {
-      if (position instanceof PositionImpl) {
-        PositionImpl positionImpl = (PositionImpl) position;
+      if (position instanceof SimplePosition) {
+        SimplePosition positionImpl = (SimplePosition) position;
         positionImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
         positionImpl.setParentNodeId(node.getUniqueId());
         

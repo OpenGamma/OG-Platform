@@ -34,9 +34,9 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -190,7 +190,7 @@ public class CSVPositionSource implements PositionSource {
   }
 
   private Portfolio loadPortfolio(UniqueId portfolioId, InputStream inStream) throws IOException {
-    PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
+    SimplePortfolio portfolio = new SimplePortfolio(portfolioId, portfolioId.getValue());
     UniqueId rootNodeId = UniqueId.of(portfolioId.getScheme(), "0");
     portfolio.getRootNode().setUniqueId(rootNodeId);
     _nodes.put(rootNodeId, portfolio.getRootNode());
@@ -200,10 +200,10 @@ public class CSVPositionSource implements PositionSource {
     int curIndex = 1;
     UniqueId positionId = UniqueId.of(portfolioId.getScheme(), Integer.toString(curIndex));
     while ((tokens = csvReader.readNext()) != null) {
-      PositionImpl position = parseLine(tokens, positionId);
+      SimplePosition position = parseLine(tokens, positionId);
       if (position != null) {
         position.setParentNodeId(rootNodeId);
-        ((PortfolioNodeImpl) portfolio.getRootNode()).addPosition(position);
+        ((SimplePortfolioNode) portfolio.getRootNode()).addPosition(position);
         _positions.put(position.getUniqueId(), position);
         positionId = UniqueId.of(portfolioId.getScheme(), Integer.toString(++curIndex));
       }
@@ -217,7 +217,7 @@ public class CSVPositionSource implements PositionSource {
    * @param positionId  the portfolio id, not null
    * @return the position
    */
-  /* package for testing */ static PositionImpl parseLine(String[] tokens, UniqueId positionId) {
+  /* package for testing */ static SimplePosition parseLine(String[] tokens, UniqueId positionId) {
     if (tokens.length < 3) {
       return null;
     }
@@ -235,7 +235,7 @@ public class CSVPositionSource implements PositionSource {
     ExternalIdBundle securityKey = ExternalIdBundle.of(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
-    return new PositionImpl(positionId, quantity, securityKey);
+    return new SimplePosition(positionId, quantity, securityKey);
   }
 
 }

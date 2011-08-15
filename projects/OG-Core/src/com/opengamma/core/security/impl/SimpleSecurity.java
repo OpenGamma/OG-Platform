@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Simple implementation of {@code Security}.
@@ -36,7 +36,7 @@ import com.opengamma.id.UniqueIdentifiable;
  */
 @BeanDefinition
 public class SimpleSecurity extends DirectBean
-    implements Security, UniqueIdentifiable, Serializable {
+    implements Security, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

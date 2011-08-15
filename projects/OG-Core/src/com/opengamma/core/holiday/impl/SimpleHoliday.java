@@ -28,8 +28,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -42,7 +42,7 @@ import com.opengamma.util.money.Currency;
  */
 @BeanDefinition
 public class SimpleHoliday extends DirectBean
-    implements Holiday, UniqueIdentifiable, Serializable {
+    implements Holiday, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

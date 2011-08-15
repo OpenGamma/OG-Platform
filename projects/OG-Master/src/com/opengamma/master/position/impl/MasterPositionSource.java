@@ -19,9 +19,9 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -143,7 +143,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     } catch (DataNotFoundException ex) {
       return null;
     }
-    PortfolioImpl prt = new PortfolioImpl(manPrt.getUniqueId(), manPrt.getName());
+    SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode());
     return prt;
   }
@@ -172,7 +172,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
         return null;
       }
     }
-    PortfolioNodeImpl node = new PortfolioNodeImpl();
+    SimplePortfolioNode node = new SimplePortfolioNode();
     convertNode(manNode, node);
     return node;
   }
@@ -199,7 +199,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     } catch (DataNotFoundException ex) {
       return null;
     }
-    PositionImpl pos = new PositionImpl();
+    SimplePosition pos = new SimplePosition();
     convertPosition(nodeId, manPos, pos);
     return pos;
   }
@@ -258,7 +258,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param manNode the manageable node, not null
    * @param sourceNode the source node, not null
    */
-  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
+  protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode) {
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     final Map<ObjectId, ManageablePosition> positionCache;
     final int positionCount = populatePositionSearchRequest(positionSearch, manNode);
@@ -282,7 +282,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param sourceNode the source node, not null
    * @param positionCache the positions, not null
    */
-  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode, final Map<ObjectId, ManageablePosition> positionCache) {
+  protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode, final Map<ObjectId, ManageablePosition> positionCache) {
     final UniqueId nodeId = manNode.getUniqueId();
     sourceNode.setUniqueId(nodeId);
     sourceNode.setName(manNode.getName());
@@ -291,7 +291,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       for (ObjectId positionId : manNode.getPositionIds()) {
         final ManageablePosition foundPosition = positionCache.get(positionId);
         if (foundPosition != null) {
-          final PositionImpl position = new PositionImpl();
+          final SimplePosition position = new SimplePosition();
           convertPosition(nodeId, foundPosition, position);
           sourceNode.addPosition(position);
         } else {
@@ -300,7 +300,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       }
     }
     for (ManageablePortfolioNode child : manNode.getChildNodes()) {
-      PortfolioNodeImpl childNode = new PortfolioNodeImpl();
+      SimplePortfolioNode childNode = new SimplePortfolioNode();
       convertNode(child, childNode, positionCache);
       sourceNode.addChildNode(childNode);
     }
@@ -313,7 +313,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param manPos  the manageable position, not null
    * @param sourcePosition  the source position, not null
    */
-  protected void convertPosition(final UniqueId nodeId, final ManageablePosition manPos, final PositionImpl sourcePosition) {
+  protected void convertPosition(final UniqueId nodeId, final ManageablePosition manPos, final SimplePosition sourcePosition) {
     UniqueId posId = convertId(manPos.getUniqueId(), nodeId);
     sourcePosition.setUniqueId(posId);
     sourcePosition.setParentNodeId(nodeId);

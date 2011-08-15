@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Simple implementation of {@code Exchange}.
@@ -38,7 +38,7 @@ import com.opengamma.id.UniqueIdentifiable;
  */
 @BeanDefinition
 public class SimpleExchange extends DirectBean
-    implements Exchange, UniqueIdentifiable, Serializable {
+    implements Exchange, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

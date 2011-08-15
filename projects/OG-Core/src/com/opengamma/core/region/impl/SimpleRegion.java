@@ -30,8 +30,8 @@ import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
@@ -45,7 +45,7 @@ import com.opengamma.util.money.Currency;
  */
 @BeanDefinition
 public class SimpleRegion extends DirectBean
-    implements Region, UniqueIdentifiable, Serializable {
+    implements Region, MutableUniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

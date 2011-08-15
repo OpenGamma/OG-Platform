@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -93,7 +93,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     UniqueId portfolioId = UniqueId.of("foo", "bar");
     
     MockPositionSource positionSource = new MockPositionSource();
-    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    positionSource.addPortfolio(new SimplePortfolio(portfolioId, "test_portfolio"));
     env.setPositionSource(positionSource);
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");

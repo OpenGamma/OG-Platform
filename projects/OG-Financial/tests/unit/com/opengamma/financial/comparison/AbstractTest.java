@@ -15,8 +15,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -61,7 +61,7 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Trade createTrade(final int quantity, final Security security, final String attr1Value, final String attr2Value) {
-    final TradeImpl trade = new TradeImpl();
+    final SimpleTrade trade = new SimpleTrade();
     trade.setQuantity(new BigDecimal(quantity));
     trade.setUniqueId(createUniqueId("Trade"));
     trade.setSecurityLink(SimpleSecurityLink.ofBundleId(security));
@@ -75,7 +75,7 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Position createPosition(final String uid, final int quantity, final Security security, final String attr1Value, final String attr2Value, final Trade trade1, final Trade trade2) {
-    final PositionImpl position = new PositionImpl(new BigDecimal(quantity), security.getIdentifiers());
+    final SimplePosition position = new SimplePosition(new BigDecimal(quantity), security.getIdentifiers());
     position.setParentNodeId(createUniqueId("Node"));
     position.setSecurityLink(SimpleSecurityLink.of(security));
     if (attr1Value != null) {

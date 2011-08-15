@@ -22,7 +22,7 @@ import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -264,7 +264,7 @@ public class BatchJobTest {
     job.setBatchMaster(batchMaster);
     
     MockPositionSource positionSource = new MockPositionSource();
-    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    positionSource.addPortfolio(new SimplePortfolio(portfolioId, "test_portfolio"));
     job.setPositionSource(positionSource);
     
     job.setSecuritySource(new MockFinancialSecuritySource());

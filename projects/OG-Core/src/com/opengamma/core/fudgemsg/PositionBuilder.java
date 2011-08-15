@@ -18,8 +18,8 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -91,11 +91,11 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     return message;
   }
 
-  private static void readTrades(final FudgeDeserializer deserializer, final FudgeMsg message, final PositionImpl position) {
+  private static void readTrades(final FudgeDeserializer deserializer, final FudgeMsg message, final SimplePosition position) {
     if (message != null) {
       for (FudgeField field : message) {
         if (field.getValue() instanceof FudgeMsg) {
-          final TradeImpl trade = TradeBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
+          final SimpleTrade trade = TradeBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
           trade.setParentPositionId(position.getUniqueId());
           position.addTrade(trade);
         }
@@ -103,7 +103,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
     }
   }
 
-  protected static PositionImpl buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  protected static SimplePosition buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
     SimpleSecurityLink secLink = new SimpleSecurityLink();
     if (message.hasField(FIELD_SECURITYKEY)) {
       FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
@@ -118,7 +118,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
       }
     }
     
-    PositionImpl position = new PositionImpl();
+    SimplePosition position = new SimplePosition();
     position.setSecurityLink(secLink);
     if (message.hasField(FIELD_UNIQUE_ID)) {
       FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
@@ -138,7 +138,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
 
   @Override
   public Position buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final PositionImpl position = buildObjectImpl(deserializer, message);
+    final SimplePosition position = buildObjectImpl(deserializer, message);
     final FudgeField parentField = message.getByName(FIELD_PARENT);
     final UniqueId parentId = (parentField != null) ? deserializer.fieldValueToObject(UniqueId.class, parentField) : null;
     if (parentId != null) {
