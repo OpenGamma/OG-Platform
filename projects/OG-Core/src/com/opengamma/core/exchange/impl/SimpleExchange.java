@@ -37,7 +37,8 @@ import com.opengamma.id.UniqueIdentifiable;
  * It is intended to be used in the engine via the read-only {@code Exchange} interface.
  */
 @BeanDefinition
-public class SimpleExchange extends DirectBean implements Exchange, UniqueIdentifiable, Serializable {
+public class SimpleExchange extends DirectBean
+    implements Exchange, UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

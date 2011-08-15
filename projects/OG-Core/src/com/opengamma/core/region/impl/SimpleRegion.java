@@ -44,7 +44,8 @@ import com.opengamma.util.money.Currency;
  * It is intended to be used in the engine via the read-only {@code Region} interface.
  */
 @BeanDefinition
-public class SimpleRegion extends DirectBean implements Region, UniqueIdentifiable, Serializable {
+public class SimpleRegion extends DirectBean
+    implements Region, UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

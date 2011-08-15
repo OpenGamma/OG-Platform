@@ -28,7 +28,7 @@ public interface Security extends UniqueIdentifiable {
    * <p>
    * This specifies a single version-correction of the security.
    * 
-   * @return the identifier, not null within the engine
+   * @return the unique identifier for this security, not null within the engine
    */
   UniqueId getUniqueId();
 

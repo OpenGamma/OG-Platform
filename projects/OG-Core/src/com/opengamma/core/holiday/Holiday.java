@@ -33,7 +33,7 @@ public interface Holiday extends UniqueIdentifiable {
    * <p>
    * This specifies a single version-correction of the holiday.
    * 
-   * @return the unique identifier for this holiday, not null
+   * @return the unique identifier for this holiday, not null within the engine
    */
   UniqueId getUniqueId();
 

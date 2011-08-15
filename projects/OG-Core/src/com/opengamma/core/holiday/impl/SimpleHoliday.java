@@ -41,7 +41,8 @@ import com.opengamma.util.money.Currency;
  * It is intended to be used in the engine via the read-only {@code Holiday} interface.
  */
 @BeanDefinition
-public class SimpleHoliday extends DirectBean implements Holiday, UniqueIdentifiable, Serializable {
+public class SimpleHoliday extends DirectBean
+    implements Holiday, UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

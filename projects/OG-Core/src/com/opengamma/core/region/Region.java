@@ -35,7 +35,7 @@ public interface Region extends UniqueIdentifiable {
    * <p>
    * This specifies a single version-correction of the region.
    * 
-   * @return the unique identifier for this region entry, not null
+   * @return the unique identifier for this region, not null within the engine
    */
   UniqueId getUniqueId();
 

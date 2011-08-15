@@ -10,7 +10,7 @@ import javax.time.calendar.TimeZone;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.util.PublicSPI;
+import com.opengamma.util.PublicAPI;
 
 /**
  * An exchange on which financial products can be traded or settled.
@@ -21,7 +21,7 @@ import com.opengamma.util.PublicSPI;
  * This interface is read-only.
  * Implementations may be mutable.
  */
-@PublicSPI
+@PublicAPI
 public interface Exchange extends UniqueIdentifiable {
 
   /**
@@ -29,7 +29,7 @@ public interface Exchange extends UniqueIdentifiable {
    * <p>
    * This specifies a single version-correction of the exchange.
    * 
-   * @return the unique identifier for this exchange, not null
+   * @return the unique identifier for this exchange, not null within the engine
    */
   UniqueId getUniqueId();
 

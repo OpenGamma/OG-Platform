@@ -35,7 +35,8 @@ import com.opengamma.id.UniqueIdentifiable;
  * It is intended to be used in the engine via the read-only {@code Security} interface.
  */
 @BeanDefinition
-public class SimpleSecurity extends DirectBean implements Security, UniqueIdentifiable, Serializable {
+public class SimpleSecurity extends DirectBean
+    implements Security, UniqueIdentifiable, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

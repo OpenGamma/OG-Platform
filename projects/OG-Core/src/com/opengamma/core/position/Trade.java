@@ -20,6 +20,9 @@ import com.opengamma.util.money.Currency;
  * A trade is fundamentally a quantity of a security.
  * It differs from a position in that it represents a real transaction with a
  * counterparty at an instant in time.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface Trade extends PositionOrTrade {
