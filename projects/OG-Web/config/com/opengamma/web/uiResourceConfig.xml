@@ -82,6 +82,7 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>

@@ -1,0 +1,28 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-form .og-vol-cube-def .og-awesome-list {
+  margin: 0 -10px;
+}
+
+.OG-form .og-vol-cube-def input {
+  width: 80%
+}
+
+.OG-form .og-vol-cube-def .og-mod-content,
+.OG-form .og-vol-cube-def h3 {
+  margin-right: 10px;
+}
+
+.OG-form .og-vol-cube-def.og-grid-last .og-mod-content,
+.OG-form .og-vol-cube-def.og-grid-last h3 {
+  margin-right: 0;
+}
+
+.OG-form .og-vol-cube-def .og-footer {
+  background-color: #f6fafc;
+  margin: 10px -10px -10px -10px;
+  padding: 5px 5px 10px 5px;
+  border-top: 1px solid #ededed;
+}
