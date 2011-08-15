@@ -3,53 +3,19 @@
 
 	<import file="${common.dir}/common.xml"/>
 
-	<!-- Targets used to locate script directories. These will be unnecessary once scripts are included in jars. -->
+	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
+	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
 
-	<import file="${common.dir}/../git-macros.xml" />
+	<target name="new-hsqldb" depends="jetty-stop, resolve" description="--> creates the hsqldb tables">
+		<unzip dest="${basedir}/temp" overwrite="true">
+			<fileset dir="${sql.dir}">
+				<include name="*.zip" />
+			</fileset>
+		</unzip>
 
-	<macrodef name="check-dev-dir">
-		<attribute name="project" />
-		<attribute name="property" />
-		<sequential>
-			<available type="dir" file="${projects.dir}/@{project}" property="@{property}.dir" value="${projects.dir}/@{project}" />
-		</sequential>
-	</macrodef>
-
-	<macrodef name="get-from-git">
-		<attribute name="project" />
-		<attribute name="property" />
-		<sequential>
-			<property name="@{property}.dir" value="${basedir}/temp/OG-Platform/projects/@{project}" />
-			<echo message="Cloning/pulling from git@github.com:OpenGamma/OG-Platform.git" />
-			<git-clone repository="git@github.com:OpenGamma/OG-Platform" dest="${basedir}/temp/OG-Platform" />
-			<git-pull dest="${basedir}/temp/OG-Platform" />
-		</sequential>
-	</macrodef>
-
-	<target name="check-og-masterdb-dev" unless="og-masterdb.dir">
-		<check-dev-dir project="OG-MasterDB" property="og-masterdb" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}/temp" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${basedir}/temp" catalog="og-financial" />
 	</target>
-
-	<target name="check-og-masterdb-git" unless="og-masterdb.dir">
-		<get-from-git project="OG-MasterDB" property="og-masterdb" />
-	</target>
-
-	<target name="find-og-masterdb-dir" depends="check-og-masterdb-dev,check-og-masterdb-git">
-		<echo message="OG-MasterDB directory located at ${og-masterdb.dir}" />
-	</target>
-
-	<!-- End of targets used to locate script directories -->
-
-	<target name="new-hsqldb-impl">
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
-	</target>
-
-	<target name="new-user-financial-db" depends="find-og-masterdb-dir,jetty-stop">
-		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${og-masterdb.dir}" catalog="og-financial" />
-		<!-- scriptdir was og-masterdb.dir, maybe should be moved -->
-	</target>
-
-	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl,new-user-financial-db" description="--> creates the hsqldb tables" />
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
 
@@ -143,8 +109,6 @@
 		<echo>${jetty.stop.status}</echo>
 	</target>
 
-	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
-	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
 	<target name="dist-common" depends="common.dist-common">
 
 		<copy todir="${dist.dir}/${dist.name}" overwrite="true">
