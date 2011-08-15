@@ -40,6 +40,11 @@
     <property name="executorService" ref="scheduler" />
   </bean>
   
+   <!-- Snapshotter  service -->
+  <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
+    <constructor-arg name="processors" ref="viewProcessorRestBean" />
+  </bean>
+  
   <!-- Security source/master service -->
   <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
   <bean id="securitySourceRestBean" class="com.opengamma.financial.rest.security.SecuritySourceService">
@@ -294,6 +299,12 @@
                 <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
+            </entry>
+            <entry key="marketDataSnapshotter">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+              <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
+                <property name="port" value="${jetty.port}" />
+            </bean>
             </entry>
             <entry key="userData">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
