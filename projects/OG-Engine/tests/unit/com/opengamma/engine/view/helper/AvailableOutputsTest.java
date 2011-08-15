@@ -23,11 +23,11 @@ import org.testng.annotations.Test;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -63,12 +63,12 @@ public class AvailableOutputsTest {
   private Portfolio _testPortfolio;
   private CompiledFunctionRepository _functionRepository;
 
-  private PositionImpl createPosition(final String securityType, final String currency, final String securityId) {
-    final PositionImpl position = new PositionImpl();
+  private SimplePosition createPosition(final String securityType, final String currency, final String securityId) {
+    final SimplePosition position = new SimplePosition();
     position.setUniqueId(UniqueId.of("Position", securityType + "-" + currency + "-" + securityId));
     position.setQuantity(BigDecimal.ONE);
-    final SecurityLink link = new SecurityLink();
-    link.setAndLockTarget(new Security() {
+    final SimpleSecurityLink link = new SimpleSecurityLink();
+    link.setTarget(new Security() {
 
       @Override
       public ExternalIdBundle getIdentifiers() {
@@ -95,16 +95,16 @@ public class AvailableOutputsTest {
     return position;
   }
 
-  private PortfolioNodeImpl createChildNode(final String securityType, final String currency) {
-    final PortfolioNodeImpl node = new PortfolioNodeImpl(currency + "-" + securityType);
+  private SimplePortfolioNode createChildNode(final String securityType, final String currency) {
+    final SimplePortfolioNode node = new SimplePortfolioNode(currency + "-" + securityType);
     node.setUniqueId(UniqueId.of("Node", securityType + "-" + currency));
     node.addPosition(createPosition(securityType, currency, "A"));
     node.addPosition(createPosition(securityType, currency, "B"));
     return node;
   }
 
-  private PortfolioNodeImpl createRootNode() {
-    final PortfolioNodeImpl node = new PortfolioNodeImpl("Root");
+  private SimplePortfolioNode createRootNode() {
+    final SimplePortfolioNode node = new SimplePortfolioNode("Root");
     node.setUniqueId(UniqueId.of("Node", "0"));
     node.addChildNode(createChildNode(SECURITY_TYPE_1, CURRENCY_1));
     node.addChildNode(createChildNode(SECURITY_TYPE_2, CURRENCY_1));
@@ -114,7 +114,7 @@ public class AvailableOutputsTest {
   }
 
   private Portfolio createPortfolio() {
-    final PortfolioImpl portfolio = new PortfolioImpl("Test");
+    final SimplePortfolio portfolio = new SimplePortfolio("Test");
     portfolio.setRootNode(createRootNode());
     return portfolio;
   }
