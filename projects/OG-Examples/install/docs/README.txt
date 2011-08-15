@@ -38,11 +38,11 @@ to the original configurations.
 
 To start the server itself, you should run:
 
-  scripts/wait-jetty.sh
+  scripts/start-jetty.sh
 
 on Linux and MacOS X or
 
-  scripts\wait-jetty.bat
+  scripts\start-jetty.bat
 
 on Windows.  This particular script sends debugging output to the console.  It is normal to see some Exceptions
 thrown when starting a view in this mode.
