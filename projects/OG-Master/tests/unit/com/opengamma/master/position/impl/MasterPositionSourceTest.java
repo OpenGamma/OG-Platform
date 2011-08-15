@@ -62,7 +62,7 @@ public class MasterPositionSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getPortfolio_uniqueId() throws Exception {
+  public void test_getPortfolio_UniqueId() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
@@ -90,7 +90,7 @@ public class MasterPositionSourceTest {
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
   }
 
-  public void test_getPortfolio_objectId_instants_children() throws Exception {
+  public void test_getPortfolio_UniqueId_instants_children() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
@@ -150,7 +150,7 @@ public class MasterPositionSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getPortfolioNode_uniqueId() throws Exception {
+  public void test_getPortfolioNode_UniqueId() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
     
