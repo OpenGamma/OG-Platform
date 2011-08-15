@@ -18,6 +18,8 @@ import com.opengamma.util.PublicSPI;
 
 /**
  * A snapshot of a market data point taken at a particular instant, potentially altered by hand.
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @PublicSPI
 public class ValueSnapshot implements Serializable {

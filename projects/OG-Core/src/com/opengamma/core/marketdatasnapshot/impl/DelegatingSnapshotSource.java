@@ -40,6 +40,7 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
     super(defaultSource, schemePrefixToSourceMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId) {
     return chooseDelegate(uniqueId.getScheme()).getSnapshot(uniqueId);
