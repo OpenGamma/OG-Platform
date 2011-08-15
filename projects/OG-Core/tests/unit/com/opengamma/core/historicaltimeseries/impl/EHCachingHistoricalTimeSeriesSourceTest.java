@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
+import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -50,7 +50,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
     LocalDate[] dates = {LocalDate.of(2011, 6, 30)};
     double[] values = {12.34d};
     ArrayLocalDateDoubleTimeSeries timeSeries = new ArrayLocalDateDoubleTimeSeries(dates, values);
-    HistoricalTimeSeries series = new HistoricalTimeSeriesImpl(UID, timeSeries);
+    HistoricalTimeSeries series = new SimpleHistoricalTimeSeries(UID, timeSeries);
     
     when(_underlyingSource.getHistoricalTimeSeries(UID)).thenReturn(series);
     
