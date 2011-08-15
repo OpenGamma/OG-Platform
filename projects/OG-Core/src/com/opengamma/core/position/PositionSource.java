@@ -6,7 +6,9 @@
 package com.opengamma.core.position;
 
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -33,19 +35,19 @@ public interface PositionSource extends ChangeProvider {
    */
   Portfolio getPortfolio(UniqueId uniqueId);
 
-//  /**
-//   * Gets a portfolio by object identifier and version-correction.
-//   * <p>
-//   * In combination, the object identifier and version-correction exactly specify
-//   * a single portfolio at a single version-correction.
-//   * 
-//   * @param objectId  the object identifier, not null
-//   * @param versionCorrection  the version-correction, not null
-//   * @return the portfolio, null if not found
-//   * @throws IllegalArgumentException if the identifier or version-correction is invalid
-//   * @throws RuntimeException if an error occurs
-//   */
-//  Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection);
+  /**
+   * Gets a portfolio by object identifier and version-correction.
+   * <p>
+   * In combination, the object identifier and version-correction exactly specify
+   * a single portfolio at a single version-correction.
+   * 
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction, not null
+   * @return the portfolio, null if not found
+   * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws RuntimeException if an error occurs
+   */
+  Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection);
 
   /**
    * Gets a node by unique identifier.

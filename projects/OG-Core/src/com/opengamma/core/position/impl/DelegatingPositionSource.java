@@ -14,8 +14,10 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -67,6 +69,13 @@ public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSo
   public Portfolio getPortfolio(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return chooseDelegate(uniqueId.getScheme()).getPortfolio(uniqueId);
+  }
+
+  @Override
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(objectId.getScheme()).getPortfolio(objectId, versionCorrection);
   }
 
   @Override

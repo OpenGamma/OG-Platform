@@ -91,7 +91,7 @@ public class SecuritySourceResource {
     serializer.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
-  
+
   /**
    * RESTful method to get a security by object identifier and version-correction.
    * 

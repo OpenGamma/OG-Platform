@@ -39,7 +39,9 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -55,9 +57,9 @@ public class CSVPositionSource implements PositionSource {
    */
   private final File _baseDirectory;
   /**
-   * The portfolio files by identifier.
+   * The portfolio by identifier.
    */
-  private final ConcurrentMap<UniqueId, Object> _portfolios = new ConcurrentSkipListMap<UniqueId, Object>();
+  private final ConcurrentMap<ObjectId, Object> _portfolios = new ConcurrentSkipListMap<ObjectId, Object>();
   /**
    * The nodes by identifier.
    */
@@ -116,7 +118,7 @@ public class CSVPositionSource implements PositionSource {
         continue;
       }
       String portfolioName = buildPortfolioName(file.getName());
-      _portfolios.put(UniqueId.of("CSV-" + file.getName(), portfolioName), file);
+      _portfolios.put(ObjectId.of("CSV-" + file.getName(), portfolioName), file);
     }
   }
 
@@ -137,17 +139,22 @@ public class CSVPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  public Set<UniqueId> getPortfolioIds() {
+  public Set<ObjectId> getPortfolioIds() {
     return Collections.unmodifiableSet(_portfolios.keySet());
   }
 
   @Override
   public Portfolio getPortfolio(UniqueId portfolioId) {
-    Object portfolio = _portfolios.get(portfolioId);
+    return getPortfolio(portfolioId.getObjectId(), VersionCorrection.LATEST);
+  }
+
+  @Override
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    Object portfolio = _portfolios.get(objectId);
     if (portfolio instanceof File) {
-      Portfolio created = loadPortfolio(portfolioId, (File) portfolio);
-      _portfolios.replace(portfolioId, portfolio, created);
-      portfolio = _portfolios.get(portfolioId);
+      Portfolio created = loadPortfolio(objectId, (File) portfolio);
+      _portfolios.replace(objectId, portfolio, created);
+      portfolio = _portfolios.get(objectId);
     }
     if (portfolio instanceof Portfolio) {
       return (Portfolio) portfolio;
@@ -177,7 +184,7 @@ public class CSVPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  private Portfolio loadPortfolio(UniqueId portfolioId, File file) {
+  private Portfolio loadPortfolio(ObjectId portfolioId, File file) {
     FileInputStream fis = null;
     try {
       fis = new FileInputStream(file);
@@ -189,8 +196,8 @@ public class CSVPositionSource implements PositionSource {
     }
   }
 
-  private Portfolio loadPortfolio(UniqueId portfolioId, InputStream inStream) throws IOException {
-    SimplePortfolio portfolio = new SimplePortfolio(portfolioId, portfolioId.getValue());
+  private Portfolio loadPortfolio(ObjectId portfolioId, InputStream inStream) throws IOException {
+    SimplePortfolio portfolio = new SimplePortfolio(portfolioId.atVersion("0"), portfolioId.getValue());
     UniqueId rootNodeId = UniqueId.of(portfolioId.getScheme(), "0");
     portfolio.getRootNode().setUniqueId(rootNodeId);
     _nodes.put(rootNodeId, portfolio.getRootNode());

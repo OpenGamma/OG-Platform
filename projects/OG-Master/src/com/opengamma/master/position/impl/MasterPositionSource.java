@@ -149,6 +149,21 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   }
 
   @Override
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ManageablePortfolio manPrt;
+    try {
+      manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
+    SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
+    convertNode(manPrt.getRootNode(), prt.getRootNode());
+    return prt;
+  }
+
+  @Override
   public PortfolioNode getPortfolioNode(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change

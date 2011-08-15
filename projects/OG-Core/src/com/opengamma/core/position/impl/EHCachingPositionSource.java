@@ -18,7 +18,9 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -135,70 +137,79 @@ public class EHCachingPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueId identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getPortfolio(identifier);
+  public Portfolio getPortfolio(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
+      if (portfolio != null) {
+        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
+      }
+      return portfolio;
     }
-    Element e = _portfolioCache.get(identifier);
+    Element e = _portfolioCache.get(uniqueId);
     if (e != null) {
       return (Portfolio) e.getValue();
     } else {
-      Portfolio p = getUnderlying().getPortfolio(identifier);
-      if (p != null) {
-        _portfolioCache.put(new Element(identifier, p));
+      Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
+      if (portfolio != null) {
+        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
       }
-      return p;
+      return portfolio;
     }
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getPortfolioNode(identifier);
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    return null;
+  }
+
+  @Override
+  public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return getUnderlying().getPortfolioNode(uniqueId);
     }
-    Element e = _portfolioNodeCache.get(identifier);
+    Element e = _portfolioNodeCache.get(uniqueId);
     if (e != null) {
       return (PortfolioNode) e.getValue();
     } else {
-      PortfolioNode pn = getUnderlying().getPortfolioNode(identifier);
-      if (pn != null) {
-        _portfolioNodeCache.put(new Element(identifier, pn));
+      PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId);
+      if (node != null) {
+        _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
       }
-      return pn;
+      return node;
     }
   }
 
   @Override
-  public Position getPosition(UniqueId identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getPosition(identifier);
+  public Position getPosition(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return getUnderlying().getPosition(uniqueId);
     }
-    Element e = _positionCache.get(identifier);
+    Element e = _positionCache.get(uniqueId);
     if (e != null) {
       return (Position) e.getValue();
     } else {
-      Position p = getUnderlying().getPosition(identifier);
-      if (p != null) {
-        _positionCache.put(new Element(identifier, p));
+      Position position = getUnderlying().getPosition(uniqueId);
+      if (position != null) {
+        _positionCache.put(new Element(position.getUniqueId(), position));
       }
-      return p;
+      return position;
     }
   }
 
   @Override
-  public Trade getTrade(UniqueId identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getTrade(identifier);
+  public Trade getTrade(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return getUnderlying().getTrade(uniqueId);
     }
-    Element e = _tradeCache.get(identifier);
+    Element e = _tradeCache.get(uniqueId);
     if (e != null) {
       return (Trade) e.getValue();
     } else {
-      Trade t = getUnderlying().getTrade(identifier);
-      if (t != null) {
-        _tradeCache.put(new Element(identifier, t));
+      Trade trade = getUnderlying().getTrade(uniqueId);
+      if (trade != null) {
+        _tradeCache.put(new Element(trade.getUniqueId(), trade));
       }
-      return t;
+      return trade;
     }
   }
 
