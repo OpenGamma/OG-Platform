@@ -153,7 +153,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     List<FudgeField> calcConfigs = message.getAllByName(CALCULATION_CONFIGURATION_FIELD);
     for (FudgeField calcConfigField : calcConfigs) {
       FudgeMsg calcConfigMsg = message.getFieldValue(FudgeMsg.class, calcConfigField);
-      final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue(String.class, calcConfigMsg.getByName(NAME_FIELD)) + i);
+      final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue(String.class, calcConfigMsg.getByName(NAME_FIELD)));
       for (FudgeField securityTypeRequirementsField : calcConfigMsg.getAllByName(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD)) {
         FudgeMsg securityTypeRequirementsMsg = (FudgeMsg) securityTypeRequirementsField.getValue();
         String securityType = securityTypeRequirementsMsg.getString(SECURITY_TYPE_FIELD);
