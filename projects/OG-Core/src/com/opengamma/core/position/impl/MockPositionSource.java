@@ -59,51 +59,21 @@ public class MockPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the list of all portfolio identifiers.
-   * 
-   * @return the portfolio identifiers, unmodifiable, not null
-   */
-  public Set<UniqueId> getPortfolioIds() {
-    return _portfolios.keySet();
-  }
-
-  /**
-   * Gets a specific root portfolio by name.
-   * 
-   * @param identifier  the identifier, null returns null
-   * @return the portfolio, null if not found
-   */
+  @Override
   public Portfolio getPortfolio(UniqueId identifier) {
     return identifier == null ? null : _portfolios.get(identifier);
   }
 
-  /**
-   * Finds a specific node from any portfolio by identifier.
-   * 
-   * @param identifier  the identifier, null returns null
-   * @return the node, null if not found
-   */
+  @Override
   public PortfolioNode getPortfolioNode(UniqueId identifier) {
     return identifier == null ? null : _nodes.get(identifier);
   }
 
-  /**
-   * Finds a specific position from any portfolio by identifier.
-   * 
-   * @param identifier  the identifier, null returns null
-   * @return the position, null if not found
-   */
+  @Override
   public Position getPosition(UniqueId identifier) {
     return identifier == null ? null : _positions.get(identifier);
   }
 
-  /**
-   * Finds a specific trade from any portfolio by identifier.
-   * 
-   * @param uniqueId  the identifier, null returns null
-   * @return the trade, null if not found
-   */
   @Override
   public Trade getTrade(UniqueId uniqueId) {
     return uniqueId == null ? null : _trades.get(uniqueId);
@@ -116,6 +86,15 @@ public class MockPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the list of all portfolio identifiers.
+   * 
+   * @return the portfolio identifiers, unmodifiable, not null
+   */
+  public Set<UniqueId> getPortfolioIds() {
+    return _portfolios.keySet();
+  }
+
   /**
    * Adds a portfolio to the master.
    * 

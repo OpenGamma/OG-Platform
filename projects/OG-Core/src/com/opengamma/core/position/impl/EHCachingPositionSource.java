@@ -100,7 +100,6 @@ public class EHCachingPositionSource implements PositionSource {
     _tradeCache = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
     _changeManager = new BasicChangeManager();
     _changeListener = new ChangeListener() {
-      
       @Override
       public void entityChanged(ChangeEvent event) {
         if (event.getBeforeId() != null) {
@@ -111,7 +110,6 @@ public class EHCachingPositionSource implements PositionSource {
         }
         changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
       }
-      
     };
     underlying.changeManager().addChangeListener(_changeListener);
   }
@@ -203,7 +201,7 @@ public class EHCachingPositionSource implements PositionSource {
       return t;
     }
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
@@ -222,7 +220,7 @@ public class EHCachingPositionSource implements PositionSource {
     _cacheManager.removeCache(TRADE_CACHE);
     _cacheManager.shutdown();
   }
-  
+
   //-------------------------------------------------------------------------
   private void cleanCaches(UniqueId id) {
     // Only care where the unversioned ID has been cached since it now represents something else

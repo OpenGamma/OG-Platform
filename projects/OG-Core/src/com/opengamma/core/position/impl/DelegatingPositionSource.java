@@ -28,8 +28,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSource> implements PositionSource {
 
+  /**
+   * The change manager.
+   */
   private final ChangeManager _changeManager;
-  
+
   /**
    * Creates an instance specifying the default delegate.
    * 

@@ -34,7 +34,7 @@ public interface PortfolioNode extends UniqueIdentifiable {
   UniqueId getUniqueId();
 
   /**
-   * Gets the unique identifier of the parent node, or {@code null} if this is a root node.
+   * Gets the unique identifier of the parent node, or null if this is a root node.
    * 
    * @return the unique identifier, null if root node
    */
