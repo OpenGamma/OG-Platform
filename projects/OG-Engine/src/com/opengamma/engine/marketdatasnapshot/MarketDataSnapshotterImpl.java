@@ -20,6 +20,8 @@ import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -38,6 +40,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
  */
 public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
+  private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   @Override
   public StructuredMarketDataSnapshot createSnapshot(ViewClient client, ViewCycle cycle) {
     CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
@@ -58,8 +61,8 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
       Map<String, DependencyGraph> graphs, ViewCycle viewCycle, String basisViewName) {
     UnstructuredMarketDataSnapshot globalValues = getGlobalValues(results, graphs);
 
+    Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
     /* TODO 
-     * var yieldCurves = YieldCurveSnapper.GetValues(results, graphs, viewCycle, remoteEngineContext);
      *
     var volCubeDefinitions = CubeSnapper.GetValues(results, graphs, viewCycle, remoteEngineContext);
     var volSurfaceDefinitions = SurfaceSnapper.GetValues(results, graphs, viewCycle, remoteEngineContext);
@@ -67,6 +70,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
+    ret.setYieldCurves(yieldCurves);
     return ret;
   }
 
@@ -76,15 +80,15 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     //TODO var includedGlobalData = data
     //TODO     .Where(d => includedSpecs.Contains(Tuple.Create(d.Specification.TargetSpecification, d.Specification.ValueName)));
 
-    ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget = Multimaps.index(data, 
+    ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget = Multimaps.index(data,
         new Function<ComputedValue, MarketDataValueSpecification>() {
 
-      @Override
-      public MarketDataValueSpecification apply(ComputedValue r) {
-        ComputationTargetSpecification targetSpec = r.getSpecification().getTargetSpecification();
-        return new MarketDataValueSpecification(getMarketType(targetSpec.getType()), targetSpec.getUniqueId());
-      }
-    });
+          @Override
+          public MarketDataValueSpecification apply(ComputedValue r) {
+            ComputationTargetSpecification targetSpec = r.getSpecification().getTargetSpecification();
+            return new MarketDataValueSpecification(getMarketType(targetSpec.getType()), targetSpec.getUniqueId());
+          }
+        });
         
     Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> dict = getGlobalValues(dataByTarget);
 
