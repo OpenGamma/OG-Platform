@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdatasnapshot;
+package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +36,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotter;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -43,6 +44,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 
 /**
  * Default implementation of {@link MarketDataSnapshotter}.
@@ -50,11 +52,26 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
  */
 public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
+  private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
+  
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
-  private final VolatilityCubeSnapper _volatilityCubeSnapper = new VolatilityCubeSnapper();
+  private final VolatilityCubeSnapper _volatilityCubeSnapper;
   @SuppressWarnings("rawtypes")
-  private final StructuredSnapper[] _structuredSnappers = new StructuredSnapper[]{_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper }; 
+  private final StructuredSnapper[] _structuredSnappers;
+  
+  
+  
+  /**
+   * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls ) 
+   */
+  public MarketDataSnapshotterImpl(VolatilityCubeDefinitionSource cubeDefinitionSource) {
+    super();
+    _cubeDefinitionSource = cubeDefinitionSource;
+    _volatilityCubeSnapper =  new VolatilityCubeSnapper(_cubeDefinitionSource);
+    _structuredSnappers = new StructuredSnapper[]{_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
+  }
+
   @Override
   public StructuredMarketDataSnapshot createSnapshot(ViewClient client, ViewCycle cycle) {
     CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();

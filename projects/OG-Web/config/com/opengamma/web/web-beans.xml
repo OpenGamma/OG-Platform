@@ -43,6 +43,7 @@
    <!-- Snapshotter  service -->
   <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
     <constructor-arg name="processors" ref="viewProcessorRestBean" />
+    <constructor-arg name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
   </bean>
   
   <!-- Security source/master service -->

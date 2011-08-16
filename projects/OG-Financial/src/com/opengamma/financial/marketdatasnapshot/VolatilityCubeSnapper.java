@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdatasnapshot;
+package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +20,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -30,8 +32,11 @@ import com.opengamma.util.tuple.Pair;
 public class VolatilityCubeSnapper extends
     StructuredSnapper<VolatilityCubeKey, VolatilityCubeData, VolatilityCubeSnapshot> {
 
-  public VolatilityCubeSnapper() {
+  private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
+
+  public VolatilityCubeSnapper(VolatilityCubeDefinitionSource cubeDefinitionSource) {
     super(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA);
+    _cubeDefinitionSource = cubeDefinitionSource;
   }
 
   @Override
@@ -42,23 +47,24 @@ public class VolatilityCubeSnapper extends
   }
 
   @Override
-  VolatilityCubeSnapshot buildSnapshot(ViewComputationResultModel resultModel, VolatilityCubeKey key,
-      VolatilityCubeData volatilityCubeData) {
-    /*
-     * TODO: null placeholders for whole of defn
-     foreach (var ycp in volatilityCubeDefinition.AllPoints)
-    {
-        ret.SetPoint(ycp, new ValueSnapshot(null));
-    }
-    */
-
+  VolatilityCubeSnapshot buildSnapshot(ViewComputationResultModel resultModel, VolatilityCubeKey key, VolatilityCubeData volatilityCubeData) {
     ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
+    
     ManageableUnstructuredMarketDataSnapshot otherValues = getUnstructured(volatilityCubeData.getOtherData());
 
     Map<VolatilityPoint, ValueSnapshot> values = new HashMap<VolatilityPoint, ValueSnapshot>();
+    
+    //fill with nulls
+    VolatilityCubeDefinition definition = _cubeDefinitionSource.getDefinition(key.getCurrency(), key.getName());
+    
+    Iterable<VolatilityPoint> allPoints = definition.getAllPoints();
+    for (VolatilityPoint point : allPoints) {
+      values.put(point, new ValueSnapshot(null));
+    }
+    
     for (Entry<VolatilityPoint, Double> ycp : volatilityCubeData.getDataPoints().entrySet()) {
       values.put(ycp.getKey(), new ValueSnapshot(ycp.getValue()));
-    }
+    }   
 
     Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
     for (Entry<Pair<Tenor, Tenor>, Double> strike : volatilityCubeData.getStrikes().entrySet()) {

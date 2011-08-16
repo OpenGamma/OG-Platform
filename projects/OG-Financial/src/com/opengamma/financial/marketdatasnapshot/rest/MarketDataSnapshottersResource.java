@@ -11,8 +11,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotter;
-import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotterImpl;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
 import com.opengamma.financial.view.rest.DataViewProcessorsResource;
 
 /**
@@ -23,15 +24,17 @@ import com.opengamma.financial.view.rest.DataViewProcessorsResource;
 public class MarketDataSnapshottersResource {
   //private final Map<UniqueId, MarketDataSnapshotterResource> _resourceMap = new HashMap<UniqueId, MarketDataSnapshotterResource>();
   private final DataViewProcessorsResource _processors;
-
-  public MarketDataSnapshottersResource(final DataViewProcessorsResource processors) {
+  private final VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
+  
+  public MarketDataSnapshottersResource(final DataViewProcessorsResource processors, VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
     _processors = processors;
+    _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
   
   @Path("{viewProcessorId}")
   public MarketDataSnapshotterResource createFromViewProcessor(@PathParam("viewProcessorId") String viewProcessorId) {
     ViewProcessor viewProcessor = _processors.findViewProcessor(viewProcessorId).getViewProcessor();
-    return new MarketDataSnapshotterResource(viewProcessor, new MarketDataSnapshotterImpl());
+    return new MarketDataSnapshotterResource(viewProcessor, new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource));
   }
   
   @GET

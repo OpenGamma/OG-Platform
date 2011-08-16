@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdatasnapshot;
+package com.opengamma.financial.marketdatasnapshot;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
