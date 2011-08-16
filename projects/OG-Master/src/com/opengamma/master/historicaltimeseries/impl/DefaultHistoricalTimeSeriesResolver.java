@@ -68,7 +68,7 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
     searchRequest.setDataField(dataField);
     HistoricalTimeSeriesInfoSearchResult searchResult = _master.search(searchRequest);
     if (searchResult.getDocuments().isEmpty()) {
-      s_logger.warn("Resolver failed to find any time-series: {} {}", dataField, identifiers);
+      s_logger.warn("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifiers, dataField, resolutionKey});
       return null;
     }
     
