@@ -122,30 +122,44 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
 
       private final FunctionCompilationContext _context = functionRepository.getCompilationContext();
+      private final Map<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>> _resultsCache =
+          new HashMap<ComputationTarget, Map<CompiledFunctionDefinition, Set<ValueSpecification>>>();
 
       private Set<ValueSpecification> satisfyRequirement(final Set<CompiledFunctionDefinition> visited, final ComputationTarget target, final ValueRequirement requirement) {
-        Set<ValueSpecification> allResults = null;
-        for (CompiledFunctionDefinition function : functions) {
-          if (visited.add(function)) {
+        Map<CompiledFunctionDefinition, Set<ValueSpecification>> functionResults = _resultsCache.get(target);
+        if (functionResults == null) {
+          functionResults = new HashMap<CompiledFunctionDefinition, Set<ValueSpecification>>();
+          for (CompiledFunctionDefinition function : functions) {
             try {
               if ((function.getTargetType() == target.getType()) && function.canApplyTo(_context, target)) {
                 final Set<ValueSpecification> results = function.getResults(_context, target);
-                for (ValueSpecification result : results) {
-                  if (requirement.isSatisfiedBy(result)) {
-                    final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visited, function, target, requirement, result.compose(requirement));
-                    if (resolved != null) {
-                      if (allResults == null) {
-                        allResults = new HashSet<ValueSpecification>();
-                      }
-                      allResults.addAll(resolved);
-                    }
-                  }
+                if (results != null) {
+                  functionResults.put(function, results);
                 }
               }
             } catch (Throwable t) {
               s_logger.error("Error applying {} to {}", function, target);
               s_logger.warn("Exception thrown", t);
             }
+          }
+          _resultsCache.put(target, functionResults);
+        }
+        Set<ValueSpecification> allResults = null;
+        for (Map.Entry<CompiledFunctionDefinition, Set<ValueSpecification>> functionResult : functionResults.entrySet()) {
+          final CompiledFunctionDefinition function = functionResult.getKey();
+          if (visited.add(function)) {
+            for (ValueSpecification result : functionResult.getValue()) {
+              if (requirement.isSatisfiedBy(result)) {
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visited, function, target, requirement, result.compose(requirement));
+                if (resolved != null) {
+                  if (allResults == null) {
+                    allResults = new HashSet<ValueSpecification>();
+                  }
+                  allResults.addAll(resolved);
+                }
+              }
+            }
+            visited.remove(function);
           }
         }
         return allResults;
@@ -166,11 +180,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           if (targetSpec.getUniqueId() != null) {
             final Object requirementTarget = targetCache.get(targetSpec.getUniqueId());
             if (requirementTarget != null) {
-              final Set<CompiledFunctionDefinition> visitedCopy = new HashSet<CompiledFunctionDefinition>();
-              if (visited != null) {
-                visitedCopy.addAll(visited);
-              }
-              final Set<ValueSpecification> satisfied = satisfyRequirement(visitedCopy, new ComputationTarget(requirementTarget), requirement);
+              final Set<ValueSpecification> satisfied = satisfyRequirement(visited, new ComputationTarget(requirementTarget), requirement);
               if (satisfied == null) {
                 s_logger.debug("Can't satisfy {} for function {}", requirement, function);
                 return null;
@@ -198,13 +208,18 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           if (inputSet.isEmpty()) {
             break;
           } else {
-            final Set<ValueSpecification> results = function.getResults(_context, target, inputSet);
-            if (results != null) {
-              for (ValueSpecification result : results) {
-                if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
-                  outputs.add(result);
+            try {
+              final Set<ValueSpecification> results = function.getResults(_context, target, inputSet);
+              if (results != null) {
+                for (ValueSpecification result : results) {
+                  if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
+                    outputs.add(result);
+                  }
                 }
               }
+            } catch (Throwable t) {
+              s_logger.error("Error applying {} to {}", function, target);
+              s_logger.warn("Exception thrown", t);
             }
             inputSet.clear();
           }
@@ -220,12 +235,15 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       @Override
       public void preOrderOperation(final PortfolioNode portfolioNode) {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
+        final Set<CompiledFunctionDefinition> visitedFunctions = new HashSet<CompiledFunctionDefinition>();
         for (CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(null, function, target, new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
+                visitedFunctions.clear();
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
+                    .getTargetSpecification()), result);
                 if (resolved != null) {
                   for (ValueSpecification resolvedItem : resolved) {
                     portfolioNodeOutput(resolvedItem.getValueName(), resolvedItem.getProperties());
@@ -243,12 +261,15 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       @Override
       public void preOrderOperation(final Position position) {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, position);
+        final Set<CompiledFunctionDefinition> visitedFunctions = new HashSet<CompiledFunctionDefinition>();
         for (CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(null, function, target, new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
+                visitedFunctions.clear();
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
+                    .getTargetSpecification()), result);
                 if (resolved != null) {
                   for (ValueSpecification resolvedItem : resolved) {
                     positionOutput(resolvedItem.getValueName(), position.getSecurity().getSecurityType(), resolvedItem.getProperties());
