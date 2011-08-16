@@ -32,21 +32,33 @@
     <url-pattern>/</url-pattern>
   </servlet-mapping>-->
 
-<!--
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:/com/opengamma/web/test-web-push.xml</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
   <servlet>
-    <servlet-name>resttest</servlet-name>
-    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <servlet-name>rest</servlet-name>
+    <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+    <!--<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>-->
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
       <param-value>com.opengamma.web.server.push.test.TestApplication</param-value>
     </init-param>
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
+      <param-value>com.opengamma.web.server.push.web.SubscribingFilterFactory</param-value>
+    </init-param>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>resttest</servlet-name>
-    <url-pattern>/</url-pattern>
+    <servlet-name>rest</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
--->
 
   <servlet>
     <servlet-name>handshake</servlet-name>

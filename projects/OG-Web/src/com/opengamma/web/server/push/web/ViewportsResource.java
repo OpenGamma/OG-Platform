@@ -21,11 +21,11 @@ import javax.ws.rs.core.MediaType;
  *
  */
 @Path("viewport")
-public class Viewports {
+public class ViewportsResource {
 
   private final SubscriptionManager _subscriptionManager;
 
-  public Viewports(SubscriptionManager subscriptionManager) {
+  public ViewportsResource(SubscriptionManager subscriptionManager) {
     _subscriptionManager = subscriptionManager;
   }
 
@@ -36,15 +36,14 @@ public class Viewports {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
-  String createViewport(ViewportSubscriptionRequest request) {
+  String createViewport(/*TODO this arg is wrong (at least the name is wrong)*/ViewportSubscriptionRequest request) {
     //_subscriptionManager.
     throw new UnsupportedOperationException("TODO");
   }
 
   @GET
-  @Path("{viewportId}")
-  String getLatestViewportData(@PathParam("viewportId") UniqueId viewportId) {
+  @Path("{clientId}/{viewportId}")
+  String getLatestViewportData(@PathParam("clientId") String clientId, @PathParam("viewportId") UniqueId viewportId) {
     throw new UnsupportedOperationException("TODO");
   }
-
 }

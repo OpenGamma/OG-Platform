@@ -88,6 +88,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.mail/javamail/jars/smtp-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.mail/javamail/jars/mailapi-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.activation/jaf/jars/activation-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-aspects-3.0.4.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
@@ -147,6 +148,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.backport-jsr166/backport-util-concurrent/sources/backport-util-concurrent-Java50-3.1.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.backport-jsr166/backport-util-concurrent/sources/backport-util-concurrent-Java60-3.1.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/servletapi/sources/source-2.5.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/sources/spring-aspects-src-3.0.4.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -59,14 +59,15 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
 
   // TODO need to work out what the url is for? or just pass to the ClientConnection and let that figure it out?
   @Override
-  public boolean subscribe(String userId, String clientId, List<String> urls) {
-    throw new UnsupportedOperationException("subscribe not implemented");
+  public boolean subscribe(String userId, String clientId, UniqueId uid) {
+    return false;
+    //return getConnection(userId, clientId).subscribe(urls);
   }
 
   //
   // TODO need to generate a URL to GET the viewport data. lastest view data available from /viewport/{viewportId}?
   // TODO is this still correct? does Viewport create the viewport and notify this class? the request arg should be viewportId
-  // TODO maybe the API should be completely different - Viewports manages the clients and this class receives events when they change
+  // TODO maybe the API should be completely different - ViewportsResource manages the clients and this class receives events when they change
   // TODO but what about closing subscriptions? the client connection needs to know about its viewports
   // TODO or the ViewportManager could key on client ID and implement a disconnect() method
   // TODO making everying go through ClientConnection might make concurrency easier to manage

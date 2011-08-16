@@ -9,6 +9,7 @@ import com.opengamma.id.UniqueId;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Associated with one client connection (i.e. one browser window / tab / client app instance). Can be associated
@@ -68,5 +69,10 @@ public class ClientConnection {
 
   public void disconnect() {
     // TODO dispose of all the subscriptions
+  }
+
+  public boolean subscribe(List<String> urls) {
+    // TODO implement ClientConnection.subscribe()
+    throw new UnsupportedOperationException("subscribe not implemented");
   }
 }

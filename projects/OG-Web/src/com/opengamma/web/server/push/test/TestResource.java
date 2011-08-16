@@ -5,19 +5,27 @@
  */
 package com.opengamma.web.server.push.test;
 
+import com.opengamma.web.server.push.web.MasterType;
+import com.opengamma.web.server.push.web.Subscribe;
+import com.opengamma.web.server.push.web.SubscribeMaster;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 /**
  *
  */
-@Path("/testresource")
+@Path("/test")
 public class TestResource {
 
   @GET
   @Produces("text/plain")
-  public String getMessage() {
-    return "Hello World";
+  @Path("{name}")
+  @SubscribeMaster(MasterType.HOLIDAY)
+  public String getMessage(@Subscribe @PathParam("name") String name, @QueryParam("clientId") String clientId) {
+    return "Hello " + name + ", clientId=" + clientId;
   }
 }

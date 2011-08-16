@@ -27,6 +27,7 @@ import java.util.List;
  * and returns 404 if the client ID isn't in the URL or doesn't correspond to an existing client connection.
  * @see LongPollingServlet
  * @see HandshakeServlet
+ * TODO this only applies to viewports now, FIX
  */
 public class SubscriptionsServlet extends SpringConfiguredServlet {
 
@@ -49,8 +50,9 @@ public class SubscriptionsServlet extends SpringConfiguredServlet {
     while ((url = reader.readLine()) != null) {
       urls.add(url);
     }
-    if (!_subscriptionManager.subscribe(userId, clientId, urls)) {
+    // TODO sort this
+    /*if (!_subscriptionManager.subscribe(userId, clientId, urls)) {
       response.sendError(404);
-    }
+    }*/
   }
 }

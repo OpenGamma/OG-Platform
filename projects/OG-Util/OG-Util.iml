@@ -134,7 +134,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/jars/scannotation-1.0.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/jars/joda-convert-1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.servlet/servletapi/jars/servletapi-2.5.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />

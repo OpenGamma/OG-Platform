@@ -9,7 +9,6 @@ import com.opengamma.web.server.push.subscription.TestSubscriptionManager;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -21,12 +20,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
@@ -34,8 +32,6 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 @Test
 public class LongPollingTest {
-
-  public static final String CLIENT_ID = "CLIENT_ID";
 
   private static final String s_urlBase = "http://localhost:8080/";
   private static final String RESULT1 = "RESULT1";
@@ -78,10 +74,6 @@ public class LongPollingTest {
     context.setContextPath("/");
     context.setResourceBase("build/classes");
     context.setDescriptor("web-push/WEB-INF/web.xml");
-    Map<String, String> params = new HashMap<String, String>();
-    params.put("contextConfigLocation", "classpath:/com/opengamma/web/test-web-push.xml");
-    context.setInitParams(params);
-    context.addEventListener(new ContextLoaderListener());
     _server = new Server();
     _server.addConnector(connector);
     _server.setHandler(context);
@@ -94,8 +86,8 @@ public class LongPollingTest {
 
   @Test
   public void handshake() throws IOException {
-    String result = readFromPath("handshake");
-    assertEquals(CLIENT_ID, result);
+    String clientId = readFromPath("handshake");
+    assertNotNull(clientId);
   }
 
   /**
@@ -120,7 +112,7 @@ public class LongPollingTest {
   @Test
   public void longPollNotBlocking() throws IOException {
     String clientId = readFromPath("handshake");
-    _subscriptionManager.sendUpdate(RESULT1);
+    _subscriptionManager.sendUpdate(clientId, RESULT1);
     String result = readFromPath("updates/" + clientId);
     assertEquals(RESULT1, result);
   }
@@ -131,9 +123,9 @@ public class LongPollingTest {
   @Test
   public void longPollQueue() throws IOException {
     String clientId = readFromPath("handshake");
-    _subscriptionManager.sendUpdate(RESULT1);
-    _subscriptionManager.sendUpdate(RESULT2);
-    _subscriptionManager.sendUpdate(RESULT3);
+    _subscriptionManager.sendUpdate(clientId, RESULT1);
+    _subscriptionManager.sendUpdate(clientId, RESULT2);
+    _subscriptionManager.sendUpdate(clientId, RESULT3);
     String result = readFromPath("updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
@@ -149,11 +141,11 @@ public class LongPollingTest {
   @Test
   public void longPollQueueMultipleUpdates() throws IOException {
     String clientId = readFromPath("handshake");
-    _subscriptionManager.sendUpdate(RESULT1);
-    _subscriptionManager.sendUpdate(RESULT1);
-    _subscriptionManager.sendUpdate(RESULT2);
-    _subscriptionManager.sendUpdate(RESULT3);
-    _subscriptionManager.sendUpdate(RESULT2);
+    _subscriptionManager.sendUpdate(clientId, RESULT1);
+    _subscriptionManager.sendUpdate(clientId, RESULT1);
+    _subscriptionManager.sendUpdate(clientId, RESULT2);
+    _subscriptionManager.sendUpdate(clientId, RESULT3);
+    _subscriptionManager.sendUpdate(clientId, RESULT2);
     String result = readFromPath("updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
@@ -196,7 +188,7 @@ public class LongPollingTest {
         e.printStackTrace();
       }
     }
-    _subscriptionManager.sendUpdate(result);
+    _subscriptionManager.sendUpdate(clientId, result);
   }
 
   @AfterClass

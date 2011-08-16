@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push.subscription;
 
-import java.util.List;
+import com.opengamma.id.UniqueId;
 
 /**
  *
@@ -23,12 +23,11 @@ public interface SubscriptionManager {
   void closeConnection(String userId, String clientId);
 
   /**
-   * Subscribes for updates for entities and viewports.  The {@link SubscriptionListener} associated with the
-   * client will be called when something is updated.
+   * The {@link SubscriptionListener} associated with the client will be called when something is updated.
    * @param userId ID of the user
    * @param clientId ID of the connection
-   * @param urls REST URLs of the objects the client wants to see updates for
+   * @param uid The {@code UniqueId} of the entity for which updates are required
    * @return {@code false} if {@code clientId} doesn't correspond to an existing client connection
    */
-  boolean subscribe(String userId, String clientId, List<String> urls); 
+  boolean subscribe(String userId, String clientId, UniqueId uid);
 }
