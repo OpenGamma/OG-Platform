@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:/com/opengamma/web/long-poll-test.xml</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>handshake</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.web.HandshakeServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>handshake</servlet-name>
+    <url-pattern>/handshake</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>updates</servlet-name>
+    <servlet-class>com.opengamma.web.server.push.web.LongPollingServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>updates</servlet-name>
+    <url-pattern>/updates/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>
