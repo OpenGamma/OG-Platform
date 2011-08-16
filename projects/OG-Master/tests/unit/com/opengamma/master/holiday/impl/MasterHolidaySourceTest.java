@@ -5,23 +5,25 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -40,7 +42,8 @@ public class MasterHolidaySourceTest {
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
   private static final LocalDate DATE_SUNDAY = LocalDate.of(2010, 10, 24);
   private static final Currency GBP = Currency.GBP;
-  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final ObjectId OID = ObjectId.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B", "V");
   private static final ExternalId ID = ExternalId.of("C", "D");
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
   private static final Instant NOW = Instant.now();
@@ -57,7 +60,7 @@ public class MasterHolidaySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getHoliday_noOverride_found() throws Exception {
+  public void test_getHoliday_UniqueId_noOverride_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
     HolidayDocument doc = new HolidayDocument(example());
@@ -69,27 +72,40 @@ public class MasterHolidaySourceTest {
     assertEquals(example(), testResult);
   }
 
-  public void test_getHoliday_found() throws Exception {
+  public void test_getHoliday_UniqueId_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
     HolidayDocument doc = new HolidayDocument(example());
-    when(mock.get(UID, VC)).thenReturn(doc);
+    when(mock.get(OID, VC)).thenReturn(doc);
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     Holiday testResult = test.getHoliday(UID);
-    verify(mock, times(1)).get(UID, VC);
+    verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
   }
 
-  public void test_getHoliday_notFound() throws Exception {
+  public void test_getHoliday_UniqueId_notFound() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
-    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
     Holiday testResult = test.getHoliday(UID);
-    verify(mock, times(1)).get(UID, VC);
+    verify(mock, times(1)).get(OID, VC);
     
     assertEquals(null, testResult);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getHoliday_ObjectId_found() throws Exception {
+    HolidayMaster mock = mock(HolidayMaster.class);
+    
+    HolidayDocument doc = new HolidayDocument(example());
+    when(mock.get(OID, VC)).thenReturn(doc);
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    Holiday testResult = test.getHoliday(OID, VC);
+    verify(mock, times(1)).get(OID, VC);
+    
+    assertEquals(example(), testResult);
   }
 
   //-------------------------------------------------------------------------

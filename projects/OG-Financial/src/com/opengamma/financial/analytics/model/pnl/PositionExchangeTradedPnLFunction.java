@@ -3,22 +3,25 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.pnl;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.financial.analytics.model.pnl.AbstractPositionPnLFunction;
-import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  * 
  */
-public class PositionEquityPnLFunction extends AbstractPositionPnLFunction {
+public class PositionExchangeTradedPnLFunction extends AbstractPositionPnLFunction {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquitySecurity;
+    Security security = target.getPosition().getSecurity();
+     
+    boolean value = (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
+    return value;
   }
   
   @Override

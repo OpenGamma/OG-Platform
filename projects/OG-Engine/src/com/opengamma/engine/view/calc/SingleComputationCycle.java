@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -61,7 +64,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SingleComputationCycle implements ViewCycle, EngineResource {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
-  
+
   // Injected inputs
   private final UniqueId _cycleId;
   private final UniqueId _viewProcessId;
@@ -98,7 +101,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _viewProcessId = viewProcessId;
     _viewProcessContext = viewProcessContext;
     _compiledViewDefinition = compiledViewDefinition;
-    
+
     _executionOptions = executionOptions;
 
     _resultModel = new InMemoryViewComputationResultModel();
@@ -113,7 +116,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
-  
+
   //-------------------------------------------------------------------------
   public Instant getValuationTime() {
     return _executionOptions.getValuationTime();
@@ -154,12 +157,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   public GraphExecutorStatisticsGatherer getStatisticsGatherer() {
     return _statisticsGatherer;
-  } 
+  }
 
   public Map<String, ViewComputationCache> getCachesByCalculationConfiguration() {
     return Collections.unmodifiableMap(_cachesByCalculationConfiguration);
   }
-  
+
   public ViewProcessContext getViewProcessContext() {
     return _viewProcessContext;
   }
@@ -167,7 +170,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   public Set<String> getAllCalculationConfigurationNames() {
     return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public UniqueId getUniqueId() {
@@ -178,13 +181,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   public UniqueId getViewProcessId() {
     return _viewProcessId;
   }
-  
+
   @Override
   public ViewCycleState getState() {
     return _state;
   }
 
-  
   @Override
   public Duration getDuration() {
     ViewCycleState state = getState();
@@ -193,31 +195,31 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     return Duration.between(getStartTime(), getEndTime() == null ? Instant.now() : getEndTime());
   }
-  
+
   @Override
   public CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition() {
     return _compiledViewDefinition;
   }
-  
+
   @Override
   public InMemoryViewComputationResultModel getResultModel() {
     return _resultModel;
   }
-  
+
   @Override
   public ComputationCacheResponse queryComputationCaches(ComputationCacheQuery query) {
     ArgumentChecker.notNull(query, "query");
     ArgumentChecker.notNull(query.getCalculationConfigurationName(), "calculationConfigurationName");
     ArgumentChecker.notNull(query.getValueSpecifications(), "valueSpecifications");
-    
+
     ViewComputationCache cache = getComputationCache(query.getCalculationConfigurationName());
     if (cache == null) {
       throw new DataNotFoundException("No computation cache for calculation configuration '" + query.getCalculationConfigurationName()
           + "' was found.");
     }
-    
+
     Collection<Pair<ValueSpecification, Object>> result = cache.getValues(query.getValueSpecifications());
-    
+
     ComputationCacheResponse response = new ComputationCacheResponse();
     response.setResults(result);
     return response;
@@ -236,16 +238,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
    *                               still must be called.
    */
-  public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot) throws InterruptedException {    
+  public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot) throws InterruptedException {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
     _startTime = Instant.now();
     _state = ViewCycleState.EXECUTING;
 
-    createAllCaches();    
+    createAllCaches();
     prepareInputs(marketDataSnapshot);
-    
+
     if (previousCycle != null) {
       computeDelta(previousCycle);
     }
@@ -287,11 +289,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
 
     _endTime = Instant.now();
-    
+
     populateResultModel();
     _state = ViewCycleState.EXECUTED;
   }
- 
+
   // 2011-08-15 Andrew -- temporary hack to allow calc configurations to shift market data
   // Map contains computation cache and NULL for no shift or the number to multiple the raw amount by
   private Map<ViewComputationCache, Double> getCacheMarketDataInfo() {
@@ -331,7 +333,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       // we should be querying with a "specification" and not a requirement.
       Object data = snapshot.query(marketDataRequirement.getKey());
       ComputedValue dataAsValue;
-      
+
       if (data == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
         missingMarketData.add(marketDataRequirement.getValue());
@@ -359,7 +361,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     return sb.toString();
   }
-  
+
   /**
    * 
    */
@@ -381,22 +383,40 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       if (cacheMarketData.getValue() == null) {
         cacheValue = dataAsValue;
       } else {
-        if (dataAsValue.getValue() instanceof Double) {
-          final Double value = (Double) dataAsValue.getValue();
-          cacheValue = new ComputedValue(dataAsValue.getSpecification(), value * cacheMarketData.getValue());
+        if (shouldShiftData(dataAsValue.getSpecification().getTargetSpecification())) {
+          if (dataAsValue.getValue() instanceof Double) {
+            final Double value = (Double) dataAsValue.getValue();
+            cacheValue = new ComputedValue(dataAsValue.getSpecification(), value * cacheMarketData.getValue());
+          } else {
+            s_logger.warn("Can't shift market data {} - not a double", dataAsValue);
+            cacheValue = dataAsValue;
+          }
         } else {
-          s_logger.warn("Can't shift market data {} - not a double", dataAsValue);
           cacheValue = dataAsValue;
         }
       }
       cache.putSharedValue(cacheValue);
     }
   }
-  
+
+  private boolean shouldShiftData(final ComputationTargetSpecification targetSpec) {
+    if (targetSpec.getType() == ComputationTargetType.SECURITY) {
+      final Security security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
+      if (security == null) {
+        return false;
+      }
+      // Hack to only shift equities
+      if (security.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_TICKER).contains("Equity")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private ViewComputationCache getComputationCache(String calcConfigName) {
     return _cachesByCalculationConfiguration.get(calcConfigName);
   }
-  
+
   /**
    * Determine which live data inputs have changed between iterations, and:
    * <ul>
@@ -421,22 +441,22 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       deltaCalculator.computeDelta();
 
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize()});
+          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
 
       Collection<ValueSpecification> specsToCopy = new HashSet<ValueSpecification>();
-      
+
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         markExecuted(unchangedNode);
         specsToCopy.addAll(unchangedNode.getOutputValues());
       }
-      
+
       copyValues(cache, previousCache, specsToCopy);
     }
   }
 
   private void copyValues(ViewComputationCache cache, ViewComputationCache previousCache, Collection<ValueSpecification> specsToCopy) {
     Collection<Pair<ValueSpecification, Object>> valuesToCopy = previousCache.getValues(specsToCopy);
-    
+
     Collection<ComputedValue> newValues = new HashSet<ComputedValue>();
     for (Pair<ValueSpecification, Object> pair : valuesToCopy) {
       Object previousValue = pair.getSecond();
@@ -446,7 +466,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     cache.putSharedValues(newValues);
   }
-  
+
   private void populateResultModel() {
     getResultModel().setCalculationTime(Instant.now());
     getResultModel().setCalculationDuration(getDuration());
@@ -471,7 +491,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
     }
   }
-  
+
   private DependencyGraph getDependencyGraph(String calcConfName) {
     DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfName);
     return depGraph;
@@ -501,7 +521,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   @Override
   public void release() {
     if (getState() == ViewCycleState.DESTROYED) {
-      throw new IllegalStateException("View cycle " + getUniqueId() +  " has already been released");
+      throw new IllegalStateException("View cycle " + getUniqueId() + " has already been released");
     }
     if (getViewDefinition().isDumpComputationCacheToDisk()) {
       dumpComputationCachesToDisk();

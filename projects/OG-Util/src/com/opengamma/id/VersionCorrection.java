@@ -132,7 +132,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
     Instant correctedTo = parseInstantString(corrStr);
     return of(versionAsOf, correctedTo);
   }
-  
+
   /**
    * Parses a {@code VersionCorrection} from standard string representations of the
    * version and correction.
@@ -152,7 +152,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
     Instant correctedTo = parseInstantString(correctedToString);
     return of(versionAsOf, correctedTo);
   }
-  
+
   /**
    * Parses a version-correction {@code Instant} from a standard string representation.
    * <p>
@@ -167,7 +167,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
       return null;
     } else {
       try {
-        return OffsetDateTime.parse(instantStr).toInstant();  // TODO: should be Instant.parse()
+        return OffsetDateTime.parse(instantStr).toInstant();  // TODO: JSR-310 should be Instant.parse()
       } catch (CalendricalException ex) {
         throw new IllegalArgumentException(ex);
       }
@@ -196,18 +196,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   public Instant getVersionAsOf() {
     return _versionAsOf;
   }
-  
-  /**
-   * Gets a string representation of the version as of instant.
-   * <p>
-   * This is either the ISO-8601 representation of the version as of instant, such as
-   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
-   * 
-   * @return the string version as of, not null
-   */
-  public String getVersionAsOfString() {
-    return ObjectUtils.defaultIfNull(_versionAsOf, "LATEST").toString();
-  }
 
   /**
    * Gets the corrected to instant.
@@ -218,18 +206,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    */
   public Instant getCorrectedTo() {
     return _correctedTo;
-  }
-  
-  /**
-   * Gets a string representation of the corrected to instant.
-   * <p>
-   * This is either the ISO-8601 representation of the corrected to instant, such as
-   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
-   * 
-   * @return the string corrected to, not null
-   */
-  public String getCorrectedToString() {
-    return ObjectUtils.defaultIfNull(_correctedTo, "LATEST").toString();
   }
 
   //-------------------------------------------------------------------------
@@ -290,6 +266,31 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
       return new VersionCorrection(Objects.firstNonNull(_versionAsOf, now), Objects.firstNonNull(_correctedTo, now));
     }
     return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a string representation of the version as of instant.
+   * <p>
+   * This is either the ISO-8601 representation of the version as of instant, such as
+   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * 
+   * @return the string version as of, not null
+   */
+  public String getVersionAsOfString() {
+    return ObjectUtils.defaultIfNull(_versionAsOf, "LATEST").toString();
+  }
+
+  /**
+   * Gets a string representation of the corrected to instant.
+   * <p>
+   * This is either the ISO-8601 representation of the corrected to instant, such as
+   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * 
+   * @return the string corrected to, not null
+   */
+  public String getCorrectedToString() {
+    return ObjectUtils.defaultIfNull(_correctedTo, "LATEST").toString();
   }
 
   //-------------------------------------------------------------------------

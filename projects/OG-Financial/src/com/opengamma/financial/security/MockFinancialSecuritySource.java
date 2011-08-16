@@ -7,10 +7,10 @@ package com.opengamma.financial.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
@@ -36,7 +36,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   /**
    * The securities keyed by identifier.
    */
-  private final Map<UniqueId, Security> _securities = new HashMap<UniqueId, Security>();
+  private final Map<ObjectId, Security> _securities = Maps.newHashMap();
   /**
    * The suppler of unique identifiers.
    */
@@ -51,9 +51,9 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueId identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    return identifier == null ? null : _securities.get(identifier);
+  public Security getSecurity(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    return uniqueId == null ? null : _securities.get(uniqueId.getObjectId());
   }
   
   @Override
@@ -61,7 +61,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     return objectId == null
-        || (versionCorrection != null && !versionCorrection.equals(VersionCorrection.LATEST)) ? null : _securities.get(objectId.atLatestVersion());
+        || (versionCorrection != null && !versionCorrection.equals(VersionCorrection.LATEST)) ? null : _securities.get(objectId);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
     IdUtils.setInto(security, _uidSupplier.get());
-    _securities.put(security.getUniqueId(), security);
+    _securities.put(security.getUniqueId().getObjectId(), security);
   }
 
   //-------------------------------------------------------------------------

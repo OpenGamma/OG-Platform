@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -22,14 +22,19 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * The reference to a security is held primarily by an identifier bundle.
  * However, this can become resolved, setting the security field with the full data.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface PositionOrTrade extends UniqueIdentifiable {
 
   /**
-   * Gets the unique identifier.
+   * Gets the unique identifier of the position/trade.
+   * <p>
+   * This specifies a single version-correction of the position/trade.
    * 
-   * @return the unique identifier, not null
+   * @return the unique identifier for this position/trade, not null within the engine
    */
   UniqueId getUniqueId();
 

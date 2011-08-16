@@ -9,8 +9,8 @@ import java.util.Collection;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 
 /**
  * Represents the result of a portfolio comparison operation, providing:
@@ -60,8 +60,8 @@ public class PortfolioComparison extends PositionSetComparison {
   }
 
   private Portfolio createPortfolio(final String name, final Collection<Position> positions) {
-    final PortfolioImpl portfolio = new PortfolioImpl(name);
-    final PortfolioNodeImpl rootNode = new PortfolioNodeImpl(name);
+    final SimplePortfolio portfolio = new SimplePortfolio(name);
+    final SimplePortfolioNode rootNode = new SimplePortfolioNode(name);
     rootNode.addPositions(positions);
     portfolio.setRootNode(rootNode);
     return portfolio;

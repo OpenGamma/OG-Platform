@@ -100,7 +100,7 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
     final RestTarget target = _targetBase.resolveBase("security").resolve(uid.toString());
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");

@@ -8,7 +8,7 @@ package com.opengamma.master.region;
 import java.util.Collections;
 import java.util.Comparator;
 
-import com.opengamma.core.region.RegionComparator;
+import com.opengamma.core.region.impl.RegionComparator;
 
 /**
  * Region comparator based on the region type, then name.

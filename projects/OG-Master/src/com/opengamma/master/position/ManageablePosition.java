@@ -25,13 +25,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.JdkUtils;
 import com.opengamma.util.PublicSPI;
@@ -71,7 +71,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * This may also hold the resolved security.
    */
   @PropertyDefinition(validate = "notNull")
-  private SecurityLink _securityLink;
+  private ManageableSecurityLink _securityLink;
   /**
    * The trades that the make up the position, not null.
    * An empty list usually means that trade data is unavailable.
@@ -95,7 +95,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * Creates an instance.
    */
   public ManageablePosition() {
-    _securityLink = new SecurityLink();
+    _securityLink = new ManageableSecurityLink();
   }
 
   /**
@@ -108,7 +108,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityId, "securityId");
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityId);
+    _securityLink = new ManageableSecurityLink(securityId);
   }
 
   /**
@@ -121,7 +121,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityBundle, "securityKey");
     _quantity = quantity;
-    _securityLink = new SecurityLink(securityBundle);
+    _securityLink = new ManageableSecurityLink(securityBundle);
   }
 
   //-------------------------------------------------------------------------
@@ -272,7 +272,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         setQuantity((BigDecimal) newValue);
         return;
       case 807992154:  // securityLink
-        setSecurityLink((SecurityLink) newValue);
+        setSecurityLink((ManageableSecurityLink) newValue);
         return;
       case -865715313:  // trades
         setTrades((List<ManageableTrade>) newValue);
@@ -391,7 +391,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * This may also hold the resolved security.
    * @return the value of the property, not null
    */
-  public SecurityLink getSecurityLink() {
+  public ManageableSecurityLink getSecurityLink() {
     return _securityLink;
   }
 
@@ -400,7 +400,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * This may also hold the resolved security.
    * @param securityLink  the new value of the property, not null
    */
-  public void setSecurityLink(SecurityLink securityLink) {
+  public void setSecurityLink(ManageableSecurityLink securityLink) {
     JodaBeanUtils.notNull(securityLink, "securityLink");
     this._securityLink = securityLink;
   }
@@ -410,7 +410,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * This may also hold the resolved security.
    * @return the property, not null
    */
-  public final Property<SecurityLink> securityLink() {
+  public final Property<ManageableSecurityLink> securityLink() {
     return metaBean().securityLink().createProperty(this);
   }
 
@@ -533,8 +533,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     /**
      * The meta-property for the {@code securityLink} property.
      */
-    private final MetaProperty<SecurityLink> _securityLink = DirectMetaProperty.ofReadWrite(
-        this, "securityLink", ManageablePosition.class, SecurityLink.class);
+    private final MetaProperty<ManageableSecurityLink> _securityLink = DirectMetaProperty.ofReadWrite(
+        this, "securityLink", ManageablePosition.class, ManageableSecurityLink.class);
     /**
      * The meta-property for the {@code trades} property.
      */
@@ -633,7 +633,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
      * The meta-property for the {@code securityLink} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SecurityLink> securityLink() {
+    public final MetaProperty<ManageableSecurityLink> securityLink() {
       return _securityLink;
     }
 
