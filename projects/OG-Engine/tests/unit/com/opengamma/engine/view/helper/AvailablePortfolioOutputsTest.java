@@ -46,7 +46,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 @Test
-public class AvailableOutputsTest {
+public class AvailablePortfolioOutputsTest {
 
   private static final String SECURITY_TYPE_1 = "Bond";
   private static final String SECURITY_TYPE_2 = "Option";
@@ -59,6 +59,7 @@ public class AvailableOutputsTest {
   private static final String FUNCTION_2_TYPE_1_POSITION = "T1-V2-P";
   private static final String FUNCTION_TYPE_2_POSITION = "T2-P";
   private static final String FUNCTION_SUM_NODE = "VSUM-N";
+  private static final String WILDCARD = "*";
 
   private Portfolio _testPortfolio;
   private CompiledFunctionRepository _functionRepository;
@@ -180,13 +181,13 @@ public class AvailableOutputsTest {
       return null;
     }
 
-    protected ValueProperties.Builder properties () {
-      return ValueProperties.with (ValuePropertyNames.FUNCTION, _id);
+    protected ValueProperties.Builder properties() {
+      return ValueProperties.with(ValuePropertyNames.FUNCTION, _id);
     }
 
     @Override
     public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-      throw new UnsupportedOperationException();
+      return getResults(context, target);
     }
 
     @Override
@@ -227,9 +228,9 @@ public class AvailableOutputsTest {
     }
 
   }
-  
+
   private static abstract class MockPositionFunction extends MockFunction<Position> {
-    
+
     public MockPositionFunction(final String id) {
       super(id, ComputationTargetType.POSITION);
     }
@@ -269,9 +270,9 @@ public class AvailableOutputsTest {
       @Override
       public boolean canApplyTo(final Position position) {
         // TODO: try with just "return true" and rely on the downstream function 
-        return SECURITY_TYPE_1.equals (position.getSecurity ().getSecurityType ());
+        return SECURITY_TYPE_1.equals(position.getSecurity().getSecurityType());
       }
-      
+
       @Override
       public Set<ValueSpecification> getResults(final ComputationTargetSpecification targetSpec, final Position position) {
         return Collections.singleton(new ValueSpecification(VALUE_1, targetSpec, properties().with(ValuePropertyNames.CURRENCY, position.getSecurity().getName()).get()));
@@ -353,57 +354,57 @@ public class AvailableOutputsTest {
   }
 
   public void testGetSecurityTypes() {
-    final AvailableOutputs outputs = new AvailableOutputs(_testPortfolio, _functionRepository);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
     final Set<String> securityTypes = outputs.getSecurityTypes();
     assertEquals(securityTypes, new HashSet<String>(Arrays.asList(SECURITY_TYPE_1, SECURITY_TYPE_2)));
   }
 
   public void testGetTypedPositionOutputs() {
-    final AvailableOutputs outputs = new AvailableOutputs(_testPortfolio, _functionRepository);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
     Set<AvailableOutput> available = outputs.getPositionOutputs(SECURITY_TYPE_1);
-    final AvailableOutput value1Type1 = new AvailableOutput(VALUE_1);
+    final AvailableOutputImpl value1Type1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1Type1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
-    final AvailableOutput value2Type1 = new AvailableOutput(VALUE_2);
+    final AvailableOutputImpl value2Type1 = new AvailableOutputImpl(VALUE_2, WILDCARD);
     value2Type1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_2_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
     assertEquals(available, new HashSet<AvailableOutput>(Arrays.asList(value1Type1, value2Type1)));
     available = outputs.getPositionOutputs(SECURITY_TYPE_2);
-    final AvailableOutput value1Type2 = new AvailableOutput(VALUE_1);
+    final AvailableOutputImpl value1Type2 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1Type2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
-    final AvailableOutput value2Type2 = new AvailableOutput(VALUE_2);
+    final AvailableOutputImpl value2Type2 = new AvailableOutputImpl(VALUE_2, WILDCARD);
     value2Type2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
     assertEquals(available, new HashSet<AvailableOutput>(Arrays.asList(value1Type2, value2Type2)));
   }
 
   public void testGetPortfolioNodeOutputs() {
-    final AvailableOutputs outputs = new AvailableOutputs(_testPortfolio, _functionRepository);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPortfolioNodeOutputs();
-    final AvailableOutput value1 = new AvailableOutput(VALUE_1);
+    final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
-    final AvailableOutput value2 = new AvailableOutput(VALUE_2);
+    final AvailableOutputImpl value2 = new AvailableOutputImpl(VALUE_2, WILDCARD);
     value2.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
     assertEquals(available, new HashSet<AvailableOutput>(Arrays.asList(value1, value2)));
   }
 
   public void testGetPositionOutputs() {
-    final AvailableOutputs outputs = new AvailableOutputs(_testPortfolio, _functionRepository);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPositionOutputs();
-    final AvailableOutput value1 = new AvailableOutput(VALUE_1);
+    final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
-    final AvailableOutput value2 = new AvailableOutput(VALUE_2);
+    final AvailableOutputImpl value2 = new AvailableOutputImpl(VALUE_2, WILDCARD);
     value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_2_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
     value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
     assertEquals(available, new HashSet<AvailableOutput>(Arrays.asList(value1, value2)));
   }
 
   public void testGetOutputs() {
-    final AvailableOutputs outputs = new AvailableOutputs(_testPortfolio, _functionRepository);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
     final Set<AvailableOutput> available = outputs.getOutputs();
-    final AvailableOutput value1 = new AvailableOutput(VALUE_1);
+    final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
     value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
-    final AvailableOutput value2 = new AvailableOutput(VALUE_2);
+    final AvailableOutputImpl value2 = new AvailableOutputImpl(VALUE_2, WILDCARD);
     value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_2_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
     value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
     value2.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
