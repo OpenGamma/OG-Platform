@@ -152,6 +152,23 @@ $.register_module({
                                 $html = $.tmpl(template, json.template_data),
                                 layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
+                            (function () {
+                                if (json.template_data.underlyingOid) {
+                                    var id = json.template_data.underlyingOid,
+                                        rule = module.rules.load_securities,
+                                        hash = routes.hash(rule, $.extend(true, routes.current().args, {id: id})),
+                                        text = json.template_data.underlyingExternalId,
+                                        anchor = '<a href="#' + hash + '">' + text + '</a>';
+                                        $html.find('.OG-js-underlying-id').html(anchor);
+                                }
+                            }());
+                            for (id in json_id) {
+                                if (json_id.hasOwnProperty(id)) {
+                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
+                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
+                                }
+                                $html.find('.og-js-identifiers').html(html.join(''));
+                            }
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -166,13 +183,6 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
-                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
-                                }
-                            }
-                            $('.OG-security .og-js-identifiers').html(html.join(''));
                             details.favorites();
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                         }});
