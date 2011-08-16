@@ -19,12 +19,12 @@ import com.opengamma.util.tuple.DoublesPair;
  * <p>
  * This is a thread-safe static utility class.
  */
-public class PresentValueSensitivityUtil {
+public class PresentValueSensitivityUtils {
 
   /**
    * Restricted constructor.
    */
-  protected PresentValueSensitivityUtil() {
+  protected PresentValueSensitivityUtils() {
     super();
   }
 

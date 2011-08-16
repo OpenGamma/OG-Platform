@@ -14,12 +14,12 @@ import javax.time.calendar.ZonedDateTime;
  * <p>
  * This is a thread-safe static utility class.
  */
-public class BusinessDayDateUtil {
+public class BusinessDayDateUtils {
 
   /**
    * Restricted constructor.
    */
-  protected BusinessDayDateUtil() {
+  protected BusinessDayDateUtils() {
     super();
   }
 
