@@ -52,7 +52,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
     }
-    final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
+    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     final IborIndex index = new IborIndex(currency, getTenor(tenor), indexConvention.getSettlementDays(), calendar,
         indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
     return CapFloorIborDefinition.from(notional, fixingDate, index, strike, isCap);
