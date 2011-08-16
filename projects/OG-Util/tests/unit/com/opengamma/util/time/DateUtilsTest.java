@@ -18,10 +18,10 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 /**
- * Test DateUtil.
+ * Test DateUtils.
  */
 @Test
-public class DateUtilTest {
+public class DateUtilsTest {
   private static final double EPS = 1e-9;
 
   public void testDifferenceInYears() {
