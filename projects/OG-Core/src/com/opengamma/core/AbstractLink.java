@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.security.SecurityLinkUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -133,7 +132,7 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
    * @return the best available representation, not null
    */
   public Object getBest() {
-    return SecurityLinkUtils.best(this);
+    return LinkUtils.best(this);
   }
 
   /**
@@ -142,7 +141,7 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
    * @return the best descriptive name, not null
    */
   public String getBestName() {
-    return SecurityLinkUtils.bestName(this);
+    return LinkUtils.bestName(this);
   }
 
   //-------------------------------------------------------------------------

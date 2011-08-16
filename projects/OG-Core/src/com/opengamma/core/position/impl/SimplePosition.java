@@ -26,11 +26,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.core.security.SecurityLinkUtils;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -258,7 +258,7 @@ public class SimplePosition extends DirectBean
         .append(", ")
         .append(getQuantity())
         .append(' ')
-        .append(SecurityLinkUtils.best(getSecurityLink()))
+        .append(LinkUtils.best(getSecurityLink()))
         .append(']')
         .toString();
   }
