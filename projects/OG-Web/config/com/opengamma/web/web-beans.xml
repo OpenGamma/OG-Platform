@@ -222,6 +222,18 @@
       <map>
         <entry key="0">
           <map>
+            <entry key="adHocBatchDbManager">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/adHocBatchDbManager/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="availableOutputs">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/availableOutputs/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="currencyMatrixSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/currencyMatrixSource/0/" />
@@ -231,12 +243,6 @@
             <entry key="functionRepositoryConfiguration">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/repositoryConfigurationSource/0/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="adHocBatchDbManager">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/adHocBatchDbManager/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
