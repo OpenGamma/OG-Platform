@@ -7,14 +7,18 @@ package com.opengamma.engine.marketdatasnapshot;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -31,7 +35,9 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDa
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
@@ -47,7 +53,8 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
   private final VolatilityCubeSnapper _volatilityCubeSnapper = new VolatilityCubeSnapper();
-  
+  @SuppressWarnings("rawtypes")
+  private final StructuredSnapper[] _structuredSnappers = new StructuredSnapper[]{_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper }; 
   @Override
   public StructuredMarketDataSnapshot createSnapshot(ViewClient client, ViewCycle cycle) {
     CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
@@ -83,11 +90,9 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
 
   private UnstructuredMarketDataSnapshot getGlobalValues(ViewComputationResultModel results, Map<String, DependencyGraph> graphs) {
     Set<ComputedValue> data = results.getAllMarketData();
-    //TODO var includedSpecs = GetIncludedGlobalSpecs(graphs);
-    //TODO var includedGlobalData = data
-    //TODO     .Where(d => includedSpecs.Contains(Tuple.Create(d.Specification.TargetSpecification, d.Specification.ValueName)));
-
-    ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget = Multimaps.index(data,
+    Set<ComputedValue> includedGlobalData = includedGlobalValues(data, graphs);
+    
+    ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget = Multimaps.index(includedGlobalData,
         new Function<ComputedValue, MarketDataValueSpecification>() {
 
           @Override
@@ -102,6 +107,74 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
     snapshot.setValues(dict);
     return snapshot;
+  }
+
+  private Set<ComputedValue> includedGlobalValues(Set<ComputedValue> data, Map<String, DependencyGraph> graphs) {
+    //TODO include nulls for missing values
+    
+    Set<ComputedValue> dataFound = new HashSet<ComputedValue>();
+    
+    Set<ComputedValue> dataRemaining = null;
+    for (Entry<String, DependencyGraph> entry : graphs.entrySet()) {
+      if (dataRemaining == null) {
+        dataRemaining = data;
+      } else {
+        dataRemaining = Sets.difference(dataRemaining, dataFound);
+      }
+
+      DependencyGraph graph = entry.getValue();
+      for (ComputedValue computedValue : dataRemaining) {
+        DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
+        if (nodeProducing != null && isTerminalUnstructuredOutput(nodeProducing, graph)) {
+          dataFound.add(computedValue);
+        }
+      }
+    }
+    
+    return dataFound;
+  }
+
+  private boolean isTerminalUnstructuredOutput(DependencyNode node, DependencyGraph graph) {
+    //This relies on two things in order to not suck
+    // market data nodes are immediately fed into structured data nodes (so we only have to recurse 1 layer)
+    // Whilst branching factor may be high, only a few of those paths will be to structured nodes, so we don't have to iterate too much
+    // Chains from live data to each output are quite short
+    
+    Stack<DependencyNode> remainingCandidates = new Stack<DependencyNode>();
+    remainingCandidates.push(node);
+    
+    while (!remainingCandidates.isEmpty()) {
+      node = remainingCandidates.pop();
+      
+      if (isStructuredNode(node)) {
+        continue;
+      }
+      if (graph.getRootNodes().contains(node)) {
+        return true;
+      }
+      for (ValueSpecification output : node.getOutputValues()) {
+        if (graph.getTerminalOutputSpecifications().contains(output)) {
+          return true;
+        }
+      }
+      remainingCandidates.addAll(node.getDependentNodes());
+    }
+    return false;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private boolean isStructuredNode(DependencyNode node) {
+    Set<ValueSpecification> outputValues = node.getOutputValues();
+    if (outputValues.size() != 1) {
+      return false; //TODO this is a bit fragile, but if this isn't true all sorts of things are broken 
+    }
+    ValueSpecification output = Iterables.get(outputValues, 0);
+    for (StructuredSnapper snapper : _structuredSnappers) {
+      if (output.getValueName() == snapper.getRequirementName()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getGlobalValues(ImmutableListMultimap<MarketDataValueSpecification, ComputedValue> dataByTarget) {

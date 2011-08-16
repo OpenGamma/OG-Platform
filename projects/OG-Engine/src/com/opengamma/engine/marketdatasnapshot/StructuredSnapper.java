@@ -55,6 +55,11 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
     _requirementName = requirementName.intern();
   }
 
+  public String getRequirementName() {
+    return _requirementName;
+  }
+
+
   public Map<TKey, TSnapshot> getValues(final ViewComputationResultModel results, Map<String, DependencyGraph> graphs,
       ViewCycle viewCycle) {
     Map<TKey, TCalculatedValue> calculatedValues = getValues(viewCycle, graphs);
