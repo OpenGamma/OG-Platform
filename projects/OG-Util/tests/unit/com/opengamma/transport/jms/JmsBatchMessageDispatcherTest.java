@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.transport.BatchByteArrayMessageReceiver;
-import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
  * Test.
@@ -29,7 +29,7 @@ public class JmsBatchMessageDispatcherTest {
 
   public void queueOperation() throws InterruptedException {
     String queueName = "JmsBatchMessageDispatcherTest-queueOperation-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
-    ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtil.createTestConnectionFactory());
+    ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtils.createTestConnectionFactory());
     
     JmsTemplate sendingTemplate = new JmsTemplate();
     sendingTemplate.setConnectionFactory(cf);

@@ -10,8 +10,16 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 /**
  * Ensures that the Ivy configuration is sufficient to launch an in-memory ActiveMQ connection.
  */
-public class ActiveMQTestUtil {
+public class ActiveMQTestUtils {
 
+  /**
+   * Restricted constructor.
+   */
+  protected ActiveMQTestUtils() {
+    super();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an MQ connection factory for testing.
    * 
