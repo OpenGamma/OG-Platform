@@ -7,6 +7,7 @@ package com.opengamma.web.server.conversion;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +51,9 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_4DP);
     addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_4DP);
     addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    
+    // PnL
+    addConversion(ValueRequirementNames.PNL, DoubleValueDecimalPlaceFormatter.CCY_2DP);
 
     // Greeks
     addConversion(ValueRequirementNames.DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -161,30 +165,42 @@ public class DoubleConverter implements ResultConverter<Object> {
 
   //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
   @Override
-  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value,
-      ConversionMode mode) {
-    double doubleValue;
-    boolean useCurrencyFromProperties;
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
+    Double doubleValue = null;
+    String displayValue = null;
+    BigDecimal bigDecimalValue = null;
+    String ccy = null;
+    
     if (value instanceof Double) {
       doubleValue = (Double) value;
-      useCurrencyFromProperties = true;
+    } else if (value instanceof CurrencyAmount) {
+      CurrencyAmount currencyAmount = (CurrencyAmount) value;
+      doubleValue = currencyAmount.getAmount();
+      ccy = currencyAmount.getCurrency().getCode();
+    } else if (value instanceof BigDecimal) {
+      bigDecimalValue = (BigDecimal) value;
     } else {
-      doubleValue = ((CurrencyAmount) value).getAmount();
-      useCurrencyFromProperties = false;
+      throw new OpenGammaRuntimeException(getClass().getSimpleName() + " is unable to process value of type " + value.getClass());
     }
-    String displayValue;
+
+    if (doubleValue != null) {
+      if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
+        displayValue = Double.toString(doubleValue);
+      } else {
+        bigDecimalValue = BigDecimal.valueOf(doubleValue);
+      }
+    }
+    
     DoubleValueFormatter formatter = getFormatter(valueSpec);
-
-    if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
-      displayValue = Double.toString(doubleValue);
-    } else {
-      displayValue = formatter.format(doubleValue);
+    
+    if (displayValue == null) {
+      assert bigDecimalValue != null;
+      displayValue = formatter.format(bigDecimalValue);
     }
-
+    
     if (formatter.isCurrencyAmount()) {
-      if (useCurrencyFromProperties) {
+      if (ccy == null) {
         Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
-        String ccy;
         if (currencyValues == null) {
           ccy = DISPLAY_UNKNOWN_CCY ? "?" : "";
         } else if (currencyValues.isEmpty()) {
@@ -192,11 +208,8 @@ public class DoubleConverter implements ResultConverter<Object> {
         } else {
           ccy = currencyValues.iterator().next();
         }
-        displayValue = ccy + " " + displayValue;
-      } else {
-        String ccy = ((CurrencyAmount) value).getCurrency().getCode();
-        displayValue = ccy + " " + displayValue;
       }
+      displayValue = ccy + " " + displayValue;
     }
     return displayValue;
   }
@@ -220,6 +233,8 @@ public class DoubleConverter implements ResultConverter<Object> {
       doubleValue = (Double) value;
     } else if (value instanceof CurrencyAmount) {
       doubleValue = ((CurrencyAmount) value).getAmount();
+    } else if (value instanceof BigDecimal) {
+      doubleValue = ((BigDecimal) value).doubleValue();
     } else {
       throw new OpenGammaRuntimeException("Cannot convert objects of type " + value.getClass());
     }

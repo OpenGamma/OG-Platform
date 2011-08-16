@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
 import org.joda.beans.JodaBeanUtils;

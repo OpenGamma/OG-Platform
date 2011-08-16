@@ -19,7 +19,9 @@ public class PositionExchangeTradedPnLFunction extends AbstractPositionPnLFuncti
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     Security security = target.getPosition().getSecurity();
-    return (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
+     
+    boolean value = (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
+    return value;
   }
   
   @Override

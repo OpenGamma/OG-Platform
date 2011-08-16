@@ -19,9 +19,13 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MoneyCalculationUtil;
 
 /**
@@ -38,14 +42,24 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
           ComputationTargetType.TRADE, trade.getUniqueId()));
       currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueId());
-    final ComputedValue result = new ComputedValue(valueSpecification, currentSum);
+    Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
+    final ValueSpecification valueSpecification;
+    if (ccy == null) {
+      valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position), getUniqueId());
+    } else {
+      valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, position, ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId());
+    }
+    final ComputedValue result = new ComputedValue(valueSpecification, currentSum.doubleValue());
     return Sets.newHashSet(result);
   }
 
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
+  }
+  
+  private ValueProperties extractCurrencyProperty(ValueRequirement desiredValue) {
+    return ValueProperties.with(ValuePropertyNames.CURRENCY, desiredValue.getConstraint(ValuePropertyNames.CURRENCY)).get();
   }
 
   @Override
@@ -54,7 +68,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
       final Position position = target.getPosition();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (Trade trade : position.getTrades()) {
-        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId()));
+        requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId(), extractCurrencyProperty(desiredValue)));
       }
       return requirements;
     }
@@ -64,7 +78,13 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueId()));
+      final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+      if (ccy == null) {
+        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueId()));
+      } else {
+        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition(), 
+            ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId()));
+      }
     }
     return null;
   }
