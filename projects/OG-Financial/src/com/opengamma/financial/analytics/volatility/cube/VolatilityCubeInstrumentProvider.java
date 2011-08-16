@@ -118,13 +118,13 @@ public final class VolatilityCubeInstrumentProvider {
   }
 
   public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {
-    if (point.getRelativeStrike() == -0.0) {
-      throw new IllegalArgumentException("Negative 0 moneyness not supported"); //This is a pain in fudge otherwise
-    }
     if ((point.getRelativeStrike() == 0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
       final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
       return Sets.newHashSet(instrument);
     } else {
+      if (point.getRelativeStrike() == -0.0) {
+        throw new IllegalArgumentException("Negative 0 moneyness not supported"); //This is a pain in fudge otherwise
+      }
       return _idsByPoint.get(Pair.of(currency, point));
     }
   }
