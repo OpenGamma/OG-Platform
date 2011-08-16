@@ -10,8 +10,10 @@ import java.math.RoundingMode;
 
 /**
  * Utilities that handle basic money calculation.
+ * <p>
+ * This is a thread-safe static utility class.
  */
-public final class MoneyCalculationUtil {
+public final class MoneyCalculationUtils {
 
   /**
    * The number of decimals to retain.
@@ -25,7 +27,7 @@ public final class MoneyCalculationUtil {
   /**
    * Restrictive constructor.
    */
-  private MoneyCalculationUtil() {
+  private MoneyCalculationUtils() {
   }
 
   //-------------------------------------------------------------------------
