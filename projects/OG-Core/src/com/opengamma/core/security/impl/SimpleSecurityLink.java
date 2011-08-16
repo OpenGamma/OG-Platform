@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,19 +13,16 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.LinkResolver;
+import com.opengamma.core.AbstractLink;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.core.security.SecurityLinkUtils;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -44,24 +41,14 @@ import com.opengamma.util.ArgumentChecker;
  * It is intended to be used in the engine via the read-only {@code SecurityLink} interface.
  */
 @BeanDefinition
-public class SimpleSecurityLink extends DirectBean implements SecurityLink {
+public class SimpleSecurityLink extends AbstractLink<Security>
+    implements SecurityLink {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleSecurityLink.class);
 
-  /**
-   * The object identifier that strongly references the target.
-   */
-  @PropertyDefinition
-  private ObjectId _objectId;
-  /**
-   * The external identifier bundle that references the target.
-   * An empty bundle is used if not referencing a target by external bundle.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private ExternalIdBundle _externalId = ExternalIdBundle.EMPTY;
   /**
    * The target security.
    */
@@ -116,7 +103,7 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
    * @param objectId  the object identifier, not null
    */
   public SimpleSecurityLink(final ObjectId objectId) {
-    setObjectId(objectId);
+    super(objectId);
   }
 
   /**
@@ -125,16 +112,16 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
    * @param uniqueId  the unique identifier, not null
    */
   public SimpleSecurityLink(final UniqueId uniqueId) {
-    setObjectId(uniqueId.getObjectId());
+    super(uniqueId);
   }
 
   /**
    * Creates a link from an external identifier.
    * 
-   * @param identifier  the identifier, not null
+   * @param externalId  the external identifier, not null
    */
-  public SimpleSecurityLink(final ExternalId identifier) {
-    setExternalId(ExternalIdBundle.of(identifier));
+  public SimpleSecurityLink(final ExternalId externalId) {
+    super(externalId);
   }
 
   /**
@@ -143,7 +130,7 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
    * @param bundle  the identifier bundle, not null
    */
   public SimpleSecurityLink(final ExternalIdBundle bundle) {
-    setExternalId(bundle);
+    super(bundle);
   }
 
   /**
@@ -152,64 +139,13 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
    * @param linkToClone  the link to clone, not null
    */
   public SimpleSecurityLink(SecurityLink linkToClone) {
-    _objectId = linkToClone.getObjectId();
-    _externalId = linkToClone.getExternalId();
-    _target = linkToClone.getTarget();
+    super();
+    setObjectId(linkToClone.getObjectId());
+    setExternalId(linkToClone.getExternalId());
+    setTarget(linkToClone.getTarget());
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Adds an external identifier to the bundle.
-   * 
-   * @param externalId  the identifier to add, not null
-   */
-  public void addExternalId(final ExternalId externalId) {
-    ArgumentChecker.notNull(externalId, "externalId");
-    setExternalId(getExternalId().withExternalId(externalId));
-  }
-
-  /**
-   * Adds external identifiers to the bundle.
-   * 
-   * @param externalIds  the identifiers to add, not null
-   */
-  public void addExternalIds(final Iterable<ExternalId> externalIds) {
-    ArgumentChecker.notNull(externalIds, "externalIds");
-    setExternalId(getExternalId().withExternalIds(externalIds));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the best available representation.
-   * 
-   * @return the best available representation, not null
-   */
-  public Object getBest() {
-    return SecurityLinkUtils.best(this);
-  }
-
-  /**
-   * Gets the best descriptive name.
-   * 
-   * @return the best descriptive name, not null
-   */
-  public String getBestName() {
-    return SecurityLinkUtils.bestName(this);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Resolves the link to the target security.
-   * 
-   * @param resolver  the resolver capable of finding the target, not null
-   * @return the resolved target, null if unable to resolve
-   * @throws DataNotFoundException if the target could not be resolved
-   * @throws RuntimeException if an error occurs
-   */
-  public Security resolve(LinkResolver<Security> resolver) {
-    return resolver.resolve(this);
-  }
-
   /**
    * Resolves the security for the latest version-correction using a security source.
    * 
@@ -276,6 +212,7 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
    * The meta-bean for {@code SimpleSecurityLink}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("unchecked")
   public static SimpleSecurityLink.Meta meta() {
     return SimpleSecurityLink.Meta.INSTANCE;
   }
@@ -291,10 +228,6 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 90495162:  // objectId
-        return getObjectId();
-      case -1699764666:  // externalId
-        return getExternalId();
       case -880905839:  // target
         return getTarget();
     }
@@ -304,23 +237,11 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 90495162:  // objectId
-        setObjectId((ObjectId) newValue);
-        return;
-      case -1699764666:  // externalId
-        setExternalId((ExternalIdBundle) newValue);
-        return;
       case -880905839:  // target
         setTarget((Security) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalId, "externalId");
-    super.validate();
   }
 
   @Override
@@ -330,74 +251,17 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SimpleSecurityLink other = (SimpleSecurityLink) obj;
-      return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getExternalId(), other.getExternalId()) &&
-          JodaBeanUtils.equal(getTarget(), other.getTarget());
+      return JodaBeanUtils.equal(getTarget(), other.getTarget()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
-    return hash;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the object identifier that strongly references the target.
-   * @return the value of the property
-   */
-  public ObjectId getObjectId() {
-    return _objectId;
-  }
-
-  /**
-   * Sets the object identifier that strongly references the target.
-   * @param objectId  the new value of the property
-   */
-  public void setObjectId(ObjectId objectId) {
-    this._objectId = objectId;
-  }
-
-  /**
-   * Gets the the {@code objectId} property.
-   * @return the property, not null
-   */
-  public final Property<ObjectId> objectId() {
-    return metaBean().objectId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the external identifier bundle that references the target.
-   * An empty bundle is used if not referencing a target by external bundle.
-   * @return the value of the property, not null
-   */
-  public ExternalIdBundle getExternalId() {
-    return _externalId;
-  }
-
-  /**
-   * Sets the external identifier bundle that references the target.
-   * An empty bundle is used if not referencing a target by external bundle.
-   * @param externalId  the new value of the property, not null
-   */
-  public void setExternalId(ExternalIdBundle externalId) {
-    JodaBeanUtils.notNull(externalId, "externalId");
-    this._externalId = externalId;
-  }
-
-  /**
-   * Gets the the {@code externalId} property.
-   * An empty bundle is used if not referencing a target by external bundle.
-   * @return the property, not null
-   */
-  public final Property<ExternalIdBundle> externalId() {
-    return metaBean().externalId().createProperty(this);
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -429,22 +293,12 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
   /**
    * The meta-bean for {@code SimpleSecurityLink}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends AbstractLink.Meta<Security> {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code objectId} property.
-     */
-    private final MetaProperty<ObjectId> _objectId = DirectMetaProperty.ofReadWrite(
-        this, "objectId", SimpleSecurityLink.class, ObjectId.class);
-    /**
-     * The meta-property for the {@code externalId} property.
-     */
-    private final MetaProperty<ExternalIdBundle> _externalId = DirectMetaProperty.ofReadWrite(
-        this, "externalId", SimpleSecurityLink.class, ExternalIdBundle.class);
     /**
      * The meta-property for the {@code target} property.
      */
@@ -454,9 +308,7 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
-        this, null,
-        "objectId",
-        "externalId",
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "target");
 
     /**
@@ -468,10 +320,6 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 90495162:  // objectId
-          return _objectId;
-        case -1699764666:  // externalId
-          return _externalId;
         case -880905839:  // target
           return _target;
       }
@@ -494,22 +342,6 @@ public class SimpleSecurityLink extends DirectBean implements SecurityLink {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code objectId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ObjectId> objectId() {
-      return _objectId;
-    }
-
-    /**
-     * The meta-property for the {@code externalId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ExternalIdBundle> externalId() {
-      return _externalId;
-    }
-
     /**
      * The meta-property for the {@code target} property.
      * @return the meta-property, not null
