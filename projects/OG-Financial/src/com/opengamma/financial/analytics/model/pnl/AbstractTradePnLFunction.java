@@ -26,11 +26,15 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MoneyCalculationUtil;
 
 /**
@@ -79,8 +83,13 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
         throw new NullPointerException("Could not get mark to market value for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
       }
-      
-      final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
+      final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
+      final ValueSpecification valueSpecification;
+      if (ccy == null) {
+        valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
+      } else {
+        valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade, ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId());
+      }
       
       double costOfCarry = 0.0;
       final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getIdentifiers(), _resolutionKey,
@@ -96,7 +105,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
           new Object[]{trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
-      final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL));
+      final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL).doubleValue());
       return Sets.newHashSet(result);
     }
     return null;
@@ -129,7 +138,13 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueId()));
+      Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+      if (ccy == null) {
+        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueId()));
+      } else {
+        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade(), 
+                                 ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId()));
+      }
     }
     return null;
   }

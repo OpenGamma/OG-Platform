@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.marketdatasnapshot;
+package com.opengamma.core.marketdatasnapshot.impl;
 
 import javax.time.Instant;
 
