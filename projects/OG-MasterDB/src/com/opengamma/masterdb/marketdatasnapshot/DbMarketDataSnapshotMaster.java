@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.FudgeTypeDictionary;
 import org.hsqldb.types.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,10 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -54,6 +59,16 @@ public class DbMarketDataSnapshotMaster
     extends AbstractDocumentDbMaster<MarketDataSnapshotDocument>
     implements MarketDataSnapshotMaster {
 
+  static {
+    //Registered here because I can't guarantee that the classes themselves are loaded
+    FudgeTypeDictionary typeDictionary = OpenGammaFudgeContext.getInstance().getTypeDictionary();
+    typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot", ManageableUnstructuredMarketDataSnapshot.class);
+    typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot", ManageableMarketDataSnapshot.class);
+    typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableYieldCurveSnapshot", ManageableYieldCurveSnapshot.class);
+    typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableVolatilitySurfaceSnapshot", ManageableVolatilitySurfaceSnapshot.class);
+    typeDictionary.registerClassRename("com.opengamma.master.marketdatasnapshot.ManageableVolatilityCubeSnapshot", ManageableVolatilityCubeSnapshot.class);
+  }
+  
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbMarketDataSnapshotMaster.class);
 
