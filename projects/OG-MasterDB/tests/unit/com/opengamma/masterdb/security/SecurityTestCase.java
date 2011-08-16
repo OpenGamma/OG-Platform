@@ -51,6 +51,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -684,5 +685,11 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testRawSecurity() {
     assertSecurities(RawSecurity.class);
   }
- 
+
+  @Override
+  @Test
+  public void testEquityVarianceSwapSecurity() {
+    assertSecurities(EquityVarianceSwapSecurity.class);
+  }
+  
 }
