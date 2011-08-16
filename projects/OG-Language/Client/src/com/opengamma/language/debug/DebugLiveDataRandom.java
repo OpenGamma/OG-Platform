@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Random;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.livedata.MetaLiveData;
 import com.opengamma.language.livedata.PublishedLiveData;
@@ -23,7 +23,7 @@ public class DebugLiveDataRandom implements PublishedLiveData {
   private final Random _random = new Random();
 
   private Data execute() {
-    return DataUtil.of(_random.nextInt());
+    return DataUtils.of(_random.nextInt());
   }
 
   @Override

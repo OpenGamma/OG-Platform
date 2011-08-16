@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -61,7 +61,7 @@ public class ExtremeSpreadOptionDefinition extends OptionDefinition {
 
   public double getTimeFromPeriodEnd(final ZonedDateTime date) {
     Validate.notNull(date, "date");
-    return DateUtil.getDifferenceInYears(_periodEnd.getExpiry(), date);
+    return DateUtils.getDifferenceInYears(_periodEnd.getExpiry(), date);
   }
 
   public Expiry getPeriodEnd() {

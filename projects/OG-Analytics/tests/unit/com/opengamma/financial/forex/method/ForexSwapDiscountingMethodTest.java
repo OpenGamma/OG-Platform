@@ -22,7 +22,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the method for Forex Swap transaction by discounting on each payment.
@@ -31,8 +31,8 @@ public class ForexSwapDiscountingMethodTest {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final ZonedDateTime NEAR_DATE = DateUtil.getUTCDate(2011, 5, 26);
-  private static final ZonedDateTime FAR_DATE = DateUtil.getUTCDate(2011, 6, 27); // 1m
+  private static final ZonedDateTime NEAR_DATE = DateUtils.getUTCDate(2011, 5, 26);
+  private static final ZonedDateTime FAR_DATE = DateUtils.getUTCDate(2011, 6, 27); // 1m
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final double FORWARD_POINTS = -0.0007;
@@ -40,7 +40,7 @@ public class ForexSwapDiscountingMethodTest {
 
   private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 5, 20);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
   private static final ForexSwap FX_SWAP = FX_SWAP_DEFINITION_FIN.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final ForexSwapDiscountingMethod METHOD = ForexSwapDiscountingMethod.getInstance();

@@ -35,7 +35,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -81,7 +81,7 @@ public class FixedIncomeConverterDataProvider {
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalIdBundle id = security.getIdentifiers();
-    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
     if (ts == null) {
@@ -97,7 +97,7 @@ public class FixedIncomeConverterDataProvider {
   public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalIdBundle id = ExternalIdBundle.of(security.getUnderlyingIdentifier());
-    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
             .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
     if (ts == null) {
@@ -111,7 +111,7 @@ public class FixedIncomeConverterDataProvider {
   public InterestRateDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
     final ExternalId id = security.getUnderlyingIdentifier();
-    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), true);
     if (ts == null) {

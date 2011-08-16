@@ -35,7 +35,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MoneyCalculationUtil;
+import com.opengamma.util.money.MoneyCalculationUtils;
 
 /**
  * 
@@ -105,7 +105,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
           new Object[]{trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
-      final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL).doubleValue());
+      final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtils.rounded(dailyPnL).doubleValue());
       return Sets.newHashSet(result);
     }
     return null;

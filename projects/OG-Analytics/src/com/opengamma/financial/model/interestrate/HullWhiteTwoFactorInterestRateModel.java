@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.definition.HullWhiteTwoFactorDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -28,8 +28,8 @@ public class HullWhiteTwoFactorInterestRateModel implements DiscountBondModel<Hu
       public Double evaluate(final HullWhiteTwoFactorDataBundle data) {
         Validate.notNull(data, "data");
         final double t1 = 0;
-        final double t2 = DateUtil.getDifferenceInYears(data.getDate(), time);
-        final double t3 = DateUtil.getDifferenceInYears(data.getDate(), maturity);
+        final double t2 = DateUtils.getDifferenceInYears(data.getDate(), time);
+        final double t3 = DateUtils.getDifferenceInYears(data.getDate(), maturity);
         final double r2 = data.getShortRate(t2);
         final double r3 = data.getShortRate(t3);
         final double p2 = Math.exp(-r2 * t2);

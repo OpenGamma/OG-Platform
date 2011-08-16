@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -23,8 +23,8 @@ import com.opengamma.util.time.Expiry;
 public class EuropeanVanillaOptionDefinitionTest {
   private static final double DIFF = 20;
   private static final double SPOT = 100;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, true);
   private static final OptionDefinition PUT = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, false);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 100.,
@@ -64,7 +64,7 @@ public class EuropeanVanillaOptionDefinitionTest {
     assertEquals(put.hashCode(), PUT.hashCode());
     call = new EuropeanVanillaOptionDefinition(SPOT + 1, EXPIRY, true);
     assertFalse(call.equals(CALL));
-    call = new EuropeanVanillaOptionDefinition(SPOT, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 2)), true);
+    call = new EuropeanVanillaOptionDefinition(SPOT, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 2)), true);
     assertFalse(call.equals(CALL));
     call = new AmericanVanillaOptionDefinition(SPOT, EXPIRY, true);
     assertFalse(call.equals(CALL));

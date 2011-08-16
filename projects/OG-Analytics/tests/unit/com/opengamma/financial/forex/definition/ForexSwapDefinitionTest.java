@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexSwap;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of ForexSwapDefinition and it conversion to derivative.
@@ -25,8 +25,8 @@ public class ForexSwapDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final ZonedDateTime NEAR_DATE = DateUtil.getUTCDate(2011, 5, 26);
-  private static final ZonedDateTime FAR_DATE = DateUtil.getUTCDate(2011, 6, 27); // 1m
+  private static final ZonedDateTime NEAR_DATE = DateUtils.getUTCDate(2011, 5, 26);
+  private static final ZonedDateTime FAR_DATE = DateUtils.getUTCDate(2011, 6, 27); // 1m
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final double FORWARD_POINTS = -0.0007;
@@ -38,7 +38,7 @@ public class ForexSwapDefinitionTest {
   private static final String DISCOUNTING_CURVE_NAME_CUR_1 = "Discounting EUR";
   private static final String DISCOUNTING_CURVE_NAME_CUR_2 = "Discounting USD";
   private static final String[] CURVES_NAME = new String[] {DISCOUNTING_CURVE_NAME_CUR_1, DISCOUNTING_CURVE_NAME_CUR_2};
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 5, 20);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNearLeg() {

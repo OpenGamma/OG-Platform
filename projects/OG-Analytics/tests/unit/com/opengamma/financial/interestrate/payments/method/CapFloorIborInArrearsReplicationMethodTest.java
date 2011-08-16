@@ -38,7 +38,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests regarding the pricing of in-arrears Ibor products by replication.
@@ -55,7 +55,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Dates
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 6, 7);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
   private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, Period.ofYears(9));
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR);
   private static final double ACCRUAL_FACTOR = DAY_COUNT_INDEX.getDayCountFraction(START_ACCRUAL_DATE, END_ACCRUAL_DATE);

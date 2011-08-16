@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of CMS legs.
@@ -42,7 +42,7 @@ public class AnnuityCouponCMSDefinitionTest {
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, CMS_TENOR);
   // Annuity
-  private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2011, 3, 17);
+  private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final Period ANNUITY_TENOR = Period.ofYears(5);
   private static final ZonedDateTime MATURITY_DATE = START_DATE.plus(ANNUITY_TENOR);
   private static final double NOTIONAL = 100000000; //100m

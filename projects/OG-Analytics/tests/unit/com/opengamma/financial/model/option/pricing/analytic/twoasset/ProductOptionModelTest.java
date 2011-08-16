@@ -16,7 +16,7 @@ import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAsset
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -28,10 +28,10 @@ public class ProductOptionModelTest {
   private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.07));
   private static final double B1 = 0.02;
   private static final double B2 = 0.05;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final ProductOptionModel MODEL = new ProductOptionModel();
-  private static final Expiry EXPIRY1 = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.1));
-  private static final Expiry EXPIRY2 = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
+  private static final Expiry EXPIRY1 = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.1));
+  private static final Expiry EXPIRY2 = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final double EPS = 1e-4;
 
   @Test(expectedExceptions = IllegalArgumentException.class)

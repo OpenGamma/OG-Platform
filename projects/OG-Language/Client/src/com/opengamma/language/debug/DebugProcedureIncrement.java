@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.procedure.MetaProcedure;
 import com.opengamma.language.procedure.PublishedProcedure;
@@ -23,7 +23,7 @@ public class DebugProcedureIncrement implements PublishedProcedure {
   private final AtomicInteger _value = new AtomicInteger();
 
   private Data execute() {
-    return DataUtil.of(_value.incrementAndGet());
+    return DataUtils.of(_value.incrementAndGet());
   }
 
   @Override

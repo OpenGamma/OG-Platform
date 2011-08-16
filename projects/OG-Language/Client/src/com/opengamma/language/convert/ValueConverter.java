@@ -13,7 +13,7 @@ import java.util.Map;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.TypeConverter;
 
@@ -75,15 +75,15 @@ public final class ValueConverter implements TypeConverter {
     final Class<?> clazz = type.getRawClass();
     if (clazz == Value.class) {
       if (valueObject instanceof Boolean) {
-        conversionContext.setResult(ValueUtil.of((Boolean) valueObject));
+        conversionContext.setResult(ValueUtils.of((Boolean) valueObject));
       } else if (valueObject instanceof Integer) {
-        conversionContext.setResult(ValueUtil.of((Integer) valueObject));
+        conversionContext.setResult(ValueUtils.of((Integer) valueObject));
       } else if (valueObject instanceof Double) {
-        conversionContext.setResult(ValueUtil.of((Double) valueObject));
+        conversionContext.setResult(ValueUtils.of((Double) valueObject));
       } else if (valueObject instanceof String) {
-        conversionContext.setResult(ValueUtil.of((String) valueObject));
+        conversionContext.setResult(ValueUtils.of((String) valueObject));
       } else if (valueObject instanceof FudgeMsg) {
-        conversionContext.setResult(ValueUtil.of((FudgeMsg) valueObject));
+        conversionContext.setResult(ValueUtils.of((FudgeMsg) valueObject));
       } else {
         conversionContext.setFail();
       }
@@ -91,7 +91,7 @@ public final class ValueConverter implements TypeConverter {
     } else {
       if (valueObject instanceof Value) {
         final Value value = (Value) valueObject;
-        if (ValueUtil.isNull(value)) {
+        if (ValueUtils.isNull(value)) {
           if (type.isAllowNull()) {
             conversionContext.setResult(null);
           } else {

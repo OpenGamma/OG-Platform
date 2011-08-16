@@ -16,7 +16,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -32,8 +32,8 @@ public class FiniteDifferenceGreekVisitorTest {
 
   };
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(1.)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.1)), 100.,
-      DateUtil.getUTCDate(2010, 5, 1));
-  private static final OptionDefinition DEFINITION = new EuropeanVanillaOptionDefinition(110, new Expiry(DateUtil.getUTCDate(2011, 5, 1)), true);
+      DateUtils.getUTCDate(2010, 5, 1));
+  private static final OptionDefinition DEFINITION = new EuropeanVanillaOptionDefinition(110, new Expiry(DateUtils.getUTCDate(2011, 5, 1)), true);
   private static final GreekVisitor<Double> VISITOR = new FiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition>(FUNCTION, DATA, DEFINITION);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

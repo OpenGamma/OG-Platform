@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.ThirtyEThreeSixty;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -35,71 +35,71 @@ public class ScheduleCalculatorTest {
   private static final Calendar ALL = new AllCalendar();
   private static final Calendar WEEKEND = new WeekendCalendar();
   private static final Calendar FIRST = new FirstOfMonthCalendar();
-  private static final ZonedDateTime NOW = DateUtil.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2010, 1, 1);
 
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final boolean SHORT_STUB = true;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate1() {
-    ScheduleCalculator.getUnadjustedDateSchedule(null, DateUtil.getUTCDate(2010, 6, 1), PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(null, DateUtils.getUTCDate(2010, 6, 1), PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate2() {
-    ScheduleCalculator.getUnadjustedDateSchedule(null, DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(null, DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAccrualDate() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), null, DateUtil.getUTCDate(2010, 7, 1), PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), null, DateUtils.getUTCDate(2010, 7, 1), PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturityDate1() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), null, PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), null, PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturityDate2() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), null, PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), null, PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFrequency1() {
     PeriodFrequency nullfrequency = null;
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), nullfrequency);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), nullfrequency);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFrequency2() {
     PeriodFrequency nullfrequency = null;
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1), nullfrequency);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), nullfrequency);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadMaturityDate1() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2009, 6, 1), PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2009, 6, 1), PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadMaturityDate2() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2009, 6, 1), PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2009, 6, 1), PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadMaturityDate3() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2008, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2009, 6, 1), PeriodFrequency.ANNUAL);
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2008, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2009, 6, 1), PeriodFrequency.ANNUAL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongFrequencyType() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1), new Frequency() {
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), new Frequency() {
 
       @Override
       public String getConventionName() {
@@ -131,102 +131,102 @@ public class ScheduleCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, null, ALL, 0);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 6, 1)}, null, ALL, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar() {
-    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, new ModifiedFollowingBusinessDayConvention(), null, 0);
+    ScheduleCalculator.getAdjustedDateSchedule(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 6, 1)}, new ModifiedFollowingBusinessDayConvention(), null, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
-    ScheduleCalculator.getTimes(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, null, NOW);
+    ScheduleCalculator.getTimes(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 6, 1)}, null, NOW);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTime() {
-    ScheduleCalculator.getTimes(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 6, 1)}, new ThirtyEThreeSixty(), null);
+    ScheduleCalculator.getTimes(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 6, 1)}, new ThirtyEThreeSixty(), null);
   }
 
   @Test
   public void testUnadjustedDates() {
-    final ZonedDateTime effective = DateUtil.getUTCDate(2010, 6, 1);
-    final ZonedDateTime accrual = DateUtil.getUTCDate(2010, 9, 1);
-    final ZonedDateTime maturity = DateUtil.getUTCDate(2015, 6, 1);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.ANNUAL), 5, DateUtil.getUTCDate(2011, 6, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.ANNUAL), 5, DateUtil.getUTCDate(2011, 6, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.SEMI_ANNUAL), 10, DateUtil.getUTCDate(2010, 12, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.SEMI_ANNUAL), 10, DateUtil.getUTCDate(2010, 12, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.QUARTERLY), 20, DateUtil.getUTCDate(2010, 9, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.QUARTERLY), 20, DateUtil.getUTCDate(2010, 9, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.MONTHLY), 60, DateUtil.getUTCDate(2010, 7, 1), maturity);
-    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.MONTHLY), 60, DateUtil.getUTCDate(2010, 7, 1), maturity);
+    final ZonedDateTime effective = DateUtils.getUTCDate(2010, 6, 1);
+    final ZonedDateTime accrual = DateUtils.getUTCDate(2010, 9, 1);
+    final ZonedDateTime maturity = DateUtils.getUTCDate(2015, 6, 1);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.ANNUAL), 5, DateUtils.getUTCDate(2011, 6, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.ANNUAL), 5, DateUtils.getUTCDate(2011, 6, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.SEMI_ANNUAL), 10, DateUtils.getUTCDate(2010, 12, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.SEMI_ANNUAL), 10, DateUtils.getUTCDate(2010, 12, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.QUARTERLY), 20, DateUtils.getUTCDate(2010, 9, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.QUARTERLY), 20, DateUtils.getUTCDate(2010, 9, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.MONTHLY), 60, DateUtils.getUTCDate(2010, 7, 1), maturity);
+    assertUnadjustedDates(ScheduleCalculator.getUnadjustedDateSchedule(effective, accrual, maturity, PeriodFrequency.MONTHLY), 60, DateUtils.getUTCDate(2010, 7, 1), maturity);
   }
 
   @Test
   public void testAdjustedDates() {
-    final ZonedDateTime effective = DateUtil.getUTCDate(2010, 1, 1);
-    final ZonedDateTime maturity = DateUtil.getUTCDate(2011, 1, 1);
+    final ZonedDateTime effective = DateUtils.getUTCDate(2010, 1, 1);
+    final ZonedDateTime maturity = DateUtils.getUTCDate(2011, 1, 1);
     final ZonedDateTime[] unadjusted = ScheduleCalculator.getUnadjustedDateSchedule(effective, maturity, PeriodFrequency.MONTHLY);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new ModifiedFollowingBusinessDayConvention(), ALL), unadjusted);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new FollowingBusinessDayConvention(), ALL), unadjusted);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new PrecedingBusinessDayConvention(), ALL), unadjusted);
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new ModifiedFollowingBusinessDayConvention(), WEEKEND),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2010, 2, 1), DateUtil.getUTCDate(2010, 3, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 5, 3), DateUtil.getUTCDate(2010, 6, 1),
-            DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 2), DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1),
-            DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2011, 1, 3)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 1),
+            DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+            DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 3)});
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new FollowingBusinessDayConvention(), WEEKEND),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2010, 2, 1), DateUtil.getUTCDate(2010, 3, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 5, 3), DateUtil.getUTCDate(2010, 6, 1),
-            DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 2), DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1),
-            DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2011, 1, 3)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 1),
+            DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+            DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 3)});
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new PrecedingBusinessDayConvention(), WEEKEND),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2010, 2, 1), DateUtil.getUTCDate(2010, 3, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 4, 30), DateUtil.getUTCDate(2010, 6, 1),
-            DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 7, 30), DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1),
-            DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2010, 12, 31)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 6, 1),
+            DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 7, 30), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+            DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2010, 12, 31)});
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new ModifiedFollowingBusinessDayConvention(), FIRST),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2010, 2, 2), DateUtil.getUTCDate(2010, 3, 2), DateUtil.getUTCDate(2010, 4, 2), DateUtil.getUTCDate(2010, 5, 3), DateUtil.getUTCDate(2010, 6, 2),
-            DateUtil.getUTCDate(2010, 7, 2), DateUtil.getUTCDate(2010, 8, 2), DateUtil.getUTCDate(2010, 9, 2), DateUtil.getUTCDate(2010, 10, 4), DateUtil.getUTCDate(2010, 11, 2),
-            DateUtil.getUTCDate(2010, 12, 2), DateUtil.getUTCDate(2011, 1, 3)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 2), DateUtils.getUTCDate(2010, 3, 2), DateUtils.getUTCDate(2010, 4, 2), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 2),
+            DateUtils.getUTCDate(2010, 7, 2), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 2), DateUtils.getUTCDate(2010, 10, 4), DateUtils.getUTCDate(2010, 11, 2),
+            DateUtils.getUTCDate(2010, 12, 2), DateUtils.getUTCDate(2011, 1, 3)});
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new FollowingBusinessDayConvention(), FIRST),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2010, 2, 2), DateUtil.getUTCDate(2010, 3, 2), DateUtil.getUTCDate(2010, 4, 2), DateUtil.getUTCDate(2010, 5, 3), DateUtil.getUTCDate(2010, 6, 2),
-            DateUtil.getUTCDate(2010, 7, 2), DateUtil.getUTCDate(2010, 8, 2), DateUtil.getUTCDate(2010, 9, 2), DateUtil.getUTCDate(2010, 10, 4), DateUtil.getUTCDate(2010, 11, 2),
-            DateUtil.getUTCDate(2010, 12, 2), DateUtil.getUTCDate(2011, 1, 3)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 2), DateUtils.getUTCDate(2010, 3, 2), DateUtils.getUTCDate(2010, 4, 2), DateUtils.getUTCDate(2010, 5, 3), DateUtils.getUTCDate(2010, 6, 2),
+            DateUtils.getUTCDate(2010, 7, 2), DateUtils.getUTCDate(2010, 8, 2), DateUtils.getUTCDate(2010, 9, 2), DateUtils.getUTCDate(2010, 10, 4), DateUtils.getUTCDate(2010, 11, 2),
+            DateUtils.getUTCDate(2010, 12, 2), DateUtils.getUTCDate(2011, 1, 3)});
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(unadjusted, new PrecedingBusinessDayConvention(), FIRST),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2010, 1, 29), DateUtil.getUTCDate(2010, 2, 26), DateUtil.getUTCDate(2010, 3, 31), DateUtil.getUTCDate(2010, 4, 30), DateUtil.getUTCDate(2010, 5, 31),
-            DateUtil.getUTCDate(2010, 6, 30), DateUtil.getUTCDate(2010, 7, 30), DateUtil.getUTCDate(2010, 8, 31), DateUtil.getUTCDate(2010, 9, 30), DateUtil.getUTCDate(2010, 10, 29),
-            DateUtil.getUTCDate(2010, 11, 30), DateUtil.getUTCDate(2010, 12, 31)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 29), DateUtils.getUTCDate(2010, 2, 26), DateUtils.getUTCDate(2010, 3, 31), DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 5, 31),
+            DateUtils.getUTCDate(2010, 6, 30), DateUtils.getUTCDate(2010, 7, 30), DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30), DateUtils.getUTCDate(2010, 10, 29),
+            DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31)});
     // End date is modified
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 19), DateUtil.getUTCDate(2012, 3, 19), DateUtil.getUTCDate(2012, 9, 17), DateUtil.getUTCDate(2013, 3, 18)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18)});
     // Check modified in modified following.
-    ZonedDateTime settlementDateModified = DateUtil.getUTCDate(2011, 3, 31);
+    ZonedDateTime settlementDateModified = DateUtils.getUTCDate(2011, 3, 31);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(settlementDateModified, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 30), DateUtil.getUTCDate(2012, 3, 30), DateUtil.getUTCDate(2012, 9, 28), DateUtil.getUTCDate(2013, 3, 29)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2012, 3, 30), DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29)});
     // End-of-month
-    ZonedDateTime settlementDateEOM = DateUtil.getUTCDate(2011, 2, 28);
+    ZonedDateTime settlementDateEOM = DateUtils.getUTCDate(2011, 2, 28);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(settlementDateEOM, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 8, 31), DateUtil.getUTCDate(2012, 2, 29), DateUtil.getUTCDate(2012, 8, 31), DateUtil.getUTCDate(2013, 2, 28)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 8, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 8, 31), DateUtils.getUTCDate(2013, 2, 28)});
     // Stub: short-last
     Period tenorLong = Period.ofMonths(27);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 19), DateUtil.getUTCDate(2012, 3, 19), DateUtil.getUTCDate(2012, 9, 17), DateUtil.getUTCDate(2013, 3, 18), DateUtil.getUTCDate(2013, 6, 17)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18), DateUtils.getUTCDate(2013, 6, 17)});
     // Stub: long-last
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, !SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 19), DateUtil.getUTCDate(2012, 3, 19), DateUtil.getUTCDate(2012, 9, 17), DateUtil.getUTCDate(2013, 6, 17)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 6, 17)});
     // Stub: very short period: short stub.
     Period tenorVeryShort = Period.ofMonths(3);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorVeryShort, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 6, 17)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 6, 17)});
     // Stub: very short period: long stub.
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorVeryShort, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, !SHORT_STUB),
-        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 6, 17)});
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 6, 17)});
   }
 
   @Test
@@ -249,10 +249,10 @@ public class ScheduleCalculatorTest {
       }
 
     };
-    final ZonedDateTime now = DateUtil.getUTCDate(2010, 1, 1);
-    final ZonedDateTime dates[] = new ZonedDateTime[] {DateUtil.getUTCDate(2010, 1, 1), DateUtil.getUTCDate(2010, 2, 1), DateUtil.getUTCDate(2010, 3, 1), DateUtil.getUTCDate(2010, 4, 1),
-        DateUtil.getUTCDate(2010, 5, 1), DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1), DateUtil.getUTCDate(2010, 9, 1),
-        DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1), DateUtil.getUTCDate(2010, 12, 1)};
+    final ZonedDateTime now = DateUtils.getUTCDate(2010, 1, 1);
+    final ZonedDateTime dates[] = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1),
+        DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1),
+        DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1)};
     final double[] times = ScheduleCalculator.getTimes(dates, daycount, now);
     assertEquals(times.length, dates.length);
     for (int i = 0; i < times.length; i++) {

@@ -12,7 +12,7 @@ import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class FXVannaVolgaVolatilityCurveModel implements VolatilityCurveModel<FX
     final double sigmaVWB = marketQuotes.getVegaWeightedButterfly();
     final double sigmaDeltaCall = sigmaVWB + sigmaATM + 0.5 * sigmaRR;
     final double sigmaDeltaPut = sigmaDeltaCall - sigmaRR;
-    final double t = DateUtil.getDifferenceInYears(data.getDate(), marketQuotes.getMaturity());
+    final double t = DateUtils.getDifferenceInYears(data.getDate(), marketQuotes.getMaturity());
     if (t < 0) {
       throw new IllegalArgumentException("Cannot have date after time to maturity");
     }

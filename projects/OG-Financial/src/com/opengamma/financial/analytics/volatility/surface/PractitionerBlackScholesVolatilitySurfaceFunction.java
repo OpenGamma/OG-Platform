@@ -31,7 +31,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 import edu.emory.mathcs.backport.java.util.Collections;
@@ -54,7 +54,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveDataRequirement);
     final double spotPrice = (Double) inputs.getValue(underlyingPriceRequirement);
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = discountCurve.getInterestRate(t); // TODO cost-of-carry model
     @SuppressWarnings("unused")
     final StandardOptionDataBundle data = new StandardOptionDataBundle(discountCurve, b, null, spotPrice, now);

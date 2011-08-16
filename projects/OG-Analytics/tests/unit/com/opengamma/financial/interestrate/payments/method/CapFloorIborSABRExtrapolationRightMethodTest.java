@@ -44,7 +44,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.SABRExtrapo
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -60,7 +60,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.USD;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
-  private static final ZonedDateTime FIXING_DATE = DateUtil.getUTCDate(2011, 1, 3);
+  private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 1000000; //1m
   private static final double STRIKE = 0.04;
   private static final double STRIKE_HIGH = 0.09;
@@ -83,7 +83,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRExtrapolationCalculator PVSC = PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance();
   // To derivative
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2008, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
