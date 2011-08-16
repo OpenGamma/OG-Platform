@@ -90,7 +90,11 @@ public final class VolatilityCubeInstrumentProvider {
 
           final Double relativeStrikeRaw = Double.valueOf(relativeStrike);
           final double normalizedStrike = relativeStrikeRaw > 10 ? relativeStrikeRaw : relativeStrikeRaw * 100;
-          final Double relativeStrikeBps = sign * normalizedStrike;
+          Double relativeStrikeBps = sign * normalizedStrike;
+          if (relativeStrikeBps == -0.0) {
+            //Apparantely the volatilities should be the same, so lets avoid fudge pains
+            relativeStrikeBps = 0.0;
+          }
           final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrikeBps);
 
           final ExternalId identifier = getIdentifier(ticker + " Curncy");
@@ -114,7 +118,10 @@ public final class VolatilityCubeInstrumentProvider {
   }
 
   public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {
-    if ((point.getRelativeStrike() == 0.0 || point.getRelativeStrike() == -0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+    if (point.getRelativeStrike() == -0.0) {
+      throw new IllegalArgumentException("Negative 0 moneyness not supported"); //This is a pain in fudge otherwise
+    }
+    if ((point.getRelativeStrike() == 0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
       final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
       return Sets.newHashSet(instrument);
     } else {
