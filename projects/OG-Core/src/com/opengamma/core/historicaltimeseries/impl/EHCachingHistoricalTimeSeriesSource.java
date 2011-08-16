@@ -307,7 +307,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return hts;
     }
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, exclusiveEnd);
-    return new HistoricalTimeSeriesImpl(hts.getUniqueId(), timeSeries);
+    return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
 
 }

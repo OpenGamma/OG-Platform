@@ -165,7 +165,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
         _metaUniqueIdStore.put(metaKey, uniqueId);
       }
     }
-    _timeSeriesStore.put(uniqueId, new HistoricalTimeSeriesImpl(uniqueId, timeSeriesDataPoints));
+    _timeSeriesStore.put(uniqueId, new SimpleHistoricalTimeSeries(uniqueId, timeSeriesDataPoints));
   }
 
   /**
@@ -187,7 +187,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       return hts;
     }
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, exclusiveEnd);
-    return new HistoricalTimeSeriesImpl(hts.getUniqueId(), timeSeries);
+    return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
 
 }

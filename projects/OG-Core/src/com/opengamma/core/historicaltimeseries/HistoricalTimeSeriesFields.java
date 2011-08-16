@@ -5,16 +5,18 @@
  */
 package com.opengamma.core.historicaltimeseries;
 
-import com.opengamma.util.PublicSPI;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Standard field names for historical time-series.
  * <p>
  * A historical time-series represents a certain type of data.
  * The field name used to retrieve the data will be different on each data source.
- * This enum provides standard normalized field names valid across different data sources.
+ * This class provides standard normalized field names valid across different data sources.
+ * <p>
+ * This is a thread-safe static utility class.
  */
-@PublicSPI
+@PublicAPI
 public class HistoricalTimeSeriesFields {
   // only add constants here that might reasonably be retrieved from multiple data sources
   // always use a generic name rather than a data source specific name

@@ -30,7 +30,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MoneyCalculationUtil;
 
@@ -39,27 +38,24 @@ import com.opengamma.util.money.MoneyCalculationUtil;
  */
 public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(TradeEquityPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractTradePnLFunction.class);
   
-  private final String _markDataSource;
-  private final String _markDataProvider;
   private final String _markDataField;
   private final String _costOfCarryField;
+  private final String _resolutionKey;
   
   /**
-   * @param markDataSource the mark to market data source name, not-null
-   * @param markDataProvider the mark to market data provider name
+   * @param resolutionKey the resolution key, not-null
    * @param markDataField the mark to market data field name, not-null
    * @param costOfCarryField the cost of carry field name, not-null
    */
-  public AbstractTradePnLFunction(String markDataSource, String markDataProvider, String markDataField, String costOfCarryField) {
+  public AbstractTradePnLFunction(String resolutionKey, String markDataField, String costOfCarryField) {
     super();
-    ArgumentChecker.notNull(markDataSource, "data source");
+    ArgumentChecker.notNull(resolutionKey, "resolutionKey");
     ArgumentChecker.notNull(markDataField, "mark data field");
     ArgumentChecker.notNull(costOfCarryField, "cost of carry data field");
     
-    _markDataSource = markDataSource;
-    _markDataProvider = markDataProvider;
+    _resolutionKey = resolutionKey;
     _markDataField = markDataField;
     _costOfCarryField = costOfCarryField;
   }
@@ -74,20 +70,20 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       LocalDate tradeDate = trade.getTradeDate();
       
       final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-      final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _markDataSource, _markDataProvider, _markDataField,
+      final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(_markDataField, security.getIdentifiers(), _resolutionKey,
           tradeDate, true, tradeDate, false);
       
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security + " for " + _markDataSource + "/" + _markDataProvider + "/" + _markDataField);
+        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security + " for " + _markDataField + " using " + _resolutionKey);
       }
       if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
-        throw new NullPointerException("Could not get mark to market value for security " + security + " for " + _markDataSource + "/" + _markDataProvider + "/" + _markDataField + "/" + tradeDate);
+        throw new NullPointerException("Could not get mark to market value for security " + security + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
       }
       
       final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade), getUniqueId());
       
       double costOfCarry = 0.0;
-      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _markDataSource, _markDataProvider, _costOfCarryField,
+      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getIdentifiers(), _resolutionKey,
           tradeDate, true, tradeDate, false);
       if (costOfCarryPair != null && costOfCarryPair.getTimeSeries() != null && !costOfCarryPair.getTimeSeries().isEmpty()) {
         Double storedCostOfCarry = costOfCarryPair.getTimeSeries().getValue(tradeDate);
@@ -126,7 +122,9 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
   /**
    * @return the value requirement name
    */
-  protected abstract String getValueRequirementName();
+  protected String getValueRequirementName() {
+    return ValueRequirementNames.FAIR_VALUE;
+  }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {

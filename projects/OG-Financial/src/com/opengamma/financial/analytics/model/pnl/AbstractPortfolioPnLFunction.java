@@ -26,7 +26,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.equity.PortfolioEquityPnLFunction;
 import com.opengamma.util.money.MoneyCalculationUtil;
 
 /**
@@ -35,7 +34,7 @@ import com.opengamma.util.money.MoneyCalculationUtil;
 public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonCompiledInvoker {
   
   @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEquityPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractPortfolioPnLFunction.class);
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {

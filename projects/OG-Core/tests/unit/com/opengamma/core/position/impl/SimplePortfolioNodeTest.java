@@ -13,20 +13,20 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 
 /**
- * Test PortfolioNodeImpl.
+ * Test SimplePortfolioNode.
  */
 @Test
-public class PortfolioNodeImplTest {
+public class SimplePortfolioNodeTest {
 
   public void test_construction() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
+    SimplePortfolioNode test = new SimplePortfolioNode();
     assertEquals(null, test.getUniqueId());
     assertEquals("", test.getName());
     assertEquals(0, test.getChildNodes().size());
@@ -37,7 +37,7 @@ public class PortfolioNodeImplTest {
 
   //-------------------------------------------------------------------------
   public void test_construction_String() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of("A", "B"), "Name");
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");
     assertEquals(UniqueId.of("A", "B"), test.getUniqueId());
     assertEquals("Name", test.getName());
     assertEquals(0, test.getChildNodes().size());
@@ -47,7 +47,7 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_construction_String_null() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of("A", "B"), null);
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of("A", "B"), null);
     assertEquals(UniqueId.of("A", "B"), test.getUniqueId());
     assertEquals("", test.getName());
     assertEquals(0, test.getChildNodes().size());
@@ -58,41 +58,41 @@ public class PortfolioNodeImplTest {
 
   //-------------------------------------------------------------------------
   public void test_setUniqueId() {
-    PortfolioImpl test = new PortfolioImpl(UniqueId.of("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(UniqueId.of("Scheme", "Id"), "Name");
     test.setUniqueId(UniqueId.of("Scheme2", "Id2"));
     assertEquals(UniqueId.of("Scheme2", "Id2"), test.getUniqueId());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setUniqueId_null() {
-    PortfolioImpl test = new PortfolioImpl(UniqueId.of("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(UniqueId.of("Scheme", "Id"), "Name");
     test.setUniqueId(null);
   }
 
   //-------------------------------------------------------------------------
   public void test_setName() {
-    PortfolioImpl test = new PortfolioImpl(UniqueId.of("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(UniqueId.of("Scheme", "Id"), "Name");
     test.setName("Name2");
     assertEquals("Name2", test.getName());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setName_null() {
-    PortfolioImpl test = new PortfolioImpl(UniqueId.of("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(UniqueId.of("Scheme", "Id"), "Name");
     test.setName(null);
   }
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions=UnsupportedOperationException.class)
   public void test_getChildNodes_immutable() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of ("A", "test"), "test");
-    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueId.of ("A", "child"), "child");
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of ("A", "test"), "test");
+    SimplePortfolioNode child = new SimplePortfolioNode(UniqueId.of ("A", "child"), "child");
     test.getChildNodes().add(child);
   }
 
   public void test_addChildNode() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of ("A", "test"), "test");
-    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueId.of ("A", "child"), "child");
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of ("A", "test"), "test");
+    SimplePortfolioNode child = new SimplePortfolioNode(UniqueId.of ("A", "child"), "child");
     child.setParentNodeId(test.getUniqueId());
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
@@ -102,9 +102,9 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_addChildNodes() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of ("A", "test"), "test");
-    PortfolioNodeImpl child0 = new PortfolioNodeImpl(UniqueId.of ("A", "child0"), "child0");
-    PortfolioNodeImpl child1 = new PortfolioNodeImpl(UniqueId.of ("A", "child1"), "child1");
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of ("A", "test"), "test");
+    SimplePortfolioNode child0 = new SimplePortfolioNode(UniqueId.of ("A", "child0"), "child0");
+    SimplePortfolioNode child1 = new SimplePortfolioNode(UniqueId.of ("A", "child1"), "child1");
     child0.setParentNodeId(test.getUniqueId());
     child1.setParentNodeId(test.getUniqueId());
     test.addChildNodes(Arrays.asList(child0, child1));
@@ -116,8 +116,8 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_removeChildNode_match() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of ("A", "test"), "test");
-    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueId.of ("A", "child"), "child");
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of ("A", "test"), "test");
+    SimplePortfolioNode child = new SimplePortfolioNode(UniqueId.of ("A", "child"), "child");
     child.setParentNodeId(test.getUniqueId ());
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
@@ -126,9 +126,9 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_removeChildNode_noMatch() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueId.of ("A", "test"), "test");
-    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueId.of ("A", "child"), "child");
-    PortfolioNodeImpl removing = new PortfolioNodeImpl(UniqueId.of ("A", "removing"), "removing");
+    SimplePortfolioNode test = new SimplePortfolioNode(UniqueId.of ("A", "test"), "test");
+    SimplePortfolioNode child = new SimplePortfolioNode(UniqueId.of ("A", "child"), "child");
+    SimplePortfolioNode removing = new SimplePortfolioNode(UniqueId.of ("A", "removing"), "removing");
     child.setParentNodeId (test.getUniqueId ());
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
@@ -140,14 +140,14 @@ public class PortfolioNodeImplTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions=UnsupportedOperationException.class)
   public void test_getPositions_immutable() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePortfolioNode test = new SimplePortfolioNode();
+    SimplePosition child = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
     test.getPositions().add(child);
   }
 
   public void test_addPosition() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePortfolioNode test = new SimplePortfolioNode();
+    SimplePosition child = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
     test.addPosition(child);
     assertEquals(1, test.getPositions().size());
     assertEquals(child, test.getPositions().get(0));
@@ -156,9 +156,9 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_addPositions() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child0 = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
-    PositionImpl child1 = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePortfolioNode test = new SimplePortfolioNode();
+    SimplePosition child0 = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePosition child1 = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
     test.addPositions(Arrays.asList(child0, child1));
     assertEquals(2, test.getPositions().size());
     assertEquals(child0, test.getPositions().get(0));
@@ -168,8 +168,8 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_removePosition_match() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePortfolioNode test = new SimplePortfolioNode();
+    SimplePosition child = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
     test.addPosition(child);
     assertEquals(1, test.getPositions().size());
     test.removePosition(child);
@@ -177,9 +177,9 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_removePosition_noMatch() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PositionImpl child = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
-    PositionImpl removing = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "OTHER"));
+    SimplePortfolioNode test = new SimplePortfolioNode();
+    SimplePosition child = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePosition removing = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "OTHER"));
     test.addPosition(child);
     assertEquals(1, test.getPositions().size());
     test.removePosition(removing);
@@ -189,9 +189,9 @@ public class PortfolioNodeImplTest {
 
   //-------------------------------------------------------------------------
   public void test_size() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PortfolioNodeImpl child1 = new PortfolioNodeImpl();
-    PositionImpl child2 = new PositionImpl(BigDecimal.ONE, ExternalId.of("K", "V"));
+    SimplePortfolioNode test = new SimplePortfolioNode();
+    SimplePortfolioNode child1 = new SimplePortfolioNode();
+    SimplePosition child2 = new SimplePosition(BigDecimal.ONE, ExternalId.of("K", "V"));
     test.addChildNode(child1);
     test.addPosition(child2);
     assertEquals(1, test.getChildNodes().size());
@@ -201,10 +201,10 @@ public class PortfolioNodeImplTest {
 
   //-------------------------------------------------------------------------
   public void test_getNode_UniqueId() {
-    PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueId.of("Root", "A"), "Name");
-    PortfolioNodeImpl child1 = new PortfolioNodeImpl(UniqueId.of("Child", "A"), "Name");
+    SimplePortfolioNode root = new SimplePortfolioNode(UniqueId.of("Root", "A"), "Name");
+    SimplePortfolioNode child1 = new SimplePortfolioNode(UniqueId.of("Child", "A"), "Name");
     root.addChildNode(child1);
-    PortfolioNodeImpl child2 = new PortfolioNodeImpl(UniqueId.of("Child", "B"), "Name");
+    SimplePortfolioNode child2 = new SimplePortfolioNode(UniqueId.of("Child", "B"), "Name");
     child2.setParentNodeId (root.getUniqueId ());
     root.addChildNode(child2);
     assertSame(root, root.getNode(UniqueId.of("Root", "A")));
@@ -218,10 +218,10 @@ public class PortfolioNodeImplTest {
   }
 
   public void test_getPosition_UniqueId() {
-    PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueId.of("Root", "A"), "Name");
-    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueId.of("Child", "A"), "Name");
-    PositionImpl position1 = new PositionImpl(UniqueId.of("Child", "A"), BigDecimal.ZERO, ExternalId.of("A", "B"));
-    PositionImpl position2 = new PositionImpl(UniqueId.of("Child", "B"), BigDecimal.ZERO, ExternalId.of("A", "B"));
+    SimplePortfolioNode root = new SimplePortfolioNode(UniqueId.of("Root", "A"), "Name");
+    SimplePortfolioNode child = new SimplePortfolioNode(UniqueId.of("Child", "A"), "Name");
+    SimplePosition position1 = new SimplePosition(UniqueId.of("Child", "A"), BigDecimal.ZERO, ExternalId.of("A", "B"));
+    SimplePosition position2 = new SimplePosition(UniqueId.of("Child", "B"), BigDecimal.ZERO, ExternalId.of("A", "B"));
     child.addPosition(position1);
     position2.setParentNodeId(child.getUniqueId ());
     child.addPosition(position2);

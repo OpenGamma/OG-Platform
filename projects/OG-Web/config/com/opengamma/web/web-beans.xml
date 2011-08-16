@@ -127,7 +127,6 @@
   </bean>
   
   <!-- Vol Cubes service -->
-  
   <bean id="volatilityCubeDefinitionSourceRestBean" class="com.opengamma.financial.analytics.volatility.cube.rest.VolatilityCubeDefinitionSourceService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
@@ -353,6 +352,14 @@
   <bean id="bundleManager" class="com.opengamma.web.spring.BundleManagerFactoryBean">
     <property name="configResource" value="classpath:${bundle.file}" />
     <property name="baseDir" value="${bundle.basedir}" />
+  </bean>
+  
+  <!-- View helper RESTful service (experimental code) -->
+  <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="demoFunctionCompilation" />
+    <constructor-arg ref="combinedPositionSource" />
+    <constructor-arg ref="combinedSecuritySource" />
   </bean>
   
   <bean id="yuiCompressorOptions" class="com.opengamma.web.bundle.YUICompressorOptions">

@@ -8,54 +8,54 @@ package com.opengamma.core.position.impl;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.id.UniqueId;
 
 /**
- * Test PortfolioImpl.
+ * Test SimplePortfolio.
  */
 @Test
-public class PortfolioImplTest {
+public class SimplePortfolioTest {
 
   public void test_construction_String() {
-    PortfolioImpl test = new PortfolioImpl("Name");
+    SimplePortfolio test = new SimplePortfolio("Name");
     assertEquals(null, test.getUniqueId());
     assertEquals("Name", test.getName());
-    assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
+    assertEquals(true, SimplePortfolioNode.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
     assertEquals("Portfolio[]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_String_null() {
-    new PortfolioImpl((String) null);
+    new SimplePortfolio((String) null);
   }
 
   //-------------------------------------------------------------------------
   public void test_construction_PortfolioIdString() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
     assertEquals(id("Scheme", "Id"), test.getUniqueId());
     assertEquals("Name", test.getName());
-    assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
+    assertEquals(true, SimplePortfolioNode.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
     assertEquals("Portfolio[Scheme~Id]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_PortfolioIdString_nullId() {
-    new PortfolioImpl(null, "Name");
+    new SimplePortfolio(null, "Name");
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_PortfolioIdString_nullName() {
-    new PortfolioImpl(id("Scheme", "Id"), null);
+    new SimplePortfolio(id("Scheme", "Id"), null);
   }
 
   //-------------------------------------------------------------------------
   public void test_construction_PortfolioIdStringNode() {
-    PortfolioNodeImpl root = new PortfolioNodeImpl();
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name", root);
+    SimplePortfolioNode root = new SimplePortfolioNode();
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name", root);
     assertEquals(id("Scheme", "Id"), test.getUniqueId());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() == root);
@@ -64,17 +64,17 @@ public class PortfolioImplTest {
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_PortfolioIdStringNode_nullId() {
-    new PortfolioImpl(null, "Name", new PortfolioNodeImpl());
+    new SimplePortfolio(null, "Name", new SimplePortfolioNode());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_PortfolioIdStringNode_nullName() {
-    new PortfolioImpl(id("Scheme", "Id"), null, new PortfolioNodeImpl());
+    new SimplePortfolio(id("Scheme", "Id"), null, new SimplePortfolioNode());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_PortfolioIdStringNode_nullRoot() {
-    new PortfolioImpl(id("Scheme", "Id"), "Name", null);
+    new SimplePortfolio(id("Scheme", "Id"), "Name", null);
   }
 
   private UniqueId id(String scheme, String value) {
@@ -83,41 +83,41 @@ public class PortfolioImplTest {
 
   //-------------------------------------------------------------------------
   public void test_setUniqueId() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
     test.setUniqueId(id("Scheme2", "Id2"));
     assertEquals(id("Scheme2", "Id2"), test.getUniqueId());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setUniqueId_null() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
     test.setUniqueId(null);
   }
 
   //-------------------------------------------------------------------------
   public void test_setName() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
     test.setName("Name2");
     assertEquals("Name2", test.getName());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setName_null() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
     test.setName(null);
   }
 
   //-------------------------------------------------------------------------
   public void test_setRootNode() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
-    PortfolioNodeImpl root = new PortfolioNodeImpl();
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
+    SimplePortfolioNode root = new SimplePortfolioNode();
     test.setRootNode(root);
     assertSame(root, test.getRootNode());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setRootNode_null() {
-    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    SimplePortfolio test = new SimplePortfolio(id("Scheme", "Id"), "Name");
     test.setRootNode(null);
   }
 

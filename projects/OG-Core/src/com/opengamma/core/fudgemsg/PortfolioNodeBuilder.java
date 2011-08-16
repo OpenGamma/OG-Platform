@@ -17,8 +17,8 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -88,11 +88,11 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   }
 
   // -------------------------------------------------------------------------
-  private static void readPositions(FudgeDeserializer deserializer, FudgeMsg message, PortfolioNodeImpl node) {
+  private static void readPositions(FudgeDeserializer deserializer, FudgeMsg message, SimplePortfolioNode node) {
     if (message != null) {
       for (FudgeField field : message) {
         if (field.getValue() instanceof FudgeMsg) {
-          final PositionImpl position = PositionBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
+          final SimplePosition position = PositionBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
           position.setParentNodeId(node.getUniqueId());
           node.addPosition(position);
         }
@@ -100,11 +100,11 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     }
   }
 
-  private static void readSubNodes(FudgeDeserializer deserializer, FudgeMsg message, PortfolioNodeImpl node) {
+  private static void readSubNodes(FudgeDeserializer deserializer, FudgeMsg message, SimplePortfolioNode node) {
     if (message != null) {
       for (FudgeField field : message) {
         if (field.getValue() instanceof FudgeMsg) {
-          final PortfolioNodeImpl child = buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
+          final SimplePortfolioNode child = buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
           child.setParentNodeId(node.getUniqueId());
           node.addChildNode(child);
         }
@@ -112,11 +112,11 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     }
   }
 
-  private static PortfolioNodeImpl buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  private static SimplePortfolioNode buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final FudgeField idField = message.getByName(FIELD_IDENTIFIER);
     final UniqueId id = idField != null ? deserializer.fieldValueToObject(UniqueId.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
-    final PortfolioNodeImpl node = new PortfolioNodeImpl(name);
+    final SimplePortfolioNode node = new SimplePortfolioNode(name);
     if (id != null) {
       node.setUniqueId(id);
     }
@@ -127,7 +127,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
   @Override
   public PortfolioNode buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    final PortfolioNodeImpl node = buildObjectImpl(deserializer, message);
+    final SimplePortfolioNode node = buildObjectImpl(deserializer, message);
     final FudgeField parentField = message.getByName(FIELD_PARENT);
     final UniqueId parentId = (parentField != null) ? deserializer.fieldValueToObject(UniqueId.class, parentField) : null;
     if (parentId != null) {
