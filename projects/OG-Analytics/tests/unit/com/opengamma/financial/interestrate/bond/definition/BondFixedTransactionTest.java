@@ -27,7 +27,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class BondFixedTransactionTest {
 
@@ -41,7 +41,7 @@ public class BondFixedTransactionTest {
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 3;
-  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtil.getUTCDate(2011, 7, 13);
+  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final double RATE = 0.0325;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -54,10 +54,10 @@ public class BondFixedTransactionTest {
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
   // to derivatives: first coupon
-  private static final ZonedDateTime REFERENCE_DATE_Z_1 = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE_Z_1 = DateUtils.getUTCDate(2011, 8, 18);
   // Transaction
   private static final double PRICE = 0.90;
-  private static final ZonedDateTime BOND_SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 8, 24);
+  private static final ZonedDateTime BOND_SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 8, 24);
   private static final double BOND_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, BOND_SETTLEMENT_DATE);
   private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_Z_1, CALENDAR, SETTLEMENT_DAYS);
   private static final double STANDARD_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, STANDARD_SETTLEMENT_DATE);

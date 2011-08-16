@@ -18,7 +18,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * @param <S> Type of the option data bundle
@@ -86,7 +86,7 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
   @Override
   public Double visitTheta() {
     final ZonedDateTime date = _data.getDate();
-    final ZonedDateTime offset = DateUtil.getDateOffsetWithYearFraction(date, EPS);
+    final ZonedDateTime offset = DateUtils.getDateOffsetWithYearFraction(date, EPS);
     final S dataUp = (S) _data.withDate(offset);
     return getForwardFirstDerivative(dataUp, _data);
   }
@@ -110,8 +110,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double s = _data.getSpot();
     final double sUp = s + EPS;
     final double sDown = s - EPS;
-    final ZonedDateTime dateUp = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), EPS);
-    final ZonedDateTime dateDown = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
+    final ZonedDateTime dateUp = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), EPS);
+    final ZonedDateTime dateDown = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
     final S dataUp1Up2 = (S) _data.withSpot(sUp).withDate(dateUp);
     final S dataUp1Down2 = (S) _data.withSpot(sUp).withDate(dateDown);
     final S dataDown1Up2 = (S) _data.withSpot(sDown).withDate(dateUp);
@@ -136,8 +136,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double s = _data.getSpot();
     final double sUp = s + EPS;
     final double sDown = s - EPS;
-    final ZonedDateTime dateUp = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), EPS);
-    final ZonedDateTime dateDown = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
+    final ZonedDateTime dateUp = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), EPS);
+    final ZonedDateTime dateDown = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
     final S dataUp1Up1 = (S) _data.withSpot(sUp).withDate(dateUp);
     final S dataUp2 = (S) _data.withDate(dateUp);
     final S dataDown1Up2 = (S) _data.withSpot(sDown).withDate(dateUp);
@@ -272,8 +272,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   @Override
   public Double visitVegaBleed() {
-    final ZonedDateTime upDate = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), EPS);
-    final ZonedDateTime downDate = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
+    final ZonedDateTime upDate = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), EPS);
+    final ZonedDateTime downDate = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
     final VolatilitySurface upSurface = _data.getVolatilitySurface().withParallelShift(EPS);
     final VolatilitySurface downSurface = _data.getVolatilitySurface().withParallelShift(-EPS);
     final S dataUp1Up2 = (S) _data.withVolatilitySurface(upSurface).withDate(upDate);
@@ -381,7 +381,7 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
 
   private double getGammaP(final double spotOffset, final double tOffset) {
     final double spot = _data.getSpot() + spotOffset;
-    final ZonedDateTime date = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), tOffset);
+    final ZonedDateTime date = DateUtils.getDateOffsetWithYearFraction(_data.getDate(), tOffset);
     final S dataUp = (S) _data.withSpot(spot + EPS).withDate(date);
     final S dataDown = (S) _data.withSpot(spot - EPS).withDate(date);
     final S data = (S) _data.withSpot(spot).withDate(date);

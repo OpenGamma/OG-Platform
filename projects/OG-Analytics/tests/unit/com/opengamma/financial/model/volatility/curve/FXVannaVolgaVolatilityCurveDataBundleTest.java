@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -20,7 +20,7 @@ public class FXVannaVolgaVolatilityCurveDataBundleTest {
   private static final double RR = 0.01;
   private static final double ATM = 0.2;
   private static final double VWB = 0.05;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final FXVannaVolgaVolatilityCurveDataBundle DATA = new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, ATM, VWB, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -55,7 +55,7 @@ public class FXVannaVolgaVolatilityCurveDataBundleTest {
     assertFalse(other.equals(DATA));
     other = new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, ATM, -VWB, DATE);
     assertFalse(other.equals(DATA));
-    other = new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, ATM, VWB, DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+    other = new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, ATM, VWB, DateUtils.getDateOffsetWithYearFraction(DATE, 1));
     assertFalse(other.equals(DATA));
   }
 }

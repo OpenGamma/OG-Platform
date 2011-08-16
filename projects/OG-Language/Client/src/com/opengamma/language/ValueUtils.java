@@ -14,12 +14,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Utility methods for converting to/from the {@link Value} type.
  */
-public final class ValueUtil {
+public final class ValueUtils {
 
   /**
    * Prevent instantiation.
    */
-  private ValueUtil() {
+  private ValueUtils() {
   }
 
   public static boolean isNull(final Value value) {

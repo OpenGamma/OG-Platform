@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
-import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
  * 
@@ -38,7 +38,7 @@ public class JmsSenderTest {
 
   @BeforeClass
   public void setUpClass() {
-    ActiveMQConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
+    ActiveMQConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
 
     JmsTemplate jmsTemplate = new JmsTemplate(cf);
     jmsTemplate.setPubSubDomain(true);

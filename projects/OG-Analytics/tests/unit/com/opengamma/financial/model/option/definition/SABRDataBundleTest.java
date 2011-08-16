@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -28,8 +28,8 @@ public class SABRDataBundleTest {
   private static final VolatilitySurface OTHER_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.45));
   private static final double SPOT = 100;
   private static final double OTHER_SPOT = 110;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 8, 1);
-  private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2010, 9, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 8, 1);
+  private static final ZonedDateTime OTHER_DATE = DateUtils.getUTCDate(2010, 9, 1);
   private static final double ALPHA = 0.5;
   private static final double OTHER_ALPHA = 0.55;
   private static final double BETA = 1;

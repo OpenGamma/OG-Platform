@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -20,9 +20,9 @@ import com.opengamma.util.time.Expiry;
  */
 public class OptionDefinitionTest {
   private static final double STRIKE = 100;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
   private static final double YEARS = 1;
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, YEARS));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, YEARS));
   private static final Boolean IS_CALL = true;
   private static final double PAYOFF_VALUE = 34;
   private static final OptionDefinition DEFINITION = new MyOptionDefinition(STRIKE, EXPIRY, IS_CALL);
@@ -53,7 +53,7 @@ public class OptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDateAfterExpiry() {
-    DEFINITION.getTimeToExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, YEARS * 2));
+    DEFINITION.getTimeToExpiry(DateUtils.getDateOffsetWithYearFraction(DATE, YEARS * 2));
   }
 
   @Test
@@ -70,7 +70,7 @@ public class OptionDefinitionTest {
   public void testEqualsAndHashCode() {
     final OptionDefinition definition1 = new MyOptionDefinition(STRIKE, EXPIRY, IS_CALL);
     final OptionDefinition definition2 = new MyOptionDefinition(2 * STRIKE, EXPIRY, IS_CALL);
-    final OptionDefinition definition3 = new MyOptionDefinition(STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, YEARS * 2)), IS_CALL);
+    final OptionDefinition definition3 = new MyOptionDefinition(STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, YEARS * 2)), IS_CALL);
     final OptionDefinition definition4 = new MyOptionDefinition(STRIKE, EXPIRY, !IS_CALL);
     assertEquals(DEFINITION, definition1);
     assertEquals(DEFINITION.hashCode(), definition1.hashCode());

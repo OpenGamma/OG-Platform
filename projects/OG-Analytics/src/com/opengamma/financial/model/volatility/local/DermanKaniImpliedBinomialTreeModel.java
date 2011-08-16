@@ -16,7 +16,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -56,7 +56,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
       t += dt;
       final double df1 = Math.exp(dt * data.getInterestRate(t));
       final double df2 = Math.exp(dt * data.getCostOfCarry());
-      final Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, t));
+      final Expiry expiry = new Expiry(DateUtils.getDateOffsetWithYearFraction(date, t));
       final int mid = i / 2;
       if (i % 2 == 0) {
         impliedTree[i][mid] = spot;

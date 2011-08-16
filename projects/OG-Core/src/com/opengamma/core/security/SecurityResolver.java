@@ -68,7 +68,7 @@ public interface SecurityResolver extends LinkResolver<Security> {
    * 
    * @param objectId  the object identifier to find, not null
    * @return the security, null if not found
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ObjectId objectId);

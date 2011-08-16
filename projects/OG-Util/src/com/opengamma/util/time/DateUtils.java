@@ -26,8 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utility class for dates.
+ * <p>
+ * This is a thread-safe static utility class.
  */
-public class DateUtil {
+public class DateUtils {
 
   /**
    * The number of seconds in one day.

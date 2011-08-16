@@ -18,10 +18,20 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Utilities and constants for {@code Calendar}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
-public class CalendarUtil {
+public class CalendarUtils {
 
+  /**
+   * Restricted constructor.
+   */
+  protected CalendarUtils() {
+    super();
+  }
+
+  //-------------------------------------------------------------------------
   public static Calendar getCalendar(final RegionSource regionSource, final HolidaySource holidaySource,
       final ExternalId regionId) {
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
@@ -40,4 +50,5 @@ public class CalendarUtil {
   public static Calendar getCalendar(final HolidaySource holidaySource, final Currency currency) {
     return new HolidaySourceCalendarAdapter(holidaySource, currency);
   }
+
 }

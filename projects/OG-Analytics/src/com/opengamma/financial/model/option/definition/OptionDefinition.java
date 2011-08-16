@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -68,7 +68,7 @@ public abstract class OptionDefinition {
     if (date.isAfter(getExpiry().getExpiry())) {
       throw new IllegalArgumentException("Date " + date + " is after expiry " + getExpiry());
     }
-    return DateUtil.getDifferenceInYears(date, getExpiry().getExpiry());
+    return DateUtils.getDifferenceInYears(date, getExpiry().getExpiry());
   }
 
   /**

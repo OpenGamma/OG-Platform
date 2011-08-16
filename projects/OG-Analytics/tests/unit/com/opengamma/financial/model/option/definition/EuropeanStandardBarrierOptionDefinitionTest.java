@@ -19,7 +19,7 @@ import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -27,8 +27,8 @@ import com.opengamma.util.time.Expiry;
  */
 public class EuropeanStandardBarrierOptionDefinitionTest {
   private static final double STRIKE = 100;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final Barrier BARRIER = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CONTINUOUS, 90);
   private static final double REBATE = 2;
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
@@ -52,7 +52,7 @@ public class EuropeanStandardBarrierOptionDefinitionTest {
     assertEquals(option.hashCode(), other.hashCode());
     other = new EuropeanStandardBarrierOptionDefinition(STRIKE + 1, EXPIRY, true, BARRIER, REBATE);
     assertFalse(other.equals(option));
-    other = new EuropeanStandardBarrierOptionDefinition(STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY.getExpiry(), 2)), true, BARRIER, REBATE);
+    other = new EuropeanStandardBarrierOptionDefinition(STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(EXPIRY.getExpiry(), 2)), true, BARRIER, REBATE);
     assertFalse(other.equals(option));
     other = new EuropeanStandardBarrierOptionDefinition(STRIKE, EXPIRY, false, BARRIER, REBATE);
     assertFalse(other.equals(option));

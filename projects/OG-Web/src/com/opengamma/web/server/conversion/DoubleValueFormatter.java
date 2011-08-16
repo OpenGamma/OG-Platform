@@ -44,16 +44,17 @@ public abstract class DoubleValueFormatter {
   }
   
   /**
-   * Formats a double into a plain string, rounded as appropriate. See {@link BigDecimal#toPlainString()}.
+   * Transforms a {@link BigDecimal} value as required, for example setting the scale and
+   * precision.
    * 
-   * @param value  the double value
-   * @return the plain string representation of the double
+   * @param value  the input value, not null
+   * @return the processed value, not null
    */
-  protected abstract String formatPlainString(double value);
+  protected abstract BigDecimal process(BigDecimal value);
   
-  public String format(double value) {
-    String plainNumber = formatPlainString(value);
-    return transformPlainNumberString(plainNumber);
+  public String format(BigDecimal value) {
+    BigDecimal processedValue = process(value);
+    return transformPlainNumberString(processedValue.toPlainString());
   }
   
   /**

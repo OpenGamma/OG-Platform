@@ -9,9 +9,19 @@ import javax.time.calendar.ZonedDateTime;
 
 /**
  * Utilities for working with tenors.
+ * <p>
+ * This is a thread-safe static utility class.
  */
-public class TenorUtil {
+public class TenorUtils {
 
+  /**
+   * Restricted constructor.
+   */
+  protected TenorUtils() {
+    super();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the number of days in the tenor.
    * This method assumes 24-hour days.
@@ -40,7 +50,7 @@ public class TenorUtil {
    * @return the number of the second tenor in the first
    */
   public static double getTenorsInTenor(final Tenor first, final Tenor second) {
-    return TenorUtil.getDaysInTenor(first) / TenorUtil.getDaysInTenor(second);
+    return TenorUtils.getDaysInTenor(first) / TenorUtils.getDaysInTenor(second);
   }
 
 }
