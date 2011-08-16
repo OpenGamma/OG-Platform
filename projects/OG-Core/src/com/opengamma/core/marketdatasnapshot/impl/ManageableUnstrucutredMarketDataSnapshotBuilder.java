@@ -1,4 +1,4 @@
-package com.opengamma.master.marketdatasnapshot;
+package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.HashMap;
 import java.util.Map;
