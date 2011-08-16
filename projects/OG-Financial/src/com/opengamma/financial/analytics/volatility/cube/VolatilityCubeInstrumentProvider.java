@@ -122,9 +122,6 @@ public final class VolatilityCubeInstrumentProvider {
       final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
       return Sets.newHashSet(instrument);
     } else {
-      if (point.getRelativeStrike() == -0.0) {
-        throw new IllegalArgumentException("Negative 0 moneyness not supported"); //This is a pain in fudge otherwise
-      }
       return _idsByPoint.get(Pair.of(currency, point));
     }
   }
