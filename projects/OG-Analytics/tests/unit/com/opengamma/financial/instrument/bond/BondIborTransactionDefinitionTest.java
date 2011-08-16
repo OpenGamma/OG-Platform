@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class BondIborTransactionDefinitionTest {
 
@@ -33,13 +33,13 @@ public class BondIborTransactionDefinitionTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, CALENDAR, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM);
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 3; // Standard for euro-bonds.
-  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtil.getUTCDate(2011, 7, 13);
+  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final BondIborSecurityDefinition BOND_DESCRIPTION = BondIborSecurityDefinition.from(MATURITY_DATE, START_ACCRUAL_DATE, IBOR_INDEX, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY,
       IS_EOM);
   // Transaction
   private static final double PRICE = 0.90;
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final double QUANTITY = 100000000; //100m
   private static final BondIborTransactionDefinition BOND_TRANSACTION = new BondIborTransactionDefinition(BOND_DESCRIPTION, QUANTITY, SETTLEMENT_DATE, PRICE);
 
@@ -59,8 +59,8 @@ public class BondIborTransactionDefinitionTest {
     assertEquals(QUANTITY, BOND_TRANSACTION.getQuantity());
     assertEquals(SETTLEMENT_DATE, BOND_TRANSACTION.getSettlementDate());
     assertEquals(BOND_DESCRIPTION, BOND_TRANSACTION.getUnderlyingBond());
-    assertEquals(DateUtil.getUTCDate(2011, 7, 13), BOND_TRANSACTION.getPreviousAccrualDate());
-    assertEquals(DateUtil.getUTCDate(2011, 10, 13), BOND_TRANSACTION.getNextAccrualDate());
+    assertEquals(DateUtils.getUTCDate(2011, 7, 13), BOND_TRANSACTION.getPreviousAccrualDate());
+    assertEquals(DateUtils.getUTCDate(2011, 10, 13), BOND_TRANSACTION.getNextAccrualDate());
     assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getPaymentAmount());
   }
 }

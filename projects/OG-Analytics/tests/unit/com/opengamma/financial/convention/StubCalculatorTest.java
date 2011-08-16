@@ -14,17 +14,17 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubCalculator;
 import com.opengamma.financial.convention.StubType;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test StubCalculator.
  */
 public class StubCalculatorTest {
 
-  private static final ZonedDateTime[] NO_STUB1 = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 1, 1), DateUtil.getUTCDate(2008, 4, 1), DateUtil.getUTCDate(2008, 7, 1),
-      DateUtil.getUTCDate(2008, 10, 1), DateUtil.getUTCDate(2009, 1, 1), DateUtil.getUTCDate(2009, 4, 1), DateUtil.getUTCDate(2009, 7, 1), DateUtil.getUTCDate(2009, 10, 1),
-      DateUtil.getUTCDate(2010, 1, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2011, 1, 1),
-      DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2011, 7, 1), DateUtil.getUTCDate(2011, 10, 1)};
+  private static final ZonedDateTime[] NO_STUB1 = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 1, 1), DateUtils.getUTCDate(2008, 4, 1), DateUtils.getUTCDate(2008, 7, 1),
+      DateUtils.getUTCDate(2008, 10, 1), DateUtils.getUTCDate(2009, 1, 1), DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 10, 1),
+      DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2011, 1, 1),
+      DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 7, 1), DateUtils.getUTCDate(2011, 10, 1)};
   private static final ZonedDateTime[] SHORT_START_STUB1;
   private static final ZonedDateTime[] LONG_START_STUB1;
   private static final ZonedDateTime[] SHORT_END_STUB1;
@@ -34,10 +34,10 @@ public class StubCalculatorTest {
   private static final LocalDate[] LONG_START_STUB2;
   private static final LocalDate[] SHORT_END_STUB2;
   private static final LocalDate[] LONG_END_STUB2;
-  private static final ZonedDateTime[] NO_STUB3 = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 1, 31), DateUtil.getUTCDate(2008, 4, 30), DateUtil.getUTCDate(2008, 7, 31),
-      DateUtil.getUTCDate(2008, 10, 31), DateUtil.getUTCDate(2009, 1, 31), DateUtil.getUTCDate(2009, 4, 30), DateUtil.getUTCDate(2009, 7, 31), DateUtil.getUTCDate(2009, 10, 31),
-      DateUtil.getUTCDate(2010, 1, 31), DateUtil.getUTCDate(2010, 4, 30), DateUtil.getUTCDate(2010, 7, 31), DateUtil.getUTCDate(2010, 10, 31), DateUtil.getUTCDate(2011, 1, 31),
-      DateUtil.getUTCDate(2011, 4, 30), DateUtil.getUTCDate(2011, 7, 31), DateUtil.getUTCDate(2011, 10, 31)};
+  private static final ZonedDateTime[] NO_STUB3 = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 1, 31), DateUtils.getUTCDate(2008, 4, 30), DateUtils.getUTCDate(2008, 7, 31),
+      DateUtils.getUTCDate(2008, 10, 31), DateUtils.getUTCDate(2009, 1, 31), DateUtils.getUTCDate(2009, 4, 30), DateUtils.getUTCDate(2009, 7, 31), DateUtils.getUTCDate(2009, 10, 31),
+      DateUtils.getUTCDate(2010, 1, 31), DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 7, 31), DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2011, 1, 31),
+      DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 7, 31), DateUtils.getUTCDate(2011, 10, 31)};
   private static final ZonedDateTime[] SHORT_START_STUB3;
   private static final ZonedDateTime[] LONG_START_STUB3;
   private static final ZonedDateTime[] SHORT_END_STUB3;
@@ -58,14 +58,14 @@ public class StubCalculatorTest {
     LONG_START_STUB3 = Arrays.copyOf(NO_STUB3, n);
     SHORT_END_STUB3 = Arrays.copyOf(NO_STUB3, n);
     LONG_END_STUB3 = Arrays.copyOf(NO_STUB3, n);
-    SHORT_START_STUB1[0] = DateUtil.getUTCDate(2008, 1, 30);
-    LONG_START_STUB1[0] = DateUtil.getUTCDate(2007, 12, 1);
-    SHORT_END_STUB1[n - 1] = DateUtil.getUTCDate(2011, 9, 4);
-    LONG_END_STUB1[n - 1] = DateUtil.getUTCDate(2011, 11, 3);
-    SHORT_START_STUB3[0] = DateUtil.getUTCDate(2008, 2, 27);
-    LONG_START_STUB3[0] = DateUtil.getUTCDate(2008, 1, 27);
-    SHORT_END_STUB3[n - 1] = DateUtil.getUTCDate(2011, 9, 4);
-    LONG_END_STUB3[n - 1] = DateUtil.getUTCDate(2011, 11, 4);
+    SHORT_START_STUB1[0] = DateUtils.getUTCDate(2008, 1, 30);
+    LONG_START_STUB1[0] = DateUtils.getUTCDate(2007, 12, 1);
+    SHORT_END_STUB1[n - 1] = DateUtils.getUTCDate(2011, 9, 4);
+    LONG_END_STUB1[n - 1] = DateUtils.getUTCDate(2011, 11, 3);
+    SHORT_START_STUB3[0] = DateUtils.getUTCDate(2008, 2, 27);
+    LONG_START_STUB3[0] = DateUtils.getUTCDate(2008, 1, 27);
+    SHORT_END_STUB3[n - 1] = DateUtils.getUTCDate(2011, 9, 4);
+    LONG_END_STUB3[n - 1] = DateUtils.getUTCDate(2011, 11, 4);
     NO_STUB2 = new LocalDate[n];
     SHORT_START_STUB2 = new LocalDate[n];
     LONG_START_STUB2 = new LocalDate[n];

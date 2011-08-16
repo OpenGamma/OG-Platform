@@ -19,7 +19,7 @@ import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.statistics.distribution.BivariateNormalDistribution;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -51,7 +51,7 @@ public class EuropeanOptionOnEuropeanVanillaOptionModel extends AnalyticOptionMo
         final double sigma = data.getVolatility(t1, k1); //REVIEW emcleod 20-7-10 This will work with a flat volatility surface but otherwise will give odd results
         final double r = data.getInterestRate(t1);
         final double b = data.getCostOfCarry();
-        final double criticalValue = getCriticalValue(new EuropeanVanillaOptionDefinition(k2, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, deltaT)), underlying.isCall()), data, k1);
+        final double criticalValue = getCriticalValue(new EuropeanVanillaOptionDefinition(k2, new Expiry(DateUtils.getDateOffsetWithYearFraction(date, deltaT)), underlying.isCall()), data, k1);
         final double d1 = getD1(s, criticalValue, t1, sigma, b);
         final double d2 = getD2(d1, sigma, t1);
         final double d3 = getD1(s, k2, t2, sigma, b);

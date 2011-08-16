@@ -17,7 +17,7 @@ import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of ForexDefinition and it conversion to derivative.
@@ -26,7 +26,7 @@ public class ForexDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 5, 24);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 5, 24);
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
@@ -105,7 +105,7 @@ public class ForexDefinitionTest {
     final String discountingEUR = "Discounting EUR";
     final String discountingUSD = "Discounting USD";
     final String[] curves = new String[] {discountingEUR, discountingUSD};
-    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 20);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
     final Forex fxConverted = FX.toDerivative(referenceDate, curves);
     final PaymentFixed pay1 = PAY_1.toDerivative(referenceDate, discountingEUR);
     final PaymentFixed pay2 = PAY_2.toDerivative(referenceDate, discountingUSD);

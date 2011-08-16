@@ -15,7 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -35,8 +35,8 @@ public class MertonJumpDiffusionModelDataBundleTest {
   private static final double OTHER_LAMBDA = 0.2;
   private static final double GAMMA = 0.3;
   private static final double OTHER_GAMMA = 0.5;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
-  private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2011, 5, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime OTHER_DATE = DateUtils.getUTCDate(2011, 5, 1);
   private static final MertonJumpDiffusionModelDataBundle DATA = new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

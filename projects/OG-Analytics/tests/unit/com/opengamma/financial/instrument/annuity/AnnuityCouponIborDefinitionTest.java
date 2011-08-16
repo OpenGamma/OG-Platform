@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
@@ -48,7 +48,7 @@ public class AnnuityCouponIborDefinitionTest {
   private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   //Annuity description
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final boolean IS_PAYER = true;
   private static final double NOTIONAL = 1000000;
 
@@ -58,7 +58,7 @@ public class AnnuityCouponIborDefinitionTest {
 
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 3, 15); //For conversion to derivative
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 3, 15); //For conversion to derivative
   private static final double FIXING_RATE = 0.05;
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
 
@@ -121,17 +121,17 @@ public class AnnuityCouponIborDefinitionTest {
 
   @Test
   public void testFrom() {
-    final ZonedDateTime settleDate = DateUtil.getUTCDate(2014, 3, 20);
+    final ZonedDateTime settleDate = DateUtils.getUTCDate(2014, 3, 20);
     final Period indexTenor = Period.ofMonths(3);
     final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final IborIndex index = new IborIndex(CUR, indexTenor, SETTLEMENT_DAYS, CALENDAR, dayCount, BUSINESS_DAY, IS_EOM);
     final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, index, IS_PAYER);
-    final ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22), DateUtil.getUTCDate(2015, 03, 20)};
-    final ZonedDateTime[] fixingDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 18), DateUtil.getUTCDate(2014, 6, 18), DateUtil.getUTCDate(2014, 9, 18), DateUtil.getUTCDate(2014, 12, 18)};
-    final ZonedDateTime[] startPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 20), DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22),
-        DateUtil.getUTCDate(2014, 12, 22)};
-    final ZonedDateTime[] endPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22),
-        DateUtil.getUTCDate(2015, 03, 23)};
+    final ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2014, 12, 22), DateUtils.getUTCDate(2015, 03, 20)};
+    final ZonedDateTime[] fixingDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 18), DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 18), DateUtils.getUTCDate(2014, 12, 18)};
+    final ZonedDateTime[] startPeriodDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22),
+        DateUtils.getUTCDate(2014, 12, 22)};
+    final ZonedDateTime[] endPeriodDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2014, 12, 22),
+        DateUtils.getUTCDate(2015, 03, 23)};
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       assertEquals(paymentDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getPaymentDate());
       assertEquals(fixingDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixingDate());

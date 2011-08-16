@@ -15,7 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -37,8 +37,8 @@ public class BatesGeneralizedJumpDiffusionModelDataBundleTest {
   private static final double OTHER_JUMP = 0.45;
   private static final double DELTA = 0.9;
   private static final double OTHER_DELTA = 0.86;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
-  private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2010, 6, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime OTHER_DATE = DateUtils.getUTCDate(2010, 6, 1);
   private static final BatesGeneralizedJumpDiffusionModelDataBundle DATA = new BatesGeneralizedJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

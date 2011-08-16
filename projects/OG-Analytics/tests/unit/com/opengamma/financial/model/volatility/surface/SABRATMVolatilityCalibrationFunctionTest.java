@@ -18,7 +18,7 @@ import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.rootfinding.CubicRealRootFinder;
 import com.opengamma.math.rootfinding.QuadraticRealRootFinder;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -31,11 +31,11 @@ public class SABRATMVolatilityCalibrationFunctionTest {
   private static final double KSI = 0.5;
   private static final double T = 0.5;
   private static final double F = 100;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 8, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 8, 1);
   private static final SABRDataBundle DATA = new SABRDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.0)), 0., new VolatilitySurface(ConstantDoublesSurface.from(ATM_SIGMA)), F, DATE, 0, BETA,
       RHO, KSI);
   private static final SABRATMVolatilityCalibrationFunction FUNCTION = new SABRATMVolatilityCalibrationFunction();
-  private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
+  private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), true);
   private static final CubicRealRootFinder CUBIC_ROOT_FINDER = new CubicRealRootFinder();
   private static final QuadraticRealRootFinder QUADRATIC_ROOT_FINDER = new QuadraticRealRootFinder();
 

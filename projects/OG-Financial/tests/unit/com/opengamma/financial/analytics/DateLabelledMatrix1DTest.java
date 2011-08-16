@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -22,14 +22,14 @@ import com.opengamma.util.time.DateUtil;
 public class DateLabelledMatrix1DTest {
   private static final LocalDate[] D1 = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 3, 1), LocalDate.of(2011, 5, 1), LocalDate.of(2011, 7, 1) };
   private static final Object[] D1_LABELS = new Object[] {"2011-01-01", "2011-03-01", "2011-05-01", "2011-07-01" };
-  private static final ZonedDateTime[] Z1 = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 7, 1) };
+  private static final ZonedDateTime[] Z1 = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };
   private static final Object[] Z1_LABELS = new Object[] {"2011-01-01T00:00Z[UTC]", "2011-03-01T00:00Z[UTC]", "2011-05-01T00:00Z[UTC]", "2011-07-01T00:00Z[UTC]" };
   private static final LocalDate[] D2 = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 2, 1), LocalDate.of(2011, 3, 1), LocalDate.of(2011, 4, 1) };
-  private static final ZonedDateTime[] Z2 = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1) };
+  private static final ZonedDateTime[] Z2 = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1) };
   private static final LocalDate[] D3 = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 3, 2), LocalDate.of(2011, 4, 30), LocalDate.of(2011, 7, 1) };
-  private static final ZonedDateTime[] Z3 = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 3, 2), DateUtil.getUTCDate(2011, 4, 30), DateUtil.getUTCDate(2011, 7, 1) };
+  private static final ZonedDateTime[] Z3 = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 3, 2), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 7, 1) };
   private static final LocalDate[] D4 = new LocalDate[] {LocalDate.of(2011, 1, 2), LocalDate.of(2011, 2, 2), LocalDate.of(2011, 2, 28), LocalDate.of(2011, 4, 1) };
-  private static final ZonedDateTime[] Z4 = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 2), DateUtil.getUTCDate(2011, 2, 2), DateUtil.getUTCDate(2011, 2, 28), DateUtil.getUTCDate(2011, 4, 1) };
+  private static final ZonedDateTime[] Z4 = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 2), DateUtils.getUTCDate(2011, 2, 2), DateUtils.getUTCDate(2011, 2, 28), DateUtils.getUTCDate(2011, 4, 1) };
   private static final double[] V1 = new double[] {1, 2, 3, 4 };
   private static final double[] V2 = new double[] {5, 6, 7, 8 };
   private static final double[] V3 = new double[] {9, 10, 11, 12 };
@@ -64,10 +64,10 @@ public class DateLabelledMatrix1DTest {
 
   @Test
   public void addSingleValueNewDate2() {
-    final ZonedDateTime d = DateUtil.getUTCDate(2011, 1, 2);
+    final ZonedDateTime d = DateUtils.getUTCDate(2011, 1, 2);
     final double v = 10;
     LabelledMatrix1D<ZonedDateTime, Period> newMatrix = ZDT1.addIgnoringLabel(d, d, v);
-    final ZonedDateTime[] newDates = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), d, DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 7, 1) };
+    final ZonedDateTime[] newDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), d, DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };
     final Object[] newDatesLabels = new Object[] {"2011-01-01T00:00Z[UTC]", d, "2011-03-01T00:00Z[UTC]", "2011-05-01T00:00Z[UTC]", "2011-07-01T00:00Z[UTC]" };
     final double[] newValues = new double[] {1, 10, 2, 3, 4 };
     assertArrayEquals(newDates, newMatrix.getKeys());
@@ -104,10 +104,10 @@ public class DateLabelledMatrix1DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addSingleValueExistingDate2() {
-    ZonedDateTime d = DateUtil.getUTCDate(2011, 1, 1);
+    ZonedDateTime d = DateUtils.getUTCDate(2011, 1, 1);
     final double v = 10;
     LabelledMatrix1D<ZonedDateTime, Period> newMatrix = ZDT1.addIgnoringLabel(d, d, v);
-    final ZonedDateTime[] newDates = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 7, 1) };
+    final ZonedDateTime[] newDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };
     final Object[] newDatesLabels = new Object[] {"2011-01-01T00:00Z[UTC]", "2011-03-01T00:00Z[UTC]", "2011-05-01T00:00Z[UTC]", "2011-07-01T00:00Z[UTC]" };
     final double[] newValues = new double[] {11, 2, 3, 4 };
     assertArrayEquals(newDates, newMatrix.getKeys());
@@ -121,7 +121,7 @@ public class DateLabelledMatrix1DTest {
     assertArrayEquals(newDates, newMatrix.getKeys());
     assertArrayEquals(newDatesLabels, newMatrix.getLabels());
     assertArrayEquals(newValues, newMatrix.getValues(), 0);
-    d = DateUtil.getUTCDate(2011, 1, 2);
+    d = DateUtils.getUTCDate(2011, 1, 2);
     newMatrix = ZDT1.addIgnoringLabel(d, d, v, TOLERANCE);
     assertArrayEquals(newDates, newMatrix.getKeys());
     assertArrayEquals(newDatesLabels, newMatrix.getLabels());
@@ -200,8 +200,8 @@ public class DateLabelledMatrix1DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddMatrixSomeExisting2() {
-    ZonedDateTime[] expectedDates = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1),
-        DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 7, 1) };
+    ZonedDateTime[] expectedDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1),
+        DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };
     Object[] expectedDatesLabels = new Object[] {"2011-01-01T00:00Z[UTC]", "2011-02-01T00:00Z[UTC]", "2011-03-01T00:00Z[UTC]", "2011-04-01T00:00Z[UTC]", "2011-05-01T00:00Z[UTC]",
         "2011-07-01T00:00Z[UTC]" };
     final double[] expectedValues = new double[] {10, 10, 13, 12, 3, 4 };
@@ -213,8 +213,8 @@ public class DateLabelledMatrix1DTest {
     assertArrayEquals(expectedDates, sum.getKeys());
     assertArrayEquals(expectedDatesLabels, sum.getLabels());
     assertArrayEquals(expectedValues, sum.getValues(), 0);
-    expectedDates = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 2, 2), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1),
-        DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 7, 1) };
+    expectedDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 2), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1),
+        DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 7, 1) };
     expectedDatesLabels = new Object[] {"2011-01-01T00:00Z[UTC]", "2011-02-02T00:00Z[UTC]", "2011-03-01T00:00Z[UTC]", "2011-04-01T00:00Z[UTC]", "2011-05-01T00:00Z[UTC]", "2011-07-01T00:00Z[UTC]" };
     sum = ZDT1.addIgnoringLabel(ZDT5, TOLERANCE);
     assertArrayEquals(expectedDates, sum.getKeys());

@@ -19,7 +19,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,8 +30,8 @@ public class DermanKaniImpliedBinomialTreeModelTest {
   private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final double B = 0.05;
   private static final double ATM_VOL = 0.15;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(SPOT, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5)), true);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
+  private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(SPOT, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 5)), true);
   private static final ImpliedTreeModel<OptionDefinition, StandardOptionDataBundle> MODEL = new DermanKaniImpliedBinomialTreeModel(5);
   private static final Function<Double, Double> SMILE = new Function<Double, Double>() {
 
