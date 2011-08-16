@@ -8,6 +8,8 @@ package com.opengamma.math.matrix;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -66,6 +68,18 @@ public void testIsUpperTriangular() {
   double[][] notUT = {{1,2,3},{0,4,5},{0,1,6}};
   assertTrue(MatrixPrimitiveUtils.isUpperTriangular(UT));
   assertFalse(MatrixPrimitiveUtils.isUpperTriangular(notUT));
+}
+
+@Test
+public void testCheckIsUpperTriangular() {
+  double[][] UT = {{1,2,3},{0,4,5},{0,0,6}};
+  assertTrue(Arrays.deepEquals(UT,MatrixPrimitiveUtils.checkIsUpperTriangular(UT)));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testCheckIsUpperTriangularExceptions() {
+  double[][] notUT = {{1,2,3},{0,4,5},{0,1,6}};
+  MatrixPrimitiveUtils.checkIsUpperTriangular(notUT);
 }
 
 }

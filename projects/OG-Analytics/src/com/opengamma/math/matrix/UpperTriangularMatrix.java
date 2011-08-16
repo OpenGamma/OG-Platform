@@ -15,14 +15,15 @@ public class UpperTriangularMatrix extends TriangularMatrixType {
    * @param aMatrix an array of arrays representation of an upper triangular matrix
    */
   public UpperTriangularMatrix(double[][] aMatrix) {
-    super(MatrixPrimitiveUtils.isUpperTriangular(aMatrix) ? aMatrix : null);
+    super(MatrixPrimitiveUtils.checkIsUpperTriangular(aMatrix));
   }
 
   /**
    * @param aMatrix a DoubleMatrix2D representation of an upper triangular matrix
    */
   public UpperTriangularMatrix(DoubleMatrix2D aMatrix) {
-    super(MatrixPrimitiveUtils.isUpperTriangular(aMatrix.toArray()) ? aMatrix : null);
+    this(aMatrix.toArray());
   }
 
 }
+

@@ -144,7 +144,7 @@ public class MatrixPrimitiveUtils {
   }
 
 /**
- *
+ * Boolean on whether a matrix is upper triangular
  * @param aMatrix an array of arrays representation of the matrix to be tested.
  * @return boolean, true if matrix is Upper Triangular, false if matrix is not.
  * @throws IllegalArgumentException
@@ -163,6 +163,19 @@ public class MatrixPrimitiveUtils {
       }
     }
     return true;
+  }
+
+/**
+ * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception other wise.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return the matrix referred to in the argument if the check passes
+ */
+  public static double[][] checkIsUpperTriangular(double[][] aMatrix) {
+    if (MatrixPrimitiveUtils.isUpperTriangular(aMatrix)) {
+      return aMatrix;
+    } else {
+      throw new IllegalArgumentException("Upper triangular matrix called on data that isn't upper triangular!");
+    }
   }
 
 }
