@@ -33,20 +33,36 @@ public class AvailablePortfolioOutputsResource {
 
     private final AvailableOutputsService _service;
     private final CompiledFunctionRepository _functions;
+    private final int _maxNodes;
+    private final int _maxPositions;
 
-    private Instance(final AvailableOutputsService service, final CompiledFunctionRepository functions) {
+    private Instance(final AvailableOutputsService service, final CompiledFunctionRepository functions, final int maxNodes, final int maxPositions) {
       _service = service;
       _functions = functions;
+      _maxNodes = maxNodes;
+      _maxPositions = maxPositions;
+    }
+
+    @Path("nodes/{count}")
+    public Instance nodes(@PathParam("count") int maxNodes) {
+      return new Instance(_service, _functions, maxNodes, _maxPositions);
+    }
+
+    @Path("positions/{count}")
+    public Instance positions(@PathParam("count") int maxPositions) {
+      return new Instance(_service, _functions, _maxNodes, maxPositions);
     }
 
     @Path("{portfolio}")
     public FudgeFieldContainerBrowser portfolioOutputs(@PathParam("portfolio") String portfolioUid) {
-      final Portfolio portfolio = _service.getPortfolio(portfolioUid);
+      final Portfolio portfolio = _service.getPortfolio(portfolioUid, _maxNodes, _maxPositions);
+      final long tStart = System.nanoTime();
       if (portfolio == null) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }
       final AvailableOutputs outputs = new AvailablePortfolioOutputs(portfolio, _functions, _service.getWildcardIndicator());
       final FudgeSerializer fudgeContext = new FudgeSerializer(_service.getFudgeContext());
+      System.err.println("getPortfolioOutputs = " + (double) (System.nanoTime() - tStart) / 1e6 + "ms");
       return new FudgeFieldContainerBrowser(fudgeContext.objectToFudgeMsg(outputs));
     }
 
@@ -62,12 +78,12 @@ public class AvailablePortfolioOutputsResource {
 
   @Path("now")
   public Instance now() {
-    return new Instance(getService(), getService().getCompiledFunctions().compileFunctionRepository(Instant.now()));
+    return new Instance(getService(), getService().getCompiledFunctions().compileFunctionRepository(Instant.now()), -1, -1);
   }
 
   @Path("{timestamp}")
   public Instance timestamp(@PathParam("timestamp") long timestamp) {
-    return new Instance(getService(), getService().getCompiledFunctions().compileFunctionRepository(timestamp));
+    return new Instance(getService(), getService().getCompiledFunctions().compileFunctionRepository(timestamp), -1, -1);
   }
 
 }
