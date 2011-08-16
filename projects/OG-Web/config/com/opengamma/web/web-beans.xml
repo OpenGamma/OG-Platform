@@ -39,6 +39,13 @@
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
+  <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="demoFunctionCompilation" />
+    <constructor-arg ref="combinedPositionSource" />
+    <constructor-arg ref="combinedSecuritySource" />
+    <property name="wildcardIndicator" value="*" />
+  </bean>
   
   <!-- Security source/master service -->
   <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
@@ -352,14 +359,6 @@
   <bean id="bundleManager" class="com.opengamma.web.spring.BundleManagerFactoryBean">
     <property name="configResource" value="classpath:${bundle.file}" />
     <property name="baseDir" value="${bundle.basedir}" />
-  </bean>
-  
-  <!-- View helper RESTful service (experimental code) -->
-  <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
-    <constructor-arg ref="fudgeContext" />
-    <constructor-arg ref="demoFunctionCompilation" />
-    <constructor-arg ref="combinedPositionSource" />
-    <constructor-arg ref="combinedSecuritySource" />
   </bean>
   
   <bean id="yuiCompressorOptions" class="com.opengamma.web.bundle.YUICompressorOptions">

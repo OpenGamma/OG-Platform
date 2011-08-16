@@ -48,7 +48,7 @@ public class AvailableOutputsResource {
     if (portfolio == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    final AvailableOutputs outputs = new AvailableOutputs(portfolio, getCompiledFunctions());
+    final AvailableOutputs outputs = new AvailableOutputs(portfolio, getCompiledFunctions(), getService().getWildcardIndicator());
     MutableFudgeMsg submsg = fudgeContext.newMessage();
     for (AvailableOutput output : outputs.getPortfolioNodeOutputs()) {
       fudgeContext.addToMessage(submsg, output.getValueName(), null, output.getPortfolioNodeProperties());

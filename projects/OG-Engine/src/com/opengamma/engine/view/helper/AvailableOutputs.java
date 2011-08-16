@@ -36,6 +36,12 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Helper class to identify some of the possible portfolio outputs when constructing a view definition. 
+ * <p>
+ * The named values aren't guaranteed to be computable for all nodes, positions or security types indicated as the full set of
+ * functions may require underlying market data or other information that is not available or computable. Due to the black-box
+ * nature of the function definitions additional values not mentioned may be available for a portfolio.
+ * <p>
+ * For more accurate details, refer to the documentation for the functions installed in the repository.
  */
 public class AvailableOutputs {
 
@@ -43,6 +49,7 @@ public class AvailableOutputs {
 
   private final Set<String> _securityTypes = new HashSet<String>();
   private final Map<String, AvailableOutput> _outputs = new HashMap<String, AvailableOutput>();
+  private final String _anyValue;
 
   // Hack until the dummy functions get removed
   private static Collection<CompiledFunctionDefinition> removeDummyFunctions(final Collection<CompiledFunctionDefinition> functions) {
@@ -89,9 +96,10 @@ public class AvailableOutputs {
    * @param portfolio the portfolio (must be resolved), not {@code null}
    * @param functionRepository the functions, not {@code null}
    */
-  public AvailableOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository) {
+  public AvailableOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository, final String anyValue) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(functionRepository, "functions");
+    _anyValue = anyValue;
     final Collection<CompiledFunctionDefinition> functions = removeDummyFunctions(functionRepository.getAllFunctions());
     final Map<UniqueId, Object> targetCache = new HashMap<UniqueId, Object>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
@@ -191,9 +199,12 @@ public class AvailableOutputs {
           if (inputSet.isEmpty()) {
             break;
           } else {
-            for (ValueSpecification result : function.getResults(_context, target, inputSet)) {
-              if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
-                outputs.add(result);
+            final Set<ValueSpecification> results = function.getResults(_context, target, inputSet);
+            if (results != null) {
+              for (ValueSpecification result : results) {
+                if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
+                  outputs.add(result);
+                }
               }
             }
             inputSet.clear();
@@ -259,7 +270,7 @@ public class AvailableOutputs {
   private AvailableOutput getOrCreateOutput(final String valueName) {
     AvailableOutput output = _outputs.get(valueName);
     if (output == null) {
-      output = new AvailableOutput(valueName);
+      output = new AvailableOutput(valueName, _anyValue);
       _outputs.put(valueName, output);
     }
     return output;

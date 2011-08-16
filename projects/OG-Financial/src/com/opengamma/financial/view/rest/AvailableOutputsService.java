@@ -29,6 +29,7 @@ public class AvailableOutputsService {
   private final FudgeContext _fudgeContext;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
+  private String _anyValue;
 
   public AvailableOutputsService(final FudgeContext fudgeContext, final CompiledFunctionService compiledFunctionService, final PositionSource positionSource, final SecuritySource securitySource) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -41,20 +42,28 @@ public class AvailableOutputsService {
     _securitySource = securitySource;
   }
 
-  protected CompiledFunctionService getCompiledFunctions() {
+  public CompiledFunctionService getCompiledFunctions() {
     return _compiledFunctions;
   }
 
-  protected FudgeContext getFudgeContext() {
+  public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
-  protected PositionSource getPositionSource() {
+  public PositionSource getPositionSource() {
     return _positionSource;
   }
 
-  protected SecuritySource getSecuritySource() {
+  public SecuritySource getSecuritySource() {
     return _securitySource;
+  }
+
+  public String getWildcardIndicator() {
+    return _anyValue;
+  }
+
+  public void setWildcardIndicator(final String anyValue) {
+    _anyValue = anyValue;
   }
 
   protected Portfolio getPortfolio(final String uid) {
