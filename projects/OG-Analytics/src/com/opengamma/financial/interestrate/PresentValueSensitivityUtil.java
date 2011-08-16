@@ -16,15 +16,26 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Utilities to manipulate present value sensitivities.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public class PresentValueSensitivityUtil {
 
   /**
+   * Restricted constructor.
+   */
+  protected PresentValueSensitivityUtil() {
+    super();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Add two maps representing sensitivities into one.
-   * @param curves List of curves.
-   * @param sensi1 First sensitivity.
-   * @param sensi2 Second sensitivity.
-   * @return The total sensitivity.
+   * 
+   * @param curves  the list of curves, not null
+   * @param sensi1  the first sensitivity, not null
+   * @param sensi2  the second sensitivity, not null
+   * @return the total sensitivity, not null
    */
   public static Map<String, List<DoublesPair>> addSensitivity(final YieldCurveBundle curves, final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2) {
     Validate.notNull(curves, "curve bundle");
@@ -50,17 +61,18 @@ public class PresentValueSensitivityUtil {
   }
 
   /**
-   * Multiply a sensitivity by a common factor.
-   * @param sensi The original sensitivity.
-   * @param factor The multiplicative factor.
-   * @return The multiplied sensitivity.
+   * Multiply a sensitivity map by a common factor.
+   * 
+   * @param sensitivity  the original sensitivity, not null
+   * @param factor  the multiplicative factor, not null
+   * @return the multiplied sensitivity, not null
    */
-  public static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensi, double factor) {
-    Validate.notNull(sensi, "sensitivity");
+  public static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensitivity, double factor) {
+    Validate.notNull(sensitivity, "sensitivity");
     Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : sensi.keySet()) {
+    for (final String name : sensitivity.keySet()) {
       final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : sensi.get(name)) {
+      for (final DoublesPair pair : sensitivity.get(name)) {
         curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
       }
       result.put(name, curveSensi);

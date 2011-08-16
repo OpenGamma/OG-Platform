@@ -11,12 +11,22 @@ import javax.time.calendar.ZonedDateTime;
 
 /**
  * Utilities for managing the business day convention.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public class BusinessDayDateUtil {
 
   /**
-   * Calculates the number of days in between two dates with the date count rule
-   * specified by the DateAdjuster.
+   * Restricted constructor.
+   */
+  protected BusinessDayDateUtil() {
+    super();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the number of days in between two dates with the date count
+   * rule specified by the {@code DateAdjuster}.
    * 
    * @param startDate  the start date-time, not null
    * @param includeStart  whether to include the start
