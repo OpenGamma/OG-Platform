@@ -15,8 +15,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
