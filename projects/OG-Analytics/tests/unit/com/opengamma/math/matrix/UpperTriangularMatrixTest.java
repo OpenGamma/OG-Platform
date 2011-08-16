@@ -8,7 +8,7 @@ package com.opengamma.math.matrix;
 import org.testng.annotations.Test;
 
 /**
- *
+ * Tests the Upper Triangular matrix type
  */
 public class UpperTriangularMatrixTest {
   private double[][] dataSquare = {{1,2,3,4},{0,5,6,7},{0,0,8,9},{0,0,0,10}};

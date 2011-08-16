@@ -151,7 +151,7 @@ public class MatrixPrimitiveUtils {
  */
   public static boolean isUpperTriangular(double[][] aMatrix) throws  IllegalArgumentException {
     if (!isSquare(aMatrix)) {
-      throw new IllegalArgumentException("Matrix is not square so removing lower triangle isn't clear cut enough to be implemented");
+      throw new IllegalArgumentException("Matrix is not square so the notion of Upper Triangular isn't clear cut enough to be implemented");
     }
     int rows = aMatrix.length;
 
@@ -178,4 +178,39 @@ public class MatrixPrimitiveUtils {
     }
   }
 
+
+/**
+ * Boolean on whether a matrix is lower triangular
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return boolean, true if matrix is Lower Triangular, false if matrix is not.
+ * @throws IllegalArgumentException
+ */
+  public static boolean isLowerTriangular(double[][] aMatrix) throws  IllegalArgumentException {
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so the notion of Lower Triangular isn't clear cut enough to be implemented");
+    }
+    int rows = aMatrix.length;
+
+    for (int i = 0; i < rows; i++) {
+      for (int j = i + 1; j < rows; j++) {
+        if (Double.doubleToLongBits(aMatrix[i][j]) != 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+/**
+ * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception other wise.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return the matrix referred to in the argument if the check passes
+ */
+  public static double[][] checkIsLowerTriangular(double[][] aMatrix) {
+    if (MatrixPrimitiveUtils.isLowerTriangular(aMatrix)) {
+      return aMatrix;
+    } else {
+      throw new IllegalArgumentException("Lower triangular matrix called on data that isn't lower triangular!");
+    }
+  }
 }

@@ -82,4 +82,24 @@ public void testCheckIsUpperTriangularExceptions() {
   MatrixPrimitiveUtils.checkIsUpperTriangular(notUT);
 }
 
+
+@Test
+public void testIsLowerTriangular() {
+  double[][] LT = {{1,0,0},{2,3,0},{4,5,6}};
+  double[][] notLT = {{1,1,0},{2,3,0},{4,5,6}};
+  assertTrue(MatrixPrimitiveUtils.isLowerTriangular(LT));
+  assertFalse(MatrixPrimitiveUtils.isLowerTriangular(notLT));
+}
+
+@Test
+public void testCheckIsLowerTriangular() {
+  double[][] LT = {{1,0,0},{2,3,0},{4,5,6}};
+  assertTrue(Arrays.deepEquals(LT,MatrixPrimitiveUtils.checkIsLowerTriangular(LT)));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testCheckIsLowerTriangularExceptions() {
+  double[][] notLT = {{1,1,0},{2,3,0},{4,5,6}};
+  MatrixPrimitiveUtils.checkIsLowerTriangular(notLT);
+}
 }
