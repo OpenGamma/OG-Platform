@@ -124,12 +124,12 @@ public class MatrixPrimitiveUtils {
    * @param aMatrix which is the array of arrays to be manipulated
    * @return a double array of arrays with the lower triangle set to zero
    */
-  public static double[][] removeLowerTriangle(double[][] aMatrix) {
+  public static double[][] removeLowerTriangle(double[][] aMatrix) throws  IllegalArgumentException, NotImplementedException {
     if (isRagged(aMatrix)) {
       throw new NotImplementedException("Construction from ragged array is not implemented");
     }
     if (!isSquare(aMatrix)) {
-      throw new NotImplementedException("Matrix is not square so removing lower triangle isn't clear cut enough to be implemented");
+      throw new IllegalArgumentException("Matrix is not square so removing lower triangle isn't clear cut enough to be implemented");
     }
     int rows = aMatrix.length;
     int cols = aMatrix[0].length;
@@ -141,6 +141,28 @@ public class MatrixPrimitiveUtils {
       }
     }
     return tmp;
+  }
+
+/**
+ *
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return boolean, true if matrix is Upper Triangular, false if matrix is not.
+ * @throws IllegalArgumentException
+ */
+  public static boolean isUpperTriangular(double[][] aMatrix) throws  IllegalArgumentException {
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so removing lower triangle isn't clear cut enough to be implemented");
+    }
+    int rows = aMatrix.length;
+
+    for (int i = 1; i < rows; i++) {
+      for (int j = 0; j < i; j++) {
+        if (Double.doubleToLongBits(aMatrix[i][j]) != 0) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
 }

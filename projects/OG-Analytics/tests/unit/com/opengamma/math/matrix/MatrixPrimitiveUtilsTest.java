@@ -60,4 +60,12 @@ public void testArrayHasContiguousNonZeros() {
   assertFalse(MatrixPrimitiveUtils.arrayHasContiguousRowEntries(data5));
 }
 
+@Test
+public void testIsUpperTriangular() {
+  double[][] UT = {{1,2,3},{0,4,5},{0,0,6}};
+  double[][] notUT = {{1,2,3},{0,4,5},{0,1,6}};
+  assertTrue(MatrixPrimitiveUtils.isUpperTriangular(UT));
+  assertFalse(MatrixPrimitiveUtils.isUpperTriangular(notUT));
+}
+
 }

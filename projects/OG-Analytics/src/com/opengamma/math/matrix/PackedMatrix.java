@@ -8,6 +8,7 @@ package com.opengamma.math.matrix;
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 /**
  * Converts or instantiates a matrix to Packed Matrix format. This class is reserved for expert use only.
@@ -58,6 +59,7 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
    * @param cols is the number of columns in the matrix that is to be represented
    */
   public PackedMatrix(double[][] aMatrix, boolean allowZeros, int rows, int cols) {
+    Validate.notNull(aMatrix);
     // test if ragged
     if (MatrixPrimitiveUtils.isRagged(aMatrix)) {
       throw new NotImplementedException("Construction from ragged array not implemented");
