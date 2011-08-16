@@ -13,17 +13,17 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Utility methods for converting to/from the {@link Data} type.
  */
-public final class DataUtil {
+public final class DataUtils {
 
   /**
    * Prevent instantiation.
    */
-  private DataUtil() {
+  private DataUtils() {
   }
 
   public static boolean isNull(final Data value) {
     if (value.getSingle() != null) {
-      return ValueUtil.isNull(value.getSingle());
+      return ValueUtils.isNull(value.getSingle());
     } else if (value.getLinear() != null) {
       return false;
     } else if (value.getMatrix() != null) {
@@ -41,27 +41,27 @@ public final class DataUtil {
   }
 
   public static Data of(final boolean boolValue) {
-    return of(ValueUtil.of(boolValue));
+    return of(ValueUtils.of(boolValue));
   }
 
   public static Data of(final double doubleValue) {
-    return of(ValueUtil.of(doubleValue));
+    return of(ValueUtils.of(doubleValue));
   }
 
   public static Data ofError(final int errorValue) {
-    return of(ValueUtil.ofError(errorValue));
+    return of(ValueUtils.ofError(errorValue));
   }
 
   public static Data of(final int intValue) {
-    return of(ValueUtil.of(intValue));
+    return of(ValueUtils.of(intValue));
   }
 
   public static Data of(final FudgeMsg messageValue) {
-    return of(ValueUtil.of(messageValue));
+    return of(ValueUtils.of(messageValue));
   }
 
   public static Data of(final String stringValue) {
-    return of(ValueUtil.of(stringValue));
+    return of(ValueUtils.of(stringValue));
   }
 
   public static Data of(final Value[] values) {
@@ -96,7 +96,7 @@ public final class DataUtil {
    */
   public static String toString(final Data data, final boolean quoted) {
     if (data.getSingle() != null) {
-      return ValueUtil.toString(data.getSingle(), quoted);
+      return ValueUtils.toString(data.getSingle(), quoted);
     } else if (data.getLinear() != null) {
       final StringBuilder sb = new StringBuilder();
       sb.append('[');
@@ -104,7 +104,7 @@ public final class DataUtil {
         if (i > 0) {
           sb.append(", ");
         }
-        sb.append(ValueUtil.toString(data.getLinear()[i], quoted));
+        sb.append(ValueUtils.toString(data.getLinear()[i], quoted));
       }
       sb.append(']');
       return sb.toString();
@@ -120,7 +120,7 @@ public final class DataUtil {
           if (j > 0) {
             sb.append(", ");
           }
-          sb.append(ValueUtil.toString(data.getMatrix()[i][j], quoted));
+          sb.append(ValueUtils.toString(data.getMatrix()[i][j], quoted));
         }
         sb.append(']');
       }
@@ -156,23 +156,23 @@ public final class DataUtil {
   }
 
   public static Boolean toBool(final Data data) {
-    return ValueUtil.toBool(toValue(data));
+    return ValueUtils.toBool(toValue(data));
   }
 
   public static Double toDouble(final Data data) {
-    return ValueUtil.toDouble(toValue(data));
+    return ValueUtils.toDouble(toValue(data));
   }
 
   public static Integer toError(final Data data) {
-    return ValueUtil.toError(toValue(data));
+    return ValueUtils.toError(toValue(data));
   }
 
   public static Integer toInt(final Data data) {
-    return ValueUtil.toInt(toValue(data));
+    return ValueUtils.toInt(toValue(data));
   }
 
   public static FudgeMsg toMessage(final Data data) {
-    return ValueUtil.toMessage(toValue(data));
+    return ValueUtils.toMessage(toValue(data));
   }
 
 }

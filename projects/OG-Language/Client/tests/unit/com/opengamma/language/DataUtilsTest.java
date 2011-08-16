@@ -12,67 +12,67 @@ import static org.testng.AssertJUnit.assertNotNull;
 import org.testng.annotations.Test;
 
 /**
- * Tests the methods in the {@link DataUtil} class.
+ * Tests the methods in the {@link DataUtils} class.
  */
-public class DataUtilTest {
+public class DataUtilsTest {
 
   @Test
   public void testSingle() {
-    final Value value = ValueUtil.of(42);
-    final Data data = DataUtil.of(value);
+    final Value value = ValueUtils.of(42);
+    final Data data = DataUtils.of(value);
     assertNotNull(data);
     assertEquals(value, data.getSingle());
   }
 
   @Test
   public void testLinear() {
-    final Value[] values = new Value[] {ValueUtil.of(1), ValueUtil.of(2)};
-    final Data data = DataUtil.of(values);
+    final Value[] values = new Value[] {ValueUtils.of(1), ValueUtils.of(2)};
+    final Data data = DataUtils.of(values);
     assertNotNull(data);
     assertArrayEquals(values, data.getLinear());
   }
 
   @Test
   public void testMatrix() {
-    final Value[][] values = new Value[][] {new Value[] {ValueUtil.of(1), ValueUtil.of(2)},
-        new Value[] {ValueUtil.of(3), ValueUtil.of(4)}};
-    final Data data = DataUtil.of(values);
+    final Value[][] values = new Value[][] {new Value[] {ValueUtils.of(1), ValueUtils.of(2)},
+        new Value[] {ValueUtils.of(3), ValueUtils.of(4)}};
+    final Data data = DataUtils.of(values);
     assertNotNull(data);
     assertArrayEquals(values, data.getMatrix());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingleNull() {
-    DataUtil.of((Value) null);
+    DataUtils.of((Value) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLinearNull() {
-    DataUtil.of((Value[]) null);
+    DataUtils.of((Value[]) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLinearNullElement() {
-    final Value[] values = new Value[] {ValueUtil.of(1), null, ValueUtil.of(2)};
-    DataUtil.of(values);
+    final Value[] values = new Value[] {ValueUtils.of(1), null, ValueUtils.of(2)};
+    DataUtils.of(values);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixNull() {
-    DataUtil.of((Value[][]) null);
+    DataUtils.of((Value[][]) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixNullElement() {
-    final Value[][] values = new Value[][] {new Value[] {ValueUtil.of(1), null},
-        new Value[] {ValueUtil.of(3), ValueUtil.of(4)}};
-    DataUtil.of(values);
+    final Value[][] values = new Value[][] {new Value[] {ValueUtils.of(1), null},
+        new Value[] {ValueUtils.of(3), ValueUtils.of(4)}};
+    DataUtils.of(values);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixNullArray() {
-    final Value[][] values = new Value[][] {new Value[] {ValueUtil.of(1), ValueUtil.of(2)}, null};
-    DataUtil.of(values);
+    final Value[][] values = new Value[][] {new Value[] {ValueUtils.of(1), ValueUtils.of(2)}, null};
+    DataUtils.of(values);
   }
 
 }
