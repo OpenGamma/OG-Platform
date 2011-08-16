@@ -41,10 +41,15 @@ public abstract class BaseSecurityResolver implements SecurityResolver {
    * 
    * @param securitySource  a source of securities, not null
    * @param versionCorrection  the version-correction at which the resolver will operate, not null
+   * @throws IllegalArgumentException  if the version-correction does not specify both an
+   *                                   exact version and correction
    */
   protected BaseSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    if (versionCorrection.containsLatest()) {
+      throw new IllegalArgumentException("The version-correction " + versionCorrection + " does not specify both an exact version and correction");
+    }
     _securitySource = securitySource;
     _versionCorrection = versionCorrection;
   }
