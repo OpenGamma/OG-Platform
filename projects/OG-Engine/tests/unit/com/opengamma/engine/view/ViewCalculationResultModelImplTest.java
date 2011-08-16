@@ -18,9 +18,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -36,15 +36,15 @@ import com.opengamma.util.tuple.Pair;
 @Test
 public class ViewCalculationResultModelImplTest {
 
-  public static final Position POSITION = new PositionImpl(UniqueId.of("PositionIdentifier", "testPosition"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+  public static final Position POSITION = new SimplePosition(UniqueId.of("PositionIdentifier", "testPosition"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   public static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
   public static final ComputedValue COMPUTED_VALUE = new ComputedValue(new ValueSpecification(new ValueRequirement("DATA", SPEC), "mockFunctionId"), "12345");
-  public static final PortfolioImpl PORTFOLIO;
-  public static final PortfolioNodeImpl PORTFOLIO_ROOT_NODE;
+  public static final SimplePortfolio PORTFOLIO;
+  public static final SimplePortfolioNode PORTFOLIO_ROOT_NODE;
 
   static {
-    PORTFOLIO = new PortfolioImpl("testportfolio");
-    PORTFOLIO_ROOT_NODE = new PortfolioNodeImpl(UniqueId.of("PortfolioIdentifier", "rootNode"), "rootNode");
+    PORTFOLIO = new SimplePortfolio("testportfolio");
+    PORTFOLIO_ROOT_NODE = new SimplePortfolioNode(UniqueId.of("PortfolioIdentifier", "rootNode"), "rootNode");
     PORTFOLIO.setRootNode(PORTFOLIO_ROOT_NODE);
     PORTFOLIO_ROOT_NODE.addPosition(POSITION);
   }

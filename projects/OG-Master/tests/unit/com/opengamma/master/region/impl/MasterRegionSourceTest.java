@@ -20,6 +20,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.ManageableRegion;
@@ -37,7 +38,8 @@ import com.opengamma.util.money.Currency;
 @Test
 public class MasterRegionSourceTest {
 
-  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final ObjectId OID = ObjectId.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B", "V");
   private static final ExternalId ID = ExternalId.of("C", "D");
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
   private static final Instant NOW = Instant.now();
@@ -54,7 +56,7 @@ public class MasterRegionSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getRegion_noOverride_found() throws Exception {
+  public void test_getRegion_UniqueId_noOverride_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
     RegionDocument doc = new RegionDocument(example());
@@ -66,27 +68,40 @@ public class MasterRegionSourceTest {
     assertEquals(example(), testResult);
   }
 
-  public void test_getRegion_found() throws Exception {
+  public void test_getRegion_UniqueId_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
     RegionDocument doc = new RegionDocument(example());
-    when(mock.get(UID, VC)).thenReturn(doc);
+    when(mock.get(OID, VC)).thenReturn(doc);
     MasterRegionSource test = new MasterRegionSource(mock, VC);
     Region testResult = test.getRegion(UID);
-    verify(mock, times(1)).get(UID, VC);
+    verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
   }
 
-  public void test_getRegion_notFound() throws Exception {
+  public void test_getRegion_UniqueId_notFound() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
-    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterRegionSource test = new MasterRegionSource(mock, VC);
     Region testResult = test.getRegion(UID);
-    verify(mock, times(1)).get(UID, VC);
+    verify(mock, times(1)).get(OID, VC);
     
     assertEquals(null, testResult);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getRegion_ObjectId_found() throws Exception {
+    RegionMaster mock = mock(RegionMaster.class);
+    
+    RegionDocument doc = new RegionDocument(example());
+    when(mock.get(OID, VC)).thenReturn(doc);
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
+    Region testResult = test.getRegion(OID, VC);
+    verify(mock, times(1)).get(OID, VC);
+    
+    assertEquals(example(), testResult);
   }
 
   //-------------------------------------------------------------------------

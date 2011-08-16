@@ -31,7 +31,7 @@ fi
 
 JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false \
   -Dcom.sun.management.jmxremote.port=8052 -Dcom.sun.management.jmxremote.ssl=false"
-MEM_OPTS="-Xms4096m -Xmx4096m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC \
+MEM_OPTS="-Xms512m -Xmx2048m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC \
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing"
 
 $JAVA $JMX_OPTS $MEM_OPTS -jar lib/org.eclipse-jetty-jetty-start-7.0.1.v20091125.jar \

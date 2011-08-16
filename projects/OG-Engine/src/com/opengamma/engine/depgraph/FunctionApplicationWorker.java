@@ -14,10 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.Cancellable;
 
 /* package */final class FunctionApplicationWorker extends AbstractResolvedValueProducer implements ResolvedValueCallback {
 
@@ -28,7 +27,10 @@ import com.opengamma.util.Cancellable;
   private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
   private int _validInputs;
+  private boolean _invokingFunction;
+  private boolean _deferredPump;
   private FunctionApplicationStep.PumpingState _taskState;
+  private boolean _closed;
 
   public FunctionApplicationWorker(final ValueRequirement valueRequirement) {
     super(valueRequirement);
@@ -39,6 +41,11 @@ import com.opengamma.util.Cancellable;
     Collection<ResolutionPump> pumps = null;
     FunctionApplicationStep.PumpingState finished = null;
     synchronized (this) {
+      if (_invokingFunction) {
+        s_logger.debug("Deferring pump until after function invocation");
+        _deferredPump = true;
+        return;
+      }
       if (_pendingInputs < 1) {
         if (_pumps.isEmpty()) {
           if (_validInputs == 0) {
@@ -63,10 +70,10 @@ import com.opengamma.util.Cancellable;
         context.pump(pump);
       }
     } else if (finished != null) {
-      if (finished(context)) {
-        s_logger.debug("Calling finished on {} from {}", finished, this);
-        finished.finished(context);
-      }
+      s_logger.debug("Finished producing function applications from {}", this);
+      finished(context);
+      s_logger.debug("Calling finished on {} from {}", finished, this);
+      finished.finished(context);
     }
   }
 
@@ -111,16 +118,15 @@ import com.opengamma.util.Cancellable;
       s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
       for (Cancellable handle : unsubscribes) {
         if (handle != null) {
-          handle.cancel(false);
+          handle.cancel(context);
         }
       }
     }
     // Propagate the failure message to anything subscribing to us
     if (state != null) {
-      if (finished(context)) {
-        s_logger.debug("Calling finished on {}", state);
-        state.finished(context);
-      }
+      finished(context);
+      s_logger.debug("Calling finished on {}", state);
+      state.finished(context);
     }
   }
 
@@ -140,6 +146,7 @@ import com.opengamma.util.Cancellable;
             resolvedValues.put(input.getValue(), input.getKey());
           }
           state = _taskState;
+          _invokingFunction = true;
           s_logger.debug("Full input set available");
         } else {
           s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
@@ -150,7 +157,15 @@ import com.opengamma.util.Cancellable;
       }
     }
     if (resolvedValues != null) {
-      if (!state.inputsAvailable(context, resolvedValues)) {
+      boolean inputsAccepted = state.inputsAvailable(context, resolvedValues);
+      synchronized (this) {
+        _invokingFunction = false;
+        if (_deferredPump) {
+          inputsAccepted = false;
+          _deferredPump = false;
+        }
+      }
+      if (!inputsAccepted) {
         pumpImpl(context);
       }
     }
@@ -212,6 +227,7 @@ import com.opengamma.util.Cancellable;
               resolvedValues.put(input.getValue(), input.getKey());
             }
             state = _taskState;
+            _invokingFunction = true;
             s_logger.debug("Full input set available at {}", this);
           } else {
             // We've got no valid inputs
@@ -233,7 +249,15 @@ import com.opengamma.util.Cancellable;
       }
     }
     if (resolvedValues != null) {
-      if (!state.inputsAvailable(context, resolvedValues)) {
+      boolean inputsAccepted = state.inputsAvailable(context, resolvedValues);
+      synchronized (this) {
+        _invokingFunction = false;
+        if (_deferredPump) {
+          inputsAccepted = false;
+          _deferredPump = false;
+        }
+      }
+      if (!inputsAccepted) {
         pumpImpl(context);
       }
     } else if (pumps != null) {
@@ -250,6 +274,23 @@ import com.opengamma.util.Cancellable;
   @Override
   public String toString() {
     return "Worker" + getObjectId() + "[" + getValueRequirement() + "]";
+  }
+
+  @Override
+  public int release(final GraphBuildingContext context) {
+    final int count = super.release(context);
+    if (count == 1) {
+      // Last reference left will be from the state object
+      _closed = true;
+    }
+    return count;
+  }
+
+  /**
+   * {@see ResolveTask.State#isActive}
+   */
+  protected boolean isActive() {
+    return !_closed;
   }
 
 }

@@ -19,7 +19,7 @@ public class DoubleValueSignificantFiguresFormatter extends DoubleValueFormatter
   public static final DoubleValueSignificantFiguresFormatter NON_CCY_5SF = DoubleValueSignificantFiguresFormatter.of(5, false);
   // CSON
   
-  private final long _maxValueForSigFig;
+  private final BigDecimal _maxValueForSigFig;
   private final MathContext _sigFigMathContext;
   
   public DoubleValueSignificantFiguresFormatter(int significantFigures, boolean isCurrencyAmount) {
@@ -28,7 +28,7 @@ public class DoubleValueSignificantFiguresFormatter extends DoubleValueFormatter
   
   public DoubleValueSignificantFiguresFormatter(int significantFigures, boolean isCurrencyAmount, DecimalFormatSymbols formatSymbols) {
     super(isCurrencyAmount, formatSymbols);
-    _maxValueForSigFig = (long) Math.pow(10, significantFigures - 1);
+    _maxValueForSigFig = BigDecimal.TEN.pow(significantFigures - 1);
     _sigFigMathContext = new MathContext(significantFigures, RoundingMode.HALF_UP);
   }
   
@@ -37,13 +37,11 @@ public class DoubleValueSignificantFiguresFormatter extends DoubleValueFormatter
   }
   
   @Override
-  public String formatPlainString(double value) {
-    if (value > _maxValueForSigFig || value < -_maxValueForSigFig) {
-      return Long.toString(Math.round(value));
+  public BigDecimal process(BigDecimal bigDecimalValue) {
+    if (bigDecimalValue.abs().compareTo(_maxValueForSigFig) > 0) {
+      return bigDecimalValue.setScale(0, RoundingMode.HALF_UP);
     } else {
-      BigDecimal bd = BigDecimal.valueOf(value);
-      bd = bd.round(_sigFigMathContext);
-      return bd.toPlainString();
+      return bigDecimalValue.round(_sigFigMathContext);
     }
   }
   

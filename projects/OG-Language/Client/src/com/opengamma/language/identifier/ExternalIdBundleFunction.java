@@ -86,7 +86,7 @@ public class ExternalIdBundleFunction implements PublishedFunction {
         return execute(parameters);
       }
     };
-    final MetaFunction meta = new MetaFunction("IdentifierBundle", args, invoker);
+    final MetaFunction meta = new MetaFunction("ExternalIdBundle", args, invoker);
     meta.setDescription("Creates an ExternalIdBundle from one or more identifiers");
     return meta;
   }

@@ -5,21 +5,23 @@
  */
 package com.opengamma.financial.security;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+
 import java.util.Collection;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.test.MockSecurity;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -34,8 +36,8 @@ public class EHCachingFinancialSecuritySourceTest {
   private EHCachingFinancialSecuritySource _cachingSecuritySource = null;
   private ExternalId _secId1 = ExternalId.of("d1", "v1");
   private ExternalId _secId2 = ExternalId.of("d1", "v2");
-  private MockSecurity _security1 = new MockSecurity("");
-  private MockSecurity _security2 = new MockSecurity("");
+  private SimpleSecurity _security1 = new SimpleSecurity("");
+  private SimpleSecurity _security2 = new SimpleSecurity("");
 
   @BeforeMethod
   public void setUp() throws Exception {    
@@ -215,8 +217,7 @@ public class EHCachingFinancialSecuritySourceTest {
       assertEquals(0, sec2Element.getHitCount());
     }
     
-    _cachingSecuritySource.refresh(_security1.getUniqueId());
-    _cachingSecuritySource.refresh(_security2.getUniqueId());
+    _cachingSecuritySource.refresh(secKey);
     assertEquals(0, singleSecCache.getSize());
     sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
     sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());

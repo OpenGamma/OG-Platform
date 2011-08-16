@@ -19,72 +19,79 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * This interface provides a simple view of securities as needed by the engine.
  * This may be backed by a full-featured security master, or by a much simpler data structure.
+ * <p>
+ * This interface is read-only.
+ * Implementations must be thread-safe.
  */
 @PublicSPI
 public interface SecuritySource extends ChangeProvider {
 
   /**
-   * Finds a specific security by unique identifier.
+   * Gets a security by unique identifier.
    * <p>
-   * Since a unique identifier is unique, there are no complex matching issues.
+   * A unique identifier exactly specifies a single security at a single version-correction.
    * 
    * @param uniqueId  the unique identifier, not null
    * @return the security, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws RuntimeException if an error occurs
    */
   Security getSecurity(UniqueId uniqueId);
-  
+
   /**
-   * Finds a specific security by object identifier and version-correction.
+   * Gets a security by object identifier and version-correction.
+   * <p>
+   * In combination, the object identifier and version-correction exactly specify
+   * a single security at a single version-correction.
    * 
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction, not null
    * @return the security, null if not found
    * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection);
 
   /**
-   * Finds all securities at the latest version-correction that match the specified
-   * bundle of keys.
+   * Gets all securities at the given version-correction that match the specified
+   * external identifier bundle.
    * <p>
-   * The identifier bundle represents those keys associated with a single security.
-   * In an ideal world, all the identifiers in a bundle would refer to the same security.
-   * However, since each identifier is not completely unique, multiple may match.
-   * To further complicate matters, some identifiers are more unique than others.
-   * <p>
-   * The simplest implementation of this method will return a security if it matches one of the keys.
-   * A more advanced implementation will choose using some form of priority order which
-   * key or keys from the bundle to search for.
-   * 
-   * @param bundle  the bundle keys to match, not null
-   * @return all securities matching the specified key, empty if no matches, not null
-   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
-   */
-  Collection<Security> getSecurities(ExternalIdBundle bundle);
-
-  /**
-   * Finds all securities at the given version-correction that match the specified
-   * bundle of keys.
-   * <p>
-   * The identifier bundle represents those keys associated with a single security.
-   * In an ideal world, all the identifiers in a bundle would refer to the same security.
-   * However, since each identifier is not completely unique, multiple may match.
-   * To further complicate matters, some identifiers are more unique than others.
-   * <p>
-   * The simplest implementation of this method will return a security if it matches one of the keys.
-   * A more advanced implementation will choose using some form of priority order which
-   * key or keys from the bundle to search for.
+   * A bundle represents the set of external identifiers which in theory map to a single security.
+   * Unfortunately, not all external identifiers uniquely identify a single version of a single security.
+   * This method returns all securities that may match for {@link SecurityResolver} to choose from.
    * 
    * @param bundle  the bundle keys to match, not null
    * @param versionCorrection  the version-correction, not null
    * @return all securities matching the specified key, empty if no matches, not null
-   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @throws RuntimeException if an error occurs
    */
   Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
+  //-------------------------------------------------------------------------
+  // TODO: remove below here
   /**
-   * Finds the single best-fit security at the latest version-correction that matches the
+   * Gets all securities at the latest version-correction that match the specified
+   * bundle of keys.
+   * <p>
+   * The identifier bundle represents those keys associated with a single security.
+   * In an ideal world, all the identifiers in a bundle would refer to the same security.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * <p>
+   * The simplest implementation of this method will return a security if it matches one of the keys.
+   * A more advanced implementation will choose using some form of priority order which
+   * key or keys from the bundle to search for.
+   * 
+   * @param bundle  the bundle keys to match, not null
+   * @return all securities matching the specified key, empty if no matches, not null
+   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * @throws RuntimeException if an error occurs
+   */
+  Collection<Security> getSecurities(ExternalIdBundle bundle);
+
+  /**
+   * Gets the single best-fit security at the latest version-correction that matches the
    * specified bundle of keys.
    * <p>
    * The identifier bundle represents those keys associated with a single security.
@@ -97,11 +104,12 @@ public interface SecuritySource extends ChangeProvider {
    * @param bundle  the bundle keys to match, not null
    * @return the single security matching the bundle of keys, null if not found
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ExternalIdBundle bundle);
-  
+
   /**
-   * Finds the single best-fit security at the given version-correction that matches the
+   * Gets the single best-fit security at the given version-correction that matches the
    * specified bundle of keys.
    * <p>
    * The identifier bundle represents those keys associated with a single security.
@@ -115,6 +123,7 @@ public interface SecuritySource extends ChangeProvider {
    * @param versionCorrection  the version-correction, not null
    * @return the single security matching the bundle of keys, null if not found
    * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 

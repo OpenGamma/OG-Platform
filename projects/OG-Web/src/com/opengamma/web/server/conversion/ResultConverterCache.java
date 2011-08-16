@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.conversion;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,6 +42,7 @@ public class ResultConverterCache {
     registerConverter(Boolean.class, primitiveConverter);
     registerConverter(String.class, primitiveConverter);
     registerConverter(Double.class, _doubleConverter);
+    registerConverter(BigDecimal.class, _doubleConverter);
     registerConverter(CurrencyAmount.class, _doubleConverter);
     registerConverter(YieldCurve.class, new YieldCurveConverter());
     registerConverter(VolatilityCubeData.class, new VolatilityCubeDataConverter());

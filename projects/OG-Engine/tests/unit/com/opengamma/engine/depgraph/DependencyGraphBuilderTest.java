@@ -19,11 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -35,7 +32,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -60,7 +56,6 @@ public class DependencyGraphBuilderTest {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderTest.class);
 
   public void singleOutputSingleFunctionNode() {
-
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction function = helper.addFunctionProducing1and2();
 
@@ -85,7 +80,7 @@ public class DependencyGraphBuilderTest {
 
     graph.removeUnnecessaryValues();
 
-    nodes = graph.getDependencyNodes();
+    nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     node = nodes.iterator().next();
@@ -121,48 +116,19 @@ public class DependencyGraphBuilderTest {
     assertTrue(node.getInputNodes().isEmpty());
   }
 
-  private void blockOnTask(final DependencyGraphBuilder builder, final ResolvedValueProducer task, final String expected) {
-    final CountDownLatch latch = new CountDownLatch(1);
-    final AtomicReference<String> result = new AtomicReference<String>();
-    task.addCallback(builder.getContext(), new ResolvedValueCallback() {
-
-      @Override
-      public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
-        result.set("FAILED");
-        latch.countDown();
-      }
-
-      @Override
-      public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-        result.set("COMPLETE");
-        latch.countDown();
-      }
-
-    });
-    builder.startBackgroundConstructionJob();
-    try {
-      latch.await(com.opengamma.util.test.Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
-      Assert.fail("Interrupted", e);
-    }
-    assertEquals(expected, result.get());
-  }
-
-  private void expectFailure(final DependencyGraphBuilder builder, final ResolvedValueProducer task) {
-    blockOnTask(builder, task, "FAILED");
-  }
-
-  private void expectCompletion(final DependencyGraphBuilder builder, final ResolvedValueProducer task) {
-    blockOnTask(builder, task, "COMPLETE");
-  }
-
+  @Test(expectedExceptions = UnsatisfiableDependencyGraphException.class)
   public void unsatisfiableDependency() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing1and2();
     ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget());
+
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement1(), null));
-    expectFailure(builder, builder.getContext().resolveRequirement(anotherReq, null));
+    try {
+      builder.addTargetImpl(helper.getRequirement1());
+    } catch (UnsatisfiableDependencyGraphException e) {
+      Assert.fail("Unexpected exception", e);
+    }
+    builder.addTargetImpl(anotherReq);
   }
 
   public void doubleLevelNoLiveData() {
@@ -300,12 +266,17 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fnBeta);
   }
 
+  @Test(expectedExceptions = UnsatisfiableDependencyGraphException.class)
   public void testFunctionByNameMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement2(), null));
-    expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Beta(), null));
+    try {
+      builder.addTargetImpl(helper.getRequirement2());
+    } catch (UnsatisfiableDependencyGraphException e) {
+      Assert.fail("Unexpected exception", e);
+    }
+    builder.addTargetImpl(helper.getRequirement2Beta());
   }
 
   public void testFunctionWithProperty() {
@@ -321,14 +292,14 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn1, fn2b);
   }
 
-  @Test
+  @Test(expectedExceptions = UnsatisfiableDependencyGraphException.class)
   public void testFunctionWithPropertyMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing(helper.getValue1Foo());
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
     helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Bar(), null));
+    builder.addTargetImpl(helper.getRequirement2Bar());
   }
 
   public void testFunctionWithStaticConversion() {
@@ -512,7 +483,7 @@ public class DependencyGraphBuilderTest {
 
   public void testBacktrackCleanup() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
-    helper.addFunctionProducing(helper.getValue2Foo());
+    final MockFunction fn2Foo = helper.addFunctionProducing(helper.getValue2Foo());
     final MockFunction fn2Bar = helper.addFunctionProducing(helper.getValue2Bar());
     final MockFunction fnConv = new MockFunction("conv", helper.getTarget()) {
 
@@ -550,6 +521,8 @@ public class DependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
+    assertGraphContains(graph, fn2Foo, fn2Bar, fnConv);
+    graph.removeUnnecessaryValues();
     assertGraphContains(graph, fn2Bar, fnConv);
   }
 
@@ -597,9 +570,7 @@ public class DependencyGraphBuilderTest {
         assertEquals(1, inputs.size());
         assertTrue(inputs.contains(helper.getSpec2Bar()));
         assertEquals(1, outputs.size());
-        //final ValueSpecification expected = _result.compose(helper.getRequirement1Bar());
-        //s_logger.debug("Outputs={}, expected={}", outputs, expected);
-        //assertTrue(outputs.contains(expected));
+        assertTrue(outputs.contains(_result.compose(helper.getRequirement1Bar())));
         return Collections.singleton(helper.getRequirement1Foo());
       }
 
@@ -651,6 +622,8 @@ public class DependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
+    assertGraphContains(graph, fn2Foo, fn2Bar, fnConv, fn1Foo);
+    graph.removeUnnecessaryValues();
     assertGraphContains(graph, fn2Bar, fnConv, fn1Foo);
   }
 

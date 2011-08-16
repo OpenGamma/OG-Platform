@@ -33,7 +33,7 @@ public class JmsByteArrayTransportTest {
   
   private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
   
-  private void topicConduitImpl () throws Exception {
+  public void topicConduit() throws Exception {
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
@@ -59,6 +59,8 @@ public class JmsByteArrayTransportTest {
     while(!container.isRunning()) {
       Thread.sleep(10l);
     }
+    //TODO: this is a hack.  The context doesn't seem to have always set up the consumer completely yet
+    Thread.sleep(500l);
     
     messageSender.send(randomBytes);
     long startTime = System.currentTimeMillis();
@@ -78,20 +80,6 @@ public class JmsByteArrayTransportTest {
     
     container.stop();
     container.destroy();
-  }
-
-  public void topicConduit() throws Exception {
-    try {
-      topicConduitImpl ();
-    } catch (Exception e) {
-      s_logger.warn ("Retrying topicConduit after {}", e);
-      try {
-        topicConduitImpl ();
-        s_logger.info ("topicConduit completed on second attempt");
-      } catch (Exception e2) {
-        throw e2;
-      }
-    }
   }
   
   public void requestConduit() throws Exception {
