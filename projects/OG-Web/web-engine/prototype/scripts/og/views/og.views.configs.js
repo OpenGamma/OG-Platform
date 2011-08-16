@@ -19,6 +19,7 @@ $.register_module({
         'og.views.common.default_details',
         'og.views.configs.viewdefinition',
         'og.views.configs.yieldcurvedefinition',
+        'og.views.configs.curvespecificationbuilderconfiguration',
         'og.views.configs.default'
     ],
     obj: function () {
@@ -104,7 +105,8 @@ $.register_module({
             form_generators = {
                 'default': og.views.configs['default'],
                 viewdefinition: og.views.configs.viewdefinition,
-                yieldcurvedefinition: og.views.configs.yieldcurvedefinition
+                yieldcurvedefinition: og.views.configs.yieldcurvedefinition,
+                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration
             },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);

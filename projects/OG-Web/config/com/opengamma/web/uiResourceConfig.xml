@@ -201,6 +201,7 @@
     <fragment>/scripts/og/views/configs/og.views.configs.default.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.yieldcurvedefinition.js</fragment>
+    <fragment>/scripts/og/views/configs/og.views.configs.curvespecificationbuilderconfiguration.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>

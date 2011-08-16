@@ -13,7 +13,6 @@ $.register_module({
     obj: function () {
         var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest;
         return function (config) {
-            og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.configJSON.name, submit_type,
@@ -112,7 +111,6 @@ $.register_module({
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    og.dev.log(submit_type, result.data, result.errors);
                     save_resource(result.data, submit_type === 'save_as_new');
                 }},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
