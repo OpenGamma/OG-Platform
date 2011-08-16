@@ -68,7 +68,7 @@ public interface ExchangeResolver extends LinkResolver<Exchange> {
    * 
    * @param objectId  the object identifier to find, not null
    * @return the exchange, null if not found
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   Exchange getExchange(ObjectId objectId);

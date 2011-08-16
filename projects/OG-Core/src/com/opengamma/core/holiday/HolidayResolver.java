@@ -72,7 +72,7 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * 
    * @param objectId  the object identifier to find, not null
    * @return the holiday, null if not found
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   Holiday getHoliday(ObjectId objectId);
