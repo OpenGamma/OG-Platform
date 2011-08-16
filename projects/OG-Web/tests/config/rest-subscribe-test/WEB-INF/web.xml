@@ -4,37 +4,9 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-  <!--<filter>
-    <filter-name>spring-request</filter-name>
-    <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>spring-request</filter-name>
-    <url-pattern>/jax/*</url-pattern>
-  </filter-mapping>-->
-
-  <!-- Jersey -->
-  <!--<servlet>
-    <servlet-name>jersey</servlet-name>
-    <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
-    <init-param>
-      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
-      <param-value>com.opengamma.util.rest.HttpMethodFilter,com.opengamma.util.rest.UrlSuffixFilter</param-value>
-    </init-param>
-    <init-param>
-      <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
-      <param-value>com.opengamma.util.rest.NoCachingFilter</param-value>
-    </init-param>
-    <load-on-startup>3</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>jersey</servlet-name>
-    <url-pattern>/</url-pattern>
-  </servlet-mapping>-->
-
   <context-param>
     <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:/com/opengamma/web/test-web-push.xml</param-value>
+    <param-value>classpath:/config/com/opengamma/web/rest-subscription-test.xml</param-value>
   </context-param>
 
   <listener>
@@ -44,7 +16,6 @@
   <servlet>
     <servlet-name>rest</servlet-name>
     <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
-    <!--<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>-->
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
       <param-value>com.opengamma.web.server.push.test.TestApplication</param-value>
@@ -68,16 +39,6 @@
   <servlet-mapping>
     <servlet-name>handshake</servlet-name>
     <url-pattern>/handshake</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>subscription</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.web.SubscriptionsServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>subscription</servlet-name>
-    <url-pattern>/subscription/*</url-pattern>
   </servlet-mapping>
 
   <servlet>

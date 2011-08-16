@@ -9,16 +9,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.subscription.SubscriptionManager;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.model.AbstractMethod;
-import com.sun.jersey.api.spring.Autowire;
 import com.sun.jersey.spi.container.ResourceFilter;
 import com.sun.jersey.spi.container.ResourceFilterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
@@ -52,11 +49,11 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
   public List<ResourceFilter> create(AbstractMethod abstractMethod) {
     SubscriptionManager subscriptionManager = getSubscriptionManager();
     List<ResourceFilter> filters = new ArrayList<ResourceFilter>();
-    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod);
+    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, subscriptionManager);
     if (entityFilter != null) {
       filters.add(entityFilter);
     }
-    ResourceFilter masterFilter = createMasterSubscriptionFilter(abstractMethod);
+    ResourceFilter masterFilter = createMasterSubscriptionFilter(abstractMethod, subscriptionManager);
     if (masterFilter != null) {
       filters.add(masterFilter);
     }
@@ -69,7 +66,8 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     return context.getBean(SubscriptionManager.class);
   }
 
-  private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod) {
+  private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod,
+                                                        SubscriptionManager subscriptionManager) {
     Method method = abstractMethod.getMethod();
     Annotation[][] annotations = method.getParameterAnnotations();
     List<String> uidParamNames = new ArrayList<String>();
@@ -96,13 +94,14 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     s_logger.debug("Creating subscribing filter for parameters {} on method {}.{}()",
                    new Object[]{uidParamNames, method.getDeclaringClass().getSimpleName(), method.getName()});
     if (!uidParamNames.isEmpty()) {
-      return new EntitySubscriptionFilter(_httpContext, uidParamNames);
+      return new EntitySubscriptionFilter(_httpContext, uidParamNames, subscriptionManager);
     } else {
       return null;
     }
   }
 
-  private static ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod) {
+  private static ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod,
+                                                               SubscriptionManager subscriptionManager) {
     SubscribeMaster annotation = abstractMethod.getAnnotation(SubscribeMaster.class);
     if (annotation != null) {
       MasterType[] masterTypes = annotation.value();

@@ -5,19 +5,22 @@
  */
 package com.opengamma.web.server.push.subscription;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * Associated with one client connection (i.e. one browser window / tab / client app instance). Can be associated
  * with any number of subscriptions for view and entity data.
  * TODO does this need multiple subscriptions? is one view client subscription sufficient?
- * TODO concurrency - external? internal via locks? actor style (Runnables / Callables / Futures?)
+ * TODO CONCURRENCY - external? internal via locks? actor style (Runnables / Callables / Futures?)
  */
-public class ClientConnection {
+public class ClientConnection implements ChangeListener {
 
   private final String _clientId;
   private final SubscriptionListener _listener;
@@ -27,6 +30,10 @@ public class ClientConnection {
   private final Collection<Subscription> _entitySubscriptions = new ArrayList<Subscription>();
   private final String _userId;
   private final ViewportFactory _viewportFactory;
+
+  // TODO should this be a concurrent map?
+  /** REST URLs for entities keyed on the entity's {@link UniqueId} */
+  private final HashMap<ObjectId, String> _entityUrls = new HashMap<ObjectId, String>();
 
   // TODO atomic ref?
   private Viewport _viewport;
@@ -45,10 +52,6 @@ public class ClientConnection {
 
   public String getUserId() {
     return _userId;
-  }
-
-  public void createEntitySubscription(EntitySubscription subscription) {
-
   }
 
   /**
@@ -71,8 +74,16 @@ public class ClientConnection {
     // TODO dispose of all the subscriptions
   }
 
-  public boolean subscribe(List<String> urls) {
-    // TODO implement ClientConnection.subscribe()
-    throw new UnsupportedOperationException("subscribe not implemented");
+  public void subscribe(UniqueId uid, String url) {
+    // TODO check args?
+    _entityUrls.put(uid.getObjectId(), url);
+  }
+
+  @Override
+  public void entityChanged(ChangeEvent event) {
+    String url = _entityUrls.get(event.getAfterId().getObjectId());
+    if (url != null) {
+      _listener.itemUpdated(url);
+    }
   }
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.subscription;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -23,11 +24,15 @@ public interface SubscriptionManager {
   void closeConnection(String userId, String clientId);
 
   /**
-   * The {@link SubscriptionListener} associated with the client will be called when something is updated.
+   * Creates a subscription for changes to an entity that was requested via the REST interface.  If the entity
+   * is updated a notification will be sent over the long-polling HTTP connection identified by {@code clientId}.
+   * The subscription will be automatically cancelled after one update.
    * @param userId ID of the user
    * @param clientId ID of the connection
    * @param uid The {@code UniqueId} of the entity for which updates are required
-   * @return {@code false} if {@code clientId} doesn't correspond to an existing client connection
+   * @param url REST URL of the entity for which updates are required
+   * @throws OpenGammaRuntimeException If {@code clientId} isn't valid or refers to a connection that isn't owned
+   * by {@code userId}
    */
-  boolean subscribe(String userId, String clientId, UniqueId uid);
+  void subscribe(String userId, String clientId, UniqueId uid, String url);
 }

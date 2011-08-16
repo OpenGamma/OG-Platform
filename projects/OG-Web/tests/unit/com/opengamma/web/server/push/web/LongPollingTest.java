@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
@@ -32,6 +31,8 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 @Test
 public class LongPollingTest {
+
+  public static final String CLIENT_ID = "CLIENT_ID";
 
   private static final String s_urlBase = "http://localhost:8080/";
   private static final String RESULT1 = "RESULT1";
@@ -67,13 +68,12 @@ public class LongPollingTest {
 
   @BeforeClass
   void createJettyServer() throws Exception {
-    // TODO this stuff might not work in bamboo - need to find out what the pwd is for the tests
     SelectChannelConnector connector = new SelectChannelConnector();
     connector.setPort(8080);
     WebAppContext context = new WebAppContext();
     context.setContextPath("/");
     context.setResourceBase("build/classes");
-    context.setDescriptor("web-push/WEB-INF/web.xml");
+    context.setDescriptor("tests/config/long-poll-test/WEB-INF/web.xml");
     _server = new Server();
     _server.addConnector(connector);
     _server.setHandler(context);
@@ -86,8 +86,8 @@ public class LongPollingTest {
 
   @Test
   public void handshake() throws IOException {
-    String clientId = readFromPath("handshake");
-    assertNotNull(clientId);
+    String result = readFromPath("handshake");
+    assertEquals(CLIENT_ID, result);
   }
 
   /**
@@ -112,7 +112,7 @@ public class LongPollingTest {
   @Test
   public void longPollNotBlocking() throws IOException {
     String clientId = readFromPath("handshake");
-    _subscriptionManager.sendUpdate(clientId, RESULT1);
+    _subscriptionManager.sendUpdate(RESULT1);
     String result = readFromPath("updates/" + clientId);
     assertEquals(RESULT1, result);
   }
@@ -123,9 +123,9 @@ public class LongPollingTest {
   @Test
   public void longPollQueue() throws IOException {
     String clientId = readFromPath("handshake");
-    _subscriptionManager.sendUpdate(clientId, RESULT1);
-    _subscriptionManager.sendUpdate(clientId, RESULT2);
-    _subscriptionManager.sendUpdate(clientId, RESULT3);
+    _subscriptionManager.sendUpdate(RESULT1);
+    _subscriptionManager.sendUpdate(RESULT2);
+    _subscriptionManager.sendUpdate(RESULT3);
     String result = readFromPath("updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
@@ -141,11 +141,11 @@ public class LongPollingTest {
   @Test
   public void longPollQueueMultipleUpdates() throws IOException {
     String clientId = readFromPath("handshake");
-    _subscriptionManager.sendUpdate(clientId, RESULT1);
-    _subscriptionManager.sendUpdate(clientId, RESULT1);
-    _subscriptionManager.sendUpdate(clientId, RESULT2);
-    _subscriptionManager.sendUpdate(clientId, RESULT3);
-    _subscriptionManager.sendUpdate(clientId, RESULT2);
+    _subscriptionManager.sendUpdate(RESULT1);
+    _subscriptionManager.sendUpdate(RESULT1);
+    _subscriptionManager.sendUpdate(RESULT2);
+    _subscriptionManager.sendUpdate(RESULT3);
+    _subscriptionManager.sendUpdate(RESULT2);
     String result = readFromPath("updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
@@ -188,7 +188,7 @@ public class LongPollingTest {
         e.printStackTrace();
       }
     }
-    _subscriptionManager.sendUpdate(clientId, result);
+    _subscriptionManager.sendUpdate(result);
   }
 
   @AfterClass

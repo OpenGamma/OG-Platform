@@ -28,12 +28,12 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
   private Continuation _continuation;
 
   @Override
-  public void itemUpdated(SubscriptionEvent event) {
+  public void itemUpdated(String url) {
     synchronized (_lock) {
       if (_continuation != null) {
-        sendUpdate(event.getUrl());
+        sendUpdate(url);
       } else {
-        _updates.add(event.getUrl());
+        _updates.add(url);
       }
     }
   }

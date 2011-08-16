@@ -5,16 +5,22 @@
  */
 package com.opengamma.web.server.push.web;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.subscription.SubscriptionManager;
+import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 import com.sun.jersey.spi.container.ContainerResponse;
 import com.sun.jersey.spi.container.ContainerResponseFilter;
 import com.sun.jersey.spi.container.ResourceFilter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MultivaluedMap;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -26,10 +32,14 @@ class EntitySubscriptionFilter implements ResourceFilter {
 
   private final HttpContext _httpContext;
   private final List<String> _uidParamNames;
+  private final SubscriptionManager _subscriptionManager;
 
-  public EntitySubscriptionFilter(HttpContext httpContext, List<String> uidParamNames) {
+  public EntitySubscriptionFilter(HttpContext httpContext,
+                                  List<String> uidParamNames,
+                                  SubscriptionManager subscriptionManager) {
     _httpContext = httpContext;
     _uidParamNames = uidParamNames;
+    _subscriptionManager = subscriptionManager;
   }
 
   @Override
@@ -53,12 +63,49 @@ class EntitySubscriptionFilter implements ResourceFilter {
     @Override
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check the response status, only subscribe if successful
-      MultivaluedMap<String,String> pathParameters = _httpContext.getUriInfo().getPathParameters();
-      for (String paramName : uidParamNames) {
-        List<String> paramValues = pathParameters.get(paramName);
-        s_logger.debug(paramName + ": " + paramValues);
+      ExtendedUriInfo uriInfo = _httpContext.getUriInfo();
+      MultivaluedMap<String,String> pathParameters = uriInfo.getPathParameters();
+      MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+      // TODO check this is the right value
+      String url = uriInfo.getPath();
+
+      List<String> clientIds = queryParameters.get(LongPollingServlet.CLIENT_ID);
+      if (clientIds.size() != 1) {
+        // don't subscribe if there's no client ID
+        return response;
       }
+      String clientId = clientIds.get(0);
+
+      Principal userPrincipal = _httpContext.getRequest().getUserPrincipal();
+      String userId;
+      if (userPrincipal == null) {
+        // TODO reinstate this if / when we have user logons
+        /*s_logger.debug("No user principal, not subscribing, url: {}", url);
+        return response;*/
+        userId = "";
+      } else {
+        userId = userPrincipal.getName();
+      }
+      subscribe(userId, clientId, url, pathParameters);
       return response;
+    }
+
+    private void subscribe(String userId, String clientId, String url, MultivaluedMap<String, String> pathParameters) {
+      for (String paramName : uidParamNames) {
+        List<String> uidStrs = pathParameters.get(paramName);
+        s_logger.debug(paramName + ": " + uidStrs);
+        for (String uidStr : uidStrs) {
+          try {
+            UniqueId uniqueId = UniqueId.parse(uidStr);
+            _subscriptionManager.subscribe(userId, clientId, uniqueId, url);
+          } catch (IllegalArgumentException e) {
+            s_logger.warn("Unable to parse unique ID: " + uidStr);
+          } catch (OpenGammaRuntimeException e) {
+            s_logger.warn("Failed to subscribe for updates to REST entity, userId: " + userId + ", clientId: "
+                              + clientId + ", url: " + url);
+          }
+        }
+      }
     }
   }
 }

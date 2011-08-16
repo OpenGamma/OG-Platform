@@ -6,7 +6,7 @@
 package com.opengamma.web.server.push.subscription;
 
 /**
- *
+ * TODO redundant?
  */
 public class EntitySubscription {
 
