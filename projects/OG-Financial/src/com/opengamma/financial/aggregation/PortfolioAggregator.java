@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
 
@@ -60,8 +60,8 @@ public class PortfolioAggregator {
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
-    final PortfolioNodeImpl root = new PortfolioNodeImpl(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
-    PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName, root);
+    final SimplePortfolioNode root = new SimplePortfolioNode(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
+    SimplePortfolio aggPortfolio = new SimplePortfolio(aggId, aggPortfolioName, root);
     aggregate(root, flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return aggPortfolio;
   }
@@ -73,7 +73,7 @@ public class PortfolioAggregator {
     }
   }
   
-  protected void aggregate(PortfolioNodeImpl inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
+  protected void aggregate(SimplePortfolioNode inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
     Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
     // drop into buckets - could drop straight into tree but this is easier because we can use faster lookups as we're going.
@@ -91,7 +91,7 @@ public class PortfolioAggregator {
       }
     }
     for (String bucketName : buckets.keySet()) {
-      PortfolioNodeImpl newNode = new PortfolioNodeImpl();
+      SimplePortfolioNode newNode = new SimplePortfolioNode();
       newNode.setUniqueId(createSyntheticIdentifier());
       newNode.setParentNodeId(inputNode.getUniqueId());
       newNode.setName(bucketName);

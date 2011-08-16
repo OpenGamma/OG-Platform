@@ -54,7 +54,7 @@ import com.opengamma.id.UniqueId;
 /**
  * 
  */
-@Test(enabled = false)
+@Test(enabled = true)
 public class DependencyGraphBuilderTest_PLAT1049 {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderTest_PLAT1049.class);
@@ -119,7 +119,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction function = helper.addFunctionProducing1and2();
 
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
     builder.addTarget(Sets.newHashSet(helper.getRequirement2()));
 
@@ -185,7 +185,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     MockFunction fn1 = helper.addFunctionRequiring2Producing1();
     MockFunction fn2 = helper.addFunctionProducing2();
 
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement1());
 
     DependencyGraph graph = builder.getDependencyGraph();
@@ -222,7 +222,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     MockFunction fn1 = helper.addFunctionRequiring2Producing1();
     helper.make2AvailableFromLiveData();
 
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement1());
 
     DependencyGraph graph = builder.getDependencyGraph();
@@ -277,7 +277,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn = helper.addFunctionProducing2();
     final MockFunction fnBeta = helper.addFunctionProducing2Beta();
-    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function.getFunctionDefinition().getUniqueId().equals(fnBeta.getUniqueId())) {
@@ -298,7 +298,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     final MockFunction fnBeta = helper.addFunctionProducing2Beta();
-    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function.getFunctionDefinition().getUniqueId().equals(fnBeta.getUniqueId())) {
@@ -328,7 +328,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
     final MockFunction fn2b = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
-    final DependencyGraphBuilder builder = helper.getBuilder(null);
+    final DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement2Foo());
     final DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -366,7 +366,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     fnConv.addRequirement(helper.getRequirement2Foo());
     helper.getFunctionRepository().addFunction(fnConv);
     final MockFunction fn2 = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -401,7 +401,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv) {
@@ -460,7 +460,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     };
     fnConv2.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv2);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv2) {
@@ -512,7 +512,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     };
     fnConv.addRequirement(helper.getRequirement1Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement2Foo());
     builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
@@ -549,7 +549,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fnConv) {
@@ -586,7 +586,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
 
     };
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -620,7 +620,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(null);
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(null);
     builder.addTarget(helper.getRequirement1Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
@@ -653,7 +653,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
     };
     fnConv.addRequirement(helper.getRequirement2Any());
     helper.getFunctionRepository().addFunction(fnConv);
-    DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function == fn2Foo) {
@@ -864,7 +864,7 @@ public class DependencyGraphBuilderTest_PLAT1049 {
       }
 
     });
-    final DependencyGraphBuilder builder = helper.getBuilder(new FunctionPriority() {
+    final DependencyGraphBuilderPLAT1049 builder = helper.getBuilder1049(new FunctionPriority() {
       @Override
       public int getPriority(CompiledFunctionDefinition function) {
         if (function instanceof TestFunction) {

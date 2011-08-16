@@ -15,8 +15,8 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -45,11 +45,11 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
     final PortfolioNode node = deserializer.fieldValueToObject(PortfolioNode.class, message.getByName(FIELD_ROOT));
     
-    PortfolioImpl portfolio = new PortfolioImpl(name);
+    SimplePortfolio portfolio = new SimplePortfolio(name);
     if (id != null) {
       portfolio.setUniqueId(id);
     }
-    portfolio.setRootNode((PortfolioNodeImpl) node);
+    portfolio.setRootNode((SimplePortfolioNode) node);
     return portfolio;
   }
 

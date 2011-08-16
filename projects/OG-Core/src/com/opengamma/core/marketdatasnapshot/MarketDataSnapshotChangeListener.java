@@ -15,7 +15,7 @@ public interface MarketDataSnapshotChangeListener {
   /**
    * Callback that is invoked if the unique identifier now refers to a different snapshot.
    * 
-   * @param uniqueId  the unique identifiers, not null
+   * @param uniqueId  the unique identifier, not null
    */
   void snapshotChanged(UniqueId uniqueId);
 

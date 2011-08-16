@@ -32,7 +32,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.money.Currency;
@@ -109,29 +111,28 @@ public class BondSecurityToBondDefinitionConverterTest {
   }
 
   private static class MyHolidaySource implements HolidaySource {
-
+    @Override
+    public Holiday getHoliday(final UniqueId uniqueId) {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
-
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
         final ExternalIdBundle regionOrExchangeIds) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
-
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
         final ExternalId regionOrExchangeId) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
-
-    @Override
-    public Holiday getHoliday(final UniqueId uid) {
-      return null;
-    }
-
   }
 
 }

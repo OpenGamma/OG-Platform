@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.equity;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.conversion.CalendarUtil;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -35,7 +35,7 @@ public class EquityVarianceSwapConverter {
    * @param trade The trade
    * @return VarianceSwapDefinition
    */
-  public VarianceSwapDefinition visitEquityVarianceSwapTrade(final TradeImpl trade) {
+  public VarianceSwapDefinition visitEquityVarianceSwapTrade(final SimpleTrade trade) {
 
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) trade.getSecurity();
 

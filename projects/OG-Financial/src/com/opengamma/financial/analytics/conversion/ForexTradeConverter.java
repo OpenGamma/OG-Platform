@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.forex.calculator.ForexConverter;
@@ -34,7 +34,7 @@ public class ForexTradeConverter {
     _regionSource = regionSource;
   }
 
-  public ForexConverter<?> convert(final TradeImpl trade) {
+  public ForexConverter<?> convert(final SimpleTrade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof FXSecurity, "Can only handle trades with security type FXSecurity");
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO need the zone

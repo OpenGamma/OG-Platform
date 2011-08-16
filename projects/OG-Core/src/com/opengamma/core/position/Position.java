@@ -19,6 +19,9 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * It differs from a trade in that it may represent the combined result from a set of trades.
  * The collection of trades is optional and if present may be incomplete.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface Position extends PositionOrTrade {

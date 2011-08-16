@@ -6,8 +6,8 @@
 package com.opengamma.core.marketdatasnapshot;
 
 /**
- * 
+ * Marker interface used for different kinds of market data keys.
  */
 public interface StructuredMarketDataKey {
-  
+
 }

@@ -115,17 +115,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _nodeId = nodeId;
   }
 
-  public CalculationJobResult executeJob(final CalculationJob job) {
-    s_logger.info("Executing {} on {}", job, _nodeId);
-    final CalculationJobSpecification spec = job.getSpecification();
-    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
-    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
-    getFunctionExecutionContext().setValuationClock(DateUtil.fixedClockUTC(spec.getValuationTime()));
-    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
-    final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
-    long executionTime = System.nanoTime();
+  protected List<CalculationJobResultItem> executeJobItems(final CalculationJob job, final WriteBehindViewComputationCache cache,
+      final CompiledFunctionRepository functions, final String calculationConfiguration) {
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
-    final String calculationConfiguration = spec.getCalcConfigName();
     for (CalculationJobItem jobItem : job.getJobItems()) {
       if (job.isCancelled()) {
         return null;
@@ -144,6 +136,23 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         resultItem = new CalculationJobResultItem(jobItem, t);
       }
       resultItems.add(resultItem);
+    }
+    return resultItems;
+  }
+
+  public CalculationJobResult executeJob(final CalculationJob job) {
+    s_logger.info("Executing {} on {}", job, _nodeId);
+    final CalculationJobSpecification spec = job.getSpecification();
+    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
+    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
+    getFunctionExecutionContext().setValuationClock(DateUtil.fixedClockUTC(spec.getValuationTime()));
+    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
+    final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
+    long executionTime = System.nanoTime();
+    final String calculationConfiguration = spec.getCalcConfigName();
+    final List<CalculationJobResultItem> resultItems = executeJobItems(job, cache, functions, calculationConfiguration);
+    if ( resultItems == null ) {
+      return null;
     }
     cache.waitForPendingWrites();
     executionTime = System.nanoTime() - executionTime;

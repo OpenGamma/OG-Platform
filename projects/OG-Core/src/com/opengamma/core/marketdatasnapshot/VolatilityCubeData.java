@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,7 +19,9 @@ import com.opengamma.util.tuple.Pair;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
- * A bundle of data to use to build a vol cube
+ * A bundle of data to use to build a volatility cube.
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 public class VolatilityCubeData {
 
@@ -28,60 +29,62 @@ public class VolatilityCubeData {
    * The volatilities in the bundle
    */
   private Map<VolatilityPoint, Double> _dataPoints;
-  
   /**
    * The other market data needed
    */
   private SnapshotDataBundle _otherData;
-
   /**
    * The ATM strikes
    */
   private Map<Pair<Tenor, Tenor>, Double> _strikes;
-  
   /**
    * The ATM vols
    */
   private Map<Pair<Tenor, Tenor>, Double> _atmVolatilities;
-  
-  private Map<Tenor, Map<Tenor, Pair<double[], double[]>>> _smiles;
-  
-  
   /**
-   * Gets The volatilities in the bundle
-   * @return The volatilities in the bundle
+   * The smiles.
+   */
+  private Map<Tenor, Map<Tenor, Pair<double[], double[]>>> _smiles;
+
+  /**
+   * Gets the volatilities in the bundle.
+   * 
+   * @return the volatilities in the bundle
    */
   public Map<VolatilityPoint, Double> getDataPoints() {
     return _dataPoints;
   }
 
   /**
-   * SetsThe volatilities in the bundle
-   * @param dataPoints The volatilities in the bundle
+   * Sets the volatilities in the bundle.
+   * 
+   * @param dataPoints  the volatilities in the bundle
    */
   public void setDataPoints(Map<VolatilityPoint, Double> dataPoints) {
     _dataPoints = dataPoints;
   }
-  
-    /**
-   * Gets The other market data needed
-   * @return the otherData
-   */
+
+  /**
+  * Gets the other market data needed.
+  * 
+  * @return the other data
+  */
   public SnapshotDataBundle getOtherData() {
     return _otherData;
   }
 
   /**
-   * Sets The other market data needed
-   * @param otherData  the otherData
+   * Sets the other market data needed.
+   * 
+   * @param otherData  the other data
    */
   public void setOtherData(SnapshotDataBundle otherData) {
     _otherData = otherData;
   }
 
-  
   /**
-   * Gets The ATM strikes
+   * Gets the ATM strikes.
+   * 
    * @return the strikes
    */
   public Map<Pair<Tenor, Tenor>, Double> getStrikes() {
@@ -89,7 +92,8 @@ public class VolatilityCubeData {
   }
 
   /**
-   * Sets tThe ATM strikes
+   * Sets the ATM strikes.
+   * 
    * @param strikes  the strikes
    */
   public void setStrikes(Map<Pair<Tenor, Tenor>, Double> strikes) {
@@ -97,7 +101,8 @@ public class VolatilityCubeData {
   }
 
   /**
-   * Gets The ATM volatilities
+   * Gets the ATM volatilities.
+   * 
    * @return the volatilities
    */
   public Map<Pair<Tenor, Tenor>, Double> getATMVolatilities() {
@@ -105,22 +110,23 @@ public class VolatilityCubeData {
   }
 
   /**
-   * Sets The ATM volatilities
+   * Sets the ATM volatilities.
+   * 
    * @param atmVolatilities the volatilities
    */
   public void setATMVolatilities(Map<Pair<Tenor, Tenor>, Double> atmVolatilities) {
     _atmVolatilities = atmVolatilities;
   }
-  
+
   /**
    * Gets the smiles field.
-   * Swap Tenor -> Option Expiry -> (relative strikes in bps[], volatility[])
+   * Swap Tenor -> Option Expiry -> (relative strikes in bps[], volatility[]).
+   * 
    * @return the smiles
    */
   public Map<Tenor, Map<Tenor, Pair<double[], double[]>>> getSmiles() {
-    //TODO: this is slow.  Would start to matter if we got more data
+    // TODO: this is slow.  Would start to matter if we got more data
     // Could avoid it on deserialization, which is the repeatead case
-
     _smiles = _smiles == null ? getSmiles(_dataPoints) : _smiles;
     return _smiles;
   }
@@ -129,9 +135,7 @@ public class VolatilityCubeData {
     if (dataPoints == null) {
       return null;
     }
-    
     ArrayList<Entry<VolatilityPoint, Double>> entries = Lists.newArrayList(dataPoints.entrySet());
-
     Collections.sort(entries, new Comparator<Entry<VolatilityPoint, Double>>() {
 
       @Override
@@ -155,9 +159,7 @@ public class VolatilityCubeData {
       }
     });
     
-    
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> ret = new HashMap<Tenor, Map<Tenor, Pair<double[], double[]>>>();
-    
     Tenor currentSwapTenor = null;
     Tenor currentOptionExpiry = null;
     ArrayList<Double> strikes = null;
@@ -194,7 +196,7 @@ public class VolatilityCubeData {
     }
     return ret;
   }
-  
+
   private static Pair<double[], double[]> getPair(ArrayList<Double> strikes, ArrayList<Double> vols) {
     double[] nStrikes = getNativeArray(strikes);
     double[] nVols = getNativeArray(vols);
@@ -212,7 +214,7 @@ public class VolatilityCubeData {
   public Set<Tenor> getSwapTenors() {
     return getSmiles().keySet();
   }
-  
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -225,7 +227,7 @@ public class VolatilityCubeData {
         final double[] vols = e2.getValue().getSecond();
         for (double strike : strikes) {
           sb.append("\t" + strike);
-        }        
+        }
         sb.append("\n");
         sb.append("\t\t\t\t");
         for (double vol : vols) {
@@ -237,4 +239,5 @@ public class VolatilityCubeData {
     }
     return sb.toString();
   }
+
 }

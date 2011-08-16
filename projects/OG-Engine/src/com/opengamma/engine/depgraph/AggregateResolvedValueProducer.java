@@ -139,14 +139,9 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   @Override
-  protected boolean finished(final GraphBuildingContext context) {
-    synchronized (this) {
-      if (_pendingTasks > 0) {
-        s_logger.debug("Another thread has attached another producer - {} pending task(s)", _pendingTasks);
-        return false;
-      }
-    }
-    return super.finished(context);
+  protected void finished(final GraphBuildingContext context) {
+    assert _pendingTasks == 0;
+    super.finished(context);
   }
 
   @Override
