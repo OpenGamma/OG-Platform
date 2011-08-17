@@ -83,13 +83,13 @@ public interface RegionResolver extends LinkResolver<Region> {
    * This will return the highest level region that matches the identifier.
    * For example 'US' will return the country USA rather than a state or city.
    * 
-   * @param regionId  the region identifier to find, not null
+   * @param externalId  the region identifier to find, not null
    * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
-  Region getHighestLevelRegion(ExternalId regionId);
+  Region getHighestLevelRegion(ExternalId externalId);
 
   /**
    * Get a region based on the specified external identifier bundle.
