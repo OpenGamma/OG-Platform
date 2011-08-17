@@ -53,14 +53,12 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   //-------------------------------------------------------------------------
   @Override
   public ManageableExchange getExchange(UniqueId uniqueId) {
-    ExchangeDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getExchange() : null);
+    return getDocument(uniqueId).getExchange();
   }
 
   @Override
   public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
-    ExchangeDocument doc = getDocument(objectId, versionCorrection);
-    return (doc != null ? doc.getExchange() : null);
+    return getDocument(objectId, versionCorrection).getExchange();
   }
 
   @Override

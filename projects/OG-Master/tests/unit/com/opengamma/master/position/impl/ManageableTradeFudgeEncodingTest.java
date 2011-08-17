@@ -26,7 +26,7 @@ import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test ManageableTrade Fudge.
+ * Test {@link ManageableTrade} Fudge.
  */
 @Test
 public class ManageableTradeFudgeEncodingTest {

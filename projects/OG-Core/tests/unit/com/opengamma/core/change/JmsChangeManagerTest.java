@@ -25,7 +25,7 @@ import com.opengamma.util.test.ActiveMQTestUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test JmsMasterChangeManager.
+ * Test {@link JmsChangeManager}.
  */
 @Test
 public class JmsChangeManagerTest {

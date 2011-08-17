@@ -48,13 +48,13 @@ public:
 
 class CThreadRecordingOperation : public CAsynchronous::COperation {
 private:
-	CThread::INTERRUPTIBLE_HANDLE *m_phThread;
+	CThread::THREAD_REF *m_phThread;
 public:
-	CThreadRecordingOperation (CThread::INTERRUPTIBLE_HANDLE *phThread) {
+	CThreadRecordingOperation (CThread::THREAD_REF *phThread) {
 		m_phThread = phThread;
 	}
 	void Run () {
-		*m_phThread = CThread::GetInterruptible ();
+		*m_phThread = CThread::GetThreadRef ();
 	}
 };
 
@@ -113,7 +113,7 @@ static void ThreadIdleTimeout () {
 	CAsynchronous *poCaller = CAsynchronous::Create ();
 	ASSERT (poCaller);
 	poCaller->SetTimeoutInactivity (TIMEOUT_COMPLETE / 2);
-	CThread::INTERRUPTIBLE_HANDLE hThread1 = 0, hThread2 = 0;
+	CThread::THREAD_REF hThread1 = 0, hThread2 = 0;
 	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&hThread1);
 	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&hThread2);
 	ASSERT (poCaller->Run (poRun1));
@@ -138,7 +138,7 @@ static void ThreadIdleTimeout () {
 static void ThreadRecycling () {
 	CAsynchronous *poCaller = CAsynchronous::Create ();
 	ASSERT (poCaller);
-	CThread::INTERRUPTIBLE_HANDLE hThread1 = 0, hThread2 = 0;
+	CThread::THREAD_REF hThread1 = 0, hThread2 = 0;
 	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&hThread1);
 	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&hThread2);
 	ASSERT (poCaller->Run (poRun1));

@@ -71,14 +71,15 @@ public final class SecurityLinkResolver {
     _securitySource = new CachedSecuritySource(securitySource);
     _versionCorrection = versionCorrection;
   }
-
+  
   /**
    * Creates an instance.
    * 
    * @param viewCompilationContext  the context, not null
+   * @param versionCorrection  the version-correction, not null
    */
-  public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext) {
-    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource(), VersionCorrection.LATEST);
+  public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext, VersionCorrection versionCorrection) {
+    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource(), versionCorrection);
   }
 
   //-------------------------------------------------------------------------
@@ -237,9 +238,7 @@ public final class SecurityLinkResolver {
       Security security = _objectIdCache.get(uniqueId.getObjectId());
       if (security == null) {
         security = _underlying.getSecurity(uniqueId);
-        if (security != null) {
-          _objectIdCache.putIfAbsent(uniqueId.getObjectId(), security);
-        }
+        _objectIdCache.putIfAbsent(uniqueId.getObjectId(), security);
       }
       return security;
     }
@@ -249,9 +248,7 @@ public final class SecurityLinkResolver {
       Security security = _objectIdCache.get(objectId);
       if (security == null) {
         security = _underlying.getSecurity(objectId, versionCorrection);
-        if (security != null) {
-          _objectIdCache.putIfAbsent(objectId, security);
-        }
+        _objectIdCache.putIfAbsent(objectId, security);
       }
       return security;
     }

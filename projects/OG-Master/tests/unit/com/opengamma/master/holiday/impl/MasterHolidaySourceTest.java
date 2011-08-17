@@ -34,7 +34,7 @@ import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test MasterHolidaySource.
+ * Test {@link MasterHolidaySource}.
  */
 @Test
 public class MasterHolidaySourceTest {
@@ -84,15 +84,17 @@ public class MasterHolidaySourceTest {
     assertEquals(example(), testResult);
   }
 
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getHoliday_UniqueId_notFound() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterHolidaySource test = new MasterHolidaySource(mock, VC);
-    Holiday testResult = test.getHoliday(UID);
-    verify(mock, times(1)).get(OID, VC);
-    
-    assertEquals(null, testResult);
+    try {
+      test.getHoliday(UID);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -106,6 +108,19 @@ public class MasterHolidaySourceTest {
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getHoliday_ObjectId_notFound() throws Exception {
+    HolidayMaster mock = mock(HolidayMaster.class);
+    
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterHolidaySource test = new MasterHolidaySource(mock, VC);
+    try {
+      test.getHoliday(OID, VC);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------

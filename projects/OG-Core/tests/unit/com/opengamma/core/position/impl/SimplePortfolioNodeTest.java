@@ -20,7 +20,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 
 /**
- * Test SimplePortfolioNode.
+ * Test {@link SimplePortfolioNode}.
  */
 @Test
 public class SimplePortfolioNodeTest {

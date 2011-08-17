@@ -29,9 +29,12 @@ import com.opengamma.util.tuple.Pair;
 public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapshotDocument, MarketDataSnapshotMaster>
     implements MarketDataSnapshotSource {
 
+  /**
+   * The listeners.
+   */
   private final ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener> _registeredListeners = 
     new  ConcurrentHashMap<Pair<UniqueId, MarketDataSnapshotChangeListener>, ChangeListener>();
-  
+
   /**
    * Creates an instance with an underlying master which does not override versions.
    * 
@@ -41,15 +44,16 @@ public class MasterSnapshotSource extends AbstractMasterSource<MarketDataSnapsho
     super(master);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId) {
-    return getMaster().get(uniqueId).getSnapshot();
+    return getDocument(uniqueId).getSnapshot();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void addChangeListener(final UniqueId uniqueId, final MarketDataSnapshotChangeListener listener) {
     ChangeListener changeListener = new ChangeListener() {
-
       @Override
       public void entityChanged(ChangeEvent event) {
         UniqueId changedId = event.getAfterId();

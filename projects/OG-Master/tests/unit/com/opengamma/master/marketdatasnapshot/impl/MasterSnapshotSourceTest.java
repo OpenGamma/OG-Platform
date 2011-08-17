@@ -21,7 +21,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
 /**
- * Test MasterSnapshotSource.
+ * Test {@link MasterSnapshotSource}.
  */
 @Test
 public class MasterSnapshotSourceTest {

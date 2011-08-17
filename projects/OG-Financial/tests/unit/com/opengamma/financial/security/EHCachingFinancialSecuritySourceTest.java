@@ -20,6 +20,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.id.ExternalId;
@@ -81,17 +82,19 @@ public class EHCachingFinancialSecuritySourceTest {
     }
   }
 
-  @Test
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void getSecurity_UniqueId_empty() {
     CacheManager cacheManager = _cachingSecuritySource.getCacheManager();
     Cache singleSecCache = cacheManager.getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
     
     UniqueId uid = UniqueId.of("Mock", "99");
-    Security cachedSec = _cachingSecuritySource.getSecurity(uid);
-    assertNull(cachedSec);
-    assertEquals(0, singleSecCache.getSize());
-    Element element = singleSecCache.get(uid);
-    assertNull(element);
+    try {
+      _cachingSecuritySource.getSecurity(uid);
+    } finally {
+      assertEquals(0, singleSecCache.getSize());
+      Element element = singleSecCache.get(uid);
+      assertNull(element);
+    }
   }
 
   //-------------------------------------------------------------------------

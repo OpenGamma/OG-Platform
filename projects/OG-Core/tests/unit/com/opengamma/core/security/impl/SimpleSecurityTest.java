@@ -14,7 +14,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 /**
- * Test SimpleSecurity.
+ * Test {@link SimpleSecurity}.
  */
 @Test
 public class SimpleSecurityTest {
