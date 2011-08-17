@@ -69,6 +69,8 @@ public abstract class DBTest implements TableCreationCallback {
     _databaseVersion = databaseVersion;
     if (isScriptPublished()) {
       _dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    } else {
+      _dbtool.addDbScriptDirectory(DBTool.getWorkingDirectory());
     }
   }
   
