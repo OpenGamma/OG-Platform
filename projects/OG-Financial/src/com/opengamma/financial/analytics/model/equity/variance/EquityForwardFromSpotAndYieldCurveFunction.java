@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -57,7 +57,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
 
     // 1. Get the expiry _time_ from the trade
-    TradeImpl trade = (TradeImpl) target.getTrade(); // confirms that the ComputationTargetType == TRADE
+    SimpleTrade trade = (SimpleTrade) target.getTrade(); // confirms that the ComputationTargetType == TRADE
     EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) trade.getSecurity();
     double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
 

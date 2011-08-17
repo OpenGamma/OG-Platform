@@ -17,7 +17,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -172,7 +171,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
 
-    final TradeImpl trade = (TradeImpl) target.getTrade();
+    final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 
     switch (_pricingMethod) {
