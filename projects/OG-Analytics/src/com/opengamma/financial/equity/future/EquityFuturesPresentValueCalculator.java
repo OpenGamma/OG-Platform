@@ -17,10 +17,14 @@ import org.apache.commons.lang.Validate;
 /**
  * Present value calculator for futures on Equity underlying assets
  */
-public final class EquityFuturesPresentValueCalculator extends AbstractEquityDerivativeVisitor<Double, Double> {
+public final class EquityFuturesPresentValueCalculator extends AbstractEquityDerivativeVisitor<EquityFutureDataBundle, Double> {
 
   private static final EquityFuturesPresentValueCalculator s_instance = new EquityFuturesPresentValueCalculator();
 
+  /**
+   * FIXME Extend EquityFuturesPresentValueCalculator to each of the EquityFuturesPricingMethod's
+   * @return Singleton instance of the presentValueCalculator
+   */
   public static EquityFuturesPresentValueCalculator getInstance() {
     return s_instance;
   }
@@ -29,10 +33,11 @@ public final class EquityFuturesPresentValueCalculator extends AbstractEquityDer
   }
 
   @Override
-  public Double visit(final EquityDerivative derivative, final Double mktPrice) {
-    Validate.notNull(mktPrice);
+  public Double visit(final EquityDerivative derivative, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(derivative);
-    return derivative.accept(this, mktPrice);
+    Validate.notNull(dataBundle);
+    Validate.notNull(dataBundle.getMarketPrice());
+    return derivative.accept(this, dataBundle);
   }
 
   @Override
@@ -42,10 +47,11 @@ public final class EquityFuturesPresentValueCalculator extends AbstractEquityDer
   }
 
   @Override
-  public Double visitEquityFuture(final EquityFuture future, final Double mktPrice) {
-    Validate.notNull(mktPrice);
+  public Double visitEquityFuture(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future);
-    return EquityFutureMarkToMarket.presentValue(future, mktPrice);
+    Validate.notNull(dataBundle);
+    Validate.notNull(dataBundle.getMarketPrice());
+    return EquityFutureMarkToMarket.getInstance().presentValue(future, dataBundle);
   }
 
   @Override
@@ -54,8 +60,8 @@ public final class EquityFuturesPresentValueCalculator extends AbstractEquityDer
   }
 
   @Override
-  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final Double mktPrice) {
-    return visitEquityFuture(future, mktPrice);
+  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final EquityFutureDataBundle dataBundle) {
+    return visitEquityFuture(future, dataBundle);
   }
 
   @Override

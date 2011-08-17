@@ -11,21 +11,21 @@ import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import org.apache.commons.lang.Validate;
 
 /**
- * Method to compute a future's present value given the current value of its underlying asset and a cost of carry. 
- * !!! This may include a convexity adjustment for the correlation between these two factors. 
+ * Method to compute a future's present value given the current value of its underlying,
+ * an estimate of its deterministic continuous dividend yield, and a funding curve   
  */
-public final class EquityFutureCostOfCarry implements EquityFuturesPricer {
+public final class EquityFutureDividendYield implements EquityFuturesPricer {
 
-  private EquityFutureCostOfCarry() {
-  }
-
-  private static final EquityFutureCostOfCarry INSTANCE = new EquityFutureCostOfCarry();
+  private static final EquityFutureDividendYield INSTANCE = new EquityFutureDividendYield();
 
   /**
    * @return singleton instance of this pricing method
    */
-  public static EquityFutureCostOfCarry getInstance() {
+  public static EquityFutureDividendYield getInstance() {
     return INSTANCE;
+  }
+
+  private EquityFutureDividendYield() {
   }
 
   /**
@@ -37,10 +37,14 @@ public final class EquityFutureCostOfCarry implements EquityFuturesPricer {
   public double presentValue(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
-    Validate.notNull(dataBundle.getCostOfCarry());
+    Validate.notNull(dataBundle.getFundingCurve());
     Validate.notNull(dataBundle.getSpotValue());
+    Validate.notNull(dataBundle.getDividendYield());
 
-    double fwdPrice = dataBundle.getSpotValue() * Math.exp(dataBundle.getCostOfCarry() * future.getTimeToSettlement());
+    double timeToExpiry = future.getTimeToSettlement();
+    double discountRate = dataBundle.getFundingCurve().getInterestRate(timeToExpiry);
+    double costOfCarry = Math.exp(timeToExpiry * (discountRate - dataBundle.getDividendYield()));
+    double fwdPrice = dataBundle.getSpotValue() * costOfCarry;
     return (fwdPrice - future.getStrike()) * future.getUnitAmount();
   }
 
@@ -53,8 +57,13 @@ public final class EquityFutureCostOfCarry implements EquityFuturesPricer {
   public double spotDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
-    Validate.notNull(dataBundle.getCostOfCarry());
-    return future.getUnitAmount() * Math.exp(dataBundle.getCostOfCarry() * future.getTimeToSettlement());
+    Validate.notNull(dataBundle.getFundingCurve());
+    Validate.notNull(dataBundle.getDividendYield());
+
+    double timeToExpiry = future.getTimeToSettlement();
+    double discountRate = dataBundle.getFundingCurve().getInterestRate(timeToExpiry);
+    double costOfCarry = Math.exp(timeToExpiry * (discountRate - dataBundle.getDividendYield()));
+    return costOfCarry * future.getUnitAmount();
   }
 
   /**
@@ -66,11 +75,15 @@ public final class EquityFutureCostOfCarry implements EquityFuturesPricer {
   public double ratesDelta(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     Validate.notNull(future, "Future");
     Validate.notNull(dataBundle);
-    Validate.notNull(dataBundle.getCostOfCarry());
+    Validate.notNull(dataBundle.getFundingCurve());
     Validate.notNull(dataBundle.getSpotValue());
+    Validate.notNull(dataBundle.getDividendYield());
 
-    double fwdPrice = dataBundle.getSpotValue() * Math.exp(dataBundle.getCostOfCarry() * future.getTimeToSettlement());
-    return future.getTimeToSettlement() * fwdPrice * future.getUnitAmount();
+    double timeToExpiry = future.getTimeToSettlement();
+    double discountRate = dataBundle.getFundingCurve().getInterestRate(timeToExpiry);
+    double costOfCarry = Math.exp(timeToExpiry * (discountRate - dataBundle.getDividendYield()));
+    double fwdPrice = dataBundle.getSpotValue() * costOfCarry;
+    return timeToExpiry * fwdPrice * future.getUnitAmount();
   }
 
   /**

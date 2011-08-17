@@ -8,7 +8,6 @@ package com.opengamma.financial.model.volatility.surface;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * A surface that contains the Black (implied) volatility  as a function of time to maturity and strike.
@@ -33,18 +32,6 @@ public class BlackVolatilitySurface extends VolatilitySurface {
   public BlackVolatilitySurface(final Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {
     super(surface);
     _strikeParameterisation = strikeType;
-  }
-
-  /**
-   * Return a volatility for the expiry,strike pair provided. 
-   * Interpolation/extrapolation behaviour depends on underlying surface  
-   * @param t time to maturity
-   * @param k strike
-   * @return The Black (implied) volatility 
-   */
-  public double getVolatility(final double t, final double k) {
-    final DoublesPair temp = new DoublesPair(t, k);
-    return getVolatility(temp);
   }
 
   /**

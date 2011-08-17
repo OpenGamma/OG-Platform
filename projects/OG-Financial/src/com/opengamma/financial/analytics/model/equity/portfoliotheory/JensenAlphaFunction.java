@@ -3,8 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -30,7 +31,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.riskreward.TotalRiskAlphaCalculator;
+import com.opengamma.financial.riskreward.JensenAlphaCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
@@ -44,32 +45,27 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final double DAYS_PER_YEAR = 365.25;
-  private final TotalRiskAlphaCalculator _totalRiskAlpha;
+  private static final double DAYS_PER_YEAR = 365.25; //TODO
+  private final JensenAlphaCalculator _jensenAlpha;
   private final LocalDate _startDate;
   private final TimeSeriesReturnCalculator _returnCalculator;
 
-  public TotalRiskAlphaFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName,
-      final String expectedMarketReturnCalculatorName, final String assetStandardDeviationCalculatorName, final String marketStandardDeviationCalculatorName, final String startDate) {
+  public JensenAlphaFunction(final String returnCalculatorName, final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName,
+      final String expectedMarketReturnCalculatorName, final String startDate) {
     Validate.notNull(returnCalculatorName, "return calculator name");
-    Validate.notNull(expectedAssetReturnCalculatorName, "expected asset return calculator name");
+    Validate.notNull(expectedAssetReturnCalculatorName, "expected excess return calculator name");
     Validate.notNull(expectedRiskFreeReturnCalculatorName, "expected risk-free return calculator name");
     Validate.notNull(expectedMarketReturnCalculatorName, "expected market return calculator name");
-    Validate.notNull(assetStandardDeviationCalculatorName, "asset standard deviation calculator name");
-    Validate.notNull(marketStandardDeviationCalculatorName, "market standard deviation calculator name");
     Validate.notNull(startDate, "start date");
-    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
-    final Function<double[], Double> expectedAssetReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedAssetReturnCalculatorName);
-    final Function<double[], Double> expectedRiskFreeReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedRiskFreeReturnCalculatorName);
+    final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedAssetReturnCalculatorName);
+    final Function<double[], Double> standardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(expectedRiskFreeReturnCalculatorName);
     final Function<double[], Double> expectedMarketReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedMarketReturnCalculatorName);
-    final Function<double[], Double> assetStandardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(assetStandardDeviationCalculatorName);
-    final Function<double[], Double> marketStandardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(marketStandardDeviationCalculatorName);
-    _totalRiskAlpha = new TotalRiskAlphaCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedAssetReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
-        expectedRiskFreeReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(expectedMarketReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
-          assetStandardDeviationCalculator), new DoubleTimeSeriesStatisticsCalculator(marketStandardDeviationCalculator));
+    _jensenAlpha = new JensenAlphaCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
+        standardDeviationCalculator), new DoubleTimeSeriesStatisticsCalculator(expectedMarketReturnCalculator));
     _startDate = LocalDate.parse(startDate);
+    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
   }
 
   @Override
@@ -84,39 +80,48 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
     if (marketTSObject == null) {
-      throw new NullPointerException("Market time series was null");
+      throw new NullPointerException("Market price series was null");
     }
-    final HistoricalTimeSeries riskFreeTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
+    final HistoricalTimeSeries riskFreeRateTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMRiskFreeRateName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
-    if (riskFreeTSObject == null) {
-      throw new NullPointerException("Risk-free time series was null");
+    if (riskFreeRateTSObject == null) {
+      throw new NullPointerException("Risk free rate series was null");
     }
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
-      throw new NullPointerException("Asset P&L series was null");
+      throw new NullPointerException("Asset P&L was null");
     }
     final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
     if (assetFairValueObject == null) {
       throw new NullPointerException("Asset fair value was null");
     }
+    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode));
+    if (betaObject == null) {
+      throw new NullPointerException("Beta was null");
+    }
+    final double beta = (Double) betaObject;
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
+    DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getTimeSeries().divide(100 * DAYS_PER_YEAR);
     DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getTimeSeries());
-    DoubleTimeSeries<?> riskFreeReturnTS = ((DoubleTimeSeries<?>) riskFreeTSObject.getTimeSeries()).divide(DAYS_PER_YEAR * 100);
+    assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
+    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
     assetReturnTS = assetReturnTS.intersectionFirstValue(marketReturnTS);
     marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
-    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(riskFreeReturnTS);
-    assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
-    marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
-    final double tra = _totalRiskAlpha.evaluate(assetReturnTS, riskFreeReturnTS, marketReturnTS);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueId()), tra));
+    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
+    final double alpha = _jensenAlpha.evaluate(assetReturnTS, riskFreeReturnTS, beta, marketReturnTS);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode), getUniqueId()), alpha));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode), new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+      final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+      result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode));
+      result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+      result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode));
+      return result;
     }
     return null;
   }
@@ -125,7 +130,7 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.JENSENS_ALPHA, positionOrNode), getUniqueId()));
     }
     return null;
   }

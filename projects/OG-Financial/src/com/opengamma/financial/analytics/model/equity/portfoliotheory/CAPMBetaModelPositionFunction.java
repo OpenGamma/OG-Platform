@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -12,30 +12,30 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 /**
  * 
  */
-public class CAPMBetaModelPortfolioNodeFunction extends CAPMBetaModelFunction {
+public class CAPMBetaModelPositionFunction extends CAPMBetaModelFunction {
 
-  public CAPMBetaModelPortfolioNodeFunction(final String returnCalculatorName, final String startDate) {
+  public CAPMBetaModelPositionFunction(final String returnCalculatorName, final String startDate) {
     super(returnCalculatorName, startDate);
   }
 
   @Override
   public Object getTarget(final ComputationTarget target) {
-    return target.getPortfolioNode();
+    return target.getPosition();
   }
 
   @Override
   public String getShortName() {
-    return "CAPM_BetaPortfolioNodeFunction";
+    return "CAPM_BetaPositionFunction";
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE;
+    return ComputationTargetType.POSITION;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
+    return target.getType() == ComputationTargetType.POSITION;
   }
 
 }

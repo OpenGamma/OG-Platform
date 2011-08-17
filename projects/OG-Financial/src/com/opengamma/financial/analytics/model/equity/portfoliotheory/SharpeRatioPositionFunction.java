@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -12,31 +12,31 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 /**
  * 
  */
-public class SharpeRatioPortfolioNodeFunction extends SharpeRatioFunction {
+public class SharpeRatioPositionFunction extends SharpeRatioFunction {
 
-  public SharpeRatioPortfolioNodeFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName,
+  public SharpeRatioPositionFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName,
       final String startDate) {
     super(returnCalculatorName, expectedReturnCalculatorName, standardDeviationCalculatorName, startDate);
   }
 
   @Override
   public Object getTarget(final ComputationTarget target) {
-    return target.getPortfolioNode();
+    return target.getPosition();
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
+    return target.getType() == ComputationTargetType.POSITION;
   }
 
   @Override
   public String getShortName() {
-    return "SharpeRatioPortfolioNodeFunction";
+    return "SharpeRatioPositionFunction";
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE;
+    return ComputationTargetType.POSITION;
   }
 
 }

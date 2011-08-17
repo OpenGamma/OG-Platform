@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -12,10 +12,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 /**
  * 
  */
-public class TreynorRatioPortfolioNodeFunction extends TreynorRatioFunction {
+public class SharpeRatioPortfolioNodeFunction extends SharpeRatioFunction {
 
-  public TreynorRatioPortfolioNodeFunction(final String expectedReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
-    super(expectedReturnCalculatorName, expectedRiskFreeReturnCalculatorName, startDate);
+  public SharpeRatioPortfolioNodeFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName,
+      final String startDate) {
+    super(returnCalculatorName, expectedReturnCalculatorName, standardDeviationCalculatorName, startDate);
   }
 
   @Override
@@ -30,7 +31,7 @@ public class TreynorRatioPortfolioNodeFunction extends TreynorRatioFunction {
 
   @Override
   public String getShortName() {
-    return "TreynorRatioPortfolioNodeFunction";
+    return "SharpeRatioPortfolioNodeFunction";
   }
 
   @Override

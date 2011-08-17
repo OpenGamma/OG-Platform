@@ -11,7 +11,6 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.RealizedVariance;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.interestrate.TestsDataSets;

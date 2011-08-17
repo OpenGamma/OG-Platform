@@ -11,7 +11,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.interestrate.TestsDataSets;

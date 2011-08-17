@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;

@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -31,8 +30,10 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.riskreward.TreynorRatioCalculator;
+import com.opengamma.financial.riskreward.SharpeRatioCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
@@ -43,20 +44,23 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final double DAYS_PER_YEAR = 365.25; //TODO
-  private final TreynorRatioCalculator _treynorRatio;
+  private static final double WORKING_DAYS_PER_YEAR = 252; //TODO this should not be hard-coded
+  private final SharpeRatioCalculator _sharpeRatio;
   private final LocalDate _startDate;
+  private final TimeSeriesReturnCalculator _returnCalculator;
 
-  public TreynorRatioFunction(final String expectedAssetReturnCalculatorName, final String expectedRiskFreeReturnCalculatorName, final String startDate) {
-    Validate.notNull(expectedAssetReturnCalculatorName, "expected excess return calculator name");
-    Validate.notNull(expectedRiskFreeReturnCalculatorName, "standard deviation calculator name");
+  public SharpeRatioFunction(final String returnCalculatorName, final String expectedReturnCalculatorName, final String standardDeviationCalculatorName, final String startDate) {
+    Validate.notNull(returnCalculatorName, "return calculator name");
+    Validate.notNull(expectedReturnCalculatorName, "expected excess return calculator name");
+    Validate.notNull(standardDeviationCalculatorName, "standard deviation calculator name");
     Validate.notNull(startDate, "start date");
-    final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedAssetReturnCalculatorName);
-    final Function<double[], Double> expectedRiskFreeReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedRiskFreeReturnCalculatorName);
-    _treynorRatio = new TreynorRatioCalculator(new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator), new DoubleTimeSeriesStatisticsCalculator(
-        expectedRiskFreeReturnCalculator));
+    _returnCalculator = TimeSeriesReturnCalculatorFactory.getReturnCalculator(returnCalculatorName);
+    final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(expectedReturnCalculatorName);
+    final Function<double[], Double> standardDeviationCalculator = StatisticsCalculatorFactory.getCalculator(standardDeviationCalculatorName);
+    _sharpeRatio = new SharpeRatioCalculator(WORKING_DAYS_PER_YEAR, new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator),
+        new DoubleTimeSeriesStatisticsCalculator(standardDeviationCalculator));
     _startDate = LocalDate.parse(startDate);
   }
 
@@ -69,42 +73,33 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries riskFreeRateTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMRiskFreeRateName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
-    if (riskFreeRateTSObject == null) {
-      throw new NullPointerException("Risk free rate series was null");
+    final HistoricalTimeSeries benchmarkTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(
+        SecurityUtils.bloombergTickerSecurityId(bundle.getCAPMMarketName())), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
+    if (benchmarkTSObject == null) {
+      throw new NullPointerException("Benchmark time series was null");
     }
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
-      throw new NullPointerException("Asset P&L was null");
+      throw new NullPointerException("Asset P&L series was null");
     }
     final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
     if (assetFairValueObject == null) {
       throw new NullPointerException("Asset fair value was null");
     }
-    final Object betaObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode));
-    if (betaObject == null) {
-      throw new NullPointerException("Beta was null");
-    }
-    final double beta = (Double) betaObject;
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
-    DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getTimeSeries().divide(100 * DAYS_PER_YEAR);
-    assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
-    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
-    final double ratio = _treynorRatio.evaluate(assetReturnTS, riskFreeReturnTS, beta);
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueId()), ratio));
+    DoubleTimeSeries<?> benchmarkReturnTS = _returnCalculator.evaluate(benchmarkTSObject.getTimeSeries());
+    assetReturnTS = assetReturnTS.intersectionFirstValue(benchmarkReturnTS);
+    benchmarkReturnTS = benchmarkReturnTS.intersectionFirstValue(assetReturnTS);
+    final double ratio = _sharpeRatio.evaluate(assetReturnTS, benchmarkReturnTS);
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueId()), ratio));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-      result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode));
-      result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-      result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode));
-      return result;
+      return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode), new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
     }
     return null;
   }
@@ -113,7 +108,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Object positionOrNode = getTarget(target);
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueId()));
     }
     return null;
   }

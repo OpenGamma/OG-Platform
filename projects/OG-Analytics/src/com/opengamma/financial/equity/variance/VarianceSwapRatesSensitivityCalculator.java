@@ -7,7 +7,6 @@ package com.opengamma.financial.equity.variance;
 
 import com.google.common.collect.Lists;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.interestrate.NodeSensitivityCalculator;

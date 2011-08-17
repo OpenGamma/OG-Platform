@@ -55,22 +55,23 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYiel
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMBetaModelPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMBetaModelPositionFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMFromRegressionModelPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMFromRegressionModelPositionFunction;
-import com.opengamma.financial.analytics.model.equity.JensenAlphaPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.JensenAlphaPositionFunction;
-import com.opengamma.financial.analytics.model.equity.PortfolioEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.PositionEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.SharpeRatioPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.SharpeRatioPositionFunction;
-import com.opengamma.financial.analytics.model.equity.StandardEquityModelFunction;
-import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPositionFunction;
-import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.TreynorRatioPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMFromRegressionModelPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMFromRegressionModelPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.JensenAlphaPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.JensenAlphaPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioEquityPnLFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.PositionEquityPnLFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.StandardEquityModelFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TradeEquityPnLFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.equity.variance.Grid2DInterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
@@ -302,6 +303,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
 
+    functionConfigs.add(new ParameterizedFunctionConfiguration(Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), Arrays.asList("LINEAR", "LINEAR")));
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
 

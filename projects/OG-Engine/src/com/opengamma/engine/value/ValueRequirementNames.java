@@ -247,6 +247,9 @@ public final class ValueRequirementNames {
   public static final String GROSS_BASIS = "Gross Basis";
   public static final String NET_BASIS = "Net Basis";
   
+  //Equity values
+  public static final String DIVIDEND_YIELD = "Dividend Yield";
+  
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";
 

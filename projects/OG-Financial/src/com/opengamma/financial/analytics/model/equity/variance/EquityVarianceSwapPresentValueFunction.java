@@ -35,12 +35,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -51,18 +54,30 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  * 
  */
 public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+  /** */
+  public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
   private static final VarianceSwapStaticReplication CALCULATOR = new VarianceSwapStaticReplication();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
-  private EquityVarianceSwapConverter _converter;
   private static final String FIELD_NAME = HistoricalTimeSeriesFields.LAST_PRICE;
+
+  private EquityVarianceSwapConverter _converter; // set in init()
+
   private final String _curveDefinitionName;
   private final String _surfaceDefinitionName;
+  private final String _forwardCalculationMethod;
+  private final String _strikeParameterizationMethodName;
+  private final StrikeParameterization _strikeParameterizationMethod;
 
-  public EquityVarianceSwapPresentValueFunction(String curveDefinitionName, String surfaceDefinitionName) {
+  public EquityVarianceSwapPresentValueFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
     Validate.notNull(curveDefinitionName, "curve definition name");
     Validate.notNull(surfaceDefinitionName, "surface definition name");
+    Validate.notNull(forwardCalculationMethod, "forward calculation method");
+    Validate.notNull(strikeParameterizationMethodName, "strike parameterization method");
     _curveDefinitionName = curveDefinitionName;
     _surfaceDefinitionName = surfaceDefinitionName;
+    _forwardCalculationMethod = forwardCalculationMethod;
+    _strikeParameterizationMethodName = strikeParameterizationMethodName;
+    _strikeParameterizationMethod = StrikeParameterization.valueOf(strikeParameterizationMethodName);
   }
 
   @Override
@@ -86,7 +101,8 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
     if (volSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
-    BlackVolatilitySurface volSurf = (BlackVolatilitySurface) volSurfaceObject;
+    VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
+    BlackVolatilitySurface blackVolSurf = new BlackVolatilitySurface(volSurface.getSurface(), _strikeParameterizationMethod);
 
     Object discountObject = inputs.getValue(getDiscountRequirement(security));
     if (discountObject == null) {
@@ -106,7 +122,7 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
     }
     double forward = (Double) forwardObject;
 
-    VarianceSwapDataBundle market = new VarianceSwapDataBundle(volSurf, discountCurve, spot, forward);
+    VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, discountCurve, spot, forward);
 
     // 3. Compute and return the present value (ComputedValue)
     // Note that this may later be done via a getComputedValues method specific to the Function ( e.g. for EquityVarianceSwapPV01Function ) 
@@ -126,27 +142,32 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
 
   private ValueRequirement getForwardRequirement(EquityVarianceSwapSecurity security) {
     ExternalId id = security.getSpotUnderlyingIdentifier();
-    return new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.SECURITY, UniqueId.of(id));
+    ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod).get();
+    return new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
   }
 
   private ValueRequirement getSpotRequirement(EquityVarianceSwapSecurity security) {
     ExternalId id = security.getSpotUnderlyingIdentifier();
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id));
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
   private ValueRequirement getDiscountRequirement(EquityVarianceSwapSecurity security) {
-    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, security.getCurrency().getCode()).get();
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _curveDefinitionName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(EquityVarianceSwapSecurity security) {
-    ExternalId id = security.getSpotUnderlyingIdentifier(); // TODO Review - when thinking about vol surface definitions
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, UniqueId.of(id));
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, _surfaceDefinitionName)
+                                                          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_VANILLA_OPTIONS")
+                                                          .with(STRIKE_PARAMETERIZATION_METHOD, _strikeParameterizationMethodName)
+                                                          .get();
+    ExternalId id = security.getSpotUnderlyingIdentifier(); // TODO Case - Review - when thinking about vol surface definitions
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
+  public void init(final FunctionCompilationContext context) { // TODO Case - Review the init function
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     _converter = new EquityVarianceSwapConverter(holidaySource);
 

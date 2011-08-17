@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.Axis;
@@ -18,6 +15,9 @@ import com.opengamma.math.surface.Surface;
 import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.math.surface.SurfaceSliceFunction;
 import com.opengamma.util.tuple.DoublesPair;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -38,6 +38,18 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   public Double getVolatility(final DoublesPair xy) {
     Validate.notNull(xy, "xy pair");
     return _surface.getZValue(xy);
+  }
+
+  /**
+   * Return a volatility for the expiry,strike pair provided. 
+   * Interpolation/extrapolation behaviour depends on underlying surface  
+   * @param t time to maturity
+   * @param k strike
+   * @return The Black (implied) volatility 
+   */
+  public double getVolatility(final double t, final double k) {
+    final DoublesPair temp = new DoublesPair(t, k);
+    return getVolatility(temp);
   }
 
   public VolatilityCurve getSlice(final Axis axis, final double here, final Interpolator1D<Interpolator1DDataBundle> interpolator) {
