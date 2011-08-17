@@ -41,8 +41,6 @@ import com.opengamma.util.money.Currency;
  */
 public class DemoViewsPopulater {
 
-  private static final UniqueId UID_USD = UniqueId.of("CurrencyISO", "USD");
-
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DemoViewsPopulater.class);
 
@@ -54,7 +52,7 @@ public class DemoViewsPopulater {
   public void setLoaderContext(LoaderContext loaderContext) {
     _loaderContext = loaderContext;
   }
-  
+
   private UniqueId getPortfolioId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
@@ -65,7 +63,13 @@ public class DemoViewsPopulater {
     }
     return searchResult.getFirstPortfolio().getUniqueId().toLatest();
   }
-  
+
+  public void persistViewDefinitions() {
+    createEquityViewDefinition();
+    createSwapViewDefinition();
+    createMultiCurrencySwapViewDefinition();
+  }
+
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
     UniqueId portfolioId = getPortfolioId(portfolioName);
     ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
@@ -82,13 +86,16 @@ public class DemoViewsPopulater {
 //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.WEIGHT, ValueProperties.none());
-//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
     return equityViewDefinition;
   }
-  
-  public void persistViewDefinitions() {
-    saveViewDefinition(makeEquityViewDefinition(DemoEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
+
+  private void createSwapViewDefinition() {
     saveViewDefinition(makeSwapViewDefinition(DemoSwapPortfolioLoader.PORTFOLIO_NAME));
+  }
+
+  private void createEquityViewDefinition() {
+    saveViewDefinition(makeEquityViewDefinition(DemoEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
@@ -99,9 +106,9 @@ public class DemoViewsPopulater {
     viewDefinition.setMaxFullCalculationPeriod(500L);
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
-    
+
     ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, "Default");
-    ValueProperties defaultProperties = ValueProperties.with("Curve", "SECONDARY").with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").with("Currency", "USD").get(); 
+    ValueProperties defaultProperties = ValueProperties.with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").with("Currency", "USD").get();
     defaultCalc.setDefaultProperties(defaultProperties);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE);
@@ -109,12 +116,47 @@ public class DemoViewsPopulater {
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     defaultCalc.addSpecificRequirement(new ValueRequirement(
-        ValueRequirementNames.YIELD_CURVE, 
-        ComputationTargetType.PRIMITIVE, 
-        UID_USD,
+        ValueRequirementNames.YIELD_CURVE,
+        ComputationTargetType.PRIMITIVE,
+        UniqueId.of("CurrencyISO", "USD"),
         ValueProperties.with("Curve", "SECONDARY").get()));
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
-    
+
+    return viewDefinition;
+  }
+
+  private void createMultiCurrencySwapViewDefinition() {
+    saveViewDefinition(getMultiCurrencySwapViewDefinition());
+  }
+
+  private ViewDefinition getMultiCurrencySwapViewDefinition() {
+    UniqueId portfolioId = getPortfolioId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+
+    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, "PortfolioCurrency");
+    ValueProperties defaultProperties = ValueProperties.with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").with("Currency", "USD").get();
+    defaultCalc.setDefaultProperties(defaultProperties);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    for (Currency ccy : DemoMultiCurrencySwapPortfolioLoader.s_currencies) {
+      defaultCalc.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
+          ComputationTargetType.PRIMITIVE, UniqueId.of("CurrencyISO", ccy.getCode()), ValueProperties.with("Curve", "SECONDARY").get()));
+    }
+    viewDefinition.addViewCalculationConfiguration(defaultCalc);
+
+    ViewCalculationConfiguration nativeCurrencyCalc = new ViewCalculationConfiguration(viewDefinition, "NativeCurrency");
+    nativeCurrencyCalc.setDefaultProperties(ValueProperties.with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").get());
+    nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
+    nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    viewDefinition.addViewCalculationConfiguration(nativeCurrencyCalc);
+
     return viewDefinition;
   }
 
@@ -135,20 +177,20 @@ public class DemoViewsPopulater {
    * 
    * @param args  the arguments, unused
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(String[] args) { // CSIGNORE
     try {
       LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(lc);
-      lc.reset(); 
+      lc.reset();
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      
+
       // Set the run mode to EXAMPLE so we use the HSQLDB example database.
       PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
       System.out.println("Starting connections");
       AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
       appContext.start();
-      
+
       try {
         DemoViewsPopulater populator = (DemoViewsPopulater) appContext.getBean("demoViewsPopulater");
         System.out.println("Loading data");
@@ -157,7 +199,7 @@ public class DemoViewsPopulater {
         appContext.close();
       }
       System.out.println("Finished");
-      
+
     } catch (Exception ex) {
       ex.printStackTrace();
     }

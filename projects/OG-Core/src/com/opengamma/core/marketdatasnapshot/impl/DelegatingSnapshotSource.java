@@ -40,19 +40,20 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
     super(defaultSource, schemePrefixToSourceMap);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId) {
-    return chooseDelegate(uniqueId).getSnapshot(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getSnapshot(uniqueId);
   }
 
   @Override
   public void addChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
-    chooseDelegate(uniqueId).addChangeListener(uniqueId, listener);
+    chooseDelegate(uniqueId.getScheme()).addChangeListener(uniqueId, listener);
   }
 
   @Override
   public void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
-    chooseDelegate(uniqueId).removeChangeListener(uniqueId, listener);
+    chooseDelegate(uniqueId.getScheme()).removeChangeListener(uniqueId, listener);
   }
 
 }

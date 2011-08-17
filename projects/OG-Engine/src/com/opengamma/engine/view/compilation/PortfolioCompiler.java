@@ -18,7 +18,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -29,6 +29,7 @@ import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -140,7 +141,7 @@ public final class PortfolioCompiler {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource + "' used by view definition '"
           + compilationContext.getViewDefinition().getName() + "'");
     }
-    Portfolio cloned = new PortfolioImpl(portfolio);
+    Portfolio cloned = new SimplePortfolio(portfolio);
     return resolveSecurities(compilationContext, cloned);
   }
 
@@ -165,7 +166,7 @@ public final class PortfolioCompiler {
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves the securities in the portfolio.
+   * Resolves the securities in the portfolio at the latest version-correction.
    * 
    * @param portfolio  the portfolio to resolve, not null
    * @param executorService  the threading service, not null
@@ -173,8 +174,21 @@ public final class PortfolioCompiler {
    * @return the resolved portfolio, not null
    */
   public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
-    Portfolio cloned = new PortfolioImpl(portfolio);
-    new SecurityLinkResolver(executorService, securitySource).resolveSecurities(cloned.getRootNode());
+    return resolvePortfolio(portfolio, executorService, securitySource, VersionCorrection.LATEST);
+  }
+  
+  /**
+   * Resolves the securities in the portfolio at the given version-correction.
+   * 
+   * @param portfolio  the portfolio to resolve, not null
+   * @param executorService  the threading service, not null
+   * @param securitySource  the security source, not null
+   * @param versionCorrection  the version-correction for security resolution, not null
+   * @return the resolved portfolio, not null
+   */
+  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource, final VersionCorrection versionCorrection) {
+    Portfolio cloned = new SimplePortfolio(portfolio);
+    new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
     return cloned;
   }
 

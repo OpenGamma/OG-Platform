@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.definition.VasicekDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -29,8 +29,8 @@ public class VasicekInterestRateModel implements DiscountBondModel<VasicekDataBu
         Validate.notNull(data);
         final double lt = data.getLongTermInterestRate();
         final double speed = data.getReversionSpeed();
-        final double dt = DateUtil.getDifferenceInYears(time, maturity);
-        final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
+        final double dt = DateUtils.getDifferenceInYears(time, maturity);
+        final double t = DateUtils.getDifferenceInYears(data.getDate(), time);
         final double sigma = data.getShortRateVolatility(t);
         final double r = data.getShortRate(t);
         final double sigmaSq = sigma * sigma;

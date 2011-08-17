@@ -189,7 +189,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notEmpty(identifierBundle, "identifierBundle");
-    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, null);
+    HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
     HistoricalTimeSeries hts = getFromCache(key);
     if (hts == null) {
       hts = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey);
@@ -307,7 +307,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       return hts;
     }
     LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, exclusiveEnd);
-    return new HistoricalTimeSeriesImpl(hts.getUniqueId(), timeSeries);
+    return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
 
 }

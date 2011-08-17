@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -23,13 +23,13 @@ import com.opengamma.util.time.Expiry;
 public class AsymmetricPowerOptionDefinitionTest {
   private static final double DIFF = 30;
   private static final double STRIKE = 50;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
   private static final Expiry EXPIRY = new Expiry(DATE);
   private static final double POWER = 1.1;
   private static final OptionDefinition CALL = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER, true);
   private static final OptionDefinition PUT = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER, false);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
-      STRIKE, DateUtil.getUTCDate(2010, 1, 1));
+      STRIKE, DateUtils.getUTCDate(2010, 1, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
@@ -70,8 +70,8 @@ public class AsymmetricPowerOptionDefinitionTest {
     final OptionDefinition put1 = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER, false);
     final OptionDefinition call2 = new AsymmetricPowerOptionDefinition(STRIKE + DIFF, EXPIRY, POWER, true);
     final OptionDefinition put2 = new AsymmetricPowerOptionDefinition(STRIKE + DIFF, EXPIRY, POWER, false);
-    final OptionDefinition call3 = new AsymmetricPowerOptionDefinition(STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3)), POWER, true);
-    final OptionDefinition put3 = new AsymmetricPowerOptionDefinition(STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3)), POWER, false);
+    final OptionDefinition call3 = new AsymmetricPowerOptionDefinition(STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3)), POWER, true);
+    final OptionDefinition put3 = new AsymmetricPowerOptionDefinition(STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3)), POWER, false);
     final OptionDefinition call4 = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER + 1, true);
     final OptionDefinition put4 = new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, POWER + 1, false);
     assertFalse(CALL.equals(PUT));

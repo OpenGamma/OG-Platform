@@ -20,7 +20,7 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -29,9 +29,9 @@ import com.opengamma.util.time.Expiry;
 public class SimpleChooserOptionDefinitionTest {
   private static final double STRIKE = 100;
   private static final double DIFF = 20;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.1));
-  private static final Expiry UNDERLYING_EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.1));
+  private static final Expiry UNDERLYING_EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final SimpleChooserOptionDefinition CHOOSER = new SimpleChooserOptionDefinition(EXPIRY, STRIKE, UNDERLYING_EXPIRY);
   private static final OptionDefinition VANILLA_CALL = new EuropeanVanillaOptionDefinition(STRIKE, UNDERLYING_EXPIRY, true);
   private static final OptionDefinition VANILLA_PUT = new EuropeanVanillaOptionDefinition(STRIKE, UNDERLYING_EXPIRY, false);
@@ -48,7 +48,7 @@ public class SimpleChooserOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLateChooseDate() {
-    new SimpleChooserOptionDefinition(EXPIRY, STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.05)));
+    new SimpleChooserOptionDefinition(EXPIRY, STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.05)));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -88,9 +88,9 @@ public class SimpleChooserOptionDefinitionTest {
     final SimpleChooserOptionDefinition definition1 = new SimpleChooserOptionDefinition(EXPIRY, STRIKE, UNDERLYING_EXPIRY);
     assertEquals(definition1, CHOOSER);
     assertEquals(definition1.hashCode(), CHOOSER.hashCode());
-    final SimpleChooserOptionDefinition definition2 = new SimpleChooserOptionDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5)), STRIKE, UNDERLYING_EXPIRY);
+    final SimpleChooserOptionDefinition definition2 = new SimpleChooserOptionDefinition(new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5)), STRIKE, UNDERLYING_EXPIRY);
     final SimpleChooserOptionDefinition definition3 = new SimpleChooserOptionDefinition(EXPIRY, STRIKE + DIFF, UNDERLYING_EXPIRY);
-    final SimpleChooserOptionDefinition definition4 = new SimpleChooserOptionDefinition(EXPIRY, STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.3)));
+    final SimpleChooserOptionDefinition definition4 = new SimpleChooserOptionDefinition(EXPIRY, STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.3)));
     assertFalse(CHOOSER.equals(definition2));
     assertFalse(CHOOSER.equals(definition3));
     assertFalse(CHOOSER.equals(definition4));

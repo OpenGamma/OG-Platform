@@ -30,7 +30,7 @@ import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests finite difference computation of curve sensitivity.
@@ -46,10 +46,10 @@ public class SensitivityFiniteDifferenceTest {
   private static final Currency CUR = Currency.USD;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Dates : The above dates are not standard but selected for insure correct testing.
-  private static final ZonedDateTime FIXING_DATE = DateUtil.getUTCDate(2011, 1, 3);
-  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 1, 6);
-  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 4, 4);
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 1, 7);
+  private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
+  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
+  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 4);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 1, 7);
   private static final DayCount DAY_COUNT_PAYMENT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final double ACCRUAL_FACTOR_PAYMENT = DAY_COUNT_PAYMENT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double FRA_RATE = 0.05;
@@ -58,7 +58,7 @@ public class SensitivityFiniteDifferenceTest {
   private static final ForwardRateAgreementDefinition FRA_DEFINITION = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT,
       NOTIONAL, FIXING_DATE, INDEX, FRA_RATE);
   // To derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2009, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2009, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};

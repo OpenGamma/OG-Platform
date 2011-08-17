@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -98,7 +99,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     // TODO Is this the right signature?!
     // Build the analytic's version of the security - the derivative
-    final TradeImpl trade = (TradeImpl) target.getTrade();
+    final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade);
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();

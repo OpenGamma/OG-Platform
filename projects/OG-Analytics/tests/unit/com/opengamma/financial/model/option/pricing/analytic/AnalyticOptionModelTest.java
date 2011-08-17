@@ -25,7 +25,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
@@ -38,8 +38,8 @@ public abstract class AnalyticOptionModelTest {
       return BSM.getPricingFunction(definition);
     }
   };
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry ONE_YEAR = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry ONE_YEAR = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
 
   private static final EuropeanVanillaOptionDefinition PUT = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, false);
   private static final EuropeanVanillaOptionDefinition CALL = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, true);

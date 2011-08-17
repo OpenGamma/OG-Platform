@@ -11,6 +11,7 @@ import java.util.EnumSet;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -24,6 +25,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
   private final EnumSet<ViewExecutionFlags> _flags;
   private final Integer _maxSuccessiveDeltaCycles;
   private final ViewCycleExecutionOptions _defaultExecutionOptions;
+  private final VersionCorrection _versionCorrection;
   
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags) {
     this(executionSequence, flags, null, null);
@@ -36,16 +38,23 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, ViewCycleExecutionOptions defaultExecutionOptions) {
     this(executionSequence, flags, null, defaultExecutionOptions);
   }
-    
+  
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
       Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions) {
+    this(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, VersionCorrection.LATEST);
+  }
+    
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
+      Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
     ArgumentChecker.notNull(flags, "flags");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     
     _executionSequence = executionSequence;
     _flags = flags;
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
     _defaultExecutionOptions = defaultExecutionOptions;
+    _versionCorrection = versionCorrection;
   }
   
   //-------------------------------------------------------------------------
@@ -68,15 +77,21 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public EnumSet<ViewExecutionFlags> getFlags() {
     return _flags;
   }
+  
+  @Override
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_executionSequence == null) ? 0 : _executionSequence.hashCode());
-    result = prime * result + ((_flags == null) ? 0 : _flags.hashCode());
+    result = prime * result + _executionSequence.hashCode();
+    result = prime * result + _flags.hashCode();
     result = prime * result + ((_defaultExecutionOptions == null) ? 0 : _defaultExecutionOptions.hashCode());
     result = prime * result + ((_maxSuccessiveDeltaCycles == null) ? 0 : _maxSuccessiveDeltaCycles.hashCode());
+    result = prime * result + _versionCorrection.hashCode();
     return result;
   }
 
@@ -110,6 +125,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
         return false;
       }
     } else if (!_maxSuccessiveDeltaCycles.equals(other._maxSuccessiveDeltaCycles)) {
+      return false;
+    } else if (!_versionCorrection.equals(other._versionCorrection)) {
       return false;
     }
     return true;

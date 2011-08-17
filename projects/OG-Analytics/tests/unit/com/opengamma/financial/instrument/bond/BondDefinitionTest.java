@@ -23,7 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -187,7 +187,7 @@ public class BondDefinitionTest {
     ZonedDateTime date;
     Bond bond;
     for (int i = 1; i < 28; i++) {
-      date = DateUtil.getUTCDate(2010, 1, i);
+      date = DateUtils.getUTCDate(2010, 1, i);
       if (CONVENTION.getWorkingDayCalendar().isWorkingDay(date.toLocalDate())) {
         bond = DEFINITION.toDerivative(date, "A");
         final double aI = bond.getAccruedInterest();

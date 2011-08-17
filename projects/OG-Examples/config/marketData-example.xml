@@ -17,8 +17,39 @@
     <constructor-arg value="${opengamma.example.marketdata.file}" />
   </bean>
   
-  <bean id="marketDataProviderResolver" class="com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolverFactoryBean" depends-on="simulatedMarketDataGenerator">
-    <property name="provider" ref="marketDataProvider"/>
+  <!-- User market data -->
+  <bean id="userMarketDataProviderFactory" class="com.opengamma.engine.marketdata.UserMarketDataProviderFactoryFactoryBean">
+    <property name="snapshotSource" ref="combinedSnapshotSource" />
+  </bean>
+
+  <!-- Combined market data -->
+  <bean id="combinedMarketDataProviderFactory" class="com.opengamma.engine.marketdata.CombinedMarketDataProviderFactoryFactoryBean">
   </bean>
   
+  
+  <bean id="marketDataProviderFactory" class="com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory">
+    <constructor-arg ref="marketDataProvider"/>
+  </bean>
+  
+  <!-- MarketDataProvider resolver -->
+  <bean id="marketDataProviderResolver" class="com.opengamma.engine.marketdata.resolver.TypeBasedMarketDataProviderResolverFactoryBean">
+    <property name="typesAndProviders">
+      <map>
+        <entry key="com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification" value-ref="marketDataProviderFactory" />
+        <entry key="com.opengamma.engine.marketdata.spec.UserMarketDataSpecification" value-ref="userMarketDataProviderFactory" />
+        <entry key="com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification" value-ref="combinedMarketDataProviderFactory" />
+      </map>
+    </property>
+  </bean>
+  
+  <!-- Hook up the circular dependency -->
+  <bean id="circularMarketDataProviderFactory" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+   <property name="targetObject"><ref local="combinedMarketDataProviderFactory"/></property>
+   <property name="targetMethod"><value>setUnderlying</value></property>
+   <property name="arguments">
+     <list>
+     <ref bean="marketDataProviderResolver"/>
+     </list>
+   </property>
+  </bean>
 </beans>

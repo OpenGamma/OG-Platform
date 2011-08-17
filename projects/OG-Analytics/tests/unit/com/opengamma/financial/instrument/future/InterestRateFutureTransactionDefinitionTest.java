@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the interest rate future transaction construction.
@@ -43,7 +43,7 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Future
-  private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtil.getUTCDate(2012, 9, 19);
+  private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
@@ -54,7 +54,7 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
   private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
   // Transaction
   private static final int QUANTITY = -123;
-  private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2011, 5, 12);
+  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 5, 12);
   private static final double TRADE_PRICE = 0.985;
   private static final InterestRateFutureTransactionDefinition FUTURE_TRANSACTION_DEFINITION = new InterestRateFutureTransactionDefinition(ERU2_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
 
@@ -123,7 +123,7 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivativeTradeFuture() {
-    ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 11);
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 11);
     double lastMarginPrice = 0.99;
     FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, CURVES);
   }

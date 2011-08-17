@@ -75,6 +75,10 @@
     <constructor-arg ref="hsqldbDbSource" />
     <property name="uniqueIdScheme" value="DbHol" />
   </bean>
+  
+  <bean id="hsqldbDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+  </bean>
 
   <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -130,6 +134,10 @@
   <bean id="postgresDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="uniqueIdScheme" value="DbHol" />
+  </bean>
+  
+  <bean id="postgresDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
+    <constructor-arg ref="postgresDbSource" />
   </bean>
 
 </beans>

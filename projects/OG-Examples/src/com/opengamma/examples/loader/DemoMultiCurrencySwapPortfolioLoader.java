@@ -57,7 +57,7 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -89,14 +89,17 @@ public class DemoMultiCurrencySwapPortfolioLoader {
    */
   private static final String ID_SCHEME = "SWAP_GENERATOR";
   
-  private static Currency[] s_currencies;
+  /**
+   * Portfolio currencies
+   */
+  public static final Currency[] s_currencies;
 
-  private static Tenor[] s_tenors;
+  private static final Tenor[] s_tenors;
   
   private static final int DAYS_TRADING = 60;
   
   static {
-    s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF }; 
+    s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF};
                                    //Currency.AUD, Currency.SEK, Currency.NOK };
     s_tenors = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, 
                             Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20) };
@@ -131,22 +134,25 @@ public class DemoMultiCurrencySwapPortfolioLoader {
 
   /**
    * Loads the test portfolio into the position master.
+   * @return
    */
   public void createPortfolio() {
     DemoDatabasePopulater.populateYieldCurveConfig(_loaderContext.getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
-      throw new OpenGammaRuntimeException("No (valid) swaps were found in the specified file.");
+      throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
     }
     persistToPortfolio(swaps, PORTFOLIO_NAME);
   }
 
   private Collection<SwapSecurity> createRandomSwaps() {
     Collection<SwapSecurity> swaps = new ArrayList<SwapSecurity>();
+    
     SecureRandom random = new SecureRandom();
     
     for (int i = 0; i < SECURITIES_SIZE; i++) {
-      SwapSecurity swap = makeSwap(random);
+      Currency ccy = getCurrency(random);
+      SwapSecurity swap = makeSwap(random, ccy);
       if (swap != null) {
         swaps.add(swap);
       }
@@ -160,12 +166,12 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     return swaps;
   }
 
-
-  private SwapSecurity makeSwap(SecureRandom random) {
-    Currency ccy = getCurrency(random);
+  private SwapSecurity makeSwap(final SecureRandom random, final Currency ccy) {
+    
     LocalDate tradeDate = getTradeDate(random, ccy);
     ConventionBundle swapConvention = getSwapConventionBundle(ccy);
     ConventionBundle liborConvention = getLiborConventionBundle(swapConvention);
+    
     // look up the OG_SYNTHETIC ticker out of the bundle
     ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(SecurityUtils.OG_SYNTHETIC_TICKER);
     if (liborIdentifier == null) {
@@ -198,7 +204,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         new InterestRateNotional(ccy, notional), 
         ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
         initialRate, 
-        0.0, false);
+        0.0, true);
     
     String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
     String floatingLegDescription = swapConvention.getSwapFloatingLegInitialRate().getValue();
@@ -280,7 +286,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     HolidaySource holidaySource = _loaderContext.getHolidaySource();
     LocalDate tradeDate;
     do {
-      tradeDate = DateUtil.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
+      tradeDate = DateUtils.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
     } while (holidaySource.isHoliday(tradeDate, ccy));
     return tradeDate;
   }

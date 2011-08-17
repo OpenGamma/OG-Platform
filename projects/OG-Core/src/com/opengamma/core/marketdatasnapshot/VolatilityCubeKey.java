@@ -17,9 +17,11 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A key used to identify a volatility cube.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
-  
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -119,7 +121,9 @@ public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<Vo
   }
 
   public static VolatilityCubeKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return new VolatilityCubeKey(Currency.of(msg.getString("currency")), msg.getString("name"));
+    Currency currency = Currency.of(msg.getString("currency"));
+    String name = msg.getString("name");
+    return new VolatilityCubeKey(currency, name);
   }
 
 }

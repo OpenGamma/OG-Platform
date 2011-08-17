@@ -21,7 +21,9 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -100,9 +102,39 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   }
 
   @Override
-  public Collection<Security> getSecurities(ExternalIdBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final RestTarget target = _targetBase.resolveBase("security")
+        .resolveBase(objectId.toString())
+        .resolveBase(versionCorrection.getVersionAsOfString())
+        .resolve(versionCorrection.getCorrectedToString());
+    return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
+  }
+
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", bundle.toStringList());
+    final FudgeMsg message = getRestClient().getMsg(target);
+    final FudgeDeserializer deserializer = getRestClient().getFudgeDeserializer();
+    final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
+    for (FudgeField security : message) {
+      if (SECURITYSOURCE_SECURITY.equals(security.getName())) {
+        securities.add(deserializer.fieldValueToObject(Security.class, security));
+      }
+    }
+    return securities;
+  }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final RestTarget target = _targetBase.resolveBase("securities")
+        .resolveQuery("id", bundle.toStringList())
+        .resolveQuery("versionAsOf", Collections.singletonList(versionCorrection.getVersionAsOfString()))
+        .resolveQuery("correctedTo", Collections.singletonList(versionCorrection.getCorrectedToString()));
     final FudgeMsg message = getRestClient().getMsg(target);
     final FudgeDeserializer deserializer = getRestClient().getFudgeDeserializer();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
@@ -115,9 +147,20 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   }
 
   @Override
-  public Security getSecurity(ExternalIdBundle securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", securityKey.toStringList());
+  public Security getSecurity(ExternalIdBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", bundle.toStringList());
+    return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final RestTarget target = _targetBase.resolveBase("securities").resolve("security")
+        .resolveQuery("id", bundle.toStringList())
+        .resolveQuery("versionAsOf", Collections.singletonList(versionCorrection.getVersionAsOfString()))
+        .resolveQuery("correctedTo", Collections.singletonList(versionCorrection.getCorrectedToString()));
     return getRestClient().getSingleValue(Security.class, target, SECURITYSOURCE_SECURITY);
   }
 

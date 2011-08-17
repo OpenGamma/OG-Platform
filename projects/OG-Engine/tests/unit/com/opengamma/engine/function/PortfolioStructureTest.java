@@ -16,9 +16,9 @@ import java.util.List;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueIdSupplier;
 
@@ -29,27 +29,27 @@ import com.opengamma.id.UniqueIdSupplier;
 public class PortfolioStructureTest {
 
   private FunctionCompilationContext _context;
-  private PortfolioNodeImpl _root;
-  private PortfolioNodeImpl _child1;
-  private PortfolioNodeImpl _child2;
-  private PortfolioNodeImpl _badChild;
-  private PositionImpl _position1;
-  private PositionImpl _position2;
-  private PositionImpl _badPosition;
+  private SimplePortfolioNode _root;
+  private SimplePortfolioNode _child1;
+  private SimplePortfolioNode _child2;
+  private SimplePortfolioNode _badChild;
+  private SimplePosition _position1;
+  private SimplePosition _position2;
+  private SimplePosition _badPosition;
   
   @BeforeMethod
   public void createPortfolio() {
     final UniqueIdSupplier uid = new UniqueIdSupplier("Test");
     final MockPositionSource positionSource = new MockPositionSource();
     final PortfolioStructure resolver = new PortfolioStructure(positionSource);
-    final PortfolioImpl portfolio = new PortfolioImpl(uid.get(), "Test");
-    _root = new PortfolioNodeImpl(uid.get(), "root");
-    _child1 = new PortfolioNodeImpl(uid.get(), "child 1");
-    _child2 = new PortfolioNodeImpl(uid.get(), "child 2");
-    _position1 = new PositionImpl(uid.get(), new BigDecimal(10), ExternalId.of("Security", "Foo"));
+    final SimplePortfolio portfolio = new SimplePortfolio(uid.get(), "Test");
+    _root = new SimplePortfolioNode(uid.get(), "root");
+    _child1 = new SimplePortfolioNode(uid.get(), "child 1");
+    _child2 = new SimplePortfolioNode(uid.get(), "child 2");
+    _position1 = new SimplePosition(uid.get(), new BigDecimal(10), ExternalId.of("Security", "Foo"));
     _position1.setParentNodeId(_child2.getUniqueId());
     _child2.addPosition(_position1);
-    _position2 = new PositionImpl(uid.get(), new BigDecimal(20), ExternalId.of("Security", "Bar"));
+    _position2 = new SimplePosition(uid.get(), new BigDecimal(20), ExternalId.of("Security", "Bar"));
     _position2.setParentNodeId(_child2.getUniqueId());
     _child2.addPosition(_position2);
     _child2.setParentNodeId(_child1.getUniqueId());
@@ -58,9 +58,9 @@ public class PortfolioStructureTest {
     _root.addChildNode(_child1);
     portfolio.setRootNode(_root);
     positionSource.addPortfolio(portfolio);
-    _badChild = new PortfolioNodeImpl(uid.get(), "child 3");
+    _badChild = new SimplePortfolioNode(uid.get(), "child 3");
     _badChild.setParentNodeId(uid.get());
-    _badPosition = new PositionImpl(uid.get(), new BigDecimal(10), ExternalId.of("Security", "Cow"));
+    _badPosition = new SimplePosition(uid.get(), new BigDecimal(10), ExternalId.of("Security", "Cow"));
     _badPosition.setParentNodeId(uid.get());
     _context = new FunctionCompilationContext();
     _context.setPortfolioStructure(resolver);

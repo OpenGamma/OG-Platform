@@ -18,13 +18,14 @@ import com.opengamma.util.PublicSPI;
 public interface MarketDataSnapshotSource {
 
   /**
-   * Finds a specific snapshot by unique identifier.
+   * Gets a snapshot by unique identifier.
    * <p>
-   * Since a unique identifier is unique, there are no complex matching issues.
+   * A unique identifier exactly specifies a single snapshot at a single version-correction.
    * 
-   * @param uniqueId  the unique identifier, null returns null
+   * @param uniqueId  the unique identifier, not null
    * @return the snapshot, null if not found
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws RuntimeException if an error occurs
    */
   StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId);
 

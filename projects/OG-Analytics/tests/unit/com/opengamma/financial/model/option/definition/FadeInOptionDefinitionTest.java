@@ -15,7 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -36,7 +36,7 @@ public class FadeInOptionDefinitionTest {
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.06));
   private static final double B = 0.04;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.4));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 6);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 6);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final StandardOptionWithSpotTimeSeriesDataBundle ALL_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(DATA, ALL_WITHIN_RANGE);
   private static final StandardOptionWithSpotTimeSeriesDataBundle ONE_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(DATA, ONE_WITHIN_RANGE);
@@ -105,7 +105,7 @@ public class FadeInOptionDefinitionTest {
     assertFalse(call.equals(put));
     call = new FadeInOptionDefinition(SPOT + 1, EXPIRY, true, LOWER, UPPER);
     assertFalse(call.equals(CALL));
-    call = new FadeInOptionDefinition(SPOT, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1)), true, LOWER, UPPER);
+    call = new FadeInOptionDefinition(SPOT, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1)), true, LOWER, UPPER);
     assertFalse(call.equals(CALL));
     call = new FadeInOptionDefinition(SPOT, EXPIRY, true, LOWER + 1, UPPER);
     assertFalse(call.equals(CALL));

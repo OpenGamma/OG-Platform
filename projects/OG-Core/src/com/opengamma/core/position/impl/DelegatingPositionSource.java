@@ -14,8 +14,10 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -28,8 +30,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSource> implements PositionSource {
 
+  /**
+   * The change manager.
+   */
   private final ChangeManager _changeManager;
-  
+
   /**
    * Creates an instance specifying the default delegate.
    * 
@@ -63,25 +68,32 @@ public class DelegatingPositionSource extends UniqueIdSchemeDelegator<PositionSo
   @Override
   public Portfolio getPortfolio(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getPortfolio(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getPortfolio(uniqueId);
+  }
+
+  @Override
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(objectId.getScheme()).getPortfolio(objectId, versionCorrection);
   }
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getPortfolioNode(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getPortfolioNode(uniqueId);
   }
 
   @Override
   public Position getPosition(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getPosition(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getPosition(uniqueId);
   }
 
   @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return chooseDelegate(uniqueId).getTrade(uniqueId);
+    return chooseDelegate(uniqueId.getScheme()).getTrade(uniqueId);
   }
 
   //-------------------------------------------------------------------------

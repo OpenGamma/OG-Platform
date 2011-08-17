@@ -7,9 +7,9 @@
 package com.opengamma.language.invoke;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
 
 /**
@@ -51,9 +51,9 @@ public class InvalidConversionException extends IllegalArgumentException {
     final StringBuilder sb = new StringBuilder();
     sb.append("Could not convert ");
     if (_value instanceof Value) {
-      sb.append(ValueUtil.toString((Value) _value, true));
+      sb.append(ValueUtils.toString((Value) _value, true));
     } else if (_value instanceof Data) {
-      sb.append(DataUtil.toString((Data) _value, true));
+      sb.append(DataUtils.toString((Data) _value, true));
     } else {
       sb.append(_value.toString());
     }

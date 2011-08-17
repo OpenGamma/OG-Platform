@@ -19,7 +19,7 @@ import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of vanilla Forex options (definition version).
@@ -28,8 +28,8 @@ public class ForexOptionVanillaDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final ZonedDateTime EXPIRATION_DATE = DateUtil.getUTCDate(2012, 6, 8);
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2012, 6, 12);
+  private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2012, 6, 8);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 6, 12);
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
@@ -49,7 +49,7 @@ public class ForexOptionVanillaDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWrongDate() {
-    final ZonedDateTime expirationDateWrong = DateUtil.getUTCDate(2012, 6, 13);
+    final ZonedDateTime expirationDateWrong = DateUtils.getUTCDate(2012, 6, 13);
     new ForexOptionVanillaDefinition(FX_DEFINITION, expirationDateWrong, IS_CALL, IS_LONG);
   }
 
@@ -95,7 +95,7 @@ public class ForexOptionVanillaDefinitionTest {
     String discountingEUR = "Discounting EUR";
     String discountingUSD = "Discounting USD";
     String[] curves_name = new String[] {discountingEUR, discountingUSD};
-    ZonedDateTime referenceDate = DateUtil.getUTCDate(2011, 5, 20);
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
     ForexDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate, curves_name);
     Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
     DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");

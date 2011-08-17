@@ -11,9 +11,9 @@ import java.math.BigDecimal;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.ExternalIdentifiable;
@@ -43,9 +43,9 @@ public class ComputationTargetSpecificationTest {
       return UniqueId.of("Test", "4");
     }
   };
-  private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
-  private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
-  private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Portfolio PORTFOLIO = new SimplePortfolio(UID, "Name");
+  private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UID, "Name");
+  private static final Position POSITION = new SimplePosition(UID, new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity(UID, "", "", ExternalIdBundle.EMPTY);
 
   public void test_constructor_Object_Portfolio() {

@@ -19,7 +19,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -84,7 +84,7 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
 
     // 1. Build the analytic derivative to be priced
-    TradeImpl trade = (TradeImpl) target.getTrade(); // confirms that the ComputationTargetType == TRADE
+    SimpleTrade trade = (SimpleTrade) target.getTrade(); // confirms that the ComputationTargetType == TRADE
     EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) trade.getSecurity();
     ExternalId id = security.getSpotUnderlyingIdentifier();
 

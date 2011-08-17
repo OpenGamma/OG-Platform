@@ -15,11 +15,11 @@ import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class AnnuityPaymentFixedDefinitionTest {
   private static final Currency CUR = Currency.USD;
-  private static final ZonedDateTime[] PAYMENT_DATE = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 7, 13), DateUtil.getUTCDate(2011, 10, 13), DateUtil.getUTCDate(2012, 1, 13)};
+  private static final ZonedDateTime[] PAYMENT_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 10, 13), DateUtils.getUTCDate(2012, 1, 13)};
   private static final double[] PAYMENT_AMOUNT = new double[] {100.0, 150.0, 1.0};
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -41,7 +41,7 @@ public class AnnuityPaymentFixedDefinitionTest {
   public void testConverter() {
     final PaymentFixedDefinition[] annuityDefinitions = new PaymentFixedDefinition[PAYMENT_DATE.length];
     PaymentFixed[] payment = new PaymentFixed[PAYMENT_DATE.length];
-    ZonedDateTime date = DateUtil.getUTCDate(2011, 6, 19);
+    ZonedDateTime date = DateUtils.getUTCDate(2011, 6, 19);
     final String name = "A";
     for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
       annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
@@ -50,7 +50,7 @@ public class AnnuityPaymentFixedDefinitionTest {
     final AnnuityPaymentFixedDefinition definition = new AnnuityPaymentFixedDefinition(annuityDefinitions);
     AnnuityPaymentFixed annuity = new AnnuityPaymentFixed(payment);
     assertEquals(annuity, definition.toDerivative(date, name));
-    date = DateUtil.getUTCDate(2011, 8, 19);
+    date = DateUtils.getUTCDate(2011, 8, 19);
     payment = new PaymentFixed[PAYMENT_DATE.length - 1];
     for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
       annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);

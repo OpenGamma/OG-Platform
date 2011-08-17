@@ -14,10 +14,10 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueId;
@@ -217,7 +217,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       s_logger.info("Resolved security link {} to security {}", position.getSecurityLink(), security);
     }
-    final PositionImpl newPosition = new PositionImpl(position);
+    final SimplePosition newPosition = new SimplePosition(position);
     for (Trade trade : position.getTrades()) {
       final ComputationTargetSpecification tradeSpec = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
       final ComputationTarget resolvedTradeTarget = getRecursiveResolver().resolve(tradeSpec);
@@ -254,7 +254,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       s_logger.info("Resolved security link {} to security {}", trade.getSecurityLink(), security);
     }
-    trade = new TradeImpl(trade);
+    trade = new SimpleTrade(trade);
     return new ComputationTarget(ComputationTargetType.TRADE, trade);
   }
 
@@ -278,7 +278,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     if (portfolio != null) {
       s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
       node = portfolio.getRootNode();
-      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio.getUniqueId(), portfolio.getName(), resolveNodeTree(uid, node)));
+      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new SimplePortfolio(portfolio.getUniqueId(), portfolio.getName(), resolveNodeTree(uid, node)));
     }
     s_logger.info("Unable to resolve multiple-position UID {}", uid);
     return null;
@@ -291,8 +291,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param node  the node
    * @return the resolved node, not null
    */
-  private PortfolioNodeImpl resolveNodeTree(final UniqueId uid, final PortfolioNode node) {
-    final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueId(), node.getName());
+  private SimplePortfolioNode resolveNodeTree(final UniqueId uid, final PortfolioNode node) {
+    final SimplePortfolioNode newNode = new SimplePortfolioNode(node.getUniqueId(), node.getName());
     newNode.setParentNodeId(node.getParentNodeId());
     for (PortfolioNode child : node.getChildNodes()) {
       final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueId()));

@@ -275,6 +275,15 @@ public final class ExternalIdBundle
   public int size() {
     return _externalIds.size();
   }
+  
+  /**
+   * Returns true if this bundle contains no identifiers.
+   * 
+   * @return true if this bundle contains no identifiers, false otherwise
+   */
+  public boolean isEmpty() {
+    return _externalIds.isEmpty();
+  }
 
   /**
    * Returns an iterator over the identifiers in the bundle.

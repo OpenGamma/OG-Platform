@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderPLAT1049.GraphBuildingContext;
 
 /* package */final class ResolveTargetStep extends ResolveTask.State {
 
@@ -34,6 +34,12 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
       task.setComputationTarget(target);
       setRunnableTaskState(new GetFunctionsStep(task), context);
     }
+  }
+
+  @Override
+  protected boolean isActive() {
+    // No background state
+    return false;
   }
 
   @Override

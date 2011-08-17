@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -172,7 +172,7 @@ public class CancelExecutionTest {
     }
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalculationConfigurationName(), graph);
-    CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
+    CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new SimplePortfolio("Test Portfolio"), 0);
     ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions();
     cycleOptions.setValuationTime(Instant.ofEpochMillis(1));
     cycleOptions.setMarketDataSpecification(new MarketDataSpecification());

@@ -113,6 +113,15 @@ public class DataViewProcessorResource {
     }
   }
 
+  
+  /**
+   * Gets the viewProcessor field.
+   * @return the viewProcessor
+   */
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
+  }
+
   //-------------------------------------------------------------------------
   @GET
   @Path(PATH_UNIQUE_ID)

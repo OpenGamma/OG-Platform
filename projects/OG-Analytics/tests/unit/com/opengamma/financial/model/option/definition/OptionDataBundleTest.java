@@ -15,7 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -23,7 +23,7 @@ import com.opengamma.util.time.DateUtil;
 public class OptionDataBundleTest {
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.35));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
   private static final OptionDataBundle DATA = new OptionDataBundle(CURVE, SURFACE, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

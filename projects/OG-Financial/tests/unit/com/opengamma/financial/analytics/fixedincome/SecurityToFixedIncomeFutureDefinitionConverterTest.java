@@ -5,9 +5,13 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
-import org.testng.annotations.Test;
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
@@ -21,7 +25,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -37,25 +43,26 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
 
     @Override
+    public Holiday getHoliday(final UniqueId uniqueId) {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
+    @Override
     public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
-
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
         final ExternalIdBundle regionOrExchangeIds) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
-
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
         final ExternalId regionOrExchangeId) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
-    }
-
-    @Override
-    public Holiday getHoliday(final UniqueId uid) {
-      return null;
     }
   }
 
@@ -97,16 +104,21 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     public Exchange getExchange(final UniqueId uid) {
       return EXCHANGE;
     }
-
+    @Override
+    public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
+      return EXCHANGE;
+    }
+    @Override
+    public Collection<? extends Exchange> getExchanges(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+      return Collections.singleton(EXCHANGE);
+    }
     @Override
     public Exchange getSingleExchange(final ExternalId identifier) {
       return EXCHANGE;
     }
-
     @Override
     public Exchange getSingleExchange(final ExternalIdBundle identifierBundle) {
       return EXCHANGE;
     }
-
   }
 }

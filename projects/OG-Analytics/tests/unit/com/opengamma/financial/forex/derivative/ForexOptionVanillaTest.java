@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of vanilla Forex options (derivative version).
@@ -27,15 +27,15 @@ public class ForexOptionVanillaTest {
   // FX Option: EUR call/USD put; 1m EUR @ 1.4177
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final ZonedDateTime EXPIRATION_DATE = DateUtil.getUTCDate(2012, 6, 8);
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2012, 6, 12);
+  private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2012, 6, 8);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 6, 12);
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   // Derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 6, 8);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 8);
   private static final String DISCOUNTING_CURVE_NAME_CUR_1 = "Discounting EUR";
   private static final String DISCOUNTING_CURVE_NAME_CUR_2 = "Discounting USD";
   private static final String[] CURVES_NAME = new String[] {DISCOUNTING_CURVE_NAME_CUR_1, DISCOUNTING_CURVE_NAME_CUR_2};

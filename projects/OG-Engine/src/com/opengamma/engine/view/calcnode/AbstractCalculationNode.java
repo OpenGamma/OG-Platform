@@ -32,7 +32,7 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.cache.WriteBehindViewComputationCache;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -115,17 +115,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _nodeId = nodeId;
   }
 
-  public CalculationJobResult executeJob(final CalculationJob job) {
-    s_logger.info("Executing {} on {}", job, _nodeId);
-    final CalculationJobSpecification spec = job.getSpecification();
-    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
-    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
-    getFunctionExecutionContext().setValuationClock(DateUtil.fixedClockUTC(spec.getValuationTime()));
-    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
-    final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
-    long executionTime = System.nanoTime();
+  protected List<CalculationJobResultItem> executeJobItems(final CalculationJob job, final WriteBehindViewComputationCache cache,
+      final CompiledFunctionRepository functions, final String calculationConfiguration) {
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
-    final String calculationConfiguration = spec.getCalcConfigName();
     for (CalculationJobItem jobItem : job.getJobItems()) {
       if (job.isCancelled()) {
         return null;
@@ -140,10 +132,27 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         s_logger.info("Unable to invoke {} due to missing inputs: {}", jobItem, e.getMessage());
         resultItem = new CalculationJobResultItem(jobItem, e);
       } catch (Throwable t) {
-        s_logger.warn("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception.", t);
+        s_logger.warn("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception", t);
         resultItem = new CalculationJobResultItem(jobItem, t);
       }
       resultItems.add(resultItem);
+    }
+    return resultItems;
+  }
+
+  public CalculationJobResult executeJob(final CalculationJob job) {
+    s_logger.info("Executing {} on {}", job, _nodeId);
+    final CalculationJobSpecification spec = job.getSpecification();
+    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
+    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
+    getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
+    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
+    final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
+    long executionTime = System.nanoTime();
+    final String calculationConfiguration = spec.getCalcConfigName();
+    final List<CalculationJobResultItem> resultItems = executeJobItems(job, cache, functions, calculationConfiguration);
+    if ( resultItems == null ) {
+      return null;
     }
     cache.waitForPendingWrites();
     executionTime = System.nanoTime() - executionTime;

@@ -39,7 +39,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
+import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.RestClient;
@@ -106,7 +106,7 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
     final FudgeDeserializer deserializer = new FudgeDeserializer(getRestClient().getFudgeContext());
     UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, uniqueIdField);
     LocalDateDoubleTimeSeries ts = deserializer.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField);
-    return new HistoricalTimeSeriesImpl(uniqueId, ts);
+    return new SimpleHistoricalTimeSeries(uniqueId, ts);
   }
 
   //-------------------------------------------------------------------------
