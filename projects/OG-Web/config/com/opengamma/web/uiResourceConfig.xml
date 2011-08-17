@@ -16,14 +16,18 @@
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
     <fragment>/styles/common/og.common.OG-main.css</fragment>
-    <fragment>/styles/common/og.common.OG-mod.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-0.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-0.og-mod-al.css</fragment><!-- awesome list module -->
+    <fragment>/styles/common/og.common.OG-mod-1.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-1.slick-viewport.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-1.table.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-1.og-style-2.css</fragment>
     <fragment>/styles/common/og.common.OG-filter.css</fragment>
     <fragment>/styles/common/og.common.OG-header-generic.css</fragment>
     <fragment>/styles/common/og.common.OG-footer.css</fragment>
     <fragment>/styles/common/og.common.OG-logo-light.css</fragment>
     <fragment>/styles/common/og.common.OG-box.css</fragment>
     <fragment>/styles/common/og.common.OG-box-history.css</fragment>
-    <fragment>/styles/common/og.common.OG-details-content.css</fragment>
     <fragment>/styles/common/og.common.data.editable.css</fragment>
   </bundle>
   <bundle id="common.util.css">
@@ -83,6 +87,7 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>

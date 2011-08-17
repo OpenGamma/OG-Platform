@@ -1,0 +1,18 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * Supports a slickgrid module
+ */
+
+.OG-mod-1.og-style-2 .og-mod-content {
+  background-color: transparent;
+}
+
+.OG-mod-1.og-style-2 .og-dotted td span {
+  background-color: #fff;
+}
+
+.OG-mod-1.og-style-2 .og-dotted td {
+  background-color: #fff;
+}
