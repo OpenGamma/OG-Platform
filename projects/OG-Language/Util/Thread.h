@@ -236,12 +236,6 @@ public:
 #endif /* ifndef NONINTERRUPTIBLE_THREADS */
 
 #ifdef _WIN32
-	// TODO: get rid of this; it doesn't work too well as a HANDLE is void*
-	/// Gets the underlying Win32 handle for the thread allowing normal O/S calls.
-	operator HANDLE () {
-		return m_hThread;
-	}
-
 	/// Gets the underlying Win32 handle for the thread allowing normal O/S calls.
 	HANDLE GetWin32Handle () {
 		return m_hThread;
