@@ -11,10 +11,10 @@ import java.util.Stack;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
-import com.sleepycat.je.DatabaseNotFoundException;
 
 /**
  * RESTful resource for all nodes in a portfolio.
@@ -38,7 +38,7 @@ public class WebPortfolioNodesResource extends AbstractWebPortfolioResource {
     PortfolioDocument portfolioDoc = data().getPortfolio();
     Stack<ManageablePortfolioNode> nodes = portfolioDoc.getPortfolio().getRootNode().findNodeStackByObjectId(oid);
     if (nodes.isEmpty()) {
-      throw new DatabaseNotFoundException("PortfoloNode not found: " + idStr);
+      throw new DataNotFoundException("PortfoloNode not found: " + idStr);
     }
     data().setNode(nodes.pop());
     if (nodes.size() > 0) {
