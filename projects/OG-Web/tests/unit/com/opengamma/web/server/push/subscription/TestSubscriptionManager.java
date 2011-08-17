@@ -29,11 +29,11 @@ public class TestSubscriptionManager implements SubscriptionManager {
   }
 
   @Override
-  public boolean subscribe(String userId, String clientId, UniqueId uid, String url) {
+  public void subscribe(String userId, String clientId, UniqueId uid, String url) {
     throw new UnsupportedOperationException("subscribe not used in this test");
   }
 
   public void sendUpdate(String update) {
-    _listener.itemUpdated(new SubscriptionEvent(update));
+    _listener.itemUpdated(update);
   }
 }

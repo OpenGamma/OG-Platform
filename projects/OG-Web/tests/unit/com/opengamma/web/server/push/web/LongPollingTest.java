@@ -5,24 +5,20 @@
  */
 package com.opengamma.web.server.push.web;
 
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.push.subscription.TestSubscriptionManager;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -34,7 +30,6 @@ public class LongPollingTest {
 
   public static final String CLIENT_ID = "CLIENT_ID";
 
-  private static final String s_urlBase = "http://localhost:8080/";
   private static final String RESULT1 = "RESULT1";
   private static final String RESULT2 = "RESULT2";
   private static final String RESULT3 = "RESULT3";
@@ -43,51 +38,20 @@ public class LongPollingTest {
   private TestSubscriptionManager _subscriptionManager;
   private LongPollingConnectionManager _longPollingConnectionManager;
 
-  private static URL url(String path) throws MalformedURLException {
-    return new URL(s_urlBase + path);
-  }
-
-  private String readFromPath(String path) throws IOException {
-    BufferedReader reader = null;
-    StringBuilder builder;
-    try {
-      char[] chars = new char[512];
-      builder = new StringBuilder();
-      reader = new BufferedReader(new InputStreamReader(url(path).openStream()));
-      int bytesRead;
-      while ((bytesRead = reader.read(chars)) != -1) {
-        builder.append(chars, 0, bytesRead);
-      }
-    } finally {
-      if (reader != null) {
-        reader.close();
-      }
-    }
-    return builder.toString();
-  }
-
   @BeforeClass
   void createJettyServer() throws Exception {
-    SelectChannelConnector connector = new SelectChannelConnector();
-    connector.setPort(8080);
-    WebAppContext context = new WebAppContext();
-    context.setContextPath("/");
-    context.setResourceBase("build/classes");
-    context.setDescriptor("tests/config/long-poll-test/WEB-INF/web.xml");
-    _server = new Server();
-    _server.addConnector(connector);
-    _server.setHandler(context);
-    _server.start();
-    WebApplicationContext springContext = (WebApplicationContext) context.getServletContext().getAttribute(
-            WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-    _subscriptionManager = springContext.getBean(TestSubscriptionManager.class);
-    _longPollingConnectionManager = springContext.getBean(LongPollingConnectionManager.class);
+    Pair<Server, WebApplicationContext> serverAndContext =
+        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml");
+    _server = serverAndContext.getFirst();
+    WebApplicationContext context = serverAndContext.getSecond();
+    _subscriptionManager = context.getBean(TestSubscriptionManager.class);
+    _longPollingConnectionManager = context.getBean(LongPollingConnectionManager.class);
   }
 
   @Test
   public void handshake() throws IOException {
-    String result = readFromPath("handshake");
-    assertEquals(CLIENT_ID, result);
+    String clientId = readFromPath("handshake");
+    assertEquals(CLIENT_ID, clientId);
   }
 
   /**

@@ -13,6 +13,8 @@ import com.opengamma.id.UniqueId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Associated with one client connection (i.e. one browser window / tab / client app instance). Can be associated
@@ -22,18 +24,13 @@ import java.util.HashMap;
  */
 public class ClientConnection implements ChangeListener {
 
+  private final String _userId;
   private final String _clientId;
   private final SubscriptionListener _listener;
-  // TODO what collection type? concurrency
-  // if the entity subs are MasterChangeListeners then this class never needs to look them up, they can notify the SubscriptionListener
-  // the only time this class needs to refer to them is to dispose of them if they're alive when the connection closes
-  private final Collection<Subscription> _entitySubscriptions = new ArrayList<Subscription>();
-  private final String _userId;
   private final ViewportFactory _viewportFactory;
 
-  // TODO should this be a concurrent map?
   /** REST URLs for entities keyed on the entity's {@link UniqueId} */
-  private final HashMap<ObjectId, String> _entityUrls = new HashMap<ObjectId, String>();
+  private final Map<ObjectId, String> _entityUrls = new ConcurrentHashMap<ObjectId, String>();
 
   // TODO atomic ref?
   private Viewport _viewport;
@@ -76,6 +73,7 @@ public class ClientConnection implements ChangeListener {
 
   public void subscribe(UniqueId uid, String url) {
     // TODO check args?
+    // TODO does it matter if there's an existing sub? probably not
     _entityUrls.put(uid.getObjectId(), url);
   }
 

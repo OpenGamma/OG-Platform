@@ -15,7 +15,6 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
 import com.sun.jersey.spi.container.ContainerResponse;
 import com.sun.jersey.spi.container.ContainerResponseFilter;
 import com.sun.jersey.spi.container.ResourceFilter;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +62,7 @@ class EntitySubscriptionFilter implements ResourceFilter {
     @Override
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check the response status, only subscribe if successful
+      // TODO don't subscribe if specific version was requested - probably need @NoSubscribe annotation on sub-resource methods for versions
       ExtendedUriInfo uriInfo = _httpContext.getUriInfo();
       MultivaluedMap<String,String> pathParameters = uriInfo.getPathParameters();
       MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
@@ -70,7 +70,7 @@ class EntitySubscriptionFilter implements ResourceFilter {
       String url = uriInfo.getPath();
 
       List<String> clientIds = queryParameters.get(LongPollingServlet.CLIENT_ID);
-      if (clientIds.size() != 1) {
+      if (clientIds == null || clientIds.size() != 1) {
         // don't subscribe if there's no client ID
         return response;
       }
@@ -82,7 +82,7 @@ class EntitySubscriptionFilter implements ResourceFilter {
         // TODO reinstate this if / when we have user logons
         /*s_logger.debug("No user principal, not subscribing, url: {}", url);
         return response;*/
-        userId = "";
+        userId = null;
       } else {
         userId = userPrincipal.getName();
       }
@@ -95,14 +95,19 @@ class EntitySubscriptionFilter implements ResourceFilter {
         List<String> uidStrs = pathParameters.get(paramName);
         s_logger.debug(paramName + ": " + uidStrs);
         for (String uidStr : uidStrs) {
+          UniqueId uniqueId = null;
           try {
-            UniqueId uniqueId = UniqueId.parse(uidStr);
-            _subscriptionManager.subscribe(userId, clientId, uniqueId, url);
+            uniqueId = UniqueId.parse(uidStr);
           } catch (IllegalArgumentException e) {
-            s_logger.warn("Unable to parse unique ID: " + uidStr);
-          } catch (OpenGammaRuntimeException e) {
-            s_logger.warn("Failed to subscribe for updates to REST entity, userId: " + userId + ", clientId: "
-                              + clientId + ", url: " + url);
+            s_logger.warn("Unable to parse unique ID: " + uidStr, e);
+          }
+          if (uniqueId != null) {
+            try {
+              _subscriptionManager.subscribe(userId, clientId, uniqueId, url);
+            } catch (OpenGammaRuntimeException e) {
+              s_logger.warn("Failed to subscribe for updates to REST entity, userId: " + userId + ", clientId: "
+                                + clientId + ", url: " + url, e);
+            }
           }
         }
       }

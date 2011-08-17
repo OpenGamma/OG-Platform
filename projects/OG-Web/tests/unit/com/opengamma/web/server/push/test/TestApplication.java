@@ -18,6 +18,7 @@ public class TestApplication extends Application {
   public Set<Class<?>> getClasses() {
     HashSet<Class<?>> classes = new HashSet<Class<?>>();
     classes.add(TestResource.class);
+    classes.add(TestSubResources.class);
     return classes;
   }
 }

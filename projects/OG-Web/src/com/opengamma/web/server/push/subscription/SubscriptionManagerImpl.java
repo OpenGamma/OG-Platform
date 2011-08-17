@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.subscription;
 
+import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
@@ -41,7 +42,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
     // TODO check args
     // TODO  TimerTask to close connection if it times out? or should that live downstream? or both?
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
-    ClientConnection connection = new ClientConnection(clientId, userId, listener, _viewportFactory);
+    ClientConnection connection = new ClientConnection(userId, clientId, listener, _viewportFactory);
     _changeManager.addChangeListener(connection);
     _connections.put(clientId, connection);
     return clientId;
@@ -76,13 +77,14 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
   }
 
   private ClientConnection getConnection(String userId, String clientId) {
-    ArgumentChecker.notEmpty(userId, "userId");
+    // TODO user logins
+    //ArgumentChecker.notEmpty(userId, "userId");
     ArgumentChecker.notEmpty(clientId, "clientId");
     ClientConnection connection = _connections.get(clientId);
     if (connection == null) {
       throw new OpenGammaRuntimeException("Unknown client ID " + clientId);
     }
-    if (!userId.equals(connection.getUserId())) {
+    if (!Objects.equal(userId, connection.getUserId())) {
       throw new OpenGammaRuntimeException("User ID " + userId + " is not associated with client ID " + clientId);
     }
     return connection;

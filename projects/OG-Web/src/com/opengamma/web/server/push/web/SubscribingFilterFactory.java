@@ -91,9 +91,9 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
         }
       }
     }
-    s_logger.debug("Creating subscribing filter for parameters {} on method {}.{}()",
-                   new Object[]{uidParamNames, method.getDeclaringClass().getSimpleName(), method.getName()});
     if (!uidParamNames.isEmpty()) {
+      s_logger.debug("Creating subscribing filter for parameters {} on method {}.{}()",
+                     new Object[]{uidParamNames, method.getDeclaringClass().getSimpleName(), method.getName()});
       return new EntitySubscriptionFilter(_httpContext, uidParamNames, subscriptionManager);
     } else {
       return null;
