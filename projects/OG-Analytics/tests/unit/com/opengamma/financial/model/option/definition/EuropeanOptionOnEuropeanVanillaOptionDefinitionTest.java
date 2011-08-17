@@ -12,7 +12,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -20,14 +20,14 @@ import com.opengamma.util.time.Expiry;
  */
 public class EuropeanOptionOnEuropeanVanillaOptionDefinitionTest {
   private static final double UNDERLYING_STRIKE = 70;
-  private static final Expiry UNDERLYING_EXPIRY = new Expiry(DateUtil.getUTCDate(2011, 7, 1));
+  private static final Expiry UNDERLYING_EXPIRY = new Expiry(DateUtils.getUTCDate(2011, 7, 1));
   private static final double STRIKE = 4;
   private static final double SPOT = 50;
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2011, 6, 1));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2011, 6, 1));
   private static final EuropeanVanillaOptionDefinition UNDERLYING = new EuropeanVanillaOptionDefinition(UNDERLYING_STRIKE, UNDERLYING_EXPIRY, true);
   private static final EuropeanOptionOnEuropeanVanillaOptionDefinition OPTION = new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, UNDERLYING);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT,
-      DateUtil.getUTCDate(2010, 7, 1));
+      DateUtils.getUTCDate(2010, 7, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -36,7 +36,7 @@ public class EuropeanOptionOnEuropeanVanillaOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongUnderlying() {
-    new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, new EuropeanVanillaOptionDefinition(UNDERLYING_STRIKE, new Expiry(DateUtil.getUTCDate(2010, 12, 1)), false));
+    new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, new EuropeanVanillaOptionDefinition(UNDERLYING_STRIKE, new Expiry(DateUtils.getUTCDate(2010, 12, 1)), false));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

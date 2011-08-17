@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -27,8 +27,8 @@ public class HoLeeInterestRateModel implements DiscountBondModel<StandardDiscoun
       @Override
       public Double evaluate(final StandardDiscountBondModelDataBundle data) {
         Validate.notNull(data);
-        final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
-        final double s = DateUtil.getDifferenceInYears(data.getDate(), maturity);
+        final double t = DateUtils.getDifferenceInYears(data.getDate(), time);
+        final double s = DateUtils.getDifferenceInYears(data.getDate(), maturity);
         final double b = s - t;
         final double sigma = data.getShortRateVolatility(t);
         final double rT = data.getShortRate(t);

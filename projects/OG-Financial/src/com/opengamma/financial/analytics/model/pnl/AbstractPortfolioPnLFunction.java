@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.money.MoneyCalculationUtil;
+import com.opengamma.util.money.MoneyCalculationUtils;
 
 /**
  * 
@@ -46,7 +46,7 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
     for (final Position position : allPositions) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
           ComputationTargetType.POSITION, position.getUniqueId()));
-      currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
+      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
     ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node, extractCurrencyProperty(desiredValue)), getUniqueId());

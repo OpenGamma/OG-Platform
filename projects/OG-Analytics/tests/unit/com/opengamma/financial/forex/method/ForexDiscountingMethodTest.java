@@ -26,7 +26,7 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -36,13 +36,13 @@ public class ForexDiscountingMethodTest {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 5, 24);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 5, 24);
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 5, 20);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final PaymentFixedDefinition PAY_DEFINITION_1 = new PaymentFixedDefinition(CUR_1, PAYMENT_DATE, NOMINAL_1);
   private static final PaymentFixed PAY_1 = PAY_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_NAME[0]);

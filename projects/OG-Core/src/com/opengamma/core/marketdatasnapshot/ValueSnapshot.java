@@ -48,6 +48,16 @@ public class ValueSnapshot implements Serializable {
     _overrideValue = overrideValue;
   }
 
+  /**
+   * Creates an instance with the real value and no override.
+   * 
+   * @param marketValue  the real market value
+   */
+  public ValueSnapshot(Double marketValue) {
+    this(marketValue, null);
+  }
+
+  
   //-------------------------------------------------------------------------
   /**
    * Gets the real market value.

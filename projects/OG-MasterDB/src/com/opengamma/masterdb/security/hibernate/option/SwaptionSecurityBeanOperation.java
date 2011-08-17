@@ -31,7 +31,7 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
   }
 
   @Override
-  public SwaptionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, SwaptionSecurity security) {
+  public SwaptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final SwaptionSecurity security) {
     SwaptionSecurityBean bean = new SwaptionSecurityBean();
     bean.setCashSettled(security.getIsCashSettled());
     bean.setLong(security.getIsLong());

@@ -12,7 +12,7 @@ public class FXForwardSecurity extends com.opengamma.financial.security.Financia
   public static final String FORWARD_DATE_KEY = "forwardDate";
   private com.opengamma.id.ExternalId _region;
   public static final String REGION_KEY = "region";
-  public static final String SECURITY_TYPE = "FX FORWARD";
+  public static final String SECURITY_TYPE = "FX_FORWARD";
   public FXForwardSecurity (com.opengamma.id.ExternalId underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, com.opengamma.id.ExternalId region) {
     super (SECURITY_TYPE);
     if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");

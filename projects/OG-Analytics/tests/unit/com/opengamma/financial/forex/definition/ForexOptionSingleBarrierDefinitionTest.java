@@ -18,7 +18,7 @@ import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -26,19 +26,19 @@ import com.opengamma.util.time.DateUtil;
 public class ForexOptionSingleBarrierDefinitionTest {
   private static final Currency CCY1 = Currency.AUD;
   private static final Currency CCY2 = Currency.CAD;
-  private static final ZonedDateTime EXCHANGE = DateUtil.getUTCDate(2011, 12, 5);
+  private static final ZonedDateTime EXCHANGE = DateUtils.getUTCDate(2011, 12, 5);
   private static final double AMOUNT = 1000;
   private static final double RATE = 1.5;
   private static final double REBATE = 0.5;
   private static final ForexDefinition FOREX = new ForexDefinition(CCY1, CCY2, EXCHANGE, AMOUNT, RATE);
-  private static final ZonedDateTime EXPIRY = DateUtil.getUTCDate(2011, 12, 1);
+  private static final ZonedDateTime EXPIRY = DateUtils.getUTCDate(2011, 12, 1);
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final ForexOptionVanillaDefinition UNDERLYING = new ForexOptionVanillaDefinition(FOREX, EXPIRY, IS_CALL, IS_LONG);
   private static final Barrier BARRIER = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CLOSE, 1);
   private static final ForexOptionSingleBarrierDefinition OPTION = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER);
   private static final ForexOptionSingleBarrierDefinition OPTION_REBATE = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER, REBATE);
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2011, 7, 1);
   private static final String[] NAMES = new String[] {"USD", "EUR"};
 
   @Test(expectedExceptions = IllegalArgumentException.class)

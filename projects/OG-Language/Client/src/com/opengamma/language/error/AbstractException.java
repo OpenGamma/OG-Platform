@@ -7,7 +7,7 @@
 package com.opengamma.language.error;
 
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 
 /**
  * Base class for exceptions that should be propogated to the client.
@@ -22,12 +22,12 @@ public abstract class AbstractException extends RuntimeException {
   private final Value _value;
 
   protected AbstractException(final int err) {
-    _value = ValueUtil.ofError(err);
+    _value = ValueUtils.ofError(err);
   }
 
   protected AbstractException(final int err, final Throwable cause) {
     super(cause);
-    _value = ValueUtil.ofError(err);
+    _value = ValueUtils.ofError(err);
   }
 
   protected final void setIntValue(final int intValue) {

@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test AccruedInterestCalculator.
@@ -22,13 +22,13 @@ import com.opengamma.util.time.DateUtil;
 public class AccruedInterestCalculatorTest {
 
   private static final DayCount DC1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final ZonedDateTime DATE1 = DateUtil.getUTCDate(2006, 1, 4);
-  private static final ZonedDateTime[] SCHEDULE1 = new ZonedDateTime[] {DateUtil.getUTCDate(2005, 8, 15), DateUtil.getUTCDate(2006, 2, 15), DateUtil.getUTCDate(2006, 8, 15),
-      DateUtil.getUTCDate(2007, 2, 15)};
+  private static final ZonedDateTime DATE1 = DateUtils.getUTCDate(2006, 1, 4);
+  private static final ZonedDateTime[] SCHEDULE1 = new ZonedDateTime[] {DateUtils.getUTCDate(2005, 8, 15), DateUtils.getUTCDate(2006, 2, 15), DateUtils.getUTCDate(2006, 8, 15),
+      DateUtils.getUTCDate(2007, 2, 15)};
   private static final DayCount DC2 = DayCountFactory.INSTANCE.getDayCount("30U/360");
-  private static final ZonedDateTime DATE2 = DateUtil.getUTCDate(2006, 1, 6);
-  private static final ZonedDateTime[] SCHEDULE2 = new ZonedDateTime[] {DateUtil.getUTCDate(2005, 8, 15), DateUtil.getUTCDate(2006, 2, 15), DateUtil.getUTCDate(2006, 8, 15),
-      DateUtil.getUTCDate(2007, 2, 14)};
+  private static final ZonedDateTime DATE2 = DateUtils.getUTCDate(2006, 1, 6);
+  private static final ZonedDateTime[] SCHEDULE2 = new ZonedDateTime[] {DateUtils.getUTCDate(2005, 8, 15), DateUtils.getUTCDate(2006, 2, 15), DateUtils.getUTCDate(2006, 8, 15),
+      DateUtils.getUTCDate(2007, 2, 14)};
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final double EPS = 1e-12;
 
@@ -59,7 +59,7 @@ public class AccruedInterestCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadDate() {
-    getAccruedInterest(DC1, DateUtil.getUTCDate(2000, 1, 1), SCHEDULE1, 0.02, 1, false, 0, CALENDAR);
+    getAccruedInterest(DC1, DateUtils.getUTCDate(2000, 1, 1), SCHEDULE1, 0.02, 1, false, 0, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

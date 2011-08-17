@@ -13,7 +13,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteTwoFactorDataBundle;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -24,9 +24,9 @@ public class HullWhiteTwoFactorInterestRateModelTest {
   private static final double SIGMA2 = 0.15;
   private static final double T1 = 1.4;
   private static final double T2 = 16;
-  private static final ZonedDateTime TODAY = DateUtil.getUTCDate(2010, 8, 1);
-  private static final ZonedDateTime START = DateUtil.getDateOffsetWithYearFraction(TODAY, T1);
-  private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(START, T2);
+  private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2010, 8, 1);
+  private static final ZonedDateTime START = DateUtils.getDateOffsetWithYearFraction(TODAY, T1);
+  private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(START, T2);
   private static final YieldCurve R = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final VolatilityCurve VOL1 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA1));
   private static final VolatilityCurve VOL2 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA2));

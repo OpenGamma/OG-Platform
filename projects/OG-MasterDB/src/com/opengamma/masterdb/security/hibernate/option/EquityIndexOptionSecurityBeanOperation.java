@@ -37,7 +37,7 @@ public final class EquityIndexOptionSecurityBeanOperation  extends AbstractSecur
   }
 
   @Override
-  public EquityIndexOptionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, EquityIndexOptionSecurity security) {
+  public EquityIndexOptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final EquityIndexOptionSecurity security) {
     final EquityIndexOptionSecurityBean bean = new EquityIndexOptionSecurityBean();
     bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     bean.setOptionType(security.getOptionType());

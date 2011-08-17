@@ -39,6 +39,19 @@
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
+  <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="demoFunctionCompilation" />
+    <constructor-arg ref="combinedPositionSource" />
+    <constructor-arg ref="combinedSecuritySource" />
+    <property name="wildcardIndicator" value="*" />
+  </bean>
+  
+   <!-- Snapshotter  service -->
+  <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
+    <constructor-arg name="processors" ref="viewProcessorRestBean" />
+    <constructor-arg name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
+  </bean>
   
   <!-- Security source/master service -->
   <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
@@ -215,6 +228,18 @@
       <map>
         <entry key="0">
           <map>
+            <entry key="adHocBatchDbManager">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/adHocBatchDbManager/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="availableOutputs">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/availableOutputs/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="currencyMatrixSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/currencyMatrixSource/0/" />
@@ -224,12 +249,6 @@
             <entry key="functionRepositoryConfiguration">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/repositoryConfigurationSource/0/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="adHocBatchDbManager">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/adHocBatchDbManager/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -294,6 +313,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="marketDataSnapshotter">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+              <property name="local" value="/jax/data/marketDataSnapshotters/Vp~0/" />
+                <property name="port" value="${jetty.port}" />
+            </bean>
+            </entry>
             <entry key="userData">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/users/" />
@@ -352,14 +377,6 @@
   <bean id="bundleManager" class="com.opengamma.web.spring.BundleManagerFactoryBean">
     <property name="configResource" value="classpath:${bundle.file}" />
     <property name="baseDir" value="${bundle.basedir}" />
-  </bean>
-  
-  <!-- View helper RESTful service (experimental code) -->
-  <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
-    <constructor-arg ref="fudgeContext" />
-    <constructor-arg ref="demoFunctionCompilation" />
-    <constructor-arg ref="combinedPositionSource" />
-    <constructor-arg ref="combinedSecuritySource" />
   </bean>
   
   <bean id="yuiCompressorOptions" class="com.opengamma.web.bundle.YUICompressorOptions">

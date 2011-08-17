@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.WeeklyScheduleCalculator;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class WeeklyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
 
   @Test
   public void testSameStartAndEnd2() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2000, 1, 1);
+    final ZonedDateTime date = DateUtils.getUTCDate(2000, 1, 1);
     final ZonedDateTime[] forward = CALCULATOR.getSchedule(date, date, false, true);
     final ZonedDateTime[] backward = CALCULATOR.getSchedule(date, date, true, true);
     assertEquals(forward.length, 1);
@@ -62,8 +62,8 @@ public class WeeklyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
     assertEquals(backward[0], LocalDate.of(2000, 1, 7));
     assertEquals(backward[weeks - 1], endDate);
     for (int i = 1; i < weeks; i++) {
-      assertEquals(DateUtil.getDaysBetween(forward[i], forward[i - 1]), 7);
-      assertEquals(DateUtil.getDaysBetween(backward[i], backward[i - 1]), 7);
+      assertEquals(DateUtils.getDaysBetween(forward[i], forward[i - 1]), 7);
+      assertEquals(DateUtils.getDaysBetween(backward[i], backward[i - 1]), 7);
     }
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false));
     assertArrayEquals(backward, CALCULATOR.getSchedule(startDate, endDate, true));
@@ -71,20 +71,20 @@ public class WeeklyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
 
   @Test
   public void testWeekly2() {
-    final ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
-    final ZonedDateTime endDate = DateUtil.getUTCDate(2002, 2, 8);
+    final ZonedDateTime startDate = DateUtils.getUTCDate(2000, 1, 1);
+    final ZonedDateTime endDate = DateUtils.getUTCDate(2002, 2, 8);
     final ZonedDateTime[] forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     final ZonedDateTime[] backward = CALCULATOR.getSchedule(startDate, endDate, true, true);
     final int weeks = 110;
     assertEquals(forward.length, weeks);
     assertEquals(forward[0], startDate);
-    assertEquals(forward[weeks - 1], DateUtil.getUTCDate(2002, 2, 2));
+    assertEquals(forward[weeks - 1], DateUtils.getUTCDate(2002, 2, 2));
     assertEquals(backward.length, weeks);
-    assertEquals(backward[0], DateUtil.getUTCDate(2000, 1, 7));
+    assertEquals(backward[0], DateUtils.getUTCDate(2000, 1, 7));
     assertEquals(backward[weeks - 1], endDate);
     for (int i = 1; i < weeks; i++) {
-      assertEquals(DateUtil.getDaysBetween(forward[i], forward[i - 1]), 7);
-      assertEquals(DateUtil.getDaysBetween(backward[i], backward[i - 1]), 7);
+      assertEquals(DateUtils.getDaysBetween(forward[i], forward[i - 1]), 7);
+      assertEquals(DateUtils.getDaysBetween(backward[i], backward[i - 1]), 7);
     }
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false));
     assertArrayEquals(backward, CALCULATOR.getSchedule(startDate, endDate, true));
