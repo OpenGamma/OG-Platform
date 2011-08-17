@@ -382,7 +382,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider.getAvailabilityProvider(), functionResolver,
         functionCompilationService.getFunctionCompilationContext(), computationTargetResolver, functionCompilationService.getExecutorService(), securitySource, positionSource);
-    CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
+    CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime(), VersionCorrection.LATEST);
     setCompiledViewDefinition(compiledViewDefinition);
   }
 

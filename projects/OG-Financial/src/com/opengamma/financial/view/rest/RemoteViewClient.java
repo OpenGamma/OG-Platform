@@ -44,6 +44,7 @@ import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -439,6 +440,12 @@ public class RemoteViewClient implements ViewClient {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_COMPILED_VIEW_DEFINITION);
     return _client.access(uri).get(CompiledViewDefinition.class);
   }
+  
+  @Override
+  public VersionCorrection getProcessVersionCorrection() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PROCESS_VERSION_CORRECTION);
+    return _client.access(uri).get(VersionCorrection.class);
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -505,4 +512,5 @@ public class RemoteViewClient implements ViewClient {
   public void stopHeartbeating() {
     _scheduledHeartbeat.cancel(true);
   }
+
 }

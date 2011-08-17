@@ -241,14 +241,12 @@ public class BatchJobTest {
   }
 
   @Test
-  public void initViewProcessor() throws Exception {
-    UniqueId portfolioId = UniqueId.of("foo", "bar");
-    
+  public void initViewProcessor() throws Exception {   
     final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     cfgDocument.setUniqueId(UniqueId.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     
-    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", ObjectId.of("Port", "Test"), "ViewTestUser");
     cfgDocument.setValue(viewDefinition);
     MockConfigSource cfgSource = new MockConfigSource();
     cfgSource.add(cfgDocument);
@@ -264,6 +262,7 @@ public class BatchJobTest {
     job.setBatchMaster(batchMaster);
     
     MockPositionSource positionSource = new MockPositionSource();
+    UniqueId portfolioId = UniqueId.of("foo", "bar");
     positionSource.addPortfolio(new SimplePortfolio(portfolioId, "test_portfolio"));
     job.setPositionSource(positionSource);
     
