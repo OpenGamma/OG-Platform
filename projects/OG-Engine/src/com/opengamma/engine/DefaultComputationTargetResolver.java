@@ -8,6 +8,7 @@ package com.opengamma.engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -181,8 +182,10 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueId securityId) {
     checkSecuritySource(ComputationTargetType.SECURITY);
     
-    final Security security = getSecuritySource().getSecurity(securityId);
-    if (security == null) {
+    final Security security;
+    try {
+      security = getSecuritySource().getSecurity(securityId);
+    } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve security UID {}", securityId);
       return null;
     }

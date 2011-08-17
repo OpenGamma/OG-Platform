@@ -80,15 +80,17 @@ public class MasterRegionSourceTest {
     assertEquals(example(), testResult);
   }
 
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getRegion_UniqueId_notFound() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterRegionSource test = new MasterRegionSource(mock, VC);
-    Region testResult = test.getRegion(UID);
-    verify(mock, times(1)).get(OID, VC);
-    
-    assertEquals(null, testResult);
+    try {
+      test.getRegion(UID);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -102,6 +104,19 @@ public class MasterRegionSourceTest {
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getRegion_ObjectId_notFound() throws Exception {
+    RegionMaster mock = mock(RegionMaster.class);
+    
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterRegionSource test = new MasterRegionSource(mock, VC);
+    try {
+      test.getRegion(OID, VC);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------

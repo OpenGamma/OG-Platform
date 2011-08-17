@@ -144,9 +144,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
       }
     } else {
       result = getUnderlying().getSecurity(uid);
-      if (result != null) {
-        _uidCache.put(new Element(uid, result));
-      }
+      _uidCache.put(new Element(uid, result));
     }
     return result;
   }
@@ -156,9 +154,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     Security result = getUnderlying().getSecurity(objectId, versionCorrection);
-    if (result != null) {
-      _uidCache.put(new Element(result.getUniqueId(), result));
-    }
+    _uidCache.put(new Element(result.getUniqueId(), result));
     return result;
   }
 

@@ -79,15 +79,17 @@ public class MasterExchangeSourceTest {
     assertEquals(example(), testResult);
   }
 
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getExchange_UniqueId_notFound() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterExchangeSource test = new MasterExchangeSource(mock, VC);
-    Exchange testResult = test.getExchange(UID);
-    verify(mock, times(1)).get(OID, VC);
-    
-    assertEquals(null, testResult);
+    try {
+      test.getExchange(UID);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -101,6 +103,19 @@ public class MasterExchangeSourceTest {
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getExchange_ObjectId_notFound() throws Exception {
+    ExchangeMaster mock = mock(ExchangeMaster.class);
+    
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterExchangeSource test = new MasterExchangeSource(mock, VC);
+    try {
+      test.getExchange(OID, VC);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------
