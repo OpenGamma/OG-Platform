@@ -6,9 +6,14 @@
 package com.opengamma.web.json;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.time.calendar.Period;
 
@@ -99,7 +104,9 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
     ArgumentChecker.notNull(object, "curveSpecificationBuilderConfiguration");
     JSONObject message = new JSONObject();
     try {
+      SortedSet<Tenor> allTenors = new TreeSet<Tenor>();
       message.put(String.valueOf(0), CurveSpecificationBuilderConfiguration.class.getName());
+
       if (object.getCashInstrumentProviders() != null) {
         List<JSONObject> cashInstrumentProviders = Lists.newArrayList();
         for (Entry<Tenor, CurveInstrumentProvider> entry : object.getCashInstrumentProviders().entrySet()) {
@@ -110,6 +117,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           cashInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           cashInstrumentProviders.add(cashInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getCashInstrumentProviders().keySet());
         message.put("cashInstrumentProviders", cashInstrumentProviders);
       } else {
         s_logger.debug("No cash instrument providers");
@@ -125,6 +133,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           fraInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           fraInstrumentProviders.add(fraInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getFraInstrumentProviders().keySet());
         message.put("fraInstrumentProviders", fraInstrumentProviders);
       } else {
         s_logger.debug("No FRA instrument providers");
@@ -140,6 +149,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           futureInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           futureInstrumentProviders.add(futureInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getFutureInstrumentProviders().keySet());
         message.put("futureInstrumentProviders", futureInstrumentProviders);
       } else {
         s_logger.debug("No future instrument providers");
@@ -155,6 +165,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           rateInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           rateInstrumentProviders.add(rateInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getRateInstrumentProviders().keySet());
         message.put("rateInstrumentProviders", rateInstrumentProviders);
       } else {
         s_logger.debug("No rate instrument providers");
@@ -170,6 +181,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           swapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           swapInstrumentProviders.add(swapInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getSwapInstrumentProviders().keySet());
         message.put("swapInstrumentProviders", swapInstrumentProviders);
       } else {
         s_logger.debug("No swap instrument providers");
@@ -185,6 +197,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           basisSwapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           basisSwapInstrumentProviders.add(basisSwapInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getBasisSwapInstrumentProviders().keySet());
         message.put("basisSwapInstrumentProviders", basisSwapInstrumentProviders);
       } else {
         s_logger.debug("No basis swap instrument providers");
@@ -200,6 +213,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           tenorSwapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           tenorSwapInstrumentProviders.add(tenorSwapInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getTenorSwapInstrumentProviders().keySet());
         message.put("tenorSwapInstrumentProviders", tenorSwapInstrumentProviders);
       } else {
         s_logger.debug("No tenor swap instrument providers");
@@ -215,10 +229,18 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           oisSwapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           oisSwapInstrumentProviders.add(oisSwapInstrumentProvidersMessage);
         }
+        allTenors.addAll(object.getOISSwapInstrumentProviders().keySet());
         message.put("oisSwapInstrumentProviders", oisSwapInstrumentProviders);
       } else {
         s_logger.debug("No OIS swap instrument providers");
       }
+      
+      String[] periods = new String[allTenors.size()];
+      Iterator<Tenor> iterator = allTenors.iterator();
+      for (int i = 0; i < allTenors.size(); i++) {
+        periods[i] = iterator.next().getPeriod().toString();
+      }
+      message.put("tenors", new JSONArray(periods));
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert CurveSpecificationBuilderConfiguration to JSON", ex);
     }

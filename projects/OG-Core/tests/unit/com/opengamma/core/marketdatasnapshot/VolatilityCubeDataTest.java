@@ -14,7 +14,7 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test VolatilityCubeData.
+ * Test {@link VolatilityCubeData}.
  */
 public class VolatilityCubeDataTest {
 

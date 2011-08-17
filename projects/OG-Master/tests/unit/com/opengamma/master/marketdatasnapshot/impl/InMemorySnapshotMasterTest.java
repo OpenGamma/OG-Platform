@@ -32,7 +32,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 
 /**
- * Test InMemorySnapshotMaster.
+ * Test {@link InMemorySnapshotMaster}.
  */
 @Test
 public class InMemorySnapshotMasterTest {

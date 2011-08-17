@@ -7,6 +7,7 @@ package com.opengamma.core.security;
 
 import java.util.Collection;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -31,9 +32,10 @@ public interface SecuritySource extends ChangeProvider {
    * <p>
    * A unique identifier exactly specifies a single security at a single version-correction.
    * 
-   * @param uniqueId  the unique identifier, not null
-   * @return the security, null if not found
+   * @param uniqueId  the unique identifier to find, not null
+   * @return the matched security, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the security could not be found
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(UniqueId uniqueId);
@@ -44,10 +46,11 @@ public interface SecuritySource extends ChangeProvider {
    * In combination, the object identifier and version-correction exactly specify
    * a single security at a single version-correction.
    * 
-   * @param objectId  the object identifier, not null
+   * @param objectId  the object identifier to find, not null
    * @param versionCorrection  the version-correction, not null
-   * @return the security, null if not found
+   * @return the matched security, not null
    * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws DataNotFoundException if the security could not be found
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection);

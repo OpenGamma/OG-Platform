@@ -31,7 +31,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test EHCachingHolidaySource
+ * Test {@link EHCachingMasterHolidaySource}.
  */
 @Test
 public class EHCachingMasterHolidaySourceTest {

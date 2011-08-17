@@ -7,6 +7,7 @@ package com.opengamma.core.region;
 
 import java.util.Collection;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -31,9 +32,10 @@ public interface RegionSource {
    * <p>
    * A unique identifier exactly specifies a single region at a single version-correction.
    * 
-   * @param uniqueId  the unique identifier, not null
-   * @return the region, null if not found
+   * @param uniqueId  the unique identifier to find, not null
+   * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Region getRegion(UniqueId uniqueId);
@@ -44,10 +46,11 @@ public interface RegionSource {
    * In combination, the object identifier and version-correction exactly specify
    * a single region at a single version-correction.
    * 
-   * @param objectId  the object identifier, not null
+   * @param objectId  the object identifier to find, not null
    * @param versionCorrection  the version-correction, not null
-   * @return the region, null if not found
+   * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Region getRegion(ObjectId objectId, VersionCorrection versionCorrection);
@@ -60,10 +63,11 @@ public interface RegionSource {
    * Unfortunately, not all external identifiers uniquely identify a single version of a single region.
    * This method returns all regions that may match for {@link RegionResolver} to choose from.
    * 
-   * @param bundle  the bundle keys to match, not null
+   * @param bundle  the external identifier bundle to find, not null
    * @param versionCorrection  the version-correction, not null
-   * @return all regions matching the specified key, empty if no matches, not null
+   * @return all regions matching the bundle, empty if no matches, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection);
@@ -74,11 +78,12 @@ public interface RegionSource {
    * Get the region with a matching identifier that is highest up the
    * region hierarchy, for example US will return USA rather than a dependency.
    * 
-   * @param regionId  the region identifier to find, not null
+   * @param externalId  the region identifier to find, not null
    * @return the region, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
-  Region getHighestLevelRegion(ExternalId regionId);
+  Region getHighestLevelRegion(ExternalId externalId);
 
   /**
    * Get the region with at least one identifier from the bundle that is highest up the
@@ -87,6 +92,7 @@ public interface RegionSource {
    * 
    * @param bundle  the bundle of region identifiers to find, not null
    * @return the region, null if not found
+   * @throws IllegalArgumentException if the identifier bundle is invalid
    * @throws RuntimeException if an error occurs
    */
   Region getHighestLevelRegion(ExternalIdBundle bundle);

@@ -53,6 +53,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -90,12 +91,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId,
       ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition,
-      ViewCycleExecutionOptions executionOptions) {
+      ViewCycleExecutionOptions executionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
+    ArgumentChecker.isFalse(versionCorrection.containsLatest(), "versionCorrection must be fully-resolved");
 
     _cycleId = cycleId;
     _viewProcessId = viewProcessId;
@@ -112,6 +114,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _resultModel.setViewCycleId(cycleId);
     _resultModel.setViewProcessId(getViewProcessId());
     _resultModel.setValuationTime(executionOptions.getValuationTime());
+    _resultModel.setVersionCorrection(versionCorrection);
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
@@ -401,8 +404,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private boolean shouldShiftData(final ComputationTargetSpecification targetSpec) {
     if (targetSpec.getType() == ComputationTargetType.SECURITY) {
-      final Security security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
-      if (security == null) {
+      final Security security;
+      try {
+        security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
+      } catch (DataNotFoundException ex) {
         return false;
       }
       // Hack to only shift equities

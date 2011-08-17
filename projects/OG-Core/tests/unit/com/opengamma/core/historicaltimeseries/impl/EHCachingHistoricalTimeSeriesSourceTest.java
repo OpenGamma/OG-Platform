@@ -27,7 +27,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
- * Test EHCachingHistoricalTimeSeriesSource.
+ * Test {@link EHCachingHistoricalTimeSeriesSource}.
  */
 @Test
 public class EHCachingHistoricalTimeSeriesSourceTest {

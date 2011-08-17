@@ -24,6 +24,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A simple in-memory implementation of {@link ViewResultModel}.
@@ -37,6 +38,7 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   private Instant _valuationTime;
   private Instant _calculationTime;
   private Duration _calculationDuration;
+  private VersionCorrection _versionCorrection;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
   private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
@@ -84,6 +86,15 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   
   public void setCalculationDuration(Duration calculationDuration) {
     _calculationDuration = calculationDuration;
+  }
+  
+  @Override
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+  
+  public void setVersionCorrection(VersionCorrection versionCorrection) {
+    _versionCorrection = versionCorrection;
   }
 
   @Override

@@ -29,7 +29,7 @@ import com.opengamma.id.UniqueIdSupplier;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
- * Tests the PortfolioNode and Position object builders.
+ * Test {@link PortfolioNodeBuilder} and {@link PositionBuilder}.
  */
 @Test
 public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase {

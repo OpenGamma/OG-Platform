@@ -13,7 +13,7 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.id.UniqueId;
 
 /**
- * Test SimplePortfolio.
+ * Test {@link SimplePortfolio}.
  */
 @Test
 public class SimplePortfolioTest {
