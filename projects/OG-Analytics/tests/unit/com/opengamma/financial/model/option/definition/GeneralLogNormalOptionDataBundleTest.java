@@ -17,7 +17,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -50,7 +50,7 @@ public class GeneralLogNormalOptionDataBundleTest {
 
   }));
   private static final double SPOT = 100;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2011, 1, 1);
   private static final GeneralLogNormalOptionDataBundle DATA = new GeneralLogNormalOptionDataBundle(YIELD, DRIFT_SURFACE, VOLATILITY_SURFACE, SPOT, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

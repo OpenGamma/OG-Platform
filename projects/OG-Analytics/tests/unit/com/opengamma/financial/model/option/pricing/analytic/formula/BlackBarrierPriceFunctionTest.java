@@ -23,13 +23,13 @@ import com.opengamma.financial.model.option.pricing.analytic.EuropeanStandardBar
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 public class BlackBarrierPriceFunctionTest {
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 7, 1);
-  private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2012, 1, 2);
-  private static final double EXPIRY_TIME = DateUtil.getDifferenceInYears(REFERENCE_DATE, EXPIRY_DATE);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 1);
+  private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2012, 1, 2);
+  private static final double EXPIRY_TIME = DateUtils.getDifferenceInYears(REFERENCE_DATE, EXPIRY_DATE);
   private static final double STRIKE = 100;
   private static final boolean IS_CALL = true;
   private static final EuropeanVanillaOption OPTION_VANILLA = new EuropeanVanillaOption(STRIKE, EXPIRY_TIME, IS_CALL);

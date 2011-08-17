@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
@@ -29,7 +29,7 @@ public class EquityFutureConverter extends AbstractFutureSecurityVisitor<FixedIn
    * @param trade The trade
    * @return EquityFutureDefinition
    */
-  public EquityFutureDefinition visitEquityFutureTrade(final TradeImpl trade) {
+  public EquityFutureDefinition visitEquityFutureTrade(final SimpleTrade trade) {
 
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
 

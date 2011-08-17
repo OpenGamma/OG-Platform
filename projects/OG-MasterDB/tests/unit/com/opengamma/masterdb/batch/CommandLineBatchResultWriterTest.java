@@ -25,7 +25,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -147,7 +147,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     _hibernateTemplate.saveOrUpdateAll(_valueNames);
     
     _mockFunctionComputationTarget = new com.opengamma.engine.ComputationTarget(ComputationTargetType.POSITION, 
-        new PositionImpl(
+        new SimplePosition(
             UniqueId.of("Mock", "AAPL Stock UID"), 
             new BigDecimal(500), 
             ExternalId.of("Mock", "AAPL Stock ID")));

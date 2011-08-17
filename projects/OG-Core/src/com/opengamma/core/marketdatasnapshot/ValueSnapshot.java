@@ -18,6 +18,8 @@ import com.opengamma.util.PublicSPI;
 
 /**
  * A snapshot of a market data point taken at a particular instant, potentially altered by hand.
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @PublicSPI
 public class ValueSnapshot implements Serializable {
@@ -46,6 +48,16 @@ public class ValueSnapshot implements Serializable {
     _overrideValue = overrideValue;
   }
 
+  /**
+   * Creates an instance with the real value and no override.
+   * 
+   * @param marketValue  the real market value
+   */
+  public ValueSnapshot(Double marketValue) {
+    this(marketValue, null);
+  }
+
+  
   //-------------------------------------------------------------------------
   /**
    * Gets the real market value.

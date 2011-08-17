@@ -15,7 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -39,8 +39,8 @@ public class HullWhiteStochasticVolatilityModelDataBundleTest {
   private static final double OTHER_VOL_OF_VOL = 0.7;
   private static final double RHO = 0.5;
   private static final double OTHER_RHO = -0.5;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
-  private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2010, 6, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime OTHER_DATE = DateUtils.getUTCDate(2010, 6, 1);
   private static final HullWhiteStochasticVolatilityModelDataBundle DATA = new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

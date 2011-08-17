@@ -19,6 +19,7 @@ $.register_module({
         'og.views.common.default_details',
         'og.views.configs.viewdefinition',
         'og.views.configs.yieldcurvedefinition',
+        'og.views.configs.curvespecificationbuilderconfiguration',
         'og.views.configs.default'
     ],
     obj: function () {
@@ -104,7 +105,8 @@ $.register_module({
             form_generators = {
                 'default': og.views.configs['default'],
                 viewdefinition: og.views.configs.viewdefinition,
-                yieldcurvedefinition: og.views.configs.yieldcurvedefinition
+                yieldcurvedefinition: og.views.configs.yieldcurvedefinition,
+                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration
             },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);
@@ -113,7 +115,7 @@ $.register_module({
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
-                        config_types = result.data.types.map(function (val, idx) {return {name: val, value: val};});
+                        config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
                         $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
                     cache_for: 15 * 1000
@@ -245,7 +247,7 @@ $.register_module({
                     handler: function (result) {
                         options.slickgrid.columns[0].name = [
                             '<select class="og-js-type-filter" style="width: 80px">',
-                            result.data.types.reduce(function (acc, type) {
+                            result.data.types.sort().reduce(function (acc, type) {
                                 return acc + '<option value="' + type + '">' + type + '</option>';
                             }, '<option value="">Type</option>'),
                             '</select>'

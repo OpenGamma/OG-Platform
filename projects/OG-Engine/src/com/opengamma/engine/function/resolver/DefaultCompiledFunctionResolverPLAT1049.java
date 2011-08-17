@@ -230,12 +230,15 @@ public class DefaultCompiledFunctionResolverPLAT1049 implements CompiledFunction
    */
   private static final class It implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
     private final ComputationTarget _target;
+    private final DependencyNode _atNode;
     private final ValueRequirement _requirement;
     private final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> _values;
     private Pair<ParameterizedFunction, ValueSpecification> _next;
 
     private It(final ComputationTarget target, final ValueRequirement requirement, final List<Pair<ResolutionRule, Set<ValueSpecification>>> values) {
       _target = target;
+      // PLAT-1049
+      _atNode = new DependencyNode(_target);
       _requirement = requirement;
       _values = values.iterator();
     }
@@ -247,7 +250,7 @@ public class DefaultCompiledFunctionResolverPLAT1049 implements CompiledFunction
       while (_values.hasNext()) {
         final Pair<ResolutionRule, Set<ValueSpecification>> value = _values.next();
         // PLAT-1049
-        final ValueSpecification result = null;
+        final ValueSpecification result = value.getKey().getResult(_requirement, _atNode, value.getValue());
         //final ValueSpecification result = value.getKey().getResult(_requirement, _target, value.getValue());
         if (result != null) {
           _next = Pair.of(value.getKey().getFunction(), result);

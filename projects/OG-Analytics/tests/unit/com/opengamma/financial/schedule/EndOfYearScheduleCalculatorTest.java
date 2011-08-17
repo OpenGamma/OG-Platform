@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.schedule.EndOfYearScheduleCalculator;
 import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -38,12 +38,12 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid3() {
-    CALCULATOR.getSchedule(DateUtil.getUTCDate(2001, 12, 3), DateUtil.getUTCDate(2001, 12, 3), false, true);
+    CALCULATOR.getSchedule(DateUtils.getUTCDate(2001, 12, 3), DateUtils.getUTCDate(2001, 12, 3), false, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid4() {
-    CALCULATOR.getSchedule(DateUtil.getUTCDate(2001, 10, 30), DateUtil.getUTCDate(2001, 10, 30), false, true);
+    CALCULATOR.getSchedule(DateUtils.getUTCDate(2001, 10, 30), DateUtils.getUTCDate(2001, 10, 30), false, true);
   }
 
   @Test
@@ -56,7 +56,7 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
 
   @Test
   public void testStartAndEndSame2() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2000, 12, 31);
+    final ZonedDateTime date = DateUtils.getUTCDate(2000, 12, 31);
     final ZonedDateTime[] dates = CALCULATOR.getSchedule(date, date, true, true);
     assertEquals(dates.length, 1);
     assertEquals(dates[0], date);
@@ -109,36 +109,36 @@ public class EndOfYearScheduleCalculatorTest extends ScheduleCalculatorTestCase 
 
   @Test
   public void test2() {
-    ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
-    ZonedDateTime endDate = DateUtil.getUTCDate(2000, 12, 30);
+    ZonedDateTime startDate = DateUtils.getUTCDate(2000, 1, 1);
+    ZonedDateTime endDate = DateUtils.getUTCDate(2000, 12, 30);
     ZonedDateTime[] forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, 0);
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
-    startDate = DateUtil.getUTCDate(2000, 1, 2);
-    endDate = DateUtil.getUTCDate(2000, 12, 31);
+    startDate = DateUtils.getUTCDate(2000, 1, 2);
+    endDate = DateUtils.getUTCDate(2000, 12, 31);
     forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, 1);
     assertEquals(forward[0], endDate);
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
-    startDate = DateUtil.getUTCDate(2000, 2, 1);
-    endDate = DateUtil.getUTCDate(2001, 2, 1);
+    startDate = DateUtils.getUTCDate(2000, 2, 1);
+    endDate = DateUtils.getUTCDate(2001, 2, 1);
     forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, 1);
-    assertEquals(forward[0], DateUtil.getUTCDate(2000, 12, 31));
+    assertEquals(forward[0], DateUtils.getUTCDate(2000, 12, 31));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, true));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, false, false));
     assertArrayEquals(forward, CALCULATOR.getSchedule(startDate, endDate, true, false));
-    startDate = DateUtil.getUTCDate(2000, 1, 1);
-    endDate = DateUtil.getUTCDate(2010, 2, 9);
+    startDate = DateUtils.getUTCDate(2000, 1, 1);
+    endDate = DateUtils.getUTCDate(2010, 2, 9);
     final int months = 10;
     forward = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forward.length, months);
-    assertEquals(forward[0], DateUtil.getUTCDate(2000, 12, 31));
-    final ZonedDateTime lastDate = DateUtil.getUTCDate(2009, 12, 31);
+    assertEquals(forward[0], DateUtils.getUTCDate(2000, 12, 31));
+    final ZonedDateTime lastDate = DateUtils.getUTCDate(2009, 12, 31);
     assertEquals(forward[months - 1], lastDate);
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {

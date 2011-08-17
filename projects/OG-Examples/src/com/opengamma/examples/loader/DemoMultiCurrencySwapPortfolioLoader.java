@@ -57,7 +57,7 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -77,7 +77,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   /**
    * Size of securities in portfolio
    */
-  private static final int SECURITIES_SIZE = 100;
+  private static final int SECURITIES_SIZE = 200;
   
   /**
    * The name of the portfolio.
@@ -286,7 +286,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     HolidaySource holidaySource = _loaderContext.getHolidaySource();
     LocalDate tradeDate;
     do {
-      tradeDate = DateUtil.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
+      tradeDate = DateUtils.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
     } while (holidaySource.isHoliday(tradeDate, ccy));
     return tradeDate;
   }

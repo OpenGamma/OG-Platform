@@ -15,7 +15,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -25,8 +25,8 @@ import com.opengamma.util.tuple.DoublesPair;
 public class SABRBlackEquivalentVolatilitySurfaceModelTest {
   private static final double K = 70;
   private static final double T = 0.5;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 8, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 8, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T));
   private static final double ALPHA = 0.3;
   private static final double BETA = 1;
   private static final double RHO = -0.4;

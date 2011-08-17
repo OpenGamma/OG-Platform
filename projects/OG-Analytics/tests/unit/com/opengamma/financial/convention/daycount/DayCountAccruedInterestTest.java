@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubType;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test DayCount accrued interest.
@@ -33,8 +33,8 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testISDAExample1() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2003, 11, 1);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2004, 5, 1);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(2003, 11, 1);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2004, 5, 1);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_ACT_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (61. / 365 + 121. / 366), EPS);
@@ -46,9 +46,9 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testISDAExample2() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(1999, 2, 1);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(1999, 7, 1);
-    final ZonedDateTime d3 = DateUtil.getUTCDate(2000, 7, 1);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(1999, 2, 1);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(1999, 7, 1);
+    final ZonedDateTime d3 = DateUtils.getUTCDate(2000, 7, 1);
     final double coupon = 0.1;
     final int paymentsPerYear = 1;
     assertEquals(ACT_ACT_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (150. / 365), EPS);
@@ -61,9 +61,9 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testISDAExample3() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2002, 8, 15);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2003, 7, 15);
-    final ZonedDateTime d3 = DateUtil.getUTCDate(2004, 1, 15);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(2002, 8, 15);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2003, 7, 15);
+    final ZonedDateTime d3 = DateUtils.getUTCDate(2004, 1, 15);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_ACT_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (334. / 365), EPS);
@@ -76,9 +76,9 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testISDAExample4() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(1999, 7, 30);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2000, 1, 30);
-    final ZonedDateTime d3 = DateUtil.getUTCDate(2000, 6, 30);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(1999, 7, 30);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2000, 1, 30);
+    final ZonedDateTime d3 = DateUtils.getUTCDate(2000, 6, 30);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_ACT_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (155. / 365 + 29. / 366), EPS);
@@ -91,8 +91,8 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testISDAExample5() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(1999, 11, 30);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2000, 4, 30);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(1999, 11, 30);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2000, 4, 30);
     final double coupon = 0.1;
     final int paymentsPerYear = 4;
     assertEquals(ACT_ACT_ISDA.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (32. / 365 + 120. / 366), EPS);
@@ -102,8 +102,8 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testExample1() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2007, 12, 28);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2008, 2, 28);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(2007, 12, 28);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2008, 2, 28);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (62. / 360), EPS);
@@ -117,8 +117,8 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testExample2() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2007, 12, 28);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2008, 2, 29);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(2007, 12, 28);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2008, 2, 29);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (63. / 360), EPS);
@@ -132,8 +132,8 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testExample3() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2007, 10, 31);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2008, 11, 30);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(2007, 10, 31);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2008, 11, 30);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (396. / 360), EPS);
@@ -147,8 +147,8 @@ public class DayCountAccruedInterestTest {
 
   @Test
   public void testExample4() {
-    final ZonedDateTime d1 = DateUtil.getUTCDate(2008, 2, 1);
-    final ZonedDateTime d2 = DateUtil.getUTCDate(2009, 5, 31);
+    final ZonedDateTime d1 = DateUtils.getUTCDate(2008, 2, 1);
+    final ZonedDateTime d2 = DateUtils.getUTCDate(2009, 5, 31);
     final double coupon = 0.1;
     final int paymentsPerYear = 2;
     assertEquals(ACT_360.getAccruedInterest(d1, d2, d2, coupon, paymentsPerYear), coupon * (485. / 360), EPS);

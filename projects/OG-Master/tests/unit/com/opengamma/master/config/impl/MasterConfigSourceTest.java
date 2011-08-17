@@ -69,12 +69,12 @@ public class MasterConfigSourceTest {
   }
 
   public void get() throws Exception {
-    ExternalId test = _configSource.get(ExternalId.class, DOC.getUniqueId());
+    ExternalId test = _configSource.getConfig(ExternalId.class, DOC.getUniqueId());
     assertEquals(ExternalId.of("A", "B"), test);
   }
 
   public void accessInvalidDocument() throws Exception {
-    UniqueId uniqueId = _configSource.get(UniqueId.class, UniqueId.of("U", "1"));
+    UniqueId uniqueId = _configSource.getConfig(UniqueId.class, UniqueId.of("U", "1"));
     assertNull(uniqueId);
   }
 

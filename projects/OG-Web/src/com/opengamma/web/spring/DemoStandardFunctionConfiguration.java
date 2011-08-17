@@ -61,14 +61,11 @@ import com.opengamma.financial.analytics.model.equity.CAPMFromRegressionModelPor
 import com.opengamma.financial.analytics.model.equity.CAPMFromRegressionModelPositionFunction;
 import com.opengamma.financial.analytics.model.equity.JensenAlphaPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.JensenAlphaPositionFunction;
-import com.opengamma.financial.analytics.model.equity.PortfolioEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.PositionEquityPnLFunction;
 import com.opengamma.financial.analytics.model.equity.SharpeRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.SharpeRatioPositionFunction;
 import com.opengamma.financial.analytics.model.equity.StandardEquityModelFunction;
 import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPositionFunction;
-import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
 import com.opengamma.financial.analytics.model.equity.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.TreynorRatioPositionFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
@@ -99,8 +96,11 @@ import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFuture
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
+import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
@@ -195,8 +195,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(BlackScholesModelCostOfCarryFunction.class.getName()));
 
     // equity and portfolio
-    functionConfigs.add(new StaticFunctionConfiguration(PositionEquityPnLFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(PortfolioEquityPnLFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(PositionExchangeTradedPnLFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedPnLFunction.class.getName()));
 
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
@@ -209,7 +209,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     String assetStandardDeviationCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
     String marketStandardDeviationCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
 
-    functionConfigs.add(new ParameterizedFunctionConfiguration(TradeEquityPnLFunction.class.getName(), Arrays.asList("BLOOMBERG", "CMPL", "PX_LAST", "COST_OF_CARRY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(TradeExchangeTradedPnLFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityPriceSeriesFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, startDate, scheduleName,
         samplingCalculatorName)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityPnLFunction.class.getName(), Collections.singleton(returnCalculatorName)));

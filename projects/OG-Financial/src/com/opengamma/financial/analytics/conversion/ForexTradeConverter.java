@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.forex.calculator.ForexConverter;
@@ -34,12 +34,12 @@ public class ForexTradeConverter {
     _regionSource = regionSource;
   }
 
-  public ForexConverter<?> convert(final TradeImpl trade) {
+  public ForexConverter<?> convert(final SimpleTrade trade) {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof FXSecurity, "Can only handle trades with security type FXSecurity");
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO need the zone
     final FXSecurity security = (FXSecurity) trade.getSecurity();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, security.getRegion());
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, security.getRegion());
     final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(tradeDate, calendar, 2); //TODO are FX trades always 2 settlement days?
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();

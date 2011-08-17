@@ -133,7 +133,7 @@ public class ResolutionRule {
    * <li>The computation target of the node
    * <li>Functions and computation targets of the nodes above this node
    * </ul>
-   * @param context This should really be refactored out
+   * @param context Function compilation context
   * @return Null if this the function advertised by this rule cannot produce 
    * the desired output, a valid ValueSpecification otherwise - as returned by
    * the function. The specification is not composed against the requirement
@@ -144,7 +144,7 @@ public class ResolutionRule {
     if (resultSpecs == null) {
       return null;
     }
-    return getResult(output, atNode, context, resultSpecs);
+    return getResult(output, atNode, resultSpecs);
   }
 
   /**
@@ -211,14 +211,13 @@ public class ResolutionRule {
    * <li>The computation target of the node
    * <li>Functions and computation targets of the nodes above this node
    * </ul>
-   * @param context This should really be refactored out.
    * @param resultSpecs The results from {@code getResults()}, not null
    * @return Null if this the function advertised by this rule cannot produce
    * the desired output, a valid ValueSpecification otherwise - as returned by
    * the function. The specification is not composed against the requirement
    * constraints.
    */
-  public ValueSpecification getResult(final ValueRequirement output, final DependencyNode atNode, final FunctionCompilationContext context, final Set<ValueSpecification> resultSpecs) {
+  public ValueSpecification getResult(final ValueRequirement output, final DependencyNode atNode, final Set<ValueSpecification> resultSpecs) {
     final ComputationTarget target = atNode.getComputationTarget();
     // Of the maximal outputs, is one valid for the requirement
     ValueSpecification validSpec = null;

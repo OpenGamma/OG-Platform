@@ -5,21 +5,23 @@
  */
 package com.opengamma.master.security.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
 
 import javax.time.Instant;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
@@ -34,7 +36,8 @@ import com.opengamma.master.security.SecuritySearchResult;
 @Test
 public class MasterSecuritySourceTest {
 
-  private static final UniqueId UID = UniqueId.of("A", "B");
+  private static final ObjectId OID = ObjectId.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B", "V");
   private static final ExternalId ID1 = ExternalId.of("C", "D");
   private static final ExternalId ID2 = ExternalId.of("E", "F");
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID1, ID2);
@@ -52,7 +55,7 @@ public class MasterSecuritySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSecurity_noOverride_found() throws Exception {
+  public void test_getSecurity_UniqueId_noOverride_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
     SecurityDocument doc = new SecurityDocument(example());
@@ -64,27 +67,40 @@ public class MasterSecuritySourceTest {
     assertEquals(example(), testResult);
   }
 
-  public void test_getSecurity_found() throws Exception {
+  public void test_getSecurity_UniqueId_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
     SecurityDocument doc = new SecurityDocument(example());
-    when(mock.get(UID, VC)).thenReturn(doc);
+    when(mock.get(OID, VC)).thenReturn(doc);
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
     Security testResult = test.getSecurity(UID);
-    verify(mock, times(1)).get(UID, VC);
+    verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
   }
 
-  public void test_getSecurity_notFound() throws Exception {
+  public void test_getSecurity_UniqueId_notFound() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
-    when(mock.get(UID, VC)).thenThrow(new DataNotFoundException(""));
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
     Security testResult = test.getSecurity(UID);
-    verify(mock, times(1)).get(UID, VC);
+    verify(mock, times(1)).get(OID, VC);
     
     assertEquals(null, testResult);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getSecurity_ObjectId_found() throws Exception {
+    SecurityMaster mock = mock(SecurityMaster.class);
+    
+    SecurityDocument doc = new SecurityDocument(example());
+    when(mock.get(OID, VC)).thenReturn(doc);
+    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+    Security testResult = test.getSecurity(OID, VC);
+    verify(mock, times(1)).get(OID, VC);
+    
+    assertEquals(example(), testResult);
   }
 
   //-------------------------------------------------------------------------

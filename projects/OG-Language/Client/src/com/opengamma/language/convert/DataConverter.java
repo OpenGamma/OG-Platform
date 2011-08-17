@@ -11,7 +11,7 @@ import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
 import java.util.Map;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.TypeConverter;
@@ -64,11 +64,11 @@ public final class DataConverter implements TypeConverter {
     final Class<?> clazz = type.getRawClass();
     if (clazz == Data.class) {
       if (value instanceof Value) {
-        conversionContext.setResult(DataUtil.of((Value) value));
+        conversionContext.setResult(DataUtils.of((Value) value));
       } else if (value instanceof Value[]) {
-        conversionContext.setResult(DataUtil.of((Value[]) value));
+        conversionContext.setResult(DataUtils.of((Value[]) value));
       } else if (value instanceof Value[][]) {
-        conversionContext.setResult(DataUtil.of((Value[][]) value));
+        conversionContext.setResult(DataUtils.of((Value[][]) value));
       } else {
         conversionContext.setFail();
       }

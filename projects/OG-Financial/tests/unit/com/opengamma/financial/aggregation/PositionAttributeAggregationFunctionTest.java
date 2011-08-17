@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -23,15 +23,15 @@ public class PositionAttributeAggregationFunctionTest {
 
   @Test
   public void positionAttribute() {
-    PositionImpl position = new PositionImpl();
+    SimplePosition position = new SimplePosition();
     position.addAttribute(ATTR_NAME, POS_VALUE);
     assertEquals(POS_VALUE, _aggFn.classifyPosition(position));
   }
 
   @Test
   public void tradeAttribute() {
-    PositionImpl position = new PositionImpl();
-    TradeImpl trade = new TradeImpl();
+    SimplePosition position = new SimplePosition();
+    SimpleTrade trade = new SimpleTrade();
     trade.addAttribute(ATTR_NAME, TRADE_VALUE);
     position.addTrade(trade);
     assertEquals(TRADE_VALUE, _aggFn.classifyPosition(position));
@@ -42,9 +42,9 @@ public class PositionAttributeAggregationFunctionTest {
    */
   @Test
   public void positionAndTradeAttributes() {
-    PositionImpl position = new PositionImpl();
+    SimplePosition position = new SimplePosition();
     position.addAttribute(ATTR_NAME, POS_VALUE);
-    TradeImpl trade = new TradeImpl();
+    SimpleTrade trade = new SimpleTrade();
     trade.addAttribute(ATTR_NAME, TRADE_VALUE);
     position.addTrade(trade);
     assertEquals(POS_VALUE, _aggFn.classifyPosition(position));

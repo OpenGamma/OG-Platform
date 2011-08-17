@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -34,8 +34,8 @@ public class CashDefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String NAME = "CONVENTION";
   private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 25);
-  private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2011, 7, 25);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2011, 1, 25);
+  private static final ZonedDateTime MATURITY = DateUtils.getUTCDate(2011, 7, 25);
   private static final double NOTIONAL = 1000;
   private static final double RATE = 0.05;
   private static final CashDefinition CASH = new CashDefinition(CCY, MATURITY, NOTIONAL, RATE, CONVENTION);

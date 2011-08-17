@@ -12,7 +12,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Pricing model for capped power options (see {@link com.opengamma.financial.model.option.definition.CappedPowerOptionDefinition}).
@@ -49,7 +49,7 @@ public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserO
         final double s = data.getSpot();
         final double k = definition.getUnderlyingStrike();
         final double t1 = definition.getTimeToExpiry(data.getDate());
-        final double t2 = DateUtil.getDifferenceInYears(data.getDate(), definition.getUnderlyingExpiry());
+        final double t2 = DateUtils.getDifferenceInYears(data.getDate(), definition.getUnderlyingExpiry());
         final double b = data.getCostOfCarry();
         final double r = data.getInterestRate(t1);
         final double sigma = data.getVolatility(t1, k);

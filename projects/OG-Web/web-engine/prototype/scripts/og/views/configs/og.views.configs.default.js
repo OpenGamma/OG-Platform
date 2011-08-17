@@ -15,7 +15,6 @@ $.register_module({
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type, resource_id = json.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler;
-            og.dev.log('json!', json);
             api.text({module: module.name, handler: function (template, error) {
                 var header, content;
                 header = '\

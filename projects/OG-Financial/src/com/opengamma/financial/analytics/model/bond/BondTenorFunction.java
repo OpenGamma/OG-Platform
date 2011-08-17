@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -60,7 +60,7 @@ public class BondTenorFunction extends NonCompiledInvoker {
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) security.accept(visitor);
     final ZonedDateTime firstCouponDate = bond.getCoupon().getNthPayment(0).getAccrualStartDate();
     final ZonedDateTime lastCouponDate = bond.getCoupon().getNthPayment(bond.getCoupon().getNumberOfPayments() - 1).getPaymentDate();
-    final double t = DateUtil.getDaysBetween(firstCouponDate, lastCouponDate) / 365;
+    final double t = DateUtils.getDaysBetween(firstCouponDate, lastCouponDate) / 365;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, security), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, t));
   }

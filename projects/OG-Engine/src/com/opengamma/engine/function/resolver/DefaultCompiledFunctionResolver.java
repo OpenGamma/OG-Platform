@@ -221,7 +221,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       }
       while (_values.hasNext()) {
         final Pair<ResolutionRule, Set<ValueSpecification>> value = _values.next();
-        final ValueSpecification result = value.getKey().getResult(_requirement, _atNode, _functionCompilationContext, value.getValue());
+        final ValueSpecification result = value.getKey().getResult(_requirement, _atNode, value.getValue());
         if (result != null) {
           _next = Pair.of(value.getKey().getFunction(), result);
           _satisfied = true;

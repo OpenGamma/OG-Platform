@@ -15,18 +15,11 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
-import com.opengamma.financial.currency.PortfolioNodeDefaultCurrencyFunction;
-import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
-import com.opengamma.financial.currency.PositionDefaultCurrencyFunction;
-import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
-import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -88,12 +81,12 @@ public class DemoViewsPopulater {
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
+//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
+//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.WEIGHT, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
     return equityViewDefinition;
   }
 
@@ -161,14 +154,7 @@ public class DemoViewsPopulater {
     nativeCurrencyCalc.setDefaultProperties(ValueProperties.with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").get());
     nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
     nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
-    final SimpleResolutionRuleTransform noCurrencyConversions = new SimpleResolutionRuleTransform();
-    noCurrencyConversions.suppressRule(PortfolioNodeDefaultCurrencyFunction.class.getSimpleName());
-    noCurrencyConversions.suppressRule(PositionDefaultCurrencyFunction.class.getSimpleName());
-    noCurrencyConversions.suppressRule(SecurityDefaultCurrencyFunction.class.getSimpleName());
-    noCurrencyConversions.suppressRule(PortfolioNodeCurrencyConversionFunction.class.getSimpleName());
-    noCurrencyConversions.suppressRule(PositionCurrencyConversionFunction.class.getSimpleName());
-    noCurrencyConversions.suppressRule(SecurityCurrencyConversionFunction.class.getSimpleName());
-    nativeCurrencyCalc.setResolutionRuleTransform(noCurrencyConversions);
+    nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     viewDefinition.addViewCalculationConfiguration(nativeCurrencyCalc);
 
     return viewDefinition;
