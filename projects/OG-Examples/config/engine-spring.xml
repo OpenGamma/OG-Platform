@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-
+  <!-- This file sets up the jetty server, and injects the web application context and points it at the example-beans.xml
+       for the actual beans that make up the meat of the server. -->
   <!-- Override properties configuration -->
   <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
     <property name="ignoreInvalidKeys" value="true" />

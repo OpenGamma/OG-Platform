@@ -37,10 +37,10 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test DefaultHistoricalTimeSeriesInfoResolver.
+ * Test {@link DefaultHistoricalTimeSeriesResolver}.
  */
 @Test
-public class DefaultHistoricalTimeSeriesInfoResolverTest {
+public class DefaultHistoricalTimeSeriesResolverTest {
 
   private static final int TS_DATASET_SIZE = 1;
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";

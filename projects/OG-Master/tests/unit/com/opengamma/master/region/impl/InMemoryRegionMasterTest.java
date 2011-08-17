@@ -27,7 +27,7 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test InMemoryRegionRepository.
+ * Test {@link InMemoryRegionMaster}.
  */
 @Test
 public class InMemoryRegionMasterTest {

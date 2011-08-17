@@ -56,13 +56,11 @@ public class AvailablePortfolioOutputsResource {
     @Path("{portfolio}")
     public FudgeFieldContainerBrowser portfolioOutputs(@PathParam("portfolio") String portfolioUid) {
       final Portfolio portfolio = _service.getPortfolio(portfolioUid, _maxNodes, _maxPositions);
-      final long tStart = System.nanoTime();
       if (portfolio == null) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }
       final AvailableOutputs outputs = new AvailablePortfolioOutputs(portfolio, _functions, _service.getWildcardIndicator());
       final FudgeSerializer fudgeContext = new FudgeSerializer(_service.getFudgeContext());
-      System.err.println("getPortfolioOutputs = " + (double) (System.nanoTime() - tStart) / 1e6 + "ms");
       return new FudgeFieldContainerBrowser(fudgeContext.objectToFudgeMsg(outputs));
     }
 

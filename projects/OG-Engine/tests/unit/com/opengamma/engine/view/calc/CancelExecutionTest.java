@@ -72,6 +72,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -181,7 +182,8 @@ public class CancelExecutionTest {
         UniqueId.of("Test", "ViewProcess1"),
         vpc, 
         viewEvaluationModel, 
-        cycleOptions);
+        cycleOptions,
+        VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
     return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
   }
 

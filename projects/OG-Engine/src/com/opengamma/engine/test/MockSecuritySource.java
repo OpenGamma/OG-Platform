@@ -7,10 +7,11 @@ package com.opengamma.engine.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
@@ -35,7 +36,7 @@ public class MockSecuritySource implements SecuritySource {
   /**
    * The securities keyed by identifier.
    */
-  private final Map<UniqueId, Security> _securities = new HashMap<UniqueId, Security>();
+  private final Map<ObjectId, Security> _securities = Maps.newHashMap();
   /**
    * The suppler of unique identifiers.
    */
@@ -50,17 +51,24 @@ public class MockSecuritySource implements SecuritySource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueId identifier) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    return _securities.get(identifier);
+  public Security getSecurity(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    Security security = _securities.get(uniqueId.getObjectId());
+    if (security == null) {
+      throw new DataNotFoundException("Security not found: " + uniqueId);
+    }
+    return security;
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    // Mock source doesn't support versioning
-    return getSecurity(objectId.atLatestVersion());
+    Security security = _securities.get(objectId);
+    if (security == null) {
+      throw new DataNotFoundException("Security not found: " + objectId);
+    }
+    return security;
   }
 
   @Override
@@ -119,7 +127,7 @@ public class MockSecuritySource implements SecuritySource {
   public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
     IdUtils.setInto(security, _uidSupplier.get());
-    _securities.put(security.getUniqueId(), security);
+    _securities.put(security.getUniqueId().getObjectId(), security);
   }
 
 }

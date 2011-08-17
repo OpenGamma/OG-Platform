@@ -9,13 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.IdUtils;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -64,32 +65,52 @@ public class MockPositionSource implements PositionSource {
   @Override
   public Portfolio getPortfolio(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return _portfolios.get(uniqueId.getObjectId());
+    Portfolio portfolio = _portfolios.get(uniqueId.getObjectId());
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + uniqueId);
+    }
+    return portfolio;
   }
 
   @Override
   public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return _portfolios.get(objectId);
+    Portfolio portfolio = _portfolios.get(objectId);
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + objectId);
+    }
+    return portfolio;
   }
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return _nodes.get(uniqueId.getObjectId());
+    PortfolioNode node = _nodes.get(uniqueId.getObjectId());
+    if (node == null) {
+      throw new DataNotFoundException("PortfolioNode not found: " + uniqueId);
+    }
+    return node;
   }
 
   @Override
   public Position getPosition(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return _positions.get(uniqueId.getObjectId());
+    Position position = _positions.get(uniqueId.getObjectId());
+    if (position == null) {
+      throw new DataNotFoundException("Position not found: " + uniqueId);
+    }
+    return position;
   }
 
   @Override
   public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return _trades.get(uniqueId.getObjectId());
+    Trade trade = _trades.get(uniqueId.getObjectId());
+    if (trade == null) {
+      throw new DataNotFoundException("Trade not found: " + uniqueId);
+    }
+    return trade;
   }
 
   //-------------------------------------------------------------------------

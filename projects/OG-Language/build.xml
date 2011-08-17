@@ -1,57 +1,57 @@
 <project name="og-language" default="compile">
 
-	<import file="${basedir}/build-prefix.xml" />
+  <import file="${basedir}/build-prefix.xml" />
 
-	<path id="java.build.path">
-		<pathelement path="${basedir}/Client" />
-	</path>
-	<path id="javatest.build.path">
-		<path refid="java.build.path" />
-	</path>
-	<path id="cc.build.path">
-		<pathelement path="${basedir}/Util" />
-		<pathelement path="${basedir}/Service" />
-		<pathelement path="${basedir}/Connector" />
-		<pathelement path="${basedir}/ServiceRunner" />
-	</path>
-	<path id="cctest.build.path">
-		<pathelement path="${basedir}/UtilTest" />
-		<pathelement path="${basedir}/ServiceTest" />
-		<pathelement path="${basedir}/ConnectorTest" />
-	</path>
+  <path id="java.build.path">
+    <pathelement path="${basedir}/Client" />
+  </path>
+  <path id="javatest.build.path">
+    <path refid="java.build.path" />
+  </path>
+  <path id="cc.build.path">
+    <pathelement path="${basedir}/Util" />
+    <pathelement path="${basedir}/Service" />
+    <pathelement path="${basedir}/Connector" />
+    <pathelement path="${basedir}/ServiceRunner" />
+  </path>
+  <path id="cctest.build.path">
+    <pathelement path="${basedir}/UtilTest" />
+    <pathelement path="${basedir}/ServiceTest" />
+    <pathelement path="${basedir}/ConnectorTest" />
+  </path>
 
-	<import file="${basedir}/build-suffix.xml" />
+  <import file="${basedir}/build-suffix.xml" />
 
-	<available property="config.ok" file="${basedir}/config/OpenGamma.properties" />
-	<target name="fetch-config" unless="config.ok">
-		<property file="${common.dir}/credentials.properties" />
-		<property file="${solution.dir}/../../build.properties" />
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${basedir}/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
-	</target>
+  <available property="config.ok" file="${basedir}/config/OpenGamma.properties" />
+  <target name="fetch-config" unless="config.ok">
+    <property file="${common.dir}/credentials.properties" />
+    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${basedir}/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+  </target>
 
-	<target name="deploy-jars" depends="build-suffix.deploy-jars,fetch-config">
-		<copy file="${basedir}/config/OpenGamma.properties" todir="${build.dir}" failonerror="true" />
-		<copy file="${basedir}/config/OpenGamma.xml" todir="${build.dir}" failonerror="true" />
-		<copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
-	</target>
+  <target name="deploy-jars" depends="build-suffix.deploy-jars,fetch-config">
+    <copy file="${basedir}/config/OpenGamma.properties" todir="${build.dir}" failonerror="true" />
+    <copy file="${basedir}/config/OpenGamma.xml" todir="${build.dir}" failonerror="true" />
+    <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
+  </target>
 
-	<target name="fudge-proto" depends="build-suffix.fudge-proto">
-		<subant target="proto-c" buildpath="${basedir}/Service" />
-	</target>
-	
-	<target name="dist-build">
-		<mkdir dir="${dist.dir}/build" />
-		<copy todir="${dist.dir}/build">
-			<fileset dir="${basedir}">
-				<include name="build-*.xml" />
-			</fileset>
-		</copy>
-	</target>
-	<target name="dist" depends="dist-build,build-suffix.dist">
-		<zip destfile="${dist.dir}/${ant.project.name}-build.zip" basedir="${dist.dir}/build" whenempty="create" />
-	</target>
+  <target name="fudge-proto" depends="build-suffix.fudge-proto">
+    <subant target="proto-c" buildpath="${basedir}/Service">
+      <property name="wkspace.dir" value="${wkspace.dir}" />
+    </subant>
+  </target>
+  
+  <target name="dist-build">
+    <mkdir dir="${dist.dir}/build" />
+    <copy todir="${dist.dir}/build">
+      <fileset dir="${basedir}">
+        <include name="build-*.xml" />
+      </fileset>
+    </copy>
+  </target>
+  <target name="dist" depends="dist-build,build-suffix.dist">
+    <zip destfile="${dist.dir}/${ant.project.name}-build.zip" basedir="${dist.dir}/build" whenempty="create" />
+  </target>
 
-	<target name="test-batch"/>
-
+  <target name="test-batch"/>
 
 </project>

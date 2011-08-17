@@ -56,8 +56,9 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * then a best match selection may be required.
    * 
    * @param uniqueId  the unique identifier to find, not null
-   * @return the holiday, null if not found
+   * @return the matched holiday, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the holiday data could not be found
    * @throws RuntimeException if an error occurs
    */
   Holiday getHoliday(UniqueId uniqueId);
@@ -71,8 +72,9 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param objectId  the object identifier to find, not null
-   * @return the holiday, null if not found
+   * @return the matched holiday, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the holiday data could not be found
    * @throws RuntimeException if an error occurs
    */
   Holiday getHoliday(ObjectId objectId);
@@ -85,6 +87,7 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * @param currency  the currency to check, not null
    * @return true if it is a holiday
    * @throws IllegalArgumentException if the input is invalid
+   * @throws DataNotFoundException if the holiday data could not be found
    * @throws RuntimeException if an error occurs
    */
   boolean isHoliday(LocalDate dateToCheck, Currency currency);
@@ -97,6 +100,7 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * @param regionOrExchangeId  the region or exchange to check, not null
    * @return true if it is a holiday
    * @throws IllegalArgumentException if the input is invalid
+   * @throws DataNotFoundException if the holiday data could not be found
    * @throws RuntimeException if an error occurs
    */
   boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId);
@@ -109,6 +113,7 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * @param regionOrExchangeIds  the regions or exchanges to check, not null
    * @return true if it is a holiday
    * @throws IllegalArgumentException if the input is invalid
+   * @throws DataNotFoundException if the holiday data could not be found
    * @throws RuntimeException if an error occurs
    */
   boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds);

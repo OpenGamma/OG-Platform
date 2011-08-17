@@ -12,33 +12,31 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.VersionCorrection;
 
 /**
- * Default implementation of {@link SecurityResolver}.
+ * Simple implementation of {@code SecurityResolver} that picks the first option.
  * <p>
  * Resolution of a single security from multiple candidate securities is performed by
- * selecting the first.
+ * selecting the first. Since the input is not necessarily sorted, this may be random.
  */
-public class DefaultSecurityResolver extends BaseSecurityResolver {
+public class SimpleSecurityResolver extends AbstractSecurityResolver {
 
   /**
-   * Constructs an instance.
+   * Creates an instance decorating a {@code SecuritySource}.
+   * <p>
+   * It is recommended to use a locked version-correction rather than one with "latest"
+   * wherever possible.
    * 
-   * @param securitySource  a source of securities, not null
+   * @param securitySource  the source of securities, not null
    * @param versionCorrection  the version-correction at which the resolver will operate, not null
+   * @throws IllegalArgumentException if either version-correction instant is "latest"
    */
-  protected DefaultSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
+  public SimpleSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
     super(securitySource, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected Security resolve(Collection<Security> candidates) {
+  protected Security selectBestMatch(Collection<Security> candidates) {
     return candidates.iterator().next();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    return "DefaultSecurityResolver[versionCorrection=" + getVersionCorrection() + ", securitySource=" + getSecuritySource() + "]";
   }
 
 }

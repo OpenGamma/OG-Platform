@@ -20,7 +20,7 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test RegionFileReader.
+ * Test {@link RegionFileReader}.
  */
 @Test
 public class RegionFileReaderTest {
