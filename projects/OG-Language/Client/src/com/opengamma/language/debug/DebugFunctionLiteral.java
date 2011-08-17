@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -36,15 +36,15 @@ public class DebugFunctionLiteral implements PublishedFunction {
   }
 
   public DebugFunctionLiteral(final String name, final Value literal) {
-    this(name, DataUtil.of(literal));
+    this(name, DataUtils.of(literal));
   }
 
   public DebugFunctionLiteral(final String name, final String literal) {
-    this(name, ValueUtil.of(literal));
+    this(name, ValueUtils.of(literal));
   }
 
   public DebugFunctionLiteral(final String name, final int literal) {
-    this(name, ValueUtil.of(literal));
+    this(name, ValueUtils.of(literal));
   }
 
   public String getName() {

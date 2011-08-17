@@ -32,7 +32,7 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -57,7 +57,7 @@ public class SABRFiniteDifferenceTest {
   private static final double T = 5.0;
   private static final ForwardCurve FORWARD = new ForwardCurve(SPOT);
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final EuropeanVanillaOption OPTION;
   private static final ConvectionDiffusionPDEDataBundle DATA;
 

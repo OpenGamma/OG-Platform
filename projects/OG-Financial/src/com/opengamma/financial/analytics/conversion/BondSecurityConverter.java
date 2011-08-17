@@ -69,7 +69,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   }
 
   public FixedIncomeInstrumentConverter<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
     final Currency currency = security.getCurrency();
     final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();

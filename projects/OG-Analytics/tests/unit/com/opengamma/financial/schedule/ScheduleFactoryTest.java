@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.schedule.ScheduleFactory;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -24,8 +24,8 @@ import com.opengamma.util.time.DateUtil;
 public class ScheduleFactoryTest {
   private static final LocalDate START1 = LocalDate.of(2000, 1, 31);
   private static final LocalDate END1 = LocalDate.of(2002, 1, 31);
-  private static final ZonedDateTime START2 = DateUtil.getUTCDate(2000, 1, 31);
-  private static final ZonedDateTime END2 = DateUtil.getUTCDate(2002, 1, 31);
+  private static final ZonedDateTime START2 = DateUtils.getUTCDate(2000, 1, 31);
+  private static final ZonedDateTime END2 = DateUtils.getUTCDate(2002, 1, 31);
   private static final Frequency QUARTERLY = SimpleFrequencyFactory.INSTANCE.getFrequency(4);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

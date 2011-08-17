@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MoneyCalculationUtil;
+import com.opengamma.util.money.MoneyCalculationUtils;
 
 /**
  * 
@@ -40,7 +40,7 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
     for (final Trade trade : position.getTrades()) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
           ComputationTargetType.TRADE, trade.getUniqueId()));
-      currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
+      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
     Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final ValueSpecification valueSpecification;

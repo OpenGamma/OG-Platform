@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -24,7 +24,7 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
  * 
  */
 public class FloatingStrikeLookbackOptionDefinitionTest {
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 6, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 6, 1);
   private static final Expiry EXPIRY = new Expiry(DATE);
   private static final FloatingStrikeLookbackOptionDefinition CALL = new FloatingStrikeLookbackOptionDefinition(EXPIRY, true);
   private static final FloatingStrikeLookbackOptionDefinition PUT = new FloatingStrikeLookbackOptionDefinition(EXPIRY, false);
@@ -35,9 +35,9 @@ public class FloatingStrikeLookbackOptionDefinitionTest {
   private static final DoubleTimeSeries<?> LOW_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100529, 20100530, 20100531}, new double[] {SPOT, SPOT - DIFF,
       SPOT});
   private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
-      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), HIGH_TS);
+      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), HIGH_TS);
   private static final StandardOptionWithSpotTimeSeriesDataBundle LOW_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
-      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), LOW_TS);
+      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), LOW_TS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
@@ -72,8 +72,8 @@ public class FloatingStrikeLookbackOptionDefinitionTest {
   public void testEqualsAndHashCode() {
     final OptionDefinition call1 = new FloatingStrikeLookbackOptionDefinition(EXPIRY, true);
     final OptionDefinition put1 = new FloatingStrikeLookbackOptionDefinition(EXPIRY, false);
-    final OptionDefinition call2 = new FloatingStrikeLookbackOptionDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3)), true);
-    final OptionDefinition put2 = new FloatingStrikeLookbackOptionDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3)), false);
+    final OptionDefinition call2 = new FloatingStrikeLookbackOptionDefinition(new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3)), true);
+    final OptionDefinition put2 = new FloatingStrikeLookbackOptionDefinition(new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3)), false);
     assertFalse(CALL.equals(PUT));
     assertEquals(call1, CALL);
     assertEquals(put1, PUT);

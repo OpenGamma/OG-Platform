@@ -22,7 +22,7 @@ import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
-import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
  * Utility methods to get LiveData clients suitable for testing.
@@ -49,7 +49,7 @@ public class LiveDataClientTestUtils {
     ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
     ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     
-    ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
+    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
     
     JmsLiveDataClient liveDataClient = new JmsLiveDataClient(
         subscriptionRequestSender, 

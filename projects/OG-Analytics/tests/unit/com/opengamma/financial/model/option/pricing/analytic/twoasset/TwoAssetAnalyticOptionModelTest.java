@@ -23,7 +23,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -47,7 +47,7 @@ public class TwoAssetAnalyticOptionModelTest {
       return F;
     }
   };
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DATE), true);
   private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0, 0, new VolatilitySurface(
       ConstantDoublesSurface.from(0.1)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), 100, 90, 1, DATE);

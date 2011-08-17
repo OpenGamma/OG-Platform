@@ -28,7 +28,7 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
   public static final EquitySecurityBeanOperation INSTANCE = new EquitySecurityBeanOperation();
 
   private EquitySecurityBeanOperation() {
-    super("EQUITY", EquitySecurity.class, EquitySecurityBean.class);
+    super(EquitySecurity.SECURITY_TYPE, EquitySecurity.class, EquitySecurityBean.class);
   }
 
   public static GICSCode gicsCodeBeanToGICSCode(final GICSCodeBean gicsCodeBean) {

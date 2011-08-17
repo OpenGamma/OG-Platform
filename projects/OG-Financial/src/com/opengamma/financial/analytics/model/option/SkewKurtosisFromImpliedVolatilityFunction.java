@@ -29,7 +29,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.math.function.Function2D;
 import com.opengamma.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
 import com.opengamma.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
@@ -48,7 +48,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
     final UniqueId uid = option.getUniqueId();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final VolatilitySurface surface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceRequirement(option));
     final double volatility = surface.getVolatility(Pair.of(t, option.getStrike()));
     final double skew = SKEW_CALCULATOR.evaluate(volatility, t);

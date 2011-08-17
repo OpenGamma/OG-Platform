@@ -50,7 +50,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
         throw new OpenGammaRuntimeException("Could not get convention for " + security);
       }
     }
-    final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
+    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     final ZonedDateTime maturityDate = security.getMaturity();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
