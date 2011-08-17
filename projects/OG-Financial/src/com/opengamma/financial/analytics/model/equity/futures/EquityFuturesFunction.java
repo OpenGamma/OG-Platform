@@ -70,7 +70,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
             || valueRequirementName.equals(ValueRequirementNames.PV01)
             || valueRequirementName.equals(ValueRequirementNames.VALUE_DELTA),
             "EquityFuturesFunction provides the following values PRESENT_VALUE, VALUE_DELTA, VALUE_RHO and PV01. Please choose one.");
-
+    //TODO produce all these results
     _valueRequirementName = valueRequirementName;
 
     Validate.isTrue(pricingMethodName.equals(EquityFuturePricerFactory.MARK_TO_MARKET)
@@ -278,6 +278,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        //.with(ValuePropertyNames.CALCULATION_METHOD, _) //TODO ELAINE - add pricingMethodName and send an email to Casey
         .get();
 
     return new ValueSpecification(valueReq, valueProps);
