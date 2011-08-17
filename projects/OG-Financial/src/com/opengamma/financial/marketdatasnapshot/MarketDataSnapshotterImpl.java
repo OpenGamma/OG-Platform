@@ -38,6 +38,10 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotter;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -232,5 +236,58 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         throw new IllegalArgumentException("Unexpected market target type " + type);
     }
   }
+
+  @Override
+  public Map<YieldCurveKey, Map<String, ValueRequirement>> getYieldCurveSpecifications(ViewClient client, ViewCycle cycle) {
+    CompiledViewDefinitionWithGraphs defn = cycle.getCompiledViewDefinition();
+    Map<String, DependencyGraph> graphs = getGraphs(defn);
+
+    Map<YieldCurveKey, Map<String, ValueRequirement>> ret = new HashMap<YieldCurveKey, Map<String, ValueRequirement>>();
+    for (Entry<String, DependencyGraph> entry : graphs.entrySet()) {
+      DependencyGraph graph = entry.getValue();
+      for (DependencyNode node : graph.getDependencyNodes(ComputationTargetType.PRIMITIVE)) {
+        for (ValueSpecification outputValue : node.getOutputValues()) {
+          if (outputValue.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+            addAll(ret, outputValue);
+          }
+        }
+      }
+    }
+    return ret;
+  }
+
+  private void addAll(Map<YieldCurveKey, Map<String, ValueRequirement>> ret, ValueSpecification yieldCurveSpec) {
+    YieldCurveKey key = _yieldCurveSnapper.getKey(yieldCurveSpec);
+
+    add(ret, key, yieldCurveSpec.toRequirementSpecification());
+
+    //This is a hack: the spec value will be pruned from the dep graph but will be in the computation cache,
+    //  and we know how its properties relate to the sCurve value
+    ValueRequirement specSpec = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC,
+        yieldCurveSpec.getTargetSpecification(), getSpecProperties(yieldCurveSpec));
+    add(ret, key, specSpec);
+
+    //We know how the properties of this relate
+    ValueRequirement interpolatedSpec = new ValueRequirement(
+        ValueRequirementNames.YIELD_CURVE_INTERPOLATED, yieldCurveSpec.getTargetSpecification(),
+        getCurveProperties(yieldCurveSpec));
+    add(ret, key, interpolatedSpec);
+  }
   
+  private void add(Map<YieldCurveKey, Map<String, ValueRequirement>> ret, YieldCurveKey key, ValueRequirement outputValue) {
+    Map<String, ValueRequirement> ycMap = ret.get(key);
+    if (ycMap == null) {
+      ycMap = new HashMap<String, ValueRequirement>();
+      ret.put(key, ycMap);
+    }
+    ycMap.put(outputValue.getValueName(), outputValue);
+  }
+
+  private ValueProperties getSpecProperties(ValueSpecification curveSpec) {
+    return curveSpec.getProperties().withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+  }
+
+  private ValueProperties getCurveProperties(ValueSpecification curveSpec) {
+    return ValueProperties.builder().with(ValuePropertyNames.CURVE, curveSpec.getProperty(ValuePropertyNames.CURVE)).get();
+  }
 }

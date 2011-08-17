@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -23,10 +23,10 @@ import com.opengamma.util.time.Expiry;
 public class EuropeanExchangeAssetOptionDefinitionTest {
   private static final double S1 = 100;
   private static final double S2 = 120;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.02)), 0, 0, new VolatilitySurface(
       ConstantDoublesSurface.from(0.2)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), S1, S2, 0.5, DATE);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.4));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.4));
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiry() {
@@ -70,7 +70,7 @@ public class EuropeanExchangeAssetOptionDefinitionTest {
     EuropeanExchangeAssetOptionDefinition other = new EuropeanExchangeAssetOptionDefinition(EXPIRY, q1, q2);
     assertEquals(option, other);
     assertEquals(option.hashCode(), other.hashCode());
-    other = new EuropeanExchangeAssetOptionDefinition(new Expiry(DateUtil.getUTCDate(2011, 2, 1)), q1, q2);
+    other = new EuropeanExchangeAssetOptionDefinition(new Expiry(DateUtils.getUTCDate(2011, 2, 1)), q1, q2);
     assertFalse(option.equals(other));
     other = new EuropeanExchangeAssetOptionDefinition(EXPIRY, q1 + q2, q2);
     assertFalse(option.equals(other));

@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
@@ -52,7 +52,7 @@ public class AnnuityDefinitionTest {
     final int n = 10;
     FIXED_PAYMENTS = new PaymentFixedDefinition[n];
     FIXED_FLOAT_PAYMENTS = new PaymentDefinition[n];
-    ZonedDateTime date = DateUtil.getUTCDate(2011, 1, 1);
+    ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
     final IborIndex index = new IborIndex(CCY, Period.ofMonths(3), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false);
     for (int i = 0; i < n; i++) {
@@ -89,7 +89,7 @@ public class AnnuityDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDifferentCurrencyPayments() {
     final PaymentFixedDefinition[] payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
-    payments[0] = new PaymentFixedDefinition(Currency.CAD, DateUtil.getUTCDate(2011, 1, 1), 1000);
+    payments[0] = new PaymentFixedDefinition(Currency.CAD, DateUtils.getUTCDate(2011, 1, 1), 1000);
     new AnnuityDefinition<PaymentFixedDefinition>(payments);
   }
 
@@ -125,7 +125,7 @@ public class AnnuityDefinitionTest {
     assertEquals(FIXED_DEFINITION, other);
     assertEquals(FIXED_DEFINITION.hashCode(), other.hashCode());
     final PaymentFixedDefinition[] payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
-    payments[0] = new PaymentFixedDefinition(CCY, DateUtil.getUTCDate(2011, 1, 1), 10000);
+    payments[0] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), 10000);
     other = new AnnuityDefinition<PaymentFixedDefinition>(payments);
     assertFalse(other.equals(FIXED_DEFINITION));
   }
@@ -135,17 +135,17 @@ public class AnnuityDefinitionTest {
     assertFalse(FIXED_DEFINITION.isPayer());
     PaymentFixedDefinition[] payments = new PaymentFixedDefinition[FIXED_PAYMENTS.length];
     for (int i = 0; i < FIXED_PAYMENTS.length; i++) {
-      payments[i] = new PaymentFixedDefinition(CCY, DateUtil.getUTCDate(2011, 1, 1), -1000);
+      payments[i] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), -1000);
     }
     assertTrue(new AnnuityDefinition<PaymentFixedDefinition>(payments).isPayer());
     payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
-    payments[0] = new PaymentFixedDefinition(CCY, DateUtil.getUTCDate(2011, 1, 1), 0);
+    payments[0] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), 0);
     assertFalse(FIXED_DEFINITION.isPayer());
   }
 
   @Test
   public void testConversionFixed() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2011, 5, 10);
+    final ZonedDateTime date = DateUtils.getUTCDate(2011, 5, 10);
     final GenericAnnuity<? extends Payment> annuity1 = FIXED_DEFINITION.toDerivative(date, "A");
     final GenericAnnuity<? extends Payment> annuity2 = FIXED_DEFINITION.toDerivative(date, FIXING_TS, "A");
     assertEquals(FIXED_DEFINITION.getNumberOfPayments(), 10);
@@ -159,7 +159,7 @@ public class AnnuityDefinitionTest {
 
   @Test
   public void testConversionFixedFloat() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2011, 5, 10);
+    final ZonedDateTime date = DateUtils.getUTCDate(2011, 5, 10);
     final GenericAnnuity<? extends Payment> annuity = FIXED_FLOAT_DEFINITION.toDerivative(date, FIXING_TS, "A", "N");
     assertEquals(FIXED_DEFINITION.getNumberOfPayments(), 10);
     assertEquals(annuity.getNumberOfPayments(), 5);

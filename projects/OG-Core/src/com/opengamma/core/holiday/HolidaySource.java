@@ -54,6 +54,7 @@ public interface HolidaySource {
   Holiday getHoliday(ObjectId objectId, VersionCorrection versionCorrection);
 
   //-------------------------------------------------------------------------
+  // TODO: remove below here
   /**
    * Checks if a date is a holiday for a CURRENCY type.
    * 

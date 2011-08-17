@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.AbstractConverterTest;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -53,13 +53,13 @@ public class DefaultValueConverterTest {
     final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder(Data.class).get();
     final JavaTypeInfo<Value> valueType = JavaTypeInfo.builder(Value.class).get();
     final JavaTypeInfo<Integer> intType = JavaTypeInfo.builder(Integer.class).get();
-    Data d = convert(ValueUtil.of(42), dataType);
+    Data d = convert(ValueUtils.of(42), dataType);
     assertNotNull(d);
     assertEquals((Integer) 42, d.getSingle().getIntValue());
-    Integer i = convert(ValueUtil.of(42), intType);
+    Integer i = convert(ValueUtils.of(42), intType);
     assertNotNull(i);
     assertEquals((Integer) 42, i);
-    Value v = convert(DataUtil.of(42), valueType);
+    Value v = convert(DataUtils.of(42), valueType);
     assertNotNull(v);
     assertEquals((Integer) 42, v.getIntValue());
     v = convert((Integer) 42, valueType);
@@ -75,7 +75,7 @@ public class DefaultValueConverterTest {
     Data d = convert((Short) (short) 42, dataType);
     assertNotNull(d);
     assertEquals((Integer) 42, d.getSingle().getIntValue());
-    Long l = convert(DataUtil.of(42), longType);
+    Long l = convert(DataUtils.of(42), longType);
     assertNotNull(l);
     assertEquals((Long) 42L, l);
   }
@@ -109,12 +109,12 @@ public class DefaultValueConverterTest {
   @Test(expectedExceptions = InvalidConversionException.class)
   public void testFailedConversion() {
     final JavaTypeInfo<char[]> intArrayType = JavaTypeInfo.builder(char[].class).get();
-    convert(DataUtil.of(42), intArrayType);
+    convert(DataUtils.of(42), intArrayType);
   }
 
   @Test
   public void testBoxingConverter() {
-    convert(DataUtil.of(42.d), JavaTypeInfo.builder(Double.TYPE).get());
+    convert(DataUtils.of(42.d), JavaTypeInfo.builder(Double.TYPE).get());
   }
 
   @Test(expectedExceptions = InvalidConversionException.class)

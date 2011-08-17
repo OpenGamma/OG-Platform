@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -30,7 +30,7 @@ public class HullWhiteTwoFactorDataBundleTest {
   private static final YieldAndDiscountCurve R_CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final VolatilityCurve SIGMA_CURVE_1 = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA));
   private static final VolatilityCurve SIGMA_CURVE_2 = new VolatilityCurve(ConstantDoublesCurve.from(2 * SIGMA));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final HullWhiteTwoFactorDataBundle DATA = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

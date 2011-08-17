@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -44,7 +44,7 @@ public class BondForwardDefinitionTest {
   private static final double NOTIONAL = 100;
   private static final BondDefinition BOND_DEFINITION = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final LocalDate FORWARD_DATE = LocalDate.of(2000, 6, 30);
-  private static final ZonedDateTime ZONED_FORWARD_DATE = DateUtil.getUTCDate(2000, 6, 30);
+  private static final ZonedDateTime ZONED_FORWARD_DATE = DateUtils.getUTCDate(2000, 6, 30);
   private static final BondConvention BOND_FORWARD_CONVENTION;
   private static final BondForwardDefinition BOND_FORWARD_DEFINITION;
 
@@ -107,15 +107,15 @@ public class BondForwardDefinitionTest {
 
   @Test
   public void testToBondForward() {
-    final ZonedDateTime tradeDate = DateUtil.getUTCDate(2000, 3, 20);
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2000, 3, 20);
     final LocalDate deliveredBondSettlementDate = LocalDate.of(2000, 3, 22);
     final BondForward forward = BOND_FORWARD_DEFINITION.toDerivative(tradeDate, "A");
-    final double lastCouponToBondSettlement = DateUtil.getDaysBetween(LocalDate.of(2000, 1, 12), deliveredBondSettlementDate);
+    final double lastCouponToBondSettlement = DateUtils.getDaysBetween(LocalDate.of(2000, 1, 12), deliveredBondSettlementDate);
     assertEquals(lastCouponToBondSettlement, 70, 0);
-    final double daysBetweenCoupons = DateUtil.getDaysBetween(LocalDate.of(2000, 1, 12), LocalDate.of(2000, 7, 12));
+    final double daysBetweenCoupons = DateUtils.getDaysBetween(LocalDate.of(2000, 1, 12), LocalDate.of(2000, 7, 12));
     assertEquals(daysBetweenCoupons, 182, 0);
     assertEquals(forward.getAccruedInterest(), COUPON * lastCouponToBondSettlement / daysBetweenCoupons / COUPONS_PER_YEAR, 0);
-    final double lastCouponToForwardSettlement = DateUtil.getDaysBetween(LocalDate.of(2000, 1, 12), FORWARD_DATE);
+    final double lastCouponToForwardSettlement = DateUtils.getDaysBetween(LocalDate.of(2000, 1, 12), FORWARD_DATE);
     assertEquals(lastCouponToForwardSettlement, 170, 0);
     assertEquals(forward.getAccruedInterestAtDelivery(), COUPON * lastCouponToForwardSettlement / daysBetweenCoupons / COUPONS_PER_YEAR, 0);
   }

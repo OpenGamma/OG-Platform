@@ -100,7 +100,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final ExternalId regionId = payLeg.getRegionIdentifier();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final String currencyString = currency.getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(
@@ -122,7 +122,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
     final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
     final ExternalId regionId = payLeg.getRegionIdentifier();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final AnnuityCouponIborSpreadDefinition payLegDefinition = getFloatingSwapLegWithSpreadDefinition(effectiveDate,
         maturityDate, floatPayLeg, calendar, currency, true);
@@ -139,7 +139,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
     final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
     final ExternalId regionId = payLeg.getRegionIdentifier();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final AnnuityCouponCMSDefinition cmsPayLeg = getCMSwapLegDefinition(effectiveDate, maturityDate, floatPayLeg, calendar, currency, true);
     final AnnuityCouponCMSDefinition cmsReceiveLeg = getCMSwapLegDefinition(effectiveDate, maturityDate, floatReceiveLeg, calendar, currency, false);
@@ -154,7 +154,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final ExternalId regionId = payLeg.getRegionIdentifier();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAP"));
@@ -178,7 +178,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final FloatingInterestRateLeg iborLeg = payIbor ? floatPayLeg : floatReceiveLeg;
     final FloatingInterestRateLeg cmsLeg = payIbor ? floatReceiveLeg : floatPayLeg;
     final ExternalId regionId = payLeg.getRegionIdentifier();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, regionId);
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final AnnuityCouponCMSDefinition cmsAnnuity = getCMSwapLegDefinition(effectiveDate, maturityDate, cmsLeg, calendar, currency, !payIbor);
     final AnnuityCouponIborDefinition iborAnnuity = getIborSwapLegDefinition(effectiveDate, maturityDate, iborLeg, calendar, currency, payIbor);

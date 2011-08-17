@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.Moneyness;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -109,7 +109,7 @@ public class ForwardStartOptionDefinition extends OptionDefinition {
     if (date.isAfter(getStartTime().getExpiry())) {
       throw new IllegalArgumentException("Date " + date + " is after startTime " + getStartTime());
     }
-    return DateUtil.getDifferenceInYears(date, getStartTime().getExpiry());
+    return DateUtils.getDifferenceInYears(date, getStartTime().getExpiry());
   }
 
   @Override

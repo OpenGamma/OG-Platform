@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
@@ -72,7 +72,7 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
       }
       return new Result(Collections.singleton(resultData));
     } catch (AbstractException e) {
-      return new Result(Collections.singleton(DataUtil.of(e.getValue())));
+      return new Result(Collections.singleton(DataUtils.of(e.getValue())));
     }
   }
 

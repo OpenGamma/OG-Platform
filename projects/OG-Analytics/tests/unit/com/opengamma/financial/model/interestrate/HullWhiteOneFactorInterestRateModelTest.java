@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -22,9 +22,9 @@ import com.opengamma.util.time.DateUtil;
 public class HullWhiteOneFactorInterestRateModelTest {
   private static final double YEARS = 11.3;
   private static final double T = 1.23;
-  private static final ZonedDateTime TODAY = DateUtil.getUTCDate(2010, 8, 1);
-  private static final ZonedDateTime START = DateUtil.getDateOffsetWithYearFraction(TODAY, T);
-  private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(START, YEARS);
+  private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2010, 8, 1);
+  private static final ZonedDateTime START = DateUtils.getDateOffsetWithYearFraction(TODAY, T);
+  private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(START, YEARS);
   private static final double RATE = 0.056;
   private static final double VOL = 0.01;
   private static final double SPEED = 0.13;

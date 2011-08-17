@@ -18,7 +18,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -29,13 +29,13 @@ public class ComplexChooserOptionModelTest {
   private static final double B = 0.05;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.35));
   private static final double SPOT = 50;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final double CHOOSE_TIME = 0.25;
   private static final double CALL_LIFE = 0.5;
   private static final double PUT_LIFE = 7. / 12;
-  private static final Expiry CHOOSE_DATE = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, CHOOSE_TIME));
-  private static final Expiry CALL_EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, CALL_LIFE));
-  private static final Expiry PUT_EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, PUT_LIFE));
+  private static final Expiry CHOOSE_DATE = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, CHOOSE_TIME));
+  private static final Expiry CALL_EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, CALL_LIFE));
+  private static final Expiry PUT_EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, PUT_LIFE));
   private static final double CALL_STRIKE = 55;
   private static final double PUT_STRIKE = 48;
   @SuppressWarnings("unused")
