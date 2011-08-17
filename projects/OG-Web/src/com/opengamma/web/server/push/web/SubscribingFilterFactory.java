@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
@@ -45,11 +46,14 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
   @Context
   private ServletContext _servletContext;
 
+  @Context
+  private HttpServletRequest _servletRequest;
+
   @Override
   public List<ResourceFilter> create(AbstractMethod abstractMethod) {
     SubscriptionManager subscriptionManager = getSubscriptionManager();
     List<ResourceFilter> filters = new ArrayList<ResourceFilter>();
-    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, subscriptionManager);
+    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, subscriptionManager, _servletRequest);
     if (entityFilter != null) {
       filters.add(entityFilter);
     }
@@ -67,7 +71,8 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
   }
 
   private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod,
-                                                        SubscriptionManager subscriptionManager) {
+                                                        SubscriptionManager subscriptionManager,
+                                                        HttpServletRequest servletRequest) {
     Method method = abstractMethod.getMethod();
     Annotation[][] annotations = method.getParameterAnnotations();
     List<String> uidParamNames = new ArrayList<String>();
@@ -94,7 +99,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     if (!uidParamNames.isEmpty()) {
       s_logger.debug("Creating subscribing filter for parameters {} on method {}.{}()",
                      new Object[]{uidParamNames, method.getDeclaringClass().getSimpleName(), method.getName()});
-      return new EntitySubscriptionFilter(_httpContext, uidParamNames, subscriptionManager);
+      return new EntitySubscriptionFilter(_httpContext, uidParamNames, subscriptionManager, servletRequest);
     } else {
       return null;
     }

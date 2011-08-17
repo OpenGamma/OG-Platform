@@ -50,7 +50,7 @@ public class LongPollingTest {
 
   @Test
   public void handshake() throws IOException {
-    String clientId = readFromPath("handshake");
+    String clientId = readFromPath("/handshake");
     assertEquals(CLIENT_ID, clientId);
   }
 
@@ -59,14 +59,14 @@ public class LongPollingTest {
    */
   @Test
   public void longPollBlocking() throws IOException, ExecutionException, InterruptedException {
-    final String clientId = readFromPath("handshake");
+    final String clientId = readFromPath("/handshake");
     new Thread(new Runnable() {
       @Override
       public void run() {
         waitAndSend(clientId, RESULT1);
       }
     }).start();
-    String result = readFromPath("updates/" + clientId);
+    String result = readFromPath("/updates/" + clientId);
     assertEquals(RESULT1, result);
   }
 
@@ -75,9 +75,9 @@ public class LongPollingTest {
    */
   @Test
   public void longPollNotBlocking() throws IOException {
-    String clientId = readFromPath("handshake");
+    String clientId = readFromPath("/handshake");
     _subscriptionManager.sendUpdate(RESULT1);
-    String result = readFromPath("updates/" + clientId);
+    String result = readFromPath("/updates/" + clientId);
     assertEquals(RESULT1, result);
   }
 
@@ -86,11 +86,11 @@ public class LongPollingTest {
    */
   @Test
   public void longPollQueue() throws IOException {
-    String clientId = readFromPath("handshake");
+    String clientId = readFromPath("/handshake");
     _subscriptionManager.sendUpdate(RESULT1);
     _subscriptionManager.sendUpdate(RESULT2);
     _subscriptionManager.sendUpdate(RESULT3);
-    String result = readFromPath("updates/" + clientId);
+    String result = readFromPath("/updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
     assertEquals(3, results.size());
@@ -104,13 +104,13 @@ public class LongPollingTest {
    */
   @Test
   public void longPollQueueMultipleUpdates() throws IOException {
-    String clientId = readFromPath("handshake");
+    String clientId = readFromPath("/handshake");
     _subscriptionManager.sendUpdate(RESULT1);
     _subscriptionManager.sendUpdate(RESULT1);
     _subscriptionManager.sendUpdate(RESULT2);
     _subscriptionManager.sendUpdate(RESULT3);
     _subscriptionManager.sendUpdate(RESULT2);
-    String result = readFromPath("updates/" + clientId);
+    String result = readFromPath("/updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
     assertEquals(3, results.size());
@@ -121,7 +121,7 @@ public class LongPollingTest {
 
   @Test
   public void repeatingLongPoll() throws IOException {
-    final String clientId = readFromPath("handshake");
+    final String clientId = readFromPath("/handshake");
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -132,7 +132,7 @@ public class LongPollingTest {
         waitAndSend(clientId, RESULT1);
       }
     }).start();
-    String path = "updates/" + clientId;
+    String path = "/updates/" + clientId;
     assertEquals(RESULT1, readFromPath(path));
     assertEquals(RESULT2, readFromPath(path));
     assertEquals(RESULT3, readFromPath(path));

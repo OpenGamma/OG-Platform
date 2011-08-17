@@ -18,6 +18,7 @@ import com.sun.jersey.spi.container.ResourceFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import java.security.Principal;
 import java.util.List;
@@ -32,13 +33,16 @@ class EntitySubscriptionFilter implements ResourceFilter {
   private final HttpContext _httpContext;
   private final List<String> _uidParamNames;
   private final SubscriptionManager _subscriptionManager;
+  private final HttpServletRequest _servletRequest;
 
   public EntitySubscriptionFilter(HttpContext httpContext,
                                   List<String> uidParamNames,
-                                  SubscriptionManager subscriptionManager) {
+                                  SubscriptionManager subscriptionManager,
+                                  HttpServletRequest servletRequest) {
     _httpContext = httpContext;
     _uidParamNames = uidParamNames;
     _subscriptionManager = subscriptionManager;
+    _servletRequest = servletRequest;
   }
 
   @Override
@@ -67,7 +71,8 @@ class EntitySubscriptionFilter implements ResourceFilter {
       MultivaluedMap<String,String> pathParameters = uriInfo.getPathParameters();
       MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
       // TODO check this is the right value
-      String url = uriInfo.getPath();
+      //String url = uriInfo.getPath();
+      String url = _servletRequest.getRequestURI();
 
       List<String> clientIds = queryParameters.get(LongPollingServlet.CLIENT_ID);
       if (clientIds == null || clientIds.size() != 1) {

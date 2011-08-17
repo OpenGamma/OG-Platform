@@ -11,22 +11,27 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.push.test.TestChangeManager;
 import org.eclipse.jetty.server.Server;
 import org.springframework.web.context.WebApplicationContext;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.time.Instant;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
+import static org.testng.Assert.assertEqualsNoOrder;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
  *
  */
-@Test
 public class RestEntitySubscriptionTest {
+
+  private final String _uidStr = "Tst~101";
+  private final UniqueId _uid = UniqueId.parse(_uidStr);
+  private final UniqueId _uidV1 = _uid.withVersion("1");
+  private final UniqueId _uidV2 = _uid.withVersion("2");
 
   private Server _server;
   private TestChangeManager _changeManager;
@@ -47,51 +52,77 @@ public class RestEntitySubscriptionTest {
 
   @Test
   public void entitySubscription() throws IOException {
-    String uidStr = "Tst~101";
-    UniqueId uid = UniqueId.parse(uidStr);
-    UniqueId uidV1 = uid.withVersion("1");
-    UniqueId uidV2 = uid.withVersion("2");
-    String clientId = readFromPath("handshake");
-    // TODO confirm the exact form of the URLs. where are they relative to?
-    String restUrlBase = "rest/";
-    String restUrl = "test/" + uidStr;
-    String restUrlFull = restUrlBase + restUrl;
+    String clientId = readFromPath("/handshake");
+    String restUrl = "/rest/test/" + _uidStr;
     // this REST request should set up a subscription for object ID Tst~101
-    readFromPath(restUrlFull, clientId);
+    readFromPath(restUrl, clientId);
     // send a change event
-    _changeManager.entityChanged(ChangeType.UPDATED, uidV1, uidV2, Instant.now());
+    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     // connect to the long-polling URL to receive notification of the change
-    String result = readFromPath("updates/" + clientId);
+    String result = readFromPath("/updates/" + clientId);
     assertEquals(restUrl, result);
   }
 
   @Test
-  public void subResourceSubscription() {
-    // TODO implement RestSubscriptionTest.subResourceSubscription()
-    throw new UnsupportedOperationException("subResourceSubscription not implemented");
+  public void subResourceSubscription() throws IOException {
+    String clientId = readFromPath("/handshake");
+    String restUrl = "/rest/testsub/" + _uidStr;
+    readFromPath(restUrl, clientId);
+    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    String result = readFromPath("/updates/" + clientId);
+    assertEquals(restUrl, result);
   }
 
   @Test
+  public void multipleEntitySubscription() throws IOException {
+    String clientId = readFromPath("/handshake");
+    String restUrl1 = "/rest/test/" + _uidStr;
+    String uid2Str = "Tst~102";
+    UniqueId uid2 = UniqueId.parse(uid2Str);
+    UniqueId uid2V1 = uid2.withVersion("1");
+    UniqueId uid2V2 = uid2.withVersion("2");
+    String restUrl2 = "/rest/test/" + uid2Str;
+    readFromPath(restUrl1, clientId);
+    readFromPath(restUrl2, clientId);
+    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    _changeManager.entityChanged(ChangeType.UPDATED, uid2V1, uid2V2, Instant.now());
+    String result = readFromPath("/updates/" + clientId);
+    assertEqualsNoOrder(new String[]{restUrl1, restUrl2}, result.split("\n"));
+  }
+
+  // TODO this logic isn't implemented in the filter, not critical as the web interface for specific versions doesn't exist yet
+  /*@Test
   public void subResourceNoSubscription() {
-    // TODO implement RestSubscriptionTest.subResourceNoSubscription()
-    throw new UnsupportedOperationException("subResourceNoSubscription not implemented");
-  }
+  }*/
 
   @Test
-  public void noClientIdNoSubscription() {
-    // TODO implement RestSubscriptionTest.noClientIdNoSubscription()
-    throw new UnsupportedOperationException("noClientIdNoSubscription not implemented");
+  public void noClientIdNoSubscription() throws IOException {
+    String clientId = readFromPath("/handshake");
+    String restUrl = "/rest/test/" + _uidStr;
+    // this REST request shouldn't set up a subscription because there is no client ID so the server doesn't know
+    // where to send the update
+    readFromPath(restUrl);
+    // send a change event that we should never see
+    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    String result = readFromPath("/updates/" + clientId);
+    // TODO this timeout behaviour will probably change
+    assertEquals("TIMEOUT", result);
   }
 
-  @Test
-  public void invalidClientId() {
-    // TODO implement RestSubscriptionTest.invalidClientId()
-    throw new UnsupportedOperationException("invalidClientId not implemented");
+  @Test(expectedExceptions = FileNotFoundException.class)
+  public void invalidClientId() throws IOException {
+    String restUrl = "/rest/test/" + _uidStr;
+    // this REST request shouldn't set up a subscription because the client ID doesn't match an existing client connection
+    readFromPath(restUrl);
+    // send a change event that we should never see
+    _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
+    // will throw an exception because the URL is unknown
+    readFromPath("/updates/abc");
   }
 
-  @Test
+  // TODO confirm the correct behaviour - presumably the REST request would fail so maybe the filter should look at the response status
+  // what is the response status in that case?
+  /*@Test
   public void invalidUniqueId() {
-    // TODO implement RestSubscriptionTest.invalidUniqueId()
-    throw new UnsupportedOperationException("invalidUniqueId not implemented");
-  }
+  }*/
 }

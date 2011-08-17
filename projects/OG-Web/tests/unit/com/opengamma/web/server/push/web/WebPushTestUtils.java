@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class WebPushTestUtils {
 
-  private static final String URL_BASE = "http://localhost:8080/";
+  private static final String URL_BASE = "http://localhost:8080";
 
   private WebPushTestUtils() {
   }
