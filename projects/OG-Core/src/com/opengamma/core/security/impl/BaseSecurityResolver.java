@@ -60,18 +60,11 @@ public abstract class BaseSecurityResolver implements SecurityResolver {
     ArgumentChecker.notNull(link, "link");
     ObjectId objectId = link.getObjectId();
     if (objectId != null) {
-      Security security = getSecurity(objectId);
-      if (security == null) {
-        throw new DataNotFoundException("The resolver " + toString() + " failed to find a security for object identifier " + objectId);
-      }
-      return security;
+      return getSecurity(objectId);
     }
     ExternalIdBundle externalId = link.getExternalId();
-    if (externalId != null) {
-      Security security = getSecurity(externalId);
-      if (security == null) {
-        throw new DataNotFoundException("The resolver " + toString() + " failed to find a security for external identifier bundle " + externalId);
-      }
+    if (externalId != null && !externalId.isEmpty()) {
+      return getSecurity(externalId);
     }
     throw new DataNotFoundException("Link " + link + " does not contain any references");
   }
