@@ -21,6 +21,9 @@ public class SimpleSecurityResolver extends AbstractSecurityResolver {
 
   /**
    * Creates an instance decorating a {@code SecuritySource}.
+   * <p>
+   * It is recommended to use a locked version-correction rather than one with "latest"
+   * wherever possible.
    * 
    * @param securitySource  the source of securities, not null
    * @param versionCorrection  the version-correction at which the resolver will operate, not null

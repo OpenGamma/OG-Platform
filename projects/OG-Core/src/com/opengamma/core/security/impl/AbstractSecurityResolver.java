@@ -39,6 +39,9 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
 
   /**
    * Creates an instance decorating a {@code SecuritySource}.
+   * <p>
+   * It is recommended to use a locked version-correction rather than one with "latest"
+   * wherever possible.
    * 
    * @param securitySource  the source of securities, not null
    * @param versionCorrection  the version-correction at which the resolver will operate, not null
@@ -47,9 +50,6 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
   protected AbstractSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    if (versionCorrection.containsLatest()) {
-      throw new IllegalArgumentException("VersionCorrection must not contain 'LATEST': " + versionCorrection);
-    }
     _securitySource = securitySource;
     _versionCorrection = versionCorrection;
   }
@@ -66,7 +66,6 @@ public abstract class AbstractSecurityResolver implements SecurityResolver {
 
   /**
    * Gets the version-correction at which the resolver operates.
-   * Neither instant in the result will be "latest".
    * 
    * @return the version-correction, not null
    */

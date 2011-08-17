@@ -77,18 +77,13 @@ public class SimpleSecurityResolverTest {
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidVersionCorrectionLatestVersion() {
-    new SimpleSecurityResolver(_securitySource, VersionCorrection.of(null, Instant.now()));
+  public void test_constructor_nullSecuritySource() {
+    new SimpleSecurityResolver((SecuritySource) null, VersionCorrection.LATEST);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidVersionCorrectionLatestCorrection() {
-    new SimpleSecurityResolver(_securitySource, VersionCorrection.of(Instant.now(), null));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInvalidVersionCorrectionLatest() {
-    new SimpleSecurityResolver(_securitySource, VersionCorrection.LATEST);
+  public void test_constructor_nullVersionCorrection() {
+    new SimpleSecurityResolver(_securitySource, (VersionCorrection) null);
   }
 
   //-------------------------------------------------------------------------
