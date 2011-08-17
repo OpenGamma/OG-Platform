@@ -26,7 +26,7 @@ import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -39,8 +39,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0.1, new VolatilitySurface(ConstantDoublesSurface.from(0.01)),
       100.,
-      DateUtil.getUTCDate(2010, 1, 1));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
+      DateUtils.getUTCDate(2010, 1, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final double EPS = 1e-3;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -68,7 +68,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
     StandardOptionDataBundle initialData, data;
     double sigma = 0.01;
     for (int i = 0; i < 100; i++) {
-      expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, RANDOM.nextDouble() * 2));
+      expiry = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, RANDOM.nextDouble() * 2));
       sigma += 0.03;
       spot = 2 * RANDOM.nextDouble() + 10;
       strike = 2 * RANDOM.nextDouble() + 10;

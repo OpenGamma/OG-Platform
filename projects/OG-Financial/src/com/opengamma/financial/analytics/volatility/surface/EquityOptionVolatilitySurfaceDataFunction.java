@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -199,7 +199,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
             final double relativeStrikeBps = ((underlyingSpot - strike) / underlyingSpot) * 100;
             // TODO: totally bogus
             @SuppressWarnings("unused")
-            final double relativeExpiry = DateUtil.getDifferenceInYears(now, expiry.atTime(now.toOffsetTime())); 
+            final double relativeExpiry = DateUtils.getDifferenceInYears(now, expiry.atTime(now.toOffsetTime())); 
             if (inputs.getValue(requirement) != null) {
               numFound++;
               final Double volatility = (Double) inputs.getValue(requirement);

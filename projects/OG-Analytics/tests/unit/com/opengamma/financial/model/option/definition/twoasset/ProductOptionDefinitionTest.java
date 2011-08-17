@@ -15,7 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -23,8 +23,8 @@ import com.opengamma.util.time.Expiry;
  */
 public class ProductOptionDefinitionTest {
   private static final double K = 90;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.02));
   private static final double B1 = 0.;
   private static final double B2 = 0.;

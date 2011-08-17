@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of fixed coupon bond security Definition and conversion to Derivative.
@@ -48,7 +48,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 2;
-  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtil.getUTCDate(2011, 7, 13);
+  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
   private static final double RATE = 0.0325;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -61,7 +61,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
   //  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  private static final ZonedDateTime REFERENCE_DATE_1 = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -141,9 +141,9 @@ public class BondFixedSecurityDefinitionTest {
   public void testDates() {
     BondFixedSecurityDefinition BOND_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY,
         YIELD_CONVENTION, IS_EOM);
-    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtil.getUTCDate(2012, 1, 13), DateUtil.getUTCDate(2012, 7, 13), DateUtil.getUTCDate(2013, 1, 14), DateUtil.getUTCDate(2013, 7, 15)};
-    ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 7, 13), DateUtil.getUTCDate(2012, 1, 13), DateUtil.getUTCDate(2012, 7, 13), DateUtil.getUTCDate(2013, 1, 13)};
-    ZonedDateTime[] expectedEndDates = new ZonedDateTime[] {DateUtil.getUTCDate(2012, 1, 13), DateUtil.getUTCDate(2012, 7, 13), DateUtil.getUTCDate(2013, 1, 13), DateUtil.getUTCDate(2013, 7, 13)};
+    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 14), DateUtils.getUTCDate(2013, 7, 15)};
+    ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 13)};
+    ZonedDateTime[] expectedEndDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 13), DateUtils.getUTCDate(2013, 7, 13)};
     for (int loopcpn = 0; loopcpn < BOND_DEFINITION.getCoupon().getNumberOfPayments(); loopcpn++) {
       assertEquals("Payment " + loopcpn, expectedPaymentDates[loopcpn], BOND_DEFINITION.getCoupon().getNthPayment(loopcpn).getPaymentDate());
       assertEquals("Start accrual " + loopcpn, expectedStartDates[loopcpn], BOND_DEFINITION.getCoupon().getNthPayment(loopcpn).getAccrualStartDate());
@@ -191,7 +191,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final Period BOND_TENOR_G = Period.ofYears(12);
   private static final int SETTLEMENT_DAYS_G = 2;
   private static final int EX_DIVIDEND_DAYS_G = 7;
-  private static final ZonedDateTime START_ACCRUAL_DATE_G = DateUtil.getUTCDate(2002, 9, 7);
+  private static final ZonedDateTime START_ACCRUAL_DATE_G = DateUtils.getUTCDate(2002, 9, 7);
   private static final ZonedDateTime MATURITY_DATE_G = START_ACCRUAL_DATE_G.plus(BOND_TENOR_G);
   private static final double RATE_G = 0.0500;
   private static final double NOTIONAL_G = 100;
@@ -233,7 +233,7 @@ public class BondFixedSecurityDefinitionTest {
 
   @Test
   public void toDerivativeUKTExCoupon() {
-    final ZonedDateTime referenceDate2 = DateUtil.getUTCDate(2011, 9, 2); // Ex-dividend is 30-Aug-2011
+    final ZonedDateTime referenceDate2 = DateUtils.getUTCDate(2011, 9, 2); // Ex-dividend is 30-Aug-2011
     BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION_G.toDerivative(referenceDate2, CURVES_NAME);
     AnnuityPaymentFixedDefinition nominalDefinition = BOND_SECURITY_DEFINITION_G.getNominal();
     AnnuityCouponFixedDefinition couponDefinition = BOND_SECURITY_DEFINITION_G.getCoupon();

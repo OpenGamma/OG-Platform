@@ -14,7 +14,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
@@ -23,16 +23,16 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * 
  */
 public class ExtremeSpreadOptionDefinitionTest {
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
-  private static final Expiry PERIOD_END = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.275));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
+  private static final Expiry PERIOD_END = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.275));
   private static final ExtremeSpreadOptionDefinition PUT = new ExtremeSpreadOptionDefinition(EXPIRY, false, PERIOD_END, false);
   private static final ExtremeSpreadOptionDefinition PUT_REVERSE = new ExtremeSpreadOptionDefinition(EXPIRY, false, PERIOD_END, true);
   private static final ExtremeSpreadOptionDefinition CALL = new ExtremeSpreadOptionDefinition(EXPIRY, true, PERIOD_END, false);
   private static final ExtremeSpreadOptionDefinition CALL_REVERSE = new ExtremeSpreadOptionDefinition(EXPIRY, true, PERIOD_END, true);
-  private static final DoubleTimeSeries<?> SPOT_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1),
-      DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1), DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2011, 1, 1),
-      DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)}, new double[] {1, 2, 0, 1,
+  private static final DoubleTimeSeries<?> SPOT_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1),
+      DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1),
+      DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)}, new double[] {1, 2, 0, 1,
       4, 15, 4, 4, 0, 4, 4, 4});
   private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0,
       new VolatilitySurface(ConstantDoublesSurface.from(0)), 2, DATE, SPOT_SERIES);
@@ -44,7 +44,7 @@ public class ExtremeSpreadOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPeriodEndAfterExpiry() {
-    new ExtremeSpreadOptionDefinition(EXPIRY, false, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 2)), false);
+    new ExtremeSpreadOptionDefinition(EXPIRY, false, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 2)), false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -59,7 +59,7 @@ public class ExtremeSpreadOptionDefinitionTest {
     ExtremeSpreadOptionDefinition other = new ExtremeSpreadOptionDefinition(EXPIRY, false, PERIOD_END, false);
     assertEquals(other, PUT);
     assertEquals(other.hashCode(), PUT.hashCode());
-    other = new ExtremeSpreadOptionDefinition(EXPIRY, false, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.15)), false);
+    other = new ExtremeSpreadOptionDefinition(EXPIRY, false, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.15)), false);
     assertFalse(other.equals(PUT));
     other = new ExtremeSpreadOptionDefinition(EXPIRY, false, PERIOD_END, true);
     assertFalse(other.equals(PUT));

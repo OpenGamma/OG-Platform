@@ -7,7 +7,9 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.calendar.LocalDate;
 
@@ -33,9 +35,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MoneyCalculationUtil;
+import com.opengamma.util.money.MoneyCalculationUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -44,9 +48,13 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTradePnLFunction.class);
   
+  private static final Double UN_AVAILABLE_COST = Double.NaN;
+  
   private final String _markDataField;
   private final String _costOfCarryField;
   private final String _resolutionKey;
+  private final Map<Pair<ExternalIdBundle, LocalDate>, Double> _costOfCarryCache = new ConcurrentHashMap<Pair<ExternalIdBundle, LocalDate>, Double>();
+  
   
   /**
    * @param resolutionKey the resolution key, not-null
@@ -78,10 +86,10 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
           tradeDate, true, tradeDate, false);
       
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security + " for " + _markDataField + " using " + _resolutionKey);
+        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey);
       }
       if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
-        throw new NullPointerException("Could not get mark to market value for security " + security + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
+        throw new NullPointerException("Could not get mark to market value for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
       }
       final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
       final ValueSpecification valueSpecification;
@@ -91,24 +99,33 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
         valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade, ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId());
       }
       
-      double costOfCarry = 0.0;
-      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getIdentifiers(), _resolutionKey,
-          tradeDate, true, tradeDate, false);
-      if (costOfCarryPair != null && costOfCarryPair.getTimeSeries() != null && !costOfCarryPair.getTimeSeries().isEmpty()) {
-        Double storedCostOfCarry = costOfCarryPair.getTimeSeries().getValue(tradeDate);
-        if (storedCostOfCarry != null) {
-          costOfCarry = storedCostOfCarry;
-        }
-      }
+      double costOfCarry = getCostOfCarry(security, tradeDate, historicalSource);
       Double markToMarket = markToMarketSeries.getTimeSeries().getValue(tradeDate);
       
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
           new Object[]{trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
-      final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtil.rounded(dailyPnL).doubleValue());
+      final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtils.rounded(dailyPnL).doubleValue());
       return Sets.newHashSet(result);
     }
     return null;
+  }
+
+  private double getCostOfCarry(final Security security, LocalDate tradeDate, final HistoricalTimeSeriesSource historicalSource) {
+    Double cachedCost = _costOfCarryCache.get(Pair.of(security.getIdentifiers(), tradeDate));
+    if (cachedCost == null) {
+      cachedCost = UN_AVAILABLE_COST;
+      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getIdentifiers(), _resolutionKey,
+          tradeDate, true, tradeDate, false);
+      if (costOfCarryPair != null && costOfCarryPair.getTimeSeries() != null && !costOfCarryPair.getTimeSeries().isEmpty()) {
+        Double histCost = costOfCarryPair.getTimeSeries().getValue(tradeDate);
+        if (histCost != null) {
+          cachedCost = histCost;
+        }         
+      }
+      _costOfCarryCache.put(Pair.of(security.getIdentifiers(), tradeDate), cachedCost);
+    }
+    return cachedCost == UN_AVAILABLE_COST ? 0.0d : cachedCost;
   }
 
   @Override

@@ -46,7 +46,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -194,14 +194,14 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
           }
           price /= 100d;
           if (_isYieldCurve) {
-            final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
+            final double years = DateUtils.getDifferenceInYears(today, strip.getMaturity());
             timeInYearsToRates.put(years, price);
           } else {
             if (isFirst) {
               timeInYearsToRates.put(0., 1.);
               isFirst = false;
             }
-            final double years = DateUtil.getDifferenceInYears(today, strip.getMaturity());
+            final double years = DateUtils.getDifferenceInYears(today, strip.getMaturity());
             timeInYearsToRates.put(years, Math.exp(-price * years));
           }
         }

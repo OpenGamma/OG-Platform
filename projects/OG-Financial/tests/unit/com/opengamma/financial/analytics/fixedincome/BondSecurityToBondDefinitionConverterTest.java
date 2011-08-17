@@ -38,7 +38,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -51,10 +51,10 @@ public class BondSecurityToBondDefinitionConverterTest {
   private static final RegionSource REGION_SOURCE = new MasterRegionSource(RegionFileReader.createPopulated().getRegionMaster());
   private static final BondSecurityToBondDefinitionConverter CONVERTER = new BondSecurityToBondDefinitionConverter(
       HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final ZonedDateTime FIRST_ACCRUAL_DATE = DateUtil.getUTCDate(2007, 9, 30);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2007, 10, 2);
-  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2008, 3, 31);
-  private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2008, 9, 30);
+  private static final ZonedDateTime FIRST_ACCRUAL_DATE = DateUtils.getUTCDate(2007, 9, 30);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2007, 10, 2);
+  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtils.getUTCDate(2008, 3, 31);
+  private static final ZonedDateTime LAST_TRADE_DATE = DateUtils.getUTCDate(2008, 9, 30);
   private static final double COUPON = 4.0;
   private static final BondSecurityConverter NEW_CONVERTER = new BondSecurityConverter(HOLIDAY_SOURCE,
       CONVENTION_SOURCE, REGION_SOURCE);

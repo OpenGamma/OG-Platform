@@ -45,7 +45,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -235,13 +235,13 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         if (n == 1) {
           final LocalDate nextExpiry = NEXT_EXPIRY_ADJUSTER.adjustDate(now.toLocalDate());
           final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
-          return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?          
+          return DateUtils.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?          
         }
         final LocalDate date = FIRST_OF_MONTH_ADJUSTER.adjustDate(now.toLocalDate());
         final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly
         final LocalDate thirdWednesday = NEXT_EXPIRY_ADJUSTER.adjustDate(plusMonths);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
-        return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
+        return DateUtils.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
       }
 
       private double getRate(final double quote) {

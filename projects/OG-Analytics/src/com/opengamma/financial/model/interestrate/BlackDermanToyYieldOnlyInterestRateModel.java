@@ -14,7 +14,7 @@ import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -46,7 +46,7 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         final double[][] d = new double[_n + 1][_j];
         final double[] u = new double[_n + 1];
         final double[] p = new double[_n + 2];
-        final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
+        final double t = DateUtils.getDifferenceInYears(data.getDate(), time);
         final double dt = t / _n;
         final double dtSqrt = Math.sqrt(dt);
         final double r1 = data.getShortRate(dt);

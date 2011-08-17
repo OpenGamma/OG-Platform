@@ -8,7 +8,7 @@ package com.opengamma.financial.model.option.definition;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -18,7 +18,7 @@ public class CappedPowerOptionDefinitionTest {
   private static final double STRIKE = 100;
   private static final double POWER = 2;
   private static final double CAP = 90;
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2010, 6, 1));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2010, 6, 1));
   private static final CappedPowerOptionDefinition CALL = new CappedPowerOptionDefinition(STRIKE, EXPIRY, POWER, CAP, true);
   private static final CappedPowerOptionDefinition PUT = new CappedPowerOptionDefinition(STRIKE, EXPIRY, POWER, CAP, false);
 

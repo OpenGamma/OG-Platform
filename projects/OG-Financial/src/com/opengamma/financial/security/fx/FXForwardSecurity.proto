@@ -11,7 +11,7 @@
    */ 
   message FXForwardSecurity extends FinancialSecurity {
   
-  	required string securityType [default = "FX FORWARD"];
+  	required string securityType [default = "FX_FORWARD"];
   	required id.ExternalId underlyingIdentifier;
   	required javax.time.calendar.ZonedDateTime forwardDate;
     required id.ExternalId region;

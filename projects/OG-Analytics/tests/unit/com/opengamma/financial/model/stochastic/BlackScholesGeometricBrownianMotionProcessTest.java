@@ -21,7 +21,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,8 +30,8 @@ import com.opengamma.util.time.Expiry;
 public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
   private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
   private static final double R = 0.4;
   private static final double B = 0.1;

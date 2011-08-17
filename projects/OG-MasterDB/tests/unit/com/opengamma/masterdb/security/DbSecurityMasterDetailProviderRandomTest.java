@@ -215,8 +215,16 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
     _testCase.testCapFloorCMSSpreadSecurity();
   }
   
+  @Override
+  @Test
   public void testRawSecurity() {
     _testCase.testRawSecurity();
+  }
+
+  @Override
+  @Test
+  public void testEquityVarianceSwapSecurity() {
+    _testCase.testEquityVarianceSwapSecurity();
   }
   
 }

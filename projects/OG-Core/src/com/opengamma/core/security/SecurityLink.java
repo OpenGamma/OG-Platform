@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,13 +15,21 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * The security link represents a connection from an entity to a security.
  * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
- * The link also holds a resolved reference to the security itself.
+ * To obtain the target security, the link must be resolved.
  * <p>
  * This interface is read-only.
  * Implementations may be mutable.
  */
 @PublicAPI
 public interface SecurityLink extends Link<Security> {
+//TODO: remove all these methods
+
+  /**
+   * Gets the resolved target.
+   * 
+   * @return the resolved target, not null
+   */
+  Security getTarget();
 
   /**
    * Resolves the security for the latest version-correction using a security source.

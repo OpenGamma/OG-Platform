@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -22,7 +22,7 @@ import com.opengamma.util.PublicAPI;
  * This interface makes no guarantees about the thread-safety of implementations.
  * However, it is strongly recommended that the methods in this interface are individually thread-safe.
  * 
- * @param <T> the type being linked to 
+ * @param <T> the target type of the link
  */
 @PublicAPI
 public interface Link<T extends UniqueIdentifiable> extends ObjectIdentifiable {
@@ -41,13 +41,6 @@ public interface Link<T extends UniqueIdentifiable> extends ObjectIdentifiable {
    * @return the value of the property, not null
    */
   ExternalIdBundle getExternalId();
-
-  /**
-   * Gets the resolved target.
-   * 
-   * @return the value of the property, not null
-   */
-  T getTarget();  // TODO: remove
 
   /**
    * Resolves the link to the target object.

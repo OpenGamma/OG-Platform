@@ -27,11 +27,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
-import com.opengamma.core.security.SecurityLinkUtils;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -239,7 +239,7 @@ public class SimpleTrade extends DirectBean
         .append(", ")
         .append(getQuantity())
         .append(' ')
-        .append(SecurityLinkUtils.best(getSecurityLink()))
+        .append(LinkUtils.best(getSecurityLink()))
         .append(" PositionID:")
         .append(getParentPositionId())
         .append(" ")
