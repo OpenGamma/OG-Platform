@@ -33,7 +33,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test MasterHistoricalTimeSeriesSource.
+ * Test {@link MasterHistoricalTimeSeriesSource}.
  * Ensure it makes the right method calls to the underlying master and resolver.
  */
 @Test

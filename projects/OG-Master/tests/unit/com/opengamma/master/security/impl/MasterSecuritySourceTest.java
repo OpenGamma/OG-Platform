@@ -31,7 +31,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * Test MasterSecuritySource.
+ * Test {@link MasterSecuritySource}.
  */
 @Test
 public class MasterSecuritySourceTest {

@@ -25,7 +25,7 @@ import com.opengamma.master.exchange.impl.InMemoryExchangeMaster;
 import com.opengamma.util.i18n.Country;
 
 /**
- * Test InMemoryExchangeMaster.
+ * Test {@link InMemoryExchangeMaster}.
  */
 @Test
 public class InMemoryExchangeMasterTest {

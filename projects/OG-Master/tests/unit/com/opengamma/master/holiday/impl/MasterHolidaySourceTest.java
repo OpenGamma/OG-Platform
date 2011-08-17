@@ -34,7 +34,7 @@ import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test MasterHolidaySource.
+ * Test {@link MasterHolidaySource}.
  */
 @Test
 public class MasterHolidaySourceTest {

@@ -26,7 +26,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * Test InMemorySecurityMaster.
+ * Test {@link InMemorySecurityMaster}.
  */
 @Test
 public class InMemorySecurityMasterTest {

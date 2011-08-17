@@ -33,7 +33,7 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test MasterRegionSource.
+ * Test {@link MasterRegionSource}.
  */
 @Test
 public class MasterRegionSourceTest {

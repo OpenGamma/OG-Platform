@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test HistoricalTimeSeriesRating to/from fudge message.
+ * Test {@link HistoricalTimeSeriesRating} Fudge.
  */
 @Test
 public class HistoricalTimeSeriesRatingTest {

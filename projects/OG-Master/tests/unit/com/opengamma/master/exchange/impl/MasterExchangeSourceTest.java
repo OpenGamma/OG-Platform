@@ -32,7 +32,7 @@ import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.i18n.Country;
 
 /**
- * Test MasterExchangeSource.
+ * Test {@link MasterExchangeSource}.
  */
 @Test
 public class MasterExchangeSourceTest {
