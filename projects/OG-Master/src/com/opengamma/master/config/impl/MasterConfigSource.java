@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.time.Instant;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -121,14 +120,12 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
 
   @Override
   public <T> T getConfig(final Class<T> clazz, final UniqueId uniqueId) {
-    ConfigDocument<T> doc = getDocument(clazz, uniqueId);
-    return (doc != null ? doc.getValue() : null);
+    return getDocument(clazz, uniqueId).getValue();
   }
 
   @Override
   public <T> T getConfig(final Class<T> clazz, final ObjectId objectId, VersionCorrection versionCorrection) {
-    ConfigDocument<T> doc = getDocument(clazz, objectId, versionCorrection);
-    return (doc != null ? doc.getValue() : null);
+    return getDocument(clazz, objectId, versionCorrection).getValue();
   }
 
   @Override
@@ -141,7 +138,6 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     request.setVersionCorrection(versionCorrection);
     request.setName(configName);
     request.setType(clazz);
-    
     ConfigSearchResult<T> searchResult = getMaster().search(request);
     return searchResult.getValues();
   }
@@ -170,14 +166,10 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     VersionCorrection vc = getVersionCorrection(); // lock against change
-    try {
-      if (vc != null) {
-        return getMaster().get(uniqueId, vc, clazz);
-      } else {
-        return getMaster().get(uniqueId, clazz);
-      }
-    } catch (DataNotFoundException ex) {
-      return null;
+    if (vc != null) {
+      return getMaster().get(uniqueId, vc, clazz);
+    } else {
+      return getMaster().get(uniqueId, clazz);
     }
   }
 
@@ -194,11 +186,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    try {
-      return getMaster().get(objectId, versionCorrection, clazz);
-    } catch (DataNotFoundException ex) {
-      return null;
-    }
+    return getMaster().get(objectId, versionCorrection, clazz);
   }
 
   /**
