@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.position;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicAPI;
@@ -33,8 +34,9 @@ public interface PortfolioResolver {
    * then a best match selection may be required.
    * 
    * @param uniqueId  the unique identifier to find, not null
-   * @return the portfolio, null if not found
+   * @return the matched portfolio, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the portfolio could not be found
    * @throws RuntimeException if an error occurs
    */
   Portfolio getPortfolio(UniqueId uniqueId);
@@ -48,8 +50,9 @@ public interface PortfolioResolver {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param objectId  the object identifier to find, not null
-   * @return the portfolio, null if not found
+   * @return the matched portfolio, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the portfolio could not be found
    * @throws RuntimeException if an error occurs
    */
   Portfolio getPortfolio(ObjectId objectId);

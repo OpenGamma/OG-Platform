@@ -53,8 +53,9 @@ public interface RegionResolver extends LinkResolver<Region> {
    * then a best match selection may be required.
    * 
    * @param uniqueId  the unique identifier to find, not null
-   * @return the region, null if not found
+   * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Region getRegion(UniqueId uniqueId);
@@ -68,8 +69,9 @@ public interface RegionResolver extends LinkResolver<Region> {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param objectId  the object identifier to find, not null
-   * @return the region, null if not found
+   * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Region getRegion(ObjectId objectId);
@@ -82,8 +84,9 @@ public interface RegionResolver extends LinkResolver<Region> {
    * For example 'US' will return the country USA rather than a state or city.
    * 
    * @param regionId  the region identifier to find, not null
-   * @return the region, null if not found
+   * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Region getHighestLevelRegion(ExternalId regionId);
@@ -96,8 +99,9 @@ public interface RegionResolver extends LinkResolver<Region> {
    * Note that a bundle including 'US' and a city will still return the country USA.
    * 
    * @param bundle  the external identifier bundle to find, not null
-   * @return the single region matching the bundle of keys, null if not found
+   * @return the matched region, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @throws DataNotFoundException if the region could not be found
    * @throws RuntimeException if an error occurs
    */
   Region getHighestLevelRegion(ExternalIdBundle bundle);
