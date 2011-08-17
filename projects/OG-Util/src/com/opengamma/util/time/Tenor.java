@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.time;
 
+import javax.time.Duration;
 import javax.time.calendar.Period;
 
 /**
@@ -208,13 +209,8 @@ public class Tenor implements Comparable<Tenor> {
   //TODO [PLAT-1013] not the best way to do this
   @Override
   public int compareTo(Tenor other) {
-    long nanos = _period.getNanos();
-    long otherNanos = other._period.getNanos();
-    if (nanos < otherNanos) {
-      return -1;
-    } else if (nanos > otherNanos) {
-      return 1;
-    }
-    return 0;
+    Duration duration = _period.toEstimatedDuration();
+    Duration otherDuration = other._period.toEstimatedDuration();
+    return duration.compareTo(otherDuration);
   }
 }
