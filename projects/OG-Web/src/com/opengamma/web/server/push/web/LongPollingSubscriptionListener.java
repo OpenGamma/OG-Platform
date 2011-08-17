@@ -5,11 +5,14 @@
  */
 package com.opengamma.web.server.push.web;
 
-import com.google.common.base.Joiner;
-import com.opengamma.web.server.push.subscription.SubscriptionEvent;
 import com.opengamma.web.server.push.subscription.SubscriptionListener;
 import org.eclipse.jetty.continuation.Continuation;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +25,11 @@ import java.util.Set;
  */
 class LongPollingSubscriptionListener implements SubscriptionListener {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(LongPollingSubscriptionListener.class);
+
+  /** Key for the array of updated URLs in the JSON */
+  static final String UPDATES = "updates";
+
   private final Object _lock = new Object();
   private final Set<String> _updates = new HashSet<String>();
 
@@ -31,7 +39,12 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
   public void itemUpdated(String url) {
     synchronized (_lock) {
       if (_continuation != null) {
-        sendUpdate(url);
+        try {
+          sendUpdate(formatUpdate(url));
+        } catch (JSONException e) {
+          // this shouldn't ever happen, the updates are all URLs
+          s_logger.warn("Unable to format updates as JSON. updates: " + _updates, e);
+        }
       } else {
         _updates.add(url);
       }
@@ -47,7 +60,13 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
       _continuation = continuation;
       // if there are updates queued sent them immediately otherwise save the continuation until an update
       if (!_updates.isEmpty()) {
-        sendUpdate(Joiner.on("\n").join(_updates));
+        try {
+          sendUpdate(formatUpdate(_updates));
+        } catch (JSONException e) {
+          // this shouldn't ever happen, the updates are all URLs
+          s_logger.warn("Unable to format updates as JSON. updates: " + _updates, e);
+        }
+        _updates.clear();
       }
     }
   }
@@ -64,5 +83,13 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     synchronized (_lock) {
       return _continuation != null;
     }
+  }
+
+  private String formatUpdate(String url) throws JSONException {
+    return new JSONObject().put(UPDATES, url).toString();
+  }
+
+  private String formatUpdate(Collection<String> urls) throws JSONException {
+    return new JSONObject().put(UPDATES, urls).toString();
   }
 }

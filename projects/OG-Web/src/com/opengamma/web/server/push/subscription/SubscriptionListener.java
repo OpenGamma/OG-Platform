@@ -6,7 +6,7 @@
 package com.opengamma.web.server.push.subscription;
 
 /**
- *
+ * TODO this name clashes with one in OG-LiveData, rename
  */
 public interface SubscriptionListener {
 

@@ -62,7 +62,7 @@ public class WebPushTestUtils {
   }
 
   /**
-   * Creates and starts a Jetty server using the {@code web-push/WEB-INF/web.xml} file and configured using Spring
+   * Creates and starts a Jetty server using {@code web-push/WEB-INF/web.xml} and configured using Spring
    * @return The server and the Spring context
    * @param springXml The location of the Spring XML config file
    */

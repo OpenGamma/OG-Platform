@@ -10,6 +10,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.push.test.TestChangeManager;
 import org.eclipse.jetty.server.Server;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -18,10 +21,12 @@ import org.testng.annotations.Test;
 import javax.time.Instant;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
-import static org.testng.Assert.assertEqualsNoOrder;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  *
@@ -50,8 +55,24 @@ public class RestEntitySubscriptionTest {
     _server.stop();
   }
 
+  /**
+   * Asserts that {@code json} is a JSON object with a field {@code updates} whose value is an array
+   * containing the expected values.
+   * @param json {@code {updates: [url1, url2, ...]}}
+   * @param urls URLs that must be present in the JSON
+   */
+  private static void checkJsonResults(String json, String... urls) throws JSONException {
+    List<String> expectedList = Arrays.asList(urls);
+    JSONArray results = new JSONObject(json).getJSONArray(LongPollingSubscriptionListener.UPDATES);
+    assertEquals("Wrong number of results.  expected: " + expectedList + ", actual: " + results, expectedList.size(), results.length());
+    for (int i = 0; i < results.length(); i++) {
+      String result = results.getString(i);
+      assertTrue("Unexpected result: " + result, expectedList.contains(result));
+    }
+  }
+
   @Test
-  public void entitySubscription() throws IOException {
+  public void entitySubscription() throws IOException, JSONException {
     String clientId = readFromPath("/handshake");
     String restUrl = "/rest/test/" + _uidStr;
     // this REST request should set up a subscription for object ID Tst~101
@@ -59,22 +80,22 @@ public class RestEntitySubscriptionTest {
     // send a change event
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     // connect to the long-polling URL to receive notification of the change
-    String result = readFromPath("/updates/" + clientId);
-    assertEquals(restUrl, result);
+    String json = readFromPath("/updates/" + clientId);
+    checkJsonResults(json, restUrl);
   }
 
   @Test
-  public void subResourceSubscription() throws IOException {
+  public void subResourceSubscription() throws IOException, JSONException {
     String clientId = readFromPath("/handshake");
     String restUrl = "/rest/testsub/" + _uidStr;
     readFromPath(restUrl, clientId);
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
-    String result = readFromPath("/updates/" + clientId);
-    assertEquals(restUrl, result);
+    String json = readFromPath("/updates/" + clientId);
+    checkJsonResults(json, restUrl);
   }
 
   @Test
-  public void multipleEntitySubscription() throws IOException {
+  public void multipleEntitySubscription() throws IOException, JSONException {
     String clientId = readFromPath("/handshake");
     String restUrl1 = "/rest/test/" + _uidStr;
     String uid2Str = "Tst~102";
@@ -86,8 +107,8 @@ public class RestEntitySubscriptionTest {
     readFromPath(restUrl2, clientId);
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     _changeManager.entityChanged(ChangeType.UPDATED, uid2V1, uid2V2, Instant.now());
-    String result = readFromPath("/updates/" + clientId);
-    assertEqualsNoOrder(new String[]{restUrl1, restUrl2}, result.split("\n"));
+    String json = readFromPath("/updates/" + clientId);
+    checkJsonResults(json, restUrl1, restUrl2);
   }
 
   // TODO this logic isn't implemented in the filter, not critical as the web interface for specific versions doesn't exist yet
