@@ -19,13 +19,14 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An abstract base implementation of {@link SecurityResolver}.
+ * An abstract base implementation of {@code SecurityResolver}.
  * <p>
- * This implements the core functionality for obtaining one or more candidate securities
- * using a {@link SecuritySource} and {@link VersionCorrection}. Resolution between
- * candidates is delegated.
+ * This resolver implementation obtains the securities from {@link SecuritySource}.
+ * It uses a single fixed instance variable of {@link VersionCorrection}.
+ * Resolution between the candidate options returned for an external identifier bundle
+ * is determined by the subclass.
  */
-public abstract class BaseSecurityResolver implements SecurityResolver {
+public abstract class AbstractSecurityResolver implements SecurityResolver {
 
   /**
    * The underlying source of securities.
@@ -35,25 +36,44 @@ public abstract class BaseSecurityResolver implements SecurityResolver {
    * The version-correction at which the resolver operates.
    */
   private final VersionCorrection _versionCorrection;
-  
+
   /**
-   * Base constructor.
+   * Creates an instance decorating a {@code SecuritySource}.
    * 
-   * @param securitySource  a source of securities, not null
+   * @param securitySource  the source of securities, not null
    * @param versionCorrection  the version-correction at which the resolver will operate, not null
-   * @throws IllegalArgumentException  if the version-correction does not specify both an
-   *                                   exact version and correction
+   * @throws IllegalArgumentException if either version-correction instant is "latest"
    */
-  protected BaseSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
+  protected AbstractSecurityResolver(SecuritySource securitySource, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     if (versionCorrection.containsLatest()) {
-      throw new IllegalArgumentException("The version-correction " + versionCorrection + " does not specify both an exact version and correction");
+      throw new IllegalArgumentException("VersionCorrection must not contain 'LATEST': " + versionCorrection);
     }
     _securitySource = securitySource;
     _versionCorrection = versionCorrection;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying security source.
+   * 
+   * @return the security source, not null
+   */
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  /**
+   * Gets the version-correction at which the resolver operates.
+   * Neither instant in the result will be "latest".
+   * 
+   * @return the version-correction, not null
+   */
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+
   //-------------------------------------------------------------------------  
   @Override
   public Security resolve(Link<Security> link) {
@@ -63,7 +83,7 @@ public abstract class BaseSecurityResolver implements SecurityResolver {
       return getSecurity(objectId);
     }
     ExternalIdBundle externalId = link.getExternalId();
-    if (externalId != null && !externalId.isEmpty()) {
+    if (externalId.isEmpty() == false) {
       return getSecurity(externalId);
     }
     throw new DataNotFoundException("Link " + link + " does not contain any references");
@@ -84,7 +104,7 @@ public abstract class BaseSecurityResolver implements SecurityResolver {
     ArgumentChecker.notNull(objectId, "objectId");
     Security security = getSecuritySource().getSecurity(objectId, getVersionCorrection());
     if (security == null) {
-      throw new DataNotFoundException("Security not found: " + objectId + " at version-correction " + getVersionCorrection());
+      throw new DataNotFoundException("Security not found: " + objectId + " at " + getVersionCorrection());
     }
     return security;
   }
@@ -94,39 +114,28 @@ public abstract class BaseSecurityResolver implements SecurityResolver {
     ArgumentChecker.notNull(bundle, "bundle");
     Collection<Security> securities = getSecuritySource().getSecurities(bundle, getVersionCorrection());
     if (securities == null || securities.isEmpty()) {
-      throw new DataNotFoundException("Security not found: " + bundle + " at version-correction " + getVersionCorrection());
+      throw new DataNotFoundException("Security not found: " + bundle + " at " + getVersionCorrection());
     }
-    return resolve(securities);
+    return selectBestMatch(securities);
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Selects a single security from one or more candidates.
    * <p>
    * The selection of a "best match" distinguishes one implementation from another.
    * 
-   * @param candidates  the candidate securities, not null or empty
-   * @return the best matching candidate security, not null
+   * @param candidates  the candidate securities, not empty, not null
+   * @return the best matching security, not null
    */
-  protected abstract Security resolve(Collection<Security> candidates);
-  
+  protected abstract Security selectBestMatch(Collection<Security> candidates);
+
   //-------------------------------------------------------------------------
-  /**
-   * Gets the underlying security source.
-   * 
-   * @return the security source, not null
-   */
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-  
-  /**
-   * Gets the version-correction at which the resolver operates.
-   * 
-   * @return the version-correction, not null
-   */
-  public VersionCorrection getVersionCorrection() {
-    return _versionCorrection;
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() +
+        "[versionCorrection=" + getVersionCorrection() +
+        ", securitySource=" + getSecuritySource() + "]";
   }
 
 }
