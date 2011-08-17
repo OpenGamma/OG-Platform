@@ -27,8 +27,7 @@ $.register_module({
             west: {
               size: '33%',
               paneClass: 'ui-layout-search',
-              contentSelector: '.ui-layout-content',
-              enableCursorHotkey: true
+              contentSelector: '.ui-layout-content'
             },
             center: {
               paneClass: 'ui-layout-details'
@@ -56,8 +55,7 @@ $.register_module({
                 paneClass: 'ui-layout-inner-south',
                 size: 100,
                 initClosed: true,
-                spacing_closed: 0,
-                enableCursorHotkey: true
+                spacing_closed: 0
             }
         },
         analytics = {

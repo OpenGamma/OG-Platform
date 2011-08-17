@@ -1,0 +1,55 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * Supports a slickgrid module
+ */
+
+.OG-mod-1 > table {
+  padding-right: 10px;
+}
+
+.OG-mod-1 table {
+  line-height: 22px;
+  border-collapse: separate;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.OG-mod-1 thead td {
+  border-bottom: 4px solid #eee;
+  color: #999;
+  outline: 1px solid #fff;
+}
+
+.OG-mod-1 thead td:first-child {
+  font-size: 16px;
+  color: #555;
+}
+
+.OG-mod-1 tbody {
+  background: #ecf5fa;
+}
+
+.OG-mod-1 tbody tr:first-child td {
+  border-top:  1px solid #fff;
+}
+
+.OG-mod-1 tbody tr:last-child td {
+  padding: 5px 10px 5px 10px;
+}
+
+.OG-mod-1 tbody td {
+  padding: 5px 10px 0 10px;
+  position: relative;
+  white-space: nowrap;
+  background-color: #ecf5fa;
+}
+
+.OG-mod-1 tbody tr td:first-child {
+  color: #999;
+}
+
+.OG-mod-1 tbody .og-break td {
+  background-color: #fff;
+}
