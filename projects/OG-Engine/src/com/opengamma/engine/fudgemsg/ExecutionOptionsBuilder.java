@@ -20,6 +20,7 @@ import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Fudge message builder for {@link ExecutionOptions}
@@ -37,6 +38,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
+  private static final String VERSION_CORRECTION_FIELD = "versionCorrection";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionOptions object) {
@@ -51,6 +53,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
     serializer.addToMessage(msg, DEFAULT_EXECUTION_OPTIONS_FIELD, null, object.getDefaultExecutionOptions());
+    serializer.addToMessage(msg, VERSION_CORRECTION_FIELD, null, object.getVersionCorrection());
     return msg;
   }
 
@@ -77,10 +80,18 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
     if (message.hasField(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD)) {
       maxSuccessiveDeltaCycles = message.getInt(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD);
     }
+    
     FudgeField defaultExecutionOptionsField = message.getByName(DEFAULT_EXECUTION_OPTIONS_FIELD);
     ViewCycleExecutionOptions defaultExecutionOptions = defaultExecutionOptionsField != null ?
         deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
-    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions);
+    
+    // Default version-correction to LATEST for backwards compatibility. Remove when [DOTNET-29] is resolved.
+    FudgeField versionCorrectionField = message.getByName(VERSION_CORRECTION_FIELD);
+    VersionCorrection versionCorrection = versionCorrectionField != null
+        ? deserializer.fieldValueToObject(VersionCorrection.class, versionCorrectionField)
+        : VersionCorrection.LATEST;
+        
+    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, versionCorrection);
   }
 
 }
