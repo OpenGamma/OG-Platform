@@ -206,8 +206,10 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     checkPositionSource(ComputationTargetType.POSITION);
     
     // resolve position
-    Position position = getPositionSource().getPosition(positionId);
-    if (position == null) {
+    Position position;
+    try {
+      position = getPositionSource().getPosition(positionId);
+    } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve position UID {}", positionId);
       return null;
     }
@@ -243,8 +245,10 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     checkPositionSource(ComputationTargetType.TRADE);
     
     // resolve trade
-    Trade trade = getPositionSource().getTrade(tradeId);
-    if (trade == null) {
+    Trade trade;
+    try {
+      trade = getPositionSource().getTrade(tradeId);
+    } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve trade UID {}", tradeId);
       return null;
     }
@@ -266,25 +270,29 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * This is only called if the specification is of type node.
    * 
    * @param specification  the specification being resolved, not null
-   * @param uid  the unique identifier of the target
+   * @param uniqueId  the unique identifier of the target
    * @return the resolved node target, not null
    */
-  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueId uid) {
+  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueId uniqueId) {
     checkPositionSource(ComputationTargetType.PORTFOLIO_NODE);
     
-    PortfolioNode node = getPositionSource().getPortfolioNode(uid);
-    if (node != null) {
-      s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
-      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolveNodeTree(uid, node));
+    // try node
+    try {
+      PortfolioNode node = getPositionSource().getPortfolioNode(uniqueId);
+      s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uniqueId, node);
+      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolveNodeTree(uniqueId, node));
+    } catch (DataNotFoundException ex) {
+      // try portfolio
+      try {
+        Portfolio portfolio = getPositionSource().getPortfolio(uniqueId);
+        s_logger.info("Resolved multiple-position UID {} to portfolio {}", uniqueId, portfolio);
+        SimplePortfolio resolvedPortfolio = new SimplePortfolio(portfolio.getUniqueId(), portfolio.getName(), resolveNodeTree(uniqueId, portfolio.getRootNode()));
+        return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolvedPortfolio);
+      } catch (DataNotFoundException ex2) {
+        s_logger.info("Unable to resolve multiple-position UID {}", uniqueId);
+        return null;
+      }
     }
-    final Portfolio portfolio = getPositionSource().getPortfolio(uid);
-    if (portfolio != null) {
-      s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
-      node = portfolio.getRootNode();
-      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new SimplePortfolio(portfolio.getUniqueId(), portfolio.getName(), resolveNodeTree(uid, node)));
-    }
-    s_logger.info("Unable to resolve multiple-position UID {}", uid);
-    return null;
   }
 
   /**
