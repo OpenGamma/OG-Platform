@@ -20,7 +20,7 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 
 /**
- * Test MasterConfigSource.
+ * Test {@link MasterConfigSource}.
  */
 @Test
 public class MasterConfigSourceTest {

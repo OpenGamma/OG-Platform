@@ -159,7 +159,11 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
-    return null;
+    Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
+    if (portfolio != null) {
+      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
+    }
+    return portfolio;
   }
 
   @Override

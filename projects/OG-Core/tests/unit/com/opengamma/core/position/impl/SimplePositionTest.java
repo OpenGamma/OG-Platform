@@ -28,7 +28,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
 /**
- * Test SimplePosition.
+ * Test {@link SimplePosition}.
  */
 @Test
 public class SimplePositionTest {

@@ -53,14 +53,12 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
   //-------------------------------------------------------------------------
   @Override
   public ManageableRegion getRegion(UniqueId uniqueId) {
-    RegionDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getRegion() : null);
+    return getDocument(uniqueId).getRegion();
   }
 
   @Override
   public ManageableRegion getRegion(ObjectId objectId, VersionCorrection versionCorrection) {
-    RegionDocument doc = getDocument(objectId, versionCorrection);
-    return (doc != null ? doc.getRegion() : null);
+    return getDocument(objectId, versionCorrection).getRegion();
   }
 
   @Override

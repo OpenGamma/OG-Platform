@@ -26,6 +26,7 @@ import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Base operation for {@link ViewDeltaResultModelBuilder} and {@link ViewComputationResultModelBuilder}.
@@ -36,6 +37,7 @@ public abstract class ViewResultModelBuilder {
   private static final String FIELD_VALUATION_TIME = "valuationTime";
   private static final String FIELD_CALCULATION_TIME = "calculationTime";
   private static final String FIELD_CALCULATION_DURATION = "calculationDuration";
+  private static final String FIELD_VERSION_CORRECTION = "versionCorrection";
   private static final String FIELD_RESULTS = "results";
 
   protected static MutableFudgeMsg createResultModelMessage(final FudgeSerializer serializer, final ViewResultModel resultModel) {
@@ -45,6 +47,7 @@ public abstract class ViewResultModelBuilder {
     message.add(FIELD_VALUATION_TIME, resultModel.getValuationTime());
     message.add(FIELD_CALCULATION_TIME, resultModel.getCalculationTime());
     serializer.addToMessage(message, FIELD_CALCULATION_DURATION, null, resultModel.getCalculationDuration());
+    serializer.addToMessage(message, FIELD_VERSION_CORRECTION, null, resultModel.getVersionCorrection());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
     final MutableFudgeMsg resultMsg = serializer.newMessage();
     for (String calculationConfiguration : calculationConfigurations) {
@@ -61,6 +64,7 @@ public abstract class ViewResultModelBuilder {
     final Instant valuationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATION_TIME));
     final Instant calculationTime = message.getFieldValue(Instant.class, message.getByName(FIELD_CALCULATION_TIME));
     final Duration calculationDuration = deserializer.fieldValueToObject(Duration.class, message.getByName(FIELD_CALCULATION_DURATION));
+    final VersionCorrection versionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, message.getByName(FIELD_VERSION_CORRECTION));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
     final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();
@@ -96,6 +100,7 @@ public abstract class ViewResultModelBuilder {
     resultModel.setValuationTime(valuationTime);
     resultModel.setCalculationTime(calculationTime);
     resultModel.setCalculationDuration(calculationDuration);
+    resultModel.setVersionCorrection(versionCorrection);
     
     return resultModel;
   }

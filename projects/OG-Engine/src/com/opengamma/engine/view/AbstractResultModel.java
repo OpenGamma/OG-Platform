@@ -22,6 +22,8 @@ import com.opengamma.util.tuple.Pair;
  */
 /*package*/ abstract class AbstractResultModel<T> implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+  
   private final Map<T, Map<Pair<String, ValueProperties>, ComputedValue>> _valuesByName = new HashMap<T, Map<Pair<String, ValueProperties>, ComputedValue>>();
 
   protected Collection<T> getKeys() {

@@ -33,7 +33,7 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test HistoricalTimeSeriesSource.
+ * Test {@link HistoricalTimeSeriesSource}.
  */
 @Test
 public class HistoricalTimeSeriesSourceTest {

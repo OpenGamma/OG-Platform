@@ -38,7 +38,7 @@ import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
 
 /**
- * Test MasterPositionSource.
+ * Test {@link MasterPositionSource}.
  */
 @Test
 public class MasterPositionSourceTest {

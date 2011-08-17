@@ -16,6 +16,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
@@ -28,7 +29,7 @@ public class DependencyGraphBuilderTest extends AbstractBuilderTestCase {
   public void testCycleSimpleGraph() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = env.compileViewDefinition(Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = env.compileViewDefinition(Instant.now(), VersionCorrection.LATEST);
     DependencyGraph graph = compiledViewDefinition.getDependencyGraph(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME);
     DependencyGraph cycledGraph = cycleObject(DependencyGraph.class, graph);
     
