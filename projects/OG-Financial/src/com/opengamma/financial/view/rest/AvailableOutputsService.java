@@ -74,8 +74,12 @@ public class AvailableOutputsService {
     final SimplePortfolioNode copy = new SimplePortfolioNode(node.getUniqueId(), node.getName());
     if (maxNodes > 0) {
       final List<PortfolioNode> childNodes = node.getChildNodes();
-      if (!childNodes.isEmpty()) {
-        for (int i = 0; i < maxNodes; i++) {
+      int size = childNodes.size();
+      if (size > 0) {
+        if (size > maxNodes) {
+          size = maxNodes;
+        }
+        for (int i = 0; i < size; i++) {
           copy.addChildNode(copyNode(childNodes.get(i), maxNodes, maxPositions));
         }
       }
@@ -86,8 +90,12 @@ public class AvailableOutputsService {
     }
     if (maxPositions > 0) {
       final List<Position> positions = node.getPositions();
-      if (!positions.isEmpty()) {
-        for (int i = 0; i < maxPositions; i++) {
+      int size = positions.size();
+      if (size > 0) {
+        if (size > maxPositions) {
+          size = maxPositions;
+        }
+        for (int i = 0; i < size; i++) {
           copy.addPosition(positions.get(i));
         }
       }
@@ -110,14 +118,12 @@ public class AvailableOutputsService {
     if (rawPortfolio == null) {
       return null;
     }
-    final long tStart = System.nanoTime();
     if ((maxNodes > -1) || (maxPositions > -1)) {
       final SimplePortfolio copy = new SimplePortfolio(rawPortfolio.getName());
       copy.setRootNode(copyNode(rawPortfolio.getRootNode(), maxNodes, maxPositions));
       rawPortfolio = copy;
     }
     final Portfolio resolvedPortfolio = PortfolioCompiler.resolvePortfolio(rawPortfolio, getCompiledFunctions().getExecutorService(), getSecuritySource());
-    System.err.println("Resolve time = " + (double) (System.nanoTime() - tStart) / 1e6 + "ms");
     return resolvedPortfolio;
   }
 
