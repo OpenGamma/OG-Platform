@@ -11,6 +11,9 @@ import javax.time.Instant;
  * 
  */
 public class InMemoryViewDeltaResultModel extends InMemoryViewResultModel implements ViewDeltaResultModel {
+
+  private static final long serialVersionUID = 1L;
+  
   private Instant _previousResultTimestamp;
 
   /**
