@@ -15,6 +15,7 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
+        'og.views.common.versions',
         'og.views.common.state',
         'og.views.common.default_details'
     ],
@@ -183,12 +184,13 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            details.favorites();
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     loading: function () {
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
