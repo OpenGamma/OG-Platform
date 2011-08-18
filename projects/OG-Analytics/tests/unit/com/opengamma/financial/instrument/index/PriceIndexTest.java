@@ -8,6 +8,8 @@ package com.opengamma.financial.instrument.index;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
@@ -20,21 +22,27 @@ public class PriceIndexTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
-  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION);
+  private static final Period LAG = Period.ofDays(14);
+  private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
-    new PriceIndex(null, CUR, REGION);
+    new PriceIndex(null, CUR, REGION, LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new PriceIndex(NAME, null, REGION);
+    new PriceIndex(NAME, null, REGION, LAG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRegion() {
-    new PriceIndex(NAME, CUR, null);
+    new PriceIndex(NAME, CUR, null, LAG);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullLag() {
+    new PriceIndex(NAME, CUR, REGION, null);
   }
 
   @Test
@@ -42,20 +50,21 @@ public class PriceIndexTest {
     assertEquals("Price Index: getter: name", NAME, PRICE_INDEX.getName());
     assertEquals("Price Index: getter: currency", CUR, PRICE_INDEX.getCurrency());
     assertEquals("Price Index: getter: region", REGION, PRICE_INDEX.getRegion());
+    assertEquals("Price Index: getter: lag", LAG, PRICE_INDEX.getPublicationLag());
   }
 
   @Test
   public void testEqualHash() {
     assertEquals(PRICE_INDEX, PRICE_INDEX);
-    PriceIndex indexDuplicate = new PriceIndex("Euro HICP x", CUR, REGION);
+    PriceIndex indexDuplicate = new PriceIndex("Euro HICP x", CUR, REGION, LAG);
     assertEquals(PRICE_INDEX, indexDuplicate);
     assertEquals(PRICE_INDEX.hashCode(), indexDuplicate.hashCode());
     PriceIndex modified;
-    modified = new PriceIndex("xxx", CUR, REGION);
+    modified = new PriceIndex("xxx", CUR, REGION, LAG);
     assertFalse(PRICE_INDEX.equals(modified));
-    modified = new PriceIndex(NAME, Currency.AUD, REGION);
+    modified = new PriceIndex(NAME, Currency.AUD, REGION, LAG);
     assertFalse(PRICE_INDEX.equals(modified));
-    modified = new PriceIndex(NAME, CUR, Currency.AUD);
+    modified = new PriceIndex(NAME, CUR, Currency.AUD, LAG);
     assertFalse(PRICE_INDEX.equals(modified));
   }
 }
