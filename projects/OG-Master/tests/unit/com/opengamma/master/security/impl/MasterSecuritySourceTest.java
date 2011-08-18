@@ -31,7 +31,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * Test MasterSecuritySource.
+ * Test {@link MasterSecuritySource}.
  */
 @Test
 public class MasterSecuritySourceTest {
@@ -79,15 +79,17 @@ public class MasterSecuritySourceTest {
     assertEquals(example(), testResult);
   }
 
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getSecurity_UniqueId_notFound() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
     MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Security testResult = test.getSecurity(UID);
-    verify(mock, times(1)).get(OID, VC);
-    
-    assertEquals(null, testResult);
+    try {
+      test.getSecurity(UID);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -101,6 +103,19 @@ public class MasterSecuritySourceTest {
     verify(mock, times(1)).get(OID, VC);
     
     assertEquals(example(), testResult);
+  }
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getSecurity_ObjectId_notFound() throws Exception {
+    SecurityMaster mock = mock(SecurityMaster.class);
+    
+    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
+    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+    try {
+      test.getSecurity(OID, VC);
+    } finally {
+      verify(mock, times(1)).get(OID, VC);
+    }
   }
 
   //-------------------------------------------------------------------------

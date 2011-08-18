@@ -23,7 +23,6 @@ import org.json.JSONObject;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
-
 /**
  * Partial implementation of {@link JSONBuilder}
  */

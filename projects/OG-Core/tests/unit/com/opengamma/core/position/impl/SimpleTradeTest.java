@@ -30,7 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test SimpleTrade.
+ * Test {@link SimpleTrade}.
  */
 @Test
 public class SimpleTradeTest {

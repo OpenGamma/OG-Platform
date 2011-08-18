@@ -73,7 +73,7 @@ public class BondFixedSecurityTest {
       .getAccrualStartDate(), COUPON_DEFINITION_TRIM_1.getNthPayment(0).getAccrualEndDate(), 1.0, PAYMENT_PER_YEAR);
   private static final double FACTOR_TO_NEXT_1 = (FACTOR_PERIOD_1 - FACTOR_SPOT_1) / FACTOR_PERIOD_1;
   private static final BondFixedSecurity BOND_DESCRIPTION_1 = new BondFixedSecurity(NOMINAL_1, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR,
-      REPO_CURVE_NAME);
+      REPO_CURVE_NAME, "");
   // to derivatives: second coupon
   private static final ZonedDateTime REFERENCE_DATE_2 = DateUtils.getUTCDate(2012, 2, 16);
   private static final ZonedDateTime SPOT_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, CALENDAR, SETTLEMENT_DAYS);
@@ -88,26 +88,26 @@ public class BondFixedSecurityTest {
       .getAccrualStartDate(), COUPON_DEFINITION_TRIM_2.getNthPayment(0).getAccrualEndDate(), 1.0, PAYMENT_PER_YEAR);
   private static final double FACTOR_TO_NEXT_2 = (FACTOR_PERIOD_2 - FACTOR_SPOT_2) / FACTOR_PERIOD_2;
   private static final BondFixedSecurity BOND_DESCRIPTION_2 = new BondFixedSecurity(NOMINAL_2, COUPON_2, SETTLEMENT_TIME_2, ACCRUED_AT_SPOT_2, FACTOR_TO_NEXT_2, YIELD_CONVENTION, PAYMENT_PER_YEAR,
-      REPO_CURVE_NAME);
+      REPO_CURVE_NAME, "");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominal() {
-    new BondFixedSecurity(null, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR, REPO_CURVE_NAME);
+    new BondFixedSecurity(null, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR, REPO_CURVE_NAME, "");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
-    new BondFixedSecurity(NOMINAL_1, null, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR, REPO_CURVE_NAME);
+    new BondFixedSecurity(NOMINAL_1, null, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR, REPO_CURVE_NAME, "");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYield() {
-    new BondFixedSecurity(NOMINAL_1, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, null, PAYMENT_PER_YEAR, REPO_CURVE_NAME);
+    new BondFixedSecurity(NOMINAL_1, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, null, PAYMENT_PER_YEAR, REPO_CURVE_NAME, "");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDiscounting() {
-    new BondFixedSecurity(NOMINAL_1, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR, null);
+    new BondFixedSecurity(NOMINAL_1, COUPON_1, SETTLEMENT_TIME_1, ACCRUED_AT_SPOT_1, FACTOR_TO_NEXT_1, YIELD_CONVENTION, PAYMENT_PER_YEAR, null, "");
   }
 
   @Test

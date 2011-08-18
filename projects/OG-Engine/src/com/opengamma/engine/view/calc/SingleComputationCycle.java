@@ -404,8 +404,10 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private boolean shouldShiftData(final ComputationTargetSpecification targetSpec) {
     if (targetSpec.getType() == ComputationTargetType.SECURITY) {
-      final Security security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
-      if (security == null) {
+      final Security security;
+      try {
+        security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
+      } catch (DataNotFoundException ex) {
         return false;
       }
       // Hack to only shift equities

@@ -97,6 +97,21 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
     return _payments.length;
   }
 
+  /**
+   * Remove the payments paying on or before the given date.
+   * @param trimDate The date.
+   * @return The trimmed annuity.
+   */
+  public AnnuityDefinition<?> trimBefore(ZonedDateTime trimDate) {
+    List<PaymentDefinition> list = new ArrayList<PaymentDefinition>();
+    for (PaymentDefinition payment : getPayments()) {
+      if (payment.getPaymentDate().isAfter(trimDate)) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityDefinition<PaymentDefinition>(list.toArray(new PaymentDefinition[0]));
+  }
+
   @Override
   public String toString() {
     String result = "Annuity:";

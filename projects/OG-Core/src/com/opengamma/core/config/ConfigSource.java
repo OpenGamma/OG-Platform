@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import javax.time.Instant;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -33,9 +34,10 @@ public interface ConfigSource {
    * 
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
-   * @param uniqueId  the unique identifier, not null
-   * @return the configuration element, null if not found
+   * @param uniqueId  the unique identifier to find, not null
+   * @return the matched configuration, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
   <T> T getConfig(Class<T> clazz, UniqueId uniqueId);
@@ -48,10 +50,11 @@ public interface ConfigSource {
    * 
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
-   * @param objectId  the object identifier, not null
+   * @param objectId  the object identifier to find, not null
    * @param versionCorrection  the version-correction, not null
-   * @return the configuration element, null if not found
+   * @return the matched configuration, not null
    * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
   <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection);
@@ -67,7 +70,7 @@ public interface ConfigSource {
    * @param clazz  the configuration element type, not null
    * @param configName  the configuration name, not null
    * @param versionCorrection  the version-correction, not null
-   * @return the configuration element, null if not found
+   * @return all configuration elements matching the name, empty if no matches, not null
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws RuntimeException if an error occurs
    */

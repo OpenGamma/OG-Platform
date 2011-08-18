@@ -12,21 +12,25 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
+import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
 /**
  * Describes a generic single currency bond transaction. 
+ * @param <N> The notional type (usually FixedPayment or CouponInflationZeroCoupon).
  * @param <C> The coupon type.
  */
-public abstract class BondTransactionDefinition<C extends CouponDefinition> implements FixedIncomeInstrumentConverter<BondTransaction<? extends BondSecurity<? extends Payment>>> {
+public abstract class BondTransactionDefinition<N extends PaymentDefinition, C extends CouponDefinition> implements
+    FixedIncomeInstrumentConverter<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>> {
 
   /**
    * The bond underlying the transaction.
    */
-  private final BondSecurityDefinition<C> _underlyingBond;
+  private final BondSecurityDefinition<N, C> _underlyingBond;
   /**
    * The number of bonds purchased (can be negative or positive).
    */
@@ -40,13 +44,10 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    */
   private final ZonedDateTime _settlementExCouponDate;
   /**
-   * The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * The (quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * The meaning of this number will depend on the type of bond (fixed coupon, FRN, inflation).
    */
   private final double _price;
-  /**
-   * The amount to be paid at settlement.
-   */
-  private final double _paymentAmount;
   /**
    * The coupon index of the transaction settlement date. Take the ex-coupon period into account.
    */
@@ -67,7 +68,7 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    * @param settlementDate Transaction settlement date.
    * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondTransactionDefinition(final BondSecurityDefinition<C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
+  public BondTransactionDefinition(final BondSecurityDefinition<N, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     Validate.notNull(underlyingBond, "Underlying bond");
     Validate.notNull(settlementDate, "Settlement date");
     this._underlyingBond = underlyingBond;
@@ -84,15 +85,13 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
     }
     _previousAccrualDate = underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getAccrualStartDate();
     _nextAccrualDate = underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getAccrualEndDate();
-    // Implementation note: the amount paid depends on the notional remaining at settlement.
-    _paymentAmount = -_price * _quantity * underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getNotional();
   }
 
   /**
    * Gets the bond underlying the transaction.
    * @return The underlying Bond.
    */
-  public BondSecurityDefinition<C> getUnderlyingBond() {
+  public BondSecurityDefinition<N, C> getUnderlyingBond() {
     return _underlyingBond;
   }
 
@@ -152,14 +151,6 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
     return _nextAccrualDate;
   }
 
-  /**
-   * Gets the payment amount.
-   * @return The amount to be paid at settlement.
-   */
-  public double getPaymentAmount() {
-    return _paymentAmount;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -185,7 +176,7 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondTransactionDefinition<?> other = (BondTransactionDefinition<?>) obj;
+    final BondTransactionDefinition<?, ?> other = (BondTransactionDefinition<?, ?>) obj;
     if (Double.doubleToLongBits(_price) != Double.doubleToLongBits(other._price)) {
       return false;
     }

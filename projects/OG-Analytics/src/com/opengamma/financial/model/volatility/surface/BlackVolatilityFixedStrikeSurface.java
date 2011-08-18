@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication.StrikeParameterisation;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.surface.Surface;
 
@@ -16,7 +16,7 @@ import com.opengamma.math.surface.Surface;
 public class BlackVolatilityFixedStrikeSurface extends BlackVolatilitySurface {
 
   public BlackVolatilityFixedStrikeSurface(Surface<Double, Double, Double> surface) {
-    super(surface, StrikeParameterisation.STRIKE);
+    super(surface, StrikeParameterization.STRIKE);
   }
 
   @Override

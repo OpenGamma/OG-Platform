@@ -52,8 +52,9 @@ public interface ExchangeResolver extends LinkResolver<Exchange> {
    * then a best match selection may be required.
    * 
    * @param uniqueId  the unique identifier to find, not null
-   * @return the exchange, null if not found
+   * @return the matched exchange, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the exchange could not be found
    * @throws RuntimeException if an error occurs
    */
   Exchange getExchange(UniqueId uniqueId);
@@ -67,8 +68,9 @@ public interface ExchangeResolver extends LinkResolver<Exchange> {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param objectId  the object identifier to find, not null
-   * @return the exchange, null if not found
+   * @return the matched exchange, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the exchange could not be found
    * @throws RuntimeException if an error occurs
    */
   Exchange getExchange(ObjectId objectId);
@@ -82,8 +84,9 @@ public interface ExchangeResolver extends LinkResolver<Exchange> {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param bundle  the external identifier bundle to find, not null
-   * @return the single exchange matching the bundle of keys, null if not found
+   * @return the matched exchange, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @throws DataNotFoundException if the exchange could not be found
    * @throws RuntimeException if an error occurs
    */
   Exchange getExchange(ExternalIdBundle bundle);

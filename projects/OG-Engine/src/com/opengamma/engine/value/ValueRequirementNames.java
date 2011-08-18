@@ -214,6 +214,7 @@ public final class ValueRequirementNames {
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   
   // Fixed income analytics
+  public static final String FORWARD = "Forward";
   public static final String PRESENT_VALUE = "Present Value";
   public static final String PV01 = "PV01";
   public static final String PAR_RATE = "Par Rate";
@@ -245,6 +246,9 @@ public final class ValueRequirementNames {
   public static final String ACTUAL_REPO = "Actual Repo";
   public static final String GROSS_BASIS = "Gross Basis";
   public static final String NET_BASIS = "Net Basis";
+  
+  //Equity values
+  public static final String DIVIDEND_YIELD = "Dividend Yield";
   
   //CAPM equity model
   public static final String CAPM_BETA = "CAPM Beta";

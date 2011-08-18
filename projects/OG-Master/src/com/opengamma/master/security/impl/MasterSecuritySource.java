@@ -54,17 +54,12 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
   //-------------------------------------------------------------------------
   @Override
   public ManageableSecurity getSecurity(UniqueId uniqueId) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    SecurityDocument doc = getDocument(uniqueId);
-    return doc != null ? doc.getSecurity() : null;
+    return getDocument(uniqueId).getSecurity();
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    SecurityDocument doc = getDocument(objectId, versionCorrection);
-    return doc != null ? doc.getSecurity() : null;
+    return getDocument(objectId, versionCorrection).getSecurity();
   }
 
   @Override
@@ -72,7 +67,7 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
     ArgumentChecker.notNull(bundle, "bundle");
     return getSecuritiesInternal(bundle, getVersionCorrection());
   }
-  
+
   @Override
   public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -88,7 +83,7 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
     // simply picks the first returned security
     return securities.isEmpty() ? null : securities.iterator().next();
   }
-  
+
   @Override
   public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -98,7 +93,7 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
     // simply picks the first returned security
     return securities.isEmpty() ? null : securities.iterator().next();
   }
-  
+
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private Collection<Security> getSecuritiesInternal(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     final SecuritySearchRequest request = new SecuritySearchRequest();

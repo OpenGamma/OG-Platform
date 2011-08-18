@@ -23,12 +23,12 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
-import com.sleepycat.je.DatabaseNotFoundException;
 
 /**
  * RESTful resource for a node in a portfolio.
@@ -168,7 +168,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
       throw new IllegalArgumentException("Root node cannot be deleted");
     }
     if (data().getParentNode().removeNode(data().getNode().getUniqueId()) == false) {
-      throw new DatabaseNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
+      throw new DataNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
     }
     doc = data().getPortfolioMaster().update(doc);
     data().setPortfolio(doc);
@@ -185,7 +185,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
         throw new IllegalArgumentException("Root node cannot be deleted");
       }
       if (data().getParentNode().removeNode(data().getNode().getUniqueId()) == false) {
-        throw new DatabaseNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
+        throw new DataNotFoundException("PortfolioNode not found: " + data().getNode().getUniqueId());
       }
       doc = data().getPortfolioMaster().update(doc);
     }

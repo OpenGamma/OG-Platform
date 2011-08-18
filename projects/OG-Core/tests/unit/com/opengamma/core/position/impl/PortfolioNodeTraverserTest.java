@@ -19,7 +19,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 
 /**
- * Tests the PortfolioNodeTraverser class.
+ * Test {@link PortfolioNodeTraverser}.
  */
 public class PortfolioNodeTraverserTest {
 

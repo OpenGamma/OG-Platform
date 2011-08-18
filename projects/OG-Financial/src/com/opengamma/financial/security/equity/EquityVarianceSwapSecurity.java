@@ -6,7 +6,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
           
         public <T> T accept(EquityVarianceSwapSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-  private static final long serialVersionUID = -156858993943404659l;
+  private static final long serialVersionUID = -1913688475364825754l;
   private com.opengamma.id.ExternalId _spotUnderlyingIdentifier;
   public static final String SPOT_UNDERLYING_IDENTIFIER_KEY = "spotUnderlyingIdentifier";
   private com.opengamma.util.money.Currency _currency;
@@ -15,8 +15,8 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   public static final String STRIKE_KEY = "strike";
   private double _notional;
   public static final String NOTIONAL_KEY = "notional";
-  private boolean _parameterisedAsVariance;
-  public static final String PARAMETERISED_AS_VARIANCE_KEY = "parameterisedAsVariance";
+  private boolean _parameterizedAsVariance;
+  public static final String PARAMETERIZED_AS_VARIANCE_KEY = "parameterizedAsVariance";
   private double _annualizationFactor;
   public static final String ANNUALIZATION_FACTOR_KEY = "annualizationFactor";
   private javax.time.calendar.ZonedDateTime _firstObservationDate;
@@ -30,7 +30,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   private com.opengamma.financial.convention.frequency.Frequency _observationFrequency;
   public static final String OBSERVATION_FREQUENCY_KEY = "observationFrequency";
   public static final String SECURITY_TYPE = "EQUITY VARIANCE SWAP";
-  public EquityVarianceSwapSecurity (com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
+  public EquityVarianceSwapSecurity (com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterizedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
     super (SECURITY_TYPE);
     if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
     else {
@@ -40,7 +40,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     _currency = currency;
     _strike = strike;
     _notional = notional;
-    _parameterisedAsVariance = parameterisedAsVariance;
+    _parameterizedAsVariance = parameterizedAsVariance;
     _annualizationFactor = annualizationFactor;
     if (firstObservationDate == null) throw new NullPointerException ("'firstObservationDate' cannot be null");
     else {
@@ -96,13 +96,13 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'notional' is not double", e);
     }
-    fudgeField = fudgeMsg.getByName (PARAMETERISED_AS_VARIANCE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'parameterisedAsVariance' is not present");
+    fudgeField = fudgeMsg.getByName (PARAMETERIZED_AS_VARIANCE_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'parameterizedAsVariance' is not present");
     try {
-      _parameterisedAsVariance = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
+      _parameterizedAsVariance = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'parameterisedAsVariance' is not boolean", e);
+      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'parameterizedAsVariance' is not boolean", e);
     }
     fudgeField = fudgeMsg.getByName (ANNUALIZATION_FACTOR_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'annualizationFactor' is not present");
@@ -153,7 +153,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
       throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'observationFrequency' is not Frequency typedef", e);
     }
   }
-  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterisedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
+  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterizedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
     super (uniqueId, name, securityType, identifiers);
     if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
     else {
@@ -163,7 +163,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     _currency = currency;
     _strike = strike;
     _notional = notional;
-    _parameterisedAsVariance = parameterisedAsVariance;
+    _parameterizedAsVariance = parameterizedAsVariance;
     _annualizationFactor = annualizationFactor;
     if (firstObservationDate == null) throw new NullPointerException ("'firstObservationDate' cannot be null");
     else {
@@ -194,7 +194,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     _currency = source._currency;
     _strike = source._strike;
     _notional = source._notional;
-    _parameterisedAsVariance = source._parameterisedAsVariance;
+    _parameterizedAsVariance = source._parameterizedAsVariance;
     _annualizationFactor = source._annualizationFactor;
     if (source._firstObservationDate == null) _firstObservationDate = null;
     else {
@@ -235,7 +235,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     }
     msg.add (STRIKE_KEY, null, _strike);
     msg.add (NOTIONAL_KEY, null, _notional);
-    msg.add (PARAMETERISED_AS_VARIANCE_KEY, null, _parameterisedAsVariance);
+    msg.add (PARAMETERIZED_AS_VARIANCE_KEY, null, _parameterizedAsVariance);
     msg.add (ANNUALIZATION_FACTOR_KEY, null, _annualizationFactor);
     if (_firstObservationDate != null)  {
       serializer.addToMessage (msg, FIRST_OBSERVATION_DATE_KEY, null, _firstObservationDate);
@@ -297,11 +297,11 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
   public void setNotional (double notional) {
     _notional = notional;
   }
-  public boolean getParameterisedAsVariance () {
-    return _parameterisedAsVariance;
+  public boolean getParameterizedAsVariance () {
+    return _parameterizedAsVariance;
   }
-  public void setParameterisedAsVariance (boolean parameterisedAsVariance) {
-    _parameterisedAsVariance = parameterisedAsVariance;
+  public void setParameterizedAsVariance (boolean parameterizedAsVariance) {
+    _parameterizedAsVariance = parameterizedAsVariance;
   }
   public double getAnnualizationFactor () {
     return _annualizationFactor;
@@ -372,7 +372,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     else if (msg._currency != null) return false;
     if (_strike != msg._strike) return false;
     if (_notional != msg._notional) return false;
-    if (_parameterisedAsVariance != msg._parameterisedAsVariance) return false;
+    if (_parameterizedAsVariance != msg._parameterizedAsVariance) return false;
     if (_annualizationFactor != msg._annualizationFactor) return false;
     if (_firstObservationDate != null) {
       if (msg._firstObservationDate != null) {
@@ -420,7 +420,7 @@ public class EquityVarianceSwapSecurity extends com.opengamma.financial.security
     hc = (hc * 31) + (int)_strike;
     hc = (hc * 31) + (int)_notional;
     hc *= 31;
-    if (_parameterisedAsVariance) hc++;
+    if (_parameterizedAsVariance) hc++;
     hc = (hc * 31) + (int)_annualizationFactor;
     hc *= 31;
     if (_firstObservationDate != null) hc += _firstObservationDate.hashCode ();
