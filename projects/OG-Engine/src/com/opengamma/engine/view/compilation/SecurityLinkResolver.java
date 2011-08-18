@@ -71,14 +71,15 @@ public final class SecurityLinkResolver {
     _securitySource = new CachedSecuritySource(securitySource);
     _versionCorrection = versionCorrection;
   }
-
+  
   /**
    * Creates an instance.
    * 
    * @param viewCompilationContext  the context, not null
+   * @param versionCorrection  the version-correction, not null
    */
-  public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext) {
-    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource(), VersionCorrection.LATEST);
+  public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext, VersionCorrection versionCorrection) {
+    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource(), versionCorrection);
   }
 
   //-------------------------------------------------------------------------

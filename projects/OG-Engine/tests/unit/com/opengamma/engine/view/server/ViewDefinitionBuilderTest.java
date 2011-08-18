@@ -6,16 +6,19 @@
 package com.opengamma.engine.view.server;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -33,7 +36,7 @@ public class ViewDefinitionBuilderTest {
   }
   
   public void testSerializationCycle() {
-    ViewDefinition viewDef = new ViewDefinition("Test View", UniqueId.of("Test Scheme", "Port1"), "someuser");
+    ViewDefinition viewDef = new ViewDefinition("Test View", ObjectId.of("Test Scheme", "Port1"), "someuser");
     viewDef.setMaxDeltaCalculationPeriod(1000L);
     viewDef.setMaxFullCalculationPeriod(60000L);
     viewDef.getResultModelDefinition().setAggregatePositionOutputMode(ResultOutputMode.ALL);

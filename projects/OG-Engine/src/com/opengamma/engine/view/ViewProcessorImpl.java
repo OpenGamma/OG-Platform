@@ -49,6 +49,7 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
@@ -404,6 +405,17 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    */
   public void triggerCycle(UniqueId clientId) {
     getClientViewProcess(clientId).triggerCycle();
+  }
+  
+  /**
+   * Gets the version-correction for which the view process associated with a client is running.
+   * 
+   * @param clientId  the unique identifier of the client, not null
+   * @return the version-correction, not null
+   * @throws IllegalStateException if the client is not associated with a view process
+   */
+  public VersionCorrection getProcessVersionCorrection(UniqueId clientId) {
+    return getClientViewProcess(clientId).getExecutionOptions().getVersionCorrection();
   }
   
   private ViewProcessImpl getClientViewProcess(UniqueId clientId) {

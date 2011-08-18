@@ -54,6 +54,7 @@ import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
@@ -147,7 +148,7 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
   }
   
-  public CompiledViewDefinitionWithGraphsImpl compileViewDefinition(Instant valuationTime) {
+  public CompiledViewDefinitionWithGraphsImpl compileViewDefinition(Instant valuationTime, VersionCorrection versionCorrection) {
     if (getViewProcessor() == null) {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }
@@ -160,7 +161,7 @@ public class ViewProcessorTestEnvironment {
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
         getSecuritySource(),
         getPositionSource());
-    return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime);
+    return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
   }
 
   // Environment

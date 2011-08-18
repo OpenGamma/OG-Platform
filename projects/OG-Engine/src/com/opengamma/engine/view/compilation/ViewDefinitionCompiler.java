@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
@@ -53,7 +54,7 @@ public final class ViewDefinitionCompiler {
   }
 
   //-------------------------------------------------------------------------
-  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
+  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
 
@@ -68,7 +69,7 @@ public final class ViewDefinitionCompiler {
     s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
     t -= System.nanoTime();
     boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
-    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, requirePortfolioResolution);
+    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
     t += System.nanoTime();
     s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
     t -= System.nanoTime();

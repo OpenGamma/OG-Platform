@@ -52,6 +52,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
@@ -241,11 +242,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
     
+    VersionCorrection versionCorrection = getResolvedVersionCorrection();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
-      compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime);
+      compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
     } catch (Exception e) {
-      String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1}", getViewProcess().getDefinitionName(), compilationValuationTime);
+      String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
+          getViewProcess().getDefinitionName(), compilationValuationTime, versionCorrection);
       s_logger.error(message);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
       return;
@@ -267,7 +270,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     
     EngineResourceReference<SingleComputationCycle> cycleReference;
     try {
-      cycleReference = createCycle(executionOptions, compiledViewDefinition);
+      cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
     } catch (Exception e) {
       s_logger.error("Error creating next view cycle for view process " + getViewProcess(), e);
       return;
@@ -490,18 +493,29 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
   
   //-------------------------------------------------------------------------
-  private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+  private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions,
+      CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, VersionCorrection versionCorrection) {
     // View definition was compiled based on compilation options, which might have only included an indicative
     // valuation time. A further check ensures that the compiled view definition is still valid.
     if (!compiledViewDefinition.isValidFor(executionOptions.getValuationTime())) {
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
     UniqueId cycleId = getViewProcess().generateCycleId();
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions);
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
   
-  private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime) {
+  private VersionCorrection getResolvedVersionCorrection() {
+    VersionCorrection versionCorrection = getExecutionOptions().getVersionCorrection();
+    if (!versionCorrection.containsLatest()) {
+      return versionCorrection;
+    }
+    Instant now = Instant.now();
+    return VersionCorrection.of(versionCorrection.getVersionAsOf() != null ? versionCorrection.getVersionAsOf() : now,
+        versionCorrection.getCorrectedTo() != null ? versionCorrection.getCorrectedTo() : now);
+  }
+  
+  private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime, VersionCorrection versionCorrection) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     updateViewDefinitionIfRequired();
@@ -520,7 +534,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     try {
       MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
-      compiledViewDefinition = ViewDefinitionCompiler.compile(_viewDefinition, compilationServices, valuationTime);
+      compiledViewDefinition = ViewDefinitionCompiler.compile(_viewDefinition, compilationServices, valuationTime, versionCorrection);
     } catch (Exception e) {
       String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionName(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
