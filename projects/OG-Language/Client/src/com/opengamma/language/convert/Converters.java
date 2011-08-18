@@ -29,6 +29,7 @@ public final class Converters implements TypeConverterProvider {
     converters.add(new BoxingConverter());
     converters.add(new DataConverter());
     converters.add(new FudgeTypeConverter(OpenGammaFudgeContext.getInstance()));
+    converters.add(new MapConverter());
     converters.add(new PrimitiveArrayConverter());
     converters.add(new PrimitiveConverter());
     converters.add(new ValueConverter());
