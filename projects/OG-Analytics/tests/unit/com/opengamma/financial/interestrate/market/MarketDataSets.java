@@ -25,7 +25,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
@@ -93,10 +93,10 @@ public class MarketDataSets {
   }
   // Price index data
   private static final double[] UKRPI_VALUE = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4, 229, 231.3, 232.5, 234.4, 235.2, 235.2};
-  private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtil.getUTCDate(2010, 1, 1), DateUtil.getUTCDate(2010, 2, 1), DateUtil.getUTCDate(2010, 3, 1),
-      DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 5, 1), DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1),
-      DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1), DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2011, 1, 1),
-      DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)};
+  private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1),
+      DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1), DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1),
+      DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1),
+      DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)};
   private static final ArrayZonedDateTimeDoubleTimeSeries UKRPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(UKRPI_DATE, UKRPI_VALUE);
   // US : CPI-U 2009-2011
   private static final double[] USCPI_VALUE_2009 = new double[] {211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949, 214.537};
@@ -108,13 +108,13 @@ public class MarketDataSets {
     System.arraycopy(USCPI_VALUE_2010, 0, USCPI_VALUE, 12, 12);
     System.arraycopy(USCPI_VALUE_2011, 0, USCPI_VALUE, 24, USCPI_VALUE_2011.length);
   }
-  private static final ZonedDateTime[] USCPI_DATE = new ZonedDateTime[] {DateUtil.getUTCDate(2009, 1, 1), DateUtil.getUTCDate(2009, 2, 1), DateUtil.getUTCDate(2009, 3, 1),
-      DateUtil.getUTCDate(2009, 4, 1), DateUtil.getUTCDate(2009, 5, 1), DateUtil.getUTCDate(2009, 6, 1), DateUtil.getUTCDate(2009, 7, 1), DateUtil.getUTCDate(2009, 8, 1),
-      DateUtil.getUTCDate(2009, 9, 1), DateUtil.getUTCDate(2009, 10, 1), DateUtil.getUTCDate(2009, 11, 1), DateUtil.getUTCDate(2009, 12, 1), DateUtil.getUTCDate(2010, 1, 1),
-      DateUtil.getUTCDate(2010, 2, 1), DateUtil.getUTCDate(2010, 3, 1), DateUtil.getUTCDate(2010, 4, 1), DateUtil.getUTCDate(2010, 5, 1), DateUtil.getUTCDate(2010, 6, 1),
-      DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1), DateUtil.getUTCDate(2010, 9, 1), DateUtil.getUTCDate(2010, 10, 1), DateUtil.getUTCDate(2010, 11, 1),
-      DateUtil.getUTCDate(2010, 12, 1), DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1),
-      DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)};
+  private static final ZonedDateTime[] USCPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2009, 1, 1), DateUtils.getUTCDate(2009, 2, 1), DateUtils.getUTCDate(2009, 3, 1),
+      DateUtils.getUTCDate(2009, 4, 1), DateUtils.getUTCDate(2009, 5, 1), DateUtils.getUTCDate(2009, 6, 1), DateUtils.getUTCDate(2009, 7, 1), DateUtils.getUTCDate(2009, 8, 1),
+      DateUtils.getUTCDate(2009, 9, 1), DateUtils.getUTCDate(2009, 10, 1), DateUtils.getUTCDate(2009, 11, 1), DateUtils.getUTCDate(2009, 12, 1), DateUtils.getUTCDate(2010, 1, 1),
+      DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1), DateUtils.getUTCDate(2010, 5, 1), DateUtils.getUTCDate(2010, 6, 1),
+      DateUtils.getUTCDate(2010, 7, 1), DateUtils.getUTCDate(2010, 8, 1), DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1),
+      DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1), DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1),
+      DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)};
   private static final ArrayZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(USCPI_DATE, USCPI_VALUE);
 
   /**

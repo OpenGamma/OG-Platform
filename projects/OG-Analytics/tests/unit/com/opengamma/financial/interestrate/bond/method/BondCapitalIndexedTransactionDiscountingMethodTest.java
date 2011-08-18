@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -44,7 +44,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final PriceIndex PRICE_INDEX_USCPI = PRICE_INDEXES[0];
   private static final String[] ISSUER_NAMES = MARKET.getIssuers().toArray(new String[0]);
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[1];
-  private static final ZonedDateTime PRICING_DATE = DateUtil.getUTCDate(2011, 8, 8);
+  private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_BOND_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
   private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_BOND_TRANSACTION = new BondCapitalIndexedTransactionDiscountingMethod();
   private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
@@ -54,8 +54,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_TIPS_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final boolean IS_EOM_TIPS_1 = false;
-  private static final ZonedDateTime START_DATE_TIPS_1 = DateUtil.getUTCDate(2006, 1, 15);
-  private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtil.getUTCDate(2016, 1, 15);
+  private static final ZonedDateTime START_DATE_TIPS_1 = DateUtils.getUTCDate(2006, 1, 15);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtils.getUTCDate(2016, 1, 15);
   private static final YieldConvention YIELD_CONVENTION_TIPS_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_TIPS_1 = 3;
   private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
@@ -71,7 +71,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(PRICING_DATE, US_CPI, "Not used");
 
   private static final double QUANTITY_TIPS_1 = 654321;
-  private static final ZonedDateTime SETTLE_DATE_TIPS_1 = DateUtil.getUTCDate(2011, 8, 10);
+  private static final ZonedDateTime SETTLE_DATE_TIPS_1 = DateUtils.getUTCDate(2011, 8, 10);
   private static final double PRICE_TIPS_1 = 1.05;
   private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_TIPS_1_TRANSACTION_DEFINITION = new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(
       BOND_SECURITY_TIPS_1_DEFINITION, QUANTITY_TIPS_1, SETTLE_DATE_TIPS_1, PRICE_TIPS_1);

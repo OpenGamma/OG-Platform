@@ -74,7 +74,7 @@ import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptio
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -90,8 +90,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final BondDefinition BOND = new BondDefinition(CUR, LOCAL_DATES, LOCAL_DATES, 0.02, 1, BOND_CONVENTION);
   private static final BondForwardDefinition BOND_FORWARD = new BondForwardDefinition(BOND, LocalDate.of(2011, 7, 1), BOND_CONVENTION);
   private static final BondFutureDefinition BOND_FUTURE = new BondFutureDefinition(new BondDefinition[] {BOND}, new double[] {1}, BOND_CONVENTION, LocalDate.of(2010, 1, 1));
-  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtil.getUTCDate(2011, 1, 1), 1, 0.04, BOND_CONVENTION);
-  private static final ZonedDateTime SETTLE_DATE = DateUtil.getUTCDate(2011, 1, 1);
+  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1, 0.04, BOND_CONVENTION);
+  private static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   private static final Period TENOR = Period.ofYears(2);
   private static final Period FIXED_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
@@ -116,7 +116,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_1);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
   private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtil.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtil.getUTCDate(2012, 1, 1), 1000)});
+      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000)});
   private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
 
     @Override

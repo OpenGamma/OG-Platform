@@ -22,7 +22,7 @@ import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -33,7 +33,9 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.impl.MockConfigSource;
 import com.opengamma.util.money.Currency;
@@ -158,6 +160,14 @@ public class BatchJobTest {
   public void dateRangeCommandLineHolidayMaster() throws Exception {
     HolidaySource holidaySource = new HolidaySource() {
       @Override
+      public Holiday getHoliday(UniqueId uniqueId) {
+        throw new UnsupportedOperationException();
+      }
+      @Override
+      public Holiday getHoliday(ObjectId objectId, VersionCorrection versionCorrection) {
+        throw new UnsupportedOperationException();
+      }
+      @Override
       public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
@@ -168,10 +178,6 @@ public class BatchJobTest {
       @Override
       public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
-      }
-      @Override
-      public Holiday getHoliday(UniqueId uid) {
-        throw new UnsupportedOperationException();
       }
     };
     
@@ -235,14 +241,12 @@ public class BatchJobTest {
   }
 
   @Test
-  public void initViewProcessor() throws Exception {
-    UniqueId portfolioId = UniqueId.of("foo", "bar");
-    
+  public void initViewProcessor() throws Exception {   
     final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     cfgDocument.setUniqueId(UniqueId.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     
-    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", ObjectId.of("Port", "Test"), "ViewTestUser");
     cfgDocument.setValue(viewDefinition);
     MockConfigSource cfgSource = new MockConfigSource();
     cfgSource.add(cfgDocument);
@@ -258,7 +262,8 @@ public class BatchJobTest {
     job.setBatchMaster(batchMaster);
     
     MockPositionSource positionSource = new MockPositionSource();
-    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    UniqueId portfolioId = UniqueId.of("foo", "bar");
+    positionSource.addPortfolio(new SimplePortfolio(portfolioId, "test_portfolio"));
     job.setPositionSource(positionSource);
     
     job.setSecuritySource(new MockFinancialSecuritySource());

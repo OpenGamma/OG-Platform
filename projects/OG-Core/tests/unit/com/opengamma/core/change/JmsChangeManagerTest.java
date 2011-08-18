@@ -21,11 +21,11 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test JmsMasterChangeManager.
+ * Test {@link JmsChangeManager}.
  */
 @Test
 public class JmsChangeManagerTest {
@@ -39,7 +39,7 @@ public class JmsChangeManagerTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
-    ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
+    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
     jmsTemplate.setConnectionFactory(cf);
     jmsTemplate.setPubSubDomain(true);

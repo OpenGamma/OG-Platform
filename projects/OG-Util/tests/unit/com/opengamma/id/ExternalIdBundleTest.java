@@ -276,6 +276,11 @@ public class ExternalIdBundleTest {
     assertEquals(1, ExternalIdBundle.of(_id11).size());
     assertEquals(2, ExternalIdBundle.of(_id11, _id12).size());
   }
+  
+  public void test_isEmpty() {
+    assertEquals(true, ExternalIdBundle.EMPTY.isEmpty());
+    assertEquals(false, ExternalIdBundle.of(_id11).isEmpty());
+  }
 
   //-------------------------------------------------------------------------
   public void test_iterator() {

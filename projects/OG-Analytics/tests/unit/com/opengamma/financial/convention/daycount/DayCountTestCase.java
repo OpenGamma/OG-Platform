@@ -10,16 +10,16 @@ import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test DayCount.
  */
 public abstract class DayCountTestCase {
 
-  protected static final ZonedDateTime D1 = DateUtil.getUTCDate(2010, 1, 1);
-  protected static final ZonedDateTime D2 = DateUtil.getUTCDate(2010, 4, 1);
-  protected static final ZonedDateTime D3 = DateUtil.getUTCDate(2010, 7, 1);
+  protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
+  protected static final ZonedDateTime D2 = DateUtils.getUTCDate(2010, 4, 1);
+  protected static final ZonedDateTime D3 = DateUtils.getUTCDate(2010, 7, 1);
   protected static final double COUPON = 0.01;
   protected static final int PAYMENTS = 4;
 

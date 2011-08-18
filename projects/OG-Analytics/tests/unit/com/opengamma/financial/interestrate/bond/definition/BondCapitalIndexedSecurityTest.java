@@ -32,7 +32,7 @@ import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -50,9 +50,9 @@ public class BondCapitalIndexedSecurityTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final boolean IS_EOM_GILT_1 = false;
-  private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2002, 7, 11);
-  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2003, 1, 26);
-  private static final ZonedDateTime MATURITY_DATE = DateUtil.getUTCDate(2035, 1, 26);
+  private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2002, 7, 11);
+  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtils.getUTCDate(2003, 1, 26);
+  private static final ZonedDateTime MATURITY_DATE = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG = 8;
   private static final double INDEX_START = 173.60; // November 2001 
@@ -62,7 +62,7 @@ public class BondCapitalIndexedSecurityTest {
   private static final int COUPON_PER_YEAR_GILT_1 = 2;
   private static final int SETTLEMENT_DAYS = 2;
   private static final String ISSUER_UK = "UK GOVT";
-  private static final ZonedDateTime PRICING_DATE = DateUtil.getUTCDate(2011, 8, 8);
+  private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 8);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(PRICING_DATE, CALENDAR, SETTLEMENT_DAYS);
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(PRICE_INDEX,
       MONTH_LAG, START_DATE, INDEX_START, FIRST_COUPON_DATE, MATURITY_DATE, COUPON_PERIOD, NOTIONAL_GILT_1, REAL_RATE, BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_GILT_1, YIELD_CONVENTION,

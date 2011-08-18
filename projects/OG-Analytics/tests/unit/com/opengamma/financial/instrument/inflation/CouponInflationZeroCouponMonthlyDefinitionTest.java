@@ -25,7 +25,7 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
@@ -40,14 +40,14 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
   private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2008, 8, 18);
+  private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR, COUPON_TENOR);
   private static final ZonedDateTime ACCRUAL_END_DATE = PAYMENT_DATE.minusDays(1); // For getter test
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
   private static final double INDEX_APRIL_2008 = 108.23; // 3 m before Aug: May / 1 May index = May index: 108.23
-  private static final ZonedDateTime REFERENCE_START_DATE = DateUtil.getUTCDate(2008, 5, 1);
+  private static final ZonedDateTime REFERENCE_START_DATE = DateUtils.getUTCDate(2008, 5, 1);
   private static final ZonedDateTime REFERENCE_END_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
   private static final ZonedDateTime FIXING_DATE = REFERENCE_END_DATE.plusMonths(1).withDayOfMonth(1).plusWeeks(2);
   private static final CouponInflationZeroCouponMonthlyDefinition ZERO_COUPON_DEFINITION = new CouponInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, START_DATE, ACCRUAL_END_DATE, 1.0,
@@ -187,7 +187,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
 
   @Test
   public void toDerivativesNoData() {
-    final ZonedDateTime pricingDate = DateUtil.getUTCDate(2011, 7, 29);
+    final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 29);
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
@@ -199,8 +199,8 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
 
   @Test
   public void toDerivativesStartMonthNotknown() {
-    final ZonedDateTime pricingDate = DateUtil.getUTCDate(2011, 7, 29);
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2008, 5, 1), DateUtil.getUTCDate(2008, 6, 1)}, new double[] {
+    final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 29);
+    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2008, 5, 1), DateUtils.getUTCDate(2008, 6, 1)}, new double[] {
         128.23, 128.43});
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
@@ -213,8 +213,8 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
 
   @Test
   public void toDerivativesStartMonthKnown() {
-    final ZonedDateTime pricingDate = DateUtil.getUTCDate(2018, 6, 25);
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2018, 5, 1), DateUtil.getUTCDate(2018, 6, 1)}, new double[] {
+    final ZonedDateTime pricingDate = DateUtils.getUTCDate(2018, 6, 25);
+    final DoubleTimeSeries<ZonedDateTime> priceIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1)}, new double[] {
         128.23, 128.43});
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);

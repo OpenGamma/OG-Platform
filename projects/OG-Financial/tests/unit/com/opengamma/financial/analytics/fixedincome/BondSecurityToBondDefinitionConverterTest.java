@@ -32,11 +32,13 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -49,10 +51,10 @@ public class BondSecurityToBondDefinitionConverterTest {
   private static final RegionSource REGION_SOURCE = new MasterRegionSource(RegionFileReader.createPopulated().getRegionMaster());
   private static final BondSecurityToBondDefinitionConverter CONVERTER = new BondSecurityToBondDefinitionConverter(
       HOLIDAY_SOURCE, CONVENTION_SOURCE);
-  private static final ZonedDateTime FIRST_ACCRUAL_DATE = DateUtil.getUTCDate(2007, 9, 30);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2007, 10, 2);
-  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2008, 3, 31);
-  private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2008, 9, 30);
+  private static final ZonedDateTime FIRST_ACCRUAL_DATE = DateUtils.getUTCDate(2007, 9, 30);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2007, 10, 2);
+  private static final ZonedDateTime FIRST_COUPON_DATE = DateUtils.getUTCDate(2008, 3, 31);
+  private static final ZonedDateTime LAST_TRADE_DATE = DateUtils.getUTCDate(2008, 9, 30);
   private static final double COUPON = 4.0;
   private static final BondSecurityConverter NEW_CONVERTER = new BondSecurityConverter(HOLIDAY_SOURCE,
       CONVENTION_SOURCE, REGION_SOURCE);
@@ -109,29 +111,28 @@ public class BondSecurityToBondDefinitionConverterTest {
   }
 
   private static class MyHolidaySource implements HolidaySource {
-
+    @Override
+    public Holiday getHoliday(final UniqueId uniqueId) {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
-
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
         final ExternalIdBundle regionOrExchangeIds) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
-
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
         final ExternalId regionOrExchangeId) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
-
-    @Override
-    public Holiday getHoliday(final UniqueId uid) {
-      return null;
-    }
-
   }
 
 }

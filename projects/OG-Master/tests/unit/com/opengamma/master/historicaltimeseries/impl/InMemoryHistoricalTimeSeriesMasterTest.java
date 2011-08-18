@@ -34,7 +34,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test InMemoryHistoricalTimeSeriesMaster.
+ * Test {@link InMemoryHistoricalTimeSeriesMaster}.
  */
 @Test
 public class InMemoryHistoricalTimeSeriesMasterTest {

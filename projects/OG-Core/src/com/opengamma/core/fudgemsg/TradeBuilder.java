@@ -20,8 +20,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.CounterpartyImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -144,8 +145,23 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     return message;
   }
 
-  protected static TradeImpl buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    TradeImpl trade = new TradeImpl();
+  protected static SimpleTrade buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    SimpleSecurityLink secLink = new SimpleSecurityLink();
+    if (message.hasField(FIELD_SECURITYKEY)) {
+      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
+      if (secKeyField != null) {
+        secLink.setExternalId(deserializer.fieldValueToObject(ExternalIdBundle.class, secKeyField));
+      }
+    }
+    if (message.hasField(FIELD_SECURITYID)) {
+      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
+      if (secIdField != null) {
+        secLink.setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
+      }
+    }
+    
+    SimpleTrade trade = new SimpleTrade();
+    trade.setSecurityLink(secLink);
     if (message.hasField(FIELD_UNIQUE_ID)) {
       FudgeField uniqueIdField = message.getByName(FIELD_UNIQUE_ID);
       if (uniqueIdField != null) {
@@ -158,22 +174,10 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
         trade.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
       }
     }
-    if (message.hasField(FIELD_SECURITYKEY)) {
-      FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
-      if (secKeyField != null) {
-        trade.getSecurityLink().setExternalId(deserializer.fieldValueToObject(ExternalIdBundle.class, secKeyField));
-      }
-    }
-    if (message.hasField(FIELD_SECURITYID)) {
-      FudgeField secIdField = message.getByName(FIELD_SECURITYID);
-      if (secIdField != null) {
-        trade.getSecurityLink().setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
-      }
-    }
     if (message.hasField(FIELD_COUNTERPARTY)) {
       FudgeField counterpartyField = message.getByName(FIELD_COUNTERPARTY);
       if (counterpartyField != null) {
-        trade.setCounterparty(new CounterpartyImpl(deserializer.fieldValueToObject(ExternalId.class, counterpartyField)));
+        trade.setCounterparty(new SimpleCounterparty(deserializer.fieldValueToObject(ExternalId.class, counterpartyField)));
       }
     }
     if (message.hasField(FIELD_TRADE_DATE)) {
@@ -224,7 +228,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
 
   @Override
   public Trade buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final TradeImpl trade = buildObjectImpl(deserializer, message);
+    final SimpleTrade trade = buildObjectImpl(deserializer, message);
     FudgeField positionField = message.getByName(FIELD_PARENT_POSITION_ID);
     if (positionField != null) {
       trade.setParentPositionId(deserializer.fieldValueToObject(UniqueId.class, positionField));

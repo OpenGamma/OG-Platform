@@ -16,7 +16,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Data structure to hold a particular volatility surface's data points.  Note no interpolation or fitting is done in this code.
+ * Data structure to hold a particular volatility surface's data points.
+ * Note no interpolation or fitting is done in this code.
+ * 
  * @param <X> Type of the x-data
  * @param <Y> Type of the y-data
  */
@@ -72,7 +74,7 @@ public class VolatilitySurfaceData<X, Y> {
   public UniqueIdentifiable getTarget() {
     return _target;
   }
-  
+
   /**
    * @deprecated use getTarget()
    * @throws ClassCastException if target not a currency
@@ -104,4 +106,5 @@ public class VolatilitySurfaceData<X, Y> {
   public int hashCode() {
     return getDefinitionName().hashCode() * getSpecificationName().hashCode() * getTarget().hashCode();
   }
+
 }

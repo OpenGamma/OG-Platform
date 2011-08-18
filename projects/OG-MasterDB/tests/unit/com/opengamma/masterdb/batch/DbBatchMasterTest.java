@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.security.test.MockSecurity;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
@@ -51,7 +51,9 @@ import com.opengamma.financial.batch.CommandLineBatchJob;
 import com.opengamma.financial.batch.CommandLineBatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.PagingRequest;
@@ -90,18 +92,18 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     
-    UniqueId portfolioId = UniqueId.of("foo", "bar");
+    ObjectId portfolioOid = ObjectId.of("foo", "bar");
     
     MockPositionSource positionSource = new MockPositionSource();
-    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    positionSource.addPortfolio(new SimplePortfolio(portfolioOid.atVersion("1"), "test_portfolio"));
     env.setPositionSource(positionSource);
     
-    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioOid, "ViewTestUser");
     env.setViewDefinition(viewDefinition);
     
     env.init();
     
-    CompiledViewDefinition compiledViewDefinition = env.compileViewDefinition(Instant.now());
+    CompiledViewDefinition compiledViewDefinition = env.compileViewDefinition(Instant.now(), VersionCorrection.LATEST);
     _batchJobRun.setCompiledViewDefinition(compiledViewDefinition);
     
     _batchJobRun.setViewProcessor(env.getViewProcessor());
@@ -394,7 +396,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   public void getComputationTarget() {
     UniqueId uniqueId = UniqueId.of("foo", "bar", "1");
     
-    MockSecurity mockSecurity = new MockSecurity("option");
+    SimpleSecurity mockSecurity = new SimpleSecurity("option");
     mockSecurity.setUniqueId(uniqueId);
     mockSecurity.setName("myOption");
     
@@ -413,7 +415,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   public void updateComputationTarget() {
     UniqueId uniqueId = UniqueId.of("foo", "bar");
     
-    MockSecurity mockSecurity = new MockSecurity("option");
+    SimpleSecurity mockSecurity = new SimpleSecurity("option");
     mockSecurity.setUniqueId(uniqueId);
     mockSecurity.setName("myOption");
     

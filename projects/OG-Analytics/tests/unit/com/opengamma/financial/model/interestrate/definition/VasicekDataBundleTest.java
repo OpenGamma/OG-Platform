@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class VasicekDataBundleTest {
   private static final double LONG_RATE = 0.05;
   private static final double SPEED = 0.1;
   private static final VolatilityCurve SIGMA = new VolatilityCurve(ConstantDoublesCurve.from(0.4));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final VasicekDataBundle DATA = new VasicekDataBundle(SHORT_RATE, SIGMA, DATE, LONG_RATE, SPEED);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

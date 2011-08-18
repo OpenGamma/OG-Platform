@@ -37,7 +37,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
@@ -56,7 +56,7 @@ public class BondSecurityDiscountingMethodTest {
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(10);
   private static final int SETTLEMENT_DAYS = 3;
-  private static final ZonedDateTime START_ACCRUAL_DATE_FIXED = DateUtil.getUTCDate(2006, 11, 15);
+  private static final ZonedDateTime START_ACCRUAL_DATE_FIXED = DateUtils.getUTCDate(2006, 11, 15);
   private static final ZonedDateTime MATURITY_DATE_FIXED = START_ACCRUAL_DATE_FIXED.plus(BOND_TENOR_FIXED);
   private static final double RATE_FIXED = 0.04625;
   private static final double NOTIONAL = 100;
@@ -71,12 +71,12 @@ public class BondSecurityDiscountingMethodTest {
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
   // Spot: middle coupon
-  private static final ZonedDateTime REFERENCE_DATE_1 = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);
   private static final ZonedDateTime SPOT_1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, CALENDAR, SETTLEMENT_DAYS);
   private static final double REFERENCE_TIME_1 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_1, SPOT_1);
   private static final BondFixedSecurity BOND_FIXED_SECURITY_1 = BOND_FIXED_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
   // Spot: on coupon date
-  private static final ZonedDateTime REFERENCE_DATE_2 = DateUtil.getUTCDate(2012, 1, 10);
+  private static final ZonedDateTime REFERENCE_DATE_2 = DateUtils.getUTCDate(2012, 1, 10);
   private static final ZonedDateTime SPOT_2 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_2, CALENDAR, SETTLEMENT_DAYS);
   private static final double REFERENCE_TIME_2 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_2, SPOT_2);
   private static final BondFixedSecurity BOND_FIXED_SECURITY_2 = BOND_FIXED_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_2, CURVES_NAME);
@@ -245,7 +245,7 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void dirtyPriceFromYieldUSStreetLastPeriod() {
-    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2016, 6, 3); // In last period
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2016, 6, 3); // In last period
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
@@ -313,7 +313,7 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void modifiedDurationFromYieldUSStreetLastPeriod() {
-    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2016, 6, 3); // In last period
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2016, 6, 3); // In last period
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.modifiedDurationFromYield(bondSecurity, yield);
@@ -474,14 +474,14 @@ public class BondSecurityDiscountingMethodTest {
   private static final Period BOND_TENOR_G = Period.ofYears(12);
   private static final int SETTLEMENT_DAYS_G = 1;
   private static final int EX_DIVIDEND_DAYS_G = 7;
-  private static final ZonedDateTime START_ACCRUAL_DATE_G = DateUtil.getUTCDate(2002, 9, 7);
+  private static final ZonedDateTime START_ACCRUAL_DATE_G = DateUtils.getUTCDate(2002, 9, 7);
   private static final ZonedDateTime MATURITY_DATE_G = START_ACCRUAL_DATE_G.plus(BOND_TENOR_G);
   private static final double RATE_G = 0.0500;
   private static final double NOTIONAL_G = 100;
   private static final YieldConvention YIELD_CONVENTION_G = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD");
   private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_G = BondFixedSecurityDefinition.from(CUR_G, MATURITY_DATE_G, START_ACCRUAL_DATE_G, PAYMENT_TENOR_G, RATE_G,
       SETTLEMENT_DAYS_G, NOTIONAL_G, EX_DIVIDEND_DAYS_G, CALENDAR_G, DAY_COUNT_G, BUSINESS_DAY_G, YIELD_CONVENTION_G, IS_EOM_G, ISSUER_G, REPO_TYPE_G);
-  private static final ZonedDateTime REFERENCE_DATE_3 = DateUtil.getUTCDate(2011, 9, 2); // Ex-dividend is 30-Aug-2011
+  private static final ZonedDateTime REFERENCE_DATE_3 = DateUtils.getUTCDate(2011, 9, 2); // Ex-dividend is 30-Aug-2011
   private static final BondFixedSecurity BOND_FIXED_SECURITY_G = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(REFERENCE_DATE_3, CURVES_NAME);
   private static final ZonedDateTime SPOT_3 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_3, CALENDAR, SETTLEMENT_DAYS_G);
   private static final double REFERENCE_TIME_3 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_3, SPOT_3);
@@ -517,7 +517,7 @@ public class BondSecurityDiscountingMethodTest {
 
   @Test
   public void dirtyPriceFromYieldUKLastPeriod() {
-    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2014, 6, 3); // In last period
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2014, 6, 3); // In last period
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
@@ -560,14 +560,14 @@ public class BondSecurityDiscountingMethodTest {
   //  private static final Period BOND_TENOR_G2 = Period.ofYears(10);
   private static final int SETTLEMENT_DAYS_G2 = 1;
   private static final int EX_DIVIDEND_DAYS_G2 = 7;
-  private static final ZonedDateTime START_ACCRUAL_DATE_G2 = DateUtil.getUTCDate(1999, 11, 25);
-  private static final ZonedDateTime MATURITY_DATE_G2 = DateUtil.getUTCDate(2010, 11, 25);
+  private static final ZonedDateTime START_ACCRUAL_DATE_G2 = DateUtils.getUTCDate(1999, 11, 25);
+  private static final ZonedDateTime MATURITY_DATE_G2 = DateUtils.getUTCDate(2010, 11, 25);
   private static final double RATE_G2 = 0.0625;
   private static final double NOTIONAL_G2 = 100;
   private static final YieldConvention YIELD_CONVENTION_G2 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD");
   private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_G2 = BondFixedSecurityDefinition.from(CUR_G, MATURITY_DATE_G2, START_ACCRUAL_DATE_G2, PAYMENT_TENOR_G, RATE_G2,
       SETTLEMENT_DAYS_G2, NOTIONAL_G2, EX_DIVIDEND_DAYS_G2, CALENDAR_G, DAY_COUNT_G2, BUSINESS_DAY_G, YIELD_CONVENTION_G2, IS_EOM_G, ISSUER_G, REPO_TYPE_G);
-  private static final ZonedDateTime REFERENCE_DATE_4 = DateUtil.getUTCDate(2001, 8, 10);
+  private static final ZonedDateTime REFERENCE_DATE_4 = DateUtils.getUTCDate(2001, 8, 10);
   private static final BondFixedSecurity BOND_FIXED_SECURITY_G2 = BOND_FIXED_SECURITY_DEFINITION_G2.toDerivative(REFERENCE_DATE_4, CURVES_NAME);
 
   @Test

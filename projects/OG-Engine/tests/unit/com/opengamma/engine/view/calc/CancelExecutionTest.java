@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -72,6 +72,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -172,7 +173,7 @@ public class CancelExecutionTest {
     }
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalculationConfigurationName(), graph);
-    CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
+    CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new SimplePortfolio("Test Portfolio"), 0);
     ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions();
     cycleOptions.setValuationTime(Instant.ofEpochMillis(1));
     cycleOptions.setMarketDataSpecification(new MarketDataSpecification());
@@ -181,7 +182,8 @@ public class CancelExecutionTest {
         UniqueId.of("Test", "ViewProcess1"),
         vpc, 
         viewEvaluationModel, 
-        cycleOptions);
+        cycleOptions,
+        VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
     return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
   }
 

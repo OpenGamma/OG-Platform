@@ -23,7 +23,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -88,9 +88,9 @@ public class BinomialOptionModelTest {
 
   @Test
   public void testEuropeanCallTree() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
+    final ZonedDateTime date = DateUtils.getUTCDate(2009, 1, 1);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.)), 100., date);
-    final OptionDefinition option = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), true);
+    final OptionDefinition option = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(date, 1)), true);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final DoublesPair[][] result = f.evaluate(data).getNodes();
     final DoublesPair[][] expected = new DoublesPair[4][4];
@@ -109,9 +109,9 @@ public class BinomialOptionModelTest {
 
   @Test
   public void testAmericanPutTree() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
+    final ZonedDateTime date = DateUtils.getUTCDate(2009, 1, 1);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.)), 100., date);
-    final OptionDefinition option = new AmericanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), false);
+    final OptionDefinition option = new AmericanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(date, 1)), false);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final DoublesPair[][] result = f.evaluate(data).getNodes();
     final DoublesPair[][] expected = new DoublesPair[4][4];

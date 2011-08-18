@@ -8,7 +8,7 @@ package com.opengamma.master.historicaltimeseries.impl;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
@@ -29,7 +29,7 @@ public final class RandomTimeSeriesGenerator {
    * @return the time-series, not null
    */
   public static MapLocalDateDoubleTimeSeries makeRandomTimeSeries(int numDays) {
-    LocalDate previousWeekDay = DateUtil.previousWeekDay();
+    LocalDate previousWeekDay = DateUtils.previousWeekDay();
     return makeRandomTimeSeries(previousWeekDay, numDays);
   }
 

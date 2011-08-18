@@ -5,9 +5,13 @@
  */
 package com.opengamma.master.exchange.impl;
 
+import java.util.Collection;
+
+import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
@@ -49,8 +53,19 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   //-------------------------------------------------------------------------
   @Override
   public ManageableExchange getExchange(UniqueId uniqueId) {
-    ExchangeDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getExchange() : null);
+    return getDocument(uniqueId).getExchange();
+  }
+
+  @Override
+  public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getDocument(objectId, versionCorrection).getExchange();
+  }
+
+  @Override
+  public Collection<? extends Exchange> getExchanges(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);
+    searchRequest.setVersionCorrection(getVersionCorrection());
+    return getMaster().search(searchRequest).getExchanges();
   }
 
   @Override

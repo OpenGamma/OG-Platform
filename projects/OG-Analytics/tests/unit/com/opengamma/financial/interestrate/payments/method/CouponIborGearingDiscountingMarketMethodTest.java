@@ -26,7 +26,7 @@ import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -38,8 +38,8 @@ public class CouponIborGearingDiscountingMarketMethodTest {
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 5, 23);
-  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 8, 22);
+  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
+  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 8, 22);
   private static final double ACCRUAL_FACTOR = DAY_COUNT_COUPON.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 1000000; //1m
   private static final double FACTOR = 2.0;
@@ -47,7 +47,7 @@ public class CouponIborGearingDiscountingMarketMethodTest {
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, CALENDAR_EUR, -EURIBOR3M.getSettlementDays());
   private static final CouponIborGearingDefinition COUPON_DEFINITION = new CouponIborGearingDefinition(EURIBOR3M.getCurrency(), ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
       NOTIONAL, FIXING_DATE, EURIBOR3M, SPREAD, FACTOR);
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 12, 27);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final CouponIborGearing COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {"A", "B"});
   private static final CouponIborGearingDiscountingMarketMethod METHOD = new CouponIborGearingDiscountingMarketMethod();
 

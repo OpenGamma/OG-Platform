@@ -44,11 +44,11 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class SwaptionCashFixedIborTest {
   // Swaption description
-  private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2011, 3, 28);
+  private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2011, 3, 28);
   private static final boolean IS_LONG = true;
   // Swap 2Y description
   private static final Currency CUR = Currency.USD;
@@ -56,7 +56,7 @@ public class SwaptionCashFixedIborTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 30);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 30);
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
@@ -83,7 +83,7 @@ public class SwaptionCashFixedIborTest {
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_SHORT_PAYER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, !IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_SHORT_RECEIVER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_RECEIVER, !IS_LONG);
   // to derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};

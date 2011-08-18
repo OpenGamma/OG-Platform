@@ -9,16 +9,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.IdUtils;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -33,19 +36,19 @@ public class MockPositionSource implements PositionSource {
   /**
    * The portfolios.
    */
-  private final Map<UniqueId, Portfolio> _portfolios = new ConcurrentHashMap<UniqueId, Portfolio>();
+  private final Map<ObjectId, Portfolio> _portfolios = new ConcurrentHashMap<ObjectId, Portfolio>();
   /**
    * A cache of nodes by identifier.
    */
-  private final Map<UniqueId, PortfolioNode> _nodes = new ConcurrentHashMap<UniqueId, PortfolioNode>();
+  private final Map<ObjectId, PortfolioNode> _nodes = new ConcurrentHashMap<ObjectId, PortfolioNode>();
   /**
    * A cache of positions by identifier.
    */
-  private final Map<UniqueId, Position> _positions = new ConcurrentHashMap<UniqueId, Position>();
+  private final Map<ObjectId, Position> _positions = new ConcurrentHashMap<ObjectId, Position>();
   /**
    * A cache of trades by identifier.
    */
-  private final Map<UniqueId, Trade> _trades = new ConcurrentHashMap<UniqueId, Trade>();
+  private final Map<ObjectId, Trade> _trades = new ConcurrentHashMap<ObjectId, Trade>();
   /**
    * The suppler of unique identifiers.
    */
@@ -59,54 +62,55 @@ public class MockPositionSource implements PositionSource {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the list of all portfolio identifiers.
-   * 
-   * @return the portfolio identifiers, unmodifiable, not null
-   */
-  public Set<UniqueId> getPortfolioIds() {
-    return _portfolios.keySet();
+  @Override
+  public Portfolio getPortfolio(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    Portfolio portfolio = _portfolios.get(uniqueId.getObjectId());
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + uniqueId);
+    }
+    return portfolio;
   }
 
-  /**
-   * Gets a specific root portfolio by name.
-   * 
-   * @param identifier  the identifier, null returns null
-   * @return the portfolio, null if not found
-   */
-  public Portfolio getPortfolio(UniqueId identifier) {
-    return identifier == null ? null : _portfolios.get(identifier);
+  @Override
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Portfolio portfolio = _portfolios.get(objectId);
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + objectId);
+    }
+    return portfolio;
   }
 
-  /**
-   * Finds a specific node from any portfolio by identifier.
-   * 
-   * @param identifier  the identifier, null returns null
-   * @return the node, null if not found
-   */
-  public PortfolioNode getPortfolioNode(UniqueId identifier) {
-    return identifier == null ? null : _nodes.get(identifier);
+  @Override
+  public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    PortfolioNode node = _nodes.get(uniqueId.getObjectId());
+    if (node == null) {
+      throw new DataNotFoundException("PortfolioNode not found: " + uniqueId);
+    }
+    return node;
   }
 
-  /**
-   * Finds a specific position from any portfolio by identifier.
-   * 
-   * @param identifier  the identifier, null returns null
-   * @return the position, null if not found
-   */
-  public Position getPosition(UniqueId identifier) {
-    return identifier == null ? null : _positions.get(identifier);
+  @Override
+  public Position getPosition(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    Position position = _positions.get(uniqueId.getObjectId());
+    if (position == null) {
+      throw new DataNotFoundException("Position not found: " + uniqueId);
+    }
+    return position;
   }
 
-  /**
-   * Finds a specific trade from any portfolio by identifier.
-   * 
-   * @param uniqueId  the identifier, null returns null
-   * @return the trade, null if not found
-   */
   @Override
   public Trade getTrade(UniqueId uniqueId) {
-    return uniqueId == null ? null : _trades.get(uniqueId);
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    Trade trade = _trades.get(uniqueId.getObjectId());
+    if (trade == null) {
+      throw new DataNotFoundException("Trade not found: " + uniqueId);
+    }
+    return trade;
   }
 
   //-------------------------------------------------------------------------
@@ -117,14 +121,23 @@ public class MockPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the list of all portfolio identifiers.
+   * 
+   * @return the portfolio identifiers, unmodifiable, not null
+   */
+  public Set<ObjectId> getPortfolioIds() {
+    return _portfolios.keySet();
+  }
+
+  /**
    * Adds a portfolio to the master.
    * 
    * @param portfolio  the portfolio to add, not null
    */
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-
-    _portfolios.put(portfolio.getUniqueId(), portfolio);
+    
+    _portfolios.put(portfolio.getUniqueId().getObjectId(), portfolio);
     addToCache(portfolio.getUniqueId().getValue(), null, portfolio.getRootNode());
   }
 
@@ -136,27 +149,27 @@ public class MockPositionSource implements PositionSource {
    */
   private void addToCache(String portfolioId, UniqueId parentNode, PortfolioNode node) {
     // node
-    if (node instanceof PortfolioNodeImpl) {
-      PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
+    if (node instanceof SimplePortfolioNode) {
+      SimplePortfolioNode nodeImpl = (SimplePortfolioNode) node;
       nodeImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
       nodeImpl.setParentNodeId(parentNode);
     }
-    _nodes.put(node.getUniqueId(), node);
+    _nodes.put(node.getUniqueId().getObjectId(), node);
     
     // position
     for (Position position : node.getPositions()) {
-      if (position instanceof PositionImpl) {
-        PositionImpl positionImpl = (PositionImpl) position;
+      if (position instanceof SimplePosition) {
+        SimplePosition positionImpl = (SimplePosition) position;
         positionImpl.setUniqueId(_uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
         positionImpl.setParentNodeId(node.getUniqueId());
         
         //add trades
         for (Trade trade : positionImpl.getTrades()) {
           IdUtils.setInto(trade, _uniqueIdSupplier.getWithValuePrefix(portfolioId + "-"));
-          _trades.put(trade.getUniqueId(), trade);
+          _trades.put(trade.getUniqueId().getObjectId(), trade);
         }
       }
-      _positions.put(position.getUniqueId(), position);
+      _positions.put(position.getUniqueId().getObjectId(), position);
     }
     
     // recurse
@@ -172,7 +185,7 @@ public class MockPositionSource implements PositionSource {
    */
   public void removePortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-    _portfolios.remove(portfolio.getUniqueId());
+    _portfolios.remove(portfolio.getUniqueId().getObjectId());
     removeFromCache(portfolio.getRootNode());
   }
 
@@ -182,12 +195,12 @@ public class MockPositionSource implements PositionSource {
    * @param node  the node to remove, not null
    */
   private void removeFromCache(PortfolioNode node) {
-    _nodes.remove(node.getUniqueId());
+    _nodes.remove(node.getUniqueId().getObjectId());
     for (Position position : node.getPositions()) {
       for (Trade trade : position.getTrades()) {
-        _trades.remove(trade.getUniqueId());
+        _trades.remove(trade.getUniqueId().getObjectId());
       }
-      _positions.remove(position.getUniqueId());
+      _positions.remove(position.getUniqueId().getObjectId());
     }
     for (PortfolioNode child : node.getChildNodes()) {
       removeFromCache(child);

@@ -37,7 +37,7 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -64,7 +64,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 9;
   private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.ofYears(SWAP_TENOR_YEAR));
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
   private static final ZonedDateTime[] SETTLEMENT_DATE = new ZonedDateTime[EXPIRY_TENOR.length];

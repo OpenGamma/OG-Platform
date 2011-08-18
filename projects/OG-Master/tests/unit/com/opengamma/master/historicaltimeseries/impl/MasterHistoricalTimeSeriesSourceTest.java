@@ -29,11 +29,11 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test MasterHistoricalTimeSeriesSource.
+ * Test {@link MasterHistoricalTimeSeriesSource}.
  * Ensure it makes the right method calls to the underlying master and resolver.
  */
 @Test
@@ -123,7 +123,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
   }
 
   public void getHistoricalWithInclusiveExclusiveDates() throws Exception {
-    LocalDate end = DateUtil.previousWeekDay();
+    LocalDate end = DateUtils.previousWeekDay();
     LocalDate start = end.minusDays(7);
     
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(IDENTIFIERS);

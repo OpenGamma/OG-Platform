@@ -6,21 +6,23 @@
 package com.opengamma.master.config.impl;
 
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.util.List;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigSearchRequest;
 
 /**
- * Test MasterConfigSource.
+ * Test {@link MasterConfigSource}.
  */
 @Test
 public class MasterConfigSourceTest {
@@ -69,13 +71,13 @@ public class MasterConfigSourceTest {
   }
 
   public void get() throws Exception {
-    ExternalId test = _configSource.get(ExternalId.class, DOC.getUniqueId());
+    ExternalId test = _configSource.getConfig(ExternalId.class, DOC.getUniqueId());
     assertEquals(ExternalId.of("A", "B"), test);
   }
 
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void accessInvalidDocument() throws Exception {
-    UniqueId uniqueId = _configSource.get(UniqueId.class, UniqueId.of("U", "1"));
-    assertNull(uniqueId);
+    _configSource.getConfig(UniqueId.class, UniqueId.of("U", "1"));
   }
 
 }

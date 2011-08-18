@@ -14,8 +14,8 @@ import java.util.List;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
 
@@ -69,8 +69,8 @@ public class PortfolioFilter implements FilteringFunction {
     return true;
   }
 
-  protected PortfolioNodeImpl filter(final PortfolioNode inputPortfolioNode) {
-    final PortfolioNodeImpl newPortfolioNode = new PortfolioNodeImpl();
+  protected SimplePortfolioNode filter(final PortfolioNode inputPortfolioNode) {
+    final SimplePortfolioNode newPortfolioNode = new SimplePortfolioNode();
     newPortfolioNode.setUniqueId(createSyntheticIdentifier());
     newPortfolioNode.setName(inputPortfolioNode.getName());
     for (Position position : inputPortfolioNode.getPositions()) {
@@ -79,7 +79,7 @@ public class PortfolioFilter implements FilteringFunction {
       }
     }
     for (PortfolioNode portfolioNode : inputPortfolioNode.getChildNodes()) {
-      final PortfolioNodeImpl filteredPortfolioNode = filter(portfolioNode);
+      final SimplePortfolioNode filteredPortfolioNode = filter(portfolioNode);
       if (acceptPortfolioNode(filteredPortfolioNode)) {
         filteredPortfolioNode.setParentNodeId(newPortfolioNode.getUniqueId());
         newPortfolioNode.addChildNode(filteredPortfolioNode);
@@ -89,7 +89,7 @@ public class PortfolioFilter implements FilteringFunction {
   }
 
   public Portfolio filter(final Portfolio inputPortfolio) {
-    return new PortfolioImpl(UniqueId.of(inputPortfolio.getUniqueId().getScheme(), buildPortfolioName(inputPortfolio.getUniqueId().getValue())), buildPortfolioName(inputPortfolio.getName()),
+    return new SimplePortfolio(UniqueId.of(inputPortfolio.getUniqueId().getScheme(), buildPortfolioName(inputPortfolio.getUniqueId().getValue())), buildPortfolioName(inputPortfolio.getName()),
         filter(inputPortfolio.getRootNode()));
   }
 

@@ -39,10 +39,8 @@ public class DoubleValueDecimalPlaceFormatter extends DoubleValueFormatter {
   }
   
   @Override
-  public String formatPlainString(double value) {
-    BigDecimal bd = BigDecimal.valueOf(value);
-    bd = bd.setScale(_decimalPlaces, RoundingMode.HALF_UP);
-    return bd.toPlainString();
+  public BigDecimal process(BigDecimal value) {
+    return value.setScale(_decimalPlaces, RoundingMode.HALF_UP);
   }
 
 }

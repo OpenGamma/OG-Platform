@@ -29,7 +29,7 @@ import com.opengamma.financial.interestrate.method.SensitivityFiniteDifferenceMa
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -43,7 +43,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2008, 8, 18);
+  private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR_EUR, COUPON_TENOR);
   private static final double NOTIONAL = 98765432;
@@ -52,7 +52,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
   private static final double FACTOR = 0.75;
   private static final CouponInflationZeroCouponInterpolationGearingDefinition ZERO_COUPON_1_DEFINITION = CouponInflationZeroCouponInterpolationGearingDefinition.from(START_DATE, PAYMENT_DATE,
       NOTIONAL, PRICE_INDEX_EUR, INDEX_MAY_2008_INT, MONTH_LAG, false, FACTOR);
-  private static final ZonedDateTime PRICING_DATE = DateUtil.getUTCDate(2011, 8, 3);
+  private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponInterpolationGearing ZERO_COUPON_1 = ZERO_COUPON_1_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponInterpolationGearingDiscountingMethod METHOD = new CouponInflationZeroCouponInterpolationGearingDiscountingMethod();
   private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();

@@ -50,7 +50,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     if (iborConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
     }
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
     final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(),
         calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),

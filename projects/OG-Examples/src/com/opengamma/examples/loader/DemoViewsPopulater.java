@@ -23,6 +23,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
@@ -53,7 +54,7 @@ public class DemoViewsPopulater {
     _loaderContext = loaderContext;
   }
 
-  private UniqueId getPortfolioId(String portfolioName) {
+  private ObjectId getPortfolioObjectId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
     PortfolioSearchResult searchResult = _loaderContext.getPortfolioMaster().search(searchRequest);
@@ -61,7 +62,7 @@ public class DemoViewsPopulater {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
       throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
     }
-    return searchResult.getFirstPortfolio().getUniqueId().toLatest();
+    return searchResult.getFirstPortfolio().getUniqueId().getObjectId();
   }
 
   public void persistViewDefinitions() {
@@ -71,8 +72,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
-    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    ObjectId portfolioOid = getPortfolioObjectId(portfolioName);
+    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
     equityViewDefinition.setDefaultCurrency(Currency.USD);
     equityViewDefinition.setMaxFullCalculationPeriod(30000L);
     equityViewDefinition.setMinFullCalculationPeriod(500L);
@@ -81,12 +82,12 @@ public class DemoViewsPopulater {
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
+//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
+//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
     equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.WEIGHT, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
     return equityViewDefinition;
   }
 
@@ -99,8 +100,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
-    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    ObjectId portfolioOid = getPortfolioObjectId(portfolioName);
+    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -130,8 +131,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    ObjectId portfolioOid = getPortfolioObjectId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioOid, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);

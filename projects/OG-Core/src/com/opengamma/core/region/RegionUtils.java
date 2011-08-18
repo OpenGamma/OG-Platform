@@ -22,7 +22,9 @@ import com.opengamma.util.money.Currency;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
- * Utilities and constants for regions.
+ * Utilities and constants for {@code Region}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 @PublicAPI
 public class RegionUtils {
@@ -147,7 +149,9 @@ public class RegionUtils {
   }
 
   /**
-   * Creates a set of regions from a region id. This is useful in the case where the region is compound (e.g. NY+LON)
+   * Creates a set of regions from a region id.
+   * This is useful in the case where the region is compound (e.g. NY+LON).
+   * 
    * @param regionSource The region source, not null
    * @param regionId The region id, not null
    * @return a set of the region(s)

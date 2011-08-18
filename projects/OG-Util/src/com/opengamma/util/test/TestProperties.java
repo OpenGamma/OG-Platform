@@ -24,14 +24,12 @@ public class TestProperties {
   private static final String DEFAULT_PROPS_FILE_NAME = "tests.properties";
   private static final String DEFAULT_PROPS_DIR = "../../common/"; // OG-Platform/common/
 
-  private static String _baseDir = null;
   private static Properties _props = null;
   
   public static synchronized void setBaseDir(String dir) {
     if (_props != null) {
       throw new IllegalStateException("Properties already loaded");
     }
-    _baseDir = dir;
   }
   
   public static synchronized Properties getTestProperties() {
@@ -119,24 +117,6 @@ public class TestProperties {
     }
     return password;
   }
-  
-  public static Collection<String> getScriptDirs() {
-    Collection<String> dirs = new ArrayList<String>();
-
-    int i = 1;
-    String dir = getTestProperties().getProperty("db.script.dir." + i);
-    while (dir != null) {
-      dirs.add(dir); // may be null -> 
-      i++;
-      dir = getTestProperties().getProperty("db.script.dir." + i);
-    }
-
-    if (dirs.isEmpty()) {
-      dirs.add(_baseDir); // if _baseDir == null -> working directory
-    }
-    
-    return dirs;    
-  }
 
   public static DBTool getDbTool(String databaseType) {
     String dbHost = getDbHost(databaseType);
@@ -144,11 +124,6 @@ public class TestProperties {
     String password = getDbPassword(databaseType);
     
     DBTool dbtool = new DBTool(dbHost, user, password);
-    
-    for (String scriptDir : getScriptDirs()) {
-      dbtool.addDbScriptDirectory(scriptDir);      
-    }
-    
     dbtool.initialize();
     return dbtool;
   }

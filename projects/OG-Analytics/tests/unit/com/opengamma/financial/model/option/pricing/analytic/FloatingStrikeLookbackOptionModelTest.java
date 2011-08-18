@@ -19,7 +19,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTim
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -32,12 +32,12 @@ public class FloatingStrikeLookbackOptionModelTest {
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final double B = 0.04;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final double SPOT = 120;
   private static final DoubleTimeSeries<?> TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5, 6, 7}, new double[] {100, 101, 106, 100, 109,
       101, 104});
   private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, SURFACE, SPOT, DATE, TS);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final FloatingStrikeLookbackOptionDefinition CALL = new FloatingStrikeLookbackOptionDefinition(EXPIRY, true);
   private static final FloatingStrikeLookbackOptionDefinition PUT = new FloatingStrikeLookbackOptionDefinition(EXPIRY, false);
   private static final AnalyticOptionModel<FloatingStrikeLookbackOptionDefinition, StandardOptionWithSpotTimeSeriesDataBundle> MODEL = new FloatingStrikeLookbackOptionModel();

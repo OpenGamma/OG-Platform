@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the zero-coupon inflation constructors.
@@ -35,7 +35,7 @@ public class CouponInflationZeroCouponInterpolationTest {
   private static final PriceIndex PRICE_INDEX = new PriceIndex(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final ZonedDateTime START_DATE = DateUtil.getUTCDate(2008, 8, 18);
+  private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, BUSINESS_DAY, CALENDAR, COUPON_TENOR);
   private static final double NOTIONAL = 98765432;
@@ -48,7 +48,7 @@ public class CouponInflationZeroCouponInterpolationTest {
   }
   private static final ZonedDateTime FIXING_DATE = REFERENCE_END_DATE[1].plusMonths(1).withDayOfMonth(1).plusWeeks(2);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final ZonedDateTime PRICING_DATE = DateUtil.getUTCDate(2011, 7, 29);
+  private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 7, 29);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(PRICING_DATE, PAYMENT_DATE);
   private static final double[] REFERENCE_END_TIME = new double[2];
   static {

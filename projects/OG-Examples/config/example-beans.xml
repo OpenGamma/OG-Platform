@@ -3,7 +3,11 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
+  
+  <!-- This file loads the actual beans injected into the server.  The meat itself is mostly in demoViewProcessor.xml
+       in the OG-Financial project.  This file is generally injected into the web application context by 
+       example-spring.xml -->
+         
   <!-- Override properties configuration -->
   <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
     <property name="ignoreInvalidKeys" value="true" />

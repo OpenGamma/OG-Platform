@@ -38,7 +38,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
@@ -55,7 +55,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final String[] COUPON_IBOR_CURVE_NAME = new String[] {CREDIT_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
   // to derivatives: first coupon
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   //Fixed Coupon Semi-annual 5Y
   private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
@@ -63,7 +63,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(5);
   private static final int SETTLEMENT_DAYS_FIXED = 3;
-  private static final ZonedDateTime START_ACCRUAL_DATE_FIXED = DateUtil.getUTCDate(2011, 7, 13);
+  private static final ZonedDateTime START_ACCRUAL_DATE_FIXED = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE_FIXED = START_ACCRUAL_DATE_FIXED.plus(BOND_TENOR_FIXED);
   private static final double RATE_FIXED = 0.0325;
   private static final YieldConvention YIELD_CONVENTION_FIXED = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -73,14 +73,14 @@ public class BondTransactionDiscountingMethodTest {
   private static final double PRICE_FIXED = 0.90; //clean price
   private static final double QUANTITY_FIXED = 100000000; //100m
   // Transaction past
-  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_1 = DateUtil.getUTCDate(2011, 8, 16);
+  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_1 = DateUtils.getUTCDate(2011, 8, 16);
   private static final AnnuityCouponFixed COUPON_TR_FIXED_1 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_1 = (AnnuityPaymentFixed) BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION_FIXED_1 = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED,
       BOND_SETTLEMENT_DATE_FIXED_1, PRICE_FIXED);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_1 = BOND_TRANSACTION_DEFINITION_FIXED_1.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Transaction today
-  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_2 = DateUtil.getUTCDate(2011, 8, 18);
+  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_2 = DateUtils.getUTCDate(2011, 8, 18);
   private static final double BOND_SETTLEMENT_TIME_FIXED_2 = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FIXED_2);
   private static final AnnuityCouponFixed COUPON_TR_FIXED_2 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_2);
   private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_2 = (AnnuityPaymentFixed) BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME)
@@ -91,7 +91,7 @@ public class BondTransactionDiscountingMethodTest {
       * QUANTITY_FIXED, REPO_CURVE_NAME);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_2 = BOND_TRANSACTION_DEFINITION_FIXED_2.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Transaction future
-  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_3 = DateUtil.getUTCDate(2011, 8, 24);
+  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_3 = DateUtils.getUTCDate(2011, 8, 24);
   private static final double BOND_SETTLEMENT_TIME_FIXED_3 = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FIXED_3);
   private static final AnnuityCouponFixed COUPON_TR_FIXED_3 = BOND_DESCRIPTION_DEFINITION_FIXED.getCoupon().toDerivative(REFERENCE_DATE, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_3);
   private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_3 = (AnnuityPaymentFixed) BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME)
@@ -113,14 +113,14 @@ public class BondTransactionDiscountingMethodTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, CALENDAR, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM);
   private static final Period BOND_TENOR_FRN = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS_FRN = 3; // Standard for euro-bonds.
-  private static final ZonedDateTime START_ACCRUAL_DATE_FRN = DateUtil.getUTCDate(2011, 7, 13);
+  private static final ZonedDateTime START_ACCRUAL_DATE_FRN = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE_FRN = START_ACCRUAL_DATE_FRN.plus(BOND_TENOR_FRN);
   private static final BondIborSecurityDefinition BOND_DESCRIPTION_DEFINITION_FRN = BondIborSecurityDefinition.from(MATURITY_DATE_FRN, START_ACCRUAL_DATE_FRN, IBOR_INDEX, SETTLEMENT_DAYS_FRN,
       DAY_COUNT_FRN, BUSINESS_DAY_FRN, IS_EOM_FRN);
   // Transaction FRN
   private static final double FIRST_FIXING = 0.02;
   private static final double PRICE_FRN = 0.99;
-  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FRN = DateUtil.getUTCDate(2011, 8, 24);
+  private static final ZonedDateTime BOND_SETTLEMENT_DATE_FRN = DateUtils.getUTCDate(2011, 8, 24);
   private static final double BOND_SETTLEMENT_TIME_FRN = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FRN);
   private static final double QUANTITY_FRN = 100000000; //100m
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {BOND_DESCRIPTION_DEFINITION_FRN.getCoupon().getNthPayment(0)

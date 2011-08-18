@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.AbstractDocument;

@@ -8,7 +8,7 @@
 #define __inc_og_language_util_thread_h
 
 #ifndef _WIN32
-#include <apr-1/apr_thread_proc.h>
+#include <apr-1/apr_portable.h>
 #include <unistd.h>
 #ifdef HAVE_PTHREAD
 #include <pthread.h>
@@ -185,34 +185,59 @@ public:
 	}
 
 #ifdef _WIN32
-	typedef DWORD INTERRUPTIBLE_HANDLE;
-#elif defined (HAVE_PTHREAD)
-	typedef pthread_t INTERRUPTIBLE_HANDLE;
+	typedef DWORD THREAD_REF;
+#else
+	typedef apr_os_thread_t THREAD_REF;
 #endif
+
+	/// Returns a reference that describes the calling thread for debugging/testing purposes.
+	///
+	/// @return a thread reference
+	static THREAD_REF GetThreadRef () {
+#ifdef _WIN32
+		return GetCurrentThreadId ();
+#else
+		return apr_os_thread_current ();
+#endif
+	}
+
+#ifdef HAVE_PTHREAD
+	typedef pthread_t INTERRUPTIBLE_HANDLE;
+#else
+#define NONINTERRUPTIBLE_THREADS
+#endif
+
+#ifndef NONINTERRUPTIBLE_THREADS
 
 	/// Gets an interruptible reference for the calling thread.
 	///
 	/// @return the interruptible reference
 	static INTERRUPTIBLE_HANDLE GetInterruptible () {
-#ifdef _WIN32
-		return GetCurrentThreadId ();
-#elif defined (HAVE_PTHREAD)
+#ifdef HAVE_PTHREAD
 		return pthread_self ();
+#else
+#error
 #endif
 	}
 
-#ifdef HAVE_PTHREAD
-	/// Interrupts a thread, sending it SIGALRM, to release any blocking operations.
+	/// Interrupts a thread, e.g. sending it SIGALRM on posix, to release any blocking operations.
 	///
 	/// @param[in] handle interruptible handle returned by GetInterruptible
 	static void Interrupt (INTERRUPTIBLE_HANDLE handle) {
+#ifdef HAVE_PTHREAD
 		pthread_kill (handle, SIGALRM);
+#else
+#error
+#endif
 	}
-#endif /* ifdef HAVE_PTHREAD */
+
+#else /* ifndef NONINTERRUPTIBLE_THREADS */
+#undef NONINTERRUPTIBLE_THREADS
+#endif /* ifndef NONINTERRUPTIBLE_THREADS */
 
 #ifdef _WIN32
 	/// Gets the underlying Win32 handle for the thread allowing normal O/S calls.
-	operator HANDLE () {
+	HANDLE GetWin32Handle () {
 		return m_hThread;
 	}
 #endif /* ifdef _WIN32 */

@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 public class BondCapitalIndexedTransactionDefinitionTest {
@@ -40,9 +40,9 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   private static final BusinessDayConvention BUSINESS_DAY_GBP = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final boolean IS_EOM_GILT_1 = false;
-  private static final ZonedDateTime START_DATE_GILT_1 = DateUtil.getUTCDate(2002, 7, 11);
-  private static final ZonedDateTime FIRST_COUPON_DATE_GILT_1 = DateUtil.getUTCDate(2003, 1, 26);
-  private static final ZonedDateTime MATURITY_DATE_GILT_1 = DateUtil.getUTCDate(2035, 1, 26);
+  private static final ZonedDateTime START_DATE_GILT_1 = DateUtils.getUTCDate(2002, 7, 11);
+  private static final ZonedDateTime FIRST_COUPON_DATE_GILT_1 = DateUtils.getUTCDate(2003, 1, 26);
+  private static final ZonedDateTime MATURITY_DATE_GILT_1 = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION_GILT_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_GILT_1 = 8;
   private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
@@ -55,7 +55,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
       PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1, NOTIONAL_GILT_1, REAL_RATE_GILT_1,
       BUSINESS_DAY_GBP, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, ISSUER_UK);
   private static final double QUANTITY = 654321;
-  private static final ZonedDateTime SETTLE_DATE_GILT_1 = DateUtil.getUTCDate(2011, 8, 10);
+  private static final ZonedDateTime SETTLE_DATE_GILT_1 = DateUtils.getUTCDate(2011, 8, 10);
   private static final double PRICE_GILT_1 = 1.80;
   private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_TRANSACTION_DEFINITION = new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
       BOND_GILT_1_SECURITY_DEFINITION, QUANTITY, SETTLE_DATE_GILT_1, PRICE_GILT_1);
@@ -68,7 +68,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   @Test
   public void toDerivative() {
     DoubleTimeSeries<ZonedDateTime> ukRpi = MarketDataSets.ukRpiFrom2010();
-    ZonedDateTime pricingDate = DateUtil.getUTCDate(2011, 8, 3); // One coupon fixed
+    ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
     BondCapitalIndexedTransaction<Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
     BondCapitalIndexedSecurity<Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
     assertEquals("Capital Index Bond: toDerivative", purchase, bondTransactionConverted.getBondTransaction());

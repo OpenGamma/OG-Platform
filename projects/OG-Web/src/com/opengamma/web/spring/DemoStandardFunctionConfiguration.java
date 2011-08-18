@@ -55,22 +55,20 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYiel
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMBetaModelPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMBetaModelPositionFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMFromRegressionModelPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.CAPMFromRegressionModelPositionFunction;
-import com.opengamma.financial.analytics.model.equity.JensenAlphaPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.JensenAlphaPositionFunction;
-import com.opengamma.financial.analytics.model.equity.PortfolioEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.PositionEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.SharpeRatioPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.SharpeRatioPositionFunction;
-import com.opengamma.financial.analytics.model.equity.StandardEquityModelFunction;
-import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.TotalRiskAlphaPositionFunction;
-import com.opengamma.financial.analytics.model.equity.TradeEquityPnLFunction;
-import com.opengamma.financial.analytics.model.equity.TreynorRatioPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMFromRegressionModelPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMFromRegressionModelPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.JensenAlphaPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.JensenAlphaPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.StandardEquityModelFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPositionFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPortfolioNodeFunction;
+import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPositionFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
@@ -99,8 +97,11 @@ import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFuture
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionValueGreekSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
+import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionSABRPresentValueFunction;
@@ -124,6 +125,7 @@ import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
 import com.opengamma.financial.currency.PositionDefaultCurrencyFunction;
 import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
 import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
+import com.opengamma.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
@@ -195,8 +197,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(BlackScholesModelCostOfCarryFunction.class.getName()));
 
     // equity and portfolio
-    functionConfigs.add(new StaticFunctionConfiguration(PositionEquityPnLFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(PortfolioEquityPnLFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(PositionExchangeTradedPnLFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(PortfolioExchangeTradedPnLFunction.class.getName()));
 
     String returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     String startDate = "2008-09-22";
@@ -209,7 +211,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     String assetStandardDeviationCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
     String marketStandardDeviationCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
 
-    functionConfigs.add(new ParameterizedFunctionConfiguration(TradeEquityPnLFunction.class.getName(), Arrays.asList("BLOOMBERG", "CMPL", "PX_LAST", "COST_OF_CARRY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(TradeExchangeTradedPnLFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SecurityPriceSeriesFunction.class.getName(), Arrays.asList(DEFAULT_CONFIG_NAME, LAST_PRICE, startDate, scheduleName,
         samplingCalculatorName)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityPnLFunction.class.getName(), Collections.singleton(returnCalculatorName)));
@@ -302,6 +304,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionPresentValueFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(InterestRateFutureOptionVegaFunction.class.getName(), Arrays.asList("FORWARD", "FUNDING", "DEFAULT")));
+    
+    //TODO ELAINE / CASE: Hardcoded the pricing method. Extend to allow all three
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET)));
 
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
     addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);

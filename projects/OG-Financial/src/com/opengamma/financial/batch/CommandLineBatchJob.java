@@ -44,7 +44,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * A command line batch job holding all necessary configuration.
@@ -382,7 +382,7 @@ public class CommandLineBatchJob {
 
     Collection<LocalDate> dates = new ArrayList<LocalDate>();
 
-    int difference = DateUtil.getDaysBetween(startDate, true, endDate, true);
+    int difference = DateUtils.getDaysBetween(startDate, true, endDate, true);
     for (int i = 0; i < difference; i++) {
       LocalDate date = startDate.plusDays(i);
       dates.add(date);

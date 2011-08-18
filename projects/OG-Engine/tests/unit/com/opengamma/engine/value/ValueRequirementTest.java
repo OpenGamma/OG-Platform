@@ -18,7 +18,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.ExternalIdBundle;
@@ -33,7 +33,7 @@ public class ValueRequirementTest {
 
   private static final UniqueId USD = UniqueId.of("currency", "USD");  
   private static final UniqueId GBP = UniqueId.of("currency", "GBP");
-  private static final Position POSITION = new PositionImpl(UniqueId.of("A", "B"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Position POSITION = new SimplePosition(UniqueId.of("A", "B"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
 
   public void test_constructor_Position() {

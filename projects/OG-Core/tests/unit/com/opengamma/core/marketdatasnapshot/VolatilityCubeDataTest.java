@@ -13,12 +13,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
-
+/**
+ * Test {@link VolatilityCubeData}.
+ */
 public class VolatilityCubeDataTest {
 
   @Test
-  public void smilesAsExpected()
-  {
+  public void smilesAsExpected() {
     VolatilityCubeData data = getSimpleData();
     checkSimpleData(data);
   }
@@ -53,7 +54,7 @@ public class VolatilityCubeDataTest {
     data.setOtherData(bundle);
     return data;
   }
-  
+
   private static void checkSimpleData(VolatilityCubeData data) {
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(2, smiles.size());
@@ -84,7 +85,6 @@ public class VolatilityCubeDataTest {
     assertEquals(1, data.getOtherData().getDataPoints().size());
   }
 
-  
   private static void checkNulldata(VolatilityCubeData data) {
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(null, smiles);
@@ -97,9 +97,10 @@ public class VolatilityCubeDataTest {
     data.setDataPoints(dataPoints);
     return data;
   }
-  
+
   private static void assertMatches(Pair<double[], double[]> smile, double[] expectedStrikes, double[] expectedVols) {
     assertTrue(Arrays.equals(smile.getFirst(), expectedStrikes));
     assertTrue(Arrays.equals(smile.getSecond(), expectedVols));
   }
+
 }

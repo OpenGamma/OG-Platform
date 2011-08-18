@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class PriceIndexCurveTest {
 
@@ -62,8 +62,8 @@ public class PriceIndexCurveTest {
    * Tests price index builder from zero-coupon swap rates with start of the month convention.
    */
   public void fromStartOfMonth() {
-    ZonedDateTime constructionDate = DateUtil.getUTCDate(2011, 8, 18);
-    ZonedDateTime[] indexKnownDate = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 6, 1)};
+    ZonedDateTime constructionDate = DateUtils.getUTCDate(2011, 8, 18);
+    ZonedDateTime[] indexKnownDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)};
     double[] nodeTimeKnown = new double[indexKnownDate.length];
     for (int loopmonth = 0; loopmonth < indexKnownDate.length; loopmonth++) {
       nodeTimeKnown[loopmonth] = -ACT_ACT.getDayCountFraction(indexKnownDate[loopmonth], constructionDate);

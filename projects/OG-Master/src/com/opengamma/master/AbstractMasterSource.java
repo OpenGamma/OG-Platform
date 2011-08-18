@@ -92,40 +92,34 @@ public class AbstractMasterSource<D extends AbstractDocument, M extends Abstract
    * This overrides the version in the unique identifier if set to do so.
    * 
    * @param uniqueId  the unique identifier, not null
-   * @return the document, null if not found
+   * @return the document, not null
+   * @throws DataNotFoundException if the document could not be found
    */
   public D getDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    final VersionCorrection vc = getVersionCorrection();  // lock against change
-    try {
-      if (vc != null) {
-        return getMaster().get(uniqueId, vc);
-      } else {
-        return getMaster().get(uniqueId);
-      }
-    } catch (DataNotFoundException ex) {
-      return null;
+    final VersionCorrection vc = getVersionCorrection(); // lock against change
+    if (vc != null) {
+      return getMaster().get(uniqueId.getObjectId(), vc);
+    } else {
+      return getMaster().get(uniqueId);
     }
   }
-  
+
   /**
    * Gets a document from the master by object identifier and version-correction.
    * <p>
    * The specified version-correction may be overridden if set to do so.
    * 
    * @param objectId  the object identifier, not null
-   * @param versionCorrection  the version-correction, null for the latest
-   * @return the document, null if not found
+   * @param versionCorrection  the version-correction, not null
+   * @return the document, not null
+   * @throws DataNotFoundException if the document could not be found
    */
   public D getDocument(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     VersionCorrection overrideVersionCorrection = getVersionCorrection();
-    try {
-      return getMaster().get(objectId, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
-    } catch (DataNotFoundException e) {
-      return null;
-    }
+    return getMaster().get(objectId, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
   }
 
   //-------------------------------------------------------------------------
