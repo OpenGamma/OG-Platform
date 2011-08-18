@@ -256,7 +256,6 @@ public class DefaultValueConverter extends ValueConverter {
       final List<TypeConverter> converters = getConvertersTo(conversionContext, explore.getTargetType());
       for (TypeConverter converter : converters) {
         if (!explore.visited(converter)) {
-
           final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
           if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
             for (Map.Entry<JavaTypeInfo<?>, Integer> alternativeType : alternativeTypes.entrySet()) {

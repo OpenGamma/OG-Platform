@@ -26,7 +26,7 @@ public final class DataConverter implements TypeConverter {
   private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value[].class).get();
   private static final JavaTypeInfo<Value[][]> VALUE_2 = JavaTypeInfo.builder(Value[][].class).get();
 
-  private static final TypeMap TO_DATA = TypeMap.of(ZERO_LOSS, VALUE, VALUE_1, VALUE_2);
+  private static final TypeMap TO_DATA = TypeMap.ofWeighted(ZERO_LOSS, VALUE, VALUE_1, VALUE_2);
   private static final TypeMap FROM_DATA = TypeMap.of(ZERO_LOSS, DATA);
 
   @Override

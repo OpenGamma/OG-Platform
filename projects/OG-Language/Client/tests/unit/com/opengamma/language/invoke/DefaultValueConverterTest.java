@@ -148,4 +148,20 @@ public class DefaultValueConverterTest {
     }
   }
 
+  @Test
+  public void testStringArray() {
+    final String[] arr = new String[8];
+    for (int i = 0; i < arr.length; i++) {
+      arr[i] = "str " + i;
+    }
+    final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder(Data.class).get();
+    final Data data = convert(arr, dataType);
+    assertNotNull(data);
+    if (data.getLinear() == null) {
+      System.err.println(data);
+    }
+    assertNotNull(data.getLinear());
+    assertEquals(arr.length, data.getLinear().length);
+  }
+
 }
