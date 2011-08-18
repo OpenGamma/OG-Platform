@@ -461,6 +461,8 @@
 			<fileset dir=".">
 				<include name="common/**"/>
 				<include name="LICENSE.txt"/>
+				<include name="git-macros.xml"/>
+				<include name="git-tasks.xml"/>
 			</fileset>
 		</sync>
 	</target>
