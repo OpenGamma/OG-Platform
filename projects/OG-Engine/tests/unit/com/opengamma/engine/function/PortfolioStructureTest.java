@@ -5,15 +5,17 @@
  */
 package com.opengamma.engine.function;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
@@ -36,7 +38,7 @@ public class PortfolioStructureTest {
   private SimplePosition _position1;
   private SimplePosition _position2;
   private SimplePosition _badPosition;
-  
+
   @BeforeMethod
   public void createPortfolio() {
     final UniqueIdSupplier uid = new UniqueIdSupplier("Test");
@@ -70,61 +72,85 @@ public class PortfolioStructureTest {
     return _context.getPortfolioStructure();
   }
 
-  public void testGetParentNode_portfolioNode() {
+  //-------------------------------------------------------------------------
+  public void test_getParentNode_portfolioNode() {
     final PortfolioStructure resolver = getPortfolioStructure();
-    assertNotNull(resolver);
     assertEquals(_child1, resolver.getParentNode(_child2));
     assertEquals(_root, resolver.getParentNode(_child1));
     assertEquals(null, resolver.getParentNode(_root));
-    assertNull(resolver.getParentNode(_badChild));
   }
 
-  public void testGetParentNode_position() {
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getParentNode_portfolioNode_badChild() {
+    final PortfolioStructure resolver = getPortfolioStructure();
+    resolver.getParentNode(_badChild);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getParentNode_position() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
     assertEquals(_child2, resolver.getParentNode(_position1));
     assertEquals(_child2, resolver.getParentNode(_position2));
-    assertNull(resolver.getParentNode(_badPosition));
   }
 
-  public void testGetRootPortfolioNode_portfolioNode() {
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getParentNode_position_badChild() {
+    final PortfolioStructure resolver = getPortfolioStructure();
+    resolver.getParentNode(_badPosition);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getRootPortfolioNode_portfolioNode() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
     assertEquals(_root, resolver.getRootPortfolioNode(_child1));
     assertEquals(_root, resolver.getRootPortfolioNode(_child2));
     assertEquals(_root, resolver.getRootPortfolioNode(_root));
-    assertNull(resolver.getRootPortfolioNode(_badChild));
   }
 
-  public void testGetRootPortfolioNode_position() {
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getRootPortfolioNode_portfolioNode_badChild() {
+    final PortfolioStructure resolver = getPortfolioStructure();
+    resolver.getRootPortfolioNode(_badChild);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getRootPortfolioNode_position() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
     assertEquals(_root, resolver.getRootPortfolioNode(_position1));
     assertEquals(_root, resolver.getRootPortfolioNode(_position2));
-    assertNull(resolver.getRootPortfolioNode(_badPosition));
   }
-  
-  public void testGetAllPositions () {
-    final PortfolioStructure resolver = getPortfolioStructure ();
+
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void test_getRootPortfolioNode_position_badChild() {
+    final PortfolioStructure resolver = getPortfolioStructure();
+    resolver.getRootPortfolioNode(_badPosition);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getAllPositions() {
+    final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
     List<Position> positions = resolver.getAllPositions(_child1);
-    assertNotNull (positions);
-    assertEquals (2, positions.size ());
-    assertTrue (positions.contains (_position1));
-    assertTrue (positions.contains (_position2));
-    positions = resolver.getAllPositions (_root);
-    assertNotNull (positions);
-    assertEquals (2, positions.size ());
-    assertTrue (positions.contains (_position1));
-    assertTrue (positions.contains (_position2));
-    positions = resolver.getAllPositions (_child2);
-    assertNotNull (positions);
-    assertEquals (2, positions.size ());
-    assertTrue (positions.contains (_position1));
-    assertTrue (positions.contains (_position2));
+    assertNotNull(positions);
+    assertEquals(2, positions.size());
+    assertTrue(positions.contains(_position1));
+    assertTrue(positions.contains(_position2));
+    positions = resolver.getAllPositions(_root);
+    assertNotNull(positions);
+    assertEquals(2, positions.size());
+    assertTrue(positions.contains(_position1));
+    assertTrue(positions.contains(_position2));
+    positions = resolver.getAllPositions(_child2);
+    assertNotNull(positions);
+    assertEquals(2, positions.size());
+    assertTrue(positions.contains(_position1));
+    assertTrue(positions.contains(_position2));
     positions = resolver.getAllPositions(_badChild);
-    assertNotNull (positions);
-    assertTrue (positions.isEmpty ());
+    assertNotNull(positions);
+    assertTrue(positions.isEmpty());
   }
 
 }

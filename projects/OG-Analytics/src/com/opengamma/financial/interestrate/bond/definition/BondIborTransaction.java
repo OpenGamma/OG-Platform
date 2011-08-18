@@ -16,12 +16,12 @@ public class BondIborTransaction extends BondTransaction<BondIborSecurity> {
    * Ibor coupon bond transaction constructor from transaction details.
    * @param bondTransaction The bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
-   * @param settlementAmount Transaction settlement payment (time and amount).
+   * @param transactionPrice The transaction quoted price.
    * @param bondStandard Description of the underlying bond with standard settlement date.
    * @param notionalStandard The notional at the standard spot time.
    */
-  public BondIborTransaction(BondIborSecurity bondTransaction, double quantity, double settlementAmount, BondIborSecurity bondStandard, double notionalStandard) {
-    super(bondTransaction, quantity, settlementAmount, bondStandard, notionalStandard);
+  public BondIborTransaction(BondIborSecurity bondTransaction, double quantity, double transactionPrice, BondIborSecurity bondStandard, double notionalStandard) {
+    super(bondTransaction, quantity, transactionPrice, bondStandard, notionalStandard);
   }
 
   @Override

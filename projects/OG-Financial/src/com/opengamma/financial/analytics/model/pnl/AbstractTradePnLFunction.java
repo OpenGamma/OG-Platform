@@ -47,15 +47,14 @@ import com.opengamma.util.tuple.Pair;
 public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTradePnLFunction.class);
-  
+
   private static final Double UN_AVAILABLE_COST = Double.NaN;
-  
+
   private final String _markDataField;
   private final String _costOfCarryField;
   private final String _resolutionKey;
   private final Map<Pair<ExternalIdBundle, LocalDate>, Double> _costOfCarryCache = new ConcurrentHashMap<Pair<ExternalIdBundle, LocalDate>, Double>();
-  
-  
+
   /**
    * @param resolutionKey the resolution key, not-null
    * @param markDataField the mark to market data field name, not-null
@@ -66,7 +65,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
     ArgumentChecker.notNull(resolutionKey, "resolutionKey");
     ArgumentChecker.notNull(markDataField, "mark data field");
     ArgumentChecker.notNull(costOfCarryField, "cost of carry data field");
-    
+
     _resolutionKey = resolutionKey;
     _markDataField = markDataField;
     _costOfCarryField = costOfCarryField;
@@ -80,11 +79,11 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       final Double tradeValue = (Double) currentTradeValue;
       final Security security = trade.getSecurity();
       LocalDate tradeDate = trade.getTradeDate();
-      
+
       final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
       final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(_markDataField, security.getIdentifiers(), _resolutionKey,
           tradeDate, true, tradeDate, false);
-      
+
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
         throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey);
       }
@@ -98,13 +97,13 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       } else {
         valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, trade, ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId());
       }
-      
+
       double costOfCarry = getCostOfCarry(security, tradeDate, historicalSource);
       Double markToMarket = markToMarketSeries.getTimeSeries().getValue(tradeDate);
-      
+
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
-      s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}", 
-          new Object[]{trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL});
+      s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}",
+          new Object[] {trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL });
       final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtils.rounded(dailyPnL).doubleValue());
       return Sets.newHashSet(result);
     }
@@ -121,7 +120,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
         Double histCost = costOfCarryPair.getTimeSeries().getValue(tradeDate);
         if (histCost != null) {
           cachedCost = histCost;
-        }         
+        }
       }
       _costOfCarryCache.put(Pair.of(security.getIdentifiers(), tradeDate), cachedCost);
     }
@@ -159,11 +158,11 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       if (ccy == null) {
         return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade()), getUniqueId()));
       } else {
-        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade(), 
+        return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getTrade(),
                                  ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId()));
       }
     }
     return null;
   }
-  
+
 }

@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
- * Test the {@link TradeBuilder} class.
+ * Test {@link TradeBuilder}.
  */
 @Test
 public class TradeBuilderTest extends AbstractBuilderTestCase {

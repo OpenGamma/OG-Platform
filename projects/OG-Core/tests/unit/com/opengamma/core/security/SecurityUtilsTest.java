@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 
 /**
- * Test SecurityUtils.
+ * Test {@link SecurityUtils}.
  */
 @Test
 public class SecurityUtilsTest {

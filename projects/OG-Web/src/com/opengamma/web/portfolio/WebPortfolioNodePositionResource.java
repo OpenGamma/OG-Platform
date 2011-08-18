@@ -13,11 +13,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
-import com.sleepycat.je.DatabaseNotFoundException;
 
 /**
  * RESTful resource for all positions in a node.
@@ -42,7 +42,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
     if (doc.isLatest()) {
       ManageablePortfolioNode node = data().getNode();
       if (node.getPositionIds().remove(positionId) == false) {
-        throw new DatabaseNotFoundException("Position id not found: " + positionId);
+        throw new DataNotFoundException("Position id not found: " + positionId);
       }
       doc = data().getPortfolioMaster().update(doc);
     }
@@ -57,7 +57,7 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
     if (doc.isLatest()) {
       ManageablePortfolioNode node = data().getNode();
       if (node.getPositionIds().remove(positionId) == false) {
-        throw new DatabaseNotFoundException("Position id not found: " + positionId);
+        throw new DataNotFoundException("Position id not found: " + positionId);
       }
       doc = data().getPortfolioMaster().update(doc);
     }

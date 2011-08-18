@@ -133,9 +133,6 @@ public final class ComputationTargetSpecification implements Serializable {
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
       case SECURITY:
         final Security security = securitySource.getSecurity(getUniqueId());
-        if (security == null) {
-          throw new OpenGammaRuntimeException("Unknown security in configured security source: " + getIdentifier());
-        }
         // Package up the other identifiers
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
       default:

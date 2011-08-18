@@ -45,7 +45,7 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
     securityBean.setLastObservationDate(dateTimeWithZoneToZonedDateTimeBean(security.getLastObservationDate()));
     securityBean.setNotional(security.getNotional());
     securityBean.setObservationFrequency(secMasterSession.getOrCreateFrequencyBean(security.getObservationFrequency().getConventionName()));
-    securityBean.setParameterisedAsVariance(security.getParameterisedAsVariance());
+    securityBean.setParameterisedAsVariance(security.getParameterizedAsVariance());
     securityBean.setRegion(externalIdToExternalIdBean(security.getRegion()));
     securityBean.setSettlementDate(dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     securityBean.setSpotUnderlyingIdentifier(externalIdToExternalIdBean(security.getSpotUnderlyingIdentifier()));
@@ -55,7 +55,7 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
 
   @Override
   public EquityVarianceSwapSecurity createSecurity(OperationContext context, EquityVarianceSwapSecurityBean bean) {
-    
+
     Currency currency = currencyBeanToCurrency(bean.getCurrency());
     ZonedDateTime firstObservationDate = zonedDateTimeBeanToDateTimeWithZone(bean.getFirstObservationDate());
     ZonedDateTime lastObservationDate = zonedDateTimeBeanToDateTimeWithZone(bean.getLastObservationDate());
@@ -63,8 +63,8 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
     ExternalId region = externalIdBeanToExternalId(bean.getRegion());
     ZonedDateTime settlementDate = zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
     ExternalId spotUnderlingId = externalIdBeanToExternalId(bean.getSpotUnderlyingIdentifier());
-    
-    return new EquityVarianceSwapSecurity(spotUnderlingId, currency, bean.getStrike(), bean.getNotional(), 
+
+    return new EquityVarianceSwapSecurity(spotUnderlingId, currency, bean.getStrike(), bean.getNotional(),
         bean.isParameterisedAsVariance(), bean.getAnnualizationFactor(), firstObservationDate, lastObservationDate, settlementDate, region, observationFrequency);
   }
 

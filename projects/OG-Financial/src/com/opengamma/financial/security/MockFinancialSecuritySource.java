@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
@@ -53,15 +54,22 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   @Override
   public Security getSecurity(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    return uniqueId == null ? null : _securities.get(uniqueId.getObjectId());
+    Security security = _securities.get(uniqueId.getObjectId());
+    if (security == null) {
+      throw new DataNotFoundException("Security not found: " + uniqueId);
+    }
+    return security;
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return objectId == null
-        || (versionCorrection != null && !versionCorrection.equals(VersionCorrection.LATEST)) ? null : _securities.get(objectId);
+    Security security = _securities.get(objectId);
+    if (security == null) {
+      throw new DataNotFoundException("Security not found: " + objectId);
+    }
+    return security;
   }
 
   @Override
@@ -75,7 +83,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     }
     return result;
   }
-  
+
   @Override
   public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     // Versioning not supported

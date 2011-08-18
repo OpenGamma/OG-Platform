@@ -12,7 +12,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.equity.varswap.definition.VarianceSwapDefinition;
+import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 
 /**
@@ -41,7 +41,7 @@ public class EquityVarianceSwapConverter {
 
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, security.getCurrency()); // TODO CASE - Review. Holidays currently specified by currency alone
 
-    if (security.getParameterisedAsVariance()) {
+    if (security.getParameterizedAsVariance()) {
       return VarianceSwapDefinition.fromVarianceParams(security.getFirstObservationDate(), security.getLastObservationDate(),
                                           security.getSettlementDate(), (PeriodFrequency) security.getObservationFrequency(),
                                           security.getCurrency(), calendar, security.getAnnualizationFactor(),

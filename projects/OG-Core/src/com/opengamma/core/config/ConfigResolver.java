@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.config;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicAPI;
@@ -35,8 +36,9 @@ public interface ConfigResolver {
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param uniqueId  the unique identifier to find, not null
-   * @return the configuration element, null if not found
+   * @return the matched configuration element, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
   <T> T getConfig(Class<T> clazz, UniqueId uniqueId);
@@ -52,8 +54,9 @@ public interface ConfigResolver {
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param objectId  the object identifier to find, not null
-   * @return the configuration element, null if not found
+   * @return the matched configuration element, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
   <T> T getConfig(Class<T> clazz, ObjectId objectId);
@@ -68,8 +71,9 @@ public interface ConfigResolver {
    * @param <T>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param configName  the configuration name, not null
-   * @return the configuration element, null if not found
+   * @return the matched configuration element, not null
    * @throws IllegalArgumentException if the name or version-correction is invalid
+   * @throws DataNotFoundException if the configuration could not be found
    * @throws RuntimeException if an error occurs
    */
   <T> T getConfigByName(Class<T> clazz, String configName);

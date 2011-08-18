@@ -31,7 +31,7 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 
 /**
- * Test InMemoryConfigMaster.
+ * Test {@link InMemoryConfigMaster}.
  */
 @Test
 public class InMemoryConfigMasterTest {

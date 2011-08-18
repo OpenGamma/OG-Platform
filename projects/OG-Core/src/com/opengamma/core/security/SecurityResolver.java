@@ -52,8 +52,9 @@ public interface SecurityResolver extends LinkResolver<Security> {
    * then a best match selection may be required.
    * 
    * @param uniqueId  the unique identifier to find, not null
-   * @return the security, null if not found
+   * @return the matched security, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the security could not be found
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(UniqueId uniqueId);
@@ -67,8 +68,9 @@ public interface SecurityResolver extends LinkResolver<Security> {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param objectId  the object identifier to find, not null
-   * @return the security, null if not found
+   * @return the matched security, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the security could not be found
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ObjectId objectId);
@@ -82,8 +84,9 @@ public interface SecurityResolver extends LinkResolver<Security> {
    * The resolver implementation is responsible for selecting the best match.
    * 
    * @param bundle  the external identifier bundle to find, not null
-   * @return the single security matching the bundle of keys, null if not found
+   * @return the matched security, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @throws DataNotFoundException if the security could not be found
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(ExternalIdBundle bundle);
