@@ -25,7 +25,6 @@
   <available property="config.ok" file="${basedir}/config/OpenGamma.properties" />
   <target name="fetch-config" unless="config.ok">
     <property file="${common.dir}/credentials.properties" />
-    <property file="${wkspace.dir}/build.properties" />
     <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${basedir}/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
   </target>
 

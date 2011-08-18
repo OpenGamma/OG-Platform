@@ -21,12 +21,16 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class PortfolioStructure {
 
+  /**
+   * The portfolio source.
+   */
   private final PositionSource _positionSource;
 
   /**
-   * Constructs a portfolio structure querying service using the underlying position source for portfolio information.
+   * Constructs a portfolio structure querying service using the underlying position
+   * source for portfolio information.
    * 
-   * @param positionSource the underlying position source, not {@code null}
+   * @param positionSource the underlying position source, not null
    */
   public PortfolioStructure(final PositionSource positionSource) {
     ArgumentChecker.notNull(positionSource, "positionSource");
@@ -42,42 +46,69 @@ public class PortfolioStructure {
     return _positionSource;
   }
 
-  private PortfolioNode getParentNodeImpl(final PortfolioNode node) {
-    final UniqueId parent = node.getParentNodeId();
-    if (parent != null) {
-      return getPositionSource().getPortfolioNode(parent);
-    } else {
-      return null;
-    }
-  }
-
+  //-------------------------------------------------------------------------
   /**
-   * Returns the portfolio node that is the immediate parent of the given node. This is equivalent to resolving
-   * the unique identifier reported by a portfolio node as its parent.
+   * Returns the portfolio node that is the immediate parent of the given node.
+   * This is equivalent to resolving the unique identifier reported by a portfolio node as its parent.
    * 
-   * @param node the node to search for, not {@code null}
-   * @return the parent node, or {@code null} if the parent cannot be resolved or the node is a root node
+   * @param node the node to search for, not null
+   * @return the parent node, null if the parent cannot be resolved or the node is a root node
    */
   public PortfolioNode getParentNode(final PortfolioNode node) {
     ArgumentChecker.notNull(node, "node");
     return getParentNodeImpl(node);
   }
 
+  private PortfolioNode getParentNodeImpl(final PortfolioNode node) {
+    final UniqueId parent = node.getParentNodeId();
+    if (parent == null) {
+      return null;
+    }
+    return getPositionSource().getPortfolioNode(parent);
+  }
+
   /**
-   * Returns the portfolio node that a position is underneath. This is equivalent to resolving the unique identifier
-   * reported by the position object.
+   * Returns the portfolio node that a position is underneath.
+   * This is equivalent to resolving the unique identifier reported by the position object.
    * 
-   * @param position the position to search for, not {@code null}
-   * @return the portfolio node, or {@code null} if the node cannot be resolved
+   * @param position the position to search for, not null
+   * @return the portfolio node, null if the node cannot be resolved
    */
   public PortfolioNode getParentNode(final Position position) {
     ArgumentChecker.notNull(position, "position");
     final UniqueId parent = position.getParentNodeId();
-    if (parent != null) {
-      return getPositionSource().getPortfolioNode(parent);
-    } else {
+    if (parent == null) {
       return null;
     }
+    return getPositionSource().getPortfolioNode(parent);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the root node for the portfolio containing the given node.
+   * This is equivalent to traversing up the tree until the root is found.
+   * 
+   * @param node the node to search for, not null
+   * @return the root node, null if parent node hierarchy incomplete
+   */
+  public PortfolioNode getRootPortfolioNode(final PortfolioNode node) {
+    ArgumentChecker.notNull(node, "node");
+    return getRootPortfolioNodeImpl(node);
+  }
+
+  /**
+   * Returns the root node for the portfolio containing the given position.
+   * This is equivalent to traversing up the tree from the position's portfolio node until the root is found.
+   * 
+   * @param position the position to search for, not null
+   * @return the root node, null if parent node hierarchy incomplete
+   */
+  public PortfolioNode getRootPortfolioNode(final Position position) {
+    final PortfolioNode node = getParentNode(position);
+    if (node == null) {
+      return null;
+    }
+    return getRootPortfolioNodeImpl(node);
   }
 
   private PortfolioNode getRootPortfolioNodeImpl(PortfolioNode node) {
@@ -93,32 +124,19 @@ public class PortfolioStructure {
     return node;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the root node for the portfolio containing the given node. This is equivalent to traversing
-   * up the tree until the root is found.
+   * Returns <strong>all</strong> positions underneath a portfolio node.
+   * This is equivalent to traversing down the tree from the current node to all leaf nodes.
    * 
-   * @param node the node to search for, not {@code null}
-   * @return the root node, or {@code null} if one or more nodes in the path could not be resolved
+   * @param node  the node to search for, not null
+   * @return the list of all positions found, not null
    */
-  public PortfolioNode getRootPortfolioNode(final PortfolioNode node) {
+  public List<Position> getAllPositions(final PortfolioNode node) {
     ArgumentChecker.notNull(node, "node");
-    return getRootPortfolioNodeImpl(node);
-  }
-
-  /**
-   * Returns the root node for the portfolio containing the given position. This is equivalent to traversing
-   * up the tree from the position's portfolio node until the root is found.
-   * 
-   * @param position the position to search for, not {@code null}
-   * @return the root node, or {@code null} if one or more nodes in the path could not be resolved
-   */
-  public PortfolioNode getRootPortfolioNode(final Position position) {
-    final PortfolioNode node = getParentNode(position);
-    if (node != null) {
-      return getRootPortfolioNodeImpl(node);
-    } else {
-      return null;
-    }
+    final List<Position> result = new ArrayList<Position>();
+    getAllPositionsImpl(node, result);
+    return result;
   }
 
   private void getAllPositionsImpl(final PortfolioNode node, final List<Position> result) {
@@ -126,20 +144,6 @@ public class PortfolioStructure {
     for (PortfolioNode child : node.getChildNodes()) {
       getAllPositionsImpl(child, result);
     }
-  }
-
-  /**
-   * Returns <strong>all</strong> positions underneath a portfolio node. This is equivalent to traversing
-   * down the tree from the current node to all leaf nodes.
-   * 
-   * @param node the node to search for, not {@code null}
-   * @return the list of all positions found
-   */
-  public List<Position> getAllPositions(final PortfolioNode node) {
-    ArgumentChecker.notNull(node, "node");
-    final List<Position> result = new ArrayList<Position>();
-    getAllPositionsImpl(node, result);
-    return result;
   }
 
 }

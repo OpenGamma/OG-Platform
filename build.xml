@@ -457,8 +457,13 @@
 	<!-- publishes common directory for Bamboo -->
 	<target name="publish-common-dir" if="publish-common-dir" depends="init">
 		<echo message="Syncing common files to ${publish-common-dir}" />
-		<sync todir="${publish-common-dir}/common">
-			<fileset dir="common"/>
+		<sync todir="${publish-common-dir}/">
+			<fileset dir=".">
+				<include name="common/**"/>
+				<include name="LICENSE.txt"/>
+				<include name="git-macros.xml"/>
+				<include name="git-tasks.xml"/>
+			</fileset>
 		</sync>
 	</target>
 

@@ -9,11 +9,15 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
   public static final String SETTLEMENT_DATE_KEY = "settlementDate";
   private com.opengamma.id.ExternalId _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
-  public EquityFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate) {
+  public EquityFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId underlyingIdentifier) {
     super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
     else {
       _settlementDate = settlementDate;
+    }
+    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
+    else {
+      _underlyingIdentifier = underlyingIdentifier;
     }
   }
   protected EquityFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
@@ -28,15 +32,12 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
       throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
     }
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
-    if (fudgeField != null)  {
-      try {
-        final com.opengamma.id.ExternalId fudge1;
-        fudge1 = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-        setUnderlyingIdentifier (fudge1);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
-      }
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not present");
+    try {
+      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
     }
   }
   public EquityFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId underlyingIdentifier) {
@@ -45,7 +46,7 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
     else {
       _settlementDate = settlementDate;
     }
-    if (underlyingIdentifier == null) _underlyingIdentifier = null;
+    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
       _underlyingIdentifier = underlyingIdentifier;
     }
@@ -109,7 +110,7 @@ public class EquityFutureSecurity extends com.opengamma.financial.security.futur
     return _underlyingIdentifier;
   }
   public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
-    if (underlyingIdentifier == null) _underlyingIdentifier = null;
+    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
     else {
       _underlyingIdentifier = underlyingIdentifier;
     }

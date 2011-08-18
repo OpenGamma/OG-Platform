@@ -65,7 +65,7 @@ public interface SecuritySource extends ChangeProvider {
    * 
    * @param bundle  the bundle keys to match, not null
    * @param versionCorrection  the version-correction, not null
-   * @return all securities matching the specified key, empty if no matches, not null
+   * @return all securities matching the bundle, empty if no matches, not null
    * @throws IllegalArgumentException if the identifier bundle is invalid
    * @throws RuntimeException if an error occurs
    */
