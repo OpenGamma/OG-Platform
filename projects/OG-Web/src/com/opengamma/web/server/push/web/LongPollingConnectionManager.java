@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push.web;
 
-import com.opengamma.web.server.push.subscription.SubscriptionManager;
+import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import org.eclipse.jetty.continuation.Continuation;
 
 import java.util.HashMap;
@@ -18,19 +18,19 @@ import java.util.Map;
 public class LongPollingConnectionManager {
 
   // TODO this needs to be initialized by Spring
-  private final SubscriptionManager _subscriptionManager;
+  private final RestUpdateManager _restUpdateManager;
 
   // TODO what value type?
-  private final Map<String, LongPollingSubscriptionListener> _connections =
-          new HashMap<String, LongPollingSubscriptionListener>();
+  private final Map<String, LongPollingUpdateListener> _connections =
+          new HashMap<String, LongPollingUpdateListener>();
 
-  public LongPollingConnectionManager(SubscriptionManager subscriptionManager) {
-    _subscriptionManager = subscriptionManager;
+  public LongPollingConnectionManager(RestUpdateManager restUpdateManager) {
+    _restUpdateManager = restUpdateManager;
   }
 
   String handshake(String userId) {
-    LongPollingSubscriptionListener connection = new LongPollingSubscriptionListener();
-    String clientId = _subscriptionManager.newConnection(userId, connection);
+    LongPollingUpdateListener connection = new LongPollingUpdateListener();
+    String clientId = _restUpdateManager.newConnection(userId, connection);
     _connections.put(clientId, connection);
     return clientId;
   }
@@ -47,7 +47,7 @@ public class LongPollingConnectionManager {
    */
   boolean connect(String userId, String clientId, Continuation continuation) {
     // TODO check userId and clientId correspond
-    LongPollingSubscriptionListener connection = _connections.get(clientId);
+    LongPollingUpdateListener connection = _connections.get(clientId);
     if (connection != null) {
       connection.connect(continuation);
       return true;
@@ -58,7 +58,7 @@ public class LongPollingConnectionManager {
 
   // for testing
   boolean isClientConnected(String clientId) {
-    LongPollingSubscriptionListener listener = _connections.get(clientId);
+    LongPollingUpdateListener listener = _connections.get(clientId);
     return listener != null && listener.isConnected();
   }
 }

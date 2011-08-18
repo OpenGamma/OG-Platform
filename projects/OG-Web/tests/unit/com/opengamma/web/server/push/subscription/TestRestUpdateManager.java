@@ -8,17 +8,15 @@ package com.opengamma.web.server.push.subscription;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.web.LongPollingTest;
 
-import java.util.List;
-
 /**
  * Test subscription manager that can have a maximum of one connection.
  */
-public class TestSubscriptionManager implements SubscriptionManager {
+public class TestRestUpdateManager implements RestUpdateManager {
 
-  private volatile SubscriptionListener _listener;
+  private volatile RestUpdateListener _listener;
 
   @Override
-  public String newConnection(String userId, SubscriptionListener listener) {
+  public String newConnection(String userId, RestUpdateListener listener) {
     _listener = listener;
     return LongPollingTest.CLIENT_ID;
   }

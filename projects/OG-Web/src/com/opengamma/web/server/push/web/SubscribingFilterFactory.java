@@ -6,7 +6,7 @@
 package com.opengamma.web.server.push.web;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.subscription.SubscriptionManager;
+import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.spi.container.ResourceFilter;
@@ -51,13 +51,13 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   @Override
   public List<ResourceFilter> create(AbstractMethod abstractMethod) {
-    SubscriptionManager subscriptionManager = getSubscriptionManager();
+    RestUpdateManager restUpdateManager = getSubscriptionManager();
     List<ResourceFilter> filters = new ArrayList<ResourceFilter>();
-    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, subscriptionManager, _servletRequest);
+    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, restUpdateManager, _servletRequest);
     if (entityFilter != null) {
       filters.add(entityFilter);
     }
-    ResourceFilter masterFilter = createMasterSubscriptionFilter(abstractMethod, subscriptionManager);
+    ResourceFilter masterFilter = createMasterSubscriptionFilter(abstractMethod, restUpdateManager);
     if (masterFilter != null) {
       filters.add(masterFilter);
     }
@@ -65,13 +65,13 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
   }
 
   // TODO can the subscription manager go in a field that's automatically populated from the Spring context?
-  private SubscriptionManager getSubscriptionManager() {
+  private RestUpdateManager getSubscriptionManager() {
     ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(_servletContext);
-    return context.getBean(SubscriptionManager.class);
+    return context.getBean(RestUpdateManager.class);
   }
 
   private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod,
-                                                        SubscriptionManager subscriptionManager,
+                                                        RestUpdateManager restUpdateManager,
                                                         HttpServletRequest servletRequest) {
     Method method = abstractMethod.getMethod();
     Annotation[][] annotations = method.getParameterAnnotations();
@@ -99,14 +99,14 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     if (!uidParamNames.isEmpty()) {
       s_logger.debug("Creating subscribing filter for parameters {} on method {}.{}()",
                      new Object[]{uidParamNames, method.getDeclaringClass().getSimpleName(), method.getName()});
-      return new EntitySubscriptionFilter(_httpContext, uidParamNames, subscriptionManager, servletRequest);
+      return new EntitySubscriptionFilter(_httpContext, uidParamNames, restUpdateManager, servletRequest);
     } else {
       return null;
     }
   }
 
   private static ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod,
-                                                               SubscriptionManager subscriptionManager) {
+                                                               RestUpdateManager restUpdateManager) {
     SubscribeMaster annotation = abstractMethod.getAnnotation(SubscribeMaster.class);
     if (annotation != null) {
       MasterType[] masterTypes = annotation.value();

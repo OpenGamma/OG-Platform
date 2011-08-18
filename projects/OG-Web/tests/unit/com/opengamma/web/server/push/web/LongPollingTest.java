@@ -6,7 +6,7 @@
 package com.opengamma.web.server.push.web;
 
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.push.subscription.TestSubscriptionManager;
+import com.opengamma.web.server.push.subscription.TestRestUpdateManager;
 import org.eclipse.jetty.server.Server;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
@@ -35,7 +35,7 @@ public class LongPollingTest {
   private static final String RESULT3 = "RESULT3";
 
   private Server _server;
-  private TestSubscriptionManager _subscriptionManager;
+  private TestRestUpdateManager _subscriptionManager;
   private LongPollingConnectionManager _longPollingConnectionManager;
 
   @BeforeClass
@@ -44,7 +44,7 @@ public class LongPollingTest {
         WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
-    _subscriptionManager = context.getBean(TestSubscriptionManager.class);
+    _subscriptionManager = context.getBean(TestRestUpdateManager.class);
     _longPollingConnectionManager = context.getBean(LongPollingConnectionManager.class);
   }
 

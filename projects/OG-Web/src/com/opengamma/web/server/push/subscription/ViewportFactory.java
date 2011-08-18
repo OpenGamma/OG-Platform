@@ -15,5 +15,5 @@ import com.opengamma.id.UniqueId;
 public interface ViewportFactory {
 
   // TODO subscription type? or is that in the client connection?
-  void createViewport(UniqueId viewClientId, ViewportBounds viewportBounds, SubscriptionListener listener);
+  void createViewport(UniqueId viewClientId, ViewportBounds viewportBounds, RestUpdateListener listener);
 }

@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * TODO what's the policy on arg checking? public API only?
  * TODO CONCURRENCY
  */
-public class SubscriptionManagerImpl implements SubscriptionManager {
+/* package */ class RestUpdateManagerImpl implements RestUpdateManager {
 
-  //private static final Logger s_logger = LoggerFactory.getLogger(SubscriptionManagerImpl.class);
+  //private static final Logger s_logger = LoggerFactory.getLogger(RestUpdateManagerImpl.class);
 
   private final AtomicLong _clientConnectionId = new AtomicLong();
   private final ChangeManager _changeManager;
@@ -31,14 +31,14 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connections = new HashMap<String, ClientConnection>();
 
-  public SubscriptionManagerImpl(ChangeManager changeManager, ViewportFactory viewportFactory) {
+  public RestUpdateManagerImpl(ChangeManager changeManager, ViewportFactory viewportFactory) {
     _changeManager = changeManager;
     _viewportFactory = viewportFactory;
   }
 
   // handshake method that returns the client ID, must be called before any of the long-polling subscribe methods
   @Override
-  public String newConnection(String userId, SubscriptionListener listener) {
+  public String newConnection(String userId, RestUpdateListener listener) {
     // TODO check args
     // TODO  TimerTask to close connection if it times out? or should that live downstream? or both?
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
@@ -65,7 +65,7 @@ public class SubscriptionManagerImpl implements SubscriptionManager {
   // TODO but what about closing subscriptions? the client connection needs to know about its viewports
   // TODO or the ViewportManager could key on client ID and implement a disconnect() method
   // TODO making everying go through ClientConnection might make concurrency easier to manage
-  public String createViewportSubscription(String userId, String clientId, ViewportSubscriptionRequest request) {
+  public String createViewportSubscription(String userId, String clientId, ViewportDefinition request) {
     getConnection(userId, clientId).createViewportSubscription(request);
     return viewportId(clientId);
   }

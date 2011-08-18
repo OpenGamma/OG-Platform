@@ -56,14 +56,14 @@ public class RestEntitySubscriptionTest {
   }
 
   /**
-   * Asserts that {@code json} is a JSON object with a field {@code updates} whose value is an array
-   * containing the expected values.
+   * Asserts that {@code json} represents a JSON object with a field called {@code updates} whose value is an array
+   * of the expected values.
    * @param json {@code {updates: [url1, url2, ...]}}
    * @param urls URLs that must be present in the JSON
    */
   private static void checkJsonResults(String json, String... urls) throws JSONException {
     List<String> expectedList = Arrays.asList(urls);
-    JSONArray results = new JSONObject(json).getJSONArray(LongPollingSubscriptionListener.UPDATES);
+    JSONArray results = new JSONObject(json).getJSONArray(LongPollingUpdateListener.UPDATES);
     assertEquals("Wrong number of results.  expected: " + expectedList + ", actual: " + results, expectedList.size(), results.length());
     for (int i = 0; i < results.length(); i++) {
       String result = results.getString(i);

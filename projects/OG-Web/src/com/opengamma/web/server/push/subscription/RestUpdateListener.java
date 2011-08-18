@@ -6,9 +6,9 @@
 package com.opengamma.web.server.push.subscription;
 
 /**
- * TODO this name clashes with one in OG-LiveData, rename
+ *
  */
-public interface SubscriptionListener {
+public interface RestUpdateListener {
 
   void itemUpdated(String url);
 }

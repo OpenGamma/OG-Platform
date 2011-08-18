@@ -18,8 +18,8 @@ import java.io.IOException;
  */
 public class LongPollingServlet extends SpringConfiguredServlet {
 
-  public static final String RESULTS = "RESULTS";
-  public static final String CLIENT_ID = "clientId";
+  /* package */ static final String RESULTS = "RESULTS";
+  /* package */ static final String CLIENT_ID = "clientId";
 
   @Autowired
   private LongPollingConnectionManager _connectionManager;

@@ -7,7 +7,7 @@ package com.opengamma.web.server.push.web;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.subscription.SubscriptionManager;
+import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
@@ -32,16 +32,16 @@ class EntitySubscriptionFilter implements ResourceFilter {
 
   private final HttpContext _httpContext;
   private final List<String> _uidParamNames;
-  private final SubscriptionManager _subscriptionManager;
+  private final RestUpdateManager _restUpdateManager;
   private final HttpServletRequest _servletRequest;
 
   public EntitySubscriptionFilter(HttpContext httpContext,
                                   List<String> uidParamNames,
-                                  SubscriptionManager subscriptionManager,
+                                  RestUpdateManager restUpdateManager,
                                   HttpServletRequest servletRequest) {
     _httpContext = httpContext;
     _uidParamNames = uidParamNames;
-    _subscriptionManager = subscriptionManager;
+    _restUpdateManager = restUpdateManager;
     _servletRequest = servletRequest;
   }
 
@@ -108,7 +108,7 @@ class EntitySubscriptionFilter implements ResourceFilter {
           }
           if (uniqueId != null) {
             try {
-              _subscriptionManager.subscribe(userId, clientId, uniqueId, url);
+              _restUpdateManager.subscribe(userId, clientId, uniqueId, url);
             } catch (OpenGammaRuntimeException e) {
               s_logger.warn("Failed to subscribe for updates to REST entity, userId: " + userId + ", clientId: "
                                 + clientId + ", url: " + url, e);

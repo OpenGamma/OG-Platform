@@ -10,9 +10,6 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +23,7 @@ public class ClientConnection implements ChangeListener {
 
   private final String _userId;
   private final String _clientId;
-  private final SubscriptionListener _listener;
+  private final RestUpdateListener _listener;
   private final ViewportFactory _viewportFactory;
 
   /** REST URLs for entities keyed on the entity's {@link UniqueId} */
@@ -35,7 +32,7 @@ public class ClientConnection implements ChangeListener {
   // TODO atomic ref?
   private Viewport _viewport;
 
-  public ClientConnection(String userId, String clientId, SubscriptionListener listener, ViewportFactory viewportFactory) {
+  public ClientConnection(String userId, String clientId, RestUpdateListener listener, ViewportFactory viewportFactory) {
     // TODO check args
     _viewportFactory = viewportFactory;
     _userId = userId;
@@ -57,7 +54,7 @@ public class ClientConnection implements ChangeListener {
    * TODO refactor so the stack isn't so deep when setting up new subs? create everything in the subs manager? is that workable?
    * TODO logic in subscription requests? command pattern?
    */
-  public void createViewportSubscription(ViewportSubscriptionRequest request) {
+  public void createViewportSubscription(ViewportDefinition request) {
     UniqueId viewClientId = request.getViewClientId();
     _viewportFactory.createViewport(viewClientId, request.getViewportBounds(), _listener);
   }

@@ -6,8 +6,8 @@
 package com.opengamma.web.server.push.web;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.subscription.SubscriptionManager;
-import com.opengamma.web.server.push.subscription.ViewportSubscriptionRequest;
+import com.opengamma.web.server.push.subscription.RestUpdateManager;
+import com.opengamma.web.server.push.subscription.ViewportDefinition;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,10 +23,10 @@ import javax.ws.rs.core.MediaType;
 @Path("viewport")
 public class ViewportsResource {
 
-  private final SubscriptionManager _subscriptionManager;
+  private final RestUpdateManager _restUpdateManager;
 
-  public ViewportsResource(SubscriptionManager subscriptionManager) {
-    _subscriptionManager = subscriptionManager;
+  public ViewportsResource(RestUpdateManager restUpdateManager) {
+    _restUpdateManager = restUpdateManager;
   }
 
   /**
@@ -36,14 +36,14 @@ public class ViewportsResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
-  String createViewport(/*TODO this arg is wrong (at least the name is wrong)*/ViewportSubscriptionRequest request) {
-    //_subscriptionManager.
+  String createViewport(ViewportDefinition request) {
+    //_restUpdateManager.
     throw new UnsupportedOperationException("TODO");
   }
 
   @GET
-  @Path("{clientId}/{viewportId}")
-  String getLatestViewportData(@PathParam("clientId") String clientId, @PathParam("viewportId") UniqueId viewportId) {
+  @Path("{viewportId}")
+  String getLatestViewportData(@PathParam("viewportId") UniqueId viewportId) {
     throw new UnsupportedOperationException("TODO");
   }
 }

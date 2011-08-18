@@ -11,7 +11,7 @@ import com.opengamma.id.UniqueId;
 /**
  *
  */
-public interface SubscriptionManager {
+public interface RestUpdateManager {
 
   /**
    * Handshake method that returns the client ID needed to identify the connection when calling all other operations.
@@ -19,7 +19,7 @@ public interface SubscriptionManager {
    * @param listener
    * @return The client ID needed to identify the connection when calling all other operations
    */
-  String newConnection(String userId, SubscriptionListener listener);
+  String newConnection(String userId, RestUpdateListener listener);
 
   void closeConnection(String userId, String clientId);
 

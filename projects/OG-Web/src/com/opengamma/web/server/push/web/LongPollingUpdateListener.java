@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push.web;
 
-import com.opengamma.web.server.push.subscription.SubscriptionListener;
+import com.opengamma.web.server.push.subscription.RestUpdateListener;
 import org.eclipse.jetty.continuation.Continuation;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,15 +17,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * {@link SubscriptionListener} that pushes updates over a long-polling HTTP connection using Jetty's continuations.
+ * {@link RestUpdateListener} that pushes updates over a long-polling HTTP connection using Jetty's continuations.
  * If any updates arrive while there is no connection they are queued and sent as soon as the connection
  * is re-established.  If multiple updates for the same object are queued only one is sent.  All updates
- * only contain the ID of the updated object so they are identical.
+ * only contain the REST URL of the updated object so they are identical.
  * TODO listener on the continuation? timeout?
  */
-class LongPollingSubscriptionListener implements SubscriptionListener {
+/* package */ class LongPollingUpdateListener implements RestUpdateListener {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(LongPollingSubscriptionListener.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(LongPollingUpdateListener.class);
 
   /** Key for the array of updated URLs in the JSON */
   static final String UPDATES = "updates";
@@ -51,7 +51,7 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     }
   }
 
-  public void connect(Continuation continuation) {
+  /* package */ void connect(Continuation continuation) {
     synchronized (_lock) {
       // what if _continuation isn't null? shouldn't happen but is possible. is it an error?
       if (_continuation != null) {
@@ -77,9 +77,8 @@ class LongPollingSubscriptionListener implements SubscriptionListener {
     _continuation = null;
   }
 
-  // TODO better name? isBlocking? isWaiting?
   // for testing
-  boolean isConnected() {
+  /* package */ boolean isConnected() {
     synchronized (_lock) {
       return _continuation != null;
     }

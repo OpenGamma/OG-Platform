@@ -5,14 +5,10 @@
  */
 package com.opengamma.web.server.push.web;
 
-import com.opengamma.web.server.push.subscription.SubscriptionManager;
+import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -32,7 +28,7 @@ import java.util.List;
 public class SubscriptionsServlet extends SpringConfiguredServlet {
 
   @Autowired
-  private SubscriptionManager _subscriptionManager;
+  private RestUpdateManager _restUpdateManager;
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -51,7 +47,7 @@ public class SubscriptionsServlet extends SpringConfiguredServlet {
       urls.add(url);
     }
     // TODO sort this
-    /*if (!_subscriptionManager.subscribe(userId, clientId, urls)) {
+    /*if (!_restUpdateManager.subscribe(userId, clientId, urls)) {
       response.sendError(404);
     }*/
   }
