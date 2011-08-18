@@ -18,7 +18,7 @@ import com.opengamma.web.WebHomeUris;
 /**
  * Abstract base class for RESTful batch resources.
  */
-public class AbstractWebBatchResource extends AbstractWebResource {
+public abstract class AbstractWebBatchResource extends AbstractWebResource {
 
   /**
    * The backing bean.

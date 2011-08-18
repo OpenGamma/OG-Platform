@@ -34,11 +34,14 @@ import com.opengamma.web.AbstractWebResource;
  */
 @Path("/valuerequirementnames/metaData")
 public class WebValueRequirementNamesResource extends AbstractWebResource {
- 
-  private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
-  
-  private static final Set<String> s_valueRequirementNames;
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(WebValueRequirementNamesResource.class);
+
+  /**
+   * The value requirement names.
+   */
+  private static final Set<String> s_valueRequirementNames;
   static {
     final List<String> list = new ArrayList<String>();
     for (Field field : ValueRequirementNames.class.getDeclaredFields()) {
@@ -74,10 +77,6 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
       s_logger.warn("error creating json document for valueRequirementNames");
     }
     return result;
-  }
-  
-  public static Set<String> getValueRequirementNames() {
-    return Collections.unmodifiableSet(s_valueRequirementNames);
   }
 
 }
