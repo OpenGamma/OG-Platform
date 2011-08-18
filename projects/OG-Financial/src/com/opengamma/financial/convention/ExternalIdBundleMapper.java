@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.id;
+package com.opengamma.financial.convention;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,6 +12,10 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
 
 /**
  * A class to manage {@code ExternalId}, {@code ExternalIdBundle} and {@code UniqueId}
@@ -24,7 +28,7 @@ import com.google.common.collect.Multimap;
  * 
  * @param <T> the type of the object being referred to by the identifiers
  */
-public class ExternalIdBundleMapper<T> {
+/* package */ class ExternalIdBundleMapper<T> {
 
   private final Multimap<ExternalId, T> _toMap = HashMultimap.create();
   private final Multimap<T, ExternalId> _fromMap = HashMultimap.create();
@@ -36,7 +40,7 @@ public class ExternalIdBundleMapper<T> {
    * 
    * @param uniqueIdScheme  the scheme to use for the automatically allocated unique identifiers
    */
-  public ExternalIdBundleMapper(String uniqueIdScheme) {
+  ExternalIdBundleMapper(String uniqueIdScheme) {
     _idSupplier = new UniqueIdSupplier(uniqueIdScheme);
   }
 
@@ -48,7 +52,7 @@ public class ExternalIdBundleMapper<T> {
    * @param obj  the object being referred to, not null
    * @return the created unique identifier, not null
    */
-  public synchronized UniqueId add(ExternalIdBundle bundle, T obj) {
+  synchronized UniqueId add(ExternalIdBundle bundle, T obj) {
     _fromMap.putAll(obj, bundle.getExternalIds());
     for (ExternalId identifier : bundle.getExternalIds()) {
       _toMap.put(identifier, obj);
@@ -71,7 +75,7 @@ public class ExternalIdBundleMapper<T> {
    * @param bundle  the bundle to search for, not null
    * @return the matching objects, not null
    */
-  public synchronized Collection<T> get(ExternalIdBundle bundle) {
+  synchronized Collection<T> get(ExternalIdBundle bundle) {
     // TODO: semantics are wrong
     Collection<T> results = new HashSet<T>();
     for (ExternalId identifier : bundle) {
@@ -88,7 +92,7 @@ public class ExternalIdBundleMapper<T> {
    * @param externalId  the external identifier to search for, not null
    * @return the matching objects, not null
    */
-  public synchronized Collection<T> get(ExternalId externalId) {
+  synchronized Collection<T> get(ExternalId externalId) {
     return _toMap.get(externalId);
   }
 
@@ -98,29 +102,8 @@ public class ExternalIdBundleMapper<T> {
    * @param uniqueId  the unique identifier to search for, not null
    * @return the matching objects, not null
    */
-  public synchronized T get(UniqueId uniqueId) {
+  synchronized T get(UniqueId uniqueId) {
     return _uniqueIdMap.get(uniqueId);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the bundle of external identifiers associated with the object.
-   * 
-   * @param obj  the object to search for, not null
-   * @return the matching bundle, not null
-   */
-  public synchronized ExternalIdBundle getExternalIdBundle(T obj) {
-    return ExternalIdBundle.of(_fromMap.get(obj));
-  }
-
-  /**
-   * Gets the unique identifier associated with the object.
-   * 
-   * @param obj  the object to search for, not null
-   * @return the matching unique identifier, not null
-   */
-  public synchronized UniqueId getUniqueId(T obj) {
-    return _uniqueIdMap.inverse().get(obj);
   }
 
 }
