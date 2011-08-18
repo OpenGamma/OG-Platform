@@ -149,8 +149,8 @@ public class DataPositionSourceResource {
   }
 
   public static RestTarget targetPortfolio(final RestTarget target, final ObjectId objectId, final VersionCorrection versionCorrection) {
-    return target.resolveBase("portfolios").resolve(objectId.toString())
-      .resolve(versionCorrection.getVersionAsOfString()).resolve(versionCorrection.getCorrectedToString());
+    return target.resolveBase("portfolios").resolveBase(objectId.toString())
+      .resolveBase(versionCorrection.getVersionAsOfString()).resolve(versionCorrection.getCorrectedToString());
   }
 
   public static RestTarget targetPortfolioNode(final RestTarget target, final UniqueId uniqueId) {
