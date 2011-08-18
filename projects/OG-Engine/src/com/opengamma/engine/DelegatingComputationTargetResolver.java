@@ -8,11 +8,12 @@ package com.opengamma.engine;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A target resolver implementation that forwards to a backing resolver.
+ * A target resolver implementation that delegates to a backing resolver.
  * <p>
- * This implements the decorator pattern.
+ * This can be used to implement additional behavior on top of an underlying
+ * resolver as per the decorator pattern.
  */
-public abstract class ForwardingComputationTargetResolver implements ComputationTargetResolver {
+public abstract class DelegatingComputationTargetResolver implements ComputationTargetResolver {
 
   /**
    * The underlying resolver.
@@ -23,7 +24,7 @@ public abstract class ForwardingComputationTargetResolver implements Computation
    * Creates an instance specifying the underlying resolver.
    * @param underlying  the underlying resolver, not null
    */
-  public ForwardingComputationTargetResolver(final ComputationTargetResolver underlying) {
+  public DelegatingComputationTargetResolver(final ComputationTargetResolver underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
