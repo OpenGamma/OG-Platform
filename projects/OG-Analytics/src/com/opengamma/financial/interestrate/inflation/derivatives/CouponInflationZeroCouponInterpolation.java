@@ -7,12 +7,9 @@ package com.opengamma.financial.interestrate.inflation.derivatives;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,12 +17,8 @@ import com.opengamma.util.money.Currency;
  * The start index value is known when the coupon is traded/issued.
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  */
-public class CouponInflationZeroCouponInterpolation extends Coupon {
+public class CouponInflationZeroCouponInterpolation extends CouponInflation {
 
-  /**
-   * The price index associated to the coupon.
-   */
-  private final PriceIndex _priceIndex;
   /**
    * The index value at the start of the coupon.
    */
@@ -66,22 +59,12 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
    */
   public CouponInflationZeroCouponInterpolation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
       double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
-    Validate.notNull(priceIndex, "Price index");
-    this._priceIndex = priceIndex;
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     this._fixingEndTime = fixingEndTime;
     _weight = weight;
     _payNotional = payNotional;
-  }
-
-  /**
-   * Gets the price index associated to the coupon.
-   * @return The price index.
-   */
-  public PriceIndex getPriceIndex() {
-    return _priceIndex;
   }
 
   /**
@@ -125,6 +108,14 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
   }
 
   @Override
+  public double estimatedIndex(MarketBundle market) {
+    double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
+    double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
+    double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
+    return estimatedIndex;
+  }
+
+  @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponInflationZeroCouponInterpolation(this, data);
   }
@@ -136,7 +127,7 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
 
   @Override
   public String toString() {
-    return super.toString() + ", price index=" + _priceIndex.toString() + ", reference=[" + _referenceEndTime[0] + ", " + _referenceEndTime[1] + ", fixing=" + _fixingEndTime;
+    return super.toString() + ", reference=[" + _referenceEndTime[0] + ", " + _referenceEndTime[1] + ", fixing=" + _fixingEndTime;
   }
 
   @Override
@@ -148,7 +139,6 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _priceIndex.hashCode();
     result = prime * result + Arrays.hashCode(_referenceEndTime);
     return result;
   }
@@ -169,9 +159,6 @@ public class CouponInflationZeroCouponInterpolation extends Coupon {
       return false;
     }
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
       return false;
     }
     if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {

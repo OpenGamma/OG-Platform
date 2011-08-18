@@ -18,12 +18,12 @@ public class BondCapitalIndexedTransaction<C extends Coupon> extends BondTransac
    * Capital indexed bond transaction constructor from transaction details.
    * @param bondPurchased The bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
-   * @param settlementAmount Transaction settlement amount.
+   * @param transactionPrice The transaction clean real price.
    * @param bondStandard Description of the underlying bond with standard settlement date.
    * @param notionalStandard The notional at the standard spot time.
    */
-  public BondCapitalIndexedTransaction(BondCapitalIndexedSecurity<C> bondPurchased, double quantity, double settlementAmount, BondCapitalIndexedSecurity<C> bondStandard, double notionalStandard) {
-    super(bondPurchased, quantity, settlementAmount, bondStandard, notionalStandard);
+  public BondCapitalIndexedTransaction(BondCapitalIndexedSecurity<C> bondPurchased, double quantity, double transactionPrice, BondCapitalIndexedSecurity<C> bondStandard, double notionalStandard) {
+    super(bondPurchased, quantity, transactionPrice, bondStandard, notionalStandard);
   }
 
   @Override

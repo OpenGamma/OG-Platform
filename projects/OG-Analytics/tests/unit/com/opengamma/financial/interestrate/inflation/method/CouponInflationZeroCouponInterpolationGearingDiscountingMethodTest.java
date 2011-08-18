@@ -99,7 +99,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
     for (int loopnode = 0; loopnode < sensiDisc.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
-      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDisc[loopnode], deltaTolerancePrice);
+      assertEquals("Sensitivity finite difference method: node sensitivity", sensiDisc[loopnode], pairPv.second, deltaTolerancePrice);
     }
     // 3. Price index curve sensitivity
     final double[] nodeTimesPrice = ZERO_COUPON_1.getReferenceEndTime();
@@ -110,7 +110,7 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethodTest 
     for (int loopnode = 0; loopnode < sensiPrice.length; loopnode++) {
       final DoublesPair pairPv = sensiPvPrice.get(loopnode);
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesPrice[loopnode], pairPv.getFirst(), 1E-8);
-      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiPrice[loopnode], deltaTolerancePrice);
+      assertEquals("Sensitivity finite difference method: node sensitivity", sensiPrice[loopnode], pairPv.second, deltaTolerancePrice);
     }
   }
 

@@ -60,7 +60,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   /**
    * Tests the present value.
    */
-  public void presentValueFirstOfmonth() {
+  public void presentValue() {
     CurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_1, MARKET);
     double df = MARKET.getCurve(ZERO_COUPON_1.getCurrency()).getDiscountFactor(ZERO_COUPON_1.getPaymentTime());
     double indexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_1.getReferenceEndTime()[0]);

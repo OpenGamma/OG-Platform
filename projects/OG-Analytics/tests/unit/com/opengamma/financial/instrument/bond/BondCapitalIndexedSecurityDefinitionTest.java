@@ -24,10 +24,13 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
+import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -56,6 +59,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
   private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
+  private static final int COUPON_PER_YEAR_GILT_1 = 2;
   private static final int SETTLEMENT_DAYS_GILT_1 = 2;
   private static final String ISSUER_UK = "UK GOVT";
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_SECURITY_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
@@ -66,6 +70,11 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   public void getter() {
     assertEquals("Capital Index Bond", DAY_COUNT_GILT_1, BOND_GILT_1_SECURITY_DEFINITION.getDayCount());
     assertEquals("Capital Index Bond", IS_EOM_GILT_1, BOND_GILT_1_SECURITY_DEFINITION.isEOM());
+    assertEquals("Capital Index Bond", YIELD_CONVENTION_GILT_1, BOND_GILT_1_SECURITY_DEFINITION.getYieldConvention());
+    assertEquals("Capital Index Bond", COUPON_PER_YEAR_GILT_1, BOND_GILT_1_SECURITY_DEFINITION.getCouponPerYear());
+    assertEquals("Capital Index Bond", MONTH_LAG_GILT_1, BOND_GILT_1_SECURITY_DEFINITION.getMonthLag());
+    assertEquals("Capital Index Bond", INDEX_START_GILT_1, BOND_GILT_1_SECURITY_DEFINITION.getIndexStartValue());
+    assertEquals("Capital Index Bond", PRICE_INDEX_UKRPI, BOND_GILT_1_SECURITY_DEFINITION.getPriceIndex());
   }
 
   @Test
@@ -123,8 +132,23 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final GenericAnnuity<Coupon> nominal = (GenericAnnuity<Coupon>) bondFromDefinition.getNominal().toDerivative(pricingDate, "Not used");
     @SuppressWarnings("unchecked")
     final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) bondFromDefinition.getCoupon().toDerivative(pricingDate, ukRpi, "Not used");
-    final double settleTime = TimeCalculator.getTimeBetween(pricingDate, ScheduleCalculator.getAdjustedDate(pricingDate, CALENDAR_GBP, SETTLEMENT_DAYS_GILT_1));
-    final BondCapitalIndexedSecurity<Coupon> bondSecurityExpected = new BondCapitalIndexedSecurity<Coupon>(nominal, coupon, settleTime, YIELD_CONVENTION_GILT_1, ISSUER_UK);
+    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, CALENDAR_GBP, SETTLEMENT_DAYS_GILT_1);
+    final double settleTime = TimeCalculator.getTimeBetween(pricingDate, spot);
+    @SuppressWarnings("unchecked")
+    AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) bondFromDefinition.getCoupon().trimBefore(spot);
+    final double accruedInterest = bondFromDefinition.accruedInterest(spot);
+    final double factorSpot = DAY_COUNT_GILT_1.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), spot, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
+        COUPON_PER_YEAR_GILT_1);
+    final double factorPeriod = DAY_COUNT_GILT_1.getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition
+        .getNthPayment(0).getAccrualEndDate(), 1.0, COUPON_PER_YEAR_GILT_1);
+    final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
+    CouponInflationDefinition nominalLast = bondFromDefinition.getNominal().getNthPayment(bondFromDefinition.getNominal().getNumberOfPayments() - 1);
+    ZonedDateTime settlementDate2 = spot;
+    double notional = 1.0;
+    CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
+    CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(pricingDate, "Not used");
+    final BondCapitalIndexedSecurity<Coupon> bondSecurityExpected = new BondCapitalIndexedSecurity<Coupon>(nominal, coupon, settleTime, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_GILT_1,
+        COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, ISSUER_UK);
     assertEquals("Capital Index Bond: toDerivative", bondSecurityExpected, bond);
   }
 

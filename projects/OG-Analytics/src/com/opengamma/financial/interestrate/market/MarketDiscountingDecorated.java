@@ -14,7 +14,14 @@ import com.opengamma.util.money.Currency;
  * A market bundle decorated for a given discounting curve.
  */
 public class MarketDiscountingDecorated extends MarketBundle {
+
+  /**
+   * The currency for which the discounting curve is decorated.
+   */
   private final Currency _ccy;
+  /**
+   * The replacing discounting curve.
+   */
   private final YieldAndDiscountCurve _curve;
 
   /**

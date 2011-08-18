@@ -81,23 +81,23 @@ public class BondFixedTransactionTest {
       YIELD_CONVENTION, COUPON_PER_YEAR, DISCOUNTING_CURVE_NAME, "");
   private static final BondFixedSecurity BOND_STD_DESCRIPTION = new BondFixedSecurity(NOMINAL_STD, COUPON_STD, STANDARD_SETTLEMENT_TIME, ACCRUED_AT_SPOT, FACTOR_TO_NEXT, YIELD_CONVENTION,
       COUPON_PER_YEAR, DISCOUNTING_CURVE_NAME, "");
-  private static final BondFixedTransaction BOND_TRANSACTION = new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, 1.0);
+  private static final BondFixedTransaction BOND_TRANSACTION = new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, PRICE, BOND_STD_DESCRIPTION, 1.0);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondPurchase() {
-    new BondFixedTransaction(null, QUANTITY, -PRICE * QUANTITY, BOND_STD_DESCRIPTION, 1.0);
+    new BondFixedTransaction(null, QUANTITY, PRICE, BOND_STD_DESCRIPTION, 1.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondStandard() {
-    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, -PRICE * QUANTITY, null, 1.0);
+    new BondFixedTransaction(BOND_TR_DESCRIPTION, QUANTITY, PRICE, null, 1.0);
   }
 
   @Test
   public void testGetters1() {
     assertEquals(BOND_TR_DESCRIPTION, BOND_TRANSACTION.getBondTransaction());
     assertEquals(QUANTITY, BOND_TRANSACTION.getQuantity());
-    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getSettlementAmount());
+    //    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getSettlementAmount());
     assertEquals(BOND_STD_DESCRIPTION, BOND_TRANSACTION.getBondStandard());
     assertEquals(STANDARD_SETTLEMENT_TIME, BOND_TRANSACTION.getBondStandard().getSettlementTime());
     assertEquals(BOND_SETTLEMENT_TIME, BOND_TRANSACTION.getBondTransaction().getSettlementTime());

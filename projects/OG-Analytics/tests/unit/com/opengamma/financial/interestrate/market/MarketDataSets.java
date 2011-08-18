@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.market;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.index.IborIndex;
@@ -18,11 +20,13 @@ import com.opengamma.financial.instrument.index.iborindex.UsdLibor3M;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
@@ -68,6 +72,9 @@ public class MarketDataSets {
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_USD = new PriceIndexCurve(CURVE_USD);
+  private static final int MONTH_LAG_US = 3;
+  private static final int SPOT_LAG_US = 1;
+  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
   private static final String ISSUER_UK_GOVT = "UK GOVT";
   private static final String ISSUER_US_GOVT = "US GOVT";
@@ -111,11 +118,54 @@ public class MarketDataSets {
   private static final ArrayZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = new ArrayZonedDateTimeDoubleTimeSeries(USCPI_DATE, USCPI_VALUE);
 
   /**
-   * Returns a market with two currencies (EUR, USD), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and one inflation (Euro HICP x).
+   * Returns a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
    * @return The market.
    */
   public static MarketBundle createMarket1() {
     return MARKET_1;
+  }
+
+  /**
+   * Creates a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
+   * The US CPI-U price curve is constructed to have the correct past data (if available in the time series) and a fake 2% inflation for the future.
+   * @param pricingDate The data for which the curve is constructed.
+   * @return The market.
+   */
+  public static MarketBundle createMarket1(ZonedDateTime pricingDate) {
+    MarketBundle market = new MarketBundle();
+    market.setCurve(Currency.EUR, CURVE_EUR_40);
+    market.setCurve(Currency.USD, CURVE_USD_30);
+    market.setCurve(Currency.GBP, CURVE_GBP_35);
+    market.setCurve(EURIBOR_3M, CURVE_EUR_45);
+    market.setCurve(EURIBOR_6M, CURVE_EUR_50);
+    market.setCurve(USDLIBOR_3M, CURVE_USD_35);
+    market.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
+    market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
+    market.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
+    market.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
+    ZonedDateTime spotUs = ScheduleCalculator.getAdjustedDate(pricingDate, CALENDAR_USD, SPOT_LAG_US);
+    ZonedDateTime referenceInterpolatedDate = spotUs.minusMonths(MONTH_LAG_US);
+    ZonedDateTime[] referenceDate = new ZonedDateTime[2];
+    referenceDate[0] = referenceInterpolatedDate.withDayOfMonth(1);
+    referenceDate[1] = referenceDate[0].plusMonths(1);
+    int[] yearUs = new int[] {1, 5, 10, 20, 50};
+    double[] indexValueUs = new double[2 + yearUs.length];
+    double[] timeValueUs = new double[2 + yearUs.length];
+    indexValueUs[0] = USCPI_TIME_SERIES.getValue(referenceDate[0]);
+    indexValueUs[1] = USCPI_TIME_SERIES.getValue(referenceDate[1]);
+    timeValueUs[0] = TimeCalculator.getTimeBetween(pricingDate, referenceDate[0]);
+    timeValueUs[1] = TimeCalculator.getTimeBetween(pricingDate, referenceDate[1]);
+    ZonedDateTime[] maturityDateUs = new ZonedDateTime[yearUs.length];
+    //    double[] maturityTimeUs = new double[yearUs.length];
+    for (int loopus = 0; loopus < yearUs.length; loopus++) {
+      maturityDateUs[loopus] = ScheduleCalculator.getAdjustedDate(spotUs, BUSINESS_DAY_USD, CALENDAR_USD, yearUs[loopus]);
+      timeValueUs[loopus + 2] = TimeCalculator.getTimeBetween(pricingDate, maturityDateUs[loopus]);
+      indexValueUs[loopus + 2] = indexValueUs[1] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
+    }
+    InterpolatedDoublesCurve curveUs = InterpolatedDoublesCurve.from(timeValueUs, indexValueUs, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
+    PriceIndexCurve priceIndexCurveUs = new PriceIndexCurve(curveUs);
+    market.setCurve(PRICE_INDEX_USD, priceIndexCurveUs);
+    return market;
   }
 
   /**

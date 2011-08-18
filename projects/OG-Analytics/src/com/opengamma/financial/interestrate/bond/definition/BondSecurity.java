@@ -53,6 +53,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(repoCurveName, "Repo curve name");
+    Validate.notNull(issuer, "Issuer");
     _nominal = nominal;
     _coupon = coupon;
     _settlementTime = settlementTime;

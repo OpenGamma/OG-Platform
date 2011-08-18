@@ -158,12 +158,12 @@ public class PresentValueCurveSensitivityMarket {
   }
 
   /**
-   * Return a clean sensitivity by sorting the times and adding the duplicate times.
+   * Return a new sensitivity by sorting the times and adding the values at duplicated times.
    * @return The cleaned sensitivity.
    */
   public PresentValueCurveSensitivityMarket clean() {
     //TODO: improve the sorting algorithm.
-    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    Map<String, List<DoublesPair>> resultYield = new HashMap<String, List<DoublesPair>>();
     for (final String name : _sensitivityYieldCurve.keySet()) {
       List<DoublesPair> list = _sensitivityYieldCurve.get(name);
       List<DoublesPair> listClean = new ArrayList<DoublesPair>();
@@ -180,9 +180,28 @@ public class PresentValueCurveSensitivityMarket {
         }
         listClean.add(new DoublesPair(time, sensi));
       }
-      result.put(name, listClean);
+      resultYield.put(name, listClean);
     }
-    return new PresentValueCurveSensitivityMarket(result);
+    Map<String, List<DoublesPair>> resultPrice = new HashMap<String, List<DoublesPair>>();
+    for (final String name : _sensitivityPriceCurve.keySet()) {
+      List<DoublesPair> list = _sensitivityPriceCurve.get(name);
+      List<DoublesPair> listClean = new ArrayList<DoublesPair>();
+      Set<Double> set = new TreeSet<Double>();
+      for (final DoublesPair pair : list) {
+        set.add(pair.getFirst());
+      }
+      for (Double time : set) {
+        double sensi = 0;
+        for (int looplist = 0; looplist < list.size(); looplist++) {
+          if (list.get(looplist).getFirst().doubleValue() == time.doubleValue()) {
+            sensi += list.get(looplist).second;
+          }
+        }
+        listClean.add(new DoublesPair(time, sensi));
+      }
+      resultPrice.put(name, listClean);
+    }
+    return new PresentValueCurveSensitivityMarket(resultYield, resultPrice);
   }
 
   @Override

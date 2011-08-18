@@ -13,8 +13,18 @@ import com.opengamma.util.money.Currency;
  * A market bundle decorated for a given discounting curve and a specific time. The (zero-coupon) rate is shifted by the shift provided.
  */
 public class MarketDiscountingTimeDecorated extends MarketBundle {
+
+  /**
+   * The currency for which the discounting curve is decorated.
+   */
   private final Currency _ccy;
+  /**
+   * The time at which the discounting rate is decorated.
+   */
   private final double _time;
+  /**
+   * The shift applied to the rate.
+   */
   private final double _shift;
 
   /**

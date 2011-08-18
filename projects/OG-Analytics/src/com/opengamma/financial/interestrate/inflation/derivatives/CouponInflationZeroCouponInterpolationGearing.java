@@ -7,12 +7,12 @@ package com.opengamma.financial.interestrate.inflation.derivatives;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,12 +21,8 @@ import com.opengamma.util.money.Currency;
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  * The pay-off is factor*(Index_End / Index_Start - X) with X=0 for notional payment and X=1 for no notional payment.
  */
-public class CouponInflationZeroCouponInterpolationGearing extends Coupon {
+public class CouponInflationZeroCouponInterpolationGearing extends CouponInflation implements CouponInflationGearing {
 
-  /**
-   * The price index associated to the coupon.
-   */
-  private final PriceIndex _priceIndex;
   /**
    * The index value at the start of the coupon.
    */
@@ -72,23 +68,13 @@ public class CouponInflationZeroCouponInterpolationGearing extends Coupon {
    */
   public CouponInflationZeroCouponInterpolationGearing(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex,
       double indexStartValue, double[] referenceEndTime, double weight, double fixingEndTime, boolean payNotional, double factor) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
-    Validate.notNull(priceIndex, "Price index");
-    this._priceIndex = priceIndex;
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     this._fixingEndTime = fixingEndTime;
     _weight = weight;
     _payNotional = payNotional;
     _factor = factor;
-  }
-
-  /**
-   * Gets the price index associated to the coupon.
-   * @return The price index.
-   */
-  public PriceIndex getPriceIndex() {
-    return _priceIndex;
   }
 
   /**
@@ -131,12 +117,18 @@ public class CouponInflationZeroCouponInterpolationGearing extends Coupon {
     return _payNotional;
   }
 
-  /**
-   * Gets the multiplicative factor.
-   * @return The factor.
-   */
+  @Override
   public double getFactor() {
     return _factor;
+  }
+
+  @Override
+  public double estimatedIndex(MarketBundle market) {
+    Validate.isTrue(_referenceEndTime.length == 2, "Incorrect number of reference time");
+    double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
+    double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
+    double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
+    return estimatedIndex;
   }
 
   @Override
@@ -151,7 +143,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends Coupon {
 
   @Override
   public String toString() {
-    return super.toString() + ", price index=" + _priceIndex.toString() + ", reference=[" + _referenceEndTime[0] + ", " + _referenceEndTime[1] + ", fixing=" + _fixingEndTime;
+    return super.toString() + ", reference=[" + _referenceEndTime[0] + ", " + _referenceEndTime[1] + ", fixing=" + _fixingEndTime;
   }
 
   @Override
@@ -166,7 +158,6 @@ public class CouponInflationZeroCouponInterpolationGearing extends Coupon {
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_payNotional ? 1231 : 1237);
-    result = prime * result + ((_priceIndex == null) ? 0 : _priceIndex.hashCode());
     result = prime * result + Arrays.hashCode(_referenceEndTime);
     temp = Double.doubleToLongBits(_weight);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -195,9 +186,6 @@ public class CouponInflationZeroCouponInterpolationGearing extends Coupon {
       return false;
     }
     if (_payNotional != other._payNotional) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
       return false;
     }
     if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {

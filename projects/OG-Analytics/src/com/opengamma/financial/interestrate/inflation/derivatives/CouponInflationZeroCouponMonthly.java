@@ -5,12 +5,9 @@
  */
 package com.opengamma.financial.interestrate.inflation.derivatives;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -19,12 +16,8 @@ import com.opengamma.util.money.Currency;
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  * The pay-off is (final index / start index - 1) * notional.
  */
-public class CouponInflationZeroCouponMonthly extends Coupon {
+public class CouponInflationZeroCouponMonthly extends CouponInflation {
 
-  /**
-   * The price index associated to the coupon.
-   */
-  private final PriceIndex _priceIndex;
   /**
    * The index value at the start of the coupon.
    */
@@ -59,21 +52,11 @@ public class CouponInflationZeroCouponMonthly extends Coupon {
    */
   public CouponInflationZeroCouponMonthly(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, PriceIndex priceIndex, double indexStartValue,
       double referenceEndTime, double fixingEndTime, boolean payNotional) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
-    Validate.notNull(priceIndex, "Price index");
-    this._priceIndex = priceIndex;
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     this._fixingEndTime = fixingEndTime;
     _payNotional = payNotional;
-  }
-
-  /**
-   * Gets the price index associated to the coupon.
-   * @return The price index.
-   */
-  public PriceIndex getPriceIndex() {
-    return _priceIndex;
   }
 
   /**
@@ -109,6 +92,12 @@ public class CouponInflationZeroCouponMonthly extends Coupon {
   }
 
   @Override
+  public double estimatedIndex(MarketBundle market) {
+    double estimatedIndex = market.getPriceIndex(getPriceIndex(), _referenceEndTime);
+    return estimatedIndex;
+  }
+
+  @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponInflationZeroCouponMonthly(this, data);
   }
@@ -120,7 +109,7 @@ public class CouponInflationZeroCouponMonthly extends Coupon {
 
   @Override
   public String toString() {
-    return super.toString() + ", price index=" + _priceIndex.toString() + ", reference=" + _referenceEndTime + ", fixing=" + _fixingEndTime;
+    return super.toString() + ", reference=" + _referenceEndTime + ", fixing=" + _fixingEndTime;
   }
 
   @Override
@@ -133,7 +122,6 @@ public class CouponInflationZeroCouponMonthly extends Coupon {
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_payNotional ? 1231 : 1237);
-    result = prime * result + ((_priceIndex == null) ? 0 : _priceIndex.hashCode());
     temp = Double.doubleToLongBits(_referenceEndTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -158,9 +146,6 @@ public class CouponInflationZeroCouponMonthly extends Coupon {
       return false;
     }
     if (_payNotional != other._payNotional) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
       return false;
     }
     if (Double.doubleToLongBits(_referenceEndTime) != Double.doubleToLongBits(other._referenceEndTime)) {

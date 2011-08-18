@@ -27,7 +27,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * Tests the zero-coupon inflation constructors.
  */
-public class CouponInflationZeroCouponFirstOfMonthTest {
+public class CouponInflationZeroCouponMonthlyTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
@@ -49,9 +49,8 @@ public class CouponInflationZeroCouponFirstOfMonthTest {
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  //  private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-  private static final CouponInflationZeroCouponMonthly ZERO_COUPON = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
-      INDEX_APRIL_2008, REFERENCE_END_TIME, FIXING_TIME, false);
+  private static final CouponInflationZeroCouponMonthly ZERO_COUPON = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
+      REFERENCE_END_TIME, FIXING_TIME, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {

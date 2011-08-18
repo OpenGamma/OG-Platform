@@ -6,12 +6,15 @@
 package com.opengamma.financial.interestrate.bond.method;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -23,6 +26,7 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
  */
 public final class BondTransactionDiscountingMethod {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(BondTransactionDiscountingMethod.class);
   /**
    * The unique instance of the class.
    */
@@ -53,15 +57,34 @@ public final class BondTransactionDiscountingMethod {
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
 
   /**
-   * Compute the present value of a bond transaction.
+   * Compute the present value of a fixed coupon bond transaction.
    * @param bond The bond transaction.
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public double presentValue(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final YieldCurveBundle curves) {
+  public double presentValue(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     final double pvNominal = PVC.visit(bond.getBondTransaction().getNominal(), curves);
     final double pvCoupon = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
+    final double settlementAmount = -(bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + bond.getBondTransaction().getAccruedInterest())
+        * bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
+        .getRepoCurveName());
+    final double pvSettlement = PVC.visit(settlement, curves);
+    return (pvNominal + pvCoupon) * bond.getQuantity() + pvSettlement;
+  }
+
+  /**
+   * Compute the present value of a Ibor coupon bond (FRN) transaction.
+   * @param bond The bond transaction.
+   * @param curves The curve bundle.
+   * @return The present value.
+   */
+  public double presentValue(final BondIborTransaction bond, final YieldCurveBundle curves) {
+    final double pvNominal = PVC.visit(bond.getBondTransaction().getNominal(), curves);
+    final double pvCoupon = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
+    final double settlementAmount = bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
+    LOGGER.error("The FRN settlement amount does not include the accrued interests.");
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
         .getRepoCurveName());
     final double pvSettlement = PVC.visit(settlement, curves);
     return (pvNominal + pvCoupon) * bond.getQuantity() + pvSettlement;
@@ -94,10 +117,23 @@ public final class BondTransactionDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value sensitivity.
    */
-  public PresentValueSensitivity presentValueSensitivity(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final YieldCurveBundle curves) {
+  public PresentValueSensitivity presentValueSensitivity(final BondFixedTransaction bond, final YieldCurveBundle curves) {
     final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getNominal(), curves));
     final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getCoupon(), curves));
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), bond.getBondTransaction()
+    final double settlementAmount = -(bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + bond.getBondTransaction().getAccruedInterest())
+        * bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
+        .getRepoCurveName());
+    final PresentValueSensitivity pvsSettlement = new PresentValueSensitivity(PVSC.visit(settlement, curves));
+    return pvsNominal.add(pvsCoupon).multiply(bond.getQuantity()).add(pvsSettlement);
+  }
+
+  public PresentValueSensitivity presentValueSensitivity(final BondIborTransaction bond, final YieldCurveBundle curves) {
+    final PresentValueSensitivity pvsNominal = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getNominal(), curves));
+    final PresentValueSensitivity pvsCoupon = new PresentValueSensitivity(PVSC.visit(bond.getBondTransaction().getCoupon(), curves));
+    final double settlementAmount = bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
+    LOGGER.error("The FRN settlement amount does not include the accrued interests.");
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
         .getRepoCurveName());
     final PresentValueSensitivity pvsSettlement = new PresentValueSensitivity(PVSC.visit(settlement, curves));
     return pvsNominal.add(pvsCoupon).multiply(bond.getQuantity()).add(pvsSettlement);

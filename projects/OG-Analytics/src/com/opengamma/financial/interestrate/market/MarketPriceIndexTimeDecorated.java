@@ -13,8 +13,18 @@ import com.opengamma.financial.instrument.index.PriceIndex;
  * A market bundle decorated for a given price index curve and a specific time. The price index is shifted by the shift provided.
  */
 public class MarketPriceIndexTimeDecorated extends MarketBundle {
+
+  /**
+   * The Price index for which the market is decorated.
+   */
   private final PriceIndex _index;
+  /**
+   * The time at which the price index value is decorated.
+   */
   private final double _time;
+  /**
+   * The shift applied to the price.
+   */
   private final double _shift;
 
   /**

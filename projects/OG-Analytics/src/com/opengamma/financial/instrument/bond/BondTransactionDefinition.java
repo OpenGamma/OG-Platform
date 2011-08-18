@@ -44,13 +44,10 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    */
   private final ZonedDateTime _settlementExCouponDate;
   /**
-   * The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * The (quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * The meaning of this number will depend on the type of bond (fixed coupon, FRN, inflation).
    */
   private final double _price;
-  /**
-   * The amount to be paid at settlement.
-   */
-  private final double _paymentAmount;
   /**
    * The coupon index of the transaction settlement date. Take the ex-coupon period into account.
    */
@@ -88,8 +85,6 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
     }
     _previousAccrualDate = underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getAccrualStartDate();
     _nextAccrualDate = underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getAccrualEndDate();
-    // Implementation note: the amount paid depends on the notional remaining at settlement.
-    _paymentAmount = -_price * _quantity * underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getNotional();
   }
 
   /**
@@ -154,14 +149,6 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    */
   public ZonedDateTime getNextAccrualDate() {
     return _nextAccrualDate;
-  }
-
-  /**
-   * Gets the payment amount.
-   * @return The amount to be paid at settlement.
-   */
-  public double getPaymentAmount() {
-    return _paymentAmount;
   }
 
   @Override

@@ -13,12 +13,15 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.PriceIndex;
+import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
@@ -27,6 +30,7 @@ import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
+import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflation;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -38,7 +42,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * Describes a capital inflation indexed bond issue. Both the coupon and the nominal are indexed on a price index.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
-public class BondCapitalIndexedSecurityDefinition<C extends CouponDefinition> extends BondSecurityDefinition<C, C> implements
+public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefinition> extends BondSecurityDefinition<C, C> implements
     FixedIncomeInstrumentWithDataConverter<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
@@ -69,6 +73,10 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponDefinition> ex
    * The index value at the start of the bond.
    */
   private final double _indexStartValue;
+  /**
+   * The price index associated to the bond.
+   */
+  private final PriceIndex _priceIndex;
 
   /**
    * Constructor of the Capital inflation indexed bond. The repo type is set to "". 
@@ -87,12 +95,16 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponDefinition> ex
   public BondCapitalIndexedSecurityDefinition(AnnuityDefinition<C> nominal, AnnuityDefinition<C> coupon, double indexStartDate, int exCouponDays, int settlementDays, Calendar calendar,
       DayCount dayCount, YieldConvention yieldConvention, boolean isEOM, int monthLag, String issuer) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, "");
+    for (int loopcpn = 0; loopcpn < coupon.getNumberOfPayments(); loopcpn++) {
+      Validate.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
+    }
     _yieldConvention = yieldConvention;
     _monthLag = monthLag;
     _indexStartValue = indexStartDate;
     _couponPerYear = (int) Math.round(1.0 / TimeCalculator.getTimeBetween(coupon.getNthPayment(0).getPaymentDate(), coupon.getNthPayment(1).getPaymentDate()));
     _isEOM = isEOM;
     _dayCount = dayCount;
+    _priceIndex = nominal.getNthPayment(0).getPriceIndex();
   }
 
   /**
@@ -113,12 +125,16 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponDefinition> ex
   public BondCapitalIndexedSecurityDefinition(AnnuityDefinition<C> nominal, AnnuityDefinition<C> coupon, double indexStartDate, int exCouponDays, int settlementDays, Calendar calendar,
       DayCount dayCount, YieldConvention yieldConvention, boolean isEOM, int monthLag, final String issuer, final String repoType) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, issuer, repoType);
+    for (int loopcpn = 0; loopcpn < coupon.getNumberOfPayments(); loopcpn++) {
+      Validate.isTrue(coupon.getNthPayment(loopcpn) instanceof CouponInflationGearing, "Not inflation coupons");
+    }
     _yieldConvention = yieldConvention;
     _monthLag = monthLag;
     _indexStartValue = indexStartDate;
     _couponPerYear = (int) Math.round(TimeCalculator.getTimeBetween(coupon.getNthPayment(1).getAccrualStartDate(), coupon.getNthPayment(1).getAccrualEndDate()) / 365);
     _isEOM = isEOM;
     _dayCount = dayCount;
+    _priceIndex = nominal.getNthPayment(0).getPriceIndex();
   }
 
   /**
@@ -297,6 +313,14 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponDefinition> ex
     return _indexStartValue;
   }
 
+  /**
+   * Gets the price index associated to the bond.
+   * @return The price index.
+   */
+  public PriceIndex getPriceIndex() {
+    return _priceIndex;
+  }
+
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
@@ -336,7 +360,47 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponDefinition> ex
     AnnuityDefinition<PaymentDefinition> couponDefinitionExPeriod = new AnnuityDefinition<PaymentDefinition>(couponExPeriodArray);
     final GenericAnnuity<Coupon> couponStandard = (GenericAnnuity<Coupon>) couponDefinitionExPeriod.toDerivative(date, data, "Not used");
     final GenericAnnuity<Coupon> nominalStandard = nominal.trimBefore(settlementTime);
-    return new BondCapitalIndexedSecurity<Coupon>(nominalStandard, couponStandard, settlementTime, _yieldConvention, getIssuer());
+    final double accruedInterest = accruedInterest(settlementDate);
+    final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
+        _couponPerYear);
+    final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
+        couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+    final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
+    CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
+    ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
+    double notional = settlementDate.isBefore(date) ? 0.0 : 1.0;
+    CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
+    CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date, "Not used");
+    return new BondCapitalIndexedSecurity<Coupon>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
+        getIssuer());
+  }
+
+  /**
+   * Return the relative (not multiplied by the notional) accrued interest rate at a given date.
+   * @param date The date.
+   * @return The accrued interest.
+   */
+  public double accruedInterest(ZonedDateTime date) {
+    double result = 0;
+    int nbCoupon = getCoupon().getNumberOfPayments();
+    int couponIndex = 0;
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      if (getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(date)) {
+        couponIndex = loopcpn;
+        break;
+      }
+    }
+    ZonedDateTime previousAccrualDate = getCoupon().getNthPayment(couponIndex).getAccrualStartDate();
+    ZonedDateTime nextAccrualDate = getCoupon().getNthPayment(couponIndex).getAccrualEndDate();
+    CouponInflationGearing currentCoupon = ((CouponInflationGearing) getCoupon().getNthPayment(couponIndex));
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate, currentCoupon.getFactor(),
+        getCouponPerYear(), isEOM()) * getCoupon().getNthPayment(couponIndex).getNotional();
+    if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
+      result = accruedInterest - currentCoupon.getFactor() / _couponPerYear;
+    } else {
+      result = accruedInterest;
+    }
+    return result;
   }
 
   @Override

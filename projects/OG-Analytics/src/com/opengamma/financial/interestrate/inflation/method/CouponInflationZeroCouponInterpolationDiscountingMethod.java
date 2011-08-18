@@ -34,9 +34,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod implements 
   public CurrencyAmount presentValue(CouponInflationZeroCouponInterpolation coupon, MarketBundle market) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(market, "Market");
-    double estimatedIndexMonth0 = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
-    double estimatedIndexMonth1 = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
-    double estimatedIndex = coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
+    double estimatedIndex = coupon.estimatedIndex(market);
     double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return CurrencyAmount.of(coupon.getCurrency(), pv);
@@ -61,7 +59,6 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod implements 
     double estimatedIndexMonth1 = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
     double estimatedIndex = coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
     double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    //    double pv = (estimatedIndex / coupon.getIndexStartValue() - 1) * discountFactor * coupon.getNotional();
     // Backward sweep
     final double pvBar = 1.0;
     double discountFactorBar = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;

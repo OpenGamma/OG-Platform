@@ -71,12 +71,6 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
-    final double settlementAmount;
-    if (getSettlementDate().isBefore(date)) {
-      settlementAmount = 0;
-    } else {
-      settlementAmount = getPaymentAmount();
-    }
     final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate(), yieldCurveNames);
     final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date, yieldCurveNames);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
@@ -88,7 +82,13 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
+    double price;
+    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
+      price = 0.0;
+    } else {
+      price = getPrice();
+    }
+    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), price, bondStandard, notionalStandard);
     return result;
   }
 

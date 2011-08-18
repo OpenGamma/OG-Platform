@@ -9,9 +9,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
+import com.opengamma.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
@@ -37,53 +37,53 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
    * @param underlyingBond The capital indexed bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementDate Transaction settlement date.
-   * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * @param price The (clean quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
   public BondCapitalIndexedTransactionDefinition(BondSecurityDefinition<C, C> underlyingBond, double quantity, ZonedDateTime settlementDate, double price) {
     super(underlyingBond, quantity, settlementDate, price);
     Validate.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition, "Capital Indexed bond");
   }
 
-  /**
-   * Build a bond from a quoted real price and interpolated reference index. This is the quotation convention for US TIPS, UK Gilts (post-2005) and France OATi.
-   * @param underlyingBond The underlying bond.
-   * @param quantity The number of bonds purchased (can be negative or positive).
-   * @param settlementDate Transaction settlement date.
-   * @param priceClean The real clean price. The real accrued interest will be added the sum multiplied by the ratio of reference index to obtain the nominal dirty price.
-   * @param priceIndexTimeSeries The price index time series. Should contains at least the indexes related to the settlement reference dates.
-   * @return The bond.
-   */
-  public static BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> fromRealCleanPriceInterpolation(
-      BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> underlyingBond, double quantity, ZonedDateTime settlementDate, double priceClean,
-      DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
-    Validate.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition<?>, "Bond Capital Indexed");
-    ZonedDateTime refInterpolatedDate = settlementDate.minusMonths(underlyingBond.getMonthLag());
-    ZonedDateTime[] referenceSettleDate = new ZonedDateTime[2];
-    referenceSettleDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceSettleDate[1] = referenceSettleDate[0].plusMonths(1);
-    double weight = 1.0 - (settlementDate.getDayOfMonth() - 1.0) / settlementDate.getMonthOfYear().getLastDayOfMonth(settlementDate.isLeapYear());
-    Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceSettleDate[0]), priceIndexTimeSeries.getValue(referenceSettleDate[1])};
-    Validate.isTrue((knownIndex[0] != null) && (knownIndex[1] != null), "Time series does not contains the required price index");
-    double indexEnd = weight * knownIndex[0] + (1 - weight) * knownIndex[1]; // Interpolated index
-    double referenceIndex = indexEnd / underlyingBond.getIndexStartValue();
-    final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
-    int couponIndex = 0;
-    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (underlyingBond.getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(settlementDate)) {
-        couponIndex = loopcpn;
-        break;
-      }
-    }
-    double accruedInterest = 0.0;
-    accruedInterest = AccruedInterestCalculator.getAccruedInterest(underlyingBond.getDayCount(), couponIndex, nbCoupon, underlyingBond.getCoupon().getNthPayment(couponIndex).getAccrualStartDate(),
-        settlementDate, underlyingBond.getCoupon().getNthPayment(couponIndex).getAccrualEndDate(), underlyingBond.getCoupon().getNthPayment(couponIndex).getFactor(),
-        underlyingBond.getCouponPerYear(), underlyingBond.isEOM());
-    if (underlyingBond.getExCouponDays() != 0 && underlyingBond.getCoupon().getNthPayment(couponIndex).getAccrualEndDate().minusDays(underlyingBond.getExCouponDays()).isBefore(settlementDate)) {
-      accruedInterest = accruedInterest - underlyingBond.getCoupon().getNthPayment(couponIndex).getFactor();
-    }
-    double adjustedDirtyPrice = referenceIndex * (priceClean + accruedInterest);
-    return new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(underlyingBond, quantity, settlementDate, adjustedDirtyPrice);
-  }
+  //  /**
+  //   * Build a bond from a quoted real price and interpolated reference index. This is the quotation convention for US TIPS, UK Gilts (post-2005) and France OATi.
+  //   * @param underlyingBond The underlying bond.
+  //   * @param quantity The number of bonds purchased (can be negative or positive).
+  //   * @param settlementDate Transaction settlement date.
+  //   * @param priceClean The real clean price. The real accrued interest will be added the sum multiplied by the ratio of reference index to obtain the nominal dirty price.
+  //   * @param priceIndexTimeSeries The price index time series. Should contains at least the indexes related to the settlement reference dates.
+  //   * @return The bond.
+  //   */
+  //  public static BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> fromRealCleanPriceInterpolation(
+  //      BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> underlyingBond, double quantity, ZonedDateTime settlementDate, double priceClean,
+  //      DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries) {
+  //    Validate.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition<?>, "Bond Capital Indexed");
+  //    ZonedDateTime refInterpolatedDate = settlementDate.minusMonths(underlyingBond.getMonthLag());
+  //    ZonedDateTime[] referenceSettleDate = new ZonedDateTime[2];
+  //    referenceSettleDate[0] = refInterpolatedDate.withDayOfMonth(1);
+  //    referenceSettleDate[1] = referenceSettleDate[0].plusMonths(1);
+  //    double weight = 1.0 - (settlementDate.getDayOfMonth() - 1.0) / settlementDate.getMonthOfYear().getLastDayOfMonth(settlementDate.isLeapYear());
+  //    Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceSettleDate[0]), priceIndexTimeSeries.getValue(referenceSettleDate[1])};
+  //    Validate.isTrue((knownIndex[0] != null) && (knownIndex[1] != null), "Time series does not contains the required price index");
+  //    double indexEnd = weight * knownIndex[0] + (1 - weight) * knownIndex[1]; // Interpolated index
+  //    double referenceIndex = indexEnd / underlyingBond.getIndexStartValue();
+  //    final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
+  //    int couponIndex = 0;
+  //    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+  //      if (underlyingBond.getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(settlementDate)) {
+  //        couponIndex = loopcpn;
+  //        break;
+  //      }
+  //    }
+  //    double accruedInterest = 0.0;
+  //    accruedInterest = AccruedInterestCalculator.getAccruedInterest(underlyingBond.getDayCount(), couponIndex, nbCoupon, underlyingBond.getCoupon().getNthPayment(couponIndex).getAccrualStartDate(),
+  //        settlementDate, underlyingBond.getCoupon().getNthPayment(couponIndex).getAccrualEndDate(), underlyingBond.getCoupon().getNthPayment(couponIndex).getFactor(),
+  //        underlyingBond.getCouponPerYear(), underlyingBond.isEOM());
+  //    if (underlyingBond.getExCouponDays() != 0 && underlyingBond.getCoupon().getNthPayment(couponIndex).getAccrualEndDate().minusDays(underlyingBond.getExCouponDays()).isBefore(settlementDate)) {
+  //      accruedInterest = accruedInterest - underlyingBond.getCoupon().getNthPayment(couponIndex).getFactor();
+  //    }
+  //    double adjustedDirtyPrice = referenceIndex * (priceClean + accruedInterest);
+  //    return new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(underlyingBond, quantity, settlementDate, adjustedDirtyPrice);
+  //  }
 
   //TODO: from clean price adjusted monthly (for UK linked-gilts pre-2005).
 
@@ -99,17 +99,11 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
     Validate.notNull(data, "Price index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    final double settlementAmount;
-    if (getSettlementDate().isBefore(date)) {
-      settlementAmount = 0;
-    } else {
-      settlementAmount = getPaymentAmount();
-    }
     @SuppressWarnings("unchecked")
-    final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
+    final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
     @SuppressWarnings("unchecked")
-    final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);
+    final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
@@ -119,7 +113,7 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondCapitalIndexedTransaction<Coupon> result = new BondCapitalIndexedTransaction<Coupon>(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
+    final BondCapitalIndexedTransaction<Coupon> result = new BondCapitalIndexedTransaction<Coupon>(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
 

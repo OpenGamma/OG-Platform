@@ -57,13 +57,10 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
     final double spotTime = actAct.getDayCountFraction(date, spot);
     final double settlementTime;
-    final double settlementAmount;
     if (getSettlementDate().isBefore(date)) {
       settlementTime = 0;
-      settlementAmount = 0;
     } else {
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
-      settlementAmount = getPaymentAmount();
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
     @SuppressWarnings("unchecked")
@@ -83,7 +80,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
+    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
 
@@ -102,13 +99,10 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
     final double spotTime = actAct.getDayCountFraction(date, spot);
     final double settlementTime;
-    final double settlementAmount;
     if (getSettlementDate().isBefore(date)) {
       settlementTime = 0;
-      settlementAmount = 0;
     } else {
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
-      settlementAmount = getPaymentAmount();
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
     @SuppressWarnings("unchecked")
@@ -128,7 +122,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
+    final BondIborTransaction result = new BondIborTransaction(bondPurchase, getQuantity(), getPrice(), bondStandard, notionalStandard);
     return result;
   }
 

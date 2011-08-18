@@ -30,7 +30,6 @@ import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTr
 import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDataSets;
 import com.opengamma.financial.interestrate.payments.Coupon;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -74,16 +73,16 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final double QUANTITY_TIPS_1 = 654321;
   private static final ZonedDateTime SETTLE_DATE_TIPS_1 = DateUtil.getUTCDate(2011, 8, 10);
   private static final double PRICE_TIPS_1 = 1.05;
-  private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_TIPS_1_TRANSACTION_DEFINITION = BondCapitalIndexedTransactionDefinition
-      .fromRealCleanPriceInterpolation(BOND_SECURITY_TIPS_1_DEFINITION, QUANTITY_TIPS_1, SETTLE_DATE_TIPS_1, PRICE_TIPS_1, US_CPI);
+  private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_TIPS_1_TRANSACTION_DEFINITION = new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(
+      BOND_SECURITY_TIPS_1_DEFINITION, QUANTITY_TIPS_1, SETTLE_DATE_TIPS_1, PRICE_TIPS_1);
   private static final BondCapitalIndexedTransaction<Coupon> BOND_TIPS_1_TRANSACTION = BOND_TIPS_1_TRANSACTION_DEFINITION.toDerivative(PRICING_DATE, US_CPI, "Not used");
 
   @Test
   public void presentValueTips1() {
     CurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
     CurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
-    CurrencyAmount pvSettlement = PVIC.visit(
-        new PaymentFixed(BOND_SECURITY_TIPS_1.getCurrency(), BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlementTime(), BOND_TIPS_1_TRANSACTION.getSettlementAmount(), "Not used"), MARKET);
+    CurrencyAmount pvSettlement = PVIC.visit(BOND_TIPS_1_TRANSACTION.getBondTransaction().getSettlement(), MARKET).multipliedBy(
+        BOND_TIPS_1_TRANSACTION.getQuantity() * BOND_TIPS_1_TRANSACTION.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     assertEquals("Inflation Capital Indexed bond transaction: present value", BOND_SECURITY_TIPS_1.getCurrency(), pv.getCurrency());
     assertEquals("Inflation Capital Indexed bond transaction: present value", pvSecurity.multipliedBy(QUANTITY_TIPS_1).plus(pvSettlement).getAmount(), pv.getAmount(), 1.0E-2);
   }

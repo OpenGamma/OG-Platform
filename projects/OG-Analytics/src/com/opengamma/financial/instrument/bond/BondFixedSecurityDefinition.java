@@ -17,7 +17,6 @@ import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -29,6 +28,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Describes a fixed coupon bond issue.
@@ -315,36 +315,37 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final String creditCurveName = yieldCurveNames[0];
     final String riskFreeCurveName = yieldCurveNames[1];
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime spot = settlementDate;
-    double spotTime;
-    if (spot.isBefore(date)) {
-      spotTime = 0.0;
+    double settleTime;
+    double accruedInterestAtSettle;
+    if (settlementDate.isBefore(date)) {
+      settleTime = 0.0;
+      accruedInterestAtSettle = 0.0;
     } else {
-      spotTime = actAct.getDayCountFraction(date, spot);
+      settleTime = TimeCalculator.getTimeBetween(date, settlementDate);
+      accruedInterestAtSettle = accruedInterest(settlementDate);
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
     AnnuityCouponFixedDefinition couponDefinition = getCoupon();
-    couponDefinition = getCoupon().trimBefore(spot);
+    couponDefinition = getCoupon().trimBefore(settlementDate);
     CouponFixedDefinition[] couponExPeriodArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
     if (getExCouponDays() != 0) {
       ZonedDateTime exDividendDate = ScheduleCalculator.getAdjustedDate(couponDefinition.getNthPayment(0).getPaymentDate(), getCalendar(), -getExCouponDays());
-      if (spot.isAfter(exDividendDate)) {
+      if (settlementDate.isAfter(exDividendDate)) {
         // Implementation note: Ex-dividend period: the next coupon is not received but its date is required for yield calculation
         couponExPeriodArray[0] = new CouponFixedDefinition(couponDefinition.getNthPayment(0), 0.0);
       }
     }
     AnnuityCouponFixedDefinition couponDefinitionExPeriod = new AnnuityCouponFixedDefinition(couponExPeriodArray);
     final AnnuityCouponFixed couponStandard = couponDefinitionExPeriod.toDerivative(date, yieldCurveNames);
-    final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
-    final double accruedInterestAtSpot = accruedInterest(spot); // * couponStandard.getNthPayment(0).getNotional()
-    final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), spot, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
+    final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(settleTime);
+    final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
         _couponPerYear);
     final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factor = (factorPeriod - factorSpot) / factorPeriod;
-    final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, spotTime, accruedInterestAtSpot, factor, getYieldConvention(), _couponPerYear, riskFreeCurveName, "");
+    final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, settleTime, accruedInterestAtSettle, factor, getYieldConvention(), _couponPerYear, riskFreeCurveName,
+        "");
     return bondStandard;
 
   }

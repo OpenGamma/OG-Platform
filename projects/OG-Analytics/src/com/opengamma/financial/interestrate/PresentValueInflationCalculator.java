@@ -47,15 +47,6 @@ public class PresentValueInflationCalculator extends AbstractInterestRateDerivat
    */
   private static final CouponInflationZeroCouponInterpolationGearingDiscountingMethod METHOD_ZC_INTERPOLATION_GEARING = new CouponInflationZeroCouponInterpolationGearingDiscountingMethod();
 
-  //  /**
-  //   * Pricing method for capital inflation indexed bond security.
-  //   */
-  //  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_CIB_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
-  //  /**
-  //   * Pricing method for capital inflation indexed bond transaction.
-  //   */
-  //  private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_CIB_TRANSACTION = new BondCapitalIndexedTransactionDiscountingMethod(); //.getInstance();
-
   /**
    * The unique instance of the calculator.
    */
@@ -124,21 +115,18 @@ public class PresentValueInflationCalculator extends AbstractInterestRateDerivat
 
   @Override
   public CurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final MarketBundle market) {
-    Validate.notNull(bond, "Coupon");
-    Validate.notNull(market, "Market");
+    Validate.notNull(bond, "Bond");
     MarketBundle creditDiscounting = new MarketDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuer()));
-    final CurrencyAmount pvNominal = visitGenericAnnuity(bond.getNominal(), creditDiscounting);
-    final CurrencyAmount pvCoupon = visitGenericAnnuity(bond.getCoupon(), creditDiscounting);
+    final CurrencyAmount pvNominal = visit(bond.getNominal(), creditDiscounting);
+    final CurrencyAmount pvCoupon = visit(bond.getCoupon(), creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   @Override
   public CurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final MarketBundle market) {
-    Validate.notNull(bond, "Coupon");
-    Validate.notNull(market, "Market");
-    final CurrencyAmount pvBond = visitBondCapitalIndexedSecurity(bond.getBondTransaction(), market);
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getSettlementAmount(), "Not used");
-    final CurrencyAmount pvSettlement = visitFixedPayment(settlement, market);
+    Validate.notNull(bond, "Bond");
+    final CurrencyAmount pvBond = visit(bond.getBondTransaction(), market);
+    CurrencyAmount pvSettlement = visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 

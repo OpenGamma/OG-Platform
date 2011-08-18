@@ -47,7 +47,6 @@ public class BondFixedTransactionDefinitionTest {
   private static final double QUANTITY = 100000000; //100m
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION = new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY, SETTLEMENT_DATE, PRICE);
   // to derivatives: common
-  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
@@ -73,7 +72,6 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals(expectedAccrued, BOND_TRANSACTION_DEFINITION.getAccruedInterestAtSettlement(), 1E-6);
     assertEquals(DateUtil.getUTCDate(2011, 7, 13), BOND_TRANSACTION_DEFINITION.getPreviousAccrualDate());
     assertEquals(DateUtil.getUTCDate(2012, 1, 13), BOND_TRANSACTION_DEFINITION.getNextAccrualDate());
-    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION_DEFINITION.getPaymentAmount());
   }
 
   @Test

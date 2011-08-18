@@ -57,7 +57,6 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod implements
     Validate.notNull(market, "Market");
     double estimatedIndex = market.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
     double discountFactor = market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    //    double pv = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     // Backward sweep
     final double pvBar = 1.0;
     double discountFactorBar = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional() * pvBar;
