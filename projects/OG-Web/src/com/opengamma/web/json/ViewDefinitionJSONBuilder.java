@@ -125,6 +125,8 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
                     requirements.add(Pair.of(requiredOutput, constraints));
                   }
                 }
+              }
+              if (securityType != null) {
                 calcConfig.addPortfolioRequirements(securityType, requirements);
               }
             }

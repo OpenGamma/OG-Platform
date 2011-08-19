@@ -85,11 +85,8 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
     ViewCycleExecutionOptions defaultExecutionOptions = defaultExecutionOptionsField != null ?
         deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
     
-    // Default version-correction to LATEST for backwards compatibility. Remove when [DOTNET-29] is resolved.
     FudgeField versionCorrectionField = message.getByName(VERSION_CORRECTION_FIELD);
-    VersionCorrection versionCorrection = versionCorrectionField != null
-        ? deserializer.fieldValueToObject(VersionCorrection.class, versionCorrectionField)
-        : VersionCorrection.LATEST;
+    VersionCorrection versionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, versionCorrectionField);
         
     return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, versionCorrection);
   }
