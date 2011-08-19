@@ -8,13 +8,16 @@ package com.opengamma.language.definition;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A {@link DefinitionProvider} implementation that aggregates a number of other providers.
+ * A {@link DefinitionProvider} implementation that aggregates a number of other providers. If multiple providers supply a
+ * definition with the same name, the definition from the later provider in the aggregation list will be used.  
  * 
  * @param <T> the definition type
  */
@@ -47,12 +50,16 @@ public abstract class AggregatingDefinitionProvider<T extends Definition> extend
 
   @Override
   protected final void loadDefinitions(final Collection<T> definitions) {
+    final Map<String, T> definitionMap = new HashMap<String, T>();
     for (DefinitionProvider<T> provider : getProviders()) {
       final Set<T> providerDefinitions = provider.getDefinitions();
       if (providerDefinitions != null) {
-        definitions.addAll(providerDefinitions);
+        for (T definition : providerDefinitions) {
+          definitionMap.put(definition.getName(), definition);
+        }
       }
     }
+    definitions.addAll(definitionMap.values());
   }
 
 }
