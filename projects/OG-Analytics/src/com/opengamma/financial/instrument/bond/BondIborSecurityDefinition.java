@@ -19,12 +19,13 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
-public class BondIborSecurityDefinition extends BondSecurityDefinition<CouponIborDefinition> {
+public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFixedDefinition, CouponIborDefinition> {
 
   /**
    * The default notional for the security.
@@ -34,6 +35,10 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<CouponIbo
    * The default ex-coupn number of days.
    */
   private static final int DEFAULT_EX_COUPON_DAYS = 0;
+  /**
+   * The coupon day count convention.
+   */
+  private final DayCount _dayCount;
 
   /**
    * Fixed coupon bond constructor from all the bond details.
@@ -45,7 +50,8 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<CouponIbo
    * @param dayCount The coupon day count convention.
    */
   public BondIborSecurityDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponIborDefinition coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
-    super(nominal, coupon, exCouponDays, settlementDays, calendar, dayCount);
+    super(nominal, coupon, exCouponDays, settlementDays, calendar);
+    _dayCount = dayCount;
   }
 
   /**
@@ -73,9 +79,18 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<CouponIbo
     return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount);
   }
 
+  /**
+   * Gets the coupon day count.
+   * @return The day count.
+   */
+  public DayCount getDayCount() {
+    return _dayCount;
+  }
+
   @Override
-  public BondSecurity<? extends Payment> toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public BondSecurity<? extends Payment, ? extends Coupon> toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     return null;
+    // TODO
   }
 
   @Override
