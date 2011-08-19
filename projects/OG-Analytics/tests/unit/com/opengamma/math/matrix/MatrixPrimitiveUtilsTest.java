@@ -102,4 +102,31 @@ public void testCheckIsLowerTriangularExceptions() {
   double[][] notLT = {{1,1,0},{2,3,0},{4,5,6}};
   MatrixPrimitiveUtils.checkIsLowerTriangular(notLT);
 }
+
+
+@Test
+public void testCheckIsUpperHessenberg() {
+  double[][] UH = {{1,2,3,4},{5,6,7,8},{0,9,10,11},{0,0,12,13}};
+  assertTrue(Arrays.deepEquals(UH,MatrixPrimitiveUtils.checkIsUpperHessenberg(UH)));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testCheckIsUpperHessenbergExceptions() {
+  double[][] notUH = {{1,2,3,4},{5,6,7,8},{1,9,10,11},{0,0,12,13}};
+  MatrixPrimitiveUtils.checkIsUpperHessenberg(notUH);
+}
+
+@Test
+public void testCheckIsLowerHessenberg() {
+  double[][] LH = {{1,2,0,0},{3,4,5,0},{6,7,8,9},{10,11,12,13}};
+  assertTrue(Arrays.deepEquals(LH,MatrixPrimitiveUtils.checkIsLowerHessenberg(LH)));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testCheckIsLowerHessenbergExceptions() {
+  double[][] notLH = {{1,2,0,1},{3,4,5,0},{6,7,8,9},{10,11,12,13}};
+  MatrixPrimitiveUtils.checkIsLowerHessenberg(notLH);
+}
+
+
 }

@@ -31,12 +31,6 @@ public class SparseCoordinateFormatMatrixTest {
     new SparseCoordinateFormatMatrix(tmp);
   }
 
-  @Test
-  public void testConstructorUpperHessenbergMatrix() {
-    UpperHessenbergMatrix tmp = new UpperHessenbergMatrix(data);
-    new SparseCoordinateFormatMatrix(tmp);
-  }
-
 
   // test methods
 

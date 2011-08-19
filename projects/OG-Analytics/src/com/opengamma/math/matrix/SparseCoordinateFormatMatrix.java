@@ -63,15 +63,6 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
   }
 
   /**
-   * Construct from UpperHessenbergMatrix type
-   * @param aMatrix is an UpperHessenbergMatrix
-   */
-  public SparseCoordinateFormatMatrix(final UpperHessenbergMatrix aMatrix) {
-    // for now, convert to DoubleMatrix2D and use its constructor
-    this(aMatrix.toFullMatrix());
-  }
-
-  /**
    * Construct from double[][] type
    *  @param aMatrix is an array of arrays describing a matrix
    */

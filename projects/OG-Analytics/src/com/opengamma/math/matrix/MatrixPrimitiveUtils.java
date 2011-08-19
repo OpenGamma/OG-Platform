@@ -166,7 +166,7 @@ public class MatrixPrimitiveUtils {
   }
 
 /**
- * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception other wise.
+ * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception otherwise.
  * @param aMatrix an array of arrays representation of the matrix to be tested.
  * @return the matrix referred to in the argument if the check passes
  */
@@ -202,7 +202,7 @@ public class MatrixPrimitiveUtils {
   }
 
 /**
- * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception other wise.
+ * Checks if a matrix is lower triangular and returns the matrix if true, throws and exception otherwise.
  * @param aMatrix an array of arrays representation of the matrix to be tested.
  * @return the matrix referred to in the argument if the check passes
  */
@@ -213,4 +213,77 @@ public class MatrixPrimitiveUtils {
       throw new IllegalArgumentException("Lower triangular matrix called on data that isn't lower triangular!");
     }
   }
-}
+
+
+/**
+ * Boolean on whether a matrix is upper Hessenberg
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return boolean, true if matrix is upper Hessenberg, false if matrix is not.
+ * @throws IllegalArgumentException
+ */
+  public static boolean isUpperHessenberg(double[][] aMatrix) throws  IllegalArgumentException {
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so the notion of Upper Hessenberg isn't clear cut enough to be implemented");
+    }
+    int rows = aMatrix.length;
+
+    for (int i = 2; i < rows; i++) {
+      for (int j = 0; j < i - 1; j++) {
+        if (Double.doubleToLongBits(aMatrix[i][j]) != 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+/**
+ * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception otherwise.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return the matrix referred to in the argument if the check passes
+ */
+  public static double[][] checkIsUpperHessenberg(double[][] aMatrix) {
+    if (MatrixPrimitiveUtils.isUpperHessenberg(aMatrix)) {
+      return aMatrix;
+    } else {
+      throw new IllegalArgumentException("Upper Hessenberg matrix called on data that isn't upper Hessenberg!");
+    }
+  }
+
+
+/**
+ * Boolean on whether a matrix is lower Hessenberg.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return boolean, true if matrix is Lower Hessenberg, false if matrix is not.
+ * @throws IllegalArgumentException
+ */
+  public static boolean isLowerHessenberg(double[][] aMatrix) throws  IllegalArgumentException {
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so the notion of Lower Hessenberg isn't clear cut enough to be implemented");
+    }
+    int rows = aMatrix.length;
+
+    for (int i = 0; i < rows - 1; i++) {
+      for (int j = i + 2; j < rows; j++) {
+        if (Double.doubleToLongBits(aMatrix[i][j]) != 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+/**
+ * Checks if a matrix is lower Hessenberg and returns the matrix if true, throws and exception otherwise.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return the matrix referred to in the argument if the check passes
+ */
+  public static double[][] checkIsLowerHessenberg(double[][] aMatrix) {
+    if (MatrixPrimitiveUtils.isLowerHessenberg(aMatrix)) {
+      return aMatrix;
+    } else {
+      throw new IllegalArgumentException("Lower Hessenberg matrix called on data that isn't lower Hessenberg!");
+    }
+  }
+} // class end
+

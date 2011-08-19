@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.math.rootfinding.newton;
@@ -8,7 +8,6 @@ package com.opengamma.math.rootfinding.newton;
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
 import org.apache.commons.lang.Validate;
-import org.hamcrest.core.IsInstanceOf;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -16,7 +15,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
 
 /**
- * 
+ *
  */
 public class BroydenMatrixUpdateFunction implements NewtonRootFinderMatrixUpdateFunction {
 
