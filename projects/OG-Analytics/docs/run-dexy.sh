@@ -1,5 +1,5 @@
-rm -r 0.8.0
+rm -r 0.9.0
 dexy
-mkdir 0.8.0
-cp -r output 0.8.0/analytics
+mkdir 0.9.0
+cp -r output 0.9.0/analytics
 
