@@ -1,5 +1,6 @@
-/**
- * view for timeseries section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.timeseries',
@@ -201,6 +202,7 @@ $.register_module({
                             $('.og-js-timeSeriesCsv').click(function () {
                                 window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,

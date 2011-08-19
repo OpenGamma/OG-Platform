@@ -29,6 +29,7 @@
     <fragment>/styles/common/og.common.OG-box.css</fragment>
     <fragment>/styles/common/og.common.OG-box-history.css</fragment>
     <fragment>/styles/common/og.common.data.editable.css</fragment>
+    <fragment>/styles/common/og.common.OG-versions.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -198,6 +199,7 @@
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
+    <fragment>/scripts/og/views/og.views.common.versions.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/views/og.views.common.default_details.js</fragment>
   </bundle>
