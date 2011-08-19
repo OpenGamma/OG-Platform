@@ -132,6 +132,7 @@
     <fragment>/scripts/lib/js.ext.array.prototype.reduce.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.some.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
+    <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-1.6.2.js</fragment>
