@@ -16,7 +16,7 @@ $.register_module({
             og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
-                orig_name = config.data.template_data.configJSON.name, submit_type,
+                orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON,
@@ -28,10 +28,12 @@ $.register_module({
                 }),
                 form_id = '#' + form.id,
                 save_resource = function (data, as_new) {
-                    if (as_new && (orig_name === data.name)) return window.alert('Please select a new name.');
+                    var name = data.name;
+                    if (as_new && (orig_name === name)) return window.alert('Please select a new name.');
+                    delete data.name;
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
-                        name: data.name,
+                        name: name,
                         json: JSON.stringify(data),
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
@@ -39,6 +41,14 @@ $.register_module({
                 };
             form.attach([
                 {type: 'form:load', handler: function () {
+                    var header = '\
+                        <header class="OG-header-generic">\
+                          <div class="OG-toolbar"></div>\
+                          <h1 class="og-js-name">' + orig_name + '</h1>\
+                          <br />(Curve Specification Builder Configuration)\
+                        </header>\
+                    ';
+                    $('.ui-layout-inner-center .ui-layout-header').html(header);
                     load_handler();
                 }},
                 {type: 'form:submit', handler: function (result) {

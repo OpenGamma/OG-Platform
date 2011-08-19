@@ -74,7 +74,8 @@
   /*
    * standard cell items
    */
-  .OG-form .og-csb .og-value:hover span {
+  .OG-form .og-csb .og-value {cursor: pointer;}
+  .OG-form .og-csb .og-value:hover span:last-child {
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
     background-position: 0 -46px;
     width: 14px;
@@ -87,8 +88,9 @@
     cursor: default;
     border-left: 5px solid #d7e7f2;
     border-right: 2px solid #d7e7f2;
+    cursor: pointer;
   }
-  .OG-form .og-csb .og-value:hover span:after {
+  .OG-form .og-csb .og-value:hover span:last-child:after {
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
     content: '';
     background-position: 0 -4px;
@@ -194,31 +196,11 @@
     margin-left: 5px;
   }
 </style>
-<div class="OG-toolbar"></div>
-<header class="OG-header-generic">
-  <h1>Yield Curve Specification Builder: ${name}</h1>
-</header>
 <div class="OG-details-container">
 <div class="og-details-content OG-config">
   <div class="OG-c10 og-grid-last OG-max-width-xl OG-form">
     <!-- Curve specification builder -->
     <section class="OG-mod-0 og-grid-last og-csb">
-      <div class="og-config-popup OG-shadow" style="top: 206px; left: 234px;">
-        <label>
-          <span>Type</span>
-          <select><option>Static</option></select>
-        </label>
-        <label>
-          <span>Scheme Type</span>
-          <select><option>Bloomberg Ticker</option></select>
-        </label>
-        <label>
-          <span>Identifier</span>
-          <input type="text" />
-        </label>
-        <button>update</button>
-        <span class="OG-link-cancel">cancel</span>
-      </div>
       <h3>
         <div class="og-a-list-header og-strip">
           <div>Tenor</div>
@@ -237,85 +219,7 @@
             <div class="og-del"></div>
             <div class="og-strip">
               <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EUDR2Z Curncy<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EUDR2Z Curncy<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value og-active">EUDR2Z Curncy<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EUDR2Z Curncy<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-              <div class="og-value">EU0001M Index<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value">EU0002M Index<span></span></div>
+              <div class="og-value"><span class="og-js-someval">EU0002M Index</span><span></span></div>
               <div class="og-value">EUDR1T Curncy<span></span></div>
               <div class="og-value">EUSW10V3 Currency<span></span></div>
               <div class="og-value">EU0002M Index<span></span></div>
