@@ -38,6 +38,7 @@ public final class SwapLegBeanOperation {
         bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(swapLeg.getFrequency().getConventionName()));
         bean.setNotional(NotionalBeanOperation.createBean(secMasterSession, swapLeg.getNotional()));
         bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionIdentifier()));
+        bean.setEOM(swapLeg.getIsEOM());
         return bean;
       }
 
@@ -59,7 +60,7 @@ public final class SwapLegBeanOperation {
         bean.setRate(swapLeg.getInitialFloatingRate());
         bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateIdentifier()));
         bean.setSpread(swapLeg.getSpread());
-        bean.setIBOR(swapLeg.getIsIBOR());
+        bean.setFloatingRateType(swapLeg.getFloatingRateType());
         return bean;
       }
     });
@@ -76,7 +77,7 @@ public final class SwapLegBeanOperation {
             externalIdBeanToExternalId(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
-            bean.getRate());
+            bean.isEOM(), bean.getRate());
       }
 
       @Override
@@ -87,10 +88,11 @@ public final class SwapLegBeanOperation {
             externalIdBeanToExternalId(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEOM(), 
             externalIdBeanToExternalId(bean.getRateIdentifier()),
             bean.getRate(),
             bean.getSpread(),
-            bean.isIBOR());
+            bean.getFloatingRateType());
       }
     });
   }

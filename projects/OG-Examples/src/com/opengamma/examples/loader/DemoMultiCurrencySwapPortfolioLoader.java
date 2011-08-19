@@ -38,6 +38,7 @@ import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -195,16 +196,16 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         swapConvention.getSwapFixedLegRegion(), 
         swapConvention.getSwapFixedLegBusinessDayConvention(), 
         new InterestRateNotional(ccy, notional), 
-        fixedRate);
+        false, fixedRate);
     
     SwapLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), 
         swapConvention.getSwapFloatingLegFrequency(), 
         swapConvention.getSwapFloatingLegRegion(), 
         swapConvention.getSwapFloatingLegBusinessDayConvention(), 
         new InterestRateNotional(ccy, notional), 
-        ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
+        false, ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()), 
         initialRate, 
-        0.0, true);
+        0.0, FloatingRateType.IBOR);
     
     String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
     String floatingLegDescription = swapConvention.getSwapFloatingLegInitialRate().getValue();

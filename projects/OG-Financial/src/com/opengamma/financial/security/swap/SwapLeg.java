@@ -4,7 +4,7 @@
 package com.opengamma.financial.security.swap;
 public abstract class SwapLeg implements java.io.Serializable {
   public abstract <T> T accept (SwapLegVisitor<T> visitor);
-  private static final long serialVersionUID = 2567515945211926296l;
+  private static final long serialVersionUID = -4480882525239634713l;
   private final com.opengamma.financial.convention.daycount.DayCount _dayCount;
   public static final String DAY_COUNT_KEY = "dayCount";
   private final com.opengamma.financial.convention.frequency.Frequency _frequency;
@@ -15,7 +15,9 @@ public abstract class SwapLeg implements java.io.Serializable {
   public static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
   private final com.opengamma.financial.security.swap.Notional _notional;
   public static final String NOTIONAL_KEY = "notional";
-  public SwapLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
+  private final boolean _isEOM;
+  public static final String IS_EOM_KEY = "isEOM";
+  public SwapLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, boolean isEOM) {
     if (dayCount == null) throw new NullPointerException ("dayCount' cannot be null");
     _dayCount = dayCount;
     if (frequency == null) throw new NullPointerException ("frequency' cannot be null");
@@ -30,6 +32,7 @@ public abstract class SwapLeg implements java.io.Serializable {
     else {
       _notional = notional;
     }
+    _isEOM = isEOM;
   }
   protected SwapLeg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
@@ -73,6 +76,14 @@ public abstract class SwapLeg implements java.io.Serializable {
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'notional' is not Notional message", e);
     }
+    fudgeField = fudgeMsg.getByName (IS_EOM_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'isEOM' is not present");
+    try {
+      _isEOM = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'isEOM' is not boolean", e);
+    }
   }
   protected SwapLeg (final SwapLeg source) {
     if (source == null) throw new NullPointerException ("'source' must not be null");
@@ -87,6 +98,7 @@ public abstract class SwapLeg implements java.io.Serializable {
     else {
       _notional = source._notional;
     }
+    _isEOM = source._isEOM;
   }
   public abstract org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer);
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
@@ -109,6 +121,7 @@ public abstract class SwapLeg implements java.io.Serializable {
       _notional.toFudgeMsg (serializer, fudge1);
       msg.add (NOTIONAL_KEY, null, fudge1);
     }
+    msg.add (IS_EOM_KEY, null, _isEOM);
   }
   public static SwapLeg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
@@ -138,6 +151,9 @@ public abstract class SwapLeg implements java.io.Serializable {
   }
   public com.opengamma.financial.security.swap.Notional getNotional () {
     return _notional;
+  }
+  public boolean getIsEOM () {
+    return _isEOM;
   }
   public boolean equals (final Object o) {
     if (o == this) return true;
@@ -178,6 +194,7 @@ public abstract class SwapLeg implements java.io.Serializable {
       else return false;
     }
     else if (msg._notional != null) return false;
+    if (_isEOM != msg._isEOM) return false;
     return true;
   }
   public int hashCode () {
@@ -192,6 +209,8 @@ public abstract class SwapLeg implements java.io.Serializable {
     if (_businessDayConvention != null) hc += _businessDayConvention.hashCode ();
     hc *= 31;
     if (_notional != null) hc += _notional.hashCode ();
+    hc *= 31;
+    if (_isEOM) hc++;
     return hc;
   }
   public String toString () {

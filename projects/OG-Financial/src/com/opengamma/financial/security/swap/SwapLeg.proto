@@ -6,6 +6,12 @@
 
 namespace com.opengamma.financial.security.swap {
 
+  enum FloatingRateType {
+    IBOR;
+    CMS;
+    OIS;
+  }
+
   /**
    * Represents one leg of a swap.
    */
@@ -15,6 +21,7 @@ namespace com.opengamma.financial.security.swap {
     required readonly id.ExternalId regionIdentifier;
     required readonly com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention;
     required readonly Notional notional;
+    required readonly boolean isEOM;
     
     binding Java {
       body "public abstract <T> T accept (SwapLegVisitor<T> visitor);";
@@ -42,7 +49,7 @@ namespace com.opengamma.financial.security.swap {
     required readonly id.ExternalId floatingReferenceRateIdentifier;
     optional readonly double initialFloatingRate;
     required readonly double spread;
-    required readonly boolean isIBOR;
+    required readonly FloatingRateType floatingRateType;
 
     binding Java {
       body "public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }";

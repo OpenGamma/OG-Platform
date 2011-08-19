@@ -69,7 +69,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
+  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL, false) {
 
     @Override
     public <T> T accept(final SwapLegVisitor<T> visitor) {
@@ -83,7 +83,7 @@ public class SwapScheduleCalculatorTest {
     }
 
   };
-  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
+  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL, false) {
 
     @Override
     public <T> T accept(final SwapLegVisitor<T> visitor) {

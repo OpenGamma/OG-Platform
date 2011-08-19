@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -27,7 +28,7 @@ public class SwapSecurityUtils {
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) receiveLeg;
       if (Double.doubleToLongBits(floatingLeg.getSpread()) == 0) {
-        if (floatingLeg.getIsIBOR()) {
+        if (floatingLeg.getFloatingRateType() == FloatingRateType.IBOR) {
           return InterestRateInstrumentType.SWAP_FIXED_IBOR;
         }
         return InterestRateInstrumentType.SWAP_FIXED_CMS;
@@ -36,7 +37,7 @@ public class SwapSecurityUtils {
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) payLeg;
       if (Double.doubleToLongBits(floatingLeg.getSpread()) == 0) {
-        if (floatingLeg.getIsIBOR()) {
+        if (floatingLeg.getFloatingRateType() == FloatingRateType.IBOR) {
           return InterestRateInstrumentType.SWAP_FIXED_IBOR;
         }
         return InterestRateInstrumentType.SWAP_FIXED_CMS;
@@ -46,8 +47,8 @@ public class SwapSecurityUtils {
     if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg payLeg1 = (FloatingInterestRateLeg) payLeg;
       final FloatingInterestRateLeg receiveLeg1 = (FloatingInterestRateLeg) receiveLeg;
-      if (payLeg1.getIsIBOR()) {
-        if (receiveLeg1.getIsIBOR()) {
+      if (payLeg1.getFloatingRateType() == FloatingRateType.IBOR) {
+        if (receiveLeg1.getFloatingRateType() == FloatingRateType.IBOR) {
           return InterestRateInstrumentType.SWAP_IBOR_IBOR;
         }
         return InterestRateInstrumentType.SWAP_IBOR_CMS;

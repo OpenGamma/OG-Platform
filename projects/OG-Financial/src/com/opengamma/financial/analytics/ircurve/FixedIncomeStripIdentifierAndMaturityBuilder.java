@@ -32,6 +32,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -213,17 +214,17 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFloatingLegRegion(),
                                                 convention.getSwapFloatingLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateBloombergTicker,
+                                                false, floatRateBloombergTicker,
                                                 initialRate,
                                                 spread,
-                                                true),
+                                                FloatingRateType.IBOR),
                                             new FixedInterestRateLeg(
                                                 convention.getSwapFixedLegDayCount(),
                                                 convention.getSwapFixedLegFrequency(),
                                                 convention.getSwapFixedLegRegion(),
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
-                                                fixedRate));
+                                                false, fixedRate));
     swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -250,30 +251,28 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final double spread = rate / 10000; //TODO this conversion should not be done here
     //double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-    final SwapSecurity swap = new SwapSecurity(tradeDate,
-                                          effectiveDate,
-                                          maturityDate,
-                                          counterparty,
-                                            new FloatingInterestRateLeg(
-                                                convention.getBasisSwapPayFloatingLegDayCount(),
-                                                convention.getBasisSwapPayFloatingLegFrequency(),
-                                                convention.getBasisSwapPayFloatingLegRegion(),
-                                                convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                payLegFloatRateBloombergTicker,
-                                                0.,
-                                                0,
-                                                true),
-                                            new FloatingInterestRateLeg(
-                                                convention.getBasisSwapReceiveFloatingLegDayCount(),
-                                                convention.getBasisSwapReceiveFloatingLegFrequency(),
-                                                convention.getBasisSwapReceiveFloatingLegRegion(),
-                                                convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                receiveLegFloatRateBloombergTicker,
-                                                0.,
-                                                spread,
-                                                true));
+    final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty,
+        new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
+            convention.getBasisSwapPayFloatingLegFrequency(),
+            convention.getBasisSwapPayFloatingLegRegion(),
+            convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
+            new InterestRateNotional(spec.getCurrency(), 1),
+            false, 
+            payLegFloatRateBloombergTicker,
+            0.,
+            0,
+            FloatingRateType.IBOR),
+        new FloatingInterestRateLeg(
+            convention.getBasisSwapReceiveFloatingLegDayCount(),
+            convention.getBasisSwapReceiveFloatingLegFrequency(),
+            convention.getBasisSwapReceiveFloatingLegRegion(),
+            convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+            new InterestRateNotional(spec.getCurrency(), 1),
+            false, 
+            receiveLegFloatRateBloombergTicker,
+            0.,
+            spread,
+            FloatingRateType.IBOR));
     swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -308,27 +307,25 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-    final SwapSecurity swap = new SwapSecurity(tradeDate,
-                                          effectiveDate,
-                                          maturityDate,
-                                          counterparty,
-                                            new FloatingInterestRateLeg(
-                                                convention.getSwapFloatingLegDayCount(),
-                                                convention.getSwapFloatingLegFrequency(),
-                                                convention.getSwapFloatingLegRegion(),
-                                                convention.getSwapFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateBloombergTicker,
-                                                0.,
-                                                0,
-                                                true),
-                                            new FixedInterestRateLeg(
-                                                convention.getSwapFixedLegDayCount(),
-                                                convention.getSwapFixedLegFrequency(),
-                                                convention.getSwapFixedLegRegion(),
-                                                convention.getSwapFixedLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                fixedRate));
+    final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty,
+        new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
+            convention.getSwapFloatingLegFrequency(),
+            convention.getSwapFloatingLegRegion(),
+            convention.getSwapFloatingLegBusinessDayConvention(),
+            new InterestRateNotional(spec.getCurrency(), 1),
+            false, 
+            floatRateBloombergTicker,
+            0.,
+            0,
+            FloatingRateType.IBOR),
+
+        new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(),
+            convention.getSwapFixedLegFrequency(),
+            convention.getSwapFixedLegRegion(),
+            convention.getSwapFixedLegBusinessDayConvention(),
+            new InterestRateNotional(spec.getCurrency(), 1),
+            false, 
+            fixedRate));
     swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }

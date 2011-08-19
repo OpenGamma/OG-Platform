@@ -6,6 +6,7 @@
 
 package com.opengamma.masterdb.security.hibernate.swap;
 
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
@@ -27,7 +28,8 @@ public class SwapLegBean {
   private double _rate;
   private double _spread;
   private ExternalIdBean _rateIdentifier;
-  private Boolean _ibor;
+  private boolean _eom;
+  private FloatingRateType _floatingRateType;
 
   public SwapLegType getSwapLegType() {
     return _swapLegType;
@@ -164,13 +166,36 @@ public class SwapLegBean {
   public void setRateIdentifier(ExternalIdBean rateIdentifier) {
     _rateIdentifier = rateIdentifier;
   }
-  
-  public Boolean isIBOR() {
-    return _ibor;
+
+  /**
+   * Gets the eom.
+   * @return the eom
+   */
+  public boolean isEOM() {
+    return _eom;
   }
-  
-  public void setIBOR(final Boolean ibor) {
-    _ibor = ibor;
+
+  /**
+   * Sets the eom.
+   * @param eom  the eom
+   */
+  public void setEOM(boolean eom) {
+    _eom = eom;
   }
-  
+
+  /**
+   * Gets the floatingRateType.
+   * @return the floatingRateType
+   */
+  public FloatingRateType getFloatingRateType() {
+    return _floatingRateType;
+  }
+
+  /**
+   * Sets the floatingRateType.
+   * @param floatingRateType  the floatingRateType
+   */
+  public void setFloatingRateType(FloatingRateType floatingRateType) {
+    _floatingRateType = floatingRateType;
+  }
 }
