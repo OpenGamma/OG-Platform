@@ -26,6 +26,7 @@ public class WebAnalyticsResource {
 
   private final LiveResultsServiceBean _liveResultsServiceBean;
   
+  // TODO this shouldn't be necessary once Cometd has gone
   public WebAnalyticsResource(LiveResultsServiceBean liveResultsServiceBean) {
     // Have to inject the wrapper here as the actual service is not initialised until after the Bayeux service is available 
     _liveResultsServiceBean = liveResultsServiceBean;

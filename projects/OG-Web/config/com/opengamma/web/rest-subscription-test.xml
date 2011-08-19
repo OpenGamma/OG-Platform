@@ -8,7 +8,7 @@
   </bean>
 
   <!--TODO real subscription manager?-->
-  <bean id="subscriptionManager" class="com.opengamma.web.server.push.subscription.SubscriptionManagerImpl">
+  <bean id="subscriptionManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1"><null/></constructor-arg>
   </bean>

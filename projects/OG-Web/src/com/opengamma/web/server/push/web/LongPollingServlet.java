@@ -46,6 +46,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
     // suspend the request
     continuation.suspend(); // always suspend before registration
     String userId = request.getRemoteUser(); // TODO is this right?
+    // TODO reactivate the viewport? how will we know?
     // get the client ID from the URL and pass the continuation to the connection manager for the next updates
     String clientId = getClientId(request);
     boolean connected = (clientId != null) && _connectionManager.connect(userId, clientId, continuation);

@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 /**
  *
  */
-@Path("/testsub/{uid}")
+//@Path("/testsub/{uid}") // TODO is this necessary on a sub-resource?
 public class TestSubResource {
 
   private final String _uid;

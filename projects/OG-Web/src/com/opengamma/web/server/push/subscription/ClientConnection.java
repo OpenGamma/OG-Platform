@@ -30,6 +30,7 @@ public class ClientConnection implements ChangeListener {
   private final Map<ObjectId, String> _entityUrls = new ConcurrentHashMap<ObjectId, String>();
 
   // TODO atomic ref?
+  // TODO needs to know ID or to be stored in a pair with its ID
   private Viewport _viewport;
 
   public ClientConnection(String userId, String clientId, RestUpdateListener listener, ViewportFactory viewportFactory) {
@@ -53,13 +54,15 @@ public class ClientConnection implements ChangeListener {
    * @param request
    * TODO refactor so the stack isn't so deep when setting up new subs? create everything in the subs manager? is that workable?
    * TODO logic in subscription requests? command pattern?
+   * @param viewportId
    */
-  public void createViewportSubscription(ViewportDefinition request) {
-    UniqueId viewClientId = request.getViewClientId();
-    _viewportFactory.createViewport(viewClientId, request.getViewportBounds(), _listener);
+  public void createViewport(ViewportDefinition request, String viewportUrl) {
+    // TODO the listener needs a wrapper that deactivates itself after every update and is reactivated at the client's request?
+    AnalyticsListener listener = new AnalyticsListener(viewportUrl, _listener);
+    Viewport viewport = _viewportFactory.createViewport(_clientId, request.getViewClientId(), request, listener);
   }
 
-  public void activateViewportSubscription(String viewportId) {
+  public void activateViewportSubscription() {
     // TODO implement ClientConnection.activateViewClientSubscription()
     throw new UnsupportedOperationException("activateViewClientSubscription not implemented");
   }
@@ -81,4 +84,9 @@ public class ClientConnection implements ChangeListener {
       _listener.itemUpdated(url);
     }
   }
+
+  public Viewport getViewport(String viewportUrl) {
+    // TODO check the URL corresponds (in case a new viewport has been created)
+  }
 }
+

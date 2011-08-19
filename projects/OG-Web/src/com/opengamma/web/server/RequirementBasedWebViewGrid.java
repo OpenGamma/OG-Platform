@@ -5,23 +5,6 @@
  */
 package com.opengamma.web.server;
 
-import it.unimi.dsi.fastutil.longs.LongArraySet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import org.cometd.Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -42,6 +25,20 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * An abstract base class for dynamically-structured, requirement-based grids.
@@ -60,10 +57,15 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   
   // Cell-based state
   private final ConcurrentMap<WebGridCell, WebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, WebViewDepGraphGrid>();
-  
-  protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<UniqueId> targets,
-      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue) {
-    super(name, viewClient, resultConverterCache, local, remote);
+
+  protected RequirementBasedWebViewGrid(String name,
+                                        ViewClient viewClient,
+                                        CompiledViewDefinition compiledViewDefinition,
+                                        List<UniqueId> targets,
+                                        EnumSet<ComputationTargetType> targetTypes,
+                                        ResultConverterCache resultConverterCache,
+                                        String nullCellValue) {
+    super(name, viewClient, resultConverterCache);
     
     _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
     List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);    
@@ -73,11 +75,12 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   
   //-------------------------------------------------------------------------
 
-  public void processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
+  // publishes results to the client TODO would it be better if it returned the value?
+  public Map<String, Object> processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
     Integer rowId = getGridStructure().getRowId(target.getUniqueId());
     if (rowId == null) {
       // Result not in the grid
-      return;
+      return null; // TODO empty map?
     }
 
     Map<String, Object> valuesToSend = createDefaultTargetResult(rowId);
@@ -98,8 +101,13 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         for (WebViewGridColumn column : columns) {
           int colId = column.getId();
           WebGridCell cell = WebGridCell.of(rowId, colId);
-          ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
-          Map<String, Object> cellData = processCellValue(cell, specification, originalValue, resultTimestamp, converter);
+          ResultConverter<Object> converter;
+          if (originalValue == null) {
+            converter = null;
+          } else {
+            converter = getConverter(column, value.getSpecification().getValueName(), originalValue.getClass());
+          }
+          Map<String, Object> cellData = getCellValue(cell, specification, originalValue, resultTimestamp, converter);
           Object depGraph = getDepGraphIfRequested(cell, calcConfigName, specification, resultTimestamp);
           if (depGraph != null) {
             if (cellData == null) {
@@ -113,9 +121,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         }
       }
     }
-    if (valuesToSend != null) {
-      getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
-    }
+    return valuesToSend; // TODO empty map if null?
   }
   
   private Map<String, Object> createDefaultTargetResult(Integer rowId) {
@@ -127,21 +133,18 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     return valuesToSend;
   }
-  
+
+  // TODO this publishes to the client. not nice for a method named get*
   @SuppressWarnings("unchecked")
   private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
     // Ensure the converter is cached against the value name before sending the column details 
     ResultConverter<Object> converter = (ResultConverter<Object>) getConverterCache().getAndCacheConverter(valueName, valueType);
     if (!column.isTypeKnown()) {
-      sendColumnDetails(Collections.singleton(column));
+      getRemoteClient().deliver(getLocalClient(), _columnStructureChannel, getJsonColumnStructures(Collections.singleton(column)), null);
     }
     return converter;
   }
 
-  private void sendColumnDetails(Collection<WebViewGridColumn> columnDetails) {
-    getRemoteClient().deliver(getLocalClient(), _columnStructureChannel, getJsonColumnStructures(columnDetails), null);
-  }
-  
   @Override
   public Map<String, Object> getInitialJsonGridStructure() {
     Map<String, Object> gridStructure = super.getInitialJsonGridStructure();
@@ -217,12 +220,11 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   public WebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     if (includeDepGraph) {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();      
-      WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(), getLocalClient(), getRemoteClient());
+      WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache());
       _depGraphGrids.putIfAbsent(cell, grid);
       return grid;
     } else {
-      WebViewDepGraphGrid grid = _depGraphGrids.remove(cell);
-      return grid;
+      return _depGraphGrids.remove(cell);
     }
   }
   

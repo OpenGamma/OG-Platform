@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TODO what's the policy on arg checking? public API only?
- * TODO CONCURRENCY
+ * TODO CONCURRENCY - completely ignored at the moment
  */
 /* package */ class RestUpdateManagerImpl implements RestUpdateManager {
 
@@ -29,8 +29,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
   // TODO what map impl? concurrent? or handle concurrency somewhere else?
   /** Connections keyed on client ID */
-  private final Map<String, ClientConnection> _connections = new HashMap<String, ClientConnection>();
+  private final Map<String, ClientConnection> _connectionsByClientId = new HashMap<String, ClientConnection>();
+  // TODO how can this be cleaned? this class has no idea when the viewport changes. hmm.
+  private final Map<String, ClientConnection> _connectionsByViewportId = new HashMap<String, ClientConnection>();
 
+  // TODO this isn't right, there's a ChangeManager for each master / source / repo
+  // TODO aggregate change manager?
+  // TODO or a similar interface that also includes MasterType in the event
+  // TODO map of ChangeManagers keyed on MasterType? or a class that encapsulates that logic?
   public RestUpdateManagerImpl(ChangeManager changeManager, ViewportFactory viewportFactory) {
     _changeManager = changeManager;
     _viewportFactory = viewportFactory;
@@ -44,43 +50,43 @@ import java.util.concurrent.atomic.AtomicLong;
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
     ClientConnection connection = new ClientConnection(userId, clientId, listener, _viewportFactory);
     _changeManager.addChangeListener(connection);
-    _connections.put(clientId, connection);
+    _connectionsByClientId.put(clientId, connection);
     return clientId;
   }
 
   @Override
   public void closeConnection(String userId, String clientId) {
-    ClientConnection connection = getConnection(userId, clientId);
+    ClientConnection connection = getConnectionByClientId(userId, clientId);
     _changeManager.removeChangeListener(connection);
     connection.disconnect();
   }
 
   @Override
   public void subscribe(String userId, String clientId, UniqueId uid, String url) {
-    getConnection(userId, clientId).subscribe(uid, url);
+    getConnectionByClientId(userId, clientId).subscribe(uid, url);
   }
 
-  // TODO is this still correct? does Viewport create the viewport and notify this class? the request arg should be viewportId
-  // TODO maybe the API should be completely different - ViewportsResource manages the clients and this class receives events when they change
-  // TODO but what about closing subscriptions? the client connection needs to know about its viewports
-  // TODO or the ViewportManager could key on client ID and implement a disconnect() method
-  // TODO making everying go through ClientConnection might make concurrency easier to manage
-  public String createViewportSubscription(String userId, String clientId, ViewportDefinition request) {
-    getConnection(userId, clientId).createViewportSubscription(request);
-    return viewportId(clientId);
+  @Override
+  public Viewport getViewport(String userId, String clientId, String viewportId) {
+    ClientConnection connection = getConnectionByViewportId(userId, viewportId);
+    if (connection != null) {
+      return connection.getViewport(viewportId);
+    } else {
+      return Viewport.DUMMY;
+    }
   }
 
-  private String viewportId(String clientId) {
-    // TODO need a new unique viewport ID
-    //return ;
-    throw new UnsupportedOperationException("TODO");
+  public void createViewport(String userId, String clientId, ViewportDefinition viewportDefinition, String viewportUrl) {
+    ClientConnection connection = getConnectionByClientId(userId, clientId);
+    connection.createViewport(viewportDefinition, viewportUrl);
+    _connectionsByViewportId.put(viewportUrl, connection);
   }
 
-  private ClientConnection getConnection(String userId, String clientId) {
+  private ClientConnection getConnectionByClientId(String userId, String clientId) {
     // TODO user logins
     //ArgumentChecker.notEmpty(userId, "userId");
     ArgumentChecker.notEmpty(clientId, "clientId");
-    ClientConnection connection = _connections.get(clientId);
+    ClientConnection connection = _connectionsByClientId.get(clientId);
     if (connection == null) {
       throw new OpenGammaRuntimeException("Unknown client ID " + clientId);
     }
@@ -90,8 +96,14 @@ import java.util.concurrent.atomic.AtomicLong;
     return connection;
   }
 
-  public ViewportResults getLatestViewportResults(String userId, String clientId, String viewportId) {
-    // TODO what if the viewportId is stale, i.e. the subscription has changed?  should the viewport persist? 404?
-    throw new UnsupportedOperationException("TODO");
+  private ClientConnection getConnectionByViewportId(String userId, String viewportId) {
+    ClientConnection connection = _connectionsByViewportId.get(viewportId);
+    if (connection == null) {
+      throw new OpenGammaRuntimeException("Unknown viewport ID " + viewportId);
+    }
+    if (!Objects.equal(userId, connection.getUserId())) {
+      throw new OpenGammaRuntimeException("User ID " + userId + " is not associated with viewport " + viewportId);
+    }
+    return connection;
   }
 }

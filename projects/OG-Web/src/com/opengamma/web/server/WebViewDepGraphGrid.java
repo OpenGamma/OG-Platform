@@ -5,24 +5,6 @@
  */
 package com.opengamma.web.server;
 
-import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.cometd.Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -37,6 +19,21 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known
@@ -48,14 +45,14 @@ public class WebViewDepGraphGrid extends WebViewGrid {
 
   private final AtomicBoolean _init = new AtomicBoolean();
   private final IntSet _historyOutputs = new IntOpenHashSet();
-  
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
+
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
   private ComputationCacheQuery _cacheQuery;
   
-  protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache, Client local, Client remote) {
-    super(name, viewClient, resultConverterCache, local, remote);    
+  protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache) {
+    super(name, viewClient, resultConverterCache);
   }
   
   //-------------------------------------------------------------------------
@@ -141,7 +138,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     // These are static cell values which are not updated on each tick
     addCellValue(row, "targetType", targetType);
     addCellValue(row, "function", functionName);
-    addCellValue(row, "valueName", valueSpecification.getValueName().toString());
+    addCellValue(row, "valueName", valueSpecification.getValueName());
     if (displayProperties != null) {
       addCellValue(row, "properties", displayProperties);
     }
@@ -179,7 +176,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
       }
       for (int rowId : rowIds) {
         WebGridCell cell = WebGridCell.of(rowId, 0);
-        Map<String, Object> cellValue = processCellValue(cell, specification, value, resultTimestamp, converter);
+        Map<String, Object> cellValue = getCellValue(cell, specification, value, resultTimestamp, converter);
         if (cellValue != null) {
           if (converter != null) {
             cellValue.put("t", converter.getFormatterName());

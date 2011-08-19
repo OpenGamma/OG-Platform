@@ -5,15 +5,6 @@
  */
 package com.opengamma.web.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.cometd.Client;
-
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -25,22 +16,32 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Represents a portfolio grid
  */
 public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
-  
-  public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
-    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, local, remote);
+
+  public WebViewPortfolioGrid(ViewClient viewClient,
+                              CompiledViewDefinition compiledViewDefinition,
+                              ResultConverterCache resultConverterCache) {
+    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache);
   }
-  
-  private WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
-      Client local, Client remote) {
+
+  private WebViewPortfolioGrid(ViewClient viewClient,
+                               CompiledViewDefinition compiledViewDefinition,
+                               List<PortfolioRow> rows,
+                               ResultConverterCache resultConverterCache) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
-        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
-        remote, "Loading..."); 
+        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...");
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());

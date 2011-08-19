@@ -5,6 +5,17 @@
  */
 package com.opengamma.web.server;
 
+import au.com.bytecode.opencsv.CSVWriter;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.conversion.ConversionMode;
+import com.opengamma.web.server.conversion.ResultConverter;
+import com.opengamma.web.server.conversion.ResultConverterCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -15,36 +26,17 @@ import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.cometd.Client;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import au.com.bytecode.opencsv.CSVWriter;
-
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.conversion.ConversionMode;
-import com.opengamma.web.server.conversion.ResultConverter;
-import com.opengamma.web.server.conversion.ResultConverterCache;
-
 /**
  * Stores state relating to an individual grid in a web client instance.
  */
 public abstract class WebViewGrid {
   private static final Logger s_logger = LoggerFactory.getLogger(WebViewGrid.class);
-  private static final String UPDATES_ROOT_CHANNEL = "/updates";
   private static final int HISTORY_SIZE = 20;
   
   private final String _name;
   
-  private final String _updateChannel;
-  
   private final ResultConverterCache _resultConverterCache;
   private final ViewClient _viewClient;
-  private final Client _local;
-  private final Client _remote;
   
   // Row-based state
   private final AtomicReference<SortedMap<Integer, Long>> _viewportMap = new AtomicReference<SortedMap<Integer, Long>>();
@@ -54,20 +46,14 @@ public abstract class WebViewGrid {
   
   private final Map<WebGridCell, SortedMap<Long, Object>> _cellValueHistory = new HashMap<WebGridCell, SortedMap<Long, Object>>();
   
-  protected WebViewGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache, Client local, Client remote) {
+  protected WebViewGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
-    ArgumentChecker.notNull(local, "local");
-    ArgumentChecker.notNull(remote, "remote");
     
     _name = name;
     _viewClient = viewClient;
-    _updateChannel = UPDATES_ROOT_CHANNEL + "/" + name;
-    
     _resultConverterCache = resultConverterCache;
-    _local = local;
-    _remote = remote;
   }
   
   //-------------------------------------------------------------------------
@@ -79,7 +65,10 @@ public abstract class WebViewGrid {
   public SortedMap<Integer, Long> getViewport() {
     return _viewportMap.get();
   }
-  
+
+  /**
+   * @param viewportMap Sorted map of last timestamps keyed by row ID
+   */
   public void setViewport(SortedMap<Integer, Long> viewportMap) {
     _viewportMap.set(viewportMap);
   }
@@ -111,20 +100,9 @@ public abstract class WebViewGrid {
   
   //-------------------------------------------------------------------------
 
-  protected String getUpdateChannel() {
-    return _updateChannel;
-  }
   
   protected ResultConverterCache getConverterCache() {
     return _resultConverterCache;
-  }
-  
-  protected Client getRemoteClient() {
-    return _remote;
-  }
-  
-  protected Client getLocalClient() {
-    return _local;
   }
   
   protected ViewClient getViewClient() {
@@ -160,7 +138,11 @@ public abstract class WebViewGrid {
   
   //-------------------------------------------------------------------------
 
-  protected Map<String, Object> processCellValue(WebGridCell cell, ValueSpecification specification, Object value, Long resultTimestamp, ResultConverter<Object> converter) {
+  protected Map<String, Object> getCellValue(WebGridCell cell,
+                                             ValueSpecification specification,
+                                             Object value,
+                                             Long resultTimestamp,
+                                             ResultConverter<Object> converter) {
     boolean rowInViewport = getViewport().containsKey(cell.getRowId());
     Long lastHistoryTimestamp = getViewport().get(cell.getRowId());
     ConversionMode mode = getConversionMode(cell);    

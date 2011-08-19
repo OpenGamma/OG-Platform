@@ -13,19 +13,19 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
+import com.opengamma.web.server.push.subscription.AnalyticsListener;
+import com.opengamma.web.server.push.subscription.Viewport;
+import com.opengamma.web.server.push.subscription.ViewportDefinition;
+import com.opengamma.web.server.push.subscription.ViewportFactory;
 import org.apache.commons.lang.StringUtils;
 import org.cometd.Bayeux;
 import org.cometd.Client;
-import org.cometd.ClientBayeuxListener;
 import org.cometd.Message;
-import org.cometd.server.BayeuxService;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -41,12 +41,13 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 /**
  * The core of the back-end to the web client, providing the implementation of the Bayeux protocol.
  */
-public class LiveResultsService extends BayeuxService implements ClientBayeuxListener {
+public class LiveResultsService /*extends BayeuxService implements ClientBayeuxListener*/ implements ViewportFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
-  private static final Pattern s_guidPattern = Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
+  private static final Pattern s_guidPattern =
+      Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
 
-  private Map<String, WebView> _clientViews = new HashMap<String, WebView>();
+  private final Map<String, WebView> _clientViews = new HashMap<String, WebView>();
   
   /**
    * The executor service used to call web clients back asynchronously.
@@ -57,10 +58,12 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
-  
-  public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
-      final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext) {
-    super(bayeux, "processPortfolioRequest");
+
+  public LiveResultsService(Bayeux bayeux, final ViewProcessor viewProcessor,
+                            MarketDataSnapshotMaster snapshotMaster,
+                            UserPrincipal user,
+                            ExecutorService executorService,
+                            FudgeContext fudgeContext) {
     ArgumentChecker.notNull(bayeux, "bayeux");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
@@ -73,30 +76,15 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     
-    viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
-
-      @Override
-      public void entityChanged(ChangeEvent event) {
-        sendInitData(false);
-      }
-      
-    });
-    
     s_logger.info("Subscribing to services");
-    subscribe("/service/getInitData", "processInitDataRequest");
+    /*subscribe("/service/getInitData", "processInitDataRequest");
     subscribe("/service/changeView", "processChangeViewRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
     subscribe("/service/updates/depgraph", "processDepGraphRequest");
     subscribe("/service/currentview/pause", "processPauseRequest");
-    subscribe("/service/currentview/resume", "processResumeRequest");
-    getBayeux().addListener(this);
+    subscribe("/service/currentview/resume", "processResumeRequest");*/
     s_logger.info("Finished subscribing to services");
-  }
-  
-  @Override
-  public void clientAdded(Client client) {
-    s_logger.debug("Client " + client.getId() + " connected");
   }
   
   @Override
@@ -115,7 +103,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
   }
 
-  private void initializeClientView(final Client remote, final String viewDefinitionName, final UniqueId snapshotId, final UserPrincipal user) {
+  private void initializeClientView(Client remote, String viewDefinitionName, UniqueId snapshotId, UserPrincipal user) {
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(remote.getId());
       if (webView != null) {
@@ -131,7 +119,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
       try {
-        webView = new WebView(getClient(), remote, viewClient, viewDefinitionName, snapshotId, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(viewClient, viewDefinitionName, snapshotId, user, getExecutorService(), getResultConverterCache());
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
@@ -180,8 +168,9 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     WebViewGrid grid = webView.getGridByName(gridName);
     if (grid == null) {
       s_logger.warn("Request to change update mode for cell in unknown grid '{}'", gridName);
+    } else {
+      grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
     }
-    grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
   }
   
   @SuppressWarnings("unchecked")
@@ -196,25 +185,6 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     long jsColId = (Long) dataMap.get("colId");
     boolean includeDepGraph = (Boolean) dataMap.get("includeDepGraph");
     webView.setIncludeDepGraph(gridName, WebGridCell.of((int) jsRowId, (int) jsColId), includeDepGraph);
-  }
-
-  public void processInitDataRequest(Client remote, Message message) {
-    s_logger.info("processInitDataRequest");
-    sendInitData(true);
-  }
-  
-  private void sendInitData(boolean includeSnapshots) {
-    Map<String, Object> reply = new HashMap<String, Object>();
-    
-    List<String> availableViewNames = getViewNames();
-    reply.put("viewNames", availableViewNames);
-    
-    if (includeSnapshots) {
-      Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
-      reply.put("snapshots", snapshotDetails);
-    }
-    
-    getBayeux().getChannel("/initData", true).publish(getClient(), reply, null);
   }
 
   private List<String> getViewNames() {
@@ -254,6 +224,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     return snapshotsByBasisView;
   }
 
+  // TODO this will be replaced by the creation of a new viewport
   @SuppressWarnings("unchecked")
   public void processChangeViewRequest(Client remote, Message message) {
     Map<String, Object> data = (Map<String, Object>) message.getData();
@@ -263,7 +234,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
     initializeClientView(remote, viewName, snapshotId, getUser(remote));
   }
-  
+
+  // TODO this is on Viewport. remove?
   public void processPauseRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
     if (webView == null) {
@@ -272,6 +244,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     webView.pause();
   }
   
+  // TODO this is on Viewport. remove?
   public void processResumeRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
     if (webView == null) {
@@ -279,5 +252,14 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
     webView.resume();
   }
-  
+
+  @Override
+  public Viewport createViewport(String clientId,
+                                 UniqueId viewClientId,
+                                 ViewportDefinition viewportDefinition,
+                                 AnalyticsListener listener) {
+    throw new UnsupportedOperationException("createViewport not implemented");
+    // TODO get / create WebView for the client ID
+    // TODO tell it to produce some results immediately (which also sets the viewport bounds)
+  }
 }

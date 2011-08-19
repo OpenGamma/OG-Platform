@@ -5,9 +5,13 @@
  */
 package com.opengamma.web.server.push.subscription;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  */
 public class ViewportBounds {
 
+  private final List<ViewportRow> _rows = new ArrayList<ViewportRow>();
 }

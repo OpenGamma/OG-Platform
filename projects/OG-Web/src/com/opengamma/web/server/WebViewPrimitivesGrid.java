@@ -5,11 +5,6 @@
  */
 package com.opengamma.web.server;
 
-import java.util.EnumSet;
-import java.util.Map;
-
-import org.cometd.Client;
-
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
@@ -17,14 +12,18 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
+import java.util.EnumSet;
+import java.util.Map;
+
 /**
  * Represents a primitives grid
  */
 public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
 
-  protected WebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
-    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE),
-        resultConverterCache, local, remote, "");
+  protected WebViewPrimitivesGrid(ViewClient viewClient,
+                                  CompiledViewDefinition compiledViewDefinition,
+                                  ResultConverterCache resultConverterCache) {
+    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "");
   }
 
   @Override
