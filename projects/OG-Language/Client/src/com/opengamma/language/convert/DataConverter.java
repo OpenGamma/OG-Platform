@@ -13,6 +13,7 @@ import java.util.Map;
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.TypeConverter;
 
@@ -79,6 +80,9 @@ public final class DataConverter implements TypeConverter {
       if (dataValue.getSingle() != null) {
         if (clazz == Value.class) {
           conversionContext.setResult(dataValue.getSingle());
+          return;
+        } else if (type.isAllowNull() && ValueUtils.isNull(dataValue.getSingle())) {
+          conversionContext.setResult(null);
           return;
         }
       } else if (dataValue.getLinear() != null) {

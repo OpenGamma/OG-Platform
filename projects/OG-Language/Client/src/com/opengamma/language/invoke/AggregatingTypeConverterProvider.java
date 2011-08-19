@@ -17,6 +17,10 @@ import java.util.Set;
  */
 public final class AggregatingTypeConverterProvider implements TypeConverterProvider {
 
+  /**
+   * The list of converters, in the order added, set to {@code null} when the converters are fetched for the first
+   * time (after which the aggregator cannot be modified).
+   */
   private List<TypeConverterProvider> _typeConverterProviders = new LinkedList<TypeConverterProvider>();
   private volatile Set<TypeConverter> _typeConverters;
 

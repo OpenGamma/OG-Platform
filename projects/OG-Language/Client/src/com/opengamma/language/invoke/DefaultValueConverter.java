@@ -8,11 +8,13 @@ package com.opengamma.language.invoke;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -150,6 +152,8 @@ public class DefaultValueConverter extends ValueConverter {
       converters = Collections.<TypeConverter>emptyList();
       _convertersByTarget.putIfAbsent(type, converters);
     } else {
+      // Reverse the order so that the most recently added converter is returned first
+      Collections.reverse(converters);
       final List<TypeConverter> previous = _convertersByTarget.putIfAbsent(type, converters);
       if (previous != null) {
         converters = previous;
@@ -252,14 +256,16 @@ public class DefaultValueConverter extends ValueConverter {
     s_logger.debug("Processing state {}", explore);
     int statesLoaded = 1;
     int statesStored = 0;
+    final Set<JavaTypeInfo<?>> consideredConverters = new HashSet<JavaTypeInfo<?>>();
     do {
-      final List<TypeConverter> converters = getConvertersTo(conversionContext, explore.getTargetType());
-      for (TypeConverter converter : converters) {
+      consideredConverters.clear();
+      for (TypeConverter converter : getConvertersTo(conversionContext, explore.getTargetType())) {
         if (!explore.visited(converter)) {
           final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
           if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
             for (Map.Entry<JavaTypeInfo<?>, Integer> alternativeType : alternativeTypes.entrySet()) {
-              if (!explore.visited(alternativeType.getKey())) {
+              // Only try types not already used on the chain, and only use the first converter (most recently added) for a type
+              if (!explore.visited(alternativeType.getKey()) && consideredConverters.add(alternativeType.getKey())) {
                 final State nextState = new State(alternativeType.getKey(), converter, explore, alternativeType.getValue());
                 final Integer key = (Integer) nextState.getCost();
                 Queue<State> states = searchStates.get(key);

@@ -59,11 +59,20 @@
     </property>
     <property name="userContextFactory" ref="userContextFactory" />
   </bean>
+  <!-- TODO: this shouldn't be here; live data should be configured from the configuration fragment -->
   <bean id="liveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
     <property name="subscriptionTopic" value="${opengamma.livedata.subscription}" />
     <property name="entitlementTopic" value="${opengamma.livedata.entitlement}" />
     <property name="heartbeatTopic" value="${opengamma.livedata.heartbeat}" />
+  </bean>
+  
+  <!-- Remote configuration parameters -->
+  <bean id="defaultConfiguration" class="com.opengamma.language.config.ConfigurationFactoryBean">
+    <property name="configurationURI" value="${opengamma.configuration.url}" />
+    <property name="fudgeContext" ref="engineFudgeContext" />
+    <property name="failOnInvalidURI" value="${opengamma.configuration.failOnInvalid}" />
+    <property name="failOnMissingConfiguration" value="${opengamma.configuration.failOnMissing}" />
   </bean>
   
   <!-- Standard conditionals -->
@@ -166,8 +175,21 @@
   <bean id="defaultTypeConversions" class="com.opengamma.language.invoke.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="typeConverters">
-      <bean class="com.opengamma.language.convert.Converters" />
+      <bean class="com.opengamma.language.convert.Converters">
+        <property name="fudgeContext" ref="engineFudgeContext" />
+        <property name="extraConverters">
+          <list>
+            <bean class="com.opengamma.language.identifier.TypeConverter" /> 
+          </list>
+        </property>
+      </bean>
     </property>
+  </bean>
+  
+  <!-- Time series -->
+  <bean id="timeSeriesLoader" class="com.opengamma.language.timeseries.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
 </beans>

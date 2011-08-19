@@ -37,6 +37,10 @@ public abstract class AbstractInvoker {
     }
   }
 
+  protected List<MetaParameter> getParameters() {
+    return _parameters;
+  }
+
   protected abstract ResultConverter getResultConverter(final GlobalContext globalContext);
 
   protected Data convertResult(final SessionContext sessionContext, final Object result) {
@@ -65,7 +69,7 @@ public abstract class AbstractInvoker {
 
   protected Object[] convertParameters(final SessionContext sessionContext, final List<Data> parameters) {
     final ParameterConverter converter = getParameterConverter(sessionContext.getGlobalContext());
-    return converter.convertParameters(sessionContext, parameters, _parameters);
+    return converter.convertParameters(sessionContext, parameters, getParameters());
   }
 
 }

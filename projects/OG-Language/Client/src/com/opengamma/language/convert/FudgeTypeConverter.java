@@ -28,6 +28,8 @@ import com.opengamma.language.invoke.TypeConverter;
  */
 public final class FudgeTypeConverter implements TypeConverter {
 
+  // TODO: handle nulls
+
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
   private static final JavaTypeInfo<FudgeMsg> FUDGE_MSG = JavaTypeInfo.builder(FudgeMsg.class).get();
   private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS, OBJECT);

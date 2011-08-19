@@ -20,6 +20,8 @@ import com.opengamma.language.invoke.TypeConverter;
  */
 public class MapConverter implements TypeConverter {
 
+  // TODO: handle nulls e.g. Value[][2]/null -> Map/null or Map/empty if nulls not allowed
+
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[][]> VALUES = JavaTypeInfo.builder(Value[][].class).get();
   @SuppressWarnings("unchecked")
