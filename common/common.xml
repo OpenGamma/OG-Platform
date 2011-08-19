@@ -616,7 +616,7 @@
     depends="clean, clover-setup, compile, tests, clover-html-report">
   </target>
   
-  <target name="deploy-dev" depends="upload-dev,restart-dev" />
+  <target name="deploy-dev" depends="upload-dev,kill-dev,extract-dev,start-dev" />
 
   <target name="upload-dev" depends="zipfile" description="release the code to the dev server">
     <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
@@ -633,9 +633,21 @@
       passphrase=""
       verbose="true"
       trust="true" />
+      
   </target>
   
-  <target name="restart-dev">
+  <target name="extract-dev">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+  
+    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
+    command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
+    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
+    command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
+    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
+    command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
+  </target>
+  
+  <target name="kill-dev">
     <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
     
     <!-- Get the PID of the /bin/sh process (.sh file) that launched a java subprocess -->
@@ -661,14 +673,10 @@
             trust="true"/>
       </else>
     </if>
-
-    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
-    command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
-    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
-    command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
-    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
-    command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
-
+  </target>
+  
+  <target name="start-dev">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
     <sshexec host="${dev.server.host}" 
         username="${dev.server.user}" 
         keyfile="${ssh.private.key}"
