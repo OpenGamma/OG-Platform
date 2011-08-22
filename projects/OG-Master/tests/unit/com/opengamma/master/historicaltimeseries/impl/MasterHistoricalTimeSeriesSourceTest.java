@@ -155,7 +155,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
         when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, startInput, endInput)).thenReturn(hts);
         when(_mockMaster.search(request)).thenReturn(searchResult);
         
-        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, !includeEnd);
+        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, includeEnd);
         assertEquals(UID, test.getUniqueId());
         assertEquals(hts.getTimeSeries(), test.getTimeSeries());
       }
