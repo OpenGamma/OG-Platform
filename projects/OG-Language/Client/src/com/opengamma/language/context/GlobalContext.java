@@ -43,54 +43,67 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the function definition filter is bound.
    */
   protected static final String FUNCTION_DEFINITION_FILTER = "functionDefinitionFilter";
+
   /**
    * Name under which a function specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String FUNCTION_PARAMETER_CONVERTER = "functionParameterConverter";
+
   /**
    * Name under which a function specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String FUNCTION_RESULT_CONVERTER = "functionResultConverter";
+
   /**
    * Name under which a historical time series source is bound.
    */
   protected static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
+
   /**
    * Name under which the live data definition filter is bound.
    */
   protected static final String LIVEDATA_DEFINITION_FILTER = "liveDataDefinitionFilter";
+
   /**
    * Name under which a live data specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String LIVEDATA_PARAMETER_CONVERTER = "liveDataParameterConverter";
+
   /**
    * Name under which a live data specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String LIVEDATA_RESULT_CONVERTER = "liveDataResultConverter";
+
   /**
    * Name under which the procedure definition filter is bound.
    */
   protected static final String PROCEDURE_DEFINITION_FILTER = "procedureDefinitionFilter";
+
   /**
    * Name under which a procedure specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String PROCEDURE_PARAMETER_CONVERTER = "procedureParameterConverter";
+
   /**
    * Name under which a procedure specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String PROCEDURE_RESULT_CONVERTER = "procedureResultConverter";
+
   /**
    * Name under which the generic parameter converter is bound.
    */
   protected static final String PARAMETER_CONVERTER = "parameterConverter";
+
   /**
    * Name under which the generic result converter is bound.
    */
   protected static final String RESULT_CONVERTER = "resultConverter";
+
   /**
    * Name under which a source of type converters is bound.
    */
   protected static final String TYPE_CONVERTER_PROVIDER = "typeConverterProvider";
+
   /**
    * Name under which the generic value converter is bound. 
    */

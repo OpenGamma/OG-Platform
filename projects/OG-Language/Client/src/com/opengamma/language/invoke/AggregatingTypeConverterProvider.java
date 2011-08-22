@@ -6,11 +6,12 @@
 
 package com.opengamma.language.invoke;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * An aggregation of other {@link TypeConverterProvider} instances.
@@ -22,7 +23,7 @@ public final class AggregatingTypeConverterProvider implements TypeConverterProv
    * time (after which the aggregator cannot be modified).
    */
   private List<TypeConverterProvider> _typeConverterProviders = new LinkedList<TypeConverterProvider>();
-  private volatile Set<TypeConverter> _typeConverters;
+  private volatile List<TypeConverter> _typeConverters;
 
   public AggregatingTypeConverterProvider() {
   }
@@ -35,15 +36,18 @@ public final class AggregatingTypeConverterProvider implements TypeConverterProv
   }
 
   @Override
-  public Set<TypeConverter> getTypeConverters() {
+  public List<TypeConverter> getTypeConverters() {
     if (_typeConverters == null) {
       synchronized (this) {
-        final Set<TypeConverter> typeConverters = new HashSet<TypeConverter>();
+        final Map<String, TypeConverter> typeConverters = new LinkedHashMap<String, TypeConverter>();
         for (TypeConverterProvider typeConverterProvider : _typeConverterProviders) {
-          typeConverters.addAll(typeConverterProvider.getTypeConverters());
+          for (TypeConverter typeConverter : typeConverterProvider.getTypeConverters()) {
+            typeConverters.remove(typeConverter.getTypeConverterKey());
+            typeConverters.put(typeConverter.getTypeConverterKey(), typeConverter);
+          }
         }
         _typeConverterProviders = null;
-        _typeConverters = Collections.unmodifiableSet(typeConverters);
+        _typeConverters = Collections.unmodifiableList(new ArrayList<TypeConverter>(typeConverters.values()));
       }
     }
     return _typeConverters;

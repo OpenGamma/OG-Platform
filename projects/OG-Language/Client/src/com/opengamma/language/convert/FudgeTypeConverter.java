@@ -20,13 +20,13 @@ import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Conversions using the Fudge type and object dictionaries. Conversions will use secondary types if applicable, falling back to
  * the message/object builders otherwise.  
  */
-public final class FudgeTypeConverter implements TypeConverter {
+public final class FudgeTypeConverter extends AbstractTypeConverter {
 
   // TODO: handle nulls
 

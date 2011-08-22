@@ -30,16 +30,15 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
   }
 
   /**
-   * Temporary hack to expose {@link #invokeImpl} publicly.
+   * Allows a sub-class to wrap the invokeImpl of another implementation.
    * 
-   * @param sessionContext the session context
-   * @param parameters the function parameters
-   * @return the function result
-   * @deprecated This is to support an OpenGamma internal migration project, and may be removed at any time
+   * @param invoker the wrapped invoker instance, not {@code null}
+   * @param sessionContext the session context to pass to invokeImpl
+   * @param parameters the parameters to pass to invokeImpl
+   * @return the result of invokeImpl
    */
-  @Deprecated
-  public Object invoke(final SessionContext sessionContext, final Object[] parameters) {
-    return invokeImpl(sessionContext, parameters);
+  protected static Object invokeImpl(final AbstractFunctionInvoker invoker, final SessionContext sessionContext, final Object[] parameters) {
+    return invoker.invokeImpl(sessionContext, parameters);
   }
 
   protected abstract Object invokeImpl(final SessionContext sessionContext, final Object[] parameters);

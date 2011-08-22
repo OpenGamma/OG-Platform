@@ -45,6 +45,11 @@ public abstract class AbstractMappedConverter implements TypeConverter {
   }
 
   private final Map<JavaTypeInfo<?>, Pair<Map<JavaTypeInfo<?>, Integer>, Action<?, ?>>> _conversions = new HashMap<JavaTypeInfo<?>, Pair<Map<JavaTypeInfo<?>, Integer>, Action<?, ?>>>();
+  private final String _key;
+
+  protected AbstractMappedConverter(final String key) {
+    _key = key;
+  }
 
   protected <F, T> void conversion(final int cost, final JavaTypeInfo<F> sourceType, final JavaTypeInfo<T> targetType, final Action<F, T> action) {
     _conversions.put(targetType, (Pair) Pair.of(TypeMap.of(cost, sourceType), action));
@@ -74,6 +79,11 @@ public abstract class AbstractMappedConverter implements TypeConverter {
   @Override
   public final Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     return _conversions.get(targetType).getFirst();
+  }
+
+  @Override
+  public String getTypeConverterKey() {
+    return _key;
   }
 
 }

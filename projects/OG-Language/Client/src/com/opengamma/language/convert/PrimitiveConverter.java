@@ -13,12 +13,12 @@ import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
 import java.util.Map;
 
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Conversions between the basic Java types.
  */
-public class PrimitiveConverter implements TypeConverter {
+public class PrimitiveConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Boolean> BOOLEAN = JavaTypeInfo.builder(Boolean.class).get();
   private static final JavaTypeInfo<Byte> BYTE = JavaTypeInfo.builder(Byte.class).get();

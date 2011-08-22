@@ -15,12 +15,13 @@ import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 import com.opengamma.language.invoke.TypeConverter;
 
 /**
  * Basic conversions to/from the {@link Data} type.
  */
-public final class DataConverter implements TypeConverter {
+public final class DataConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Data> DATA = JavaTypeInfo.builder(Data.class).get();
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();

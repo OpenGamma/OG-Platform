@@ -21,6 +21,7 @@ public class TypeConverter extends AbstractMappedConverter {
   private static final JavaTypeInfo<ExternalIdBundle> EXTERNAL_ID_BUNDLE = JavaTypeInfo.builder(ExternalIdBundle.class).get();
 
   public TypeConverter() {
+    super(TypeConverter.class.getName());
     conversion(TypeMap.ZERO_LOSS, EXTERNAL_ID, EXTERNAL_ID_BUNDLE, new Action<ExternalId, ExternalIdBundle>() {
 
       @Override

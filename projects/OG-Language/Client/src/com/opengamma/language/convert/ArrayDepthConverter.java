@@ -12,12 +12,12 @@ import java.lang.reflect.Array;
 import java.util.Map;
 
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Converts arrays with a single element from X[] to X, or any value X to the single element array X[]
  */
-public class ArrayDepthConverter implements TypeConverter {
+public class ArrayDepthConverter extends AbstractTypeConverter {
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {

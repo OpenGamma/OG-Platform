@@ -13,12 +13,12 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 import com.opengamma.language.Value;
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Converts a map of A->B to Value[][2]
  */
-public class MapConverter implements TypeConverter {
+public class MapConverter extends AbstractTypeConverter {
 
   // TODO: handle nulls e.g. Value[][2]/null -> Map/null or Map/empty if nulls not allowed
 

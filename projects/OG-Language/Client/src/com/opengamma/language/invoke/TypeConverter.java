@@ -43,4 +43,13 @@ public interface TypeConverter {
    */
   void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type);
 
+  /**
+   * Returns a "key" to identify the converter. Only one converter with any given
+   * key is allowed in a chain. This is enforced by the aggregator so that a language
+   * binding can override conversions already provided.
+   * 
+   * @return the converter key, not {@code null}
+   */
+  String getTypeConverterKey();
+
 }

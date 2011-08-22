@@ -8,8 +8,8 @@ package com.opengamma.language.invoke;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Partial implementation of a {@link TypeConverterProvider}.
@@ -19,10 +19,10 @@ public abstract class AbstractTypeConverterProvider implements TypeConverterProv
   protected abstract void loadTypeConverters(Collection<TypeConverter> converters);
 
   @Override
-  public Set<TypeConverter> getTypeConverters() {
-    final Set<TypeConverter> result = new HashSet<TypeConverter>();
+  public List<TypeConverter> getTypeConverters() {
+    final List<TypeConverter> result = new LinkedList<TypeConverter>();
     loadTypeConverters(result);
-    return Collections.unmodifiableSet(result);
+    return Collections.unmodifiableList(result);
   }
 
 }

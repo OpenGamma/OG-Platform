@@ -15,12 +15,13 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 import com.opengamma.language.invoke.TypeConverter;
 
 /**
  * Basic conversions to/from the {@link Value} type.
  */
-public final class ValueConverter implements TypeConverter {
+public final class ValueConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Value> VALUE_NOT_NULL = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value> VALUE_NULL = JavaTypeInfo.builder(Value.class).allowNull().get();

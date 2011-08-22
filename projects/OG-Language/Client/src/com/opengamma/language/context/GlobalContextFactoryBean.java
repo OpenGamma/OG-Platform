@@ -41,9 +41,11 @@ public class GlobalContextFactoryBean implements GlobalContextFactory {
     // Prepend the event handlers of the factory we're extending from
     setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(extendedFrom.getGlobalContextEventHandler()) {
 
+      private final GlobalContextEventHandler _chain = getGlobalContextEventHandler();
+
       @Override
       protected void initContextImpl(MutableGlobalContext context) {
-        getGlobalContextEventHandler().initContext(context);
+        _chain.initContext(context);
       }
 
     });

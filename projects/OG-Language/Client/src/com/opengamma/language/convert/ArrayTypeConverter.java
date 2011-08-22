@@ -12,12 +12,12 @@ import java.lang.reflect.Array;
 import java.util.Map;
 
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Converts arrays from X[] to Y[]
  */
-public class ArrayTypeConverter implements TypeConverter {
+public class ArrayTypeConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
   private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS, OBJECT);
