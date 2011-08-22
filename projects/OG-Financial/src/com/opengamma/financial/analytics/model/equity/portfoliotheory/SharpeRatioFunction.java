@@ -72,7 +72,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final HistoricalTimeSeries benchmarkTSObject = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMMarket(), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
+        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMMarket(), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, true);
     if (benchmarkTSObject == null) {
       throw new NullPointerException("Benchmark time series was null");
     }

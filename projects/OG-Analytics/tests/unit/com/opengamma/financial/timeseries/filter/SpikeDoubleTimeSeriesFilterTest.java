@@ -59,7 +59,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
     final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
     final DoubleTimeSeries<Long> rejected = FILTER.evaluate(ts).getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.size(), 1);
-    assertEquals(rejected.getTime(0), ts.getTime(0));
+    assertEquals(rejected.getTimeAt(0), ts.getTimeAt(0));
     assertEquals(rejected.getValueAt(0), ts.getValueAt(0));
   }
 
@@ -79,7 +79,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
   private void assertSeries(final DoubleTimeSeries<Long> ts, final FilteredTimeSeries filtered, final int index) {
     final DoubleTimeSeries<Long> rejected = filtered.getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.size(), 1);
-    assertEquals(rejected.getTime(0), ts.getTime(index));
+    assertEquals(rejected.getTimeAt(0), ts.getTimeAt(index));
     assertEquals(rejected.getValueAt(0), ts.getValueAt(index));
     assertEquals(filtered.getFilteredTS().size(), 99);
   }

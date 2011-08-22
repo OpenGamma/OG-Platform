@@ -60,7 +60,7 @@ public abstract class AbstractFastLongDoubleTimeSeries
   }
 
   @Override
-  public Long getTime(final int index) {
+  public Long getTimeAt(final int index) {
     return getTimeFast(index);
   }
 
@@ -86,8 +86,8 @@ public abstract class AbstractFastLongDoubleTimeSeries
   }
   
   @Override
-  public DoubleTimeSeries<Long> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean exclusiveEnd) {
-    return subSeriesFast(startTime, includeStart, endTime, !exclusiveEnd);
+  public DoubleTimeSeries<Long> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
+    return subSeriesFast(startTime, includeStart, endTime, includeEnd);
   }
 
   @Override
@@ -394,8 +394,12 @@ public abstract class AbstractFastLongDoubleTimeSeries
   }
 
   @Override
-  public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final boolean includeStart, final long endTime, final boolean includeEnd) {
-    return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
+  public FastLongDoubleTimeSeries subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd) {
+    if (startTime != endTime || includeStart || includeEnd) {
+      startTime += (includeStart ? 0 : 1);
+      endTime += (includeEnd ? 1 : 0);
+    }
+    return subSeriesFast(startTime, endTime);
   }
 
   @Override

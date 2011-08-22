@@ -70,11 +70,11 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(3, timeSeries.size());
-    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(0));
+    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAt(0));
     assertEquals(0.1d, timeSeries.getValueAt(0), 0.001d);
-    assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTime(1));
+    assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTimeAt(1));
     assertEquals(0.2d, timeSeries.getValueAt(1), 0.001d);
-    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTime(2));
+    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAt(2));
     assertEquals(3.33d, timeSeries.getValueAt(2), 0.001d);
   }
 
@@ -91,13 +91,13 @@ public class DbHistoricalTimeSeriesMasterWorkerCorrectTimeSeriesTest extends Abs
     assertEquals(uniqueId, testCorrected.getUniqueId());
     LocalDateDoubleTimeSeries timeSeries = testCorrected.getTimeSeries();
     assertEquals(4, timeSeries.size());
-    assertEquals(LocalDate.of(2010, 12, 31), timeSeries.getTime(0));
+    assertEquals(LocalDate.of(2010, 12, 31), timeSeries.getTimeAt(0));
     assertEquals(0.5d, timeSeries.getValueAt(0), 0.001d);
-    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTime(1));
+    assertEquals(LocalDate.of(2011, 1, 1), timeSeries.getTimeAt(1));
     assertEquals(3.1d, timeSeries.getValueAt(1), 0.001d);
-    assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTime(2));
+    assertEquals(LocalDate.of(2011, 1, 2), timeSeries.getTimeAt(2));
     assertEquals(3.22d, timeSeries.getValueAt(2), 0.001d);
-    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTime(3));
+    assertEquals(LocalDate.of(2011, 1, 3), timeSeries.getTimeAt(3));
     assertEquals(3.33d, timeSeries.getValueAt(3), 0.001d);
   }
 

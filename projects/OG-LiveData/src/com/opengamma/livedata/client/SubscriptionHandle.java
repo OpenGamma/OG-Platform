@@ -94,16 +94,16 @@ public class SubscriptionHandle {
     
     if (_subscriptionType == SubscriptionType.SNAPSHOT) {
       if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-        s_logger.info("Got snapshot {}", getRequestedSpecification());
+        s_logger.debug("Got snapshot {}", getRequestedSpecification());
       } else {
-        s_logger.info("Failed to snapshot {}. Result was {}, msg = {}", 
+        s_logger.debug("Failed to snapshot {}. Result was {}, msg = {}", 
             new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage()});
       }
     } else {
       if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-        s_logger.info("Established subscription to {}", getRequestedSpecification());
+        s_logger.debug("Established subscription to {}", getRequestedSpecification());
       } else {
-        s_logger.info("Failed to establish subscription to {}. Result was {}, msg = {}", 
+        s_logger.debug("Failed to establish subscription to {}. Result was {}, msg = {}", 
             new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage()});
       }
     }

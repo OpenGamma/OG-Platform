@@ -165,9 +165,6 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
-    if (endPos >= _times.length) {
-      endPos--;
-    }
     final int length = endPos - startPos;
     final int[] resultTimes = new int[length];
     final T[] resultValues = (T[]) new Object[length];

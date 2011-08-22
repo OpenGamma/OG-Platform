@@ -85,7 +85,7 @@ public class SimulatedMarketDataGenerator implements Runnable {
   
   public void run() {
     boolean running = true;
-    Random random = new Random(); // noMarket need for SecureRandom here..
+    Random random = new Random(); // no need for SecureRandom here..
     while (running) {      
       Pair<ExternalId, String> idFieldPair = _identifiers[random.nextInt(_identifiers.length)];
       Object initialValue = _initialValues.get(idFieldPair);

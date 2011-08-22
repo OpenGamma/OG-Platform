@@ -34,7 +34,8 @@ f = RealPolynomialFunction1D([-125,75,-15,1])
 f
 
 ### @export "function-methods"
-dir(f)
+for c in dir(f):
+    print c
 
 ### @export "derivative"
 d = f.derivative()
@@ -45,7 +46,8 @@ f.evaluate(5)
 
 ### @export "rootfinding"
 import com.opengamma.math.rootfinding
-dir(com.opengamma.math.rootfinding)
+for c in dir(com.opengamma.math.rootfinding):
+    print c
 
 ### @export "cubic"
 from com.opengamma.math.rootfinding import CubicRealRootFinder
@@ -55,7 +57,8 @@ cubic.getRoots(f)
 ### @export "brent"
 from com.opengamma.math.rootfinding import BrentSingleRootFinder
 brent = BrentSingleRootFinder()
-dir(brent)
+for c in dir(brent):
+    print c
 
 brent.getRoot(f,-10,10)
 
