@@ -50,7 +50,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /** The mulitple bonds cache key */
   /* package for testing */ static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
   /** The Bundle hint cache key. */
-  /* package for testing */ static final String BUNDLE_HINT_SECURITIES_CACHE = "multi-securities-cache";
+  /* package for testing */ static final String BUNDLE_HINT_SECURITIES_CACHE = "multi-securities-hint-cache";
 
   /**
    * The underlying cache.
