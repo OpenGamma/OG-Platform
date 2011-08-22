@@ -340,9 +340,9 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(Double.valueOf(8.0), result.getValueAt(0));
     assertEquals(Double.valueOf(10.0), result.getValueAt(1));
     assertEquals(Double.valueOf(12.0), result.getValueAt(2));
-    assertEquals(dts.getTime(3), result.getTime(0));
-    assertEquals(dts.getTime(4), result.getTime(1));
-    assertEquals(dts.getTime(5), result.getTime(2));
+    assertEquals(dts.getTimeAt(3), result.getTimeAt(0));
+    assertEquals(dts.getTimeAt(4), result.getTimeAt(1));
+    assertEquals(dts.getTimeAt(5), result.getTimeAt(2));
     DoubleTimeSeries<E> unionResult = (DoubleTimeSeries<E>) dts.unionAdd(dts2);
     assertEquals(9, unionResult.size());
     assertEquals(Double.valueOf(1.0), unionResult.getValueAt(0));
@@ -354,15 +354,15 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(Double.valueOf(7.0), unionResult.getValueAt(6));
     assertEquals(Double.valueOf(8.0), unionResult.getValueAt(7));
     assertEquals(Double.valueOf(9.0), unionResult.getValueAt(8));
-    assertEquals(dts.getTime(0), unionResult.getTime(0));
-    assertEquals(dts.getTime(1), unionResult.getTime(1));
-    assertEquals(dts.getTime(2), unionResult.getTime(2));
-    assertEquals(dts.getTime(3), unionResult.getTime(3));
-    assertEquals(dts.getTime(4), unionResult.getTime(4));
-    assertEquals(dts.getTime(5), unionResult.getTime(5));
-    assertEquals(dts2.getTime(3), unionResult.getTime(6));
-    assertEquals(dts2.getTime(4), unionResult.getTime(7));
-    assertEquals(dts2.getTime(5), unionResult.getTime(8));
+    assertEquals(dts.getTimeAt(0), unionResult.getTimeAt(0));
+    assertEquals(dts.getTimeAt(1), unionResult.getTimeAt(1));
+    assertEquals(dts.getTimeAt(2), unionResult.getTimeAt(2));
+    assertEquals(dts.getTimeAt(3), unionResult.getTimeAt(3));
+    assertEquals(dts.getTimeAt(4), unionResult.getTimeAt(4));
+    assertEquals(dts.getTimeAt(5), unionResult.getTimeAt(5));
+    assertEquals(dts2.getTimeAt(3), unionResult.getTimeAt(6));
+    assertEquals(dts2.getTimeAt(4), unionResult.getTimeAt(7));
+    assertEquals(dts2.getTimeAt(5), unionResult.getTimeAt(8));
     
     assertEquals(dts, ets.noIntersectionOperation(dts));
     assertEquals(dts, dts.noIntersectionOperation(ets));

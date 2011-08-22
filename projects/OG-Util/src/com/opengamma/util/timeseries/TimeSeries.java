@@ -67,9 +67,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @return the date-time at the index, null if the implementation permits nulls
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  T getTime(int index);
-
-  // TODO: getTimeAt
+  T getTimeAt(int index);
 
   /**
    * Gets the value at the index specified.

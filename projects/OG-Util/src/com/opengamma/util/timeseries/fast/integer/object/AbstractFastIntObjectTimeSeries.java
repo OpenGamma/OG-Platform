@@ -60,7 +60,7 @@ public abstract class AbstractFastIntObjectTimeSeries<T>
   }
 
   @Override
-  public Integer getTime(final int index) {
+  public Integer getTimeAt(final int index) {
     return getTimeFast(index);
   }
 

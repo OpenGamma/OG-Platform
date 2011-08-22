@@ -106,7 +106,7 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
-  public T getTime(int index) {
+  public T getTimeAt(int index) {
     return _times[index];
   }
 
@@ -162,13 +162,13 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
 
   @Override
   public TimeSeries<T, V> head(int numItems) {
-    T element = getTime(numItems);
+    T element = getTimeAt(numItems);
     return new SimpleMapTimeSeries<T, V>(_map.headMap(element, true), _times, _values);
   }
 
   @Override
   public TimeSeries<T, V> tail(int numItems) {
-    T element = getTime(size() - numItems);
+    T element = getTimeAt(size() - numItems);
     return new SimpleMapTimeSeries<T, V>(_map.tailMap(element, true), _times, _values);
   }
 

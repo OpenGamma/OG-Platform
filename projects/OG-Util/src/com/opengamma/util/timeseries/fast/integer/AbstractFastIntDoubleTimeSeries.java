@@ -61,7 +61,7 @@ public abstract class AbstractFastIntDoubleTimeSeries
   }
 
   @Override
-  public Integer getTime(final int index) {
+  public Integer getTimeAt(final int index) {
     return getTimeFast(index);
   }
 

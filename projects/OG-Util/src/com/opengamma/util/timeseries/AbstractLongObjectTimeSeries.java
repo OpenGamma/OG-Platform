@@ -67,7 +67,7 @@ public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends Abstrac
   }
 
   @Override
-  public DATE_TYPE getTime(final int index) {
+  public DATE_TYPE getTimeAt(final int index) {
     return _converter.convertFromLong(getFastSeries().getTimeFast(index));
   }
 
