@@ -403,11 +403,16 @@ public abstract class AbstractFastIntObjectTimeSeries<T>
       return newInstanceFast(times, values);
     }
   }
-  
-  public FastIntObjectTimeSeries<T> subSeriesFast(final int startTime, final boolean includeStart, final int endTime, final boolean includeEnd) {
-    return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
+
+  @Override
+  public FastIntObjectTimeSeries<T> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd) {
+    if (startTime != endTime || includeStart || includeEnd) {
+      startTime += (includeStart ? 0 : 1);
+      endTime += (includeEnd ? 1 : 0);
+    }
+    return subSeriesFast(startTime, endTime);
   }
-  
+
   public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries() {
     return new FastListIntObjectTimeSeries<T>(this);
   }

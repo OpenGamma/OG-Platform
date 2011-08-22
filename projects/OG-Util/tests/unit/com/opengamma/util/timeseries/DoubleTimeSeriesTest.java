@@ -286,11 +286,11 @@ public abstract class DoubleTimeSeriesTest<E> {
       assertTrue(CompareUtils.closeEquals((double)i+1, item.getValue()));
     }
     assertEquals(4, dts.subSeries(testDates[0], testDates[4]).size());
-    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], false).size());
-    assertEquals(4, dts.subSeries(testDates[0], true, testDates[4], true).size());
+    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], true).size());
+    assertEquals(4, dts.subSeries(testDates[0], true, testDates[4], false).size());
     assertEquals(1, dts.subSeries(testDates[4], testDates[5]).size());
-    assertEquals(1, dts.subSeries(testDates[4], false, testDates[5], false).size());
-    assertEquals(0, dts.subSeries(testDates[5], true, testDates[5], true).size());
+    assertEquals(1, dts.subSeries(testDates[4], false, testDates[5], true).size());
+    assertEquals(0, dts.subSeries(testDates[5], true, testDates[5], false).size());
     assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 
@@ -372,7 +372,7 @@ public abstract class DoubleTimeSeriesTest<E> {
     } catch(OpenGammaRuntimeException ex) {
       //do nothing - expected exception because the two timeseries have overlapping dates which will require intersection operation
     }
-    DoubleTimeSeries<E> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), true);
+    DoubleTimeSeries<E> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), false);
     DoubleTimeSeries<E> noIntersecOp = dts.noIntersectionOperation(dts3);
     assertEquals(dts.getValueAt(0), noIntersecOp.getValueAt(0));
     assertEquals(dts.getValueAt(1), noIntersecOp.getValueAt(1));

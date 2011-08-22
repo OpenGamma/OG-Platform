@@ -152,12 +152,12 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * {@code Comparable}, as modified by the inclusive start/end flags.
    * 
    * @param startTime  the start date-time, not null
-   * @param inclusiveStart  true to include the start date-time in the result
+   * @param includeStart  true to include the start date-time in the result
    * @param endTime  the end date-time, not null
-   * @param exclusiveEnd  true to exclude the end date-time in the result
+   * @param includeEnd  true to include the end date-time in the result
    * @return the sub-series between the date-times, not null
    */
-  TimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
+  TimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   /**
    * Gets part of this series as a sub-series between two date-times.

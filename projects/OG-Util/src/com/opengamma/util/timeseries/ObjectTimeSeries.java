@@ -24,7 +24,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
 public interface ObjectTimeSeries<T, V> extends TimeSeries<T, V> {
 
   @Override
-  ObjectTimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
+  ObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   @Override
   ObjectTimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);

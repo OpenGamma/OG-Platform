@@ -138,24 +138,24 @@ public class MasterHistoricalTimeSeriesSourceTest {
     doc.getInfo().setTimeSeriesObjectId(UID.getObjectId());
     searchResult.getDocuments().add(doc);
     
-    for (boolean startIncluded : new boolean[] {true, false})  {
-      for (boolean endExcluded : new boolean[] {true, false}) {
+    for (boolean includeStart : new boolean[] {true, false})  {
+      for (boolean includeEnd : new boolean[] {true, false}) {
         LocalDate startInput = start;
         LocalDate endInput = end;
-        if (!startIncluded) {
+        if (!includeStart) {
           startInput = start.plusDays(1);
         }
-        if (endExcluded) {
+        if (!includeEnd) {
           endInput = end.minusDays(1);
         }
         
         ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
         hts.setUniqueId(UID);
-        hts.setTimeSeries(timeSeries.subSeries(start, startIncluded, end, endExcluded).toLocalDateDoubleTimeSeries());
+        hts.setTimeSeries(timeSeries.subSeries(start, includeStart, end, includeEnd).toLocalDateDoubleTimeSeries());
         when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, startInput, endInput)).thenReturn(hts);
         when(_mockMaster.search(request)).thenReturn(searchResult);
         
-        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
+        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, !includeEnd);
         assertEquals(UID, test.getUniqueId());
         assertEquals(hts.getTimeSeries(), test.getTimeSeries());
       }

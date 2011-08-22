@@ -7,10 +7,8 @@ package com.opengamma.util.timeseries;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
-
-import org.apache.commons.lang.ArrayUtils;
+import java.util.NoSuchElementException;
 
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
@@ -138,11 +136,11 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
     return _converter.convertFromInt(this, getFastSeries().subSeriesFast((startTime != null) ? _converter.convertToInt(startTime) : Integer.MIN_VALUE,
         (endTime != null) ? _converter.convertToInt(endTime) : Integer.MAX_VALUE));
   }
-  
+
   @Override
-  public DoubleTimeSeries<DATE_TYPE> subSeries(final DATE_TYPE startTime, final boolean includeStart, final DATE_TYPE endTime, final boolean exclusiveEnd) { 
+  public DoubleTimeSeries<DATE_TYPE> subSeries(final DATE_TYPE startTime, final boolean includeStart, final DATE_TYPE endTime, final boolean includeEnd) { 
     return _converter.convertFromInt(this, getFastSeries().subSeriesFast((startTime != null) ? _converter.convertToInt(startTime) : Integer.MIN_VALUE, includeStart,
-        (endTime != null) ? _converter.convertToInt(endTime) : Integer.MAX_VALUE, !exclusiveEnd)); // note inconsistency between interfaces w.r.t exclusive/inclusive end
+        (endTime != null) ? _converter.convertToInt(endTime) : Integer.MAX_VALUE, includeEnd));
   }
 
   @Override

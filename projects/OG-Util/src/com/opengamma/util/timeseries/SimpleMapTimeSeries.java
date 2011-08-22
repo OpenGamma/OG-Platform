@@ -151,8 +151,8 @@ public class SimpleMapTimeSeries<T, V> implements TimeSeries<T, V> {
   }
 
   @Override
-  public TimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd) {
-    return new SimpleMapTimeSeries<T, V>(_map.subMap(startTime, inclusiveStart, endTime, !exclusiveEnd), _times, _values);
+  public TimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd) {
+    return new SimpleMapTimeSeries<T, V>(_map.subMap(startTime, includeStart, endTime, includeEnd), _times, _values);
   }
 
   @Override

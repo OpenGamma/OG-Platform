@@ -40,7 +40,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
 public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
 
   @Override
-  DoubleTimeSeries<T> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
+  DoubleTimeSeries<T> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   @Override
   DoubleTimeSeries<T> subSeries(T startTime, T endTime);

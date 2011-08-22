@@ -87,8 +87,8 @@ public abstract class AbstractFastIntDoubleTimeSeries
   }
 
   @Override
-  public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final boolean includeStart, final Integer endTime, final boolean exclusiveEnd) {
-    return subSeriesFast(startTime, includeStart, endTime, !exclusiveEnd); // note inconsistency here between interfaces
+  public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final boolean includeStart, final Integer endTime, final boolean includeEnd) {
+    return subSeriesFast(startTime, includeStart, endTime, includeEnd);
   }
 
   @Override
@@ -401,8 +401,12 @@ public abstract class AbstractFastIntDoubleTimeSeries
   }
 
   @Override
-  public FastIntDoubleTimeSeries subSeriesFast(final int startTime, final boolean includeStart, final int endTime, final boolean includeEnd) {
-    return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
+  public FastIntDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd) {
+    if (startTime != endTime || includeStart || includeEnd) {
+      startTime += (includeStart ? 0 : 1);
+      endTime += (includeEnd ? 1 : 0);
+    }
+    return subSeriesFast(startTime, endTime);
   }
 
   @Override
