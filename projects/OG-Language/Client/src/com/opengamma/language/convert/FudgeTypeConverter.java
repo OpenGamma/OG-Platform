@@ -19,6 +19,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
+import com.opengamma.language.Data;
+import com.opengamma.language.Value;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.AbstractTypeConverter;
 
@@ -47,8 +49,8 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
 
   @Override
   public synchronized boolean canConvertTo(final JavaTypeInfo<?> targetType) {
-    // Always have a go
-    return true;
+    final Class<?> rawType = targetType.getRawClass();
+    return ((rawType != Data.class) && (rawType != Value.class) && !getFudgeContext().getObjectDictionary().isDefaultObject(rawType));
   }
 
   @SuppressWarnings("unchecked")

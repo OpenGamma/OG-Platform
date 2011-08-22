@@ -66,7 +66,7 @@ public class DefaultValueConverter extends ValueConverter {
 
     public String toString() {
       final StringBuilder sb = new StringBuilder();
-      sb.append(", TargetType = ").append(_targetType).append(", NextStateConverter = ").append(_nextStateConverter).append(", Cost = ").append(_cost);
+      sb.append("TargetType = ").append(_targetType).append(", NextStateConverter = ").append(_nextStateConverter).append(", Cost = ").append(_cost);
       return sb.toString();
     }
 
