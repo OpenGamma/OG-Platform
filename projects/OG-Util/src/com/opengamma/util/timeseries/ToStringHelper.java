@@ -9,10 +9,16 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 /**
- * 
+ * Utility to assist with converting a time-series to a string.
  */
 public class ToStringHelper {
-  
+
+  /**
+   * Converts the series to a string.
+   * 
+   * @param ts  the series, not null
+   * @return the string, not null
+   */
   public static String toString(@SuppressWarnings("rawtypes") TimeSeries ts) {
     StringBuilder sb = new StringBuilder();
     sb.append(ts.getClass().getSimpleName());
