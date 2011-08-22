@@ -119,7 +119,7 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponIborGearing toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");

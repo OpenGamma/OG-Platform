@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -19,7 +20,7 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 /**
  * Describes a transaction on a fixed coupon bond issue.
  */
-public class BondFixedTransactionDefinition extends BondTransactionDefinition<CouponFixedDefinition> {
+public class BondFixedTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponFixedDefinition> {
 
   /**
    * Accrued interest at settlement date.
@@ -70,12 +71,6 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
-    final double settlementAmount;
-    if (getSettlementDate().isBefore(date)) {
-      settlementAmount = 0;
-    } else {
-      settlementAmount = getPaymentAmount();
-    }
     final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate(), yieldCurveNames);
     final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date, yieldCurveNames);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
@@ -87,7 +82,13 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
       }
     }
     final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), settlementAmount, bondStandard, notionalStandard);
+    double price;
+    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
+      price = 0.0;
+    } else {
+      price = getPrice();
+    }
+    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), price, bondStandard, notionalStandard);
     return result;
   }
 

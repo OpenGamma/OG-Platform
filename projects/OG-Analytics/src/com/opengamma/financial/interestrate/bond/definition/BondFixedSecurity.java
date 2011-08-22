@@ -11,14 +11,14 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
  * Describes a fixed coupon bond issue.
  */
-public class BondFixedSecurity extends BondSecurity<CouponFixed> {
+public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
 
   /**
    * The yield (to maturity) computation convention.
@@ -47,10 +47,11 @@ public class BondFixedSecurity extends BondSecurity<CouponFixed> {
    * @param yieldConvention The yield (to maturity) computation convention.
    * @param couponPerYear Number of coupon per year.
    * @param repoCurveName The name of the curve used for settlement amount discounting.
+   * @param issuer The bond issuer name.
    */
-  public BondFixedSecurity(GenericAnnuity<PaymentFixed> nominal, AnnuityCouponFixed coupon, double settlementTime, double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, int couponPerYear, String repoCurveName) {
-    super(nominal, coupon, settlementTime, repoCurveName);
+  public BondFixedSecurity(AnnuityPaymentFixed nominal, AnnuityCouponFixed coupon, double settlementTime, double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, int couponPerYear, String repoCurveName, String issuer) {
+    super(nominal, coupon, settlementTime, repoCurveName, issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
     _accruedInterest = accruedInterest;
