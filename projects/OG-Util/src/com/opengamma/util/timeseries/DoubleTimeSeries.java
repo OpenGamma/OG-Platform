@@ -35,7 +35,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
  * and a {@code List} of date-time to {@code double} value pairs.
  * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <T> the time, such as {@code Instant} or {@code LocalDate}
+ * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  */
 public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
 

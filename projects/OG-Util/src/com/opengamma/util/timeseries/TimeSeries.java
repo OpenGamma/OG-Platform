@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
  * and a {@code List} of date-time to value pairs.
  * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <T> the time, such as {@code Instant} or {@code LocalDate}
+ * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
 public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializable {
@@ -208,7 +208,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * For example, the time series [(March,6),(April,7),(May,8),(June,9)] with a lag
    * of +2 would result in [(May,6),(June,7)]. Similarly, a lag of -1 would result
    * in [(March,7),(April,8),(May,9)].
-   * Note that this operates on the entries which are not necessarily continuous
+   * Note that this operates on the entries, which are not necessarily continuous.
    * 
    * @param lagCount  the number of entries to lag by, positive or negative
    * @return the new time-series, not null
