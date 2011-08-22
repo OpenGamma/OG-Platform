@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
  * and a {@code List} of date-time to value pairs.
  * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <T> the time, such as {@code Instant} or {@code LocalDate}
+ * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
 public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializable {
@@ -67,9 +67,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * @return the date-time at the index, null if the implementation permits nulls
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  T getTime(int index);
-
-  // TODO: getTimeAt
+  T getTimeAt(int index);
 
   /**
    * Gets the value at the index specified.
@@ -154,12 +152,12 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * {@code Comparable}, as modified by the inclusive start/end flags.
    * 
    * @param startTime  the start date-time, not null
-   * @param inclusiveStart  true to include the start date-time in the result
+   * @param includeStart  true to include the start date-time in the result
    * @param endTime  the end date-time, not null
-   * @param exclusiveEnd  true to exclude the end date-time in the result
+   * @param includeEnd  true to include the end date-time in the result
    * @return the sub-series between the date-times, not null
    */
-  TimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
+  TimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   /**
    * Gets part of this series as a sub-series between two date-times.
@@ -208,7 +206,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * For example, the time series [(March,6),(April,7),(May,8),(June,9)] with a lag
    * of +2 would result in [(May,6),(June,7)]. Similarly, a lag of -1 would result
    * in [(March,7),(April,8),(May,9)].
-   * Note that this operates on the entries which are not necessarily continuous
+   * Note that this operates on the entries, which are not necessarily continuous.
    * 
    * @param lagCount  the number of entries to lag by, positive or negative
    * @return the new time-series, not null

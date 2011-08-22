@@ -286,11 +286,11 @@ public abstract class DoubleTimeSeriesTest<E> {
       assertTrue(CompareUtils.closeEquals((double)i+1, item.getValue()));
     }
     assertEquals(4, dts.subSeries(testDates[0], testDates[4]).size());
-    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], false).size());
-    assertEquals(4, dts.subSeries(testDates[0], true, testDates[4], true).size());
+    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], true).size());
+    assertEquals(4, dts.subSeries(testDates[0], true, testDates[4], false).size());
     assertEquals(1, dts.subSeries(testDates[4], testDates[5]).size());
-    assertEquals(1, dts.subSeries(testDates[4], false, testDates[5], false).size());
-    assertEquals(0, dts.subSeries(testDates[5], true, testDates[5], true).size());
+    assertEquals(1, dts.subSeries(testDates[4], false, testDates[5], true).size());
+    assertEquals(0, dts.subSeries(testDates[5], true, testDates[5], false).size());
     assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 
@@ -340,9 +340,9 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(Double.valueOf(8.0), result.getValueAt(0));
     assertEquals(Double.valueOf(10.0), result.getValueAt(1));
     assertEquals(Double.valueOf(12.0), result.getValueAt(2));
-    assertEquals(dts.getTime(3), result.getTime(0));
-    assertEquals(dts.getTime(4), result.getTime(1));
-    assertEquals(dts.getTime(5), result.getTime(2));
+    assertEquals(dts.getTimeAt(3), result.getTimeAt(0));
+    assertEquals(dts.getTimeAt(4), result.getTimeAt(1));
+    assertEquals(dts.getTimeAt(5), result.getTimeAt(2));
     DoubleTimeSeries<E> unionResult = (DoubleTimeSeries<E>) dts.unionAdd(dts2);
     assertEquals(9, unionResult.size());
     assertEquals(Double.valueOf(1.0), unionResult.getValueAt(0));
@@ -354,15 +354,15 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(Double.valueOf(7.0), unionResult.getValueAt(6));
     assertEquals(Double.valueOf(8.0), unionResult.getValueAt(7));
     assertEquals(Double.valueOf(9.0), unionResult.getValueAt(8));
-    assertEquals(dts.getTime(0), unionResult.getTime(0));
-    assertEquals(dts.getTime(1), unionResult.getTime(1));
-    assertEquals(dts.getTime(2), unionResult.getTime(2));
-    assertEquals(dts.getTime(3), unionResult.getTime(3));
-    assertEquals(dts.getTime(4), unionResult.getTime(4));
-    assertEquals(dts.getTime(5), unionResult.getTime(5));
-    assertEquals(dts2.getTime(3), unionResult.getTime(6));
-    assertEquals(dts2.getTime(4), unionResult.getTime(7));
-    assertEquals(dts2.getTime(5), unionResult.getTime(8));
+    assertEquals(dts.getTimeAt(0), unionResult.getTimeAt(0));
+    assertEquals(dts.getTimeAt(1), unionResult.getTimeAt(1));
+    assertEquals(dts.getTimeAt(2), unionResult.getTimeAt(2));
+    assertEquals(dts.getTimeAt(3), unionResult.getTimeAt(3));
+    assertEquals(dts.getTimeAt(4), unionResult.getTimeAt(4));
+    assertEquals(dts.getTimeAt(5), unionResult.getTimeAt(5));
+    assertEquals(dts2.getTimeAt(3), unionResult.getTimeAt(6));
+    assertEquals(dts2.getTimeAt(4), unionResult.getTimeAt(7));
+    assertEquals(dts2.getTimeAt(5), unionResult.getTimeAt(8));
     
     assertEquals(dts, ets.noIntersectionOperation(dts));
     assertEquals(dts, dts.noIntersectionOperation(ets));
@@ -372,7 +372,7 @@ public abstract class DoubleTimeSeriesTest<E> {
     } catch(OpenGammaRuntimeException ex) {
       //do nothing - expected exception because the two timeseries have overlapping dates which will require intersection operation
     }
-    DoubleTimeSeries<E> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), true);
+    DoubleTimeSeries<E> dts3 = dts2.subSeries(dts.getLatestTime(), false, dts2.getLatestTime(), false);
     DoubleTimeSeries<E> noIntersecOp = dts.noIntersectionOperation(dts3);
     assertEquals(dts.getValueAt(0), noIntersecOp.getValueAt(0));
     assertEquals(dts.getValueAt(1), noIntersecOp.getValueAt(1));

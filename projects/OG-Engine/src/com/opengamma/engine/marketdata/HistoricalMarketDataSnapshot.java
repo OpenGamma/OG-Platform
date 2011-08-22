@@ -66,7 +66,7 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
         date, 
         true, 
         date, 
-        false);
+        true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
       return null;
     }
