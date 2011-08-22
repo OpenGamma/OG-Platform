@@ -16,8 +16,10 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,8 +37,11 @@ public class WebPushTestUtils {
   /* package */ static String readFromPath(String path) throws IOException {
     return readFromPath(path, null);
   }
-
   /* package */ static String readFromPath(String path, String clientId) throws IOException {
+    return readFromPath(path, clientId, "GET");
+  }
+
+  /* package */ static String readFromPath(String path, String clientId, String requestMethod) throws IOException {
     String fullPath;
     if (clientId != null) {
       fullPath = path + "?clientId=" + clientId;
@@ -48,7 +53,10 @@ public class WebPushTestUtils {
     try {
       char[] chars = new char[512];
       builder = new StringBuilder();
-      reader = new BufferedReader(new InputStreamReader(url(fullPath).openStream()));
+      URL url = url(fullPath);
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection.setRequestMethod(requestMethod);
+      reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       int bytesRead;
       while ((bytesRead = reader.read(chars)) != -1) {
         builder.append(chars, 0, bytesRead);

@@ -4,14 +4,21 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.web.LongPollingConnectionManager">
-    <constructor-arg ref="subscriptionManager"/>
+    <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="subscriptionManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
-    <constructor-arg index="0"><null/></constructor-arg><!--no change manager needed for these tests-->
-    <constructor-arg index="1" ref="changeManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
+    <constructor-arg index="0" ref="changeManager"/><!--no change manager needed for these tests-->
+    <constructor-arg index="1" ref="viewportFactory"/>
   </bean>
 
   <bean id="viewportFactory" class="com.opengamma.web.server.push.web.TestViewportFactory"/>
+
+  <!--TODO does this need to have request scope? if so what else needs setting up? a Spring servlet?-->
+  <bean id="viewportsResource" class="com.opengamma.web.server.push.web.ViewportsResource">
+    <constructor-arg ref="updateManager"/>
+  </bean>
+
+  <bean id="changeManager" class="com.opengamma.web.server.push.test.TestChangeManager"/>
 
 </beans>

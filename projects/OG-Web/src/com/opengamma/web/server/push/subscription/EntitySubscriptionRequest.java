@@ -11,7 +11,7 @@ package com.opengamma.web.server.push.subscription;
 public class EntitySubscriptionRequest extends SubscriptionRequest {
 
   @Override
-  public void submit(String userId, String clientId, RestUpdateManagerImpl subscriptionManager) {
+  public void submit(String userId, String clientId, RestUpdateManagerImpl updateManager) {
     throw new UnsupportedOperationException("submit not implemented");
   }
 }

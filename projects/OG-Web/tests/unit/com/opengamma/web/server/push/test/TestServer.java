@@ -14,7 +14,8 @@ import org.eclipse.jetty.server.Server;
 public class TestServer {
 
   public static void main(String[] args) throws Exception {
-    Server server = WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml").getFirst();
+    Server server = WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/viewport-test.xml").getFirst();
+    //Server server = WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml").getFirst();
     server.join();
   }
 }

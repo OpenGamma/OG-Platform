@@ -12,6 +12,6 @@ package com.opengamma.web.server.push.subscription;
  */
 public abstract class SubscriptionRequest {
 
-  public abstract void submit(String userId, String clientId, RestUpdateManagerImpl subscriptionManager);
+  public abstract void submit(String userId, String clientId, RestUpdateManagerImpl updateManager);
 
 }

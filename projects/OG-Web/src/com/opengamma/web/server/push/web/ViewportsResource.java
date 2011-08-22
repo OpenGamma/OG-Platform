@@ -39,6 +39,7 @@ public class ViewportsResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN) // TODO JSON? {viewportRestUrl: <url>}
+  // TODO should clientId be a query param or part of the viewport def?
   public String createViewport(ViewportDefinition viewportDefinition,
                                @QueryParam("clientId") String clientId,
                                @Context HttpServletRequest request) {

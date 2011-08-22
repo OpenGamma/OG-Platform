@@ -4,9 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.web.LongPollingConnectionManager">
-    <constructor-arg ref="subscriptionManager"/>
+    <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="subscriptionManager" class="com.opengamma.web.server.push.subscription.TestSubscriptionManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.TestSubscriptionManager"/>
 
 </beans>

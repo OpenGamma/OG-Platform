@@ -35,7 +35,7 @@ public class LongPollingTest {
   private static final String RESULT3 = "RESULT3";
 
   private Server _server;
-  private TestRestUpdateManager _subscriptionManager;
+  private TestRestUpdateManager _updateManager;
   private LongPollingConnectionManager _longPollingConnectionManager;
 
   @BeforeClass
@@ -44,8 +44,13 @@ public class LongPollingTest {
         WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/long-poll-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
-    _subscriptionManager = context.getBean(TestRestUpdateManager.class);
+    _updateManager = context.getBean(TestRestUpdateManager.class);
     _longPollingConnectionManager = context.getBean(LongPollingConnectionManager.class);
+  }
+
+  @AfterClass
+  void shutdownJettyServer() throws Exception {
+    _server.stop();
   }
 
   @Test
@@ -76,7 +81,7 @@ public class LongPollingTest {
   @Test
   public void longPollNotBlocking() throws IOException {
     String clientId = readFromPath("/handshake");
-    _subscriptionManager.sendUpdate(RESULT1);
+    _updateManager.sendUpdate(RESULT1);
     String result = readFromPath("/updates/" + clientId);
     assertEquals(RESULT1, result);
   }
@@ -87,9 +92,9 @@ public class LongPollingTest {
   @Test
   public void longPollQueue() throws IOException {
     String clientId = readFromPath("/handshake");
-    _subscriptionManager.sendUpdate(RESULT1);
-    _subscriptionManager.sendUpdate(RESULT2);
-    _subscriptionManager.sendUpdate(RESULT3);
+    _updateManager.sendUpdate(RESULT1);
+    _updateManager.sendUpdate(RESULT2);
+    _updateManager.sendUpdate(RESULT3);
     String result = readFromPath("/updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
@@ -105,11 +110,11 @@ public class LongPollingTest {
   @Test
   public void longPollQueueMultipleUpdates() throws IOException {
     String clientId = readFromPath("/handshake");
-    _subscriptionManager.sendUpdate(RESULT1);
-    _subscriptionManager.sendUpdate(RESULT1);
-    _subscriptionManager.sendUpdate(RESULT2);
-    _subscriptionManager.sendUpdate(RESULT3);
-    _subscriptionManager.sendUpdate(RESULT2);
+    _updateManager.sendUpdate(RESULT1);
+    _updateManager.sendUpdate(RESULT1);
+    _updateManager.sendUpdate(RESULT2);
+    _updateManager.sendUpdate(RESULT3);
+    _updateManager.sendUpdate(RESULT2);
     String result = readFromPath("/updates/" + clientId);
     // can't depend on the order when multiple updates are sent at once
     List<String> results = Arrays.asList(result.split("\n"));
@@ -152,11 +157,6 @@ public class LongPollingTest {
         e.printStackTrace();
       }
     }
-    _subscriptionManager.sendUpdate(result);
-  }
-
-  @AfterClass
-  void shutdownJettyServer() throws Exception {
-    _server.stop();
+    _updateManager.sendUpdate(result);
   }
 }

@@ -31,34 +31,34 @@
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Analytics-default">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jfreechart/jars/jfreechart-1.0.13.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jcommon/jars/jcommon-xml-1.0.16.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jcommon/jars/jcommon-1.0.16.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/colt/jars/colt-1.2.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.oswego.cs/concurrent/jars/concurrent-1.3.4.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/parallelcolt/jars/parallelcolt-0.9.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/jtransforms/jars/jtransforms-2.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/csparsej/jars/csparsej-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/us.fed.fs/optimization/jars/optimization-0.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/jarpack/jars/jarpack-0.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/jplasma/jars/jplasma-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/netlib-java/jars/netlib-java-0.9.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/jars/LaTeXlet-1.11.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/jars/commons-math-2.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.dexy/json-doclet/jars/json-doclet-0.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.json/simple/jars/json-simple-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.jfree/jfreechart/jars/jfreechart-1.0.13.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.jfree/jcommon/jars/jcommon-xml-1.0.16.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.jfree/jcommon/jars/jcommon-1.0.16.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/cern/colt/jars/colt-1.2.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/edu.oswego.cs/concurrent/jars/concurrent-1.3.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/cern/parallelcolt/jars/parallelcolt-0.9.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/edu.emory.mathcs/jtransforms/jars/jtransforms-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/edu.emory.mathcs/csparsej/jars/csparsej-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/us.fed.fs/optimization/jars/optimization-0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.netlib/jarpack/jars/jarpack-0.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.netlib/jplasma/jars/jplasma-1.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.netlib/netlib-java/jars/netlib-java-0.9.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/latexlet/latexlet/jars/LaTeXlet-1.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.apache.commons/commons-math/jars/commons-math-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/it.dexy/json-doclet/jars/json-doclet-0.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.json/simple/jars/json-simple-1.1.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/javadocs/commons-math-javadoc-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.apache.commons/commons-math/javadocs/commons-math-javadoc-2.1.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jfreechart/sources/jfreechart-src-1.0.13.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jfree/jcommon/sources/jcommon-src-1.0.16.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/colt/sources/colt-src-1.2.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/parallelcolt/sources/parallelcolt-src-0.9.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/jtransforms/sources/jtransforms-src-2.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/sources/LaTeXlet-src-1.11.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/sources/commons-math-src-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.jfree/jfreechart/sources/jfreechart-src-1.0.13.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.jfree/jcommon/sources/jcommon-src-1.0.16.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/cern/colt/sources/colt-src-1.2.0.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/cern/parallelcolt/sources/parallelcolt-src-0.9.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/edu.emory.mathcs/jtransforms/sources/jtransforms-src-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/latexlet/latexlet/sources/LaTeXlet-src-1.11.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.apache.commons/commons-math/sources/commons-math-src-2.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
