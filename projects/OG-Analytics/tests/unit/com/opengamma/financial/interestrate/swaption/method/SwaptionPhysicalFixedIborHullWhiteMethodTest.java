@@ -15,6 +15,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -38,6 +40,7 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.method.montecarlo.HullWhiteMonteCarloMethod;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -45,6 +48,7 @@ import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorP
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.money.Currency;
@@ -99,6 +103,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_HW = new SwaptionPhysicalFixedIborHullWhiteMethod();
   private static final SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod METHOD_HW_INTEGRATION = new SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod();
   private static final SwaptionPhysicalFixedIborHullWhiteApproximationMethod METHOD_HW_APPROXIMATION = new SwaptionPhysicalFixedIborHullWhiteApproximationMethod();
+  private static final int NB_PATH = 12500;
+  private static final HullWhiteMonteCarloMethod METHOD_HW_MONTECARLO = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteTestsDataSet.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
@@ -171,7 +177,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
 
   @Test
   /**
-   * Compare explicit formula with numerical integration.
+   * Compare explicit formula with approximated formula.
    */
   public void approximation() {
 
@@ -218,6 +224,21 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
       volApprox[loopstrike] = implied.getImpliedVolatility(data, swaption, pvApproximation[loopstrike]);
       assertEquals("Swaption physical - Hull-White - implied volatility - explicit/approximation", volExplicit[loopstrike], volApprox[loopstrike], 0.1E-2); // 0.10%
     }
+  }
+
+  @Test(enabled = true)
+  /**
+   * Compare explicit formula with Monte-Carlo.
+   */
+  public void monteCarlo() {
+    int nbPath = 12500;
+    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    // Seed fixed to the DEFAULT_SEED for testing purposes.
+    CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    CurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(), pvPayerLongMC.getAmount(), 1.0E+5);
+    double pvMCPreviousRun = 5188076.7548;
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(), 1.0E-2);
   }
 
   @Test
@@ -302,10 +323,11 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 10000;
+    final int nbTest = 100;
     CurrencyAmount pvPayerLongExplicit = CurrencyAmount.of(CUR, 0.0);
     CurrencyAmount pvPayerLongIntegration = CurrencyAmount.of(CUR, 0.0);
     CurrencyAmount pvPayerLongApproximation = CurrencyAmount.of(CUR, 0.0);
+    CurrencyAmount pvPayerLongMC = CurrencyAmount.of(CUR, 0.0);
     double[] pvhws = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     PresentValueSensitivity pvcs = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     startTime = System.currentTimeMillis();
@@ -343,11 +365,20 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " swaption Hull-White approximation method: " + (endTime - startTime) + " ms");
     // Performance note: HW approximation: 18-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 160 ms for 10000 swaptions.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvPayerLongMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms");
+    // Performance note: HW approximation: 18-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 9200 ms for 1000 swaptions (12500 paths).
 
     double difference = pvPayerLongExplicit.getAmount() - pvPayerLongIntegration.getAmount();
     double difference2 = pvPayerLongExplicit.getAmount() - pvPayerLongApproximation.getAmount();
+    double difference3 = pvPayerLongExplicit.getAmount() - pvPayerLongMC.getAmount();
     System.out.println("Difference explicit-integration: " + difference);
     System.out.println("Difference explicit-approximation: " + difference2);
+    System.out.println("Difference explicit-Monte Carlo: " + difference3);
     System.out.println("Curve sensitivity: " + pvcs.toString());
     System.out.println("HW sensitivity: " + pvhws.toString());
   }
