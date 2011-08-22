@@ -14,5 +14,5 @@ import com.opengamma.id.UniqueId;
  */
 public interface ViewportFactory {
 
-  Viewport createViewport(String clientId, UniqueId viewClientId, ViewportDefinition viewportDefinition, AnalyticsListener listener);
+  Viewport createViewport(String clientId, ViewportDefinition viewportDefinition, AnalyticsListener listener);
 }

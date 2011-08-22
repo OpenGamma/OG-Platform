@@ -32,12 +32,14 @@ public class ViewportResource {
   @GET
   public Response getGridStructure() {
     _viewport.getGridStructure();
+    return null; // TODO
   }
 
   @Path("data")
   @GET
   public Response getLatestData() {
     _viewport.getLatestData();
+    return null; // TODO
   }
 
   // TODO is a query param the right way to do this? easy to implement but is that adequate justification?
@@ -45,6 +47,7 @@ public class ViewportResource {
   @Path("running")
   public Response setRunning(@QueryParam("run") boolean run) {
     _viewport.setRunning(run);
+    return null; // TODO
   }
 
   // TODO is a query param the right way to do this? easy to implement but is that adequate justification?
@@ -52,5 +55,6 @@ public class ViewportResource {
   @Path("mode")
   public Response setMode(@QueryParam("mode") ConversionMode mode) {
     _viewport.setConversionMode(mode);
+    return null; // TODO
   }
 }

@@ -37,7 +37,7 @@ public interface RestUpdateManager {
   void subscribe(String userId, String clientId, UniqueId uid, String url);
 
   // TODO UID or string for viewport ID?
-  Viewport getViewport(String userId, String clientId, String viewportId);
+  Viewport getViewport(String userId, String clientId, String viewportUrl);
 
   /**
    *

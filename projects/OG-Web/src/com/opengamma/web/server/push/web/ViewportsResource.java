@@ -8,13 +8,16 @@ package com.opengamma.web.server.push.web;
 import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import com.opengamma.web.server.push.subscription.Viewport;
 import com.opengamma.web.server.push.subscription.ViewportDefinition;
+import com.sun.jersey.api.core.HttpContext;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -36,28 +39,28 @@ public class ViewportsResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN) // TODO JSON? {viewportRestUrl: <url>}
-  // TODO need a MessageBodyReader that produces ViewportDefinitions
-  String createViewport(ViewportDefinition viewportDefinition, @QueryParam("clientId") String clientId) {
-    String userId = null;
+  public String createViewport(ViewportDefinition viewportDefinition,
+                               @QueryParam("clientId") String clientId,
+                               @Context HttpServletRequest request) {
+    String userId = request.getRemoteUser();
     // TODO should this be JSON?
-    /* TODO this is awkward
-    the connection needs the viewport URL to publish in the events
-    but the URL needs to be created here using the viewportId (currently) generated in the update manager
-    clearly the viewport ID needs to be generated here and the URL passed in
-    */
-    String viewportId = generateViewportId();
-    String viewportUrl = null; // TODO there are JAX-RS helpers for this
-    return _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportUrl);
+    String viewportUrl = generateViewportUrl();
+    _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportUrl);
+    return viewportUrl;
   }
 
   @Path("{viewportId}")
-  ViewportResource findViewport(@PathParam("viewportId") String viewportId, @QueryParam("clientId") String clientId) {
-    String userId = ;
-    Viewport viewport = _restUpdateManager.getViewport(userId, clientId, viewportId);
+  public ViewportResource findViewport(@QueryParam("clientId") String clientId,
+                                       @Context HttpContext httpContext,
+                                       @Context HttpServletRequest request) {
+    String viewportUrl = httpContext.getUriInfo().getPath(); // TODO is this right?
+    String userId = request.getRemoteUser();
+    Viewport viewport = _restUpdateManager.getViewport(userId, clientId, viewportUrl);
     return new ViewportResource(viewport);
   }
 
-  private String generateViewportId() {
-
+  // TODO there are JAX-RS helpers for this. but does it need to be a full URL?
+  private String generateViewportUrl() {
+    throw new UnsupportedOperationException();
   }
 }

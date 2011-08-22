@@ -56,10 +56,10 @@ public class ClientConnection implements ChangeListener {
    * TODO logic in subscription requests? command pattern?
    * @param viewportId
    */
-  public void createViewport(ViewportDefinition request, String viewportUrl) {
+  public void createViewport(String clientId, ViewportDefinition request, String viewportUrl) {
     // TODO the listener needs a wrapper that deactivates itself after every update and is reactivated at the client's request?
     AnalyticsListener listener = new AnalyticsListener(viewportUrl, _listener);
-    Viewport viewport = _viewportFactory.createViewport(_clientId, request.getViewClientId(), request, listener);
+    Viewport viewport = _viewportFactory.createViewport(_clientId, request, listener);
   }
 
   public void activateViewportSubscription() {
@@ -87,6 +87,7 @@ public class ClientConnection implements ChangeListener {
 
   public Viewport getViewport(String viewportUrl) {
     // TODO check the URL corresponds (in case a new viewport has been created)
+    throw new UnsupportedOperationException();
   }
 }
 

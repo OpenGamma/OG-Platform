@@ -140,7 +140,8 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     // Ensure the converter is cached against the value name before sending the column details 
     ResultConverter<Object> converter = (ResultConverter<Object>) getConverterCache().getAndCacheConverter(valueName, valueType);
     if (!column.isTypeKnown()) {
-      getRemoteClient().deliver(getLocalClient(), _columnStructureChannel, getJsonColumnStructures(Collections.singleton(column)), null);
+      // TODO what's this all about?
+      //getRemoteClient().deliver(getLocalClient(), _columnStructureChannel, getJsonColumnStructures(Collections.singleton(column)), null);
     }
     return converter;
   }

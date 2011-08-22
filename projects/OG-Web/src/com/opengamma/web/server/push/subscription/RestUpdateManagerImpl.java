@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   //private static final Logger s_logger = LoggerFactory.getLogger(RestUpdateManagerImpl.class);
 
+  // TODO a better way to generate client IDs
   private final AtomicLong _clientConnectionId = new AtomicLong();
   private final ChangeManager _changeManager;
   private final ViewportFactory _viewportFactory;
@@ -67,10 +68,10 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public Viewport getViewport(String userId, String clientId, String viewportId) {
-    ClientConnection connection = getConnectionByViewportId(userId, viewportId);
+  public Viewport getViewport(String userId, String clientId, String viewportUrl) {
+    ClientConnection connection = getConnectionByViewportId(userId, viewportUrl);
     if (connection != null) {
-      return connection.getViewport(viewportId);
+      return connection.getViewport(viewportUrl);
     } else {
       return Viewport.DUMMY;
     }
@@ -78,7 +79,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   public void createViewport(String userId, String clientId, ViewportDefinition viewportDefinition, String viewportUrl) {
     ClientConnection connection = getConnectionByClientId(userId, clientId);
-    connection.createViewport(viewportDefinition, viewportUrl);
+    connection.createViewport(clientId, viewportDefinition, viewportUrl);
     _connectionsByViewportId.put(viewportUrl, connection);
   }
 

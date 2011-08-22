@@ -8,10 +8,10 @@
   </bean>
 
   <bean id="subscriptionManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
-    <constructor-arg index="0" ref="changeManager"/>
-    <constructor-arg index="1"><null/></constructor-arg>
+    <constructor-arg index="0"><null/></constructor-arg><!--no change manager needed for these tests-->
+    <constructor-arg index="1" ref="changeManager"/>
   </bean>
 
-  <bean id="changeManager" class="com.opengamma.web.server.push.test.TestChangeManager"/>
+  <bean id="viewportFactory" class="com.opengamma.web.server.push.web.TestViewportFactory"/>
 
 </beans>

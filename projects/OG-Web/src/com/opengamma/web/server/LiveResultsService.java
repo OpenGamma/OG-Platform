@@ -5,11 +5,8 @@
  */
 package com.opengamma.web.server;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
@@ -26,14 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -59,7 +53,8 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
 
-  public LiveResultsService(Bayeux bayeux, final ViewProcessor viewProcessor,
+  public LiveResultsService(Bayeux bayeux,
+                            ViewProcessor viewProcessor,
                             MarketDataSnapshotMaster snapshotMaster,
                             UserPrincipal user,
                             ExecutorService executorService,
@@ -87,7 +82,7 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
     s_logger.info("Finished subscribing to services");
   }
   
-  @Override
+  //@Override
   public void clientRemoved(Client client) {
     // Tidy up
     s_logger.debug("Client " + client.getId() + " disconnected");
@@ -109,7 +104,7 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
       if (webView != null) {
         if (webView.matches(viewDefinitionName, snapshotId)) {
           // Already initialized
-          webView.reconnected();
+          //webView.reconnected();
           return;
         }
         // Existing view is different - client is switching views
@@ -151,7 +146,7 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
       // Disconnected client has come back to life
       return;
     }
-    webView.triggerUpdate(message);
+    webView.configureViewport(/*message*/null, null);// TODO
   }
   
   @SuppressWarnings("unchecked")
@@ -172,8 +167,9 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
       grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
     }
   }
-  
-  @SuppressWarnings("unchecked")
+
+  // TODO this logic needs to be moved to to view view initialisation
+  /*@SuppressWarnings("unchecked")
   public void processDepGraphRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
     if (webView == null) {
@@ -185,14 +181,19 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
     long jsColId = (Long) dataMap.get("colId");
     boolean includeDepGraph = (Boolean) dataMap.get("includeDepGraph");
     webView.setIncludeDepGraph(gridName, WebGridCell.of((int) jsRowId, (int) jsColId), includeDepGraph);
-  }
+  }*/
 
+  // TODO this should go in a REST resource (if there isn't one already)
+/*
   private List<String> getViewNames() {
     Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
     s_logger.debug("Available view names: " + availableViewNames);
     return new ArrayList<String>(availableViewNames);
   }
+*/
 
+  // TODO this should go in a REST resource (if there isn't one already)
+/*
   private Map<String, Map<String, String>> getSnapshotDetails() {
     MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
     snapshotSearchRequest.setIncludeData(false);
@@ -223,6 +224,7 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
     }
     return snapshotsByBasisView;
   }
+*/
 
   // TODO this will be replaced by the creation of a new viewport
   @SuppressWarnings("unchecked")
@@ -253,13 +255,20 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
     webView.resume();
   }
 
-  @Override
+  /*@Override
   public Viewport createViewport(String clientId,
                                  UniqueId viewClientId,
                                  ViewportDefinition viewportDefinition,
                                  AnalyticsListener listener) {
+    WebView webView = null; // TODO get or create
+    webView.configureViewport(viewportDefinition, listener);
     throw new UnsupportedOperationException("createViewport not implemented");
     // TODO get / create WebView for the client ID
     // TODO tell it to produce some results immediately (which also sets the viewport bounds)
+  }*/
+
+  @Override
+  public Viewport createViewport(String clientId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+    throw new UnsupportedOperationException("createViewport not implemented");
   }
 }

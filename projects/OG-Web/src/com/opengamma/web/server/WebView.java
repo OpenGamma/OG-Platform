@@ -23,7 +23,9 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.subscription.AnalyticsListener;
 import com.opengamma.web.server.push.subscription.Viewport;
+import com.opengamma.web.server.push.subscription.ViewportDefinition;
 import org.apache.commons.lang.ObjectUtils;
 import org.cometd.Message;
 import org.slf4j.Logger;
@@ -189,10 +191,13 @@ public class WebView implements Viewport {
    *   immediateResponse: boolean<br/>
    *   portfolioViewport, primitiveViewport: {rowIds: Long[], lastTimestamps: Long[]}
    * </pre>
+   * TODO rename this
+   * TODO this is what will be called when a new REST viewport is created. always create an immediate result
    */
   @SuppressWarnings("unchecked")
-  public void triggerUpdate(Message message) {
-    Map<String, Object> dataMap = (Map<String, Object>) message.getData();
+  public void configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+    // TODO call setIncludeDepGraph()
+    Map<String, Object> dataMap = null;//(Map<String, Object>) message.getData();
     boolean immediateResponse = (Boolean) dataMap.get("immediateResponse");
     
     if (getPortfolioGrid() != null) {
@@ -332,7 +337,7 @@ public class WebView implements Viewport {
     return gridStructures;
   }
   
-  public void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
+  private void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
     if (!getPortfolioGrid().getName().equals(parentGridName)) {
       throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + parentGridName);
     }

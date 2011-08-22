@@ -31,6 +31,19 @@ public class TestRestUpdateManager implements RestUpdateManager {
     throw new UnsupportedOperationException("subscribe not used in this test");
   }
 
+  @Override
+  public Viewport getViewport(String userId, String clientId, String viewportUrl) {
+    throw new UnsupportedOperationException("getViewport not implemented");
+  }
+
+  @Override
+  public void createViewport(String userId,
+                             String clientId,
+                             ViewportDefinition viewportDefinition,
+                             String viewportUrl) {
+    throw new UnsupportedOperationException("createViewport not implemented");
+  }
+
   public void sendUpdate(String update) {
     _listener.itemUpdated(update);
   }
