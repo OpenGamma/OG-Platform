@@ -68,7 +68,7 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final HistoricalTimeSeries riskFreeRateTSObject = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMRiskFreeRate(), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, false);
+        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMRiskFreeRate(), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, _startDate, true, now, true);
     if (riskFreeRateTSObject == null) {
       throw new NullPointerException("Risk free rate series was null");
     }

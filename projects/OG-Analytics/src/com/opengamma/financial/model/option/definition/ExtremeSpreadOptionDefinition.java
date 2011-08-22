@@ -26,8 +26,8 @@ public class ExtremeSpreadOptionDefinition extends OptionDefinition {
       Validate.notNull(data, "data");
       final DoubleTimeSeries<ZonedDateTime> ts = data.getSpotTimeSeries().toZonedDateTimeDoubleTimeSeries();
       final ZonedDateTime periodEnd = getPeriodEnd().getExpiry();
-      final DoubleTimeSeries<ZonedDateTime> firstPeriod = ts.subSeries(data.getDate(), true, periodEnd, false);
-      final DoubleTimeSeries<ZonedDateTime> secondPeriod = ts.subSeries(periodEnd, false, ts.getLatestTime(), false);
+      final DoubleTimeSeries<ZonedDateTime> firstPeriod = ts.subSeries(data.getDate(), true, periodEnd, true);
+      final DoubleTimeSeries<ZonedDateTime> secondPeriod = ts.subSeries(periodEnd, false, ts.getLatestTime(), true);
       if (isCall()) {
         return isReverse() ? Math.abs(secondPeriod.minValue() - firstPeriod.minValue()) : Math.abs(secondPeriod.maxValue() - firstPeriod.maxValue());
       }

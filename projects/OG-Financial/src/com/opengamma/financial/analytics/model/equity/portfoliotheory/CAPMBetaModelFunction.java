@@ -70,7 +70,7 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(
         HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMMarket(), null, HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, 
-        _startDate, true, now, false);
+        _startDate, true, now, true);
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode));
     final Object fairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
     if (marketTSObject != null && assetPnLObject != null && fairValueObject != null) {

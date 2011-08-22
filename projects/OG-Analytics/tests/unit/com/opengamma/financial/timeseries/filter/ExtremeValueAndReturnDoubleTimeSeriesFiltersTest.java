@@ -150,7 +150,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     final DoubleTimeSeries<Long> returnTS = RETURN_CALCULATOR.evaluate(ts).toFastLongDoubleTimeSeries();
     long date;
     for (int i = 0; i < 99; i++) {
-      date = returnTS.getTime(i);
+      date = returnTS.getTimeAt(i);
       d = returnTS.getValueAt(i);
       if (d > MAX || d < MIN) {
         returnRejectedDates.add(date);

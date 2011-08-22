@@ -541,7 +541,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw new OpenGammaRuntimeException(message, e);
     }
     setCachedCompiledViewDefinition(compiledViewDefinition);
-    
     // [PLAT-984]
     // Assume that valuation times are increasing in real-time towards the expiry of the view definition, so that we
     // can predict the time to expiry. If this assumption is wrong then the worst we do is trigger an unnecessary
@@ -664,7 +663,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     if (!newMarketData.isEmpty()) {
       s_logger.debug("{} new market data requirements: {}", newMarketData.size(), newMarketData);
       addMarketDataSubscriptions(newMarketData);
-    }
+    } 
   }
 
   //-------------------------------------------------------------------------
@@ -721,7 +720,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   @Override
   public void subscriptionFailed(ValueRequirement requirement, String msg) {
-    s_logger.warn("Market data subscription to {} failed. This market data may be missing from computation cycles.", requirement);
+    s_logger.debug("Market data subscription to {} failed. This market data may be missing from computation cycles.", requirement);
     removePendingSubscription(requirement);
   }
 
