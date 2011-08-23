@@ -22,7 +22,7 @@ public abstract class ValueConverter {
    * @param sessionContext the client session context
    * @param value the value to convert from
    * @param type the type to convert to
-   * @return the converted value, {@code null} if that is the valid conversion, or the value of {@link JavaTypeInfo#failure}
+   * @return the converted value, null if that is the valid conversion, or the value of {@link JavaTypeInfo#failure}
    * for the type.
    * @throws InvalidConversionException if the conversion is not possible
    */
@@ -37,7 +37,7 @@ public abstract class ValueConverter {
 
   /**
    * Converts a value to a specified type if possible. If the conversion is not possible, flags the failure
-   * within the {@link ValueConversionContext} and returns an arbitrary value (e.g. {@code null}.
+   * within the {@link ValueConversionContext} and returns an arbitrary value (e.g. null).
    * 
    * @param conversionContext the value conversion context into which the result, cost, and failure flags must be set if appropriate 
    * @param value the value to convert from

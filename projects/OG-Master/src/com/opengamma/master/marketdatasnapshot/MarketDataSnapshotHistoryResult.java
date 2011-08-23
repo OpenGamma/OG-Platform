@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -20,7 +21,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of a market data snapshot.

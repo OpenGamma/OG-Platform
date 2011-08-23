@@ -5,9 +5,11 @@
  */
 package com.opengamma.math.cube;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.util.tuple.Triple;
 

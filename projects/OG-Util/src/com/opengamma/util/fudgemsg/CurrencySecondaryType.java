@@ -23,7 +23,7 @@ public final class CurrencySecondaryType extends SecondaryFieldType<Currency, St
   @FudgeSecondaryType
   public static final CurrencySecondaryType INSTANCE = new CurrencySecondaryType();
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**

@@ -19,8 +19,8 @@ public interface WatchSetProvider {
   /**
    * Returns additional unique identifiers to watch for changes.
    * 
-   * @param watchSet explicitly requested watch set, not {@code null}
-   * @return the additional identifiers to watch, or {@code null} if there are no additional ones
+   * @param watchSet explicitly requested watch set, not null
+   * @return the additional identifiers to watch, null if there are no additional ones
    */
   Set<UniqueId> getAdditionalWatchSet(Set<UniqueId> watchSet);
   

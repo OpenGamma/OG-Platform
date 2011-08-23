@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
@@ -65,7 +65,7 @@ public abstract class AbstractIntObjectTimeSeries<DATE_TYPE, T> extends Abstract
   }
 
   @Override
-  public DATE_TYPE getTime(final int index) {
+  public DATE_TYPE getTimeAt(final int index) {
     return _converter.convertFromInt(getFastSeries().getTimeFast(index));
   }
 

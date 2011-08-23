@@ -41,7 +41,7 @@ public class DefinitionRepository<T> {
   /**
    * Adds an object to the repository and returns its allocated identifier.
    * 
-   * @param object the object to add, not {@code null}
+   * @param object the object to add, not null
    * @return the identifier 
    */
   public int add(final T object) {
@@ -55,7 +55,7 @@ public class DefinitionRepository<T> {
    * Returns an object from the repository.
    * 
    * @param identifier the object to retrieve
-   * @return the object, or {@code null} if not found
+   * @return the object, null if not found
    */
   public T get(final int identifier) {
     return _objects.get(identifier);

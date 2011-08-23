@@ -101,7 +101,7 @@ import com.opengamma.engine.value.ValueSpecification;
      * Tests if the state is somehow active and may reschedule the task to run (i.e. it's blocked on something) given that the
      * parent task is going to neither call {@link #run} nor {@link #pump}
      * 
-     * @return {@code true} if the state is active, {@code false} otherwise
+     * @return true if the state is active
      */
     protected abstract boolean isActive();
 

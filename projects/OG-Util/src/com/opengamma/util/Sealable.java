@@ -6,22 +6,23 @@
 package com.opengamma.util;
 
 /**
- * An interface by which a JavaBean can be marked as immutable.
- * This allows for beans using setter-injection to be made immutable
- * after setup has finished.
+ * An interface by which an object can be marked as immutable.
+ * This allows for beans using setter-injection to be made immutable after setup has finished.
  */
 public interface Sealable {
 
   /**
-   * Instruct the bean that after invoking this method, no changes
-   * should be permitted.
+   * Seals the object.
+   * <p>
+   * After invoking this method, no changes to the object should be permitted.
    */
   void seal();
 
   /**
    * Determine whether this instance is currently sealed.
-   * Instances should start out unsealed, and after {@link #seal()} is
-   * invoked, should return {@code true}.
+   * <p>
+   * This will return false before {@link #seal()} is invoked and true after it is invoked.
+   * 
    * @return true if the instance is sealed
    */
   boolean isSealed();

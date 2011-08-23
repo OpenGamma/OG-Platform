@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.util.money.Currency;
 

@@ -35,8 +35,8 @@ public class MarketData {
   /**
    * Gets a live market data specification for a specific data source.
    * 
-   * @param dataSource  the name of the data source, not {@code null}
-   * @return the live market data specification, not {@code null}
+   * @param dataSource  the name of the data source, not null
+   * @return the live market data specification, not null
    */
   public static LiveMarketDataSpecification live(String dataSource) {
     ArgumentChecker.notNull(dataSource, "dataSource");
@@ -47,11 +47,11 @@ public class MarketData {
   /**
    * Gets a historical market data specification.
    * 
-   * @param date  the date, not {@code null}
-   * @param dataSource  the data source, not {@code null}
-   * @param dataProvider  the data provider, not {@code null}
-   * @param dataField  the data field, not {@code null}
-   * @return the historical market data specification, not {@code null}
+   * @param date  the date, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the data field, not null
+   * @return the historical market data specification, not null
    */
   public static HistoricalMarketDataSpecification historical(LocalDate date, String dataSource, String dataProvider, String dataField) {
     HistoricalMarketDataSpecification result = new HistoricalMarketDataSpecification(date);
@@ -65,8 +65,8 @@ public class MarketData {
   /**
    * Gets a user market data specification.
    * 
-   * @param snapshotId  the unique identifier of the snapshot, not {@code null}
-   * @return the user market data specification, not {@code null}
+   * @param snapshotId  the unique identifier of the snapshot, not null
+   * @return the user market data specification, not null
    */
   public static UserMarketDataSpecification user(UniqueId snapshotId) {
     return new UserMarketDataSpecification(snapshotId);

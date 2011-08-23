@@ -19,9 +19,9 @@ public interface MarketDataProviderResolver {
    * Resolves a {@link MarketDataSnapshotSpecification} into a {@link MarketDataProvider} which is able to 
    * work with the specification.
    * 
-   * @param snapshotSpec  the snapshot specification for which a provider is required, not {@code null} 
+   * @param snapshotSpec  the snapshot specification for which a provider is required, not null 
    * @return the resolved snapshot provider
    */
   MarketDataProvider resolve(MarketDataSpecification snapshotSpec);
-  
+
 }

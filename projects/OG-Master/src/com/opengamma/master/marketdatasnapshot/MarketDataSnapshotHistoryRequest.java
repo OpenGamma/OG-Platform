@@ -50,9 +50,9 @@ import com.opengamma.util.PublicSPI;
 public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
 
   /**
-   * Set whether to include the data values from the snapshot. Set to {@code false} to reduce the
-   * size of the data transferred. Defaults to {@code true}. A master implementation may ignore
-   * this part of the request and always include the data.
+   * Set whether to include the data values from the snapshot.
+   * Set to false to reduce the size of the data transferred. Defaults to true.
+   * A master implementation may ignore this part of the request and always include the data.
    */
   @PropertyDefinition
   private boolean _includeData = true;
@@ -145,9 +145,9 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set whether to include the data values from the snapshot. Set to {@code false} to reduce the
-   * size of the data transferred. Defaults to {@code true}. A master implementation may ignore
-   * this part of the request and always include the data.
+   * Gets set whether to include the data values from the snapshot.
+   * Set to false to reduce the size of the data transferred. Defaults to true.
+   * A master implementation may ignore this part of the request and always include the data.
    * @return the value of the property
    */
   public boolean isIncludeData() {
@@ -155,9 +155,9 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
   }
 
   /**
-   * Sets set whether to include the data values from the snapshot. Set to {@code false} to reduce the
-   * size of the data transferred. Defaults to {@code true}. A master implementation may ignore
-   * this part of the request and always include the data.
+   * Sets set whether to include the data values from the snapshot.
+   * Set to false to reduce the size of the data transferred. Defaults to true.
+   * A master implementation may ignore this part of the request and always include the data.
    * @param includeData  the new value of the property
    */
   public void setIncludeData(boolean includeData) {
@@ -166,8 +166,8 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
 
   /**
    * Gets the the {@code includeData} property.
-   * size of the data transferred. Defaults to {@code true}. A master implementation may ignore
-   * this part of the request and always include the data.
+   * Set to false to reduce the size of the data transferred. Defaults to true.
+   * A master implementation may ignore this part of the request and always include the data.
    * @return the property, not null
    */
   public final Property<Boolean> includeData() {

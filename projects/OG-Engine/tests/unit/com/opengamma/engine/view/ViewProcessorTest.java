@@ -25,9 +25,7 @@ import javax.time.InstantProvider;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;

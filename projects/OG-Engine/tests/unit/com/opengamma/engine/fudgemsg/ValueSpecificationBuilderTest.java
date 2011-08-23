@@ -6,6 +6,7 @@
 package com.opengamma.engine.fudgemsg;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;

@@ -5,7 +5,7 @@
  */
 package com.opengamma.util;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 

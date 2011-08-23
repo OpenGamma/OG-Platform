@@ -5,9 +5,9 @@
  */
 package com.opengamma.math.util.wrapper;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
@@ -16,6 +16,8 @@ import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.optimization.RealPointValuePair;
+import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.FunctionND;
 import com.opengamma.math.function.RealPolynomialFunction1D;

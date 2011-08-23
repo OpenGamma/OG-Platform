@@ -64,8 +64,8 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
    * 
    * @param run  the run data, not null
    * @param batchRunMaster  the batch master, not null
-   * @param batchDbProvider  the provider of previously-used market data from the batch database, not {@code null} 
-   * @param historicalMarketDataProvider  the provider of historical market data, not {@code null}
+   * @param batchDbProvider  the provider of previously-used market data from the batch database, not null 
+   * @param historicalMarketDataProvider  the provider of historical market data, not null
    */
   public BatchMarketDataProvider(
       BatchJobRun run,

@@ -133,6 +133,20 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     _securities.put(security.getUniqueId().getObjectId(), security);
   }
 
+  public void removeSecurity(Security security) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(security.getUniqueId(), "security.uniqueId");
+    
+    Security prev = _securities.remove(security.getUniqueId().getObjectId());
+    if (prev == null) {
+      throw new IllegalArgumentException("Security not found");
+    }
+    if (prev != security) {
+      throw new IllegalArgumentException("Security passed was not the one in this source");
+    }
+  }
+
+  
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {

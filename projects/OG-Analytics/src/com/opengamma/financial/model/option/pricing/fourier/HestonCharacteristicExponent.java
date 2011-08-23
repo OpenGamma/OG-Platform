@@ -12,8 +12,8 @@ import static com.opengamma.math.ComplexMathUtils.log;
 import static com.opengamma.math.ComplexMathUtils.mod;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.sqrt;
-import static com.opengamma.math.ComplexMathUtils.subtract;
 import static com.opengamma.math.ComplexMathUtils.square;
+import static com.opengamma.math.ComplexMathUtils.subtract;
 import static com.opengamma.math.number.ComplexNumber.I;
 import static com.opengamma.math.number.ComplexNumber.ZERO;
 

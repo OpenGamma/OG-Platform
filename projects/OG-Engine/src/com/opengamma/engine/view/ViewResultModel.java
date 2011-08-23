@@ -87,7 +87,7 @@ public interface ViewResultModel {
    * Returns the calculation result for a given configuration.
    * 
    * @param calcConfigurationName name of the configuration, not null
-   * @return the calculation results, or null if the configuration was not found
+   * @return the calculation results, null if the configuration was not found
    */
   ViewCalculationResultModel getCalculationResult(String calcConfigurationName);
 
@@ -95,7 +95,7 @@ public interface ViewResultModel {
    * Returns the calculation result for all configurations for a given target.
    * 
    * @param targetSpecification the target to query, not null
-   * @return the calculation results, or null if the target was not found
+   * @return the calculation results, null if the target was not found
    */
   ViewTargetResultModel getTargetResult(ComputationTargetSpecification targetSpecification);
   

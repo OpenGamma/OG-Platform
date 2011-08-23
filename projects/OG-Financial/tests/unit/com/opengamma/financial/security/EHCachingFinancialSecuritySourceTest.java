@@ -26,6 +26,7 @@ import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -38,6 +39,7 @@ public class EHCachingFinancialSecuritySourceTest {
   private ExternalId _secId1 = ExternalId.of("d1", "v1");
   private ExternalId _secId2 = ExternalId.of("d1", "v2");
   private SimpleSecurity _security1 = new SimpleSecurity("");
+  private SimpleSecurity _security1_alternate = new SimpleSecurity("alternate");
   private SimpleSecurity _security2 = new SimpleSecurity("");
 
   @BeforeMethod
@@ -46,6 +48,7 @@ public class EHCachingFinancialSecuritySourceTest {
     _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, EHCacheUtils.createCacheManager ());
     
     _security1.addExternalId(_secId1);
+    _security1_alternate.addExternalId(_secId1);
     _security2.addExternalId(_secId2);
   }
 
@@ -126,6 +129,21 @@ public class EHCachingFinancialSecuritySourceTest {
     }
   }
 
+  @Test
+  public void getSecurity_ExternalIdBundle_Changing() {
+    ExternalIdBundle secKey = ExternalIdBundle.of(_secId1, _secId2);
+    addSecuritiesToMock(_security1);
+    
+    Security underlyingSecurity = _cachingSecuritySource.getSecurity(secKey, VersionCorrection.LATEST);
+    assertEquals(_security1, underlyingSecurity);
+    
+    _underlyingSecuritySource.removeSecurity(_security1);
+    addSecuritiesToMock(_security1_alternate);
+    
+    underlyingSecurity = _cachingSecuritySource.getSecurity(secKey, VersionCorrection.LATEST);
+    assertEquals(_security1_alternate, underlyingSecurity);
+  }
+  
   @Test
   public void getSecurities_ExternalIdBundle_empty() {
     ExternalIdBundle secKey = ExternalIdBundle.of(_secId1);

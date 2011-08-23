@@ -11,8 +11,8 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.OpenGammaRuntimeException;

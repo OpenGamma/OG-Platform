@@ -232,7 +232,7 @@ public class DependencyNode {
    * Tests if a given value is an input to this node.
    * 
    * @param specification value to test
-   * @return {@code true} if the value is an input to this node, {@code false} otherwise
+   * @return true if the value is an input to this node
    */
   public boolean hasInputValue(final ValueSpecification specification) {
     return _inputValues.contains(specification);

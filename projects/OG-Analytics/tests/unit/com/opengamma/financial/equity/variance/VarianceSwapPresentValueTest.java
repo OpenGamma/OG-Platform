@@ -7,6 +7,11 @@ package com.opengamma.financial.equity.variance;
 
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
@@ -27,10 +32,6 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 /**
  * 
