@@ -111,8 +111,8 @@ $.register_module({
             },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);
-                if (!config_types.length) // disable new button until we have config_types
-                    $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
+                if (config_types.length) return; // if we already have config_types, return
+                $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {

@@ -20,7 +20,7 @@
     position: relative;
     text-overflow: ellipsis;
     overflow: hidden;
-    width: 11%;
+    width: 10%;
   }
 
   .OG-form .og-csb .og-strip div:last-child {
@@ -198,8 +198,16 @@
 </style>
 <div class="OG-details-container">
 <div class="og-details-content OG-config">
-  <div class="OG-c10 og-grid-last OG-max-width-xl OG-form">
-    <!-- Curve specification builder -->
+  <div class="OG-c10 og-grid-last OG-form">
+    <!-- curve specification builder -->
+    <section class="OG-mod-0 og-grid-last og-csb">
+      <div class="og-mod-content">
+        <label>
+          <span>Name</span>
+          <span><input name="name" value="${name}" type="text" /></span>
+        </label>
+      </div>
+    </section>
     <section class="OG-mod-0 og-grid-last og-csb">
       <h3>
         <div class="og-a-list-header og-strip">
@@ -208,40 +216,14 @@
           <div>Cash</div>
           <div>Swap</div>
           <div>Future</div>
+          <div>OIS</div>
           <div>FRA</div>
           <div>Tenor Swap</div>
           <div>Basis Swap</div>
         </div>
       </h3>
       <div class="og-mod-content">
-        <ul class="og-awesome-list">
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-value"><span class="og-js-someval">EU0002M Index</span><span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EU0002M Index<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-              <div class="og-value">EUSW10V3 Currency<span></span></div>
-              <div class="og-value">EUDR1T Curncy<span></span></div>
-            </div>
-          </li>
-          <li>
-            <div class="og-del"></div>
-            <div class="og-strip">
-              <div class="og-input"><input type="text" /></div>
-              <div class="og-configure"><span>configure</span></div>
-              <div class="og-configure"><span>configure</span></div>
-              <div class="og-configure"><span>configure</span></div>
-              <div class="og-configure"><span>configure</span></div>
-              <div class="og-configure"><span>configure</span></div>
-              <div class="og-configure"><span>configure</span></div>
-              <div class="og-configure"><span>configure</span></div>
-            </div>
-          </li>
-        </ul>
+        {{html item_0}}
         <div class="og-footer">
           <span class="OG-link-add">add row</span>
         </div>
