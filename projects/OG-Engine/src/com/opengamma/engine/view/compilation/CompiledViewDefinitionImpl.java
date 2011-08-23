@@ -94,14 +94,14 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public Instant getValidTo() {
     return _latestValidity;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Checks whether the compilation results encapsulated in this instance are valid for a specific cycle. Note that
    * this does not ensure that the view definition used for compilation is still up-to-date.
    * 
-   * @param valuationTimeProvider  the valuation time, not {@code null}
-   * @return  {@code true} if the compilation results are valid for the valuation time, {@code false} otherwise
+   * @param valuationTimeProvider  the valuation time, not null
+   * @return true if the compilation results are valid for the valuation time
    */
   public boolean isValidFor(final InstantProvider valuationTimeProvider) {
     ArgumentChecker.notNull(valuationTimeProvider, "valuationTimeProvider");
@@ -109,7 +109,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
     return (_earliestValidity == null || !valuationTime.isBefore(_earliestValidity))
         && (_latestValidity == null || !valuationTime.isAfter(_latestValidity));
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public String toString() {

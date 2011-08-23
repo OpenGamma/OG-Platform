@@ -163,7 +163,7 @@ public final class ValueRequirement implements Serializable {
    * If the constraint allows multiple specific values an arbitrary one is returned. 
    * 
    * @param constraintName  the constraint to query
-   * @return the constraint value, or null if it is not defined 
+   * @return the constraint value, null if it is not defined 
    * @throws IllegalArgumentException if the constraint is a wild-card definition
    */
   public String getConstraint(final String constraintName) {
@@ -187,7 +187,7 @@ public final class ValueRequirement implements Serializable {
    * </ul>
    * 
    * @param valueSpecification  the value specification to test, not null
-   * @return {@code true} if this requirement is satisfied by the specification, {@code false} otherwise.
+   * @return true if this requirement is satisfied by the specification
    */
   public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
     // value names are interned by this and specifications

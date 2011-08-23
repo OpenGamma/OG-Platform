@@ -34,10 +34,10 @@ public class CreateObjectFunction<T> implements PublishedFunction {
   /**
    * Constructs a function instance.
    * 
-   * @param clazz the class whose constructor is being exposed, not {@code null}
-   * @param description the description, not {@code null}
-   * @param parameterNames the constructor parameters, not {@code null}
-   * @param parameterDescriptions the constructor parameter descriptions, not {@code null}
+   * @param clazz the class whose constructor is being exposed, not null
+   * @param description the description, not null
+   * @param parameterNames the constructor parameters, not null
+   * @param parameterDescriptions the constructor parameter descriptions, not null
    */
   public CreateObjectFunction(final Class<T> clazz, final String description, final String[] parameterNames, final String[] parameterDescriptions) {
     this(findPublicConstructor(clazz, parameterNames.length), description, parameterNames, parameterDescriptions);
@@ -96,7 +96,7 @@ public class CreateObjectFunction<T> implements PublishedFunction {
    * Registers additional arguments which are to be expected before those required for construction of the object.
    * These may be used during post-construction operations.
    * 
-   * @return the additional parameters, or {@code null} if none
+   * @return the additional parameters, null if none
    */
   protected List<MetaParameter> getPrependedParameters() {
     return null;
@@ -106,7 +106,7 @@ public class CreateObjectFunction<T> implements PublishedFunction {
    * Registers additional parameters which are to be expected after those required for constructor of the object.
    * These may be used during post-construction operations.
    * 
-   * @return the additional parameters, or {@code null} if none
+   * @return the additional parameters, null if none
    */
   protected List<MetaParameter> getAppendedParameters() {
     return null;

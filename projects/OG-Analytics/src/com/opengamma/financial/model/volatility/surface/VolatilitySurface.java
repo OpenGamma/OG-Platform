@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.Axis;
@@ -15,9 +18,6 @@ import com.opengamma.math.surface.Surface;
 import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.math.surface.SurfaceSliceFunction;
 import com.opengamma.util.tuple.DoublesPair;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * 

@@ -6,14 +6,14 @@
 package com.opengamma.financial.convention;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.convention.StubCalculator;
-import com.opengamma.financial.convention.StubType;
+import org.testng.annotations.Test;
+
 import com.opengamma.util.time.DateUtils;
 
 /**

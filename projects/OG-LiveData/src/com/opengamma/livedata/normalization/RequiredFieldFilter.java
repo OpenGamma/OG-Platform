@@ -16,38 +16,52 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
  * Rejects any update that doesn't contain a set of fields.
- *
- * @author kirk
  */
 public class RequiredFieldFilter implements NormalizationRule {
+
+  /**
+   * The field names that must be present.
+   */
   private final Set<String> _requiredFieldNames = new HashSet<String>();
-  
+
+  /**
+   * Creates a filter with a set of required field names.
+   * 
+   * @param requiredFieldNames  the field names, not null
+   */
   public RequiredFieldFilter(String... requiredFieldNames) {
     this(Sets.newHashSet(requiredFieldNames));
   }
-  
+
+  /**
+   * Creates a filter with a set of required field names.
+   * 
+   * @param requiredFieldNames  the field names, not null
+   */
   public RequiredFieldFilter(Collection<String> requiredFieldNames) {
     _requiredFieldNames.addAll(requiredFieldNames);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the requiredFieldNames
+   * Gets the required field names.
+   * 
+   * @return the required field names, not null
    */
   public Set<String> getRequiredFieldNames() {
     return _requiredFieldNames;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Rejects any update that doesn't contain a set of fields.
    * 
-   * @param msg message to normalize
-   * @param fieldHistory field history
-   * @return {@code null} if {@code msg} doesn't contain
-   * all required fields, {@code msg} unmodified otherwise
+   * @param msg  the Fudge message to normalize, not null
+   * @param fieldHistory  the field history, not null
+   * @return the unaltered message, null if it does not contain all the required fields
    */
   @Override
-  public MutableFudgeMsg apply(MutableFudgeMsg msg,
-      FieldHistoryStore fieldHistory) {
+  public MutableFudgeMsg apply(MutableFudgeMsg msg, FieldHistoryStore fieldHistory) {
     Set<String> namesFromMsg = msg.getAllFieldNames();
     if (namesFromMsg.containsAll(getRequiredFieldNames())) {
       return msg;

@@ -5,17 +5,17 @@
  */
 package com.opengamma.financial.equity.variance.definition;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * A Variance Swap is a forward contract on the realized variance of an underlying security. 
@@ -133,14 +133,14 @@ public class VarianceSwapDefinition {
     double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
     double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
     double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
-
+    
     Validate.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
-    DoubleTimeSeries<LocalDate> realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), true);
+    DoubleTimeSeries<LocalDate> realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
     double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
     final int nObsDisrupted = countGoodDays(valueDate) - observations.length;
     Validate.isTrue(nObsDisrupted >= 0, "Somehow we have more observations than we have good business days", nObsDisrupted);
-
+    
     return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement,
                                               _varStrike, _varNotional, _currency, _annualizationFactor,
                                               _nObsExpected, nObsDisrupted, observations, observationWeights);

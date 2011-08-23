@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.function.Function1D;
@@ -15,9 +18,6 @@ import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.CompareUtils;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * 

@@ -5,17 +5,16 @@
  */
 package com.opengamma.util.rest;
 
-import static org.testng.AssertJUnit.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
 import org.mockito.Mockito;
+import org.testng.annotations.Test;
 
-import com.opengamma.util.rest.HttpMethodFilter;
 import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.spi.container.ContainerRequest;
 

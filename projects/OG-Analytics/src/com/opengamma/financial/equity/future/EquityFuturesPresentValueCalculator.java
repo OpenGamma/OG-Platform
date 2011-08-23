@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.equity.future;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.equity.AbstractEquityDerivativeVisitor;
 import com.opengamma.financial.equity.EquityDerivative;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.financial.equity.future.pricing.EquityFutureMarkToMarket;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Present value calculator for futures on Equity underlying assets

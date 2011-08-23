@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.HashMap;
@@ -25,7 +30,7 @@ public class ManageableUnstrucutredMarketDataSnapshotBuilder implements FudgeBui
   private static final String VALUE_SPEC_FIELD = "valueSpec";
   private static final String VALUE_NAME_FIELD = "valueName";
   private static final String VALUE_FIELD = "value";
-  
+
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ManageableUnstructuredMarketDataSnapshot object) {
     MutableFudgeMsg ret = serializer.newMessage();

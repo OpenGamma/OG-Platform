@@ -5,7 +5,6 @@
  */
 package com.opengamma.examples.loader;
 
-import java.util.Arrays;
 import java.net.URL;
 import java.util.Set;
 

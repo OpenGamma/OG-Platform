@@ -74,7 +74,7 @@ import com.opengamma.util.PublicAPI;
    * </pre>
    * 
    * @param elementName  the name of the element to lookup, not null
-   * @return the value or null if none is defined
+   * @return the value, null if none is defined
    */
   public Object get(String elementName) {
     return _backingMap.get(elementName);
@@ -89,7 +89,7 @@ import com.opengamma.util.PublicAPI;
    * 
    * @param elementName  the name of the element to set, not null
    * @param value the value to set, not null
-   * @return the previous value for the element or null if none was defined
+   * @return the previous value for the element, null if none was defined
    */
   public Object put(String elementName, Object value) {
     return _backingMap.put(elementName, value);
@@ -100,7 +100,7 @@ import com.opengamma.util.PublicAPI;
    * This is not intended to be called directly from function code.
    * 
    * @param elementName  the name of the element to remove, not null
-   * @return the previous value for the element or null if none was defined
+   * @return the previous value for the element, null if none was defined
    */
   public Object remove(String elementName) {
     return _backingMap.remove(elementName);

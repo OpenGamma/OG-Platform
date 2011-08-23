@@ -85,7 +85,7 @@ public final class HistoricalTimeSeriesSourceServiceNames {
   /**
    * 
    */
-  public static final String REQUEST_INCLUSIVE_START = "inclusiveStart";
+  public static final String REQUEST_INCLUDE_START = "includeStart";
   /**
    * 
    */
@@ -93,6 +93,6 @@ public final class HistoricalTimeSeriesSourceServiceNames {
   /**
    * 
    */
-  public static final String REQUEST_EXCLUSIVE_END = "exclusiveEnd";
+  public static final String REQUEST_INCLUDE_END = "includeEnd";
 
 }

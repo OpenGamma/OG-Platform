@@ -23,7 +23,7 @@ public final class CountrySecondaryType extends SecondaryFieldType<Country, Stri
   @FudgeSecondaryType
   public static final CountrySecondaryType INSTANCE = new CountrySecondaryType();
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**

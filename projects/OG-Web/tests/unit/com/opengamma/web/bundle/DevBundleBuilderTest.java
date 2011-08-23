@@ -8,9 +8,11 @@ package com.opengamma.web.bundle;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.io.File;
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 /**
  * Test DevBundleBuilder.

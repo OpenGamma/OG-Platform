@@ -33,7 +33,7 @@ public abstract class AbstractDefinitionProvider<T extends Definition> implement
    * Adds any definitions to the supplied collection. The implementation must not
    * attempt any caching or retain a reference to the collection.
    *
-   * @param definitions the collection to populate, not {@code null}
+   * @param definitions the collection to populate, not null
    */
   protected abstract void loadDefinitions(Collection<T> definitions);
 
@@ -43,7 +43,7 @@ public abstract class AbstractDefinitionProvider<T extends Definition> implement
    * and not override this unless it needs to modify the actual collection object
    * returned by the provider.
    * 
-   * @return the definitions, {@code null} or the empty set if there are none
+   * @return the definitions, null or the empty set if there are none
    */
   protected Set<T> getDefinitionsImpl() {
     final Set<T> definitions = new HashSet<T>();

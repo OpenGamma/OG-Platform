@@ -6,8 +6,10 @@
 package com.opengamma.engine.view;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.Instant;
+
+import org.testng.annotations.Test;
 
 /**
  * 

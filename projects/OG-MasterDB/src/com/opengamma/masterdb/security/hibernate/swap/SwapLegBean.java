@@ -9,8 +9,8 @@ package com.opengamma.masterdb.security.hibernate.swap;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
-import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
+import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 
 /**
  * A bean representation of a {@link SwapLeg}.

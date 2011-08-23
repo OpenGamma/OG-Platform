@@ -5,14 +5,16 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
+import org.testng.annotations.Test;
+
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**

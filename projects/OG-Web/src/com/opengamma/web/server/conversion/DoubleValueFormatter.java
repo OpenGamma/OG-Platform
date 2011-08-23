@@ -61,8 +61,8 @@ public abstract class DoubleValueFormatter {
    * Takes a plain number (rounded appropriately, and using '.' as the decimal separator and '-' if negative) and
    * applies locale-specific formatting.
    * 
-   * @param plainNumberString  the plain number, not {@code null}
-   * @return the transformed number, not {@code null}
+   * @param plainNumberString  the plain number, not null
+   * @return the transformed number, not null
    */
   private String transformPlainNumberString(String plainNumberString) {
     // A plain number string is of the form:

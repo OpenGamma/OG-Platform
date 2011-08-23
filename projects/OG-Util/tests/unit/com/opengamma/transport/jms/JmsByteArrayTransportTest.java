@@ -12,11 +12,11 @@ import java.util.Random;
 
 import javax.jms.ConnectionFactory;
 
-import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.testng.annotations.Test;
 
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;

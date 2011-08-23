@@ -50,7 +50,7 @@ public class MarketDataSourcingFunction extends AbstractFunction.NonCompiledInvo
    * Returns the value requirement (to be passed to a market data provider) and resultant specification to be passed
    * to dependent nodes in the graph.
    * 
-   * @return the requirement and specification, not {@code null}
+   * @return the requirement and specification, not null
    */
   public Pair<ValueRequirement, ValueSpecification> getMarketDataRequirement() {
     return _value;

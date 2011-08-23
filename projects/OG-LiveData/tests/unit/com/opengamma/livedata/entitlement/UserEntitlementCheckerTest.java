@@ -5,8 +5,6 @@
  */
 package com.opengamma.livedata.entitlement;
 
-import org.testng.annotations.Test;
-import org.testng.AssertJUnit;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +13,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;

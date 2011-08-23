@@ -505,6 +505,7 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
    * A has failed due to errors 12, 15, and 16.
    */
   public static class BatchResultWriterFailure implements MissingInput, Serializable {
+    /** Serialization version. */
     private static final long serialVersionUID = 1L;
     private Set<Number> _computeFailureIds = new HashSet<Number>();
 
