@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.volatility;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -13,9 +16,6 @@ import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * Black pricing in the forward measure. All prices, input/output, are *forward* prices, i.e. price(t,T) / Zero(t,T).

@@ -8,7 +8,7 @@ package com.opengamma.financial.fudgemsg;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.BeforeMethod;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.master.region.RegionMaster;

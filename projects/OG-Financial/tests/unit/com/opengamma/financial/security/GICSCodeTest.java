@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.security;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.security.equity.GICSCode;
 
 /**

@@ -6,7 +6,9 @@
 package com.opengamma.financial.timeseries.returns;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;

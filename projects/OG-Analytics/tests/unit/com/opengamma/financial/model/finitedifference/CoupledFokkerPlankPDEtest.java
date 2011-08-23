@@ -8,7 +8,6 @@ package com.opengamma.financial.model.finitedifference;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
@@ -20,9 +19,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

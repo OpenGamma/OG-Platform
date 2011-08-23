@@ -9,20 +9,28 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Partial implementation of a {@link JobInvoker}.
+ * Abstract job invoker that provides default implementations for most methods.
  */
 public abstract class AbstractJobInvoker implements JobInvoker {
 
+  /**
+   * The identifier.
+   */
   private final String _identifier;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param identifier  the identifier, not null
+   */
   protected AbstractJobInvoker(final String identifier) {
     _identifier = identifier;
   }
 
   /**
-   * Returns an empty capability set.
+   * Default implementation that returns an empty set.
    * 
-   * @return the capabilities, not {@code null}
+   * @return the capabilities, not null
    */
   @Override
   public Collection<Capability> getCapabilities() {
@@ -35,19 +43,20 @@ public abstract class AbstractJobInvoker implements JobInvoker {
   }
 
   /**
-   * No-op.
+   * Default implementation that does nothing.
    * 
-   * @param jobs jobs to cancel
+   * @param jobs  the jobs to cancel, not null
    */
   @Override
   public void cancel(final Collection<CalculationJobSpecification> jobs) {
-    // No-op
+    // do nothing
   }
 
   /**
-   * Always returns {@code true}.
-   * @param jobs jobs to query, ignored
-   * @return {@code true}
+   * Default implementation of alive always returning true.
+   * 
+   * @param jobs  the jobs to query, ignored
+   * @return true always
    */
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {

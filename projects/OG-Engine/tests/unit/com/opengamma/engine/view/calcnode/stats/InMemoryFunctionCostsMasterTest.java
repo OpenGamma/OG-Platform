@@ -5,10 +5,11 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNull;
+
 import org.testng.annotations.Test;
 
 /**

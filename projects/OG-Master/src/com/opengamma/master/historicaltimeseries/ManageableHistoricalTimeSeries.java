@@ -25,8 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 

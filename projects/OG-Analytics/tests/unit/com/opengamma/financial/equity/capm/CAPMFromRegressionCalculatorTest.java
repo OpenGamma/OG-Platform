@@ -6,9 +6,9 @@
 package com.opengamma.financial.equity.capm;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.equity.capm.CAPMFromRegressionCalculator;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

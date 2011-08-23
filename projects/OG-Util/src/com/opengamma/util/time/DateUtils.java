@@ -471,8 +471,8 @@ public class DateUtils {
   // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing in JSR-310.
   /**
    * Creates a clock with a fixed time-source and UTC time-zone.
-   * @param instantProvider  the instant to be provided by the clock, not {@code null}
-   * @return the clock, not {@code null}
+   * @param instantProvider  the instant to be provided by the clock, not null
+   * @return the clock, not null
    */
   public static Clock fixedClockUTC(InstantProvider instantProvider) {
     TimeSource timeSource = TimeSource.fixed(instantProvider);

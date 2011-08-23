@@ -9,8 +9,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 

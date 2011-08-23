@@ -5,10 +5,12 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.util.BitSet;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 

@@ -105,11 +105,11 @@ public final class YieldCurveFunction {
   }
 
   /**
-   * Returns the curve name specified as a requirement constraint or {@code null} if there is no constraint
+   * Returns the curve name specified as a requirement constraint, null if there is no constraint
    * or a wildcard.
    * 
    * @param requirement the requirement
-   * @return the curve name, or {@code null}
+   * @return the curve name, may be null
    */
   public static String getCurveName(final ValueRequirement requirement) {
     return getPropertyValue(ValuePropertyNames.CURVE, requirement);
@@ -121,7 +121,7 @@ public final class YieldCurveFunction {
    * 
    * @param context the function compilation context
    * @param requirement the requirement
-   * @return the curve name, not {@code null}
+   * @return the curve name, not null
    */
   public static String getCurveName(final FunctionCompilationContext context, final ValueRequirement requirement) {
     return getPropertyValue(ValuePropertyNames.CURVE, context, requirement);

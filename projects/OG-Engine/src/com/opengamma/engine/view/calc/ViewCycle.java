@@ -9,8 +9,8 @@ import javax.time.Duration;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
 
 /**

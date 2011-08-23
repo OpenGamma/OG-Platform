@@ -192,4 +192,59 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     return rootFinder.getRoot(swapValue, range[0], range[1]);
   }
 
+  /**
+   * The maturity dependent part of the volatility (function called H in the implementation note).
+   * @param hwParameters The model parameters.
+   * @param u The start time.
+   * @param v The end times.
+   * @return The volatility.
+   */
+  public double[][] volatilityMaturityPart(final HullWhiteOneFactorPiecewiseConstantParameters hwParameters, double u, double[][] v) {
+    double a = hwParameters.getMeanReversion();
+    double[][] result = new double[v.length][];
+    double expau = Math.exp(-a * u);
+    for (int loopcf1 = 0; loopcf1 < v.length; loopcf1++) {
+      result[loopcf1] = new double[v[loopcf1].length];
+      for (int loopcf2 = 0; loopcf2 < v[loopcf1].length; loopcf2++) {
+        result[loopcf1][loopcf2] = (expau - Math.exp(-a * v[loopcf1][loopcf2])) / a;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The expiry time dependent part of the volatility.
+   * @param hwParameters The model parameters.
+   * @param theta0 The start expiry time.
+   * @param theta1 The end expiry time.
+   * @return The volatility.
+   */
+  public double gamma(final HullWhiteOneFactorPiecewiseConstantParameters hwParameters, double theta0, double theta1) {
+    double a = hwParameters.getMeanReversion();
+    double[] sigma = hwParameters.getVolatility();
+    int indexStart = 1; // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    while (theta0 > hwParameters.getVolatilityTime()[indexStart]) {
+      indexStart++;
+    }
+    int indexEnd = indexStart; // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
+    while (theta1 > hwParameters.getVolatilityTime()[indexEnd]) {
+      indexEnd++;
+    }
+    int sLen = indexEnd - indexStart + 2;
+    double[] s = new double[sLen];
+    s[0] = theta0;
+    System.arraycopy(hwParameters.getVolatilityTime(), indexStart, s, 1, sLen - 2);
+    s[sLen - 1] = theta1;
+
+    double gamma = 0.0;
+    double[] exp2as = new double[sLen];
+    for (int loopindex = 0; loopindex < sLen; loopindex++) {
+      exp2as[loopindex] = Math.exp(2 * a * s[loopindex]);
+    }
+    for (int loopindex = 0; loopindex < sLen - 1; loopindex++) {
+      gamma += sigma[indexStart - 1 + loopindex] * sigma[indexStart - 1 + loopindex] * (exp2as[loopindex + 1] - exp2as[loopindex]);
+    }
+    return gamma;
+  }
+
 }

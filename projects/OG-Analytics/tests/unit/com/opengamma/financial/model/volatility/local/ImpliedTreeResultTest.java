@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.local;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**

@@ -6,12 +6,14 @@
 package com.opengamma.livedata.server;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Timer;
 
 import org.fudgemsg.FudgeContext;
-import com.opengamma.id.ExternalScheme;
+import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;

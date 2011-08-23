@@ -32,7 +32,6 @@ import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;

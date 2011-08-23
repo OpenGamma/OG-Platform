@@ -6,7 +6,9 @@
 package com.opengamma.core.security;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 
 /**

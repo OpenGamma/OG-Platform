@@ -50,9 +50,7 @@ import com.opengamma.util.money.Currency;
 @BeanDefinition
 public class ManageableTrade extends DirectBean implements Trade, MutableUniqueIdentifiable, Serializable {
 
-  /**
-   * Version
-   */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
    * The trade unique identifier.

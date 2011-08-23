@@ -18,8 +18,8 @@ public interface ResultConverter<T> {
    * Converts from a function result into an object suitable for consumption by the web client as JSON, for display.
    * 
    * @param context  the converter context
-   * @param valueSpec  the value specification if applicable, may be {@code null}
-   * @param value  a function result, not {@code null}
+   * @param valueSpec  the value specification if applicable, may be null
+   * @param value  a function result, not null
    * @param mode  the mode in which the value should be converted
    * @return  the converted, JSON-friendly value for display
    */
@@ -29,8 +29,8 @@ public interface ResultConverter<T> {
    * Converts from a function result into an object suitable for consumption by the web client as JSON, for history.
    * 
    * @param context  the converter context
-   * @param valueSpec  the value specification if applicable, may be {@code null}
-   * @param value  a function result, not {@code null}
+   * @param valueSpec  the value specification if applicable, may be null
+   * @param value  a function result, not null
    * @return  the converted, JSON-friendly value for history
    */
   Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, T value);
@@ -40,8 +40,8 @@ public interface ResultConverter<T> {
    * the full {@link double} value in the case of a number, or a string representation of more complex objects.
    * 
    * @param context  the converter context
-   * @param valueSpec  the value specification if applicable, may be {@code null}
-   * @param value  a function result, not {@code null}
+   * @param valueSpec  the value specification if applicable, may be null
+   * @param value  a function result, not null
    * @return  the converted, JSON-friendly value for inclusion in a CSV file
    */
   String convertToText(ResultConverterCache context, ValueSpecification valueSpec, T value);
@@ -53,7 +53,7 @@ public interface ResultConverter<T> {
    *   <li>how it should be rendered</li>
    * </ul>
    * 
-   * @return a unique name, not {@code null}
+   * @return a unique name, not null
    */
   String getFormatterName();
   

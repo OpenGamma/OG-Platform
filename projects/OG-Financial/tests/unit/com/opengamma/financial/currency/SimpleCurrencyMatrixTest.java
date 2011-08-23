@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.currency;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;

@@ -19,8 +19,8 @@ import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 
 /**
  * 

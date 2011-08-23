@@ -11,8 +11,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 
 /**
  * Test LiveDataSpecification.

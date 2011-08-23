@@ -6,7 +6,9 @@
 package com.opengamma.livedata.entitlement;
 
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;

@@ -9,7 +9,10 @@ import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorF
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
@@ -26,10 +29,6 @@ import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.NodalDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 /**
  * 

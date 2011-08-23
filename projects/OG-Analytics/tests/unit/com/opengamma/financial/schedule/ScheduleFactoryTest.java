@@ -5,17 +5,18 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.schedule.ScheduleFactory;
 import com.opengamma.util.time.DateUtils;
 
 /**
