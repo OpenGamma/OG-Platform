@@ -29,16 +29,9 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
     super(parameters);
   }
 
-  /**
-   * Allows a sub-class to wrap the invokeImpl of another implementation.
-   * 
-   * @param invoker the wrapped invoker instance, not {@code null}
-   * @param sessionContext the session context to pass to invokeImpl
-   * @param parameters the parameters to pass to invokeImpl
-   * @return the result of invokeImpl
-   */
-  protected static Object invokeImpl(final AbstractFunctionInvoker invoker, final SessionContext sessionContext, final Object[] parameters) {
-    return invoker.invokeImpl(sessionContext, parameters);
+  @Override
+  protected List<MetaParameter> getParameters() {
+    return super.getParameters();
   }
 
   protected abstract Object invokeImpl(final SessionContext sessionContext, final Object[] parameters);
