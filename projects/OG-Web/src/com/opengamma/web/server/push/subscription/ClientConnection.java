@@ -57,9 +57,8 @@ public class ClientConnection implements ChangeListener {
    * @param viewportId
    */
   public void createViewport(String clientId, ViewportDefinition request, String viewportUrl) {
-    // TODO the listener needs a wrapper that deactivates itself after every update and is reactivated at the client's request?
     AnalyticsListener listener = new AnalyticsListener(viewportUrl, _listener);
-    Viewport viewport = _viewportFactory.createViewport(_clientId, request, listener);
+    _viewport = _viewportFactory.createViewport(_clientId, request, listener);
   }
 
   public void activateViewportSubscription() {
@@ -68,7 +67,7 @@ public class ClientConnection implements ChangeListener {
   }
 
   public void disconnect() {
-    // TODO dispose of all the subscriptions
+    // TODO dispose of all the subscriptions and viewport
   }
 
   public void subscribe(UniqueId uid, String url) {
@@ -86,8 +85,8 @@ public class ClientConnection implements ChangeListener {
   }
 
   public Viewport getViewport(String viewportUrl) {
-    // TODO check the URL corresponds (in case a new viewport has been created)
-    throw new UnsupportedOperationException();
+    // TODO check URL corresponds to the current viewport
+    return _viewport;
   }
 }
 

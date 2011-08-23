@@ -49,6 +49,7 @@ public class ViewportDefinition {
   // TODO sanity check that the dep graph cells are all in the specified rows?
   public static ViewportDefinition fromJSON(String json) {
     try {
+      // TODO some of the validation should be in the constructor
       JSONObject jsonObject = new JSONObject(json);
       JSONArray rowsArray = jsonObject.getJSONArray(ROWS);
       List<ViewportRow> rows = new ArrayList<ViewportRow>();

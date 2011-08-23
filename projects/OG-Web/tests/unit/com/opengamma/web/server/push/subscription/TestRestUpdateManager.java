@@ -40,6 +40,7 @@ public class TestRestUpdateManager implements RestUpdateManager {
   public void createViewport(String userId,
                              String clientId,
                              ViewportDefinition viewportDefinition,
+                             String viewportId,
                              String viewportUrl) {
     throw new UnsupportedOperationException("createViewport not implemented");
   }

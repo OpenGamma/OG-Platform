@@ -39,11 +39,9 @@ public interface RestUpdateManager {
   // TODO UID or string for viewport ID?
   Viewport getViewport(String userId, String clientId, String viewportUrl);
 
-  /**
-   *
-   *
-   * @param viewportDefinition
-   * @param viewportUrl
-   */
-  void createViewport(String userId, String clientId, ViewportDefinition viewportDefinition, String viewportUrl);
+  void createViewport(String userId,
+                      String clientId,
+                      ViewportDefinition viewportDefinition,
+                      String viewportId,
+                      String viewportUrl);
 }

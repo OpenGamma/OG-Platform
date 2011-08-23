@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.subscription;
 
 import com.google.common.base.Objects;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
@@ -69,18 +70,18 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public Viewport getViewport(String userId, String clientId, String viewportUrl) {
-    ClientConnection connection = getConnectionByViewportId(userId, viewportUrl);
-    if (connection != null) {
-      return connection.getViewport(viewportUrl);
-    } else {
-      return Viewport.DUMMY;
-    }
+    return getConnectionByViewportId(userId, viewportUrl).getViewport(viewportUrl);
   }
 
-  public void createViewport(String userId, String clientId, ViewportDefinition viewportDefinition, String viewportUrl) {
+  @Override
+  public void createViewport(String userId,
+                             String clientId,
+                             ViewportDefinition viewportDefinition,
+                             String viewportId,
+                             String viewportUrl) {
     ClientConnection connection = getConnectionByClientId(userId, clientId);
     connection.createViewport(clientId, viewportDefinition, viewportUrl);
-    _connectionsByViewportId.put(viewportUrl, connection);
+    _connectionsByViewportId.put(viewportId, connection);
   }
 
   private ClientConnection getConnectionByClientId(String userId, String clientId) {
@@ -89,10 +90,10 @@ import java.util.concurrent.atomic.AtomicLong;
     ArgumentChecker.notEmpty(clientId, "clientId");
     ClientConnection connection = _connectionsByClientId.get(clientId);
     if (connection == null) {
-      throw new OpenGammaRuntimeException("Unknown client ID " + clientId);
+      throw new DataNotFoundException("Unknown client ID: " + clientId);
     }
     if (!Objects.equal(userId, connection.getUserId())) {
-      throw new OpenGammaRuntimeException("User ID " + userId + " is not associated with client ID " + clientId);
+      throw new DataNotFoundException("User ID " + userId + " is not associated with client ID " + clientId);
     }
     return connection;
   }
@@ -100,10 +101,10 @@ import java.util.concurrent.atomic.AtomicLong;
   private ClientConnection getConnectionByViewportId(String userId, String viewportId) {
     ClientConnection connection = _connectionsByViewportId.get(viewportId);
     if (connection == null) {
-      throw new OpenGammaRuntimeException("Unknown viewport ID " + viewportId);
+      throw new DataNotFoundException("Unknown viewport ID: " + viewportId);
     }
     if (!Objects.equal(userId, connection.getUserId())) {
-      throw new OpenGammaRuntimeException("User ID " + userId + " is not associated with viewport " + viewportId);
+      throw new DataNotFoundException("User ID " + userId + " is not associated with viewport " + viewportId);
     }
     return connection;
   }

@@ -41,13 +41,13 @@
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-LiveData-default">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.ehcache/ehcache/jars/ehcache-1.6.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/jars/ehcache-1.6.2.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.ehcache/ehcache/javadocs/ehcache-javadoc-1.6.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/javadocs/ehcache-javadoc-1.6.2.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-cj/org.ehcache/ehcache/sources/ehcache-src-1.6.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/sources/ehcache-src-1.6.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

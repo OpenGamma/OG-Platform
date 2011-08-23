@@ -20,4 +20,9 @@ public class ViewportRow {
   public long getTimestamp() {
     return _timestamp;
   }
+
+  @Override
+  public String toString() {
+    return "ViewportRow{_rowId=" + _rowId + ", _timestamp=" + _timestamp + '}';
+  }
 }

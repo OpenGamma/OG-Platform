@@ -5,10 +5,10 @@
  */
 package com.opengamma.web.server.push.web;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import com.opengamma.web.server.push.subscription.Viewport;
 import com.opengamma.web.server.push.subscription.ViewportDefinition;
-import com.sun.jersey.api.core.HttpContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -19,13 +19,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- *
+ * TODO catch RestRuntimeException and set the status on the response?
+ * TODO would that be best done with a servlet filter? surely there's a standard way to do that?
  */
 @Path("viewports")
 public class ViewportsResource {
 
+  // TODO better way of generating viewport IDs
+  private final AtomicLong _nextId = new AtomicLong();
   private final RestUpdateManager _restUpdateManager;
 
   public ViewportsResource(RestUpdateManager restUpdateManager) {
@@ -44,24 +50,32 @@ public class ViewportsResource {
                                @QueryParam("clientId") String clientId,
                                @Context HttpServletRequest request) {
     String userId = request.getRemoteUser();
-    // TODO should this be JSON?
-    String viewportUrl = generateViewportUrl();
-    _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportUrl);
+    // TODO should this be wrapped in JSON?
+    String viewportId = generateViewportId();
+    String viewportUrl = generateViewportUrl(viewportId, request);
+    _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportId, viewportUrl);
     return viewportUrl;
   }
 
   @Path("{viewportId}")
   public ViewportResource findViewport(@QueryParam("clientId") String clientId,
-                                       @Context HttpContext httpContext,
+                                       @PathParam("viewportId") String viewportId,
                                        @Context HttpServletRequest request) {
-    String viewportUrl = httpContext.getUriInfo().getPath(); // TODO is this right?
     String userId = request.getRemoteUser();
-    Viewport viewport = _restUpdateManager.getViewport(userId, clientId, viewportUrl);
-    return new ViewportResource(viewport);
+    Viewport viewport = _restUpdateManager.getViewport(userId, clientId, viewportId);
+    if (viewport != null) {
+      return new ViewportResource(viewport);
+    } else {
+      throw new DataNotFoundException("Unable to find viewport, userId: " + userId + ", clientId: " + clientId +
+                                          ", viewportId: " + viewportId);
+    }
   }
 
-  // TODO there are JAX-RS helpers for this. but does it need to be a full URL?
-  private String generateViewportUrl() {
-    throw new UnsupportedOperationException();
+  private String generateViewportUrl(String viewportId, HttpServletRequest request) {
+    return UriBuilder.fromUri(request.getRequestURI()).path("{viewportId}").build(viewportId).toString();
+  }
+
+  private String generateViewportId() {
+    return Long.toString(_nextId.getAndIncrement());
   }
 }

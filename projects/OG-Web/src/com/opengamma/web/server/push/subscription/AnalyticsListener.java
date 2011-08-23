@@ -1,7 +1,7 @@
 package com.opengamma.web.server.push.subscription;
 
 /**
- * TODO CONCURRENCY
+ *
  */
 public class AnalyticsListener {
 
@@ -13,7 +13,7 @@ public class AnalyticsListener {
   private boolean _dataChanged = false;
 
   public AnalyticsListener(String viewportUrl, RestUpdateListener listener) {
-    this._viewportUrl = viewportUrl;
+    _viewportUrl = viewportUrl;
     _listener = listener;
   }
 

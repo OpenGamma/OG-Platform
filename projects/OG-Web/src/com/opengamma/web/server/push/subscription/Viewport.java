@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.subscription;
 
 import com.opengamma.web.server.conversion.ConversionMode;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -28,12 +29,12 @@ public interface Viewport {
   public static final Viewport DUMMY = new Viewport() {
     @Override
     public Map<String, Object> getGridStructure() {
-      return null; // TODO emtpy map?
+      return Collections.emptyMap();
     }
 
     @Override
     public Map<String, Object> getLatestData() {
-      return null; // TODO empty map?
+      return Collections.emptyMap();
     }
 
     @Override
