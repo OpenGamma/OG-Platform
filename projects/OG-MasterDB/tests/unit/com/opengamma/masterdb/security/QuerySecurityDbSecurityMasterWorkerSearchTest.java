@@ -63,7 +63,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_pageOne() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -78,7 +78,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_pageTwo() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());

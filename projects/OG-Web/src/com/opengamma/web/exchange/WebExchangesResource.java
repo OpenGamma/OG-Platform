@@ -88,7 +88,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     FlexiBean out = createRootData();
     
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {

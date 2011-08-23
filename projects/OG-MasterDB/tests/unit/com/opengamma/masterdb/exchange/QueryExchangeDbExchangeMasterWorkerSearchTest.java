@@ -61,7 +61,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_pageOne() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -76,7 +76,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_pageTwo() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());

@@ -41,7 +41,7 @@ public final class PagingRequest {
   public static final PagingRequest NONE = new PagingRequest(1, 0);
 
   /**
-   * The requested page.
+   * The requested first item.
    */
   private final int _page;
   /**
@@ -50,16 +50,31 @@ public final class PagingRequest {
   private final int _pagingSize;
 
   /**
-   * Obtains an instance, applying default values.
+   * Obtains an instance based on a page and paging size, applying default values.
+   * If the page is zero, then the page is defaulted to 1 and the paging size
+   * The page will default to 1 if the input is 0.
+   * The paging size will default to 20 if the input is 0.
    * 
    * @param page  the page number, page one chosen if zero, not negative
    * @param pagingSize  the paging size, size twenty chosen if zero, not negative
    * @return the paging request, not null
    * @throws IllegalArgumentException if either input is negative
    */
-  public static PagingRequest of(int page, int pagingSize) {
+  public static PagingRequest ofPageDefaulted(int page, int pagingSize) {
     page = (page == 0 ? 1 : page);
     pagingSize = (pagingSize == 0 ? DEFAULT_PAGING_SIZE : pagingSize);
+    return new PagingRequest(page, pagingSize);
+  }
+
+  /**
+   * Obtains an instance based on a page and paging size.
+   * 
+   * @param page  the page number, one or greater
+   * @param pagingSize  the paging size, zero or greater
+   * @return the paging request, not null
+   * @throws IllegalArgumentException if either input is invalid
+   */
+  public static PagingRequest ofPage(int page, int pagingSize) {
     return new PagingRequest(page, pagingSize);
   }
 
@@ -70,9 +85,9 @@ public final class PagingRequest {
    * 
    * @param page  the page number, one or greater
    * @param pagingSize  the paging size, zero or greater
-   * @throws IllegalArgumentException if either input is negative or zero
+   * @throws IllegalArgumentException if either input is invalid
    */
-  public PagingRequest(final int page, final int pagingSize) {
+  private PagingRequest(final int page, final int pagingSize) {
     ArgumentChecker.notNegativeOrZero(page, "page number");
     ArgumentChecker.notNegative(pagingSize, "paging size");
     _page = page;

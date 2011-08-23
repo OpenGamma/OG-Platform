@@ -55,7 +55,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
       @QueryParam("pageSize") int pageSize,
       @Context UriInfo uriInfo) {
     BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-    request.setDataPagingRequest(PagingRequest.of(page, pageSize));
+    request.setDataPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     request.setErrorPagingRequest(PagingRequest.ALL);
     BatchDocument batchDoc = data().getBatchMaster().get(request);
     data().setBatch(batchDoc);
@@ -71,7 +71,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
       @QueryParam("pageSize") int pageSize,
       @Context UriInfo uriInfo) {
     BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-    request.setDataPagingRequest(PagingRequest.of(page, pageSize));
+    request.setDataPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     request.setErrorPagingRequest(PagingRequest.ALL);
     BatchDocument batchDoc = data().getBatchMaster().get(request);
     data().setBatch(batchDoc);
@@ -111,7 +111,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
         });
         
         BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-        request.setDataPagingRequest(PagingRequest.of(1, 1000));
+        request.setDataPagingRequest(PagingRequest.ofPage(1, 1000));
         request.setErrorPagingRequest(PagingRequest.NONE);
         while (true) {
           BatchDocument batchDoc = data().getBatchMaster().get(request);
@@ -159,7 +159,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
         
         BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
         request.setDataPagingRequest(PagingRequest.NONE);
-        request.setErrorPagingRequest(PagingRequest.of(1, 1000));
+        request.setErrorPagingRequest(PagingRequest.ofPage(1, 1000));
         while (true) {
           BatchDocument batchDoc = data().getBatchMaster().get(request);
           for (BatchError entry : batchDoc.getErrors()) {
