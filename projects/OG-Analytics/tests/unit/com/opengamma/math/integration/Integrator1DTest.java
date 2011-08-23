@@ -6,6 +6,7 @@
 package com.opengamma.math.integration;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function1D;
 
 /**

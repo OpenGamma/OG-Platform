@@ -82,7 +82,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
 
       final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
       final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(_markDataField, security.getIdentifiers(), _resolutionKey,
-          tradeDate, true, tradeDate, false);
+          tradeDate, true, tradeDate, true);
 
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
         throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey);
@@ -115,7 +115,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
     if (cachedCost == null) {
       cachedCost = UN_AVAILABLE_COST;
       final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getIdentifiers(), _resolutionKey,
-          tradeDate, true, tradeDate, false);
+          tradeDate, true, tradeDate, true);
       if (costOfCarryPair != null && costOfCarryPair.getTimeSeries() != null && !costOfCarryPair.getTimeSeries().isEmpty()) {
         Double histCost = costOfCarryPair.getTimeSeries().getValue(tradeDate);
         if (histCost != null) {

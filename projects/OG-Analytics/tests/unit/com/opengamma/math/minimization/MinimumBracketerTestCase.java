@@ -6,6 +6,7 @@
 package com.opengamma.math.minimization;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function1D;
 
 /**

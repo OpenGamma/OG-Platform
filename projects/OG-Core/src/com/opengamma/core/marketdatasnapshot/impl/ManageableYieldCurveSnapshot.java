@@ -15,14 +15,23 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 
+/**
+ * Mutable snapshot of yield curve data.
+ */
 public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
 
-
+  /**
+   * The valuation instant.
+   */
   private Instant _valuationTime;
+  /**
+   * The values.
+   */
   private UnstructuredMarketDataSnapshot _values;
 
   /**
-   * Gets the values field.
+   * Gets the values.
+   * 
    * @return the values
    */
   public UnstructuredMarketDataSnapshot getValues() {
@@ -30,7 +39,7 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
   }
 
   /**
-   * Sets the values field.
+   * Sets the values.
    * @param values  the values
    */
   public void setValues(UnstructuredMarketDataSnapshot values) {
@@ -38,21 +47,23 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
   }
 
   /**
-   * Gets the valuationTime field.
-   * @return the valuationTime
+   * Gets the valuation instant.
+   * 
+   * @return the valuation instant
    */
   public Instant getValuationTime() {
     return _valuationTime;
   }
 
   /**
-   * Sets the valuationTime field.
-   * @param valuationTime  the valuationTime
+   * Sets the valuation instant.
+   * 
+   * @param valuationTime  the valuation instant
    */
   public void setValuationTime(Instant valuationTime) {
     _valuationTime = valuationTime;
   }
-  
+
   public org.fudgemsg.FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
     MutableFudgeMsg ret = serializer.newMessage();
     FudgeSerializer.addClassHeader(ret, ManageableYieldCurveSnapshot.class);
@@ -72,6 +83,5 @@ public class ManageableYieldCurveSnapshot implements YieldCurveSnapshot {
 
     return ret;
   }
-  
-  
+
 }

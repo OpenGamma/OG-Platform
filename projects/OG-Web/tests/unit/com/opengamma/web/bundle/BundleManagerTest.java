@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.bundle;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
 import static com.opengamma.web.bundle.BundleTest.BUTTON_CSS;
 import static com.opengamma.web.bundle.BundleTest.CORE_CSS;
 import static com.opengamma.web.bundle.BundleTest.CORE_JS;
@@ -22,13 +19,15 @@ import static com.opengamma.web.bundle.BundleTest.RESET_CSS;
 import static com.opengamma.web.bundle.BundleTest.makeCssBundleCommon;
 import static com.opengamma.web.bundle.BundleTest.makeCssUtil;
 import static com.opengamma.web.bundle.BundleTest.makejsBundleCommon;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Lists;
-import com.opengamma.web.bundle.Bundle;
-import com.opengamma.web.bundle.BundleManager;
-import com.opengamma.web.bundle.Fragment;
 
 /**
  * Test BundleManager.

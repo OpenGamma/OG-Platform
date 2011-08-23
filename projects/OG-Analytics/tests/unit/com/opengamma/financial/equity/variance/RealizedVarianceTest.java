@@ -7,12 +7,12 @@ package com.opengamma.financial.equity.variance;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.RealizedVariance;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.util.money.Currency;
-
-import org.testng.annotations.Test;
 
 /**
  * 

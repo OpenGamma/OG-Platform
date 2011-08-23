@@ -64,7 +64,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance, including a reference portfolio.
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, or null if no
+   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
    *                           portfolio reference is required
    * @param userName  the name of the user who owns the view definition
    */
@@ -107,7 +107,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, or null if no
+   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if no
    *                           portfolio reference is required
    * @param marketDataUser  the user who owns the view definition
    */
@@ -119,7 +119,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance
    * 
    * @param name  the name of the view definition
-   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, or null if
+   * @param portfolioOid  the object identifier of the portfolio referenced by this view definition, null if
    *                           no portfolio reference is required
    * @param marketDataUser  the user who owns the view definition
    * @param resultModelDefinition  configuration of the results from the view
@@ -164,7 +164,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Gets the object identifier of the portfolio referenced by this view definition. This is the portfolio on which
    * position-level calculations should be performed. 
    * 
-   * @return  the object identifier of the portfolio referenced by this view definition, or null if no portfolio is
+   * @return  the object identifier of the portfolio referenced by this view definition, null if no portfolio is
    *          referenced
    */
   public ObjectId getPortfolioOid() {
@@ -399,7 +399,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * testing only. There are more efficient ways to interact with the computation cache to obtain terminal and intermediate
    * values following view execution.
    * 
-   * @return {@code true} if the cache should be written to disk after view execution, {@code false} otherwise.
+   * @return true if the cache should be written to disk after view execution
    */
   public boolean isDumpComputationCacheToDisk() {
     return _dumpComputationCacheToDisk;
@@ -412,7 +412,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * <p>
    * A view executor should write to a file in the system temporary directory with a filename based on the executing view's name.
    * 
-   * @param dumpComputationCacheToDisk {@code true} to write the contents of the cache to disk after view execution, {@code false} otherwise
+   * @param dumpComputationCacheToDisk true to write the contents of the cache to disk after view execution
    */
   public void setDumpComputationCacheToDisk(boolean dumpComputationCacheToDisk) {
     _dumpComputationCacheToDisk = dumpComputationCacheToDisk;

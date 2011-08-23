@@ -5,6 +5,13 @@
  */
 package com.opengamma.financial.equity.variance;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.google.common.collect.Lists;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
@@ -20,13 +27,6 @@ import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.InterpolatedSurfaceShiftFunction;
 import com.opengamma.math.surface.NodalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * This Calculator provides price sensitivities for the VarianceSwap derivative to changes in 

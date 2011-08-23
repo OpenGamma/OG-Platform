@@ -22,7 +22,7 @@ public final class ThreadUtils {
    *  
    * @param thread  the thread to join, not null
    * @param timeoutMillis  the timeout in milliseconds
-   * @return {@code true} if the join succeeded, or {@code false} if a timeout occurred
+   * @return true if the join succeeded, false if a timeout occurred
    */
   public static boolean safeJoin(Thread thread, long timeoutMillis) {
     if (!thread.isAlive()) {

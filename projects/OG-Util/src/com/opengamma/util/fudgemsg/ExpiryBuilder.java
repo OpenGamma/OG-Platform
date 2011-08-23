@@ -47,6 +47,7 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
    */
   @FudgeSecondaryType
   public static final SecondaryFieldType<Expiry, FudgeMsg> SECONDARY_TYPE_INSTANCE = new SecondaryFieldType<Expiry, FudgeMsg>(FudgeWireType.SUB_MESSAGE, Expiry.class) {
+    /** Serialization version. */
     private static final long serialVersionUID = 1L;
 
     @Override

@@ -6,8 +6,10 @@
 package com.opengamma.engine;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
@@ -16,11 +18,11 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Test ComputationTargetSpecification.

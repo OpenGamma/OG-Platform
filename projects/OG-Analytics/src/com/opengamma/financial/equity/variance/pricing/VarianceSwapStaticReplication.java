@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.model.volatility.BlackFormula;
@@ -19,8 +21,6 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.CompareUtils;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * We construct a model independent method to price variance as a static replication

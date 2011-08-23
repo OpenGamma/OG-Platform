@@ -19,7 +19,6 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
-import com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster;
 import com.opengamma.util.test.DBTest;
 
 /**

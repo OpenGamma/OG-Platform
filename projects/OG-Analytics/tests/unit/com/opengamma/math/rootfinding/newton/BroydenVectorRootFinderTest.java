@@ -6,6 +6,7 @@
 package com.opengamma.math.rootfinding.newton;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 
 /**

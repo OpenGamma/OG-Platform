@@ -18,14 +18,14 @@ public interface CurrencyMatrix extends UniqueIdentifiable {
   /**
    * Returns the set of "source" currencies defined in this matrix.
    * 
-   * @return the set of source currencies, not {@code null}
+   * @return the set of source currencies, not null
    */
   Set<Currency> getSourceCurrencies();
 
   /**
    * Returns the set of "target" currencies defined in this matrix.
    * 
-   * @return the set of target currencies, not {@code null}
+   * @return the set of target currencies, not null
    */
   Set<Currency> getTargetCurrencies();
 
@@ -34,10 +34,10 @@ public interface CurrencyMatrix extends UniqueIdentifiable {
    * a) the number of units of the source currency for one unit of the target currency; or
    * b) a unique identifier for which another function can produce (a); or
    * c) an intermediate currency; or
-   * d) {@code null} if no conversion is available
+   * d) null if no conversion is available
    * 
-   * @param source the source currency, not {@code null}
-   * @param target the target currency, not {@code null}
+   * @param source the source currency, not null
+   * @param target the target currency, not null
    * @return the matrix value
    */
   CurrencyMatrixValue getConversion(Currency source, Currency target);

@@ -32,7 +32,7 @@ public class Main {
   /**
    * Debug entry point from the service wrapper tests.
    * 
-   * @return {@code true}
+   * @return true always
    */
   public static boolean svcTest() {
     s_logger.info("svcTest called");
@@ -42,7 +42,7 @@ public class Main {
   /**
    * Entry point from the service wrapper - starts the service.
    * 
-   * @return {@code true} if the service started properly, {@code false} otherwise
+   * @return true if the service started properly
    */
   public static boolean svcStart() {
     try {
@@ -63,8 +63,8 @@ public class Main {
    * @param outputPipeName the pipe created for sending data from Java to C++
    * @param languageID the identifier of the bound language. Language specific factories will
    *                   be used if present, otherwise the default factories will be used.
-   * @param debug {@code true} if the bound language is a debug build, {@code false} otherwise 
-   * @return {@code true} if the connection started okay, {@code false} otherwise
+   * @param debug  true if the bound language is a debug build
+   * @return true if the connection started okay
    */
   public static synchronized boolean svcAccept(final String userName, final String inputPipeName,
       final String outputPipeName, final String languageID, final boolean debug) {
@@ -107,7 +107,7 @@ public class Main {
   /**
    * Entry point for the service wrapper - queries if there are no active clients.
    * 
-   * @return {@code true} if there are no active clients, {@code false} otherwise.
+   * @return true if there are no active clients
    */
   public static synchronized boolean svcIsStopped() {
     return s_activeConnections == 0;
@@ -130,7 +130,7 @@ public class Main {
   /**
    * Entry point from the service wrapper - stops the service.
    * 
-   * @return {@code true} if the service stopped cleanly, {@code false} otherwise
+   * @return true if the service stopped cleanly
    */
   public static boolean svcStop() {
     try {

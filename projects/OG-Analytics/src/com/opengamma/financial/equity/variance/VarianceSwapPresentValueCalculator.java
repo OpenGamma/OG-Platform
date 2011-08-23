@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.equity.variance;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.equity.AbstractEquityDerivativeVisitor;
 import com.opengamma.financial.equity.EquityDerivative;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
@@ -12,8 +14,6 @@ import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFutur
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * 

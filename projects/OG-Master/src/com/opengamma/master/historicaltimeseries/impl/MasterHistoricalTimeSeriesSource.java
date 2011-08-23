@@ -94,11 +94,11 @@ public class MasterHistoricalTimeSeriesSource
   }
 
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    if (start != null && !inclusiveStart) {
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    if (start != null && !includeStart) {
       start = start.plusDays(1);
     }
-    if (end != null && exclusiveEnd) {
+    if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
     return doGetHistoricalTimeSeries(uniqueId, start, end);
@@ -134,11 +134,11 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle securityBundle, String dataSource, String dataProvider, String dataField,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    if (start != null && !inclusiveStart) {
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    if (start != null && !includeStart) {
       start = start.plusDays(1);
     }
-    if (end != null && exclusiveEnd) {
+    if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
     return doGetHistoricalTimeSeries(securityBundle, (LocalDate) null, dataSource, dataProvider, dataField, start, end);
@@ -147,11 +147,11 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle securityBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    if (start != null && !inclusiveStart) {
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    if (start != null && !includeStart) {
       start = start.plusDays(1);
     }
-    if (end != null && exclusiveEnd) {
+    if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
     return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end);
@@ -204,11 +204,11 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey, 
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    if (start != null && !inclusiveStart) {
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    if (start != null && !includeStart) {
       start = start.plusDays(1);
     }
-    if (end != null && exclusiveEnd) {
+    if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
     return doGetHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, end);
@@ -223,11 +223,11 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
-    if (start != null && !inclusiveStart) {
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    if (start != null && !includeStart) {
       start = start.plusDays(1);
     }
-    if (end != null && exclusiveEnd) {
+    if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
     return doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, end);
@@ -252,7 +252,7 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      boolean includeStart, LocalDate end, boolean includeEnd) {
     // TODO [PLAT-1046]
     throw new NotImplementedException();
   }
