@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.language.convert;
+package com.opengamma.language.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -17,10 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.convert.Converters;
+import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.DefaultValueConverter;
 import com.opengamma.language.invoke.TypeConverter;
-import com.opengamma.language.test.TestUtils;
+import com.opengamma.language.invoke.TypeConverterProvider;
+import com.opengamma.language.invoke.TypeConverterProviderBean;
 
 public class AbstractConverterTest {
 
@@ -32,6 +35,36 @@ public class AbstractConverterTest {
     final TestUtils testUtils = new TestUtils();
     testUtils.setTypeConverters(new Converters());
     _sessionContext = testUtils.createSessionContext();
+  }
+
+  /**
+   * Override this if {@link #useBean} is called from {@link #getTypeConverters}.
+   * 
+   * @param bean the bean to populate with individual type converters to test
+   */
+  protected void addTypeConvertersToBean(final TypeConverterProviderBean bean) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Creates a {@link TypeConverterProviderBean} and passes it to {@link #addTypeConvertersToBean} to be populated.
+   * 
+   * @return the populated type converter provider, not {@code null}
+   */
+  protected final TypeConverterProvider useBean() {
+    final TypeConverterProviderBean bean = new TypeConverterProviderBean();
+    addTypeConvertersToBean(bean);
+    return bean;
+  }
+
+  /**
+   * Returns the type converters to configure the context with. By default uses the OG-Language default converters. Override
+   * this to use specific converters to test. A simple implementation calls {@link #useBean} and implements {@link #addTypeConvertersToBean}.
+   * 
+   * @return the type converter provider, not {@code null}
+   */
+  protected TypeConverterProvider getTypeConverters() {
+    return new Converters();
   }
 
   protected SessionContext getSessionContext() {

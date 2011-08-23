@@ -5,6 +5,7 @@
  */
 package com.opengamma.language;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
@@ -45,6 +46,31 @@ public abstract class ValueDecorator<Decoration extends ValueDecoration> {
       super.toFudgeMsg(serializer, msg);
       // The containing DATA will have put class header information in. Remove this.
       msg.remove(0);
+    }
+
+    @Override
+    public String toString() {
+      return super.toString() + "(" + getDecoration().toString() + ")";
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof DecoratedValue<?>)) {
+        return false;
+      }
+      if (!super.equals(o)) {
+        return false;
+      }
+      final DecoratedValue<?> other = (DecoratedValue<?>) o;
+      return ObjectUtils.equals(getDecoration(), other.getDecoration());
+    }
+
+    @Override
+    public int hashCode() {
+      return super.hashCode();
     }
 
   }

@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.test.AbstractConverterTest;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 
