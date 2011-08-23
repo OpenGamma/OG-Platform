@@ -174,15 +174,13 @@
   <!-- Standard type conversions -->
   <bean id="defaultTypeConversions" class="com.opengamma.language.invoke.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
-    <property name="typeConverters">
-      <bean class="com.opengamma.language.convert.Converters">
-        <property name="fudgeContext" ref="engineFudgeContext" />
-        <property name="extraConverters">
-          <list>
-            <bean class="com.opengamma.language.identifier.TypeConverter" /> 
-          </list>
-        </property>
-      </bean>
+    <property name="typeConverterProviders">
+      <list>
+        <bean class="com.opengamma.language.convert.Converters">
+          <property name="fudgeContext" ref="engineFudgeContext" />
+        </bean>
+        <bean class="com.opengamma.language.identifier.TypeConverter" />
+      </list>
     </property>
   </bean>
   

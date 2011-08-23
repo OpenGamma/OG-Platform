@@ -26,6 +26,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.Converters;
+import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
+import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.language.test.TestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -105,8 +108,12 @@ public class FetchTimeSeriesFunctionTest {
     testUtils.setHistoricalTimeSeriesSource(historicalTimeSeriesSource);
     final Converters converters = new Converters();
     converters.setFudgeContext(OpenGammaFudgeContext.getInstance());
-    converters.setExtraConverters(Arrays.asList(new com.opengamma.language.identifier.TypeConverter()));
-    testUtils.setTypeConverters(converters);
+    final TypeConverterProviderBean extra = new TypeConverterProviderBean();
+    extra.setConverters(Arrays.<TypeConverter>asList(new com.opengamma.language.identifier.TypeConverter()));
+    final AggregatingTypeConverterProvider agg = new AggregatingTypeConverterProvider();
+    agg.addTypeConverterProvider(converters);
+    agg.addTypeConverterProvider(extra);
+    testUtils.setTypeConverters(agg);
     return testUtils.createSessionContext();
   }
 

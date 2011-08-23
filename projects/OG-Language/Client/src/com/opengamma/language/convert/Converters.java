@@ -6,9 +6,7 @@
 
 package com.opengamma.language.convert;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.fudgemsg.FudgeContext;
 
@@ -23,11 +21,6 @@ public final class Converters extends AbstractTypeConverterProvider {
 
   private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
 
-  private Collection<TypeConverter> _extraConverters;
-
-  public Converters() {
-  }
-
   public void setFudgeContext(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
@@ -35,18 +28,6 @@ public final class Converters extends AbstractTypeConverterProvider {
 
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
-  }
-
-  public void setExtraConverters(final Collection<? extends TypeConverter> converters) {
-    if (converters == null) {
-      _extraConverters = null;
-    } else {
-      _extraConverters = Collections.unmodifiableList(new ArrayList<TypeConverter>(converters));
-    }
-  }
-
-  public Collection<TypeConverter> getExtraConverters() {
-    return _extraConverters;
   }
 
   @Override
@@ -63,10 +44,6 @@ public final class Converters extends AbstractTypeConverterProvider {
     converters.add(new PrimitiveConverter());
     converters.add(new SetConverter());
     converters.add(new ValueConverter());
-    final Collection<TypeConverter> extra = getExtraConverters();
-    if (extra != null) {
-      converters.addAll(extra);
-    }
   }
 
 }
