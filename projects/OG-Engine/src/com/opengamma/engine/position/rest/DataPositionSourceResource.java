@@ -47,7 +47,7 @@ public class DataPositionSourceResource {
   /**
    * Creates the resource.
    * 
-   * @param fudgeContext the Fudge context, not {@code null}
+   * @param fudgeContext  the Fudge context, not null
    * @param positionSource  the position source, not null
    */
   public DataPositionSourceResource(final FudgeContext fudgeContext, final PositionSource positionSource) {

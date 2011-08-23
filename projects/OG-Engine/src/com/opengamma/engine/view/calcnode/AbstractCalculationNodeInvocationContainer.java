@@ -94,7 +94,8 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     }
 
     /**
-     * Decrements the block count, returns {@code true} when the count reaches zero.
+     * Decrements the block count.
+     * @return true when the count reaches zero
      */
     public boolean releaseBlockCount() {
       return _blockCount.decrementAndGet() == 0;

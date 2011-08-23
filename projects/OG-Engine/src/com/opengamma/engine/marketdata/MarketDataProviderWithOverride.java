@@ -94,8 +94,8 @@ public class MarketDataProviderWithOverride implements MarketDataProvider {
   /**
    * Constructs an instance using the specified providers.
    * 
-   * @param underlying  the underlying, or default, provider, not {@code null}
-   * @param override  the override provider, not {@code null}
+   * @param underlying  the underlying, or default, provider, not null
+   * @param override  the override provider, not null
    */
   public MarketDataProviderWithOverride(MarketDataProvider underlying, MarketDataProvider override) {
     ArgumentChecker.notNull(underlying, "underlying");

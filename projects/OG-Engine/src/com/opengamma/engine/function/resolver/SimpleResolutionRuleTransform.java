@@ -63,9 +63,9 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
    * Adjust the rules using the given function name.
    * 
    * @param shortFunctionName  the function to adjust, not null
-   * @param parameters  the function parameters, or null to use the original rule default
-   * @param priorityAdjustment  the priority shift, or null to use the original rule default
-   * @param computationTargetFilter  the computation target filter, or null to use the original rule default
+   * @param parameters  the function parameters, null to use the original rule default
+   * @param priorityAdjustment  the priority shift, null to use the original rule default
+   * @param computationTargetFilter  the computation target filter, null to use the original rule default
    */
   public void adjustRule(final String shortFunctionName, final FunctionParameters parameters, final ComputationTargetFilter computationTargetFilter, final Integer priorityAdjustment) {
     registerAction(shortFunctionName, new Adjust(parameters, computationTargetFilter, priorityAdjustment));

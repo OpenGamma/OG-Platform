@@ -90,8 +90,8 @@ public final class DataUtils {
   /**
    * Displayable form of the Data object.
    * 
-   * @param data the object to convert to a string
-   * @param quoted {@code true} to put quote marks around strings and escape them, {@code false} otherwise
+   * @param data  the object to convert to a string
+   * @param quoted  true to put quote marks around strings and escape them
    * @return the displayable string
    */
   public static String toString(final Data data, final boolean quoted) {

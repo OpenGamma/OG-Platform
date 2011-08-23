@@ -66,8 +66,8 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     /**
      * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
      * 
-     * @param valueRequirement  the value requirement, not {@code null}
-     * @return the structured market data key, or {@code null} if the value requirement does not correspond to a key
+     * @param valueRequirement  the value requirement, not null
+     * @return the structured market data key, null if the value requirement does not correspond to a key
      */
     public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
     

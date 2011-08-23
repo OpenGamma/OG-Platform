@@ -45,17 +45,15 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition(set = "manual")
   private List<ObjectId> _snapshotIds;
-  
   /**
    * The marketDataSnapshot name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
   private String _name;
-
   /**
-   * Whether to include the snapshot data in the search results. {@code true} to include the data, or {@code false}
-   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
-   * data.
+   * Whether to include the snapshot data in the search results.
+   * Set to true to include the data, or false to omit it. Defaults to true.
+   * Note that a master may ignore this value and always return the full data.
    */
   @PropertyDefinition
   private boolean _includeData = true;
@@ -65,7 +63,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
    */
   public MarketDataSnapshotSearchRequest() {
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Adds a single marketDataSnapshot object identifier to the set.
@@ -232,9 +230,9 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether to include the snapshot data in the search results. {@code true} to include the data, or {@code false}
-   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
-   * data.
+   * Gets whether to include the snapshot data in the search results.
+   * Set to true to include the data, or false to omit it. Defaults to true.
+   * Note that a master may ignore this value and always return the full data.
    * @return the value of the property
    */
   public boolean isIncludeData() {
@@ -242,9 +240,9 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets whether to include the snapshot data in the search results. {@code true} to include the data, or {@code false}
-   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
-   * data.
+   * Sets whether to include the snapshot data in the search results.
+   * Set to true to include the data, or false to omit it. Defaults to true.
+   * Note that a master may ignore this value and always return the full data.
    * @param includeData  the new value of the property
    */
   public void setIncludeData(boolean includeData) {
@@ -253,8 +251,8 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
 
   /**
    * Gets the the {@code includeData} property.
-   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
-   * data.
+   * Set to true to include the data, or false to omit it. Defaults to true.
+   * Note that a master may ignore this value and always return the full data.
    * @return the property, not null
    */
   public final Property<Boolean> includeData() {

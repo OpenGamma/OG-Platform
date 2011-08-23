@@ -178,7 +178,7 @@ public abstract class LabelledMatrix3D<KX, KY, KZ, TX, TY, TZ, SUBCLASS> {
 
   /**
    * Returns the default tolerance value for comparison of X dimension keys. This will be used for the initial sort
-   * of a matrix, or if a tolerance is not specified for the other operations. It may be {@code null} if the
+   * of a matrix, or if a tolerance is not specified for the other operations. It may be null if the
    * {@link #compareKeysX} method accepts it (i.e. ignores it).
    * 
    * @return the default tolerance for X key comparisons
@@ -189,7 +189,7 @@ public abstract class LabelledMatrix3D<KX, KY, KZ, TX, TY, TZ, SUBCLASS> {
 
   /**
    * Returns the default tolerance value for comparison of Y dimension keys. This will be used for the initial sort
-   * of a matrix, or if a tolerance is not specified for the other operations. It may be {@code null} if the
+   * of a matrix, or if a tolerance is not specified for the other operations. It may be null if the
    * {@link #compareKeysY} method accepts it (i.e. ignores it).
    * 
    * @return the default tolerance for Y key comparisons
@@ -200,7 +200,7 @@ public abstract class LabelledMatrix3D<KX, KY, KZ, TX, TY, TZ, SUBCLASS> {
 
   /**
    * Returns the default tolerance value for comparison of Z dimension keys. This will be used for the initial sort
-   * of a matrix, or if a tolerance is not specified for the other operations. It may be {@code null} if the
+   * of a matrix, or if a tolerance is not specified for the other operations. It may be null if the
    * {@link #compareKeysZ} method accepts it (i.e. ignores it).
    * 
    * @return the default tolerance for Z key comparisons

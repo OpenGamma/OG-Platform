@@ -28,7 +28,7 @@ public interface EngineResourceManagerInternal<T extends EngineResource> extends
    * with a subsequent call to {@link #decrementCycleReferenceCount(UniqueId)} to avoid resource leaks. 
    * 
    * @param uniqueId  the unique identifier of the resource to retain, not null
-   * @return {@code true} if the operation was successful, {@code false} if the cycle was not found
+   * @return true if the operation was successful, false if the cycle was not found
    */
   boolean incrementCycleReferenceCount(UniqueId uniqueId);
   
@@ -37,7 +37,7 @@ public interface EngineResourceManagerInternal<T extends EngineResource> extends
    * follow a previous call to {@link #incrementCycleReferenceCount(UniqueId)}.
    * 
    * @param uniqueId  the unique identifier of the resource to release, not null
-   * @return {@code true} if the operation was successful, {@code false} if the resource was not found
+   * @return true if the operation was successful, false if the resource was not found
    */
   boolean decrementCycleReferenceCount(UniqueId uniqueId);
   

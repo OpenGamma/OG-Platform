@@ -46,10 +46,11 @@ public class DefaultDefinitionFilter<WireDefinition extends Definition, MetaDefi
   }
 
   /**
-   * Applied to the logical definition after construction. Return {@code null} to fail the construction.
+   * Applied to the logical definition after construction.
+   * Return null to fail the construction.
    * 
-   * @param logicalDefinition the logical definition created (this can either be modified, or a substitute value returned)
-   * @param fullDefinition the full definition as originally passed to {@link #createDefinition}
+   * @param logicalDefinition  the logical definition created (this can either be modified, or a substitute value returned)
+   * @param fullDefinition  the full definition as originally passed to {@link #createDefinition}
    * @return the logical definition to send to a client (may be the {@code logicalDefinition} parameter)
    */
   protected WireDefinition updateDefinition(final WireDefinition logicalDefinition, final MetaDefinition fullDefinition) {

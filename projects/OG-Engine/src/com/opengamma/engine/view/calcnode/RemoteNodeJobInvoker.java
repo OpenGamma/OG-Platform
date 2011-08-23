@@ -251,8 +251,7 @@ import com.opengamma.transport.FudgeMessageSender;
   }
 
   /**
-   * Returns {@code true} with the remote client generating failure messages if anything is
-   * not alive. 
+   * Returns true with the remote client generating failure messages if anything is not alive. 
    */
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {

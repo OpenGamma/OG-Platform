@@ -15,7 +15,7 @@ public interface InterpolatedYieldCurveDefinitionMaster extends AbstractMaster<Y
   /**
    * If the yield curve exists in the master, it will be updated. Otherwise it will be added.
    * 
-   * @param document the document to add or update, not {@code null}
+   * @param document the document to add or update, not null
    * @return the updated document details
    */
   YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document);

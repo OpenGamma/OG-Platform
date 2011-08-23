@@ -155,10 +155,9 @@ public class ComputationTarget implements Serializable {
    * <p>
    * This can the portfolio name, the security name,
    * the name of the security underlying a position,
-   * or - for primitives - {@code null}.
+   * or - for primitives - null.
    * 
-   * @return the name of the computation target, {@code null}
-   * if a primitive 
+   * @return the name of the computation target, null if a primitive 
    */
   public String getName() {
     switch (getType()) {

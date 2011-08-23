@@ -151,8 +151,8 @@ public final class ValueUtils {
   /**
    * Displayable form of the Value object.
    * 
-   * @param value value to convert to a string
-   * @param quoted {@code true} to surround strings in quote marks and escape them, {@code false} otherwise
+   * @param value  the value to convert to a string
+   * @param quoted  true to surround strings in quote marks and escape them
    * @return a displayable string representation
    */
   public static String toString(final Value value, final boolean quoted) {

@@ -127,7 +127,7 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the unique identifier of the parent node, or {@code null} if this is a root node.
+   * Gets the unique identifier of the parent node, null if this is a root node.
    * 
    * @return the unique identifier, null if root node
    */
@@ -137,7 +137,7 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
   }
 
   /**
-   * Sets the unique identifier of the parent node, or {@code null} if this is a root node.
+   * Sets the unique identifier of the parent node, null if this is a root node.
    * 
    * @param parentNodeId  the new parent node, null if root node
    */

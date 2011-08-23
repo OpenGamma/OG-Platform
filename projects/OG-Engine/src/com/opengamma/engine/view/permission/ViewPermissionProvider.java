@@ -20,7 +20,7 @@ public interface ViewPermissionProvider {
    * 
    * @param user  the user, not null
    * @param compiledViewDefinition  the view compilation output to which access is being determined, not null
-   * @return {@code true} if the user may access the compilation output, {@code false} otherwise.
+   * @return true if the user may access the compilation output
    */
   boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinition compiledViewDefinition);
 
@@ -30,10 +30,9 @@ public interface ViewPermissionProvider {
    * 
    * @param user  the user, not null
    * @param compiledViewDefinition  the view compilation from which computation results would be produced, not null
-   * @param hasMarketDataPermissions  {@code true} if the user has permission to access the market data requirements,
-   *                                  {@code false} otherwise  
-   * @return {@code true} if the user may access results produced from the view compilation, {@code false} otherwise.
+   * @param hasMarketDataPermissions  true if the user has permission to access the market data requirements
+   * @return true if the user may access results produced from the view compilation
    */
   boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions);
-  
+
 }
