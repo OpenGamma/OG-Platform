@@ -352,7 +352,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         ". The original object is unchanged - a new object is returned with the updated value";
     final MetaParameter target = new MetaParameter(uncapitalize(object.getName()), JavaTypeInfo.builder(object.getObjectClass()).get());
     target.setDescription(capitalize(object.getLabel()) + " to update");
-    final MetaParameter value = new MetaParameter(attribute.getName(), JavaTypeInfo.builder(write.getParameterTypes()[0]).get());
+    final MetaParameter value = new MetaParameter(attribute.getName(), JavaTypeInfo.builder(write.getParameterTypes()[0]).allowNull().get());
     value.setDescription(attribute.getDescription());
     return new SetAttributeFunction(name, description, write, target, value).getMetaFunction();
   }

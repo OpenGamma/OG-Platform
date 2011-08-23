@@ -123,6 +123,11 @@ public final class JavaTypeInfo<T> {
     return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), _allowNull, false, null, new JavaTypeInfo<?>[] {this });
   }
 
+  @SuppressWarnings("unchecked")
+  public JavaTypeInfo<?> withAllowNull(final boolean allowNull) {
+    return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
+  }
+
   public Class<T> getRawClass() {
     return _rawClass;
   }

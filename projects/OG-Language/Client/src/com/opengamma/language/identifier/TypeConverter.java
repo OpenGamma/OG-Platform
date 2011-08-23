@@ -19,8 +19,8 @@ import com.opengamma.language.definition.JavaTypeInfo;
  */
 public class TypeConverter extends AbstractMappedConverter {
 
-  private static final JavaTypeInfo<ExternalId> EXTERNAL_ID = JavaTypeInfo.builder(ExternalId.class).get();
-  private static final JavaTypeInfo<ExternalIdBundle> EXTERNAL_ID_BUNDLE = JavaTypeInfo.builder(ExternalIdBundle.class).get();
+  private static final JavaTypeInfo<ExternalId> EXTERNAL_ID = JavaTypeInfo.builder(ExternalId.class).allowNull().get();
+  private static final JavaTypeInfo<ExternalIdBundle> EXTERNAL_ID_BUNDLE = JavaTypeInfo.builder(ExternalIdBundle.class).allowNull().get();
   private static final JavaTypeInfo<ObjectId> OBJECT_ID = JavaTypeInfo.builder(ObjectId.class).get();
   private static final JavaTypeInfo<UniqueId> UNIQUE_ID = JavaTypeInfo.builder(UniqueId.class).get();
 

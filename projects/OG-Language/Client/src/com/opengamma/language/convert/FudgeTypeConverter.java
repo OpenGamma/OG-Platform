@@ -22,6 +22,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.definition.JavaTypeInfo.Builder;
 import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
@@ -30,12 +31,14 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public final class FudgeTypeConverter extends AbstractTypeConverter {
 
-  // TODO: handle nulls
-
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
+  private static final JavaTypeInfo<Object> OBJECT_ALLOW_NULL = JavaTypeInfo.builder(Object.class).allowNull().get();
   private static final JavaTypeInfo<FudgeMsg> FUDGE_MSG = JavaTypeInfo.builder(FudgeMsg.class).get();
+  private static final JavaTypeInfo<FudgeMsg> FUDGE_MSG_ALLOW_NULL = JavaTypeInfo.builder(FudgeMsg.class).allowNull().get();
   private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS, OBJECT);
+  private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT_ALLOW_NULL = TypeMap.of(ZERO_LOSS, OBJECT_ALLOW_NULL);
   private static final Map<JavaTypeInfo<?>, Integer> FROM_FUDGE_MSG = TypeMap.of(ZERO_LOSS, FUDGE_MSG);
+  private static final Map<JavaTypeInfo<?>, Integer> FROM_FUDGE_MSG_ALLOW_NULL = TypeMap.of(ZERO_LOSS, FUDGE_MSG_ALLOW_NULL);
 
   private final FudgeContext _fudgeContext;
 
@@ -56,6 +59,10 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
   @SuppressWarnings("unchecked")
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if ((value == null) && type.isAllowNull()) {
+      conversionContext.setResult(null);
+      return;
+    }
     final FudgeFieldType fieldType = getFudgeContext().getTypeDictionary().getByJavaType(type.getRawClass());
     try {
       if (fieldType == null) {
@@ -103,18 +110,23 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     final FudgeFieldType fieldType = getFudgeContext().getTypeDictionary().getByJavaType(targetType.getRawClass());
     if (fieldType == null) {
       // Arbitrary object type found; conversion may be possible from a Fudge message
-      return FROM_FUDGE_MSG;
+      return targetType.isAllowNull() ? FROM_FUDGE_MSG_ALLOW_NULL : FROM_FUDGE_MSG;
     } else if (fieldType instanceof SecondaryFieldType<?, ?>) {
       // Secondary type found; conversion is from the primary type
-      return TypeMap.of(TypeMap.ZERO_LOSS, JavaTypeInfo.builder(((SecondaryFieldType<?, ?>) fieldType).getPrimaryType().getJavaType()).get());
+      final Builder builder = JavaTypeInfo.builder(((SecondaryFieldType<?, ?>) fieldType).getPrimaryType().getJavaType());
+      if (targetType.isAllowNull()) {
+        builder.allowNull();
+      }
+      return TypeMap.of(TypeMap.ZERO_LOSS, builder.get());
     } else {
       // Arbitrary wire type found; dictionary conversion may be possible
-      return FROM_OBJECT;
+      return targetType.isAllowNull() ? FROM_OBJECT_ALLOW_NULL : FROM_OBJECT;
     }
   }
 

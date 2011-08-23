@@ -20,15 +20,18 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class MapConverter extends AbstractTypeConverter {
 
-  // TODO: handle nulls e.g. Value[][2]/null -> Map/null or Map/empty if nulls not allowed
-
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[][]> VALUES = JavaTypeInfo.builder(Value[][].class).get();
+  private static final JavaTypeInfo<Value[][]> VALUES_ALLOW_NULL = JavaTypeInfo.builder(Value[][].class).allowNull().get();
   @SuppressWarnings("unchecked")
   private static final JavaTypeInfo<Map> MAP = JavaTypeInfo.builder(Map.class).get();
+  @SuppressWarnings("unchecked")
+  private static final JavaTypeInfo<Map> MAP_ALLOW_NULL = JavaTypeInfo.builder(Map.class).allowNull().get();
 
   private static final TypeMap TO_MAP = TypeMap.of(ZERO_LOSS, VALUES);
   private static final TypeMap FROM_MAP = TypeMap.of(ZERO_LOSS, MAP);
+  private static final TypeMap TO_MAP_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUES_ALLOW_NULL);
+  private static final TypeMap FROM_MAP_ALLOW_NULL = TypeMap.of(ZERO_LOSS, MAP_ALLOW_NULL);
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {
@@ -37,6 +40,10 @@ public class MapConverter extends AbstractTypeConverter {
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if ((value == null) && type.isAllowNull()) {
+      conversionContext.setResult(null);
+      return;
+    }
     if (type.getRawClass() == Map.class) {
       // Converting from Values[][] to Map
       final Value[][] values = (Value[][]) value;
@@ -97,9 +104,9 @@ public class MapConverter extends AbstractTypeConverter {
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     if (targetType.getRawClass() == Map.class) {
-      return TO_MAP;
+      return targetType.isAllowNull() ? TO_MAP_ALLOW_NULL : TO_MAP;
     } else {
-      return FROM_MAP;
+      return targetType.isAllowNull() ? FROM_MAP_ALLOW_NULL : FROM_MAP;
     }
   }
 

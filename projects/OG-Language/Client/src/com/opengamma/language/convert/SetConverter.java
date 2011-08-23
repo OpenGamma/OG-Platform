@@ -23,11 +23,16 @@ public class SetConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[]> VALUES = JavaTypeInfo.builder(Value[].class).get();
+  private static final JavaTypeInfo<Value[]> VALUES_ALLOW_NULL = JavaTypeInfo.builder(Value[].class).allowNull().get();
   @SuppressWarnings("unchecked")
   private static final JavaTypeInfo<Set> SET = JavaTypeInfo.builder(Set.class).get();
+  @SuppressWarnings("unchecked")
+  private static final JavaTypeInfo<Set> SET_ALLOW_NULL = JavaTypeInfo.builder(Set.class).allowNull().get();
 
   private static final TypeMap TO_SET = TypeMap.of(ZERO_LOSS, VALUES);
   private static final TypeMap FROM_SET = TypeMap.of(ZERO_LOSS, SET);
+  private static final TypeMap TO_SET_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUES_ALLOW_NULL);
+  private static final TypeMap FROM_SET_ALLOW_NULL = TypeMap.of(ZERO_LOSS, SET_ALLOW_NULL);
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {
@@ -36,6 +41,10 @@ public class SetConverter extends AbstractTypeConverter {
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if ((value == null) && type.isAllowNull()) {
+      conversionContext.setResult(null);
+      return;
+    }
     if (type.getRawClass() == Set.class) {
       // Converting from Values[] to Set
       final Value[] values = (Value[]) value;
@@ -75,9 +84,9 @@ public class SetConverter extends AbstractTypeConverter {
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     if (targetType.getRawClass() == Set.class) {
-      return TO_SET;
+      return targetType.isAllowNull() ? TO_SET_ALLOW_NULL : TO_SET;
     } else {
-      return FROM_SET;
+      return targetType.isAllowNull() ? FROM_SET_ALLOW_NULL : FROM_SET;
     }
   }
 

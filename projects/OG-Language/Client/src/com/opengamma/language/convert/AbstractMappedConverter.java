@@ -56,6 +56,9 @@ public abstract class AbstractMappedConverter implements TypeConverter {
 
   protected <F, T> void conversion(final int cost, final JavaTypeInfo<F> sourceType, final JavaTypeInfo<T> targetType, final Action<F, T> action) {
     _conversions.put(targetType, (Pair) Pair.of(TypeMap.of(cost, sourceType), action));
+    if (targetType.isAllowNull() && sourceType.isAllowNull()) {
+      _conversions.put(targetType.withAllowNull(false), (Pair) Pair.of(TypeMap.of(cost, sourceType.withAllowNull(false)), action));
+    }
   }
 
   protected <A, B> void conversion(final int cost, final JavaTypeInfo<A> typeA, final JavaTypeInfo<B> typeB, final Action<A, B> aToB, final Action<B, A> bToA) {
@@ -70,6 +73,10 @@ public abstract class AbstractMappedConverter implements TypeConverter {
 
   @Override
   public final void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if ((value == null) && type.isAllowNull()) {
+      conversionContext.setResult(null);
+      return;
+    }
     final Action<Object, Object> action = (Action<Object, Object>) _conversions.get(type).getSecond();
     final Object cast = action.cast(value);
     if (cast != null) {

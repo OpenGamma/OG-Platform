@@ -23,11 +23,16 @@ public class ListConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[]> VALUES = JavaTypeInfo.builder(Value[].class).get();
+  private static final JavaTypeInfo<Value[]> VALUES_ALLOW_NULL = JavaTypeInfo.builder(Value[].class).allowNull().get();
   @SuppressWarnings("unchecked")
   private static final JavaTypeInfo<List> LIST = JavaTypeInfo.builder(List.class).get();
+  @SuppressWarnings("unchecked")
+  private static final JavaTypeInfo<List> LIST_ALLOW_NULL = JavaTypeInfo.builder(List.class).allowNull().get();
 
   private static final TypeMap TO_LIST = TypeMap.of(ZERO_LOSS, VALUES);
   private static final TypeMap FROM_LIST = TypeMap.of(ZERO_LOSS, LIST);
+  private static final TypeMap TO_LIST_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUES_ALLOW_NULL);
+  private static final TypeMap FROM_LIST_ALLOW_NULL = TypeMap.of(ZERO_LOSS, LIST_ALLOW_NULL);
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {
@@ -36,6 +41,10 @@ public class ListConverter extends AbstractTypeConverter {
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if ((value == null) && type.isAllowNull()) {
+      conversionContext.setResult(null);
+      return;
+    }
     if (type.getRawClass() == List.class) {
       // Converting from Values[] to List
       final Value[] values = (Value[]) value;
@@ -74,9 +83,9 @@ public class ListConverter extends AbstractTypeConverter {
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     if (targetType.getRawClass() == List.class) {
-      return TO_LIST;
+      return targetType.isAllowNull() ? TO_LIST_ALLOW_NULL : TO_LIST;
     } else {
-      return FROM_LIST;
+      return targetType.isAllowNull() ? FROM_LIST_ALLOW_NULL : FROM_LIST;
     }
   }
 

@@ -85,6 +85,8 @@ public final class ValueConverter extends AbstractTypeConverter {
         conversionContext.setResult(ValueUtils.of((String) valueObject));
       } else if (valueObject instanceof FudgeMsg) {
         conversionContext.setResult(ValueUtils.of((FudgeMsg) valueObject));
+      } else if ((valueObject == null) && type.isAllowNull()) {
+        conversionContext.setResult(null);
       } else {
         conversionContext.setFail();
       }
