@@ -179,7 +179,13 @@
         <bean class="com.opengamma.language.convert.Converters">
           <property name="fudgeContext" ref="engineFudgeContext" />
         </bean>
-        <bean class="com.opengamma.language.identifier.TypeConverter" />
+        <bean class="com.opengamma.language.invoke.TypeConverterProviderBean">
+          <property name="converters">
+            <list>
+              <bean class="com.opengamma.language.identifier.TypeConverter" />
+            </list>
+          </property>
+        </bean>
       </list>
     </property>
   </bean>
