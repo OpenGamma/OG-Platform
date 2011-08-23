@@ -64,9 +64,9 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
-      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId);
-    return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
+    return getSubSeries(hts, start, inclusiveStart, end, includeEnd);
   }
 
   //-------------------------------------------------------------------------
@@ -91,17 +91,17 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     return getHistoricalTimeSeries(
-        identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+        identifiers, (LocalDate) null, dataSource, dataProvider, dataField, start, inclusiveStart, end, includeEnd);
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     HistoricalTimeSeries hts = getHistoricalTimeSeries(identifiers, identifierValidityDate, dataSource, dataProvider, dataField);
-    return getSubSeries(hts, start, inclusiveStart, end, exclusiveEnd);
+    return getSubSeries(hts, start, inclusiveStart, end, includeEnd);
   }
 
   //-------------------------------------------------------------------------
@@ -114,7 +114,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String configName, 
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
@@ -127,7 +127,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
-      LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
   }
 
@@ -135,7 +135,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> identifiers, String dataSource, String dataProvider, String dataField, LocalDate start,
-      boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     throw new UnsupportedOperationException(getClass().getName() + " does not support getHistoricalTimeSeries for multiple time-series");
   }
 
@@ -175,18 +175,18 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
    * @param start  the start date, null will load the earliest date 
    * @param inclusiveStart  whether or not the start date is included in the result
    * @param end  the end date, null will load the latest date
-   * @param exclusiveEnd  whether or not the end date is included in the result
+   * @param includeEnd  whether or not the end date is included in the result
    * @return the historical time-series, null if null input
    */
   private HistoricalTimeSeries getSubSeries(
-      HistoricalTimeSeries hts, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+      HistoricalTimeSeries hts, LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
     if (hts == null) {
       return null;
     }
     if (hts.getTimeSeries().isEmpty()) {
       return hts;
     }
-    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, exclusiveEnd);
+    LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) hts.getTimeSeries().subSeries(start, inclusiveStart, end, includeEnd);
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
 

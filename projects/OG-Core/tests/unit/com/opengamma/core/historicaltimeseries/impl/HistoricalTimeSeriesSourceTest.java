@@ -160,7 +160,8 @@ public class HistoricalTimeSeriesSourceTest {
       assertEquals(inMemSeries, cachedSeries);
       assertEquals(inMemoryHistoricalSource.getHistoricalTimeSeries(inMemSeries.getUniqueId()), cachedProvider.getHistoricalTimeSeries(cachedSeries.getUniqueId()));
       
-      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field, inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), false);
+      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field,
+          inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), true);
       assertEquals(inMemSeries, cachedSeries);
     }
   }

@@ -12,9 +12,9 @@ import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSe
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_PROVIDER;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_DATA_SOURCE;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_END;
-import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_EXCLUSIVE_END;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_IDENTIFIER_SET;
-import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUSIVE_START;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUDE_END;
+import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_INCLUDE_START;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_MULTIPLE;
 import static com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesSourceServiceNames.REQUEST_START;
 
@@ -118,18 +118,18 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{excludeEnd}")
+  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, 
       @PathParam("start") String start, 
       @PathParam("includeStart") String includeStart,
       @PathParam("end") String end,
-      @PathParam("excludeEnd") String excludeEnd) {
+      @PathParam("includeEnd") String includeEnd) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         UniqueId.parse(uid), 
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
         Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
-        Boolean.valueOf(excludeEnd)));
+        Boolean.valueOf(includeEnd)));
   }
 
   //-------------------------------------------------------------------------
@@ -149,7 +149,7 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("allByDate/{currentDate}/{dataSource}/{dataProvider}/{dataField}/{start}/{includeStart}/{end}/{excludeEnd}")
+  @Path("allByDate/{currentDate}/{dataSource}/{dataProvider}/{dataField}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getAllByDate(@PathParam("currentDate") String currentDate,
       @PathParam("dataSource") String dataSource, 
       @PathParam("dataProvider") String dataProvider, 
@@ -157,7 +157,7 @@ public class HistoricalTimeSeriesSourceResource {
       @PathParam("start") String start, 
       @PathParam("includeStart") String includeStart,
       @PathParam("end") String end, 
-      @PathParam("excludeEnd") String excludeEnd,
+      @PathParam("includeEnd") String includeEnd,
       @QueryParam("id") List<String> identifiers) {
     
     HistoricalTimeSeries hts = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
@@ -169,7 +169,7 @@ public class HistoricalTimeSeriesSourceResource {
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
         Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
-        Boolean.valueOf(excludeEnd));
+        Boolean.valueOf(includeEnd));
     return encodeMessage(hts);
   }
 
@@ -187,14 +187,14 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("resolvedByDate/{dataField}/{currentDate}/{resolutionKey}/{start}/{includeStart}/{end}/{excludeEnd}")
+  @Path("resolvedByDate/{dataField}/{currentDate}/{resolutionKey}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getResolvedByDate(@PathParam("currentDate") String currentDate,
       @PathParam("dataField") String dataField, 
       @PathParam("resolutionKey") String resolutionKey, 
       @PathParam("start") String start, 
       @PathParam("includeStart") String includeStart,
       @PathParam("end") String end, 
-      @PathParam("excludeEnd") String excludeEnd,
+      @PathParam("includeEnd") String includeEnd,
       @QueryParam("id") List<String> identifiers) {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         dataField,
@@ -204,7 +204,7 @@ public class HistoricalTimeSeriesSourceResource {
         NULL_VALUE.equals(start) ? null : LocalDate.parse(start),
         Boolean.valueOf(includeStart),
         NULL_VALUE.equals(end) ? null : LocalDate.parse(end),
-        Boolean.valueOf(excludeEnd)));
+        Boolean.valueOf(includeEnd)));
   }
 
   //-------------------------------------------------------------------------
@@ -223,12 +223,12 @@ public class HistoricalTimeSeriesSourceResource {
     String dataProvider = msg.getString(REQUEST_DATA_PROVIDER);
     String dataField = msg.getString(REQUEST_DATA_FIELD);
     LocalDate start = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_START));
-    boolean inclusiveStart = msg.getBoolean(REQUEST_INCLUSIVE_START);
+    boolean inclusiveStart = msg.getBoolean(REQUEST_INCLUDE_START);
     LocalDate end = deserializationContext.fieldValueToObject(LocalDate.class, msg.getByName(REQUEST_END));
-    boolean exclusiveEnd = msg.getBoolean(REQUEST_EXCLUSIVE_END);
+    boolean includeEnd = msg.getBoolean(REQUEST_INCLUDE_END);
     
     Map<ExternalIdBundle, HistoricalTimeSeries> result = _source.getHistoricalTimeSeries(
-        identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
+        identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, includeEnd);
     FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     MutableFudgeMsg message = serializer.newMessage();
     serializer.addToMessageWithClassHeaders(message, HISTORICALTIMESERIESSOURCE_TIMESERIES, null, result, Map.class);
