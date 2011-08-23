@@ -25,7 +25,7 @@ public class TypeConverterProviderBean extends AbstractTypeConverterProvider {
 
   @Override
   protected void loadTypeConverters(Collection<TypeConverter> converters) {
-    converters.addAll(getTypeConverters());
+    converters.addAll(getConverters());
   }
 
 }
