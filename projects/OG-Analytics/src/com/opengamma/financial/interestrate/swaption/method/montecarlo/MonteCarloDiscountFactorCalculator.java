@@ -12,7 +12,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
 /**
- * 
+ * Computes the instrument price as the average over different paths. The data bundle contains the different discount factor paths and the instrument reference amounts.
  */
 public class MonteCarloDiscountFactorCalculator extends AbstractInterestRateDerivativeVisitor<MonteCarloDiscountFactorDataBundle, Double> {
 
@@ -43,21 +43,21 @@ public class MonteCarloDiscountFactorCalculator extends AbstractInterestRateDeri
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final MonteCarloDiscountFactorDataBundle mcResults) {
-    Double[][][] pD = mcResults.getPathDiscountingFactors();
+    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactors();
     double[][] impactAmount = mcResults.getImpactAmount();
-    Validate.isTrue(pD[0].length == 1, "Only one decision date for swaptions.");
-    double p = 0;
-    int nbPath = pD.length;
-    double v;
+    Validate.isTrue(pathDiscountFactors[0].length == 1, "Only one decision date for swaptions.");
+    double price = 0;
+    int nbPath = pathDiscountFactors.length;
+    double swapPathValue;
     for (int looppath = 0; looppath < nbPath; looppath++) {
-      v = 0;
+      swapPathValue = 0;
       for (int loopcf = 0; loopcf < impactAmount[0].length; loopcf++) {
-        v += impactAmount[0][loopcf] * pD[looppath][0][loopcf];
+        swapPathValue += impactAmount[0][loopcf] * pathDiscountFactors[looppath][0][loopcf];
       }
-      p += Math.max(v, 0);
+      price += Math.max(swapPathValue, 0);
     }
-    p = p / nbPath;
-    return p;
+    price = price / nbPath;
+    return price;
   }
 
 }

@@ -15,7 +15,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
 /**
- * 
+ * Calculator of decision schedule for different instruments. Used in particular for Monte Carlo pricing.
  */
 public class DecisionScheduleCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, DecisionSchedule> {
 

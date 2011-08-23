@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.swaption.method;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -109,7 +111,9 @@ public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements Pricing
 
   @Override
   public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
-    return null;
+    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    Validate.isTrue(curves instanceof G2ppPiecewiseConstantDataBundle, "Bundle should contain G2++ data");
+    return presentValue((SwaptionPhysicalFixedIbor) instrument, (G2ppPiecewiseConstantDataBundle) curves);
   }
 
 }

@@ -18,13 +18,22 @@ import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Monte-Carlo pricing method for swaptions in the hull-White one factor model.
+ * Monte Carlo pricing method for swaptions in the hull-White one factor model.
+ * The Monte Carlo is on the solution of the discount factor (not on the equation of the short rate).
  */
 public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
-  // TODO: generalize to other interest rate derivatives.
 
+  /**
+   * The decision schedule calculator (calculate the exercise dates, the cash flow dates and the reference amounts).
+   */
   private static final DecisionScheduleCalculator DC = DecisionScheduleCalculator.getInstance();
+  /**
+   * The calculator from discount factors (calculate the price from simulated discount factors and the reference amounts).
+   */
   private static final MonteCarloDiscountFactorCalculator MCC = MonteCarloDiscountFactorCalculator.getInstance();
+  /**
+   * The Hull-White one factor model.
+   */
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   /**
    * The number of paths in one block.
@@ -39,15 +48,22 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     super(numberGenerator, nbPath);
   }
 
+  /**
+   * Computes the present value for European swaption in the Hull-White one factor model by Monte-Carlo.
+   * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
+   * block price is the total price. 
+   * @param swaption The swaption.
+   * @param hwData The Hull-White data (curves and Hull-White parameters).
+   * @return The present value.
+   */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-
+    // TODO: generalize to other interest rate derivatives (missing the dsc curves and the currency).
     YieldAndDiscountCurve dsc = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     DecisionSchedule decision = DC.visit(swaption, hwData);
     double[] decisionTime = decision.getDecisionTime();
     double[][] impactTime = decision.getImpactTime();
     int nbJump = decisionTime.length;
     double numeraireTime = decisionTime[nbJump - 1];
-
     double pDN = dsc.getDiscountFactor(numeraireTime);
     // Discount factor to numeraire date for rebasing.
     double[][] pDI = new double[nbJump][];
@@ -58,10 +74,8 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         pDI[loopjump][i] = dsc.getDiscountFactor(impactTime[loopjump][i]) / pDN;
       }
     }
-
     double[] gamma = new double[nbJump];
     double[][] cov = new double[nbJump][nbJump];
-
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       gamma[loopjump] = MODEL.beta(0.0, decisionTime[loopjump], hwData.getHullWhiteParameter());
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
@@ -71,7 +85,6 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         cov[loopjump][j] = gamma[loopjump];
       }
     }
-
     double[][] h = MODEL.volatilityMaturityPart(hwData.getHullWhiteParameter(), numeraireTime, impactTime); // jump/cf
     double[][] h2 = new double[nbJump][];
     for (int i = 0; i < nbJump; i++) {
@@ -80,20 +93,16 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         h2[i][j] = h[i][j] * h[i][j] / 2;
       }
     }
-
     CholeskyDecompositionCommons cd = new CholeskyDecompositionCommons();
     CholeskyDecompositionResult cdr = cd.evaluate(new DoubleMatrix2D(cov));
-
-    double[][] covCD = cdr.getL().toArray(); //TODO: check
+    double[][] covCD = cdr.getL().toArray();
     covCD[0][0] = Math.sqrt(cov[0][0]);
-
     int nbBlock = (int) Math.round(Math.ceil(getNbPath() / ((double) BLOCK_SIZE)));
     int[] nbPath2 = new int[nbBlock];
     for (int i = 0; i < nbBlock - 1; i++) {
       nbPath2[i] = BLOCK_SIZE;
     }
     nbPath2[nbBlock - 1] = getNbPath() - (nbBlock - 1) * BLOCK_SIZE;
-
     double[][] impactAmount = decision.getImpactAmount();
     double pv = 0;
     for (int loopblock = 0; loopblock < nbBlock; loopblock++) {
@@ -110,21 +119,18 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
           y[i][looppath] = s;
         }
       }
-
       Double[][][] pD = pathGeneratorDiscount(pDI, y, h, h2, gamma);
       pv += MCC.visit(swaption, new MonteCarloDiscountFactorDataBundle(pD, impactAmount)) * nbPath2[loopblock];
     }
-
-    pv *= pDN / getNbPath();
-
-    return CurrencyAmount.of(swaption.getCurrency(), pv);
+    pv *= pDN / getNbPath(); // Multiply by the numeraire.
+    return CurrencyAmount.of(swaption.getCurrency(), pv * (swaption.isLong() ? 1.0 : -1.0));
   }
 
   /**
-   * Gets an array of independent normally distributed variables.
-   * @param nbJump 
-   * @param nbPath
-   * @return
+   * Gets a 2D-array of independent normally distributed variables.
+   * @param nbJump The number of jumps.
+   * @param nbPath The number of paths.
+   * @return The array of variables.
    */
   private double[][] getNormalArray(int nbJump, int nbPath) {
     double[][] result = new double[nbJump][nbPath];
@@ -134,6 +140,15 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     return result;
   }
 
+  /**
+   * Construct the discount factors on the simulated paths from the random variables and the model constants.
+   * @param initDiscountFactor The initial discount factors.
+   * @param y The correlated random variables.
+   * @param h The H parameters.
+   * @param h2 The H^2 parameters.
+   * @param gamma The gamma parameters.
+   * @return The discount factor paths.
+   */
   private Double[][][] pathGeneratorDiscount(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma) {
     int nbJump = y.length;
     int nbPath = y[0].length;
@@ -158,6 +173,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   @Override
   public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     return null;
+    // TODO: generalize to other interest rate derivatives.
   }
 
 }

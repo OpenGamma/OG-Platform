@@ -228,17 +228,24 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
 
   @Test(enabled = true)
   /**
-   * Compare explicit formula with Monte-Carlo.
+   * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
    */
   public void monteCarlo() {
     int nbPath = 12500;
-    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    HullWhiteMonteCarloMethod methodMC;
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     CurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(), pvPayerLongMC.getAmount(), 1.0E+5);
     double pvMCPreviousRun = 5188076.7548;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(), 1.0E-2);
+    methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    CurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_HW);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvPayerLongMC.getAmount(), pvPayerShortMC.getAmount(), 1.0E-2);
+    CurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_HW);
+    double pvSwap = PVC.visit(SWAP_RECEIVER, CURVES);
+    assertEquals("Swaption physical - Hull-White - Monte Carlo - payer/receiver/swap parity", pvReceiverLongMC.getAmount() + pvPayerShortMC.getAmount(), pvSwap, 1.0E+5);
   }
 
   @Test

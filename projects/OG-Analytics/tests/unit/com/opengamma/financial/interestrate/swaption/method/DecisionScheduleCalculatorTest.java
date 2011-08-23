@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -6,6 +11,7 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -29,6 +35,9 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Tests the DecisionSchedule calculator.
+ */
 public class DecisionScheduleCalculatorTest {
   // Swaption 5Yx5Y
   private static final Currency CUR = Currency.USD;
@@ -54,7 +63,7 @@ public class DecisionScheduleCalculatorTest {
   private static final boolean IS_LONG = true;
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
   //  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
-  //  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
   //  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_RECEIVER_SHORT_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
   //to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
@@ -66,19 +75,22 @@ public class DecisionScheduleCalculatorTest {
   private static final FixedCouponSwap<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   //  private static final SwaptionPhysicalFixedIbor SWAPTION_RECEIVER_LONG = SWAPTION_RECEIVER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  //  private static final SwaptionPhysicalFixedIbor SWAPTION_PAYER_SHORT = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_PAYER_SHORT = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   //  private static final SwaptionPhysicalFixedIbor SWAPTION_RECEIVER_SHORT = SWAPTION_RECEIVER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculator
   private static final DecisionScheduleCalculator DC = DecisionScheduleCalculator.getInstance();
 
   @Test
   public void swaption() {
-    //    GenericAnnuity<CouponFixed> leg1 = SWAP_PAYER.getFirstLeg();
     GenericAnnuity<Coupon> leg2 = SWAP_PAYER.getSecondLeg();
-    DecisionSchedule swaptionSchedule = DC.visit(SWAPTION_PAYER_LONG, CURVES);
-    assertEquals("Decision schedule", 1, swaptionSchedule.getDecisionTime().length);
-    assertEquals("Decision schedule", leg2.getNumberOfPayments() + 1, swaptionSchedule.getImpactTime()[0].length);
-    assertEquals("Decision schedule", SWAPTION_PAYER_LONG.getTimeToExpiry(), swaptionSchedule.getDecisionTime()[0], 1E-10);
+    DecisionSchedule swaptionLongSchedule = DC.visit(SWAPTION_PAYER_LONG, CURVES);
+    assertEquals("Decision schedule", 1, swaptionLongSchedule.getDecisionTime().length);
+    assertEquals("Decision schedule", leg2.getNumberOfPayments() + 1, swaptionLongSchedule.getImpactTime()[0].length);
+    assertEquals("Decision schedule", SWAPTION_PAYER_LONG.getTimeToExpiry(), swaptionLongSchedule.getDecisionTime()[0], 1E-10);
+    DecisionSchedule swaptionShortSchedule = DC.visit(SWAPTION_PAYER_SHORT, CURVES);
+    ArrayAsserts.assertArrayEquals(swaptionLongSchedule.getDecisionTime(), swaptionShortSchedule.getDecisionTime(), 1.0E-8);
+    ArrayAsserts.assertArrayEquals(swaptionLongSchedule.getImpactTime()[0], swaptionShortSchedule.getImpactTime()[0], 1.0E-8);
+    ArrayAsserts.assertArrayEquals(swaptionLongSchedule.getImpactAmount()[0], swaptionShortSchedule.getImpactAmount()[0], 1.0E-8);
   }
 
 }

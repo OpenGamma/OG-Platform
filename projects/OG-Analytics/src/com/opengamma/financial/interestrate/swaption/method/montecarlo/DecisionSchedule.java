@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.interestrate.swaption.method.montecarlo;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Class describing the time and amount required to price interest rate derivatives. The data is used in particular for Monte Carlo pricing.
  */
 public class DecisionSchedule {
 
@@ -40,16 +42,16 @@ public class DecisionSchedule {
   }
 
   /**
-   * Gets the _decisionTime field.
-   * @return the _decisionTime
+   * Gets the decision times.
+   * @return The decision times.
    */
   public double[] getDecisionTime() {
     return _decisionTime;
   }
 
   /**
-   * Gets the _impactTime field.
-   * @return the _impactTime
+   * Gets the time impacting the value at each decision date.
+   * @return The impact times.
    */
   public double[][] getImpactTime() {
     return _impactTime;
@@ -57,10 +59,44 @@ public class DecisionSchedule {
 
   /**
    * Gets the reference amounts at each impact times.
-   * @return the amounts.
+   * @return The amounts.
    */
   public double[][] getImpactAmount() {
     return _impactAmount;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_decisionTime);
+    result = prime * result + Arrays.hashCode(_impactAmount);
+    result = prime * result + Arrays.hashCode(_impactTime);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    DecisionSchedule other = (DecisionSchedule) obj;
+    if (!Arrays.equals(_decisionTime, other._decisionTime)) {
+      return false;
+    }
+    if (!Arrays.equals(_impactAmount, other._impactAmount)) {
+      return false;
+    }
+    if (!Arrays.equals(_impactTime, other._impactTime)) {
+      return false;
+    }
+    return true;
   }
 
 }

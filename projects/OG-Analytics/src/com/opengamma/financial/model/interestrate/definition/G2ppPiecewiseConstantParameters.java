@@ -19,7 +19,7 @@ import org.apache.commons.lang.Validate;
 public class G2ppPiecewiseConstantParameters {
 
   /**
-   * The mean reversion speed (2) parameters.
+   * The mean reversion speed parameters (two parameters).
    */
   private final double[] _meanReversion;
   /**
