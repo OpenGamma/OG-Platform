@@ -8,9 +8,9 @@ package com.opengamma.masterdb.security.hibernate.swap;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
-import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;

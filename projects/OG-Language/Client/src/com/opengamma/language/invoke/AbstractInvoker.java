@@ -29,7 +29,7 @@ public abstract class AbstractInvoker {
   /**
    * Constructs the invoker.
    * 
-   * @param parameters the invocation parameters, or {@code null} for no parameters
+   * @param parameters  the invocation parameters, or null for no parameters
    */
   protected AbstractInvoker(final List<MetaParameter> parameters) {
     if ((parameters == null) || parameters.isEmpty()) {

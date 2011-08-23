@@ -15,20 +15,34 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 
 /**
- * A stand-alone class which distributes live data values to all subscribed
- * {@link LiveDataListener}'s.
+ * A stand-alone class which distributes live data values to all subscribed listeners.
+ * <p>
  * This is separate from all live data client instances as it needs to be
  * compact to be able to have efficient concurrency.
- *
  */
 public class ValueDistributor {
+
+  /**
+   * The map of specification to listeners.
+   */
   private final ConcurrentMap<LiveDataSpecification, Set<LiveDataListener>> _listenersBySpec =
     new ConcurrentHashMap<LiveDataSpecification, Set<LiveDataListener>>();
-  
+
+  /**
+   * Gets the current specifications.
+   * 
+   * @return the specifications, not null
+   */
   public Set<LiveDataSpecification> getActiveSpecifications() {
     return new HashSet<LiveDataSpecification>(_listenersBySpec.keySet());
   }
-  
+
+  /**
+   * Adds a listener.
+   * 
+   * @param fullyQualifiedSpecification  the fully qualified specification, not null
+   * @param listener  the listener
+   */
   public void addListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     Set<LiveDataListener> freshListeners = new HashSet<LiveDataListener>();
     Set<LiveDataListener> actualListeners = _listenersBySpec.putIfAbsent(fullyQualifiedSpecification, freshListeners);
@@ -39,12 +53,13 @@ public class ValueDistributor {
       actualListeners.add(listener);
     }
   }
-  
+
   /**
+   * Removes a listener.
    * 
-   * @param fullyQualifiedSpecification Fully qualified spec
-   * @param listener LiveDataListener
-   * @return {@code true} iff there are still active listeners.
+   * @param fullyQualifiedSpecification  the fully qualified specification, not null
+   * @param listener  the listener
+   * @return true iff there are still active listeners
    */
   public boolean removeListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     Set<LiveDataListener> actualListeners = _listenersBySpec.get(fullyQualifiedSpecification);
@@ -66,7 +81,7 @@ public class ValueDistributor {
       }
     }
   }
-  
+
   // TODO kirk 2009-09-29 -- This should be handed an executor service to
   // invoke the updates asynchronously.
   public void notifyListeners(LiveDataValueUpdateBean updateBean) {

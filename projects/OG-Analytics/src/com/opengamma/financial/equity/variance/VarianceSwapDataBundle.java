@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.equity.variance;
 
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 
 /**
  * Market data required to price a Variance Swap

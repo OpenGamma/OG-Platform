@@ -21,7 +21,7 @@ import org.apache.http.util.LangUtils;
  */
 public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.Entry<T> {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /** The first element. */

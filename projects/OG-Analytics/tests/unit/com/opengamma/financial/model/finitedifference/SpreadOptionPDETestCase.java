@@ -9,11 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.finitedifference.BoundaryCondition2D;
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusion2DPDEDataBundle;
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition2D;
-import com.opengamma.financial.model.finitedifference.SecondDerivativeBoundaryCondition2D;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;

@@ -7,7 +7,7 @@ package com.opengamma.math.linearalgebra;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Arrays;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -17,6 +17,8 @@ import org.apache.commons.math.linear.InvalidMatrixException;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.linear.SingularValueDecomposition;
+import org.testng.annotations.Test;
+
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 

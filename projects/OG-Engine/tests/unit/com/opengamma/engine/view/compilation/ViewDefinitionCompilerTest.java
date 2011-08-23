@@ -8,7 +8,7 @@ package com.opengamma.engine.view.compilation;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.time.Instant;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;

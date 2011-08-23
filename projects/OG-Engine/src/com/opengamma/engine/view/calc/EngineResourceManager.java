@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Manages engine resources for which reference counting is required.

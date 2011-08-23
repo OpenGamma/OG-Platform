@@ -28,10 +28,10 @@ public abstract class AbstractMappedConverter implements TypeConverter {
   public abstract static class Action<F, T> {
 
     /**
-     * Cast the value to the correct from type, or return {@code null} if it is unsuitable.
+     * Cast the value to the correct from type.
      * 
      * @param value the value to cast
-     * @return the cast value
+     * @return the cast value, null if it is unsuitable
      */
     protected F cast(Object value) {
       return (F) value;

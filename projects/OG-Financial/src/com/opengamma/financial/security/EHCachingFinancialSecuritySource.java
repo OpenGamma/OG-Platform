@@ -50,7 +50,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /** The mulitple bonds cache key */
   /* package for testing */ static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
   /** The Bundle hint cache key. */
-  /* package for testing */ static final String BUNDLE_HINT_SECURITIES_CACHE = "multi-securities-cache";
+  /* package for testing */ static final String BUNDLE_HINT_SECURITIES_CACHE = "multi-securities-hint-cache";
 
   /**
    * The underlying cache.
@@ -98,6 +98,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
     EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
     EHCacheUtils.addCache(cacheManager, MULTI_BONDS_CACHE);
+    EHCacheUtils.addCache(cacheManager, BUNDLE_HINT_SECURITIES_CACHE);
     _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
     _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_HINT_SECURITIES_CACHE);
@@ -315,6 +316,8 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     _underlying.changeManager().removeChangeListener(_changeListener);
     _manager.removeCache(SINGLE_SECURITY_CACHE);
     _manager.removeCache(MULTI_SECURITIES_CACHE);
+    _manager.removeCache(MULTI_BONDS_CACHE);
+    _manager.removeCache(BUNDLE_HINT_SECURITIES_CACHE);
     _manager.shutdown();
   }
   

@@ -6,9 +6,11 @@
 package com.opengamma.financial.conversion;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 /**
  * 

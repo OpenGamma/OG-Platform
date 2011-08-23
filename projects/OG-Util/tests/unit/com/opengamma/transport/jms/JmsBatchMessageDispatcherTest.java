@@ -15,8 +15,8 @@ import java.util.List;
 import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.testng.annotations.Test;
 import org.springframework.jms.core.JmsTemplate;
+import org.testng.annotations.Test;
 
 import com.opengamma.transport.BatchByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtils;

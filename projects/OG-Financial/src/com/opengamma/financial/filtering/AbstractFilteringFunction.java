@@ -10,27 +10,37 @@ import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Partial implementation of {@link FilteringFunction} with default behaviour for all methods.   
+ * Abstract filtering function that supplies a simple implementation for all methods.   
  */
 public abstract class AbstractFilteringFunction implements FilteringFunction {
 
+  /**
+   * The name of the function.
+   */
   private final String _name;
 
   /**
    * Creates a new instance.
    * 
-   * @param name the name to be returned by {@link #getName}, not {@code null}
+   * @param name  the descriptive name of the function, not null
    */
   protected AbstractFilteringFunction(final String name) {
     ArgumentChecker.notNull(name, "name");
     _name = name;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public final String getName() {
+    return _name;
+  }
+
+  //-------------------------------------------------------------------------
   /**
-   * Default position filter. All positions are accepted.
+   * Position filter that accepts all positions.
    * 
-   * @param position ignored
-   * @return always {@code true}
+   * @param position  the position to filter, not null
+   * @return true always
    */
   @Override
   public boolean acceptPosition(final Position position) {
@@ -38,18 +48,14 @@ public abstract class AbstractFilteringFunction implements FilteringFunction {
   }
 
   /**
-   * Default portfolio node filter. Any non-empty portfolio nodes are accepted.
+   * Portfolio node filter that accepts any non-empty nodes.
    * 
-   * @param portfolioNode node to consider
-   * @return {@code true} if the node contains at least one node or position, {@code false} otherwise
+   * @param portfolioNode  the node to filter, not null
+   * @return true if the node contains at least one node or position
    */
   @Override
   public boolean acceptPortfolioNode(final PortfolioNode portfolioNode) {
     return !portfolioNode.getChildNodes().isEmpty() || !portfolioNode.getPositions().isEmpty();
   }
 
-  @Override
-  public final String getName() {
-    return _name;
-  }
 }

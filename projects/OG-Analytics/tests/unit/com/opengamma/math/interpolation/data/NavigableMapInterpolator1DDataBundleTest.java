@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import org.testng.annotations.Test;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.data.NavigableMapInterpolator1DDataBundle;
+import org.testng.annotations.Test;
 
 /**
  * 

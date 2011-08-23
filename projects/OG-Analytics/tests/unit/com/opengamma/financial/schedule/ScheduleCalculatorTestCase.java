@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.schedule;
 
-import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.schedule.Schedule;
+import org.testng.annotations.Test;
+
 import com.opengamma.util.time.DateUtils;
 
 /**

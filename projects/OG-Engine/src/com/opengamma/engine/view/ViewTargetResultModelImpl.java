@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
 

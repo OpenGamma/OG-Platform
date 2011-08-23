@@ -6,6 +6,7 @@
 package com.opengamma.math.matrix;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**

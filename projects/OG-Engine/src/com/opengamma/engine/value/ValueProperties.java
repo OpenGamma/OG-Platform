@@ -1071,7 +1071,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * Checks if a property may be omitted.
    * 
    * @param propertyName  the name required, not null
-   * @return {@code true} if the property is optional, {@code false} if it is not defined or required
+   * @return true if the property is optional, false if it is not defined or required
    */
   public abstract boolean isOptional(String propertyName);
 
@@ -1087,7 +1087,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * The property set is satisfied if each of the individual properties can be satisfied. 
    * 
    * @param properties  the other property set to check against, not null
-   * @return {@code true} if this set of properties can be satisfied by the other set, {@code false} otherwise
+   * @return true if this set of properties can be satisfied by the other set
    */
   public abstract boolean isSatisfiedBy(ValueProperties properties);
 
@@ -1109,14 +1109,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * A property set is strict if there is only one value for each property
    * or the property set is empty.
    * 
-   * @return {@code true} if the property set is strict, {@code false} otherwise
+   * @return true if the property set is strict
    */
   public abstract boolean isStrict();
 
   /**
    * Checks if the set of properties is empty.
    * 
-   * @return {@code true} if the property set is empty, {@code false} otherwise
+   * @return true if the property set is empty
    */
   public abstract boolean isEmpty();
 
