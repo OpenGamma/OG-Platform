@@ -8,6 +8,8 @@ package com.opengamma.financial.equity.variance;
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.equity.variance.pricing.ShiftedLognormalVolModel;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -27,8 +29,6 @@ import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
-
-import org.testng.annotations.Test;
 
 /**
  * 

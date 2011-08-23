@@ -10,11 +10,11 @@ import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result providing the history of a document.

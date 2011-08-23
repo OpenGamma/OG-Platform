@@ -6,7 +6,9 @@
 package com.opengamma.financial.model.option.pricing;
 
 import static org.testng.AssertJUnit.assertNull;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;

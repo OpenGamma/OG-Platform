@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**

@@ -6,7 +6,9 @@
 package com.opengamma.math.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;

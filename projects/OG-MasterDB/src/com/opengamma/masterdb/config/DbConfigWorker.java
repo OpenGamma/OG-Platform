@@ -25,10 +25,10 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.IdUtils;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;

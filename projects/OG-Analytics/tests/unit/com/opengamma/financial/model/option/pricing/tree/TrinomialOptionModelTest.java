@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.tree;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.BoyleTrinomialOptionModelDefinition;

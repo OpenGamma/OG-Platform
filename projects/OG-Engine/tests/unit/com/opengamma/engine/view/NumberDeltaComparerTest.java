@@ -7,8 +7,10 @@ package com.opengamma.engine.view;
 
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
+
+import org.testng.annotations.Test;
 
 /**
  * Test NumberDeltaComparer.

@@ -7,12 +7,14 @@ package com.opengamma.security.auditlog;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.testng.annotations.Test;
+
 import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
 

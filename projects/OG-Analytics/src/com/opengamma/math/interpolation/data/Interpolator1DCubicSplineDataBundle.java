@@ -10,8 +10,8 @@ import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.math.linearalgebra.InverseTridiagonalMatrixCalculator;
+import com.opengamma.math.linearalgebra.TridiagonalMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;

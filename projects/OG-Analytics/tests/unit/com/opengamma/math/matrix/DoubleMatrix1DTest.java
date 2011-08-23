@@ -5,11 +5,13 @@
  */
 package com.opengamma.math.matrix;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Arrays;
+
+import org.testng.annotations.Test;
 
 public class DoubleMatrix1DTest {
   private static final DoubleMatrix1D PRIMITIVES = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});

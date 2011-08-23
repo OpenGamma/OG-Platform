@@ -8,7 +8,6 @@ package com.opengamma.math.rootfinding.newton;
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
 import org.apache.commons.lang.Validate;
-import org.hamcrest.core.IsInstanceOf;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;

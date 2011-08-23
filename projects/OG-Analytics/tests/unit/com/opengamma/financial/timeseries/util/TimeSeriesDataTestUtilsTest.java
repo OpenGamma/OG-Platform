@@ -6,6 +6,7 @@
 package com.opengamma.financial.timeseries.util;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;

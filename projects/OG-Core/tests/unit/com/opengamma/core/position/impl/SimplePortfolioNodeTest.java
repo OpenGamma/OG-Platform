@@ -5,17 +5,16 @@
  */
 package com.opengamma.core.position.impl;
 
-import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotSame;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertSame;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 
-import com.opengamma.core.position.impl.SimplePortfolio;
-import com.opengamma.core.position.impl.SimplePortfolioNode;
-import com.opengamma.core.position.impl.SimplePosition;
+import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 

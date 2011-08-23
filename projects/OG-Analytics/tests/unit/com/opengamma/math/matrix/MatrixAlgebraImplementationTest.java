@@ -7,8 +7,9 @@ package com.opengamma.math.matrix;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.annotations.Test;
 
 /**
  * 

@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.core.position.impl.SimplePosition;
-import com.opengamma.core.position.impl.SimpleTrade;
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.assertEquals;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 
 /**
  *

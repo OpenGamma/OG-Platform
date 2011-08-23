@@ -6,6 +6,7 @@
 package com.opengamma.financial.timeseries.returns;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;

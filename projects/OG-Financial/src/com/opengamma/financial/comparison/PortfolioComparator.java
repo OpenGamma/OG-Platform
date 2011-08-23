@@ -8,13 +8,13 @@ package com.opengamma.financial.comparison;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import com.opengamma.id.UniqueId;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
+import com.opengamma.id.UniqueId;
 
 /**
  * Provides comparison operations between {@link Portfolio} objects.

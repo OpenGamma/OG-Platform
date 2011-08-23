@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;

@@ -5,10 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import org.testng.annotations.Test;
 import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;

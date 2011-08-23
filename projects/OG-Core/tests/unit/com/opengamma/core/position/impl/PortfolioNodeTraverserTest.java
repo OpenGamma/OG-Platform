@@ -15,8 +15,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Test {@link PortfolioNodeTraverser}.

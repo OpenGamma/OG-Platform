@@ -6,8 +6,10 @@
 package com.opengamma.math.random;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
