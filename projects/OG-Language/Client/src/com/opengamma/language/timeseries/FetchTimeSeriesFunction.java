@@ -40,7 +40,7 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
   private static final int DATA_FIELD = 3;
   private static final int RESOLUTION_KEY = 4;
   private static final int INCLUSIVE_START = 5;
-  private static final int EXCLUSIVE_END = 6;
+  private static final int INCLUSIVE_END = 6;
   private static final int DATA_SOURCE = 7;
   private static final int DATA_PROVIDER = 8;
   private static final int IDENTIFIER_VALIDITY_DATE = 9;
@@ -54,11 +54,11 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
     final MetaParameter dataFieldParameter = new MetaParameter("dataField", JavaTypeInfo.builder(String.class).allowNull().get());
     final MetaParameter resolutionKeyParameter = new MetaParameter("resolutionKey", JavaTypeInfo.builder(String.class).allowNull().get());
     final MetaParameter inclusiveStartParameter = new MetaParameter("inclusiveStart", JavaTypeInfo.builder(Boolean.class).defaultValue(true).get());
-    final MetaParameter exclusiveEndParameter = new MetaParameter("exclusiveEnd", JavaTypeInfo.builder(Boolean.class).defaultValue(true).get());
+    final MetaParameter inclusiveEndParameter = new MetaParameter("inclusiveEnd", JavaTypeInfo.builder(Boolean.class).defaultValue(false).get());
     final MetaParameter dataSourceParameter = new MetaParameter("dataSource", JavaTypeInfo.builder(String.class).allowNull().get());
     final MetaParameter dataProviderParameter = new MetaParameter("dataProvider", JavaTypeInfo.builder(String.class).allowNull().get());
     final MetaParameter identifierValidityDateParameter = new MetaParameter("identifierValidityDate", JavaTypeInfo.builder(LocalDate.class).allowNull().get());
-    return Arrays.asList(identifierParameter, startParameter, endParameter, dataFieldParameter, resolutionKeyParameter, inclusiveStartParameter, exclusiveEndParameter, dataSourceParameter,
+    return Arrays.asList(identifierParameter, startParameter, endParameter, dataFieldParameter, resolutionKeyParameter, inclusiveStartParameter, inclusiveEndParameter, dataSourceParameter,
         dataProviderParameter, identifierValidityDateParameter);
   }
 
@@ -119,32 +119,32 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
         return source.getHistoricalTimeSeries(getUniqueId(sessionContext, parameters[IDENTIFIER]));
       case FLAG_START_AND_END:
         return source.getHistoricalTimeSeries(getUniqueId(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
-            (Boolean) parameters[EXCLUSIVE_END]);
+            (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD:
         return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[DATA_SOURCE], (String) parameters[DATA_PROVIDER],
             (String) parameters[DATA_FIELD]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD | FLAG_START_AND_END:
         return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[DATA_SOURCE], (String) parameters[DATA_PROVIDER],
             (String) parameters[DATA_FIELD], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
-            (Boolean) parameters[EXCLUSIVE_END]);
+            (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD | FLAG_IDENTIFIER_VALIDITY_DATE:
         return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
             (String) parameters[DATA_PROVIDER], (String) parameters[DATA_FIELD]);
       case FLAG_SOURCE_AND_PROVIDER | FLAG_FIELD | FLAG_START_AND_END | FLAG_IDENTIFIER_VALIDITY_DATE:
         return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
             (String) parameters[DATA_PROVIDER], (String) parameters[DATA_FIELD], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
-            (Boolean) parameters[EXCLUSIVE_END]);
+            (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_FIELD | FLAG_RESOLUTION_KEY:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY]);
       case FLAG_FIELD | FLAG_RESOLUTION_KEY | FLAG_START_AND_END:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY],
-            (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[EXCLUSIVE_END]);
+            (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[INCLUSIVE_END]);
       case FLAG_FIELD | FLAG_RESOLUTION_KEY | FLAG_IDENTIFIER_VALIDITY_DATE:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
             (String) parameters[RESOLUTION_KEY]);
       case FLAG_FIELD | FLAG_RESOLUTION_KEY | FLAG_START_AND_END | FLAG_IDENTIFIER_VALIDITY_DATE:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
-            (String) parameters[RESOLUTION_KEY], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[EXCLUSIVE_END]);
+            (String) parameters[RESOLUTION_KEY], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[INCLUSIVE_END]);
       default:
         throw new InvokeInvalidArgumentException("Invalid combination of omitted parameters");
     }

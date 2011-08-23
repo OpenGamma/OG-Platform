@@ -44,7 +44,7 @@ public class FetchTimeSeriesFunctionTest {
     }
 
     @Override
-    public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+    public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
 
@@ -60,13 +60,13 @@ public class FetchTimeSeriesFunctionTest {
 
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean inclusiveStart,
-        LocalDate end, boolean exclusiveEnd) {
+        LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
-        boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+        boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
 
@@ -82,19 +82,19 @@ public class FetchTimeSeriesFunctionTest {
 
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean inclusiveStart, LocalDate end,
-        boolean exclusiveEnd) {
+        boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
-        boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+        boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
-        boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
+        boolean inclusiveStart, LocalDate end, boolean inclusiveEnd) {
       throw new UnsupportedOperationException();
     }
 
@@ -143,12 +143,12 @@ public class FetchTimeSeriesFunctionTest {
   public void testUniqueIdSubset() {
     final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
       @Override
-      public HistoricalTimeSeries getHistoricalTimeSeries(final UniqueId uniqueId, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean exclusiveEnd) {
+      public HistoricalTimeSeries getHistoricalTimeSeries(final UniqueId uniqueId, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
         assertEquals(uniqueId, UniqueId.of("Foo", "Bar"));
         assertEquals(start, LocalDate.of(2011, 4, 1));
         assertTrue(inclusiveStart);
         assertEquals(end, null);
-        assertTrue(exclusiveEnd);
+        assertTrue(inclusiveEnd);
         return result();
       }
     });
@@ -199,7 +199,8 @@ public class FetchTimeSeriesFunctionTest {
   public void testBundleSourceProviderAndFieldSubset() {
     final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
       @Override
-      public HistoricalTimeSeries getHistoricalTimeSeries(final ExternalIdBundle identifierBundle, final String dataSource, final String dataProvider, final String dataField, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean exclusiveEnd) { 
+      public HistoricalTimeSeries getHistoricalTimeSeries(final ExternalIdBundle identifierBundle, final String dataSource, final String dataProvider, final String dataField, final LocalDate start,
+          final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
         assertEquals(identifierBundle, ExternalIdBundle.of(ExternalId.of("Foo", "Bar")));
         assertEquals(dataSource, "source");
         assertEquals(dataProvider, "provider");
@@ -207,7 +208,7 @@ public class FetchTimeSeriesFunctionTest {
         assertEquals(start, LocalDate.of(2011, 4, 1));
         assertTrue(inclusiveStart);
         assertEquals(end, null);
-        assertTrue(exclusiveEnd);
+        assertTrue(inclusiveEnd);
         return result();
       }
     });
@@ -222,7 +223,7 @@ public class FetchTimeSeriesFunctionTest {
     final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
       @Override
       public HistoricalTimeSeries getHistoricalTimeSeries(final ExternalIdBundle identifierBundle, final LocalDate identifierValidityDate, final String dataSource, final String dataProvider,
-          final String dataField, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean exclusiveEnd) {
+          final String dataField, final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
         assertEquals(identifierBundle, ExternalIdBundle.of(ExternalId.of("Foo", "Bar")));
         assertEquals(identifierValidityDate, LocalDate.of(2011, 5, 1));
         assertEquals(dataSource, "source");
@@ -231,7 +232,7 @@ public class FetchTimeSeriesFunctionTest {
         assertEquals(start, LocalDate.of(2011, 4, 1));
         assertTrue(inclusiveStart);
         assertEquals(end, null);
-        assertTrue(exclusiveEnd);
+        assertTrue(inclusiveEnd);
         return result();
       }
     });
@@ -281,14 +282,14 @@ public class FetchTimeSeriesFunctionTest {
     final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
       @Override
       public HistoricalTimeSeries getHistoricalTimeSeries(final String dataField, final ExternalIdBundle identifierBundle, final String resolutionKey, final LocalDate start,
-          final boolean inclusiveStart, final LocalDate end, final boolean exclusiveEnd) {
+          final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
         assertEquals(dataField, "field");
         assertEquals(identifierBundle, ExternalIdBundle.of(ExternalId.of("Foo", "Bar")));
         assertEquals(resolutionKey, "key");
         assertEquals(start, null);
         assertTrue(inclusiveStart);
         assertEquals(end, LocalDate.of(2011, 4, 1));
-        assertFalse(exclusiveEnd);
+        assertFalse(inclusiveEnd);
         return result();
       }
     });
@@ -303,7 +304,7 @@ public class FetchTimeSeriesFunctionTest {
     final SessionContext sessionContext = createSessionContext(new TestHistoricalTimeSeriesSource() {
       @Override
       public HistoricalTimeSeries getHistoricalTimeSeries(final String dataField, final ExternalIdBundle identifierBundle, final LocalDate identifierValidityDate, final String resolutionKey,
-          final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean exclusiveEnd) {
+          final LocalDate start, final boolean inclusiveStart, final LocalDate end, final boolean inclusiveEnd) {
         assertEquals(dataField, "field");
         assertEquals(identifierBundle, ExternalIdBundle.of(ExternalId.of("Foo", "Bar")));
         assertEquals(identifierValidityDate, LocalDate.of(2011, 5, 1));
@@ -311,7 +312,7 @@ public class FetchTimeSeriesFunctionTest {
         assertEquals(start, null);
         assertTrue(inclusiveStart);
         assertEquals(end, LocalDate.of(2011, 4, 1));
-        assertFalse(exclusiveEnd);
+        assertFalse(inclusiveEnd);
         return result();
       }
     });
