@@ -8,6 +8,8 @@ package com.opengamma.language.identifier;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.language.convert.AbstractMappedConverter;
 import com.opengamma.language.convert.TypeMap;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -19,24 +21,20 @@ public class TypeConverter extends AbstractMappedConverter {
 
   private static final JavaTypeInfo<ExternalId> EXTERNAL_ID = JavaTypeInfo.builder(ExternalId.class).get();
   private static final JavaTypeInfo<ExternalIdBundle> EXTERNAL_ID_BUNDLE = JavaTypeInfo.builder(ExternalIdBundle.class).get();
+  private static final JavaTypeInfo<ObjectId> OBJECT_ID = JavaTypeInfo.builder(ObjectId.class).get();
+  private static final JavaTypeInfo<UniqueId> UNIQUE_ID = JavaTypeInfo.builder(UniqueId.class).get();
 
   public TypeConverter() {
     super(TypeConverter.class.getName());
     conversion(TypeMap.ZERO_LOSS, EXTERNAL_ID, EXTERNAL_ID_BUNDLE, new Action<ExternalId, ExternalIdBundle>() {
-
       @Override
-      public ExternalId cast(final Object value) {
-        return (ExternalId) value;
-      }
-
-      @Override
-      public ExternalIdBundle convert(final ExternalId value) {
+      protected ExternalIdBundle convert(final ExternalId value) {
         return ExternalIdBundle.of(value);
       }
     }, new Action<ExternalIdBundle, ExternalId>() {
 
       @Override
-      public ExternalIdBundle cast(final Object value) {
+      protected ExternalIdBundle cast(final Object value) {
         final ExternalIdBundle bundle = (ExternalIdBundle) value;
         if (bundle.getExternalIds().size() == 1) {
           return bundle;
@@ -46,8 +44,20 @@ public class TypeConverter extends AbstractMappedConverter {
       }
 
       @Override
-      public ExternalId convert(final ExternalIdBundle value) {
+      protected ExternalId convert(final ExternalIdBundle value) {
         return value.iterator().next();
+      }
+
+    });
+    conversion(TypeMap.ZERO_LOSS, UNIQUE_ID, OBJECT_ID, new Action<UniqueId, ObjectId>() {
+      @Override
+      protected ObjectId convert(final UniqueId value) {
+        return value.getObjectId();
+      }
+    }, new Action<ObjectId, UniqueId>() {
+      @Override
+      protected UniqueId convert(final ObjectId value) {
+        return value.atLatestVersion();
       }
     });
   }

@@ -25,7 +25,7 @@ public abstract class AbstractMappedConverter implements TypeConverter {
    * @param <F> from type
    * @param <T> to type
    */
-  public static interface Action<F, T> {
+  public abstract static class Action<F, T> {
 
     /**
      * Cast the value to the correct from type, or return {@code null} if it is unsuitable.
@@ -33,7 +33,9 @@ public abstract class AbstractMappedConverter implements TypeConverter {
      * @param value the value to cast
      * @return the cast value
      */
-    F cast(Object value);
+    protected F cast(Object value) {
+      return (F) value;
+    }
 
     /**
      * Convert the value.
@@ -41,7 +43,8 @@ public abstract class AbstractMappedConverter implements TypeConverter {
      * @param value the value to convert
      * @return the converted value
      */
-    T convert(F value);
+    protected abstract T convert(F value);
+
   }
 
   private final Map<JavaTypeInfo<?>, Pair<Map<JavaTypeInfo<?>, Integer>, Action<?, ?>>> _conversions = new HashMap<JavaTypeInfo<?>, Pair<Map<JavaTypeInfo<?>, Integer>, Action<?, ?>>>();

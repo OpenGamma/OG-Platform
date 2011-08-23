@@ -56,9 +56,11 @@ public final class Converters extends AbstractTypeConverterProvider {
     converters.add(new BoxingConverter());
     converters.add(new DataConverter());
     converters.add(new FudgeTypeConverter(getFudgeContext()));
+    converters.add(new ListConverter());
     converters.add(new MapConverter());
     converters.add(new PrimitiveArrayConverter());
     converters.add(new PrimitiveConverter());
+    converters.add(new SetConverter());
     converters.add(new ValueConverter());
     final Collection<TypeConverter> extra = getExtraConverters();
     if (extra != null) {

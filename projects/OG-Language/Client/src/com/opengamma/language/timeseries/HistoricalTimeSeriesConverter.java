@@ -24,17 +24,10 @@ public class HistoricalTimeSeriesConverter extends AbstractMappedConverter {
   public HistoricalTimeSeriesConverter() {
     super(HistoricalTimeSeriesConverter.class.getSimpleName());
     conversion(TypeMap.ZERO_LOSS, HISTORICAL_TIME_SERIES, LOCAL_DATE_DOUBLE_TIME_SERIES, new Action<HistoricalTimeSeries, LocalDateDoubleTimeSeries>() {
-
       @Override
-      public HistoricalTimeSeries cast(final Object value) {
-        return (HistoricalTimeSeries) value;
-      }
-
-      @Override
-      public LocalDateDoubleTimeSeries convert(final HistoricalTimeSeries value) {
+      protected LocalDateDoubleTimeSeries convert(final HistoricalTimeSeries value) {
         return value.getTimeSeries();
       }
-
     });
   }
 

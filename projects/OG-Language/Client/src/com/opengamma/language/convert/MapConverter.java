@@ -89,6 +89,7 @@ public class MapConverter extends AbstractTypeConverter {
           result[i++][1] = conversionContext.getResult();
         }
       }
+      // TODO: be nice to sort the keys
       conversionContext.setResult(result);
     }
   }
