@@ -285,5 +285,68 @@ public class MatrixPrimitiveUtils {
       throw new IllegalArgumentException("Lower Hessenberg matrix called on data that isn't lower Hessenberg!");
     }
   }
+
+
+
+/**
+ * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception otherwise.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return the matrix referred to in the argument if the check passes
+ */
+  public static double[][] checkIsTriDiag(double[][] aMatrix) {
+    if (MatrixPrimitiveUtils.isTriDiag(aMatrix)) {
+      return aMatrix;
+    } else {
+      throw new IllegalArgumentException("TriDiag matrix called on data that isn't Tri-Diagonal!");
+    }
+  }
+
+/**
+ * Boolean on whether a matrix is tri-Diagonal.
+ * @param aMatrix an array of arrays representation of the matrix to be tested.
+ * @return boolean, true if matrix is tri-Diagonal, false if matrix is not.
+ * @throws IllegalArgumentException
+ */
+  public static boolean isTriDiag(double[][] aMatrix) throws IllegalArgumentException {
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so the notion of Tri-Diagonal isn't clear cut enough to be implemented");
+    }
+    final int rows = aMatrix.length;
+
+    // test first row
+    for (int i = 2; i < rows; i++) {
+      if (Double.doubleToLongBits(aMatrix[0][i]) != 0) {
+        return false;
+      }
+    }
+
+    // tests members of each row that should be empty to ensure they are!
+    for (int i = 1; i < rows - 1; i++) {
+      // first check the elements on the LHS of the tridiag entries
+      for (int k = 0; k < i - 1; k++) {
+        if (Double.doubleToLongBits(aMatrix[i][k]) != 0) {
+          return false;
+        }
+      }
+      // second check the elements on the RHS of the tridiag entries
+      for (int k = i - 1 + 3; k < rows; k++) {
+        if (Double.doubleToLongBits(aMatrix[i][k]) != 0) {
+          return false;
+        }
+      }
+    }
+
+    // test last row
+    for (int i = 0; i < (rows - 2); i++) {
+      if (Double.doubleToLongBits(aMatrix[rows - 1][i]) != 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+
 } // class end
 

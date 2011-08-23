@@ -129,4 +129,28 @@ public void testCheckIsLowerHessenbergExceptions() {
 }
 
 
+@Test
+public void testIsTriDiag() {
+  double[][] trid = {{1,2,0,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  double[][] ntrid = {{1,2,1,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  assertTrue(MatrixPrimitiveUtils.isTriDiag(trid));
+  assertFalse(MatrixPrimitiveUtils.isTriDiag(ntrid));
 }
+
+@Test
+public void testCheckIsTriDiag() {
+  double[][] trid = {{1,2,0,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  assertTrue(Arrays.deepEquals(trid, MatrixPrimitiveUtils.checkIsTriDiag(trid)));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testCheckIsTriDiagExceptions() {
+  double[][] notTrid = {{1,2,1,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  MatrixPrimitiveUtils.checkIsTriDiag(notTrid);
+}
+
+
+
+} // class end
+
+
