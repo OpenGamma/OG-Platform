@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.surface.Surface;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Like BlackVolatilitySurface, a surface that contains the Black (aka implied, aka lognormal) volatility  as a function of time to maturity and strike.

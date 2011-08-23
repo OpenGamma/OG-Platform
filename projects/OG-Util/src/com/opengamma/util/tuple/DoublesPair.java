@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /** The first element. */

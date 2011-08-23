@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.greeks;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.pnl.UnderlyingType;
 

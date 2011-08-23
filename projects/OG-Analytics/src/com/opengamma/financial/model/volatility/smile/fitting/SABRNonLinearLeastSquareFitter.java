@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
+import java.util.BitSet;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
@@ -22,10 +26,6 @@ import com.opengamma.math.minimization.TransformParameters;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
-
-import java.util.BitSet;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * 

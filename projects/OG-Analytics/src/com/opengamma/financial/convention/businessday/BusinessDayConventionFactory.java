@@ -77,7 +77,7 @@ public final class BusinessDayConventionFactory {
    * Iterates over the available conventions. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
    * 
-   * @return the available conventions, not {@code null}
+   * @return the available conventions, not null
    */
   public Iterator<BusinessDayConvention> enumerateAvailableBusinessDayConventions() {
     return Iterators.unmodifiableIterator(_conventions.iterator());

@@ -8,7 +8,7 @@ package com.opengamma.financial.model.interestrate;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 
 /**
- * 
+ * Data used for tests on the Hull-White one factor model.
  */
 public class HullWhiteTestsDataSet {
 

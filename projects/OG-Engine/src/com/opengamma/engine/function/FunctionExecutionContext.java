@@ -84,7 +84,7 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
   /**
    * Gets the valuation time.
    * 
-   * @return the valuation time, {@code null} if not in the context
+   * @return the valuation time, null if not in the context
    */
   public Instant getValuationTime() {
     return (Instant) get(VALUATION_INSTANT_NAME);

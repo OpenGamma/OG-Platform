@@ -90,9 +90,9 @@ public class ValueSpecification implements Serializable {
    * 
    * @param valueName  the name of the value created, not null
    * @param target  the target, not null
-   * @param functionIdentifier  the function identifier, or null if included in properties
-   * @param currencyISO  the currency constraint, or null if none to be included
-   * @param properties  the value properties, or can be null if the function identifier provided separately
+   * @param functionIdentifier  the function identifier, null if included in properties
+   * @param currencyISO  the currency constraint, null if none to be included
+   * @param properties  the value properties, null if the function identifier provided separately
    * @return the created specification, not null
    */
   public static ValueSpecification of(final String valueName, final Object target, final String functionIdentifier, final String currencyISO, final ValueProperties properties) {

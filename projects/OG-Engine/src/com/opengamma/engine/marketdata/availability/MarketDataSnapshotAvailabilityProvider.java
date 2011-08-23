@@ -23,7 +23,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
   /**
    * Constructs an instance.
    * 
-   * @param snapshot  the initialised snapshot, not {@code null}
+   * @param snapshot  the initialised snapshot, not null
    */
   public MarketDataSnapshotAvailabilityProvider(MarketDataSnapshot snapshot) {
     ArgumentChecker.notNull(snapshot, "snapshot");

@@ -6,8 +6,10 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.TreeMap;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;

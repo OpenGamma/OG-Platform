@@ -7,7 +7,6 @@ package com.opengamma.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
@@ -19,9 +18,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFuncti
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * Tests on a pair of backwards Black-Scholes PDEs. The model is a Black-Scholes SDE where the volatility can take one of two values

@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.divide;
-import static com.opengamma.math.ComplexMathUtils.subtract;
 import static com.opengamma.math.ComplexMathUtils.conjugate;
+import static com.opengamma.math.ComplexMathUtils.divide;
 import static com.opengamma.math.ComplexMathUtils.multiply;
+import static com.opengamma.math.ComplexMathUtils.subtract;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 

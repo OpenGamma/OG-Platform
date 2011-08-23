@@ -13,12 +13,9 @@ import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEData
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.financial.model.finitedifference.NeumannBoundaryCondition;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function;

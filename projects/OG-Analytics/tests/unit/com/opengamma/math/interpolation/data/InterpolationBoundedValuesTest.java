@@ -6,6 +6,7 @@
 package com.opengamma.math.interpolation.data;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**

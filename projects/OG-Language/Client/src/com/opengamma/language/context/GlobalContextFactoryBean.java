@@ -30,7 +30,7 @@ public class GlobalContextFactoryBean implements GlobalContextFactory {
    * registered when the extension is made are applied, changes to the context factory extended
    * made after this call have no effect.
    * 
-   * @param extendedFrom the context factory to extend from, not {@code null} and can only be set once
+   * @param extendedFrom the context factory to extend from, not null and can only be set once
    */
   public synchronized void setExtendedFrom(final GlobalContextFactoryBean extendedFrom) {
     ArgumentChecker.notNull(extendedFrom, "extendedFrom");

@@ -5,10 +5,11 @@
  */
 package com.opengamma.math;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.FunctionUtils.fromTensorIndex;
 import static com.opengamma.math.FunctionUtils.toTensorIndex;
+import static org.testng.AssertJUnit.assertEquals;
+
+import org.testng.annotations.Test;
 
 /**
  * 

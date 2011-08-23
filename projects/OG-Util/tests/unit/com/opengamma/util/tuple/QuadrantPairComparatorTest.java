@@ -11,9 +11,6 @@ import java.util.Comparator;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.QuadrantPairComparator;
-
 /**
  * Test QuadrantPairComparator.
  */

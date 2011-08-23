@@ -5,11 +5,13 @@
  */
 package com.opengamma.engine.view;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Collections;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.depgraph.DepGraphTestHelper;
 import com.opengamma.engine.depgraph.DependencyGraph;

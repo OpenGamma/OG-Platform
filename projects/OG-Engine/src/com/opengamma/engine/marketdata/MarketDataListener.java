@@ -19,22 +19,22 @@ public interface MarketDataListener {
   /**
    * Notifies of a successful live data subscription. 
    * 
-   * @param requirement  the requirement that was successfully subscribed to, not {@code null}
+   * @param requirement  the requirement that was successfully subscribed to, not null
    */
   void subscriptionSucceeded(ValueRequirement requirement);
   
   /**
    * Notifies of a failed live data subscription.
    * 
-   * @param requirement  the requirement that could not be subscribed to, not {@code null}
-   * @param msg  the error message, not {@code null}
+   * @param requirement  the requirement that could not be subscribed to, not null
+   * @param msg  the error message, not null
    */
   void subscriptionFailed(ValueRequirement requirement, String msg);
   
   /**
    * Notifies of a terminated live data subscription.
    * 
-   * @param requirement  the requirement that is no longer subscribed to, not {@code null}
+   * @param requirement  the requirement that is no longer subscribed to, not null
    */
   void subscriptionStopped(ValueRequirement requirement);
   
@@ -43,7 +43,7 @@ public interface MarketDataListener {
    * <p>
    * This method must execute quickly and not block; it may be called from within a market data receiver thread.
    * 
-   * @param requirements  the requirements whose values have changed, not {@code null}
+   * @param requirements  the requirements whose values have changed, not null
    */
   void valuesChanged(Collection<ValueRequirement> requirements);
 

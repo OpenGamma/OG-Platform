@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory.getReturnCalculator;
 import static com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory.getReturnCalculatorName;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.util.CalculationMode;
 
 /**

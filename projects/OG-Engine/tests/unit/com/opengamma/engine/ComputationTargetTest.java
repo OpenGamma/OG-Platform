@@ -6,8 +6,10 @@
 package com.opengamma.engine;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;

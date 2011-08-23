@@ -7,6 +7,7 @@ package com.opengamma.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
 
 /**

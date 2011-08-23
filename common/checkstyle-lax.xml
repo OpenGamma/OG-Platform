@@ -123,6 +123,18 @@
     <property name="fileExtensions" value="java,proto"/>
     <!-- property name="severity" value="error"/   proto generated files cause errors-->
   </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\{\@code true\}"/>
+    <property name="message" value="Use true instead of @code true"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\{\@code false\}"/>
+    <property name="message" value="Use false instead of @code false"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="\{\@code null\}"/>
+    <property name="message" value="Use null instead of @code null"/>
+  </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>
     <property name="onCommentFormat" value="CSON"/>

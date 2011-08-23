@@ -81,9 +81,9 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
    * it is the responsibility of the peer function to request the default in the value requirement satisfied by this function.
    * This allows the function to be used to inject currencies other than the view's default to functions that require it.
    * 
-   * @param context the function compilation context, not {@code null}
-   * @param target the target, not {@code null}
-   * @return a singleton describing the default currency value and a constraint of "any" currency, not {@code null}
+   * @param context the function compilation context, not null
+   * @param target the target, not null
+   * @return a singleton describing the default currency value and a constraint of "any" currency, not null
    */
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {

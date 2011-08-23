@@ -31,14 +31,14 @@ public interface ViewExecutionOptions {
   /**
    * Gets the maximum number of delta cycles following a full computation cycles.
    * 
-   * @return the maximum number of delta cycles following a full computation cycle, or null for no limit
+   * @return the maximum number of delta cycles following a full computation cycle, null for no limit
    */
   Integer getMaxSuccessiveDeltaCycles();
     
   /**
    * Gets the default execution options.
    * 
-   * @return the default execution options, or null if not specified
+   * @return the default execution options, null if not specified
    */
   ViewCycleExecutionOptions getDefaultExecutionOptions();
  
