@@ -6,8 +6,10 @@
 package com.opengamma.financial.convention.daycount;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.util.time.DateUtils;

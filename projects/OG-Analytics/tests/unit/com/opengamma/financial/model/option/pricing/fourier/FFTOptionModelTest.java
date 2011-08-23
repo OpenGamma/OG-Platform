@@ -1,12 +1,14 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.HashSet;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;

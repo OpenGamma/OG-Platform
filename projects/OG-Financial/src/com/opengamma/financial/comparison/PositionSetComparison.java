@@ -78,7 +78,7 @@ public class PositionSetComparison {
   /**
    * Returns true if both sets of positions contained identical values.
    * 
-   * @return {@code true} if the positions were identical, {@code false} otherwise
+   * @return true if the positions were identical
    */
   public boolean isEqual() {
     return getChanged().isEmpty() && getOnlyInFirst().isEmpty() && getOnlyInSecond().isEmpty();

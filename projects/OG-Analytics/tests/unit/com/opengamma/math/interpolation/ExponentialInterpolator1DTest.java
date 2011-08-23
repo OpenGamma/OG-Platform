@@ -6,9 +6,11 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Collections;
 import java.util.TreeMap;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;

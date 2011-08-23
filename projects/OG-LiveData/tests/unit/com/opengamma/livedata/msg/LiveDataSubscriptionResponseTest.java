@@ -6,9 +6,8 @@
 package com.opengamma.livedata.msg;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 
 /**
  * This class is primarily here to allow us to eliminate the dummy classes.

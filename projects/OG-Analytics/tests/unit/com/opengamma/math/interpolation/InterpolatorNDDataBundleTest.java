@@ -5,9 +5,10 @@
  */
 package com.opengamma.math.interpolation;
 
-import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.ObjectsPair;

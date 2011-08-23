@@ -17,14 +17,14 @@ public interface AvailableOutput {
   /**
    * Returns the name of the output value, e.g. {@code Present Value}.
    * 
-   * @return the value name, not {@code null}
+   * @return the value name, not null
    */
   String getValueName();
 
   /**
    * Tests if the output is available on a position.
    * 
-   * @return {@code true} if available, {@code false} otherwise
+   * @return true if available
    */
   boolean isAvailableOnPosition();
 
@@ -38,22 +38,22 @@ public interface AvailableOutput {
   /**
    * Tests if the output is available on a position in the given security type.
    * 
-   * @param securityType security type to test for
-   * @return {@code true} if available, {@code false} otherwise
+   * @param securityType  the security type to test for
+   * @return true if available
    */
   boolean isAvailableOn(final String securityType);
 
   /**
    * Tests if the output is available on a portfolio node.
    * 
-   * @return {@code true} if available, {@code false} otherwise
+   * @return true if available
    */
   boolean isAvailableOnPortfolioNode();
 
   /**
    * Returns the maximal property set on all the output is available on.
    * 
-   * @return the property set, not {@code null}
+   * @return the property set, not null
    */
   ValueProperties getProperties();
 
@@ -61,14 +61,14 @@ public interface AvailableOutput {
    * Returns the maximal property set on positions in the given security type.
    * 
    * @param securityType security type to consider
-   * @return the property set, not {@code null}
+   * @return the property set, not null
    */
   ValueProperties getPositionProperties(String securityType);
 
   /**
    * Returns the maximal property set on portfolio nodes.
    * 
-   * @return the property set, not {@code null}
+   * @return the property set, not null
    */
   ValueProperties getPortfolioNodeProperties();
 

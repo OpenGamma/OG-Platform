@@ -16,11 +16,11 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.MAXIMUM_OP
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.MINIMUM_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.MULTIPLY_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NEGATE_OPERATOR;
+import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NO_INTERSECTION_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.POWER_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.RECIPROCAL_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
-import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.NO_INTERSECTION_OPERATOR;
 
 import java.util.Date;
 import java.util.Iterator;

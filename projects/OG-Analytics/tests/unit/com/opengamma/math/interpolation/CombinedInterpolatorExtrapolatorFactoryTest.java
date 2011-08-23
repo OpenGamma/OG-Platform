@@ -5,10 +5,12 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**

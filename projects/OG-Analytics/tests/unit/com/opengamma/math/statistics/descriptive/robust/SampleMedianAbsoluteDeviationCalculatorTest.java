@@ -6,7 +6,9 @@
 package com.opengamma.math.statistics.descriptive.robust;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;

@@ -20,10 +20,10 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
 
 public class PropertyPreservingFunctionTest {
 

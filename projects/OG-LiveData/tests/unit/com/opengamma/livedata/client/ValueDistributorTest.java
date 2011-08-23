@@ -8,11 +8,13 @@ package com.opengamma.livedata.client;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.List;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
+import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;

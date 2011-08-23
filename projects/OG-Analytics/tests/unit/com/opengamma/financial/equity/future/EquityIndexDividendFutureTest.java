@@ -9,15 +9,15 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNull;
 
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 /**
  * 

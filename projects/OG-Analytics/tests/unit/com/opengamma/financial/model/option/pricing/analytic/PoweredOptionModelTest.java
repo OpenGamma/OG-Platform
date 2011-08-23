@@ -6,12 +6,14 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;

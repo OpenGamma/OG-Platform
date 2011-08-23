@@ -9,9 +9,9 @@ package com.opengamma.masterdb.security.hibernate.capfloor;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
-import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import javax.time.calendar.ZonedDateTime;

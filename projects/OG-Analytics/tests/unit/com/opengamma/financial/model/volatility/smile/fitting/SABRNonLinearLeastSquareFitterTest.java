@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 
 /**

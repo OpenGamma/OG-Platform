@@ -118,7 +118,7 @@ public class HistoricalTimeSeriesSourceResource {
   }
 
   @GET
-  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{excludeEnd}")
+  @Path("uidByDate/{uid}/{start}/{includeStart}/{end}/{includeEnd}")
   public FudgeMsgEnvelope getUidByDate(@PathParam("uid") String uid, 
       @PathParam("start") String start, 
       @PathParam("includeStart") String includeStart,

@@ -20,8 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

@@ -6,8 +6,8 @@
 package com.opengamma.math.interpolation.data;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.InterpolatorNDTestCase;
-import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
 
 /**
  * 

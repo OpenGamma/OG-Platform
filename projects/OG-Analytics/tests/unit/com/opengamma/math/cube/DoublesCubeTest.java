@@ -6,10 +6,12 @@
 package com.opengamma.math.cube;
 
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.Triple;
 

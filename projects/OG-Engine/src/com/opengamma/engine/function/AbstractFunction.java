@@ -43,8 +43,8 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Creates an instance.
      * 
-     * @param earliestInvocation  earliest time this metadata and invoker are valid, or {@code null} to indicate no lower validity bound
-     * @param latestInvocation  latest time this metadata and invoker are valid, or {@code null} to indicate no upper validity bound
+     * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
      */
     protected AbstractCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
       setEarliestInvocationTime(earliestInvocation);
@@ -77,7 +77,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Sets the earliest time that this metadata and invoker will be valid for.
      * 
-     * @param timestamp earliest time, or {@code null} to indicate no lower validity bound
+     * @param timestamp earliest time, null to indicate no lower validity bound
      */
     public void setEarliestInvocationTime(final InstantProvider timestamp) {
       _earliestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
@@ -86,7 +86,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Sets the latest time that this metadata and invoker will be valid for.
      * 
-     * @param timestamp latest time, or {@code null} to indicate no upper validity bound
+     * @param timestamp latest time, null to indicate no upper validity bound
      */
     public void setLatestInvocationTime(final InstantProvider timestamp) {
       _latestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
@@ -117,8 +117,8 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Creates an instance.
      * 
-     * @param earliestInvocation  earliest time this metadata and invoker are valid, or {@code null} to indicate no lower validity bound
-     * @param latestInvocation  latest time this metadata and invoker are valid, or {@code null} to indicate no upper validity bound
+     * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
      */
     protected AbstractInvokingCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
       super(earliestInvocation, latestInvocation);
@@ -249,8 +249,8 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     /**
-     * Returns {@code null} indicating always valid.
-     * @return {@code null}
+     * Returns null indicating always valid.
+     * @return null always
      */
     @Override
     public final Instant getEarliestInvocationTime() {
@@ -258,8 +258,8 @@ public abstract class AbstractFunction implements FunctionDefinition {
     }
 
     /**
-     * Returns {@code null} indicating always valid.
-     * @return {@code null}
+     * Returns null indicating always valid.
+     * @return null always
      */
     @Override
     public final Instant getLatestInvocationTime() {

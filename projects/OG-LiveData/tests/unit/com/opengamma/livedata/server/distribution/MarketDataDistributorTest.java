@@ -6,9 +6,11 @@
 package com.opengamma.livedata.server.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
+import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
