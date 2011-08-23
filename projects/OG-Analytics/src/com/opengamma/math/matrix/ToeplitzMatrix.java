@@ -35,3 +35,4 @@ public class ToeplitzMatrix extends FullMatrix {
     super(aMatrix.toArray());
   }
 }
+

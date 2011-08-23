@@ -8,7 +8,7 @@ package com.opengamma.math.matrix;
 import org.testng.annotations.Test;
 
 /**
- * Tests the Vandermonde Matrix type
+ * Tests the Toeplitz Matrix type
  */
 public class ToeplitzMatrixTest {
   double[][] _data = {{1,2,3,4},{5,1,2,3},{6,5,1,2},{7,6,5,1}};
