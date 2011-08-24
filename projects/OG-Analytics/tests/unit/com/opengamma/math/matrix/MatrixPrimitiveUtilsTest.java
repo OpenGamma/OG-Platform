@@ -149,7 +149,23 @@ public void testCheckIsTriDiagExceptions() {
   MatrixPrimitiveUtils.checkIsTriDiag(notTrid);
 }
 
+@Test
+public void testIsEven() {
+  assertTrue(MatrixPrimitiveUtils.isEven(0));
+  assertTrue(MatrixPrimitiveUtils.isEven(-2));
+  assertTrue(MatrixPrimitiveUtils.isEven(2));
+  assertFalse(MatrixPrimitiveUtils.isEven(-1));
+  assertFalse(MatrixPrimitiveUtils.isEven(1));
+}
 
+@Test
+public void testIsOdd() {
+  assertFalse(MatrixPrimitiveUtils.isOdd(0));
+  assertFalse(MatrixPrimitiveUtils.isOdd(-2));
+  assertFalse(MatrixPrimitiveUtils.isOdd(2));
+  assertTrue(MatrixPrimitiveUtils.isOdd(-1));
+  assertTrue(MatrixPrimitiveUtils.isOdd(1));
+}
 
 } // class end
 

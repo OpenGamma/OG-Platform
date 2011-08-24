@@ -289,7 +289,7 @@ public class MatrixPrimitiveUtils {
 
 
 /**
- * Checks if a matrix is upper triangular and returns the matrix if true, throws and exception otherwise.
+ * Checks if a matrix is tri-diagonal and returns the matrix if true, throws and exception otherwise.
  * @param aMatrix an array of arrays representation of the matrix to be tested.
  * @return the matrix referred to in the argument if the check passes
  */
@@ -347,6 +347,89 @@ public class MatrixPrimitiveUtils {
   }
 
 
+  /**
+   * Checks if a matrix is N-diagonal and returns the matrix if true, throws and exception otherwise.
+   * @param aMatrix an array of arrays representation of the matrix to be tested.
+   * @param n the bandwidth
+   * @return the matrix referred to in the argument if the check passes
+   */
+  public static double[][] checkIsNDiag(double[][] aMatrix, int n) {
+    if (MatrixPrimitiveUtils.isNDiag(aMatrix, n)) {
+      return aMatrix;
+    } else {
+      throw new IllegalArgumentException("TriDiag matrix called on data that isn't Tri-Diagonal!");
+    }
+  }
+
+  /**
+   * Boolean on whether a matrix is N-Diagonal.
+   * @param aMatrix an array of arrays representation of the matrix to be tested.
+   * @param n the bandwidth
+   * @return boolean, true if matrix is N-Diagonal, false if matrix is not.
+   * @throws IllegalArgumentException
+   */
+  public static boolean isNDiag(double[][] aMatrix, int n) throws IllegalArgumentException {
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so the notion of Tri-Diagonal isn't clear cut enough to be implemented");
+    }
+    final int rows = aMatrix.length;
+
+    int nonStandardRows = (n - 1) / 2;
+    int startAt = (n + 1) / 2;
+    // test first rows that are not N wide
+    for (int j = 0; j < nonStandardRows; j++) {
+      for (int i = startAt + 1; i < rows; i++) {
+        if (Double.doubleToLongBits(aMatrix[j][i]) != 0) {
+          return false;
+        }
+      }
+    }
+
+    // tests members of each row that should be empty to ensure they are!
+    for (int i = nonStandardRows; i < rows - nonStandardRows; i++) {
+      // first check the elements on the LHS of the Ndiag entries
+      for (int k = 0; k < i - 1; k++) {
+        if (Double.doubleToLongBits(aMatrix[i][k]) != 0) {
+          return false;
+        }
+      }
+      // second check the elements on the RHS of the Ndiag entries
+      for (int k = i - 1 + n; k < rows; k++) {
+        if (Double.doubleToLongBits(aMatrix[i][k]) != 0) {
+          return false;
+        }
+      }
+    }
+
+    // test last rows that are not N wide
+    for (int j = rows - nonStandardRows; j < rows; j++) { // row ptr
+      for (int i = 0; i < rows - nonStandardRows; i++) { // col idx
+        if (Double.doubleToLongBits(aMatrix[rows - 1][i]) != 0) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Tests if an integer is odd
+   * @param n the integer to be tested
+   * @return true if odd, false if even
+   */
+  public static boolean isOdd(int n) {
+    return ((n & 0x1) == 0x1 ? true : false);
+  }
+
+  /**
+   * Tests if an integer is even
+   * @param n the integer to be tested
+   * @return true if even, false if odd
+   */
+  public static boolean isEven(int n) {
+    return ((n & 0x1) != 0x1 ? true : false);
+  }
 
 } // class end
 
