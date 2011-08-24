@@ -3,15 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.db;
+package com.opengamma.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicAPI;
 
 /**
  * Simple immutable request for a page of results.

@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.db.Paging;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.Paging;
+import com.opengamma.util.PagingRequest;
 
 /**
  * Test Paging Fudge.

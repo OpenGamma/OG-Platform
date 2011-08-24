@@ -14,6 +14,9 @@ import java.util.NoSuchElementException;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.Paging;
+import com.opengamma.util.PagingRequest;
+
 /**
  * Test Paging.
  */

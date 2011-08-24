@@ -9,7 +9,7 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 
 /**
  * Abstract base class for RESTful resources intended for websites.

@@ -30,7 +30,7 @@ import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchGetRequest;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
