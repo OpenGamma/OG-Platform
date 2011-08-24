@@ -57,7 +57,7 @@ public class WebPositionVersionsResource extends AbstractWebPositionResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize) {
     PositionHistoryRequest request = new PositionHistoryRequest(data().getPosition().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     PositionHistoryResult result = data().getPositionMaster().history(request);
     
     FlexiBean out = createRootData();

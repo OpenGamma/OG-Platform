@@ -1,7 +1,8 @@
 package com.opengamma.math.function;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
 
 public class FunctionNDTest {

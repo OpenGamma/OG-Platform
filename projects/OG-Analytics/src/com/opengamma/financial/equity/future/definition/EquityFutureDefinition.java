@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.equity.future.definition;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
-
-import javax.time.calendar.ZonedDateTime;
 
 /**
  * 

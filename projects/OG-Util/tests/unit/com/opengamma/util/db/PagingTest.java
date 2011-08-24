@@ -36,7 +36,7 @@ public final class PagingTest {
 
   //-------------------------------------------------------------------------
   public void test_factory_of_Collection_PagingRequest_empty() {
-    PagingRequest request = PagingRequest.of(1, 20);
+    PagingRequest request = PagingRequest.ofPage(1, 20);
     Paging test = Paging.of(request, Arrays.asList());
     assertEquals(1, test.getPage());
     assertEquals(20, test.getPagingSize());
@@ -44,7 +44,7 @@ public final class PagingTest {
   }
 
   public void test_factory_of_Collection_PagingRequest_sizeTwo() {
-    PagingRequest request = PagingRequest.of(1, 20);
+    PagingRequest request = PagingRequest.ofPage(1, 20);
     Paging test = Paging.of(request, Arrays.asList("Hello", "There"));
     assertEquals(1, test.getPage());
     assertEquals(20, test.getPagingSize());
@@ -53,7 +53,7 @@ public final class PagingTest {
 
   //-------------------------------------------------------------------------
   public void test_factory_of_PagingRequest_int() {
-    Paging test = Paging.of(PagingRequest.of(1, 20), 32);
+    Paging test = Paging.of(PagingRequest.ofPage(1, 20), 32);
     assertEquals(1, test.getPage());
     assertEquals(20, test.getPagingSize());
     assertEquals(32, test.getTotalItems());
@@ -61,7 +61,7 @@ public final class PagingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_of_PagingRequest_int_totalItemsNegative() {
-    Paging.of(PagingRequest.of(1, 20), -1);
+    Paging.of(PagingRequest.ofPage(1, 20), -1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -182,12 +182,12 @@ public final class PagingTest {
 
   //-------------------------------------------------------------------------
   public void test_toPagingRequest() {
-    assertEquals(PagingRequest.of(2, 20), Paging.of(2, 20, 39).toPagingRequest());
-    assertEquals(new PagingRequest(1, 0), Paging.of(1, 0, 349).toPagingRequest());
+    assertEquals(PagingRequest.ofPage(2, 20), Paging.of(2, 20, 39).toPagingRequest());
+    assertEquals(PagingRequest.NONE, Paging.of(1, 0, 349).toPagingRequest());
   }
 
   public void test_nextPagingRequest() {
-    assertEquals(PagingRequest.of(2, 20), Paging.of(1, 20, 39).nextPagingRequest());
+    assertEquals(PagingRequest.ofPage(2, 20), Paging.of(1, 20, 39).nextPagingRequest());
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
@@ -201,7 +201,7 @@ public final class PagingTest {
   }
 
   public void test_previousPagingRequest() {
-    assertEquals(PagingRequest.of(1, 20), Paging.of(2, 20, 39).previousPagingRequest());
+    assertEquals(PagingRequest.ofPage(1, 20), Paging.of(2, 20, 39).previousPagingRequest());
   }
 
   @Test(expectedExceptions = IllegalStateException.class)

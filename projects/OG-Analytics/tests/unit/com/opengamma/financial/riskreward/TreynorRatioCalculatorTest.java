@@ -6,7 +6,9 @@
 package com.opengamma.financial.riskreward;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

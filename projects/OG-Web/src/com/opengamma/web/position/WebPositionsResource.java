@@ -99,7 +99,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     FlexiBean out = createRootData();
     
     PositionSearchRequest searchRequest = new PositionSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setSecurityIdValue(StringUtils.trimToNull(identifier));
     if (NumberUtils.isNumber(minQuantityStr)) {
       searchRequest.setMinQuantity(NumberUtils.createBigDecimal(minQuantityStr));

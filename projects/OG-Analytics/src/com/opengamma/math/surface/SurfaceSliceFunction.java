@@ -5,14 +5,14 @@
  */
 package com.opengamma.math.surface;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.Axis;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * 

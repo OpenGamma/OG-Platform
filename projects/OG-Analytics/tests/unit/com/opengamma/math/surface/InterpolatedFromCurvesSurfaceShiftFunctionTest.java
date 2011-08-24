@@ -5,11 +5,13 @@
  */
 package com.opengamma.math.surface;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;

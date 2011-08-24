@@ -71,7 +71,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
     observationTime = StringUtils.trimToNull(observationTime);
     searchRequest.setObservationTime(observationTime);
     
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {

@@ -57,7 +57,7 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize) {
     RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
     FlexiBean out = createRootData();

@@ -26,8 +26,8 @@ public class ParameterizedFunction {
   /**
    * Creates a function/parameter pair.
    * 
-   * @param function the function definition, not {@code null}
-   * @param parameters the function parameters, not {@code null}
+   * @param function the function definition, not null
+   * @param parameters the function parameters, not null
    */
   public ParameterizedFunction(CompiledFunctionDefinition function, FunctionParameters parameters) {
     ArgumentChecker.notNull(function, "function");
@@ -40,7 +40,7 @@ public class ParameterizedFunction {
   /**
    * Returns the unique identifier of the parameterized function, if set.
    * 
-   * @return the unique identifier or {@code null} if none is set
+   * @return the unique identifier, null if none is set
    */
   public String getUniqueId() {
     return _uniqueId;

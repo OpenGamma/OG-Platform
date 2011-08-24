@@ -6,11 +6,13 @@
 package com.opengamma.financial.conversion;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

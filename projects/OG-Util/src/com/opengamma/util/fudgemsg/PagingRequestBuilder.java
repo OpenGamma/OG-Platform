@@ -37,7 +37,7 @@ public final class PagingRequestBuilder implements FudgeBuilder<PagingRequest> {
   public PagingRequest buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final Integer page = msg.getInt(PAGE_FIELD_NAME);
     final Integer pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
-    return new PagingRequest(page != null ? page : 1, pagingSize != null ? pagingSize : PagingRequest.DEFAULT_PAGING_SIZE);
+    return PagingRequest.ofPage(page != null ? page : 1, pagingSize != null ? pagingSize : PagingRequest.DEFAULT_PAGING_SIZE);
   }
 
 }

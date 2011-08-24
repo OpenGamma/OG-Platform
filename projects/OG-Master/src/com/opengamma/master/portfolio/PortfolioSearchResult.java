@@ -11,13 +11,13 @@ import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractSearchResult;
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from searching for portfolio trees.

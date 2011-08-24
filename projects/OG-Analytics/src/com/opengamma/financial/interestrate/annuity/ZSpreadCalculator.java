@@ -19,8 +19,8 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

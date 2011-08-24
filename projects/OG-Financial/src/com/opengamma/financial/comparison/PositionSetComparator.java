@@ -45,8 +45,8 @@ public class PositionSetComparator extends AbstractComparator {
   /**
    * Produces a comparison of two sets of positions.
    * 
-   * @param first first set of positions, not {@code null}
-   * @param second second set of positions, not {@code null}
+   * @param first first set of positions, not null
+   * @param second second set of positions, not null
    * @return the comparison result
    */
   public PositionSetComparison compare(final Iterable<Position> first, final Iterable<Position> second) {
@@ -59,8 +59,8 @@ public class PositionSetComparator extends AbstractComparator {
   /**
    * Produces a comparison of two sets of positions.
    * 
-   * @param first first set of positions, not {@code null}
-   * @param second second set of positions, not {@code null}
+   * @param first first set of positions, not null
+   * @param second second set of positions, not null
    * @return the comparison result
    */
   public PositionSetComparison compare(final Collection<Position> first, final Collection<Position> second) {

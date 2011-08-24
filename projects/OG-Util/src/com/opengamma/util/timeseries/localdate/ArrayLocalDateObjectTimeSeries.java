@@ -6,9 +6,9 @@
 package com.opengamma.util.timeseries.localdate;
 
 import java.util.List;
-import javax.time.calendar.TimeZone;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.ObjectTimeSeries;

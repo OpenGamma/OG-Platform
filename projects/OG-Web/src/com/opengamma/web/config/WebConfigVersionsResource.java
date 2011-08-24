@@ -59,7 +59,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize) {
     ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId(), Object.class);
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     ConfigHistoryResult<?> result = data().getConfigMaster().history(request);
     
     FlexiBean out = createRootData();

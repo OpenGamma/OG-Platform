@@ -6,13 +6,15 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;

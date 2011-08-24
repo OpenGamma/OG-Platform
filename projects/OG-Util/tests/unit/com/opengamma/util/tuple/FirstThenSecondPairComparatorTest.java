@@ -9,9 +9,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.tuple.FirstThenSecondPairComparator;
-import com.opengamma.util.tuple.Pair;
-
 /**
  * Test FirstThenSecondPairComparator.
  */

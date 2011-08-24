@@ -57,7 +57,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize) {
     HolidayHistoryRequest request = new HolidayHistoryRequest(data().getHoliday().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     HolidayHistoryResult result = data().getHolidayMaster().history(request);
     
     FlexiBean out = createRootData();

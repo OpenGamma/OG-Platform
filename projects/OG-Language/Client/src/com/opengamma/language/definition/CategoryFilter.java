@@ -13,11 +13,11 @@ package com.opengamma.language.definition;
 public interface CategoryFilter {
 
   /**
-   * Converts the category to a form used by the bound language. If a {@code null} category is
-   * returned, the published definition will have no category field.
+   * Converts the category to a form used by the bound language.
+   * If a null category is returned, the published definition will have no category field.
    * 
-   * @param category the category
-   * @return the validated category, or {@code null} if none is applicable
+   * @param category  the category
+   * @return the validated category, null if none is applicable
    */
   String convertCategory(String category);
 

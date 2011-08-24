@@ -12,8 +12,8 @@ import javax.time.calendar.TimeZone;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.i18n.Country;

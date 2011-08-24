@@ -1,6 +1,7 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;

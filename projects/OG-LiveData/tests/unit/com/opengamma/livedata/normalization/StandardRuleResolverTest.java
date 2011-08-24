@@ -5,11 +5,13 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertNull;
+
 import java.util.Collection;
 import java.util.Collections;
+
+import org.testng.annotations.Test;
 
 /**
  * 

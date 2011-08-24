@@ -26,7 +26,7 @@ public interface DefinitionProvider<T extends Definition> {
    * definitions is expensive, an implementation may cache the result. If the infrastructure
    * requires a non-cached version, {@link #flush} will be called first.
    * 
-   * @return the set of definitions, may be {@code null} or the empty set if there are none
+   * @return the set of definitions, may be null or the empty set if there are none
    */
   Set<T> getDefinitions();
 

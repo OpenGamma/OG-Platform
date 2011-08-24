@@ -86,7 +86,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
     FlexiBean out = createRootData();
     
     RegionSearchRequest searchRequest = new RegionSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setClassification(classification);
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();

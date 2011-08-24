@@ -6,9 +6,11 @@
 package com.opengamma.financial.analytics.timeseries.sampling;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.schedule.DailyScheduleCalculator;

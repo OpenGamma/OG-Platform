@@ -82,7 +82,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   public void test_history_noInstants_pageOne() {
     ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<ExternalId> request = createRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(PagingRequest.ofPage(1, 1));
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -97,7 +97,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   public void test_history_noInstants_pageTwo() {
     ObjectId oid = ObjectId.of("DbCfg", "201");
     ConfigHistoryRequest<ExternalId> request = createRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(PagingRequest.ofPage(2, 1));
     ConfigHistoryResult<ExternalId> test = _cfgMaster.history(request);
     
     assertNotNull(test);

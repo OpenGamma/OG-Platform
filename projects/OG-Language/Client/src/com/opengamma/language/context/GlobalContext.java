@@ -137,20 +137,20 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * operation, synchronize on the global context object (e.g. for get followed by add).
    * 
    * @param userName name of the user to search for
-   * @return an existing context, or {@code null} if none is available
+   * @return an existing context, null if none is available
    */
   protected synchronized UserContext getUserContext(final String userName) {
     return _userContexts.get(userName);
   }
 
   /**
-   * Returns {@code true} iff the service is running from a debug build. This is dependent
-   * only on the service runner and should probably control infrastructure behavior,
-   * logging or diagnostics. The session context will indicate whether the code used by
-   * the bound language is a debug build which could control the operation available or
+   * Returns true iff the service is running from a debug build.
+   * This is dependent only on the service runner and should probably control infrastructure
+   * behavior, logging or diagnostics. The session context will indicate whether the code used
+   * by the bound language is a debug build which could control the operation available or
    * additional debugging/diagnostic metadata apply to the results.
    * 
-   * @return {@code true} if the service runner is a debug build, {@code false} otherwise
+   * @return true if the service runner is a debug build
    */
   public static boolean isDebug() {
     return System.getProperty("system.debug") != null;

@@ -58,7 +58,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_pageOne() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -73,7 +73,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_pageTwo() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());

@@ -91,7 +91,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     FlexiBean out = createRootData();
     
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     if (StringUtils.isNotEmpty(type)) {
       searchRequest.setType(HolidayType.valueOf(type));

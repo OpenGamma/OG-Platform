@@ -460,7 +460,7 @@ public class ViewClientImpl implements ViewClient {
    * Updates the latest result.
    * 
    * @param result  the new result
-   * @return {@code true} if the new result was the first, {@code false} otherwise
+   * @return true if the new result was the first
    */
   private boolean updateLatestResult(ViewComputationResultModel result) {
     if (isViewCycleAccessSupported()) {

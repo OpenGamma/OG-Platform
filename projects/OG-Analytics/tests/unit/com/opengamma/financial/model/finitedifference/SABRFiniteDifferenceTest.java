@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
@@ -25,13 +24,11 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.Surface;
 import com.opengamma.util.time.DateUtils;
 
 /**

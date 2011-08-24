@@ -26,7 +26,7 @@ public interface MarketDataSnapshot {
    * For efficiency, implementations which deal with static snapshots may initialise the snapshot and return the actual
    * snapshot time.
    * 
-   * @return an indication of the snapshot time, not {@code null}
+   * @return an indication of the snapshot time, not null
    */
   Instant getSnapshotTimeIndication();
   
@@ -40,16 +40,16 @@ public interface MarketDataSnapshot {
    * timeout which, if exceeded, will not cause the operation to fail but implies that one or more required values will
    * be missing.
    * 
-   * @param valuesRequired  the values required in the snapshot, not {@code null}
+   * @param valuesRequired  the values required in the snapshot, not null
    * @param timeout  the maximum time to wait for the required values
-   * @param unit  the timeout unit, not {@code null}
+   * @param unit  the timeout unit, not null
    */
   void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit);
   
   /**
    * Gets the time associated with the snapshot.
    * 
-   * @return the snapshot time, not {@code null}
+   * @return the snapshot time, not null
    * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
    */
   Instant getSnapshotTime();
@@ -57,8 +57,8 @@ public interface MarketDataSnapshot {
   /**
    * Queries the snapshot for a piece of data.
    *  
-   * @param requirement  the value required from the snapshot, not {@code null}
-   * @return  the value found in the snapshot, or {@code null} if the snapshot does not exist or no such value was
+   * @param requirement  the value required from the snapshot, not null
+   * @return  the value found in the snapshot, null if the snapshot does not exist or no such value was
    *          found in the snapshot.
    * @throws IllegalStateException  if the snapshot has not been initialised by calling {@link #init(Set, long, TimeUnit)}
    */

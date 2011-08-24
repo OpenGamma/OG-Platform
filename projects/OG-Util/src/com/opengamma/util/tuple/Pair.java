@@ -32,7 +32,7 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**

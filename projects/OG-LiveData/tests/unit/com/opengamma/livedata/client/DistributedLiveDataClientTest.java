@@ -7,10 +7,7 @@ package com.opengamma.livedata.client;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.Assert;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +15,11 @@ import java.util.Map;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;

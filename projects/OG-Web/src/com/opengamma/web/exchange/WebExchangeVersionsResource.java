@@ -57,7 +57,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize) {
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
     FlexiBean out = createRootData();

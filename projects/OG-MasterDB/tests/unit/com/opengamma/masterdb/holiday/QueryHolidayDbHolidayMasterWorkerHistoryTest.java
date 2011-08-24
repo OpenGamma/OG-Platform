@@ -81,7 +81,7 @@ public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHoli
   public void test_history_noInstants_pageOne() {
     ObjectId oid = ObjectId.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(PagingRequest.ofPage(1, 1));
     HolidayHistoryResult test = _holMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -96,7 +96,7 @@ public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHoli
   public void test_history_noInstants_pageTwo() {
     ObjectId oid = ObjectId.of("DbHol", "201");
     HolidayHistoryRequest request = new HolidayHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(PagingRequest.ofPage(2, 1));
     HolidayHistoryResult test = _holMaster.history(request);
     
     assertNotNull(test);

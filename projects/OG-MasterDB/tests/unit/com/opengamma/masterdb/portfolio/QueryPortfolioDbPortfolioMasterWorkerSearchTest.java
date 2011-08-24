@@ -88,7 +88,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_pageOne() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -103,7 +103,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
   @Test
   public void test_search_pageTwo() {
     PortfolioSearchRequest request = new PortfolioSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     PortfolioSearchResult test = _prtMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());

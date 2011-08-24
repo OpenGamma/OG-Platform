@@ -5,11 +5,12 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.assertEquals;
 
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.GridInterpolator2D;

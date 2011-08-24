@@ -34,9 +34,9 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
@@ -103,7 +103,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));

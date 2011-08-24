@@ -36,8 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -107,7 +107,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     FlexiBean out = createRootData();
     
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setDataSource(StringUtils.trimToNull(dataSource));
     searchRequest.setDataProvider(StringUtils.trimToNull(dataProvider));

@@ -7,10 +7,10 @@ package com.opengamma.financial.equity.future;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
-
-import org.testng.annotations.Test;
 
 /**
  * Checks the wiring of the EquityFuturesPresentValueCalculator

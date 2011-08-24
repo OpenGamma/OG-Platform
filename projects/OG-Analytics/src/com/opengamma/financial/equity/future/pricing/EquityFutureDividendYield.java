@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.equity.future.pricing;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given the current value of its underlying,

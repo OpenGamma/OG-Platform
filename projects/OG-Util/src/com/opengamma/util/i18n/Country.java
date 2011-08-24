@@ -10,10 +10,10 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 

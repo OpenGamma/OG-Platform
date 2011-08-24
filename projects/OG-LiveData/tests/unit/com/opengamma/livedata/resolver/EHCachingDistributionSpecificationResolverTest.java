@@ -5,17 +5,18 @@
  */
 package com.opengamma.livedata.resolver;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;

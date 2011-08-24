@@ -49,7 +49,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   /**
    * Constructs an instance.
    * 
-   * @param securitySource  the security source for resolution of Identifiers, or {@code null} to prevent this support
+   * @param securitySource  the security source for resolution of Identifiers, null to prevent this support
    */
   public InMemoryLKVMarketDataProvider(SecuritySource securitySource) {
     _securitySource = securitySource;

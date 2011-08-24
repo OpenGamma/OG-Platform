@@ -36,8 +36,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -66,8 +66,8 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     /**
      * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
      * 
-     * @param valueRequirement  the value requirement, not {@code null}
-     * @return the structured market data key, or {@code null} if the value requirement does not correspond to a key
+     * @param valueRequirement  the value requirement, not null
+     * @return the structured market data key, null if the value requirement does not correspond to a key
      */
     public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
     
