@@ -9,11 +9,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Class describing a simple payment of a given amount on a given date.
@@ -83,9 +82,8 @@ public class PaymentFixedDefinition extends PaymentDefinition {
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     return new PaymentFixed(getCurrency(), paymentTime, _amount, fundingCurveName);
   }
 

@@ -21,8 +21,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.util.Paging;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.Paging;
 
 /**
  * Result providing a list of documents with paging.
@@ -56,7 +56,7 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
    */
   public AbstractDocumentsResult(Collection<D> coll) {
     _documents.addAll(coll);
-    _paging = Paging.of(coll);
+    _paging = Paging.ofAll(coll);
   }
 
   //-------------------------------------------------------------------------

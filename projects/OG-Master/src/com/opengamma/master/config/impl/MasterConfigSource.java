@@ -21,8 +21,8 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.

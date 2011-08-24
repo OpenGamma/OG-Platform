@@ -20,7 +20,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -52,8 +52,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     
     ConfigSearchResult<Object> test = _cfgMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(_totalConfigs, test.getPaging().getTotalItems());
     
     assertEquals(_totalConfigs, test.getDocuments().size());
@@ -65,8 +64,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(_totalExternalIds, test.getDocuments().size());
@@ -78,12 +76,12 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   //-------------------------------------------------------------------------
   @Test
   public void test_search_pageOne() {
+    PagingRequest pr = PagingRequest.ofPage(1, 2);
     ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(pr);
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -93,12 +91,12 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Test
   public void test_search_pageTwo() {
+    PagingRequest pr = PagingRequest.ofPage(2, 2);
     ConfigSearchRequest<ExternalId> request = createExternalIdSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(pr);
     ConfigSearchResult<ExternalId> test = _cfgMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(_totalExternalIds, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());

@@ -1,5 +1,5 @@
-rm -r 0.9.0
-dexy
-mkdir 0.9.0
-cp -r output 0.9.0/analytics
-
+export VERSION=dev
+rm -r $VERSION/analytics
+dexy -p
+cp -r output $VERSION/analytics
+sudo python -m SimpleHTTPServer 80

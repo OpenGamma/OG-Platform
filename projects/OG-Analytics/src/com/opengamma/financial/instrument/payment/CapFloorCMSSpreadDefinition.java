@@ -10,8 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
@@ -20,6 +18,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -223,12 +222,11 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     // First curve used for discounting. If two curves, the same forward is used for both swaps; 
     // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     // CMS spread is not fixed yet, all the details are required.
-    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
-    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final FixedCouponSwap<Coupon> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
     String[] yieldCurveNames2;
     if (yieldCurveNames.length == 2) {
@@ -249,16 +247,15 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     // First curve used for discounting. If two curves, the same forward is used for both swaps; 
     // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
       final double fixedRate = data.getValue(getFixingDate());
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
     }
     // CMS spread is not fixed yet, all the details are required.
-    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
-    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final FixedCouponSwap<Coupon> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
     String[] yieldCurveNames2;
     if (yieldCurveNames.length == 2) {
