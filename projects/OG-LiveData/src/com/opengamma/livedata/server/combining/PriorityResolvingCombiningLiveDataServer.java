@@ -14,10 +14,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.resolver.AbstractResolver;
+import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
+import com.opengamma.livedata.resolver.EHCachingDistributionSpecificationResolver;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Combines live data servers by chosing the first server which can resolve the ID
@@ -30,6 +34,7 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
    * @param servers Servers in preference order (Best first)
    */
   public PriorityResolvingCombiningLiveDataServer(List<? extends AbstractLiveDataServer> servers) {
+    super(servers);
     ArgumentChecker.notEmpty(servers, "servers");
     _servers = servers;
   }
@@ -70,5 +75,46 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
     }
     return ret;
 
+  }
+
+  private class DelegatingDistributionSpecificationResolver extends AbstractResolver<LiveDataSpecification, DistributionSpecification> implements DistributionSpecificationResolver
+  {
+    //TODO: dedupe with group by ?
+
+    @Override
+    public Map<LiveDataSpecification, DistributionSpecification> resolve(Collection<LiveDataSpecification> specs) {
+      Map<LiveDataSpecification,  DistributionSpecification> ret = new HashMap<LiveDataSpecification, DistributionSpecification>();
+
+      Collection<LiveDataSpecification> unresolvedSpecs = specs;
+      for (AbstractLiveDataServer server : _servers) {
+        Map<LiveDataSpecification, DistributionSpecification> resolved = server.getDistributionSpecificationResolver()
+            .resolve(unresolvedSpecs);
+
+        unresolvedSpecs = new HashSet<LiveDataSpecification>();
+
+        for (Entry<LiveDataSpecification, DistributionSpecification> entry : resolved.entrySet()) {
+          if (entry.getValue() != null) {
+            ret.put(entry.getKey(), entry.getValue());
+          } else {
+            unresolvedSpecs.add(entry.getKey());
+          }
+        }
+        if (unresolvedSpecs.size() == 0) {
+          return ret;
+        }
+      }
+      
+      for (LiveDataSpecification liveDataSpecification : unresolvedSpecs) {
+        ret.put(liveDataSpecification, null);
+      }
+      return ret;
+    }
+  }
+  
+  public DistributionSpecificationResolver getDefaultDistributionSpecificationResolver() {
+    
+    DistributionSpecificationResolver distributionSpecResolver = new DelegatingDistributionSpecificationResolver();
+    //TODO should I cache here
+    return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, EHCacheUtils.createCacheManager());
   }
 }
