@@ -21,9 +21,6 @@
   
   <!-- Base system components -->
   <bean id="engineFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-  </bean>
   <bean id="clientContextFactory" class="com.opengamma.language.connector.ClientContextFactoryBean"> <!-- Extension point - ClientContextFactoryBean -->
     <property name="fudgeContext" ref="engineFudgeContext" />
     <property name="messageHandler">
@@ -58,13 +55,6 @@
       <bean class="com.opengamma.language.context.DefaultSessionContextEventHandler" />
     </property>
     <property name="userContextFactory" ref="userContextFactory" />
-  </bean>
-  <!-- TODO: this shouldn't be here; live data should be configured from the configuration fragment -->
-  <bean id="liveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
-    <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="subscriptionTopic" value="${opengamma.livedata.subscription}" />
-    <property name="entitlementTopic" value="${opengamma.livedata.entitlement}" />
-    <property name="heartbeatTopic" value="${opengamma.livedata.heartbeat}" />
   </bean>
   
   <!-- Remote configuration parameters -->
