@@ -47,7 +47,7 @@ public final class ValueConverter extends AbstractTypeConverter {
     if (clazz == Value.class) {
       return true;
     } else {
-      for (JavaTypeInfo<?> toData : (targetType.isAllowNull() ? TO_VALUE_ALLOW_NULL : TO_VALUE_NOT_NULL).keySet()) {
+      for (JavaTypeInfo<?> toData : ((targetType.isAllowNull() || targetType.isDefaultValue()) ? TO_VALUE_ALLOW_NULL : TO_VALUE_NOT_NULL).keySet()) {
         if (clazz == toData.getRawClass()) {
           return true;
         }
@@ -60,9 +60,9 @@ public final class ValueConverter extends AbstractTypeConverter {
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(JavaTypeInfo<?> targetType) {
     final Class<?> clazz = targetType.getRawClass();
     if (clazz == Value.class) {
-      return targetType.isAllowNull() ? TO_VALUE_ALLOW_NULL : TO_VALUE_NOT_NULL;
+      return (targetType.isAllowNull() || targetType.isDefaultValue()) ? TO_VALUE_ALLOW_NULL : TO_VALUE_NOT_NULL;
     } else {
-      return targetType.isAllowNull() ? FROM_VALUE_ALLOW_NULL : FROM_VALUE_NOT_NULL;
+      return (targetType.isAllowNull() || targetType.isDefaultValue()) ? FROM_VALUE_ALLOW_NULL : FROM_VALUE_NOT_NULL;
     }
   }
 
@@ -73,6 +73,16 @@ public final class ValueConverter extends AbstractTypeConverter {
 
   @Override
   public void convertValue(ValueConversionContext conversionContext, Object valueObject, JavaTypeInfo<?> type) {
+    if (valueObject == null) {
+      if (type.isAllowNull()) {
+        conversionContext.setResult(null);
+      } else if (type.isDefaultValue()) {
+        conversionContext.setResult(type.getDefaultValue());
+      } else {
+        conversionContext.setFail();
+      }
+      return;
+    }
     final Class<?> clazz = type.getRawClass();
     if (clazz == Value.class) {
       if (valueObject instanceof Boolean) {
@@ -85,63 +95,53 @@ public final class ValueConverter extends AbstractTypeConverter {
         conversionContext.setResult(ValueUtils.of((String) valueObject));
       } else if (valueObject instanceof FudgeMsg) {
         conversionContext.setResult(ValueUtils.of((FudgeMsg) valueObject));
-      } else if ((valueObject == null) && type.isAllowNull()) {
-        conversionContext.setResult(null);
       } else {
         conversionContext.setFail();
       }
-      return;
     } else {
-      if (valueObject instanceof Value) {
-        final Value value = (Value) valueObject;
-        if (ValueUtils.isNull(value)) {
-          if (type.isAllowNull()) {
-            conversionContext.setResult(null);
-          } else {
-            conversionContext.setFail();
-          }
-        } else if (clazz == Boolean.class) {
-          if (value.getBoolValue() != null) {
-            conversionContext.setResult(value.getBoolValue());
-          } else {
-            conversionContext.setFail();
-          }
-        } else if (clazz == Integer.class) {
-          if (value.getIntValue() != null) {
-            conversionContext.setResult(value.getIntValue());
-          } else {
-            conversionContext.setFail();
-          }
-        } else if (clazz == Double.class) {
-          if (value.getDoubleValue() != null) {
-            conversionContext.setResult(value.getDoubleValue());
-          } else {
-            conversionContext.setFail();
-          }
-        } else if (clazz == String.class) {
-          if (value.getStringValue() != null) {
-            conversionContext.setResult(value.getStringValue());
-          } else {
-            conversionContext.setFail();
-          }
-        } else if (clazz == FudgeMsg.class) {
-          if (value.getMessageValue() != null) {
-            conversionContext.setResult(value.getMessageValue());
-          } else {
-            conversionContext.setFail();
-          }
+      final Value value = (Value) valueObject;
+      if (ValueUtils.isNull(value)) {
+        if (type.isAllowNull()) {
+          conversionContext.setResult(null);
+        } else if (type.isDefaultValue()) {
+          conversionContext.setResult(type.getDefaultValue());
         } else {
           conversionContext.setFail();
         }
-        return;
-      } else if (valueObject == null) {
-        if (type.isAllowNull()) {
-          conversionContext.setResult(null);
-          return;
+      } else if (clazz == Boolean.class) {
+        if (value.getBoolValue() != null) {
+          conversionContext.setResult(value.getBoolValue());
+        } else {
+          conversionContext.setFail();
         }
+      } else if (clazz == Integer.class) {
+        if (value.getIntValue() != null) {
+          conversionContext.setResult(value.getIntValue());
+        } else {
+          conversionContext.setFail();
+        }
+      } else if (clazz == Double.class) {
+        if (value.getDoubleValue() != null) {
+          conversionContext.setResult(value.getDoubleValue());
+        } else {
+          conversionContext.setFail();
+        }
+      } else if (clazz == String.class) {
+        if (value.getStringValue() != null) {
+          conversionContext.setResult(value.getStringValue());
+        } else {
+          conversionContext.setFail();
+        }
+      } else if (clazz == FudgeMsg.class) {
+        if (value.getMessageValue() != null) {
+          conversionContext.setResult(value.getMessageValue());
+        } else {
+          conversionContext.setFail();
+        }
+      } else {
+        conversionContext.setFail();
       }
     }
-    conversionContext.setFail();
   }
 
 }
