@@ -22,7 +22,6 @@ public class HistoricalTimeSeriesConverter extends AbstractMappedConverter {
   private static final JavaTypeInfo<LocalDateDoubleTimeSeries> LOCAL_DATE_DOUBLE_TIME_SERIES = JavaTypeInfo.builder(LocalDateDoubleTimeSeries.class).get();
 
   public HistoricalTimeSeriesConverter() {
-    super(HistoricalTimeSeriesConverter.class.getSimpleName());
     conversion(TypeMap.ZERO_LOSS, HISTORICAL_TIME_SERIES, LOCAL_DATE_DOUBLE_TIME_SERIES, new Action<HistoricalTimeSeries, LocalDateDoubleTimeSeries>() {
       @Override
       protected LocalDateDoubleTimeSeries convert(final HistoricalTimeSeries value) {

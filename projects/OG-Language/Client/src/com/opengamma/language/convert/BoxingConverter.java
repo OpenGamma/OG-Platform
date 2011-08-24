@@ -45,7 +45,6 @@ public class BoxingConverter extends AbstractMappedConverter {
   }
 
   public BoxingConverter() {
-    super("BoxingConverter");
     conversion(ZERO_LOSS, BOOLEAN_PRIMITIVE, BOOLEAN_OBJECT, BoxingConverter.<Boolean>identity(), BoxingConverter.<Boolean>identity());
     conversion(ZERO_LOSS, BYTE_PRIMITIVE, BYTE_OBJECT, BoxingConverter.<Byte>identity(), BoxingConverter.<Byte>identity());
     conversion(ZERO_LOSS, CHARACTER_PRIMITIVE, CHARACTER_OBJECT, BoxingConverter.<Character>identity(), BoxingConverter.<Character>identity());
