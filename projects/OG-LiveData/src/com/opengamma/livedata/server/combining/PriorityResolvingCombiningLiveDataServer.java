@@ -115,6 +115,6 @@ public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataS
     
     DistributionSpecificationResolver distributionSpecResolver = new DelegatingDistributionSpecificationResolver();
     //TODO should I cache here
-    return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, EHCacheUtils.createCacheManager());
+    return new EHCachingDistributionSpecificationResolver(distributionSpecResolver, EHCacheUtils.createCacheManager(), "COMBINING");
   }
 }
