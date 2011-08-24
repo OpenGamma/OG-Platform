@@ -21,7 +21,7 @@ import com.opengamma.util.db.Paging;
 public class WebPaging {
 
   /**
-   * The website paging.
+   * The paging.
    */
   private final Paging _paging;
   /**
@@ -43,16 +43,20 @@ public class WebPaging {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the one-based page number.
-   * @return the page number, one or greater
+   * Gets the first item, using a zero-based index.
+   * 
+   * @return the first item index, zero-based
    */
-  public int getPage() {
-    return _paging.getPage();
+  public int getFirstItem() {
+    return _paging.getFirstItem();
   }
 
   /**
-   * Gets the size of each page.
-   * @return the paging size, one or greater
+   * Gets the page size, which is the number of items requested.
+   * <p>
+   * This is zero if no data was requested.
+   * 
+   * @return the number of items in the page, zero or greater
    */
   public int getPagingSize() {
     return _paging.getPagingSize();
@@ -60,6 +64,7 @@ public class WebPaging {
 
   /**
    * Gets the total number of items.
+   * 
    * @return the number of items, zero or greater
    */
   public int getTotalItems() {
@@ -69,71 +74,76 @@ public class WebPaging {
   //-------------------------------------------------------------------------
   /**
    * Gets the first item, using a one-based index.
+   * 
    * @return the first item number, one-based
    */
-  public int getFirstItem() {
-    return _paging.getFirstItem();
+  public int getFirstItemOneBased() {
+    return _paging.getFirstItemOneBased();
   }
 
   /**
-   * Gets the first item, using a zero-based index.
-   * @return the first item index, zero-based
-   */
-  public int getFirstItemIndex() {
-    return _paging.getFirstItemIndex();
-  }
-
-  /**
-   * Gets the last item inclusive, using a one-based index.
-   * @return the last item number, inclusive, one-based
+   * Gets the last item exclusive, using a zero-based index.
+   * 
+   * @return the last item index, exclusive, zero-based
    */
   public int getLastItem() {
     return _paging.getLastItem();
   }
 
   /**
-   * Gets the last item exclusive, using a zero-based index.
-   * @return the last item index, exclusive, zero-based
+   * Gets the last item inclusive, using a one-based index.
+   * 
+   * @return the last item number, inclusive, one-based
    */
-  public int getLastItemIndex() {
-    return _paging.getLastItemIndex();
+  public int getLastItemOneBased() {
+    return _paging.getLastItemOneBased();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the current page number, one-based, when viewed as traditional paging.
+   * <p>
+   * If the request was for index-based paging rather than traditional paging
+   * then the result of this method will be the effective page of the first item.
+   * 
+   * @return the current page, one or greater
+   */
+  public int getPageNumber() {
+    return _paging.getPageNumber();
   }
 
   /**
-   * Gets the total number of pages.
-   * @return the number of pages
+   * Gets the total number of pages, one-based, when viewed as traditional paging.
+   * 
+   * @return the number of pages, one or greater
+   * @throws ArithmeticException if a paging request of NONE was used
    */
   public int getTotalPages() {
-    return _paging.getTotalPages();
-  }
-
-  /**
-   * Gets the total number of pages.
-   * @return the number of pages
-   */
-  int getUriBuilder() {
     return _paging.getTotalPages();
   }
 
   //-------------------------------------------------------------------------
   /**
    * Checks if there is a previous page.
+   * 
    * @return true if there is a previous page
    */
   public boolean isPreviousPageExists() {
-    return (getPage() > 1);
+    return (getPageNumber() > 1);
   }
 
   /**
    * Checks if there is a next page.
+   * 
    * @return true if there is a next page
    */
   public boolean isNextPageExists() {
-    return (getPage() < getTotalPages());
+    return (getPageNumber() < getTotalPages());
   }
 
   /**
    * Gets an object representing the first page.
+   * 
    * @return the first page, not null
    */
   public WebPagingPage getFirstPage() {
@@ -142,6 +152,7 @@ public class WebPaging {
 
   /**
    * Gets an object representing the first page.
+   * 
    * @return the last page, not null
    */
   public WebPagingPage getLastPage() {
@@ -150,28 +161,31 @@ public class WebPaging {
 
   /**
    * Gets an object representing the previous page.
+   * 
    * @return the previous page, not null
    */
   public WebPagingPage getPreviousPage() {
-    int page = getPage();
+    int page = getPageNumber();
     return (page > 1 ? new WebPagingPage(page - 1) : null);
   }
 
   /**
    * Gets an object representing the next page.
+   * 
    * @return the next page, not null
    */
   public WebPagingPage getNextPage() {
-    int page = getPage();
+    int page = getPageNumber();
     return (page < getTotalPages() ? new WebPagingPage(page + 1) : null);
   }
 
   /**
    * Gets the paging items, excluding the first and last pages.
+   * 
    * @return the paging item list, not null
    */
   public List<WebPagingPage> getPagesIncludeLast() {
-    int basePage = getPage();
+    int basePage = getPageNumber();
     List<WebPagingPage> list = new ArrayList<WebPagingPage>();
     for (int i = basePage - 3; i <= basePage + 3; i++) {
       if (i < 1 || i > getTotalPages()) {
@@ -184,10 +198,11 @@ public class WebPaging {
 
   /**
    * Gets the paging items, excluding the last page.
+   * 
    * @return the paging item list, not null
    */
   public List<WebPagingPage> getPagesExcludeLast() {
-    int basePage = getPage();
+    int basePage = getPageNumber();
     List<WebPagingPage> list = new ArrayList<WebPagingPage>();
     for (int i = basePage - 3; i <= basePage + 3; i++) {
       if (i < 1 || i >= getTotalPages()) {
@@ -200,10 +215,11 @@ public class WebPaging {
 
   /**
    * Gets the paging items, excluding the last page.
+   * 
    * @return the paging item list, not null
    */
   public List<WebPagingPage> getPagesExcludeFirstLast() {
-    int basePage = getPage();
+    int basePage = getPageNumber();
     List<WebPagingPage> list = new ArrayList<WebPagingPage>();
     for (int i = basePage - 3; i <= basePage + 3; i++) {
       if (i <= 1 || i >= getTotalPages()) {
@@ -216,10 +232,11 @@ public class WebPaging {
 
   /**
    * Gets the standard paging items.
+   * 
    * @return the paging item list, not null
    */
   public List<WebPagingPage> getPagesStandard() {
-    int basePage = getPage();
+    int basePage = getPageNumber();
     List<WebPagingPage> list = new ArrayList<WebPagingPage>();
     list.add(new WebPagingPage(1));
     for (int i = basePage - 3; i <= basePage + 3; i++) {
@@ -236,10 +253,14 @@ public class WebPaging {
 
   //-------------------------------------------------------------------------
   /**
-   * An page within the paging.
+   * A page within the paging.
    */
   public final class WebPagingPage {
+    /**
+     * The page number.
+     */
     private final int _page;
+
     /**
      * Creates an instance.
      */
@@ -248,23 +269,26 @@ public class WebPaging {
     }
 
     /**
-     * Gets the page.
-     * @return the page, not null
+     * Gets the page number.
+     * 
+     * @return the page number, not null
      */
-    public int getPage() {
+    public int getPageNumber() {
       return _page;
     }
 
     /**
      * Checks if this page is the current page.
+     * 
      * @return the page, not null
      */
     public boolean isCurrentPage() {
-      return _page == WebPaging.this.getPage();
+      return _page == WebPaging.this.getPageNumber();
     }
 
     /**
      * Gets the URI for the page.
+     * 
      * @return the URI, not null
      */
     public URI getUri() {

@@ -21,37 +21,37 @@ public final class PagingRequestTest {
 
   public void test_ALL() {
     PagingRequest test = PagingRequest.ALL;
-    assertEquals(1, test.getPage());
+    assertEquals(0, test.getFirstItem());
     assertEquals(Integer.MAX_VALUE, test.getPagingSize());
   }
 
   public void test_FIRST_PAGE() {
     PagingRequest test = PagingRequest.FIRST_PAGE;
-    assertEquals(1, test.getPage());
+    assertEquals(0, test.getFirstItem());
     assertEquals(20, test.getPagingSize());
   }
 
   public void test_ONE() {
     PagingRequest test = PagingRequest.ONE;
-    assertEquals(1, test.getPage());
+    assertEquals(0, test.getFirstItem());
     assertEquals(1, test.getPagingSize());
   }
 
   public void test_NONE() {
     PagingRequest test = PagingRequest.NONE;
-    assertEquals(1, test.getPage());
+    assertEquals(0, test.getFirstItem());
     assertEquals(0, test.getPagingSize());
   }
 
   //-------------------------------------------------------------------------
   public void test_ofPageDefaulted() {
-    assertEquals(1, PagingRequest.ofPageDefaulted(1, 10).getPage());
+    assertEquals(0, PagingRequest.ofPageDefaulted(1, 10).getFirstItem());
     assertEquals(10, PagingRequest.ofPageDefaulted(1, 10).getPagingSize());
     
-    assertEquals(1, PagingRequest.ofPageDefaulted(0, 10).getPage());
+    assertEquals(0, PagingRequest.ofPageDefaulted(0, 10).getFirstItem());
     assertEquals(10, PagingRequest.ofPageDefaulted(0, 10).getPagingSize());
     
-    assertEquals(2, PagingRequest.ofPageDefaulted(2, 0).getPage());
+    assertEquals(20, PagingRequest.ofPageDefaulted(2, 0).getFirstItem());
     assertEquals(20, PagingRequest.ofPageDefaulted(2, 0).getPagingSize());
   }
 
@@ -67,10 +67,10 @@ public final class PagingRequestTest {
 
   //-------------------------------------------------------------------------
   public void test_ofPage() {
-    assertEquals(1, PagingRequest.ofPage(1, 10).getPage());
+    assertEquals(0, PagingRequest.ofPage(1, 10).getFirstItem());
     assertEquals(10, PagingRequest.ofPage(1, 10).getPagingSize());
     
-    assertEquals(2, PagingRequest.ofPage(2, 0).getPage());
+    assertEquals(0, PagingRequest.ofPage(2, 0).getFirstItem());
     assertEquals(0, PagingRequest.ofPage(2, 0).getPagingSize());
   }
 
@@ -90,20 +90,28 @@ public final class PagingRequestTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_getItems_index() {
+    PagingRequest test = PagingRequest.ofIndex(5, 25);
+    assertEquals(5, test.getFirstItem());
+    assertEquals(30, test.getLastItem());
+    assertEquals(6, test.getFirstItemOneBased());
+    assertEquals(30, test.getLastItemOneBased());
+  }
+
   public void test_getItems_page1() {
     PagingRequest test = PagingRequest.ofPage(1, 20);
-    assertEquals(1, test.getFirstItem());
-    assertEquals(0, test.getFirstItemIndex());
+    assertEquals(0, test.getFirstItem());
     assertEquals(20, test.getLastItem());
-    assertEquals(20, test.getLastItemIndex());
+    assertEquals(1, test.getFirstItemOneBased());
+    assertEquals(20, test.getLastItemOneBased());
   }
 
   public void test_getItems_page2() {
     PagingRequest test = PagingRequest.ofPage(2, 20);
-    assertEquals(21, test.getFirstItem());
-    assertEquals(20, test.getFirstItemIndex());
+    assertEquals(20, test.getFirstItem());
     assertEquals(40, test.getLastItem());
-    assertEquals(40, test.getLastItemIndex());
+    assertEquals(21, test.getFirstItemOneBased());
+    assertEquals(40, test.getLastItemOneBased());
   }
 
   //-------------------------------------------------------------------------
@@ -167,8 +175,8 @@ public final class PagingRequestTest {
 
   //-------------------------------------------------------------------------
   public void test_toString() {
-    PagingRequest test = PagingRequest.ofPage(2, 40);
-    assertEquals("PagingRequest[page=2, pagingSize=40]", test.toString());
+    PagingRequest test = PagingRequest.ofIndex(3, 40);
+    assertEquals("PagingRequest[first=3, size=40]", test.toString());
   }
 
 }

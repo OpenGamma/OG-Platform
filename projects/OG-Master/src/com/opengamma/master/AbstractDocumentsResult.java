@@ -56,7 +56,7 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
    */
   public AbstractDocumentsResult(Collection<D> coll) {
     _documents.addAll(coll);
-    _paging = Paging.of(coll);
+    _paging = Paging.ofAll(coll);
   }
 
   //-------------------------------------------------------------------------

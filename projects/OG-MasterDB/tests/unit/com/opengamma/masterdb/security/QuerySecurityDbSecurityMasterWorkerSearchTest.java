@@ -49,8 +49,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult test = _secMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(_totalSecurities, test.getPaging().getTotalItems());
     
     assertEquals(_totalSecurities, test.getDocuments().size());
@@ -62,12 +61,12 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   //-------------------------------------------------------------------------
   @Test
   public void test_search_pageOne() {
+    PagingRequest pr = PagingRequest.ofPage(1, 2);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setPagingRequest(PagingRequest.ofPage(1, 2));
+    request.setPagingRequest(pr);
     SecuritySearchResult test = _secMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(_totalSecurities, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -77,12 +76,12 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   @Test
   public void test_search_pageTwo() {
+    PagingRequest pr = PagingRequest.ofPage(2, 2);
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setPagingRequest(PagingRequest.ofPage(2, 2));
+    request.setPagingRequest(pr);
     SecuritySearchResult test = _secMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(_totalSecurities, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());

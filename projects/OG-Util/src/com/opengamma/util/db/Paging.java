@@ -11,22 +11,32 @@ import java.util.NoSuchElementException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simple immutable model describing the current paging state.
+ * Simple immutable description of a range of results.
+ * <p>
+ * This class is the result of using {@link PagingRequest} to obtain an indexed subset of results.
+ * This may represent traditional fixed paging or arbitrary paging starting from an index.
  */
 public final class Paging {
 
   /**
-   * The page number.
+   * The request.
    */
-  private final int _page;
-  /**
-   * The page size.
-   */
-  private final int _pagingSize;
+  private final PagingRequest _request;
   /**
    * The total number of items.
    */
   private final int _totalItems;
+
+  /**
+   * Creates an instance from a paging request and total number of items.
+   * 
+   * @param pagingRequest  the paging request to base the result on, not null
+   * @param totalItems  the total number of items
+   * @return the created paging, not null
+   */
+  public static Paging of(final PagingRequest pagingRequest, final int totalItems) {
+    return new Paging(pagingRequest, totalItems);
+  }
 
   /**
    * Creates an instance based on the specified collection setting the total count of items.
@@ -36,9 +46,9 @@ public final class Paging {
    * @param coll  the collection to base the paging on, not null
    * @return the created paging, not null
    */
-  public static Paging of(final Collection<?> coll) {
+  public static Paging ofAll(final Collection<?> coll) {
     ArgumentChecker.notNull(coll, "coll");
-    return new Paging(1, Integer.MAX_VALUE, coll.size());
+    return new Paging(PagingRequest.ALL, coll.size());
   }
 
   /**
@@ -51,76 +61,45 @@ public final class Paging {
    * @return the created paging, not null
    */
   public static Paging of(PagingRequest pagingRequest, Collection<?> coll) {
+    ArgumentChecker.notNull(pagingRequest, "pagingRequest");
     ArgumentChecker.notNull(coll, "coll");
-    ArgumentChecker.notNull(pagingRequest, "pagingRequest");
-    if (pagingRequest.getFirstItemIndex() >= coll.size()) {
-      return new Paging(1, pagingRequest.getPagingSize(), coll.size());
+    if (pagingRequest.getFirstItem() >= coll.size()) {
+      return new Paging(PagingRequest.ofIndex(0, pagingRequest.getPagingSize()), coll.size());
     }
-    return new Paging(pagingRequest.getPage(), pagingRequest.getPagingSize(), coll.size());
-  }
-
-  /**
-   * Creates an instance from a paging request and total number of items.
-   * 
-   * @param pagingRequest  the paging request
-   * @param totalItems  the total number of items
-   * @return the created paging, not null
-   */
-  public static Paging of(final PagingRequest pagingRequest, final int totalItems) {
-    ArgumentChecker.notNull(pagingRequest, "pagingRequest");
-    return new Paging(pagingRequest.getPage(), pagingRequest.getPagingSize(), totalItems);
-  }
-
-  /**
-   * Creates an instance from a page number, paging size and total number of items.
-   * 
-   * @param page  the page number, one or greater
-   * @param pagingSize  the paging size, zero or greater
-   * @param totalItems  the total number of items, zero or greater
-   * @return the created paging, not null
-   */
-  public static Paging of(final int page, final int pagingSize, final int totalItems) {
-    return new Paging(page, pagingSize, totalItems);
+    return new Paging(pagingRequest, coll.size());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    * 
-   * @param page  the page number, one or greater
-   * @param pagingSize  the paging size, zero or greater
+   * @param pagingRequest  the request, not null
    * @param totalItems  the total number of items, zero or greater
    */
-  private Paging(final int page, final int pagingSize, final int totalItems) {
-    ArgumentChecker.notNegativeOrZero(page, "page");
-    ArgumentChecker.notNegative(pagingSize, "pagingSize");
+  private Paging(final PagingRequest pagingRequest, final int totalItems) {
+    ArgumentChecker.notNull(pagingRequest, "pagingRequest");
     ArgumentChecker.notNegative(totalItems, "totalItems");
-    _page = page;
-    _pagingSize = pagingSize;
+    _request = pagingRequest;
     _totalItems = totalItems;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the one-based page number.
+   * Gets the request that represents the results.
+   * <p>
+   * This request represents that request that matches the results.
+   * This is not necessarily the same as the request actually used.
    * 
-   * @return the page number, one or greater
+   * @return the request, not null
    */
-  public int getPage() {
-    return _page;
+  public PagingRequest getRequest() {
+    return _request;
   }
 
   /**
-   * Gets the size of each page.
-   * 
-   * @return the paging size, zero or greater
-   */
-  public int getPagingSize() {
-    return _pagingSize;
-  }
-
-  /**
-   * Gets the total number of items.
+   * Gets the total number of items in the complete result set.
+   * <p>
+   * This is the number of results that would be returned if  {@link PagingRequest#ALL} was used.
    * 
    * @return the number of items, zero or greater
    */
@@ -130,30 +109,21 @@ public final class Paging {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the first item, using a one-based index.
-   * 
-   * @return the first item number, one-based
-   */
-  public int getFirstItem() {
-    return (_page - 1) * _pagingSize + 1;
-  }
-
-  /**
    * Gets the first item, using a zero-based index.
    * 
    * @return the first item index, zero-based
    */
-  public int getFirstItemIndex() {
-    return getFirstItem() - 1;
+  public int getFirstItem() {
+    return getRequest().getFirstItem();
   }
 
   /**
-   * Gets the last item inclusive, using a one-based index.
+   * Gets the first item, using a one-based index.
    * 
-   * @return the last item number, inclusive, one-based
+   * @return the first item number, one-based
    */
-  public int getLastItem() {
-    return Math.min(_page * _pagingSize, _totalItems);
+  public int getFirstItemOneBased() {
+    return getRequest().getFirstItemOneBased();
   }
 
   /**
@@ -161,28 +131,61 @@ public final class Paging {
    * 
    * @return the last item index, exclusive, zero-based
    */
-  public int getLastItemIndex() {
-    return getLastItem();
+  public int getLastItem() {
+    return Math.min(getRequest().getLastItem(), getTotalItems());
   }
 
   /**
-   * Gets the total number of pages.
+   * Gets the last item inclusive, using a one-based index.
    * 
-   * @return the number of pages
+   * @return the last item number, inclusive, one-based
    */
-  public int getTotalPages() {
-    return (_totalItems - 1) / _pagingSize + 1;
+  public int getLastItemOneBased() {
+    return getLastItem();
   }
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the current page number, one-based, when viewed as traditional paging.
+   * <p>
+   * If the request was for index-based paging rather than traditional paging
+   * then the result of this method will be the effective page of the first item.
+   * 
+   * @return the current page, one or greater
+   */
+  public int getPageNumber() {
+    return (getFirstItem() / getPagingSize()) + 1;
+  }
+
+  /**
+   * Gets the page size, which is the number of items requested.
+   * <p>
+   * This is zero if no data was requested.
+   * 
+   * @return the number of items in the page, zero or greater
+   */
+  public int getPagingSize() {
+    return getRequest().getPagingSize();
+  }
+
+  /**
+   * Gets the total number of pages, one-based, when viewed as traditional paging.
+   * 
+   * @return the number of pages, one or greater
+   * @throws ArithmeticException if a paging request of NONE was used
+   */
+  public int getTotalPages() {
+    return (getTotalItems() - 1) / getPagingSize() + 1;
+  }
+
+  /**
    * Checks whether a paging request of NONE was used, returning only the
    * total item count.
    * 
-   * @return true if there is another page
+   * @return true if unable to use paging
    */
   public boolean isSizeOnly() {
-    return _pagingSize == 0;
+    return getPagingSize() == 0;
   }
 
   /**
@@ -194,7 +197,7 @@ public final class Paging {
    */
   public boolean isNextPage() {
     checkPaging();
-    return _page < getTotalPages();
+    return getPageNumber() < getTotalPages();
   }
 
   /**
@@ -206,7 +209,7 @@ public final class Paging {
    */
   public boolean isLastPage() {
     checkPaging();
-    return _page == getTotalPages();
+    return getPageNumber() == getTotalPages();
   }
 
   /**
@@ -218,7 +221,7 @@ public final class Paging {
    */
   public boolean isPreviousPage() {
     checkPaging();
-    return _page > 1;
+    return getPageNumber() > 1;
   }
 
   /**
@@ -230,17 +233,22 @@ public final class Paging {
    */
   public boolean isFirstPage() {
     checkPaging();
-    return _page == 1;
+    return getPageNumber() == 1;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Converts this object to a {@code PagingRequest} for the same page.
+   * <p>
+   * This can convert an index-based original request into a page-based one.
    * 
    * @return the request for the same page, not null
    */
   public PagingRequest toPagingRequest() {
-    return PagingRequest.ofPage(_page, _pagingSize);
+    if (isSizeOnly()) {
+      return PagingRequest.NONE;
+    }
+    return PagingRequest.ofPage(getPageNumber(), getPagingSize());
   }
 
   /**
@@ -255,7 +263,7 @@ public final class Paging {
     if (isLastPage()) {
       throw new NoSuchElementException("Unable to return next page as this is the last page");
     }
-    return PagingRequest.ofPage(_page + 1, _pagingSize);
+    return PagingRequest.ofPage(getPageNumber() + 1, getPagingSize());
   }
 
   /**
@@ -270,7 +278,7 @@ public final class Paging {
     if (isFirstPage()) {
       throw new NoSuchElementException("Unable to return previous page as this is the first page");
     }
-    return PagingRequest.ofPage(_page - 1, _pagingSize);
+    return PagingRequest.ofPage(getPageNumber() - 1, getPagingSize());
   }
 
   /**
@@ -289,19 +297,19 @@ public final class Paging {
   public boolean equals(Object obj) {
     if (obj instanceof Paging) {
       Paging other = (Paging) obj;
-      return _page == other._page && _pagingSize == other._pagingSize && _totalItems == other._totalItems;
+      return _request.equals(other._request) && _totalItems == other._totalItems;
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return _page << 24 + _pagingSize << 16 + _totalItems;
+    return _request.hashCode() ^ _totalItems;
   }
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[page=" + _page + ", pagingSize=" + _pagingSize + ", totalItems=" + _totalItems + "]";
+    return getClass().getSimpleName() + "[first=" + getFirstItem() + ", size=" + getPagingSize() + ", totalItems=" + _totalItems + "]";
   }
 
 }

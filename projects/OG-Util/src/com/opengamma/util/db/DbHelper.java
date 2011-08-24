@@ -137,12 +137,12 @@ public abstract class DbHelper {
     // OFFSET ... FETCH ... needs to be fully wordy to satisfy Derby
     // MySQL uses LIMIT ... OFFSET ...
     // Others use window functions (more complex)
-    if (paging.getFirstItemIndex() == 0) {
+    if (paging.getFirstItem() == 0) {
       return sqlSelectFromWhere + sqlOrderBy +
           "FETCH FIRST " + paging.getPagingSize() + " ROWS ONLY ";
     }
     return sqlSelectFromWhere + sqlOrderBy +
-        "OFFSET " + paging.getFirstItemIndex() + " ROWS " +
+        "OFFSET " + paging.getFirstItem() + " ROWS " +
         "FETCH NEXT " + paging.getPagingSize() + " ROWS ONLY ";
   }
 

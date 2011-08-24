@@ -14,7 +14,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Simple immutable model for managing paging, as typically used on websites.
+ * Simple immutable request for a page of results.
+ * <p>
+ * This class is follows the design of SQL OFFSET and FETCH/LIMIT, exposed as a first-item/size data model.
+ * This can be used to implement traditional fixed paging or arbitrary paging starting from an index.
  */
 @PublicAPI
 public final class PagingRequest {
@@ -26,32 +29,66 @@ public final class PagingRequest {
   /**
    * Singleton constant to request all items (no paging).
    */
-  public static final PagingRequest ALL = new PagingRequest(1, Integer.MAX_VALUE);
+  public static final PagingRequest ALL = new PagingRequest(0, Integer.MAX_VALUE);
   /**
    * Singleton constant to request the first page of 20 items.
    */
-  public static final PagingRequest FIRST_PAGE = new PagingRequest(1, DEFAULT_PAGING_SIZE);
+  public static final PagingRequest FIRST_PAGE = new PagingRequest(0, DEFAULT_PAGING_SIZE);
   /**
    * Singleton constant to request the first matching item.
    */
-  public static final PagingRequest ONE = new PagingRequest(1, 1);
+  public static final PagingRequest ONE = new PagingRequest(0, 1);
   /**
    * Singleton constant to request no data, just the total count.
    */
-  public static final PagingRequest NONE = new PagingRequest(1, 0);
+  public static final PagingRequest NONE = new PagingRequest(0, 0);
 
   /**
    * The requested first item.
    */
-  private final int _page;
+  private final int _index;
   /**
-   * The requested page size.
+   * The requested number of items.
    */
-  private final int _pagingSize;
+  private final int _size;
+
+  /**
+   * Obtains an instance based on a zero-based index and requested size.
+   * <p>
+   * This factory represents the internal state directly.
+   * The index is the first item in the list of results that is required (SQL OFFSET).
+   * The size is the requested number of items (SQL FETCH/LIMIT).
+   * 
+   * @param index  the zero-based start index, zero or greater
+   * @param size  the number of items to request, zero or greater
+   * @return the paging request, not null
+   * @throws IllegalArgumentException if either input is invalid
+   */
+  public static PagingRequest ofIndex(int index, int size) {
+    return new PagingRequest(index, size);
+  }
+
+  /**
+   * Obtains an instance based on a page and paging size.
+   * <p>
+   * This implements paging on top of the basic first-item/size data model.
+   * 
+   * @param page  the page number, one or greater
+   * @param pagingSize  the paging size, zero or greater
+   * @return the paging request, not null
+   * @throws IllegalArgumentException if either input is invalid
+   */
+  public static PagingRequest ofPage(int page, int pagingSize) {
+    ArgumentChecker.notNegativeOrZero(page, "page");
+    ArgumentChecker.notNegative(pagingSize, "pagingSize");
+    int index = ((page - 1) * pagingSize);
+    return new PagingRequest(index, pagingSize);
+  }
 
   /**
    * Obtains an instance based on a page and paging size, applying default values.
-   * If the page is zero, then the page is defaulted to 1 and the paging size
+   * <p>
+   * This implements paging on top of the basic first-item/size data model.
    * The page will default to 1 if the input is 0.
    * The paging size will default to 20 if the input is 0.
    * 
@@ -63,97 +100,88 @@ public final class PagingRequest {
   public static PagingRequest ofPageDefaulted(int page, int pagingSize) {
     page = (page == 0 ? 1 : page);
     pagingSize = (pagingSize == 0 ? DEFAULT_PAGING_SIZE : pagingSize);
-    return new PagingRequest(page, pagingSize);
-  }
-
-  /**
-   * Obtains an instance based on a page and paging size.
-   * 
-   * @param page  the page number, one or greater
-   * @param pagingSize  the paging size, zero or greater
-   * @return the paging request, not null
-   * @throws IllegalArgumentException if either input is invalid
-   */
-  public static PagingRequest ofPage(int page, int pagingSize) {
-    return new PagingRequest(page, pagingSize);
+    return PagingRequest.ofPage(page, pagingSize);
   }
 
   /**
    * Creates an instance without using defaults.
    * <p>
-   * A paging size of zero will only return the count of items.
+   * A paging size of zero will only return the count of items and will
+   * always have a first item index of zero.
    * 
-   * @param page  the page number, one or greater
-   * @param pagingSize  the paging size, zero or greater
+   * @param index  the zero-based start index, zero or greater
+   * @param size  the number of items to request, zero or greater
    * @throws IllegalArgumentException if either input is invalid
    */
-  private PagingRequest(final int page, final int pagingSize) {
-    ArgumentChecker.notNegativeOrZero(page, "page number");
-    ArgumentChecker.notNegative(pagingSize, "paging size");
-    _page = page;
-    _pagingSize = pagingSize;
+  private PagingRequest(final int index, final int size) {
+    ArgumentChecker.notNegative(index, "index");
+    ArgumentChecker.notNegative(size, "size");
+    _index = (size != 0 ? index : 0);
+    _size = size;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the one-based page number.
-   * @return the page number, one or greater
+   * Gets the first item, using a zero-based index.
+   * <p>
+   * In SQL this corresponds to OFFSET.
+   * 
+   * @return the first item index, zero-based
    */
-  public int getPage() {
-    return _page;
+  public int getFirstItem() {
+    return _index;
   }
 
   /**
-   * Gets the size of each page.
-   * @return the paging size, zero or greater
+   * Gets the requested number of items.
+   * <p>
+   * In SQL this corresponds to FETCH/LIMIT.
+   * 
+   * @return the number of requested items, zero or greater
    */
   public int getPagingSize() {
-    return _pagingSize;
+    return _size;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the first item, using a one-based index.
+   * 
    * @return the first item number, one-based
    */
-  public int getFirstItem() {
-    return (_page - 1) * _pagingSize + 1;
-  }
-
-  /**
-   * Gets the first item, using a zero-based index.
-   * @return the first item index, zero-based
-   */
-  public int getFirstItemIndex() {
-    return getFirstItem() - 1;
-  }
-
-  /**
-   * Gets the last item inclusive, using a one-based index.
-   * @return the last item number, inclusive, one-based
-   */
-  public int getLastItem() {
-    return _page * _pagingSize;
+  public int getFirstItemOneBased() {
+    return _index + 1;
   }
 
   /**
    * Gets the last item exclusive, using a zero-based index.
+   * 
    * @return the last item index, exclusive, zero-based
    */
-  public int getLastItemIndex() {
+  public int getLastItem() {
+    return _index + _size;
+  }
+
+  /**
+   * Gets the last item inclusive, using a one-based index.
+   * 
+   * @return the last item number, inclusive, one-based
+   */
+  public int getLastItemOneBased() {
     return getLastItem();
   }
 
   //-------------------------------------------------------------------------
   /**
    * Selects the elements from the collection matching this request.
+   * 
    * @param <T> the collection type
    * @param coll  the collection to select from, not null
    * @return the selected collection, not linked to the original, not null
    */
   public <T> List<T> select(Collection<T> coll) {
-    int firstIndex = getFirstItemIndex();
-    int lastIndex = getLastItemIndex();
+    int firstIndex = getFirstItem();
+    int lastIndex = getLastItem();
     if (firstIndex >= coll.size()) {
       firstIndex = 0;
     }
@@ -177,19 +205,19 @@ public final class PagingRequest {
   public boolean equals(Object obj) {
     if (obj instanceof PagingRequest) {
       PagingRequest other = (PagingRequest) obj;
-      return _page == other._page && _pagingSize == other._pagingSize;
+      return _index == other._index && _size == other._size;
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return _page << 16 + _pagingSize;
+    return _index << 16 + _size;
   }
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[page=" + _page + ", pagingSize=" + _pagingSize + "]";
+    return getClass().getSimpleName() + "[first=" + _index + ", size=" + _size + "]";
   }
 
 }

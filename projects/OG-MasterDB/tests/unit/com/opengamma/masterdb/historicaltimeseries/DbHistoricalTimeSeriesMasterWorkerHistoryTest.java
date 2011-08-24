@@ -56,8 +56,7 @@ public class DbHistoricalTimeSeriesMasterWorkerHistoryTest extends AbstractDbHis
     HistoricalTimeSeriesInfoHistoryRequest request = new HistoricalTimeSeriesInfoHistoryRequest(oid);
     HistoricalTimeSeriesInfoHistoryResult test = _htsMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(3, test.getPaging().getTotalItems());
     
     assertEquals(3, test.getDocuments().size());
@@ -70,12 +69,12 @@ public class DbHistoricalTimeSeriesMasterWorkerHistoryTest extends AbstractDbHis
   @Test
   public void test_history_noInstants_pageOne() {
     ObjectId oid = ObjectId.of("DbHts", "201");
+    PagingRequest pr = PagingRequest.ofPage(1, 2);
     HistoricalTimeSeriesInfoHistoryRequest request = new HistoricalTimeSeriesInfoHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.ofPage(1, 2));
+    request.setPagingRequest(pr);
     HistoricalTimeSeriesInfoHistoryResult test = _htsMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(3, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -86,14 +85,14 @@ public class DbHistoricalTimeSeriesMasterWorkerHistoryTest extends AbstractDbHis
   @Test
   public void test_history_noInstants_pageTwo() {
     ObjectId oid = ObjectId.of("DbHts", "201");
+    PagingRequest pr = PagingRequest.ofPage(2, 2);
     HistoricalTimeSeriesInfoHistoryRequest request = new HistoricalTimeSeriesInfoHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.ofPage(2, 2));
+    request.setPagingRequest(pr);
     HistoricalTimeSeriesInfoHistoryResult test = _htsMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
-    assertEquals(3, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(3, test.getPaging().getTotalItems());
     
     assertNotNull(test.getDocuments());

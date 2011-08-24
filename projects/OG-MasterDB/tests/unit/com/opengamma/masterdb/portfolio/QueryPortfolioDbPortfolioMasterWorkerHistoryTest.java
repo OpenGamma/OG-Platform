@@ -73,8 +73,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -86,12 +85,12 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   @Test
   public void test_history_noInstants_pageOne() {
     UniqueId oid = UniqueId.of("DbPrt", "201");
+    PagingRequest pr = PagingRequest.ofPage(1, 1);
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.ofPage(1, 1));
+    request.setPagingRequest(pr);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
@@ -101,14 +100,14 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   @Test
   public void test_history_noInstants_pageTwo() {
     UniqueId oid = UniqueId.of("DbPrt", "201");
+    PagingRequest pr = PagingRequest.ofPage(2, 1);
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.ofPage(2, 1));
+    request.setPagingRequest(pr);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
-    assertEquals(2, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertNotNull(test.getDocuments());
