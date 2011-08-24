@@ -32,6 +32,7 @@ public class TestViewportFactory implements ViewportFactory {
     private final Map<String, Object> _latestData = new HashMap<String, Object>();
 
     public TestViewport(ViewportDefinition viewportDefinition) {
+      _latestData.clear();
       for (Map.Entry<Integer, Long> entry : viewportDefinition.getPortfolioRows().entrySet()) {
         Integer rowId = entry.getKey();
         Object[] rowData = s_dummyData[rowId];

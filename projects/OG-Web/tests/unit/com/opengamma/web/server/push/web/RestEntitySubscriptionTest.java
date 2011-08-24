@@ -21,9 +21,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static com.opengamma.web.server.push.web.WebPushTestUtils.checkJsonResults;
+import static com.opengamma.web.server.push.web.WebPushTestUtils.handshake;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  *
@@ -54,7 +54,7 @@ public class RestEntitySubscriptionTest {
 
   @Test
   public void entitySubscription() throws IOException, JSONException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     String restUrl = "/rest/test/" + _uidStr;
     // this REST request should set up a subscription for object ID Tst~101
     readFromPath(restUrl, clientId);
@@ -67,7 +67,7 @@ public class RestEntitySubscriptionTest {
 
   @Test
   public void subResourceSubscription() throws IOException, JSONException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     String restUrl = "/rest/testsub/" + _uidStr;
     readFromPath(restUrl, clientId);
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
@@ -77,7 +77,7 @@ public class RestEntitySubscriptionTest {
 
   @Test
   public void multipleEntitySubscription() throws IOException, JSONException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     String restUrl1 = "/rest/test/" + _uidStr;
     String uid2Str = "Tst~102";
     UniqueId uid2 = UniqueId.parse(uid2Str);
@@ -99,7 +99,7 @@ public class RestEntitySubscriptionTest {
 
   @Test
   public void noClientIdNoSubscription() throws IOException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     String restUrl = "/rest/test/" + _uidStr;
     // this REST request shouldn't set up a subscription because there is no client ID so the server doesn't know
     // where to send the update

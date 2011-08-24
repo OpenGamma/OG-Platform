@@ -397,12 +397,11 @@
     <constructor-arg value="${bundle.mode}"/>
   </bean>
 
-  <!--TODO this isn't right any more-->
   <!-- Web-interface -->
   <bean id="liveResultsService" class="com.opengamma.web.server.LiveResultsService">
-    <property name="user" ref="testUser" />
-    <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="fudgeContext" ref="fudgeContext" />
+    <constructor-arg ref="demoViewProcessor" />
+    <constructor-arg ref="testUser" />
+    <constructor-arg ref="fudgeContext" />
   </bean>
 
   <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.web.LongPollingConnectionManager">

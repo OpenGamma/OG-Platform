@@ -27,6 +27,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static com.opengamma.web.server.push.web.WebPushTestUtils.handshake;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.Assert.assertEquals;
 
@@ -54,7 +55,7 @@ public class ViewportTest {
 
   @Test
   public void viewportData() throws Exception {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     String viewportDefJson = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
@@ -89,8 +90,77 @@ public class ViewportTest {
     assertEquals(9, row2.getInt(2));
   }
 
+  @Test
+  public void twoViewportsData() throws Exception {
+    String clientId = handshake();
+    String viewportDefJson = "{" +
+        "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"snapshotId\": \"Tst~123\", " +
+        "\"portfolioViewport\": {" +
+        "\"rows\": [[0, 12345678], [1, 12345679], [2, 12345680]], " +
+        "\"dependencyGraphCells\": [[1, 2]]" +
+        "}" +
+        "}";
+    String viewportUrl = createViewport(clientId, viewportDefJson);
+    if (StringUtils.isEmpty(viewportUrl)) {
+      Assert.fail("no URL returned for 1st viewport");
+    }
+    String latestResult = readFromPath(viewportUrl + "/data");
+    JSONObject jsonResults = new JSONObject(latestResult);
+    assertEquals(3, jsonResults.length());
+
+    JSONArray row0 = jsonResults.getJSONArray("0");
+    assertEquals(3, row0.length());
+    assertEquals(1, row0.getInt(0));
+    assertEquals(2, row0.getInt(1));
+    assertEquals(3, row0.getInt(2));
+
+    JSONArray row1 = jsonResults.getJSONArray("1");
+    assertEquals(3, row1.length());
+    assertEquals(2, row1.getInt(0));
+    assertEquals(4, row1.getInt(1));
+    assertEquals(6, row1.getInt(2));
+
+    JSONArray row2 = jsonResults.getJSONArray("2");
+    assertEquals(3, row2.length());
+    assertEquals(3, row2.getInt(0));
+    assertEquals(6, row2.getInt(1));
+    assertEquals(9, row2.getInt(2));
+
+    // different viewport for the same client ID -----
+
+    viewportDefJson = "{" +
+        "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"snapshotId\": \"Tst~123\", " +
+        "\"portfolioViewport\": {" +
+        "\"rows\": [[2, 12345688], [3, 12345689]], " +
+        "\"dependencyGraphCells\": [[3, 1]]" +
+        "}" +
+        "}";
+    viewportUrl = createViewport(clientId, viewportDefJson);
+    if (StringUtils.isEmpty(viewportUrl)) {
+      Assert.fail("no URL returned for 2nd viewport");
+    }
+    latestResult = readFromPath(viewportUrl + "/data");
+    jsonResults = new JSONObject(latestResult);
+    assertEquals(2, jsonResults.length());
+
+    row2 = jsonResults.getJSONArray("2");
+    assertEquals(3, row2.length());
+    assertEquals(3, row2.getInt(0));
+    assertEquals(6, row2.getInt(1));
+    assertEquals(9, row2.getInt(2));
+
+    JSONArray row3 = jsonResults.getJSONArray("3");
+    assertEquals(3, row3.length());
+    assertEquals(4, row3.getInt(0));
+    assertEquals(8, row3.getInt(1));
+    assertEquals(12, row3.getInt(2));
+  }
+
   private static String createViewport(String clientId, String viewportDefJson) throws IOException {
-    String viewportUrl;BufferedReader reader = null;
+    String viewportUrl;
+    BufferedReader reader = null;
     BufferedWriter writer = null;
     try {
       URL url = new URL("http://localhost:8080/rest/viewports?clientId=" + clientId);

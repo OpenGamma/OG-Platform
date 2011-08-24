@@ -102,11 +102,11 @@ public class ViewportDefinition {
         int row = cellArray.getInt(0);
         int col = cellArray.getInt(1);
         if (!rows.contains(row)) {
-          throw new OpenGammaRuntimeException("Unable to create ViewportDefinition from JSON, dependency graph " +
-                                                  "cells must be in viewport rows, row: " + row);
+          throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON, dependency graph " +
+                                                 "cells must be in viewport rows, row: " + row);
         }
         if (row < 0 || col < 0) {
-          throw new OpenGammaRuntimeException(
+          throw new IllegalArgumentException(
               "Unable to create ViewportDefinition from JSON, rows and cols must not be negative");
         }
         WebGridCell cell = new WebGridCell(row, col);
@@ -125,22 +125,22 @@ public class ViewportDefinition {
     JSONArray rowsArray = viewportJson.getJSONArray(ROWS);
     // TODO is this valid? what if a view is all primitives or all analytics?
     if (rowsArray.length() < 1) {
-      throw new OpenGammaRuntimeException(
+      throw new IllegalArgumentException(
           "Unable to create ViewportDefinition from JSON, a viewport must contain at least one row");
     }
     for (int i = 0; i < rowsArray.length(); i++) {
       JSONArray rowArray = rowsArray.getJSONArray(i);
       int row = rowArray.getInt(0);
       if (row < 0) {
-        throw new OpenGammaRuntimeException(
+        throw new IllegalArgumentException(
             "Unable to create ViewportDefinition from JSON, row numbers must not be negative");
       }
       if (rows.containsKey(row)) {
-        throw new OpenGammaRuntimeException("Unable to create ViewportDefinition from JSON, duplicate row number: " + row);
+        throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON, duplicate row number: " + row);
       }
       long timestamp = rowArray.getLong(1);
       if (timestamp < 0) {
-        throw new OpenGammaRuntimeException(
+        throw new IllegalArgumentException(
             "Unable to create ViewportDefinition from JSON, timestamps must not be negative: " + timestamp);
       }
       rows.put(row, timestamp);

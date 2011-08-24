@@ -1,6 +1,5 @@
 package com.opengamma.web.server.push.subscription;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.WebGridCell;
 import org.testng.annotations.Test;
@@ -21,6 +20,7 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 public class ViewportDefinitionTest {
 
+  // TODO this need to be moved
   @Test
   public void isReadable() {
     ViewportDefinitionReader reader = new ViewportDefinitionReader();
@@ -118,32 +118,27 @@ public class ViewportDefinitionTest {
   // TODO dependencyGraphCells optional? or compulsory even when it's empty?
   // TODO sanity check that the dep graph cells are all in the specified rows?
 
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void rowsMissing() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]}";
+        "\"portfolioViewport\": {" +
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}" +
+        "}";
     ViewportDefinition.fromJSON(json);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void rowsEmpty() {
-    String json = "{" +
-        "\"viewDefinitionName\": \"testViewDefName\", " +
-        "\"snapshotId\": \"Tst~123\", " +
-        "\"rows\": [], " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]}";
-    ViewportDefinition.fromJSON(json);
-  }
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void depGraphCellsNotInRows() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
-        "\"dependencyGraphCells\": [[3, 1], [6, 2], [4, 3]]}";
+        "\"dependencyGraphCells\": [[3, 1], [6, 2], [4, 3]]" +
+        "}" +
+        "}";
     ViewportDefinition.fromJSON(json);
   }
 
@@ -157,12 +152,15 @@ public class ViewportDefinitionTest {
     assertNull(definition.getSnapshotId());
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void duplicateRowIds() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [3, 12345679], [5, 12345680]], " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]}";
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}" +
+        "}";
     ViewportDefinition.fromJSON(json);
   }
 
@@ -177,7 +175,7 @@ public class ViewportDefinitionTest {
     assertTrue(dependencyGraphCells.isEmpty());
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void noViewDefName() {
     String json = "{" +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +

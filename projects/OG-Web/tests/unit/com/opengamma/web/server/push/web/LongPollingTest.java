@@ -15,11 +15,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.opengamma.web.server.push.web.WebPushTestUtils.checkJsonResults;
+import static com.opengamma.web.server.push.web.WebPushTestUtils.handshake;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Tests pushing results to a long polling HTTP connection.
@@ -53,8 +57,8 @@ public class LongPollingTest {
   }
 
   @Test
-  public void handshake() throws IOException {
-    String clientId = readFromPath("/handshake");
+  public void testHandshake() throws IOException {
+    String clientId = handshake();
     assertEquals(CLIENT_ID, clientId);
   }
 
@@ -63,7 +67,7 @@ public class LongPollingTest {
    */
   @Test
   public void longPollBlocking() throws IOException, ExecutionException, InterruptedException, JSONException {
-    final String clientId = readFromPath("/handshake");
+    final String clientId = handshake();
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -71,7 +75,6 @@ public class LongPollingTest {
       }
     }).start();
     String result = readFromPath("/updates/" + clientId);
-
     checkJsonResults(result, RESULT1);
   }
 
@@ -80,7 +83,7 @@ public class LongPollingTest {
    */
   @Test
   public void longPollNotBlocking() throws IOException, JSONException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     _updateManager.sendUpdate(RESULT1);
     String result = readFromPath("/updates/" + clientId);
     checkJsonResults(result, RESULT1);
@@ -91,7 +94,7 @@ public class LongPollingTest {
    */
   @Test
   public void longPollQueue() throws IOException, JSONException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     _updateManager.sendUpdate(RESULT1);
     _updateManager.sendUpdate(RESULT2);
     _updateManager.sendUpdate(RESULT3);
@@ -104,7 +107,7 @@ public class LongPollingTest {
    */
   @Test
   public void longPollQueueMultipleUpdates() throws IOException, JSONException {
-    String clientId = readFromPath("/handshake");
+    String clientId = handshake();
     _updateManager.sendUpdate(RESULT1);
     _updateManager.sendUpdate(RESULT1);
     _updateManager.sendUpdate(RESULT2);
@@ -116,7 +119,7 @@ public class LongPollingTest {
 
   @Test
   public void repeatingLongPoll() throws IOException, JSONException {
-    final String clientId = readFromPath("/handshake");
+    final String clientId = handshake();
     new Thread(new Runnable() {
       @Override
       public void run() {

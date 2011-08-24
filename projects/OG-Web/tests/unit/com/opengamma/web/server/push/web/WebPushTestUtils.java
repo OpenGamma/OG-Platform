@@ -49,6 +49,16 @@ public class WebPushTestUtils {
     return readFromPath(path, clientId, "GET");
   }
 
+  /* package */
+  static String handshake() throws IOException {
+    String json = readFromPath("/handshake");
+    try {
+      return new JSONObject(json).getString("clientId");
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to create JSON from handshake response: " + json, e);
+    }
+  }
+
   /* package */ static String readFromPath(String path, String clientId, String requestMethod) throws IOException {
     String fullPath;
     if (clientId != null) {

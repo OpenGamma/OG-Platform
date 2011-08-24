@@ -5,7 +5,7 @@
          version="2.5">
 
   <!-- Cometd -->
-  <servlet>
+  <!--<servlet>
     <servlet-name>cometd</servlet-name>
     <servlet-class>org.cometd.server.continuation.ContinuationCometdServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
@@ -21,7 +21,7 @@
   <filter-mapping>
     <filter-name>cross-origin</filter-name>
     <url-pattern>/cometd/*</url-pattern>
-  </filter-mapping>
+  </filter-mapping>-->
 
   <!--  LiveResultsServiceBean depends on the cometd servlet, so we have a dummy servlet here to trigger
         LiveResultsServiceBean initialization after the cometd servlet has been initialized -->
