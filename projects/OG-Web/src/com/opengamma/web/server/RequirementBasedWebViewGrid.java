@@ -46,9 +46,7 @@ import java.util.concurrent.ConcurrentMap;
 public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementBasedWebViewGrid.class);
-  private static final String GRID_STRUCTURE_ROOT_CHANNEL = "/gridStructure";
-  
-  private final String _columnStructureChannel;
+
   private final RequirementBasedGridStructure _gridStructure;
   private final String _nullCellValue;
   
@@ -67,8 +65,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
                                         String nullCellValue) {
     super(name, viewClient, resultConverterCache);
     
-    _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
-    List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);    
+    List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);
     _gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     _nullCellValue = nullCellValue;
   }
@@ -76,7 +73,14 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   //-------------------------------------------------------------------------
 
   // publishes results to the client TODO would it be better if it returned the value?
-  public Map<String, Object> processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
+
+  /**
+   * @return {@code {"rowId": rowId, "0": col0Val, "1": col1Val, ...}}
+   * cell values: {"v": value, "h": [historyVal1, historyVal2, ...], "dg", depGraph}
+   */
+  public Map<String, Object> getTargetResult(ComputationTargetSpecification target,
+                                             ViewTargetResultModel resultModel,
+                                             Long resultTimestamp) {
     Integer rowId = getGridStructure().getRowId(target.getUniqueId());
     if (rowId == null) {
       // Result not in the grid
@@ -217,7 +221,18 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   }
   
   //-------------------------------------------------------------------------
-  
+
+  // TODO does this belong in the portfolio-specific subclass? or can / will you be able to get dep graphs for primitives?
+  public WebViewGrid getDepGraphGrid(String name) {
+    // TODO implement RequirementBasedWebViewGrid.getDepGraphGrid()
+    throw new UnsupportedOperationException("getDepGraphGrid not implemented");
+  }
+
+  /* package */ void updateDepGraphCells(List<WebGridCell> dependencyGraphCells) {
+    // TODO implement
+  }
+
+  // TODO move this logic to updateDepGraphCells
   public WebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     if (includeDepGraph) {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();      
@@ -366,5 +381,4 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     return result;
   }
-  
 }

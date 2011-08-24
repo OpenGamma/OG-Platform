@@ -19,11 +19,11 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
 /**
  * Spring helper for {@link LiveResultsService}.
+ * TODO is this necessary any more?
  */
 public class LiveResultsServiceBean implements ServletContextAware {
   
   private ServletContext _servletContext;
-  private Bayeux _bayeux;
   private ViewProcessor _viewProcessor;
   private MarketDataSnapshotMaster _snapshotMaster;
   private UserPrincipal _user;
@@ -63,14 +63,6 @@ public class LiveResultsServiceBean implements ServletContextAware {
     _servletContext = servletContext;
   }
   
-  protected void setBayeux(final Bayeux bayeux) {
-    _bayeux = bayeux;
-  }
-  
-  protected Bayeux getBayeux() {
-    return _bayeux;
-  }
-  
   public ExecutorService getExecutorService() {
     return _executorService;
   }
@@ -92,13 +84,8 @@ public class LiveResultsServiceBean implements ServletContextAware {
   }
   
   public void afterPropertiesSet() {
-    setBayeux((Bayeux) _servletContext.getAttribute(Bayeux.ATTRIBUTE));
-    
     if (getViewProcessor() == null) {
       throw new IllegalStateException("View processor not set");
-    }
-    if (getBayeux() == null) {
-      throw new IllegalStateException("Bayeux not set");
     }
     if (getFudgeContext() == null) {
       throw new IllegalArgumentException("Fudge context not set");
@@ -108,7 +95,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   }
   
   public LiveResultsService createLiveResultsService() {
-    return new LiveResultsService(getBayeux(), getViewProcessor(), getSnapshotMaster(), getUser(), getExecutorService(), getFudgeContext());
+    return new LiveResultsService(getViewProcessor(), getUser(), getExecutorService(), getFudgeContext());
   }
  
 }

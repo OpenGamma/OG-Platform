@@ -7,6 +7,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -28,54 +30,89 @@ public class ViewportDefinitionTest {
   }
 
   @Test
-  public void readFrom() throws IOException {
+  public void fromJSON() throws IOException {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
+        "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]}";
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}, " +
+        "\"primitiveViewport\": {" +
+        "\"rows\": [[5, 12345681], [6, 12345682], [7, 12345683]], " +
+        "\"dependencyGraphCells\": [[5, 1], [5, 2], [7, 3]]" +
+        "}" +
+        "}";
     ViewportDefinition viewportDefinition = ViewportDefinition.fromJSON(json);
 
     assertEquals("testViewDefName", viewportDefinition.getViewDefinitionName());
     assertEquals(UniqueId.of("Tst", "123"), viewportDefinition.getSnapshotId());
 
-    List<ViewportRow> rows = viewportDefinition.getRows();
-    assertNotNull(rows);
-    assertEquals(3, rows.size());
+    // portfolio viewport -----
 
-    ViewportRow viewportRow1 = rows.get(0);
-    assertNotNull(viewportRow1);
-    assertEquals(3, viewportRow1.getRowId());
-    assertEquals(12345678L, viewportRow1.getTimestamp());
+    SortedMap<Integer,Long> portfolioRows = viewportDefinition.getPortfolioRows();
+    assertNotNull(portfolioRows);
+    assertEquals(3, portfolioRows.size());
 
-    ViewportRow viewportRow2 = rows.get(1);
-    assertNotNull(viewportRow2);
-    assertEquals(4, viewportRow2.getRowId());
-    assertEquals(12345679L, viewportRow2.getTimestamp());
+    Set<Integer> portfolioRowIds = portfolioRows.keySet();
+    assertTrue(portfolioRowIds.contains(3));
+    assertTrue(portfolioRowIds.contains(4));
+    assertTrue(portfolioRowIds.contains(5));
+    assertEquals(12345678L, (long) portfolioRows.get(3));
+    assertEquals(12345679L, (long) portfolioRows.get(4));
+    assertEquals(12345680L, (long) portfolioRows.get(5));
 
-    ViewportRow viewportRow3 = rows.get(2);
-    assertNotNull(viewportRow3);
-    assertEquals(5, viewportRow3.getRowId());
-    assertEquals(12345680L, viewportRow3.getTimestamp());
+    List<WebGridCell> portfolioDepGraphCells = viewportDefinition.getPortfolioDependencyGraphCells();
+    assertNotNull(portfolioDepGraphCells);
+    assertEquals(3, portfolioDepGraphCells.size());
 
-    List<WebGridCell> depGraphCells = viewportDefinition.getDependencyGraphCells();
-    assertNotNull(depGraphCells);
-    assertEquals(3, depGraphCells.size());
+    WebGridCell prtCell1 = portfolioDepGraphCells.get(0);
+    assertNotNull(prtCell1);
+    assertEquals(3, prtCell1.getRowId());
+    assertEquals(1, prtCell1.getColumnId());
 
-    WebGridCell cell1 = depGraphCells.get(0);
-    assertNotNull(cell1);
-    assertEquals(3, cell1.getRowId());
-    assertEquals(1, cell1.getColumnId());
+    WebGridCell prtCell2 = portfolioDepGraphCells.get(1);
+    assertNotNull(prtCell2);
+    assertEquals(3, prtCell2.getRowId());
+    assertEquals(2, prtCell2.getColumnId());
 
-    WebGridCell cell2 = depGraphCells.get(1);
-    assertNotNull(cell2);
-    assertEquals(3, cell2.getRowId());
-    assertEquals(2, cell2.getColumnId());
+    WebGridCell prtCell3 = portfolioDepGraphCells.get(2);
+    assertNotNull(prtCell1);
+    assertEquals(4, prtCell3.getRowId());
+    assertEquals(3, prtCell3.getColumnId());
 
-    WebGridCell cell3 = depGraphCells.get(2);
-    assertNotNull(cell1);
-    assertEquals(4, cell3.getRowId());
-    assertEquals(3, cell3.getColumnId());
+    // primitive viewport -----
+
+    SortedMap<Integer,Long> primitiveRows = viewportDefinition.getPrimitiveRows();
+    assertNotNull(primitiveRows);
+    assertEquals(3, primitiveRows.size());
+
+    Set<Integer> primitiveRowIds = primitiveRows.keySet();
+    assertTrue(primitiveRowIds.contains(5));
+    assertTrue(primitiveRowIds.contains(6));
+    assertTrue(primitiveRowIds.contains(7));
+    assertEquals(12345681L, (long) primitiveRows.get(5));
+    assertEquals(12345682L, (long) primitiveRows.get(6));
+    assertEquals(12345683L, (long) primitiveRows.get(7));
+
+    List<WebGridCell> primitiveDepGraphCells = viewportDefinition.getPrimitiveDependencyGraphCells();
+    assertNotNull(primitiveDepGraphCells);
+    assertEquals(3, primitiveDepGraphCells.size());
+
+    WebGridCell prmCell1 = primitiveDepGraphCells.get(0);
+    assertNotNull(prmCell1);
+    assertEquals(5, prmCell1.getRowId());
+    assertEquals(1, prmCell1.getColumnId());
+
+    WebGridCell prmCell2 = primitiveDepGraphCells.get(1);
+    assertNotNull(prmCell2);
+    assertEquals(5, prmCell2.getRowId());
+    assertEquals(2, prmCell2.getColumnId());
+
+    WebGridCell prmCell3 = primitiveDepGraphCells.get(2);
+    assertNotNull(prmCell1);
+    assertEquals(7, prmCell3.getRowId());
+    assertEquals(3, prmCell3.getColumnId());
   }
 
   // TODO dependencyGraphCells optional? or compulsory even when it's empty?
@@ -135,7 +172,7 @@ public class ViewportDefinitionTest {
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]]}";
     ViewportDefinition definition = ViewportDefinition.fromJSON(json);
-    List<WebGridCell> dependencyGraphCells = definition.getDependencyGraphCells();
+    List<WebGridCell> dependencyGraphCells = definition.getPortfolioDependencyGraphCells();
     assertNotNull(dependencyGraphCells);
     assertTrue(dependencyGraphCells.isEmpty());
   }

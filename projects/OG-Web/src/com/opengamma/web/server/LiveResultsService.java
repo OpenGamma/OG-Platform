@@ -5,151 +5,104 @@
  */
 package com.opengamma.web.server;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.regex.Pattern;
-
-import com.opengamma.web.server.push.subscription.AnalyticsListener;
-import com.opengamma.web.server.push.subscription.Viewport;
-import com.opengamma.web.server.push.subscription.ViewportDefinition;
-import com.opengamma.web.server.push.subscription.ViewportFactory;
-import org.apache.commons.lang.StringUtils;
-import org.cometd.Bayeux;
-import org.cometd.Client;
-import org.cometd.Message;
-import org.fudgemsg.FudgeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.subscription.AnalyticsListener;
+import com.opengamma.web.server.push.subscription.Viewport;
+import com.opengamma.web.server.push.subscription.ViewportDefinition;
+import com.opengamma.web.server.push.subscription.ViewportFactory;
+import org.fudgemsg.FudgeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * The core of the back-end to the web client, providing the implementation of the Bayeux protocol.
+ * Connects the REST interface to the engine.
  */
-public class LiveResultsService /*extends BayeuxService implements ClientBayeuxListener*/ implements ViewportFactory {
+public class LiveResultsService implements ViewportFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
-  private static final Pattern s_guidPattern =
-      Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
 
   private final Map<String, WebView> _clientViews = new HashMap<String, WebView>();
-  
-  /**
-   * The executor service used to call web clients back asynchronously.
-   */
-  private final ExecutorService _executorService;
-    
   private final ViewProcessor _viewProcessor;
-  private final MarketDataSnapshotMaster _snapshotMaster;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
 
-  public LiveResultsService(Bayeux bayeux,
-                            ViewProcessor viewProcessor,
-                            MarketDataSnapshotMaster snapshotMaster,
-                            UserPrincipal user,
-                            ExecutorService executorService,
-                            FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(bayeux, "bayeux");
+  public LiveResultsService(ViewProcessor viewProcessor, UserPrincipal user, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(user, "user");
-    ArgumentChecker.notNull(executorService, "executorService");
-    
+
     _viewProcessor = viewProcessor;
-    _snapshotMaster = snapshotMaster;
     _user = user;
-    _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
-    
-    s_logger.info("Subscribing to services");
-    /*subscribe("/service/getInitData", "processInitDataRequest");
-    subscribe("/service/changeView", "processChangeViewRequest");
-    subscribe("/service/updates", "processUpdateRequest");
-    subscribe("/service/updates/mode", "processUpdateModeRequest");
-    subscribe("/service/updates/depgraph", "processDepGraphRequest");
-    subscribe("/service/currentview/pause", "processPauseRequest");
-    subscribe("/service/currentview/resume", "processResumeRequest");*/
-    s_logger.info("Finished subscribing to services");
   }
   
-  //@Override
-  public void clientRemoved(Client client) {
-    // Tidy up
-    s_logger.debug("Client " + client.getId() + " disconnected");
-    if (_clientViews.containsKey(client.getId())) {
-      WebView view = _clientViews.remove(client.getId());
-      view.shutdown();
+  // TODO this needs to be called from the update manager when the client disconnects
+  public void clientDisconnected(String clientId) {
+    s_logger.debug("Client " + clientId + " disconnected");
+    synchronized (_clientViews) {
+      if (_clientViews.containsKey(clientId)) {
+        WebView view = _clientViews.remove(clientId);
+        view.shutdown();
+      }
     }
   }
-  
+
+  // used by the REST interface that gets analytics as CSV - will that be moved here?
+  // TODO might be better to pass the call through rather than returning the WebView and calling that
   public WebView getClientView(String clientId) {
     synchronized (_clientViews) {
       return _clientViews.get(clientId);
     }
   }
 
-  private void initializeClientView(Client remote, String viewDefinitionName, UniqueId snapshotId, UserPrincipal user) {
+  @Override
+  public Viewport createViewport(String clientId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+    UniqueId snapshotId = viewportDefinition.getSnapshotId();
+    String viewDefinitionName = viewportDefinition.getViewDefinitionName();
     synchronized (_clientViews) {
-      WebView webView = _clientViews.get(remote.getId());
+      WebView webView = _clientViews.get(clientId);
       if (webView != null) {
         if (webView.matches(viewDefinitionName, snapshotId)) {
           // Already initialized
-          //webView.reconnected();
-          return;
+          // this used to deliver the grid structure to the client
+          return webView.configureViewport(viewportDefinition, listener);
         }
         // Existing view is different - client is switching views
         webView.shutdown();
-        _clientViews.remove(remote.getId());
+        _clientViews.remove(clientId);
       }
-      
-      ViewClient viewClient = getViewProcessor().createViewClient(user);
+      ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
-        webView = new WebView(viewClient, viewDefinitionName, snapshotId, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(viewClient, viewDefinitionName, snapshotId, _resultConverterCache);
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
       }
-      _clientViews.put(remote.getId(), webView);
+      _clientViews.put(clientId, webView);
+      return webView.configureViewport(viewportDefinition, listener);
     }
   }
 
-  private UserPrincipal getUser(Client remote) {
-    return _user;
-  }
-  
-  private ExecutorService getExecutorService() {
-    return _executorService;
-  }
-
-  private ViewProcessor getViewProcessor() {
-    return _viewProcessor;
-  }
-  
-  private ResultConverterCache getResultConverterCache() {
-    return _resultConverterCache;
-  }
-  
-  public void processUpdateRequest(Client remote, Message message) {
+  // TODO rename / move logic into createViewport()
+  // called when the client wants more data
+  /*public void processUpdateRequest(Client remote, Message message) {
     s_logger.info("Received portfolio data request from {}, getting client view...", remote);
-    WebView webView = getClientView(remote.getId());
+    webView.triggerUpdate(message);
     if (webView == null) {
       // Disconnected client has come back to life
       return;
     }
-    webView.configureViewport(/*message*/null, null);// TODO
-  }
+  }*/
   
-  @SuppressWarnings("unchecked")
+  /*@SuppressWarnings("unchecked")
   public void processUpdateModeRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
     if (webView == null) {
@@ -166,7 +119,7 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
     } else {
       grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
     }
-  }
+  }*/
 
   // TODO this logic needs to be moved to to view view initialisation
   /*@SuppressWarnings("unchecked")
@@ -227,7 +180,7 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
 */
 
   // TODO this will be replaced by the creation of a new viewport
-  @SuppressWarnings("unchecked")
+  /*@SuppressWarnings("unchecked")
   public void processChangeViewRequest(Client remote, Message message) {
     Map<String, Object> data = (Map<String, Object>) message.getData();
     String viewName = (String) data.get("viewName");
@@ -235,40 +188,23 @@ public class LiveResultsService /*extends BayeuxService implements ClientBayeuxL
     UniqueId snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueId.parse(snapshotIdString) : null;
     s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
     initializeClientView(remote, viewName, snapshotId, getUser(remote));
-  }
+  }*/
 
   // TODO this is on Viewport. remove?
-  public void processPauseRequest(Client remote, Message message) {
+  /*public void processPauseRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
     if (webView == null) {
       return;
     }
     webView.pause();
-  }
+  }*/
   
   // TODO this is on Viewport. remove?
-  public void processResumeRequest(Client remote, Message message) {
+  /*public void processResumeRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
     if (webView == null) {
       return;
     }
     webView.resume();
-  }
-
-  /*@Override
-  public Viewport createViewport(String clientId,
-                                 UniqueId viewClientId,
-                                 ViewportDefinition viewportDefinition,
-                                 AnalyticsListener listener) {
-    WebView webView = null; // TODO get or create
-    webView.configureViewport(viewportDefinition, listener);
-    throw new UnsupportedOperationException("createViewport not implemented");
-    // TODO get / create WebView for the client ID
-    // TODO tell it to produce some results immediately (which also sets the viewport bounds)
   }*/
-
-  @Override
-  public Viewport createViewport(String clientId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
-    throw new UnsupportedOperationException("createViewport not implemented");
-  }
 }

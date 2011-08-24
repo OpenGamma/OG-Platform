@@ -139,6 +139,5 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     row[0] = Integer.toString(rowId);
     row[1] = parentRowIdText;
     row[2] = getRowName(portfolioRow, target.getType());
-  }  
-  
+  }
 }

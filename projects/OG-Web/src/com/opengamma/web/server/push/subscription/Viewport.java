@@ -19,7 +19,7 @@ public interface Viewport {
   Map<String, Object> getGridStructure();
 
   // TODO this should be a proper class but that would require serious refactoring of the web code
-  Map<String, Object> getLatestData();
+  Map<String, Object> getLatestResults();
 
   void setRunning(boolean run);
 
@@ -33,7 +33,7 @@ public interface Viewport {
     }
 
     @Override
-    public Map<String, Object> getLatestData() {
+    public Map<String, Object> getLatestResults() {
       return Collections.emptyMap();
     }
 

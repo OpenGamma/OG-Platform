@@ -1,7 +1,7 @@
 package com.opengamma.web.server.push.subscription;
 
 /**
- *
+ * TODO the semantics aren't quite right - should discard updates when inactive for consitency with entity subs
  */
 public class AnalyticsListener {
 

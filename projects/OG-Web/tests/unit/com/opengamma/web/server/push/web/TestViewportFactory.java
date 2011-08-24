@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 
 /**
  *
@@ -31,8 +32,8 @@ public class TestViewportFactory implements ViewportFactory {
     private final Map<String, Object> _latestData = new HashMap<String, Object>();
 
     public TestViewport(ViewportDefinition viewportDefinition) {
-      for (ViewportRow row : viewportDefinition.getRows()) {
-        int rowId = row.getRowId();
+      for (Map.Entry<Integer, Long> entry : viewportDefinition.getPortfolioRows().entrySet()) {
+        Integer rowId = entry.getKey();
         Object[] rowData = s_dummyData[rowId];
         _latestData.put(Integer.toString(rowId), rowData);
       }
@@ -44,7 +45,7 @@ public class TestViewportFactory implements ViewportFactory {
     }
 
     @Override
-    public Map<String, Object> getLatestData() {
+    public Map<String, Object> getLatestResults() {
       return _latestData;
     }
 

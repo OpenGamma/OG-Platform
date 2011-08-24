@@ -11,7 +11,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
 
 /**
  *
@@ -25,7 +24,7 @@ public class ViewportResource {
     _viewport = viewport;
   }
 
-  @Path("gridStructure")
+  @Path("grid")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getGridStructure() {
@@ -36,7 +35,7 @@ public class ViewportResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getLatestData() {
-    return new JSONObject(_viewport.getLatestData()).toString();
+    return new JSONObject(_viewport.getLatestResults()).toString();
   }
 
   // TODO is a query param the right way to do this? easy to implement but is that adequate justification?

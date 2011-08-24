@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -27,7 +27,6 @@ import com.opengamma.web.server.push.subscription.AnalyticsListener;
 import com.opengamma.web.server.push.subscription.Viewport;
 import com.opengamma.web.server.push.subscription.ViewportDefinition;
 import org.apache.commons.lang.ObjectUtils;
-import org.cometd.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +34,11 @@ import javax.time.Instant;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 
+ * TODO CONCURRENCY - I've scrapped all the locking, needs to be reviewed and replaced
+ * TODO return new viewport instance rather than implementing it?
  */
 public class WebView implements Viewport {
 
@@ -52,35 +47,23 @@ public class WebView implements Viewport {
   private final ViewClient _client;
   private final String _viewDefinitionName;
   private final UniqueId _snapshotId;
-  private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
-  
-  private final ReentrantLock _updateLock = new ReentrantLock();
-  
-  private boolean _awaitingNextUpdate;
-  private boolean _continueUpdateThread;
-  private boolean _updateThreadRunning;
-  
-  private AtomicBoolean _isInit = new AtomicBoolean(false);
-  
-  private final Map<String, WebViewGrid> _gridsByName;
+
   private RequirementBasedWebViewGrid _portfolioGrid;
   private RequirementBasedWebViewGrid _primitivesGrid;
-  
-  private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
-  public WebView(ViewClient client,
-                 String viewDefinitionName,
-                 UniqueId snapshotId,
-                 UserPrincipal user, // TODO will this be needed in future?
-                 ExecutorService executorService,
-                 ResultConverterCache resultConverterCache) {
+  // TODO get the state from the grids
+  private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
+  private Map<Integer, Map<String, Object>> _primitiveResult;
+  private Map<Integer, Map<String, Object>> _portfolioResult;
+  private AnalyticsListener _listener;
+  private Map<String,Object> _gridStructures;
+
+  public WebView(ViewClient client, String viewDefinitionName, UniqueId snapshotId, ResultConverterCache resultConverterCache) {
     _client = client;
     _viewDefinitionName = viewDefinitionName;
     _snapshotId = snapshotId;
-    _executorService = executorService;
     _resultConverterCache = resultConverterCache;
-    _gridsByName = new HashMap<String, WebViewGrid>();
 
     _client.setResultListener(new AbstractViewResultListener() {
       
@@ -99,15 +82,7 @@ public class WebView implements Viewport {
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
-        _updateLock.lock();
-        try {
-          if (_awaitingNextUpdate) {
-            _awaitingNextUpdate = false;
-            sendImmediateUpdate();
-          }
-        } finally {
-          _updateLock.unlock();
-        }
+        updateResults();
       }
 
     });
@@ -124,296 +99,168 @@ public class WebView implements Viewport {
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
     client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
-  
-  //-------------------------------------------------------------------------
-  // Initialisation
-  
-  private void initGrids(CompiledViewDefinition compiledViewDefinition) {
-    _isInit.set(true);
 
-    RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(),
-                                                                         compiledViewDefinition,
-                                                                         getResultConverterCache());
+  // TODO make sure an update event is published when the view defs compile?
+  private void initGrids(CompiledViewDefinition compiledViewDefinition) {
+    WebViewPortfolioGrid portfolioGrid = new WebViewPortfolioGrid(_client, compiledViewDefinition, _resultConverterCache);
+
+    _gridStructures = new HashMap<String, Object>();
+
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
       _portfolioGrid = portfolioGrid;
-      _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
+      _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
     }
 
-    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(),
-                                                                           compiledViewDefinition,
-                                                                           getResultConverterCache());
+    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(_client, compiledViewDefinition, _resultConverterCache);
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
       _primitivesGrid = primitivesGrid;
-      _gridsByName.put(_primitivesGrid.getName(), _primitivesGrid);
+      _gridStructures.put("primitives", _primitivesGrid.getInitialJsonGridStructure());
     }
-    // TODO store grid structure
   }
-  
-  //-------------------------------------------------------------------------
-  // Update control
 
   /* package */ void pause() {
-    getViewClient().pause();
+    _client.pause();
   }
 
   /* package */ void resume() {
-    getViewClient().resume();
+    _client.resume();
   }
 
   /* package */ void shutdown() {
     // Removes all listeners
-    getViewClient().shutdown();
+    _client.shutdown();
   }
   
   public String getViewDefinitionName() {
     return _viewDefinitionName;
   }
-  
-  private UniqueId getSnapshotId() {
-    return _snapshotId;
-  }
 
   /* package */ boolean matches(String viewDefinitionName, UniqueId snapshotId) {
-    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getSnapshotId(), snapshotId);
+    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(_snapshotId, snapshotId);
   }
 
-  /* package */ WebViewGrid getGridByName(String name) {
-    return _gridsByName.get(name);
+  private WebViewGrid getGridByName(String name) {
+    if (_primitivesGrid != null) {
+      if (_primitivesGrid.getName().equals(name)) {
+        return _primitivesGrid;
+      }
+      WebViewGrid depGraphGrid = _primitivesGrid.getDepGraphGrid(name);
+      if (depGraphGrid != null) {
+        return depGraphGrid;
+      }
+    }
+    if (_portfolioGrid != null) {
+      if (_portfolioGrid.getName().equals(name)) {
+        return _portfolioGrid;
+      } else {
+        return _portfolioGrid.getDepGraphGrid(name);
+      }
+    }
+    return null;
   }
 
   /**
-   * @param message Contains data map with fields:
-   * <pre>
-   *   immediateResponse: boolean<br/>
-   *   portfolioViewport, primitiveViewport: {rowIds: Long[], lastTimestamps: Long[]}
-   * </pre>
-   * TODO rename this
-   * TODO this is what will be called when a new REST viewport is created. always create an immediate result
+   * TODO CONCURRENCY
    */
-  @SuppressWarnings("unchecked")
-  public void configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
-    // TODO call setIncludeDepGraph()
-    Map<String, Object> dataMap = null;//(Map<String, Object>) message.getData();
-    boolean immediateResponse = (Boolean) dataMap.get("immediateResponse");
-    
-    if (getPortfolioGrid() != null) {
-      Map<String, Object> portfolioViewport = (Map<String, Object>) dataMap.get("portfolioViewport");
-      getPortfolioGrid().setViewport(processViewportData(portfolioViewport));
+  public Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+    _listener = listener;
+    if (_portfolioGrid != null) {
+      _portfolioGrid.setViewport(viewportDefinition.getPortfolioRows());
+      _portfolioGrid.updateDepGraphCells(viewportDefinition.getPortfolioDependencyGraphCells());
     }
-    
-    if (getPrimitivesGrid() != null) {
-      Map<String, Object> primitiveViewport = (Map<String, Object>) dataMap.get("primitiveViewport");
-      getPrimitivesGrid().setViewport(processViewportData(primitiveViewport));
+    if (_primitivesGrid != null) {
+      _primitivesGrid.setViewport(viewportDefinition.getPrimitiveRows());
+      _primitivesGrid.updateDepGraphCells(viewportDefinition.getPrimitiveDependencyGraphCells());
     }
-
-    // Can only provide an immediate response if there is a result available
-    immediateResponse &= getViewClient().isResultAvailable();
-    
-    _updateLock.lock();
-    try {
-      if (immediateResponse) {
-        sendImmediateUpdate();
-      } else {
-        _awaitingNextUpdate = true;
-      }
-    } finally {
-      _updateLock.unlock();
-    }
-  }
-
-  /**
-   * @param viewportData {@code {rowIds: Long[], lastTimestamps: Long[]}},
-   * {@code rowIds[i]} corresponds to {@code lastTimestamps[i]}
-   * @return Sorted map of last timestamps keyed by row ID
-   */
-  private SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
-    SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
-    if (viewportData.isEmpty()) {
-      return result;
-    }
-    Object[] ids = (Object[]) viewportData.get("rowIds");
-    Object[] lastTimes = (Object[]) viewportData.get("lastTimestamps");
-    for (int i = 0; i < ids.length; i++) {
-      if (ids[i] instanceof Number) {
-        long jsRowId = (Long) ids[i];
-        int rowId = (int) jsRowId;
-        if (lastTimes[i] != null) {
-          Long lastTime = (Long) lastTimes[i];
-          result.put(rowId, lastTime);
-        } else {
-          result.put(rowId, null);
-        }
-      } else {
-        throw new OpenGammaRuntimeException("Unexpected type of webId: " + ids[i]);
-      }
-    }
-    return result;
+    // TODO _client.setViewCycleAccessSupported()?
+    updateResults();
+    return this;
   }
   
-  // TODO is this still required? jetty's thread pool should take care of this as long as the listener returns quickly
-  private void sendImmediateUpdate() {
-    _updateLock.lock();
-    try {
-      if (!_updateThreadRunning) {
-        _updateThreadRunning = true;
-        runUpdateThread();
-      } else {
-        _continueUpdateThread = true;
-      }
-    } finally {
-      _updateLock.unlock();
+  private void updateResults() {
+    if (!_client.isResultAvailable()) {
+      return;
     }
-  }
-
-  // TODO is this still required? jetty's thread pool should take care of this as long as the listener returns quickly
-  private void runUpdateThread() {
-    getExecutorService().submit(new Runnable() {
-      @Override
-      public void run() {
-        do {
-          ViewComputationResultModel update = getViewClient().getLatestResult();
-
-          try {
-            processResult(update);
-          } catch (Exception e) {
-            s_logger.error("Error processing result from view cycle " + update.getViewCycleId(), e);
-          }
-
-        } while (continueUpdateThread());
-      }
-    });
-  }
-  
-  private boolean continueUpdateThread() {
-    _updateLock.lock();
-    try {
-      if (_continueUpdateThread) {
-        _continueUpdateThread = false;
-        return true;
-      } else {
-        _updateThreadRunning = false;
-        return false;
-      }
-    } finally {
-      _updateLock.unlock();
-    }
-  }
-  
-  private void processResult(ViewComputationResultModel resultModel) {
+    ViewComputationResultModel resultModel = _client.getLatestResult();
     long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
-    
+    _portfolioResult = new HashMap<Integer, Map<String, Object>>();
+    _primitiveResult = new HashMap<Integer, Map<String, Object>>();
+
     for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
       switch (target.getType()) {
         case PRIMITIVE:
-          if (getPrimitivesGrid() != null) {
-            Map<String, Object> primitiveResult =
-                getPrimitivesGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
-            // TODO stash the result
+          if (_primitivesGrid != null) {
+            Map<String, Object> targetResult = _primitivesGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+            if (targetResult != null) {
+              Integer rowId = (Integer) targetResult.get("rowId");
+              _primitiveResult.put(rowId, targetResult);
+            }
           }
           break;
         case PORTFOLIO_NODE:
         case POSITION:
-          if (getPortfolioGrid() != null) {
-            Map<String, Object> portfolioResult =
-                getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
-            // TODO stash the result
+          if (_portfolioGrid != null) {
+            Map<String, Object> targetResult = _portfolioGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+            if (targetResult != null) {
+              Integer rowId = (Integer) targetResult.get("rowId");
+              _portfolioResult.put(rowId, targetResult);
+            }
           }
       }
     }
+    _listener.dataChanged();
   }
-  
-  private Map<String, Object> getInitialJsonGridStructures() {
-    Map<String, Object> gridStructures = new HashMap<String, Object>();
-    if (getPrimitivesGrid() != null) {
-      gridStructures.put("primitives", getPrimitivesGrid().getInitialJsonGridStructure());
-    }
-    if (getPortfolioGrid() != null) {
-      gridStructures.put("portfolio", getPortfolioGrid().getInitialJsonGridStructure());
-    }
-    return gridStructures;
-  }
-  
-  private void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
-    if (!getPortfolioGrid().getName().equals(parentGridName)) {
-      throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + parentGridName);
-    }
-    
+
+  // TODO this logic need to go in configureViewport
+  private void setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
+    // TODO this is ugly, the dep graph count belongs in the portfolio grid
     if (includeDepGraph) {
       if (_activeDepGraphCount.getAndIncrement() == 0) {
-        getViewClient().setViewCycleAccessSupported(true);
+        _client.setViewCycleAccessSupported(true);
       }
     } else {
       if (_activeDepGraphCount.decrementAndGet() == 0) {
-        getViewClient().setViewCycleAccessSupported(false);
+        _client.setViewCycleAccessSupported(false);
       }
     }
-    WebViewGrid grid = getPortfolioGrid().setIncludeDepGraph(cell, includeDepGraph);
+    /*WebViewGrid grid = _portfolioGrid.setIncludeDepGraph(cell, includeDepGraph);
     if (grid != null) {
       if (includeDepGraph) {
-        registerGrid(grid);
+        _gridsByName.put(grid.getName(), grid);
       } else {
-        unregisterGrid(grid.getName());
+        _gridsByName.remove(grid.getName());
       }
-    }
+    }*/
   }
   
   public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
     WebViewGrid grid = getGridByName(gridName);
     if (grid == null) {
-      throw new OpenGammaRuntimeException("Unknown grid '" + gridName + "'");
+      throw new DataNotFoundException("Unknown grid '" + gridName + "'");
     }
-    ViewComputationResultModel latestResult = getViewClient().getLatestResult();
+    ViewComputationResultModel latestResult = _client.getLatestResult();
     if (latestResult == null) {
       return null;
     }
     String csv = grid.dumpContentsToCsv(latestResult);
     return Pair.of(latestResult.getValuationTime(), csv);
   }
-  
-  //-------------------------------------------------------------------------
-  
-  private void registerGrid(WebViewGrid grid) {
-    _gridsByName.put(grid.getName(), grid);
-  }
-  
-  private void unregisterGrid(String gridName) {
-    _gridsByName.remove(gridName);
-  }
-  
-  //-------------------------------------------------------------------------
-  
-  private ExecutorService getExecutorService() {
-    return _executorService;
-  }
-  
-  private RequirementBasedWebViewGrid getPortfolioGrid() {
-    return _portfolioGrid;
-  }
-  
-  private RequirementBasedWebViewGrid getPrimitivesGrid() {
-    return _primitivesGrid;
-  }
-  
-  private ViewClient getViewClient() {
-    return _client;
-  }
-  
-  private ResultConverterCache getResultConverterCache() {
-    return _resultConverterCache;
-  }
 
   @Override
   public Map<String, Object> getGridStructure() {
-    throw new UnsupportedOperationException("getGridStructure not implemented");
+    return _gridStructures;
   }
 
   @Override
-  public Map<String, Object> getLatestData() {
-    throw new UnsupportedOperationException("getLatestData not implemented");
+  public Map<String, Object> getLatestResults() {
+    Map<String, Object> results = new HashMap<String, Object>();
+    results.put("portfolio", _portfolioResult);
+    results.put("primitive", _primitiveResult);
+    return results;
   }
 
   @Override
