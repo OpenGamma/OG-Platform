@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.matrix;
 
+import static org.testng.AssertJUnit.assertNotNull;
+
 import org.apache.commons.lang.NotImplementedException;
 
 /**
@@ -357,7 +359,7 @@ public class MatrixPrimitiveUtils {
     if (MatrixPrimitiveUtils.isNDiag(aMatrix, n)) {
       return aMatrix;
     } else {
-      throw new IllegalArgumentException("TriDiag matrix called on data that isn't Tri-Diagonal!");
+      throw new IllegalArgumentException("N-Diag matrix called on data that isn't N-Diagonal!");
     }
   }
 
@@ -368,33 +370,40 @@ public class MatrixPrimitiveUtils {
    * @return boolean, true if matrix is N-Diagonal, false if matrix is not.
    * @throws IllegalArgumentException
    */
-  public static boolean isNDiag(double[][] aMatrix, int n) throws IllegalArgumentException {
-    if (!isSquare(aMatrix)) {
-      throw new IllegalArgumentException("Matrix is not square so the notion of Tri-Diagonal isn't clear cut enough to be implemented");
+  public static boolean isNDiag(double[][] aMatrix, int n) throws IllegalArgumentException, NotImplementedException {
+    assertNotNull(aMatrix);
+    if (isEven(n) || n < 1) {
+      throw new IllegalArgumentException("Matrix bandwidth must be odd (as in an odd number of bands) AND positive");
     }
+    if (!isSquare(aMatrix)) {
+      throw new IllegalArgumentException("Matrix is not square so the notion of N-Diagonal isn't clear cut enough to be implemented");
+    }
+    if (n > aMatrix.length || n == 0) {
+      throw new IllegalArgumentException("Impossible bandwidth suggested: bandwidth = " + n);
+    }
+
     final int rows = aMatrix.length;
 
-    int nonStandardRows = (n - 1) / 2;
-    int startAt = (n + 1) / 2;
+    int nonStandardRows = (n + 1) / 2;
     // test first rows that are not N wide
-    for (int j = 0; j < nonStandardRows; j++) {
-      for (int i = startAt + 1; i < rows; i++) {
-        if (Double.doubleToLongBits(aMatrix[j][i]) != 0) {
+    for (int i = 0; i < nonStandardRows - 1; i++) {
+      for (int j = nonStandardRows + i; j < rows; j++) {
+        if (Double.doubleToLongBits(aMatrix[i][j]) != 0) {
           return false;
         }
       }
     }
 
     // tests members of each row that should be empty to ensure they are!
-    for (int i = nonStandardRows; i < rows - nonStandardRows; i++) {
+    for (int i = nonStandardRows - 1; i < rows - nonStandardRows + 1; i++) {
       // first check the elements on the LHS of the Ndiag entries
-      for (int k = 0; k < i - 1; k++) {
+      for (int k = 0; k < i - (nonStandardRows - 1); k++) {
         if (Double.doubleToLongBits(aMatrix[i][k]) != 0) {
           return false;
         }
       }
       // second check the elements on the RHS of the Ndiag entries
-      for (int k = i - 1 + n; k < rows; k++) {
+      for (int k = i + nonStandardRows; k < rows; k++) {
         if (Double.doubleToLongBits(aMatrix[i][k]) != 0) {
           return false;
         }
@@ -402,9 +411,9 @@ public class MatrixPrimitiveUtils {
     }
 
     // test last rows that are not N wide
-    for (int j = rows - nonStandardRows; j < rows; j++) { // row ptr
-      for (int i = 0; i < rows - nonStandardRows; i++) { // col idx
-        if (Double.doubleToLongBits(aMatrix[rows - 1][i]) != 0) {
+    for (int i = rows - nonStandardRows; i < rows; i++) { // row ptr
+      for (int j = 0; j < i - nonStandardRows + 1; j++) { // col idx
+        if (Double.doubleToLongBits(aMatrix[i][j]) != 0) {
           return false;
         }
       }

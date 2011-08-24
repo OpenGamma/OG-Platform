@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 
 /**
- *
+ * Tests for MatrixPrimitiveUtils methods
  */
 public class MatrixPrimitiveUtilsTest {
 double _array[][]={{1,2,3,4,5},{6,7,8,9,10},{11,12,13,14,15}};
@@ -147,6 +147,61 @@ public void testCheckIsTriDiag() {
 public void testCheckIsTriDiagExceptions() {
   double[][] notTrid = {{1,2,1,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
   MatrixPrimitiveUtils.checkIsTriDiag(notTrid);
+}
+
+@Test
+public void testIsNDiag()  {
+  double[][] diag =  {{1,0,0,0},{0,2,0,0},{0,0,3,0},{0,0,0,4}};
+  double[][] ndiag = {{1,1,0,0},{0,2,0,0},{0,0,3,0},{0,0,0,4}};
+  double[][] trid =  {{1,2,0,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  double[][] ntrid = {{1,2,0,0,0,0,0},{3,4,5,1,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  double[][] pentd =  {{1,2,3,0,0,0,0,0,0},{4,5,6,7,0,0,0,0,0},{8,9,10,11,12,0,0,0,0},{0,13,14,15,16,17,0,0,0},{0,0,18,19,20,21,22,0,0},
+      {0,0,0,23,24,25,26,27,0},{0,0,0,0,28,29,30,31,32},{0,0,0,0,0,33,34,35,36},{0,0,0,0,0,0,37,38,39}};
+  double[][] npentd = {{1,2,3,0,0,0,0,0,0},{4,5,6,7,0,0,0,0,0},{8,9,10,11,12,0,0,0,0},{0,13,14,15,16,17,0,0,0},{0,0,18,19,20,21,22,0,0},
+      {0,0,0,23,24,25,26,27,0},{0,0,0,0,28,29,30,31,32},{0,0,0,0,0,33,34,35,36},{0,0,0,0,0,1,37,38,39}};
+
+  assertTrue(MatrixPrimitiveUtils.isNDiag(diag,1));
+  assertTrue(MatrixPrimitiveUtils.isNDiag(trid,3));
+  assertTrue(MatrixPrimitiveUtils.isNDiag(pentd,5));
+  assertFalse(MatrixPrimitiveUtils.isNDiag(ndiag,1));
+  assertFalse(MatrixPrimitiveUtils.isNDiag(ntrid,3));
+  assertFalse(MatrixPrimitiveUtils.isNDiag(npentd,5));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testIsNDiagPositiveEvenBandwidth()  {
+  double[][] diag =  {{1,0,0,0},{0,2,0,0},{0,0,3,0},{0,0,0,4}};
+  MatrixPrimitiveUtils.isNDiag(diag,6); // test positive even bandwidth
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testIsNDiagNegativeOddBandwidth()  {
+  double[][] diag =  {{1,0,0,0},{0,2,0,0},{0,0,3,0},{0,0,0,2}};
+  MatrixPrimitiveUtils.isNDiag(diag,-1); // test negative odd bandwidth
+}
+
+@Test(expectedExceptions =  AssertionError.class)
+public void testIsNDiagNotNull()  {
+  MatrixPrimitiveUtils.isNDiag(null,1);
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testIsNDiagImpossibleBandwidth()  {
+  double[][] diag =  {{1,0,0,0},{0,2,0,0},{0,0,3,0},{0,0,0,2}};
+  MatrixPrimitiveUtils.isNDiag(diag,0);
+  MatrixPrimitiveUtils.isNDiag(diag,27);
+}
+
+@Test
+public void testCheckIsNDiag() {
+  double[][] trid = {{1,2,0,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  assertTrue(Arrays.deepEquals(trid, MatrixPrimitiveUtils.checkIsNDiag(trid,3)));
+}
+
+@Test(expectedExceptions =  IllegalArgumentException.class)
+public void testCheckIsNDiagExceptions() {
+  double[][] notTrid = {{1,2,1,0,0,0,0},{3,4,5,0,0,0,0},{0,6,7,8,0,0,0},{0,0,9,10,11,0,0},{0,0,0,12,13,14,0},{0,0,0,0,15,16,17},{0,0,0,0,0,18,19}};
+  MatrixPrimitiveUtils.checkIsNDiag(notTrid,3);
 }
 
 @Test
