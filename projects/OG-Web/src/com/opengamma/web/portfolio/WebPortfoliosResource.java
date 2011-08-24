@@ -34,7 +34,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -58,35 +58,39 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("depth") String depthStr,
       @QueryParam("portfolioId") List<String> portfolioIdStrs,
       @QueryParam("nodeId") List<String> nodeIdStrs) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, depthStr, portfolioIdStrs, nodeIdStrs);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, depthStr, portfolioIdStrs, nodeIdStrs);
     return getFreemarker().build("portfolios/portfolios.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("depth") String depthStr,
       @QueryParam("portfolioId") List<String> portfolioIdStrs,
       @QueryParam("nodeId") List<String> nodeIdStrs) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, depthStr, portfolioIdStrs, nodeIdStrs);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, depthStr, portfolioIdStrs, nodeIdStrs);
     return getFreemarker().build("portfolios/jsonportfolios.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, String depthStr,
+  private FlexiBean createSearchResultData(PagingRequest pr, String name, String depthStr,
       List<String> portfolioIdStrs, List<String> nodeIdStrs) {
     FlexiBean out = createRootData();
     
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setDepth(NumberUtils.toInt(depthStr, -1));
     for (String portfolioIdStr : portfolioIdStrs) {

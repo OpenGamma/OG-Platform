@@ -35,8 +35,8 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.util.db.Paging;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.Paging;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.json.JSONBuilder;
@@ -63,31 +63,35 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, configIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = search(pr, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/configs.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, configIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = search(pr, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
-  private FlexiBean search(int page, int pageSize, String name, String type, List<String> configIdStrs, UriInfo uriInfo) {
+  private FlexiBean search(PagingRequest request, String name, String type, List<String> configIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -99,7 +103,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     } else {
       searchRequest.setType(Object.class);
     }
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(request);
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
     out.put("type", type);

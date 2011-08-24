@@ -26,7 +26,7 @@ import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -49,16 +49,32 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("observationDate") String observationDate,
       @QueryParam("observationTime") String observationTime,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, observationDate, observationTime, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, observationDate, observationTime, uriInfo);
     return getFreemarker().build("batches/batches.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String observationDate, String observationTime, UriInfo uriInfo) {
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
+      @QueryParam("observationDate") String observationDate,
+      @QueryParam("observationTime") String observationTime,
+      @Context UriInfo uriInfo) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, observationDate, observationTime, uriInfo);
+    return getFreemarker().build("batches/jsonbatches.ftl", out);
+  }
+
+  private FlexiBean createSearchResultData(PagingRequest pr, String observationDate, String observationTime, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     BatchSearchRequest searchRequest = new BatchSearchRequest();
@@ -71,7 +87,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
     observationTime = StringUtils.trimToNull(observationTime);
     searchRequest.setObservationTime(observationTime);
     
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
@@ -80,18 +96,6 @@ public class WebBatchesResource extends AbstractWebBatchResource {
       out.put("searchResult", searchResult);
     }
     return out;
-  }
-
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
-      @QueryParam("observationDate") String observationDate,
-      @QueryParam("observationTime") String observationTime,
-      @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, observationDate, observationTime, uriInfo);
-    return getFreemarker().build("batches/jsonbatches.ftl", out);
   }
 
   //-------------------------------------------------------------------------

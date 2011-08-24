@@ -40,7 +40,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -63,32 +63,36 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("exchangeId") List<String> exchangeIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, exchangeIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, exchangeIdStrs, uriInfo);
     return getFreemarker().build("exchanges/exchanges.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("exchangeId") List<String> exchangeIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, exchangeIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, exchangeIdStrs, uriInfo);
     return getFreemarker().build("exchanges/jsonexchanges.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, List<String> exchangeIdStrs, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(PagingRequest pr, String name, List<String> exchangeIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setName(StringUtils.trimToNull(name));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {

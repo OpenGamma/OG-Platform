@@ -55,8 +55,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 

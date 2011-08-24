@@ -37,7 +37,7 @@ import com.opengamma.master.holiday.HolidayMetaDataRequest;
 import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.money.Currency;
 import com.opengamma.web.WebPaging;
 
@@ -61,37 +61,41 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
       @QueryParam("holidayId") List<String> holidayIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, holidayIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, type, currencyISO, holidayIdStrs, uriInfo);
     return getFreemarker().build("holidays/holidays.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
       @QueryParam("holidayId") List<String> holidayIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, holidayIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, type, currencyISO, holidayIdStrs, uriInfo);
     return getFreemarker().build("holidays/jsonholidays.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO,
+  private FlexiBean createSearchResultData(PagingRequest pr, String name, String type, String currencyISO,
       List<String> holidayIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setName(StringUtils.trimToNull(name));
     if (StringUtils.isNotEmpty(type)) {
       searchRequest.setType(HolidayType.valueOf(type));

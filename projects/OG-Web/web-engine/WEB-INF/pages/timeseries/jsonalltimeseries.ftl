@@ -3,8 +3,9 @@
     "header": {
         "type": "Time Series",
         <#if searchResult??>
-        "total" : ${"${paging.totalItems}"?replace(',','')},
-        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
+        "pgIdx": ${"${paging.firstItem}"?replace(',','')},
+        "pgSze": ${"${paging.pagingSize}"?replace(',','')},
+        "pgTtl": ${"${paging.totalItems}"?replace(',','')},
         </#if>
         "dataFields": ["id","identifier","data_source","data_provider","data_field","observation_time"]
     },

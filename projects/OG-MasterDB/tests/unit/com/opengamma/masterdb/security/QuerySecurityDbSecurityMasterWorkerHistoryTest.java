@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -67,8 +67,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
     SecurityHistoryResult test = _secMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -80,12 +79,12 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   @Test
   public void test_history_noInstants_pageOne() {
     ObjectId oid = ObjectId.of("DbSec", "201");
+    PagingRequest pr = PagingRequest.ofPage(1, 1);
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(pr);
     SecurityHistoryResult test = _secMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
@@ -95,14 +94,14 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   @Test
   public void test_history_noInstants_pageTwo() {
     ObjectId oid = ObjectId.of("DbSec", "201");
+    PagingRequest pr = PagingRequest.ofPage(2, 1);
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(pr);
     SecurityHistoryResult test = _secMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
-    assertEquals(2, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertNotNull(test.getDocuments());
