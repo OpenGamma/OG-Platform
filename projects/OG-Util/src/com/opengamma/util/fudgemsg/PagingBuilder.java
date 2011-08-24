@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Fudge builder for {@code Paging}.
@@ -21,36 +22,36 @@ import com.opengamma.util.db.Paging;
 public final class PagingBuilder implements FudgeBuilder<Paging> {
 
   /** Field name. */
-  public static final String PAGE_FIELD_NAME = "page";
+  public static final String FIRST_FIELD_NAME = "first";
   /** Field name. */
-  public static final String PAGING_SIZE_FIELD_NAME = "pagingSize";
+  public static final String SIZE_FIELD_NAME = "size";
   /** Field name. */
-  public static final String TOTAL_FIELD_NAME = "totalItems";
+  public static final String TOTAL_FIELD_NAME = "total";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Paging object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(PAGE_FIELD_NAME, object.getPage());
-    msg.add(PAGING_SIZE_FIELD_NAME, object.getPagingSize());
+    msg.add(FIRST_FIELD_NAME, object.getRequest().getFirstItem());
+    msg.add(SIZE_FIELD_NAME, object.getRequest().getPagingSize());
     msg.add(TOTAL_FIELD_NAME, object.getTotalItems());
     return msg;
   }
 
   @Override
   public Paging buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final Integer page = msg.getInt(PAGE_FIELD_NAME);
-    if (page == null) {
-      throw new IllegalArgumentException("Fudge message is not a Paging - field 'page' is not present");
+    final Integer first = msg.getInt(FIRST_FIELD_NAME);
+    if (first == null) {
+      throw new IllegalArgumentException("Fudge message is not a Paging - field 'first' is not present");
     }
-    final Integer pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
-    if (pagingSize == null) {
-      throw new IllegalArgumentException("Fudge message is not a Paging - field 'pagingSize' is not present");
+    final Integer size = msg.getInt(SIZE_FIELD_NAME);
+    if (size == null) {
+      throw new IllegalArgumentException("Fudge message is not a Paging - field 'size' is not present");
     }
-    final Integer totalItems = msg.getInt(TOTAL_FIELD_NAME);
-    if (totalItems == null) {
-      throw new IllegalArgumentException("Fudge message is not a Paging - field 'totalItems' is not present");
+    final Integer total = msg.getInt(TOTAL_FIELD_NAME);
+    if (total == null) {
+      throw new IllegalArgumentException("Fudge message is not a Paging - field 'total' is not present");
     }
-    return Paging.of(page, pagingSize, totalItems);
+    return Paging.of(PagingRequest.ofIndex(first, size), total);
   }
 
 }

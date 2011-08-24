@@ -21,23 +21,23 @@ import com.opengamma.util.db.PagingRequest;
 public final class PagingRequestBuilder implements FudgeBuilder<PagingRequest> {
 
   /** Field name. */
-  public static final String PAGE_FIELD_NAME = "page";
+  public static final String FIRST_FIELD_NAME = "first";
   /** Field name. */
-  public static final String PAGING_SIZE_FIELD_NAME = "pagingSize";
+  public static final String SIZE_FIELD_NAME = "size";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, PagingRequest object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(PAGE_FIELD_NAME, object.getPage());
-    msg.add(PAGING_SIZE_FIELD_NAME, object.getPagingSize());
+    msg.add(FIRST_FIELD_NAME, object.getFirstItem());
+    msg.add(SIZE_FIELD_NAME, object.getPagingSize());
     return msg;
   }
 
   @Override
   public PagingRequest buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final Integer page = msg.getInt(PAGE_FIELD_NAME);
-    final Integer pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
-    return PagingRequest.ofPage(page != null ? page : 1, pagingSize != null ? pagingSize : PagingRequest.DEFAULT_PAGING_SIZE);
+    final Integer first = msg.getInt(FIRST_FIELD_NAME);
+    final Integer size = msg.getInt(SIZE_FIELD_NAME);
+    return PagingRequest.ofIndex(first != null ? first : 1, size != null ? size : PagingRequest.DEFAULT_PAGING_SIZE);
   }
 
 }

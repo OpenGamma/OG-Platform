@@ -47,7 +47,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     ExchangeSearchResult test = _exgMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalExchanges, test.getPaging().getTotalItems());
     
@@ -64,7 +64,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
     request.setPagingRequest(PagingRequest.ofPage(1, 2));
     ExchangeSearchResult test = _exgMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalExchanges, test.getPaging().getTotalItems());
     
@@ -79,7 +79,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
     request.setPagingRequest(PagingRequest.ofPage(2, 2));
     ExchangeSearchResult test = _exgMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalExchanges, test.getPaging().getTotalItems());
     

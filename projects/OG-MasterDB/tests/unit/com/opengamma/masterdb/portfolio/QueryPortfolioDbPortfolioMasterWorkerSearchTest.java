@@ -44,7 +44,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setDepth(-1);
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     
@@ -60,7 +60,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setDepth(0);
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     assertEquals(_totalPortfolios, test.getDocuments().size());
@@ -75,7 +75,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setDepth(1);
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     assertEquals(_totalPortfolios, test.getDocuments().size());
@@ -91,7 +91,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setPagingRequest(PagingRequest.ofPage(1, 2));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     
@@ -106,7 +106,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     request.setPagingRequest(PagingRequest.ofPage(2, 2));
     PortfolioSearchResult test = _prtMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPortfolios, test.getPaging().getTotalItems());
     

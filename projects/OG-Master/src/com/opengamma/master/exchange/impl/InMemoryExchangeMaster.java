@@ -174,7 +174,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     if (doc != null) {
       result.getDocuments().add(doc);
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
 

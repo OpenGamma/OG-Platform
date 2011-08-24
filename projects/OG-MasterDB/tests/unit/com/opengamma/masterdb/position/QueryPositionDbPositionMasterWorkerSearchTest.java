@@ -55,7 +55,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     PositionSearchRequest request = new PositionSearchRequest();
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
@@ -70,7 +70,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     request.setPagingRequest(PagingRequest.ofPage(1, 2));
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
@@ -85,7 +85,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     request.setPagingRequest(PagingRequest.ofPage(2, 2));
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
@@ -100,7 +100,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     request.setPagingRequest(PagingRequest.ofPage(3, 2));
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(5, test.getPaging().getFirstItem());
+    assertEquals(5, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     

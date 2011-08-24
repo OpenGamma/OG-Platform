@@ -47,7 +47,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
     HolidaySearchRequest request = new HolidaySearchRequest();
     HolidaySearchResult test = _holMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalHolidays, test.getPaging().getTotalItems());
     
@@ -64,7 +64,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
     request.setPagingRequest(PagingRequest.ofPage(1, 2));
     HolidaySearchResult test = _holMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalHolidays, test.getPaging().getTotalItems());
     
@@ -79,7 +79,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
     request.setPagingRequest(PagingRequest.ofPage(2, 2));
     HolidaySearchResult test = _holMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalHolidays, test.getPaging().getTotalItems());
     

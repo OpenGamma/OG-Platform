@@ -896,7 +896,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, Batc
       if (request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         runs = getHibernateTemplate().findByCriteria(
             criteria,
-            request.getPagingRequest().getFirstItemIndex(),
+            request.getPagingRequest().getFirstItem(),
             request.getPagingRequest().getPagingSize());
       }
       

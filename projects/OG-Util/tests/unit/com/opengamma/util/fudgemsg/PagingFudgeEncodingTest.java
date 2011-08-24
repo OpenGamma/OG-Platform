@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.db.PagingRequest;
 
 /**
  * Test Paging Fudge.
@@ -26,7 +27,7 @@ public class PagingFudgeEncodingTest {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void test() {
-    Paging paging = Paging.of(1, 20, 210);
+    Paging paging = Paging.of(PagingRequest.ofIndex(0, 20), 210);
     testFudgeMessage(paging);
   }
 

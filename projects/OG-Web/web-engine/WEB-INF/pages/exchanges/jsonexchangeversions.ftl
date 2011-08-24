@@ -4,7 +4,7 @@
         "type": "ExchangeHistory",
         <#if versionsResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
-        "page": ${"${paging.page}"?replace(',','')},
+        "page": ${"${paging.pageNumber}"?replace(',','')},
         "pageSize": ${"${paging.pagingSize}"?replace(',','')},
         </#if>
         "object_id": "${exchange.uniqueId.objectId}",

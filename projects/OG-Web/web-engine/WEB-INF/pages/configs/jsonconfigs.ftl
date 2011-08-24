@@ -4,7 +4,7 @@
         "type":"Configs",
         <#if searchResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
-        "page": ${"${paging.page}"?replace(',','')},
+        "page": ${"${paging.pageNumber}"?replace(',','')},
         "pageSize": ${"${paging.pagingSize}"?replace(',','')},
         </#if>
         "dataFields":["id","name"<#if type = ''>,"type"</#if>]
