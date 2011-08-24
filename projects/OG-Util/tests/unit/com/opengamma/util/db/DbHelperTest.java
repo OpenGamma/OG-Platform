@@ -89,13 +89,13 @@ public class DbHelperTest {
   public void test_sqlApplyPaging_limit() {
     assertEquals(
         "SELECT foo FROM bar WHERE TRUE ORDER BY foo FETCH FIRST 20 ROWS ONLY ",
-        _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", PagingRequest.of(1, 20)));
+        _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", PagingRequest.ofPage(1, 20)));
   }
 
   public void test_sqlApplyPaging_offsetLimit() {
     assertEquals(
         "SELECT foo FROM bar WHERE TRUE ORDER BY foo OFFSET 40 ROWS FETCH NEXT 20 ROWS ONLY ",
-        _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", PagingRequest.of(3, 20)));
+        _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", PagingRequest.ofPage(3, 20)));
   }
 
   //-------------------------------------------------------------------------

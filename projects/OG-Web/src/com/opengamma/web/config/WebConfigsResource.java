@@ -99,7 +99,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     } else {
       searchRequest.setType(Object.class);
     }
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
     out.put("type", type);

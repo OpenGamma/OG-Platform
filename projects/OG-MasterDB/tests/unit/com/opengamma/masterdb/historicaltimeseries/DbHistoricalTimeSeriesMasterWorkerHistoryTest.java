@@ -71,7 +71,7 @@ public class DbHistoricalTimeSeriesMasterWorkerHistoryTest extends AbstractDbHis
   public void test_history_noInstants_pageOne() {
     ObjectId oid = ObjectId.of("DbHts", "201");
     HistoricalTimeSeriesInfoHistoryRequest request = new HistoricalTimeSeriesInfoHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     HistoricalTimeSeriesInfoHistoryResult test = _htsMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -87,7 +87,7 @@ public class DbHistoricalTimeSeriesMasterWorkerHistoryTest extends AbstractDbHis
   public void test_history_noInstants_pageTwo() {
     ObjectId oid = ObjectId.of("DbHts", "201");
     HistoricalTimeSeriesInfoHistoryRequest request = new HistoricalTimeSeriesInfoHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     HistoricalTimeSeriesInfoHistoryResult test = _htsMaster.history(request);
     
     assertNotNull(test);

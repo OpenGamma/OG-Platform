@@ -240,7 +240,7 @@ public final class Paging {
    * @return the request for the same page, not null
    */
   public PagingRequest toPagingRequest() {
-    return new PagingRequest(_page, _pagingSize);
+    return PagingRequest.ofPage(_page, _pagingSize);
   }
 
   /**
@@ -255,7 +255,7 @@ public final class Paging {
     if (isLastPage()) {
       throw new NoSuchElementException("Unable to return next page as this is the last page");
     }
-    return new PagingRequest(_page + 1, _pagingSize);
+    return PagingRequest.ofPage(_page + 1, _pagingSize);
   }
 
   /**
@@ -270,7 +270,7 @@ public final class Paging {
     if (isFirstPage()) {
       throw new NoSuchElementException("Unable to return previous page as this is the first page");
     }
-    return new PagingRequest(_page - 1, _pagingSize);
+    return PagingRequest.ofPage(_page - 1, _pagingSize);
   }
 
   /**

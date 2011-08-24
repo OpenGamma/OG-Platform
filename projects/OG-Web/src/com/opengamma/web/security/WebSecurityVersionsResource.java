@@ -57,7 +57,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize) {
     SecurityHistoryRequest request = new SecurityHistoryRequest(data().getSecurity().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     SecurityHistoryResult result = data().getSecurityMaster().history(request);
     
     FlexiBean out = createRootData();

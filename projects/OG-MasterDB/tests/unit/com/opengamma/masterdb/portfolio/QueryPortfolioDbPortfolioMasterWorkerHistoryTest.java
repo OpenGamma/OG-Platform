@@ -87,7 +87,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   public void test_history_noInstants_pageOne() {
     UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(PagingRequest.ofPage(1, 1));
     PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -102,7 +102,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   public void test_history_noInstants_pageTwo() {
     UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(PagingRequest.ofPage(2, 1));
     PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertNotNull(test);

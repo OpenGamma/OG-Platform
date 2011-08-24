@@ -86,7 +86,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     FlexiBean out = createRootData();
     
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setDepth(NumberUtils.toInt(depthStr, -1));
     for (String portfolioIdStr : portfolioIdStrs) {

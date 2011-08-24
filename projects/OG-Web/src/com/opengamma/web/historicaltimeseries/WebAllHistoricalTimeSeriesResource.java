@@ -107,7 +107,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     FlexiBean out = createRootData();
     
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
     searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setDataSource(StringUtils.trimToNull(dataSource));
     searchRequest.setDataProvider(StringUtils.trimToNull(dataProvider));
