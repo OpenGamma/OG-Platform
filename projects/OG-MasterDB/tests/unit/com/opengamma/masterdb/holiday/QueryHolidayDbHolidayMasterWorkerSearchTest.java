@@ -22,7 +22,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
@@ -47,7 +47,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
     HolidaySearchRequest request = new HolidaySearchRequest();
     HolidaySearchResult test = _holMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalHolidays, test.getPaging().getTotalItems());
     
@@ -61,10 +61,10 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_pageOne() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     HolidaySearchResult test = _holMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalHolidays, test.getPaging().getTotalItems());
     
@@ -76,10 +76,10 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_pageTwo() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     HolidaySearchResult test = _holMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalHolidays, test.getPaging().getTotalItems());
     

@@ -30,7 +30,7 @@ import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchGetRequest;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -51,11 +51,13 @@ public class WebBatchResource extends AbstractWebBatchResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @Context UriInfo uriInfo) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-    request.setDataPagingRequest(PagingRequest.of(page, pageSize));
+    request.setDataPagingRequest(pr);
     request.setErrorPagingRequest(PagingRequest.ALL);
     BatchDocument batchDoc = data().getBatchMaster().get(request);
     data().setBatch(batchDoc);
@@ -67,11 +69,13 @@ public class WebBatchResource extends AbstractWebBatchResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @Context UriInfo uriInfo) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-    request.setDataPagingRequest(PagingRequest.of(page, pageSize));
+    request.setDataPagingRequest(pr);
     request.setErrorPagingRequest(PagingRequest.ALL);
     BatchDocument batchDoc = data().getBatchMaster().get(request);
     data().setBatch(batchDoc);
@@ -111,7 +115,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
         });
         
         BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-        request.setDataPagingRequest(PagingRequest.of(1, 1000));
+        request.setDataPagingRequest(PagingRequest.ofPage(1, 1000));
         request.setErrorPagingRequest(PagingRequest.NONE);
         while (true) {
           BatchDocument batchDoc = data().getBatchMaster().get(request);
@@ -159,7 +163,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
         
         BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
         request.setDataPagingRequest(PagingRequest.NONE);
-        request.setErrorPagingRequest(PagingRequest.of(1, 1000));
+        request.setErrorPagingRequest(PagingRequest.ofPage(1, 1000));
         while (true) {
           BatchDocument batchDoc = data().getBatchMaster().get(request);
           for (BatchError entry : batchDoc.getErrors()) {

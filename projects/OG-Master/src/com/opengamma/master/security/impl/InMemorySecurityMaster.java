@@ -34,7 +34,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.Paging;
+import com.opengamma.util.Paging;
 
 /**
  * A simple, in-memory implementation of {@code SecurityMaster}.
@@ -220,7 +220,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if (doc != null) {
       result.getDocuments().add(doc);
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
 

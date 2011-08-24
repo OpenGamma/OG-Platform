@@ -40,10 +40,10 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 
 /**
  * A security master implementation using a database for persistence.
