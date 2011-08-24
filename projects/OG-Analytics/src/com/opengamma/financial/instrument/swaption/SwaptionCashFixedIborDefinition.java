@@ -10,8 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -19,6 +17,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Class describing a European swaption on a vanilla swap with cash delivery.
@@ -80,9 +79,8 @@ public final class SwaptionCashFixedIborDefinition implements FixedIncomeInstrum
   public SwaptionCashFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double expiryTime = actAct.getDayCountFraction(date, _expiry.getExpiry());
-    final double settlementTime = actAct.getDayCountFraction(date, _settlementDate);
+    final double expiryTime = TimeCalculator.getTimeBetween(date, _expiry.getExpiry());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _settlementDate);
     final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }

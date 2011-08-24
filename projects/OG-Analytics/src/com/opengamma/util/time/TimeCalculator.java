@@ -20,11 +20,14 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 public abstract class TimeCalculator {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
+  //DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  //DayCountFactory.INSTANCE.getDayCount("Actual/365");
+
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
     Validate.notNull(date1, "date1");
     Validate.notNull(date1, "date2");
 
-    // TODO Confirm the following behaviour, allowing negative values of  time, is desired
+    // TODO Confirm the following behaviour, allowing negative values of time, is desired
     final boolean timeIsNegative = date1.isAfter(date2); // date1 >= date2
 
     // TODO Decide on preferred functional form of t := date2 - date1
