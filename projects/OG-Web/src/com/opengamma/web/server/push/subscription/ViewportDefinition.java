@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
@@ -88,9 +89,12 @@ public class ViewportDefinition {
   }
 
   private static List<WebGridCell> getDepGraphCells(JSONObject jsonObject, String key, Set<Integer> rows) throws JSONException {
-    JSONObject viewportJson = jsonObject.getJSONObject(key);
-    JSONArray depGraphCellsArray = viewportJson.getJSONArray(DEPENDENCY_GRAPH_CELLS);
+    JSONObject viewportJson = jsonObject.optJSONObject(key);
     List<WebGridCell> cells = new ArrayList<WebGridCell>();
+    if (viewportJson == null) {
+      return cells;
+    }
+    JSONArray depGraphCellsArray = viewportJson.getJSONArray(DEPENDENCY_GRAPH_CELLS);
 
     if (depGraphCellsArray != null) {
       for (int i = 0; i < depGraphCellsArray.length(); i++) {
@@ -113,8 +117,11 @@ public class ViewportDefinition {
   }
 
   private static SortedMap<Integer, Long> getRows(JSONObject jsonObject, String viewportKey) throws JSONException {
-    JSONObject viewportJson = jsonObject.getJSONObject(viewportKey);
+    JSONObject viewportJson = jsonObject.optJSONObject(viewportKey);
     SortedMap<Integer, Long> rows = new TreeMap<Integer, Long>();
+    if (viewportJson == null) {
+      return rows;
+    }
     JSONArray rowsArray = viewportJson.getJSONArray(ROWS);
     // TODO is this valid? what if a view is all primitives or all analytics?
     if (rowsArray.length() < 1) {

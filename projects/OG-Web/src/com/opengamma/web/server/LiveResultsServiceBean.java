@@ -95,7 +95,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   }
   
   public LiveResultsService createLiveResultsService() {
-    return new LiveResultsService(getViewProcessor(), getUser(), getExecutorService(), getFudgeContext());
+    return new LiveResultsService(getViewProcessor(), getUser(), getFudgeContext());
   }
  
 }

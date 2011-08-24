@@ -85,7 +85,7 @@ import java.util.Set;
   }
 
   private String formatUpdate(String url) throws JSONException {
-    return new JSONObject().put(UPDATES, url).toString();
+    return new JSONObject().put(UPDATES, new Object[]{url}).toString();
   }
 
   private String formatUpdate(Collection<String> urls) throws JSONException {

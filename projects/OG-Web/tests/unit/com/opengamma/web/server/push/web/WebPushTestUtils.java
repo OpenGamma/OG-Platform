@@ -10,6 +10,9 @@ import com.opengamma.util.tuple.Pair;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -20,8 +23,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 public class WebPushTestUtils {
 
@@ -92,5 +100,21 @@ public class WebPushTestUtils {
     WebApplicationContext springContext = (WebApplicationContext) context.getServletContext().getAttribute(
             WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     return new ObjectsPair<Server, WebApplicationContext>(server, springContext);
+  }
+
+  /**
+   * Asserts that {@code json} represents a JSON object with a field called {@code updates} whose value is an array
+   * of the expected values.
+   * @param json {@code {updates: [url1, url2, ...]}}
+   * @param urls URLs that must be present in the JSON
+   */
+  static void checkJsonResults(String json, String... urls) throws JSONException {
+    List<String> expectedList = Arrays.asList(urls);
+    JSONArray results = new JSONObject(json).getJSONArray(LongPollingUpdateListener.UPDATES);
+    assertEquals("Wrong number of results.  expected: " + expectedList + ", actual: " + results, expectedList.size(), results.length());
+    for (int i = 0; i < results.length(); i++) {
+      String result = results.getString(i);
+      assertTrue("Unexpected result: " + result, expectedList.contains(result));
+    }
   }
 }

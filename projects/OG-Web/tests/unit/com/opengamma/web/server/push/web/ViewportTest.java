@@ -58,8 +58,11 @@ public class ViewportTest {
     String viewportDefJson = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
         "\"snapshotId\": \"Tst~123\", " +
+        "\"portfolioViewport\": {" +
         "\"rows\": [[0, 12345678], [1, 12345679], [2, 12345680]], " +
-        "\"dependencyGraphCells\": [[1, 2]]}";
+        "\"dependencyGraphCells\": [[1, 2]]" +
+        "}" +
+        "}";
     String viewportUrl = createViewport(clientId, viewportDefJson);
     if (StringUtils.isEmpty(viewportUrl)) {
       Assert.fail("no URL returned for viewport");

@@ -8,19 +8,18 @@ package com.opengamma.web.server.push.web;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.push.subscription.TestRestUpdateManager;
 import org.eclipse.jetty.server.Server;
+import org.json.JSONException;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static com.opengamma.web.server.push.web.WebPushTestUtils.checkJsonResults;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Tests pushing results to a long polling HTTP connection.
@@ -63,7 +62,7 @@ public class LongPollingTest {
    * Tests sending an update to a client that is blocked on a long poll request
    */
   @Test
-  public void longPollBlocking() throws IOException, ExecutionException, InterruptedException {
+  public void longPollBlocking() throws IOException, ExecutionException, InterruptedException, JSONException {
     final String clientId = readFromPath("/handshake");
     new Thread(new Runnable() {
       @Override
@@ -72,43 +71,39 @@ public class LongPollingTest {
       }
     }).start();
     String result = readFromPath("/updates/" + clientId);
-    assertEquals(RESULT1, result);
+
+    checkJsonResults(result, RESULT1);
   }
 
   /**
    * Tests sending a single update to a client's connection when it's not connected and then connecting.
    */
   @Test
-  public void longPollNotBlocking() throws IOException {
+  public void longPollNotBlocking() throws IOException, JSONException {
     String clientId = readFromPath("/handshake");
     _updateManager.sendUpdate(RESULT1);
     String result = readFromPath("/updates/" + clientId);
-    assertEquals(RESULT1, result);
+    checkJsonResults(result, RESULT1);
   }
 
   /**
    * Tests sending multiple updates to a connection where the client isn't currently connected.
    */
   @Test
-  public void longPollQueue() throws IOException {
+  public void longPollQueue() throws IOException, JSONException {
     String clientId = readFromPath("/handshake");
     _updateManager.sendUpdate(RESULT1);
     _updateManager.sendUpdate(RESULT2);
     _updateManager.sendUpdate(RESULT3);
     String result = readFromPath("/updates/" + clientId);
-    // can't depend on the order when multiple updates are sent at once
-    List<String> results = Arrays.asList(result.split("\n"));
-    assertEquals(3, results.size());
-    assertTrue(results.contains(RESULT1));
-    assertTrue(results.contains(RESULT2));
-    assertTrue(results.contains(RESULT3));
+    checkJsonResults(result, RESULT1, RESULT2, RESULT3);
   }
 
   /**
    * test multiple updates for the same url get squashed into a single update
    */
   @Test
-  public void longPollQueueMultipleUpdates() throws IOException {
+  public void longPollQueueMultipleUpdates() throws IOException, JSONException {
     String clientId = readFromPath("/handshake");
     _updateManager.sendUpdate(RESULT1);
     _updateManager.sendUpdate(RESULT1);
@@ -116,16 +111,11 @@ public class LongPollingTest {
     _updateManager.sendUpdate(RESULT3);
     _updateManager.sendUpdate(RESULT2);
     String result = readFromPath("/updates/" + clientId);
-    // can't depend on the order when multiple updates are sent at once
-    List<String> results = Arrays.asList(result.split("\n"));
-    assertEquals(3, results.size());
-    assertTrue(results.contains(RESULT1));
-    assertTrue(results.contains(RESULT2));
-    assertTrue(results.contains(RESULT3));
+    checkJsonResults(result, RESULT1, RESULT2, RESULT3);
   }
 
   @Test
-  public void repeatingLongPoll() throws IOException {
+  public void repeatingLongPoll() throws IOException, JSONException {
     final String clientId = readFromPath("/handshake");
     new Thread(new Runnable() {
       @Override
@@ -138,11 +128,11 @@ public class LongPollingTest {
       }
     }).start();
     String path = "/updates/" + clientId;
-    assertEquals(RESULT1, readFromPath(path));
-    assertEquals(RESULT2, readFromPath(path));
-    assertEquals(RESULT3, readFromPath(path));
-    assertEquals(RESULT2, readFromPath(path));
-    assertEquals(RESULT1, readFromPath(path));
+    checkJsonResults(readFromPath(path), RESULT1);
+    checkJsonResults(readFromPath(path), RESULT2);
+    checkJsonResults(readFromPath(path), RESULT3);
+    checkJsonResults(readFromPath(path), RESULT2);
+    checkJsonResults(readFromPath(path), RESULT1);
   }
 
   /**

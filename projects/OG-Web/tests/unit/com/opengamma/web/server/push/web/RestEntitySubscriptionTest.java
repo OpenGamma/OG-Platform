@@ -10,9 +10,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.push.test.TestChangeManager;
 import org.eclipse.jetty.server.Server;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -21,9 +19,8 @@ import org.testng.annotations.Test;
 import javax.time.Instant;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
+import static com.opengamma.web.server.push.web.WebPushTestUtils.checkJsonResults;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -53,22 +50,6 @@ public class RestEntitySubscriptionTest {
   @AfterClass
   public void tearDown() throws Exception {
     _server.stop();
-  }
-
-  /**
-   * Asserts that {@code json} represents a JSON object with a field called {@code updates} whose value is an array
-   * of the expected values.
-   * @param json {@code {updates: [url1, url2, ...]}}
-   * @param urls URLs that must be present in the JSON
-   */
-  private static void checkJsonResults(String json, String... urls) throws JSONException {
-    List<String> expectedList = Arrays.asList(urls);
-    JSONArray results = new JSONObject(json).getJSONArray(LongPollingUpdateListener.UPDATES);
-    assertEquals("Wrong number of results.  expected: " + expectedList + ", actual: " + results, expectedList.size(), results.length());
-    for (int i = 0; i < results.length(); i++) {
-      String result = results.getString(i);
-      assertTrue("Unexpected result: " + result, expectedList.contains(result));
-    }
   }
 
   @Test

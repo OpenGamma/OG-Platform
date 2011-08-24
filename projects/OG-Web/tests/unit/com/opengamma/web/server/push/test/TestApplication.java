@@ -22,7 +22,7 @@ public class TestApplication extends Application {
     HashSet<Class<?>> classes = new HashSet<Class<?>>();
     classes.add(TestResource.class);
     classes.add(TestSubResources.class);
-    classes.add(ViewportsResource.class);
+    //classes.add(ViewportsResource.class);
     classes.add(ViewportDefinitionReader.class);
     return classes;
   }

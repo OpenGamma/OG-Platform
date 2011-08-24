@@ -7,6 +7,6 @@
     <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.TestSubscriptionManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.TestRestUpdateManager"/>
 
 </beans>

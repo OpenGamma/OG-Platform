@@ -396,22 +396,34 @@
     <constructor-arg ref="bundleCompressor" />
     <constructor-arg value="${bundle.mode}"/>
   </bean>
-  
+
+  <!--TODO this isn't right any more-->
   <!-- Web-interface -->
-  <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">
+  <bean id="liveResultsService" class="com.opengamma.web.server.LiveResultsService">
     <property name="user" ref="testUser" />
     <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="snapshotMaster" ref="dbSnapshotMaster" />
-    <property name="executorService">
-      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
-        <property name="styleName" value="CACHED" />
-      </bean>
-    </property>
     <property name="fudgeContext" ref="fudgeContext" />
   </bean>
-  <bean class="com.opengamma.web.analytics.WebAnalyticsResource">
-    <constructor-arg ref="webInterfaceBean" />
+
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.web.LongPollingConnectionManager">
+    <constructor-arg ref="updateManager"/>
   </bean>
+
+  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
+    <constructor-arg index="0" ref="changeManager"/>
+    <constructor-arg index="1" ref="liveResultsService"/>
+  </bean>
+
+  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.web.ViewportsResource">
+    <constructor-arg ref="updateManager"/>
+  </bean>
+
+  <bean id="changeManager" class="com.opengamma.web.server.push.test.TestChangeManager"/>
+
+  <!--TODO refactor this for the post-Cometd world-->
+  <!--<bean class="com.opengamma.web.analytics.WebAnalyticsResource">
+    <constructor-arg ref="webInterfaceBean" />
+  </bean>-->
   
   <!-- MarketDataSnapshot master service -->
   <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
@@ -424,4 +436,5 @@
       </map>
     </property>
   </bean>
+
 </beans>

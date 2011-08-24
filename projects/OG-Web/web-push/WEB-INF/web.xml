@@ -22,11 +22,6 @@
       <param-name>javax.ws.rs.Application</param-name>
       <param-value>com.opengamma.web.server.push.test.TestApplication</param-value>
     </init-param>
-    <!--I think this should work but causes Jersey to fail because it can't find an ASM class-->
-    <!--<init-param>
-      <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>com.opengamma.web.server.push.test</param-value>
-    </init-param>-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
       <param-value>com.opengamma.web.server.push.web.SubscribingFilterFactory</param-value>
