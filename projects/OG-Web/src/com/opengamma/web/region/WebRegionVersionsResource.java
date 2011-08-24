@@ -54,10 +54,12 @@ public class WebRegionVersionsResource extends AbstractWebRegionResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     RegionHistoryRequest request = new RegionHistoryRequest(data().getRegion().getUniqueId());
-    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
+    request.setPagingRequest(pr);
     RegionHistoryResult result = data().getRegionMaster().history(request);
     
     FlexiBean out = createRootData();

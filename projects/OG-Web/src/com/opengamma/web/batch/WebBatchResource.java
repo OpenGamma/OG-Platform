@@ -51,11 +51,13 @@ public class WebBatchResource extends AbstractWebBatchResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @Context UriInfo uriInfo) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-    request.setDataPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
+    request.setDataPagingRequest(pr);
     request.setErrorPagingRequest(PagingRequest.ALL);
     BatchDocument batchDoc = data().getBatchMaster().get(request);
     data().setBatch(batchDoc);
@@ -67,11 +69,13 @@ public class WebBatchResource extends AbstractWebBatchResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @Context UriInfo uriInfo) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     BatchGetRequest request = new BatchGetRequest(data().getBatch().getUniqueId());
-    request.setDataPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
+    request.setDataPagingRequest(pr);
     request.setErrorPagingRequest(PagingRequest.ALL);
     BatchDocument batchDoc = data().getBatchMaster().get(request);
     data().setBatch(batchDoc);

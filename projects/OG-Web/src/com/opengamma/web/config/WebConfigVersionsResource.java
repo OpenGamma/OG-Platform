@@ -56,10 +56,12 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   @SuppressWarnings({"unchecked", "rawtypes" })
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId(), Object.class);
-    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
+    request.setPagingRequest(pr);
     ConfigHistoryResult<?> result = data().getConfigMaster().history(request);
     
     FlexiBean out = createRootData();

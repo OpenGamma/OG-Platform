@@ -54,10 +54,12 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(data().getPortfolio().getUniqueId());
-    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
+    request.setPagingRequest(pr);
     PortfolioHistoryResult result = data().getPortfolioMaster().history(request);
     
     FlexiBean out = createRootData();

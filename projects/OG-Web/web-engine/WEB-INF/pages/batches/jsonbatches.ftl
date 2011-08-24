@@ -3,9 +3,9 @@
     "header": {
         "type": "Batches",
         <#if searchResult??>
-        "total" : ${"${paging.totalItems}"?replace(',','')},
-        "page": ${"${paging.pageNumber}"?replace(',','')},
-        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
+        "pgIdx": ${"${paging.firstItem}"?replace(',','')},
+        "pgSze": ${"${paging.pagingSize}"?replace(',','')},
+        "pgTtl": ${"${paging.totalItems}"?replace(',','')},
 	      </#if>
 	      "dataFields": ["id", "date", "time", "status"]
     },

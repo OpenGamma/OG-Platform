@@ -293,7 +293,7 @@ public class WebPaging {
      */
     public URI getUri() {
       UriBuilder builder = _uriInfo.getRequestUriBuilder();
-      builder.replaceQueryParam("page", _page);
+      builder.replaceQueryParam("pgNum", _page);
       return builder.build();
     }
   }

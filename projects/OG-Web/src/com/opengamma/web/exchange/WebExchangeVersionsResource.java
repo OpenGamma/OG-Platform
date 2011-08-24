@@ -54,10 +54,12 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
-    request.setPagingRequest(PagingRequest.ofPageDefaulted(page, pageSize));
+    request.setPagingRequest(pr);
     ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
     FlexiBean out = createRootData();
