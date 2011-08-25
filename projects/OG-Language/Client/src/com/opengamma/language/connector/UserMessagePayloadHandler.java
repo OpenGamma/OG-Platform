@@ -30,6 +30,17 @@ public class UserMessagePayloadHandler implements UserMessagePayloadVisitor<User
   private LiveDataVisitor<UserMessagePayload, SessionContext> _liveDataVisitor;
   private ProcedureVisitor<UserMessagePayload, SessionContext> _procedureVisitor;
 
+  public UserMessagePayloadHandler() {
+  }
+
+  public UserMessagePayloadHandler(final UserMessagePayloadHandler copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _customVisitors.registerAll(copyFrom._customVisitors);
+    _functionVisitor = copyFrom._functionVisitor;
+    _liveDataVisitor = copyFrom._liveDataVisitor;
+    _procedureVisitor = copyFrom._procedureVisitor;
+  }
+
   // Main message type delegates
 
   public void setFunctionHandler(final FunctionVisitor<UserMessagePayload, SessionContext> functionVisitor) {

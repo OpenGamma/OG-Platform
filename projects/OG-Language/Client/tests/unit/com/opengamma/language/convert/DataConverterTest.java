@@ -15,6 +15,7 @@ import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.test.AbstractConverterTest;
 
 /**
  * Tests the {@link DataConverter} class.

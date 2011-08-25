@@ -10,6 +10,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -19,16 +23,24 @@ import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
-import com.opengamma.language.convert.AbstractConverterTest;
+import com.opengamma.language.convert.Converters;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.test.TestUtils;
 import com.opengamma.util.tuple.Pair;
 
 public class DefaultValueConverterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultValueConverterTest.class);
 
-  private final SessionContext _sessionContext = AbstractConverterTest.createTestSessionContext();
+  private final SessionContext _sessionContext;
+
   private ValueConverter _valueConverter = new DefaultValueConverter();
+
+  public DefaultValueConverterTest() {
+    final TestUtils testUtils = new TestUtils();
+    testUtils.setTypeConverters(new Converters());
+    _sessionContext = testUtils.createSessionContext();
+  }
 
   private <T> T convert(final Object value, final JavaTypeInfo<T> type) {
     return _valueConverter.convertValue(_sessionContext, value, type);
@@ -146,6 +158,72 @@ public class DefaultValueConverterTest {
         assertEquals(matrix[i][j], data.getMatrix()[i][j].getDoubleValue(), 0);
       }
     }
+  }
+
+  @Test
+  public void testStringArray() {
+    final String[] arr = new String[8];
+    for (int i = 0; i < arr.length; i++) {
+      arr[i] = "str " + i;
+    }
+    final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder(Data.class).get();
+    final Data data = convert(arr, dataType);
+    assertNotNull(data);
+    assertNotNull(data.getLinear());
+    assertEquals(arr.length, data.getLinear().length);
+  }
+
+  public static final class FudgeObject {
+
+    private final String _str;
+
+    private FudgeObject(final String str) {
+      _str = str;
+    }
+
+    public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory) {
+      final MutableFudgeMsg msg = factory.newMessage();
+      msg.add("str", _str);
+      return msg;
+    }
+
+  }
+
+  @Test
+  public void testFudgeConversion() {
+    final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder(Data.class).get();
+    final FudgeObject object = new FudgeObject("Foo");
+    final Data data = convert(object, dataType);
+    assertNotNull(data);
+    assertNotNull(data.getSingle());
+    final FudgeSerializer serializer = new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT);
+    assertEquals(FudgeSerializer.addClassHeader(object.toFudgeMsg(serializer), object.getClass()), data.getSingle().getMessageValue());
+  }
+
+  @Test
+  public void testWithDefault() {
+    JavaTypeInfo<Boolean> dataType = JavaTypeInfo.builder(Boolean.class).defaultValue(true).get();
+    Boolean v = convert(null, dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert("TRUE", dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert("FALSE", dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert(new Data(), dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert(DataUtils.of(new Value()), dataType);
+    assertEquals(Boolean.TRUE, v);
+    dataType = JavaTypeInfo.builder(Boolean.class).defaultValue(false).get();
+    v = convert(null, dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert("TRUE", dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert("FALSE", dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert(new Data(), dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert(DataUtils.of(new Value()), dataType);
+    assertEquals(Boolean.FALSE, v);
   }
 
 }

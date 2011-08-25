@@ -13,20 +13,22 @@ import java.util.Map;
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 import com.opengamma.language.invoke.TypeConverter;
 
 /**
  * Basic conversions to/from the {@link Data} type.
  */
-public final class DataConverter implements TypeConverter {
+public final class DataConverter extends AbstractTypeConverter {
 
   private static final JavaTypeInfo<Data> DATA = JavaTypeInfo.builder(Data.class).get();
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value[].class).get();
   private static final JavaTypeInfo<Value[][]> VALUE_2 = JavaTypeInfo.builder(Value[][].class).get();
 
-  private static final TypeMap TO_DATA = TypeMap.of(ZERO_LOSS, VALUE, VALUE_1, VALUE_2);
+  private static final TypeMap TO_DATA = TypeMap.ofWeighted(ZERO_LOSS, VALUE, VALUE_1, VALUE_2);
   private static final TypeMap FROM_DATA = TypeMap.of(ZERO_LOSS, DATA);
 
   @Override
@@ -79,6 +81,9 @@ public final class DataConverter implements TypeConverter {
       if (dataValue.getSingle() != null) {
         if (clazz == Value.class) {
           conversionContext.setResult(dataValue.getSingle());
+          return;
+        } else if (type.isAllowNull() && ValueUtils.isNull(dataValue.getSingle())) {
+          conversionContext.setResult(null);
           return;
         }
       } else if (dataValue.getLinear() != null) {
