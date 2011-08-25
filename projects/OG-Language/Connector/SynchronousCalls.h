@@ -50,7 +50,7 @@ private:
 	/// Signal the semaphore.
 	void SignalSemaphore () { m_sem.Signal (); }
 
-	CSynchronousCallSlot (CSynchronousCalls *poOwner, int nIdentifier);
+	CSynchronousCallSlot (CSynchronousCalls *poOwner, fudge_i32 nIdentifier);
 	~CSynchronousCallSlot ();
 	void PostAndRelease (int nSequence, FudgeMsg msg);
 public:

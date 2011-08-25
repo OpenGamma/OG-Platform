@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.language.function;
+package com.opengamma.language.object;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -23,10 +23,9 @@ import org.springframework.util.StringUtils;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
-import com.opengamma.language.object.CreateObjectFunction;
-import com.opengamma.language.object.GetAttributeFunction;
-import com.opengamma.language.object.ObjectValuesFunction;
-import com.opengamma.language.object.SetAttributeFunction;
+import com.opengamma.language.function.AbstractFunctionProvider;
+import com.opengamma.language.function.FunctionProvider;
+import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.security.CreateSecurityFunction;
 import com.opengamma.master.security.ManageableSecurity;
 
@@ -353,7 +352,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         ". The original object is unchanged - a new object is returned with the updated value";
     final MetaParameter target = new MetaParameter(uncapitalize(object.getName()), JavaTypeInfo.builder(object.getObjectClass()).get());
     target.setDescription(capitalize(object.getLabel()) + " to update");
-    final MetaParameter value = new MetaParameter(attribute.getName(), JavaTypeInfo.builder(write.getParameterTypes()[0]).get());
+    final MetaParameter value = new MetaParameter(attribute.getName(), JavaTypeInfo.builder(write.getParameterTypes()[0]).allowNull().get());
     value.setDescription(attribute.getDescription());
     return new SetAttributeFunction(name, description, write, target, value).getMetaFunction();
   }

@@ -22,6 +22,8 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
  */
 public abstract class AbstractInvoker {
 
+  private static final Object[] NO_PARAMETERS = new Object[0];
+
   private final List<MetaParameter> _parameters;
 
   /**
@@ -35,6 +37,10 @@ public abstract class AbstractInvoker {
     } else {
       _parameters = new ArrayList<MetaParameter>(parameters);
     }
+  }
+
+  protected List<MetaParameter> getParameters() {
+    return _parameters;
   }
 
   protected abstract ResultConverter getResultConverter(final GlobalContext globalContext);
@@ -64,8 +70,12 @@ public abstract class AbstractInvoker {
   protected abstract ParameterConverter getParameterConverter(final GlobalContext globalContext);
 
   protected Object[] convertParameters(final SessionContext sessionContext, final List<Data> parameters) {
-    final ParameterConverter converter = getParameterConverter(sessionContext.getGlobalContext());
-    return converter.convertParameters(sessionContext, parameters, _parameters);
+    if ((parameters != null) && !parameters.isEmpty()) {
+      final ParameterConverter converter = getParameterConverter(sessionContext.getGlobalContext());
+      return converter.convertParameters(sessionContext, parameters, getParameters());
+    } else {
+      return NO_PARAMETERS;
+    }
   }
 
 }

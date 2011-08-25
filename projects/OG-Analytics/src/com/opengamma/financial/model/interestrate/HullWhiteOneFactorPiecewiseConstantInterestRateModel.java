@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
@@ -18,15 +17,20 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
 
   /**
    * Computes the future convexity factor used in future pricing.
+   * The factor is called {@latex.inline $\\gamma$} in the article and is given by
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{equation*}
+   * \\gamma(t) = \\exp\\left(\\int_t^{t_0} \\nu(s,t_2) (\\nu(s,t_2)-\\nu(s,t_1)) ds \\right). 
+   * \\end{equation*}
+   * }
    * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
-   * @param future The future security.
+   * @param t0 The expiry time.
+   * @param t1 The first reference time.
+   * @param t2 The second reference time.
    * @param data The Hull-White model parameters.
    * @return The factor.
    */
-  public double futureConvexityFactor(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantParameters data) {
-    double t0 = future.getLastTradingTime();
-    double t1 = future.getFixingPeriodStartTime();
-    double t2 = future.getFixingPeriodEndTime();
+  public double futureConvexityFactor(double t0, double t1, double t2, final HullWhiteOneFactorPiecewiseConstantParameters data) {
     double factor1 = Math.exp(-data.getMeanReversion() * t1) - Math.exp(-data.getMeanReversion() * t2);
     double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
     int indexT0 = 1; // Period in which the time t0 is; _volatilityTime[i-1] <= t0 < _volatilityTime[i];
@@ -174,6 +178,14 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
     return Math.sqrt(denominator / numerator);
   }
 
+  /**
+   * Compute the common part of the exercise boundary of European swaptions forward. Used in particular for Bermudan swaption first step of the pricing.
+   * <p>Reference: Henrard, M. Bermudan Swaptions in Gaussian HJM One-Factor Model: Analytical and Numerical Approaches. SSRN, October 2008. Available at SSRN: http://ssrn.com/abstract=1287982
+   * @param discountedCashFlow The swap discounted cash flows.
+   * @param alpha2 The {@latex.inline $\\alpha^2$} parameters.
+   * @param hwH The H factors.
+   * @return The exercise boundary.
+   */
   public double lambda(final double[] discountedCashFlow, final double[] alpha2, final double[] hwH) {
     final Function1D<Double, Double> swapValue = new Function1D<Double, Double>() {
       @Override

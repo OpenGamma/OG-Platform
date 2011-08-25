@@ -50,7 +50,7 @@ FudgeMsg CRequestBuilder::RecvMsg (long lTimeout) {
 
 /// Creates a new request builder instance using the given connector.
 ///
-/// @paramp[in] poConnector connector instance
+/// @param[in] poConnector connector instance
 CRequestBuilder::CRequestBuilder (const CConnector *poConnector) {
 	poConnector->Retain ();
 	m_poConnector = poConnector;

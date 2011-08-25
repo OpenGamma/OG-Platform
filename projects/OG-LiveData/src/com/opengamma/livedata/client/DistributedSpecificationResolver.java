@@ -74,7 +74,7 @@ public class DistributedSpecificationResolver {
         Thread.interrupted();
       }
       if ((System.currentTimeMillis() - start) >= TIMEOUT_MS) {
-        throw new OpenGammaRuntimeException("Timeout. Waited for entitlement response for " + TIMEOUT_MS + " with no response.");
+        throw new OpenGammaRuntimeException("Timeout. Waited for specification resolution response for " + TIMEOUT_MS + " with no response.");
       }
     }
     

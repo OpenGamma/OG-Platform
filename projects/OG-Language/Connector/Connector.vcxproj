@@ -173,6 +173,7 @@
     <ClInclude Include="com_opengamma_language_procedure_Definition.h" />
     <ClInclude Include="com_opengamma_language_procedure_QueryAvailable.h" />
     <ClInclude Include="com_opengamma_language_Value.h" />
+    <ClInclude Include="Errors.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="JVM.h" />
     <ClInclude Include="LiveData.h" />
@@ -276,6 +277,7 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="Connector.cpp" />
+    <ClCompile Include="Errors.cpp" />
     <ClCompile Include="JVM.cpp" />
     <ClCompile Include="Pipes.cpp" />
     <ClCompile Include="RequestBuilder.cpp" />

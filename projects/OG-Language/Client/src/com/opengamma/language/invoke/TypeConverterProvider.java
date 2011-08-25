@@ -6,7 +6,8 @@
 
 package com.opengamma.language.invoke;
 
-import java.util.Set;
+import java.util.List;
+
 
 /**
  * A source of type converters
@@ -14,10 +15,10 @@ import java.util.Set;
 public interface TypeConverterProvider {
 
   /**
-   * Returns a set of type converters.
+   * Returns a list of type converters
    * 
-   * @return a set of type converters
+   * @return a list of type converters
    */
-  Set<TypeConverter> getTypeConverters();
+  List<TypeConverter> getTypeConverters();
 
 }

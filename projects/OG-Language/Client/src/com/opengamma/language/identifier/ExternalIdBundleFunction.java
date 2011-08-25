@@ -22,13 +22,23 @@ import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.language.text.Ordinal;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Constructs an identifier bundle from a set of identifiers.
  */
 public class ExternalIdBundleFunction implements PublishedFunction {
 
-  private static final int MAX_PARAMETERS = 20;
+  private int _maxParameters = 20;
+
+  public int getMaxParameters() {
+    return _maxParameters;
+  }
+
+  public void setMaxParameters(final int maxParameters) {
+    ArgumentChecker.notNegativeOrZero(maxParameters, "maxParameters");
+    _maxParameters = maxParameters;
+  }
 
   private static void getIdentifier(final Collection<ExternalId> identifiers, final Value value) {
     if (value.getStringValue() != null) {
@@ -74,8 +84,8 @@ public class ExternalIdBundleFunction implements PublishedFunction {
 
   @Override
   public MetaFunction getMetaFunction() {
-    final List<MetaParameter> args = new ArrayList<MetaParameter>(MAX_PARAMETERS);
-    for (int i = 1; i <= MAX_PARAMETERS; i++) {
+    final List<MetaParameter> args = new ArrayList<MetaParameter>(getMaxParameters());
+    for (int i = 1; i <= getMaxParameters(); i++) {
       final MetaParameter param = new MetaParameter("id" + i, JavaTypeInfo.builder(Data.class).allowNull().get());
       param.setDescription("The " + Ordinal.get(i) + " identifier (or array of identifiers) to add to the bundle");
       args.add(param);
