@@ -8,7 +8,7 @@ package com.opengamma.engine.view.compilation;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.time.Instant;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
@@ -40,7 +42,9 @@ import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 @Test
@@ -82,9 +86,9 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertTrue(compiledViewDefinition.getDependencyGraphsByConfiguration().isEmpty());
@@ -129,7 +133,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
 
     // We've not provided a function that targets the position level, so we can't ask for it.
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -138,7 +142,7 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -187,12 +191,13 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -229,7 +234,7 @@ public class ViewDefinitionCompilerTest {
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -271,7 +276,7 @@ public class ViewDefinitionCompilerTest {
     // source.
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
@@ -279,14 +284,14 @@ public class ViewDefinitionCompilerTest {
 
     // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
-    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
 
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
-    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition);
   }
 

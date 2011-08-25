@@ -5,8 +5,8 @@ package com.opengamma.financial.security.future;
 public class EquityIndexDividendFutureSecurity extends com.opengamma.financial.security.future.EquityFutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityIndexDividendFutureSecurity (this); }
   private static final long serialVersionUID = 1l;
-  public EquityIndexDividendFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate) {
-    super (expiry, tradingExchange, settlementExchange, currency, unitAmount, settlementDate);
+  public EquityIndexDividendFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId underlyingIdentifier) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount, settlementDate, underlyingIdentifier);
   }
   protected EquityIndexDividendFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (deserializer, fudgeMsg);

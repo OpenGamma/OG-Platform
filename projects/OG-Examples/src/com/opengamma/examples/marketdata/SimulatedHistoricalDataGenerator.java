@@ -35,7 +35,7 @@ import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
@@ -121,10 +121,10 @@ public class SimulatedHistoricalDataGenerator {
   
   private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {
     MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
-    LocalDate date = DateUtil.previousWeekDay(LocalDate.now().minusYears(tsLength));
+    LocalDate date = DateUtils.previousWeekDay(LocalDate.now().minusYears(tsLength));
     do {
       result.putDataPoint(date, wiggleValue(random, startValue));
-      date = DateUtil.nextWeekDay(date);
+      date = DateUtils.nextWeekDay(date);
     } while (date.isBefore(LocalDate.now()));
     return result;
   }

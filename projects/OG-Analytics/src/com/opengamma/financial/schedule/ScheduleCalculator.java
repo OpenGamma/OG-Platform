@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Utility to calculate schedules.
@@ -162,7 +162,7 @@ public final class ScheduleCalculator {
     ZonedDateTime date = maturityDate;
 
     // TODO review the tolerance given
-    while (date.isAfter(effectiveDate) && DateUtil.getExactDaysBetween(effectiveDate, date) > 4.0) {
+    while (date.isAfter(effectiveDate) && DateUtils.getExactDaysBetween(effectiveDate, date) > 4.0) {
       dates.add(date);
       date = date.minus(period);
     }
@@ -176,7 +176,7 @@ public final class ScheduleCalculator {
     if (date.isBefore(maturity)) {
       return true;
     }
-    if (DateUtil.getDaysBetween(date, maturity) < 7) {
+    if (DateUtils.getDaysBetween(date, maturity) < 7) {
       return true;
     }
     return false;

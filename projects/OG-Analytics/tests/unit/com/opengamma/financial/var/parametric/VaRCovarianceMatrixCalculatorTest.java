@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.var.parametric;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.covariance.CovarianceCalculator;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;

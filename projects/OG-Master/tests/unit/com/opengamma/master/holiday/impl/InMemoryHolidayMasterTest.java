@@ -21,7 +21,7 @@ import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test InMemoryHolidayMaster.
+ * Test {@link InMemoryHolidayMaster}.
  */
 @Test
 public class InMemoryHolidayMasterTest {

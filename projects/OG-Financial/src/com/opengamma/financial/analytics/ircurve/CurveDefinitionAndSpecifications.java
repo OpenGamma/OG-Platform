@@ -43,8 +43,8 @@ import org.springframework.util.Assert;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
@@ -217,7 +217,7 @@ public class CurveDefinitionAndSpecifications {
     if (includeSpotNext) {
       results.add(Tenor.ofDays(3));
     }
-    results.add(Tenor.ofDays(7));
+    //results.add(Tenor.ofDays(7));
     if (include2W) {
       results.add(Tenor.ofDays(14));
     }
@@ -272,7 +272,9 @@ public class CurveDefinitionAndSpecifications {
     final ExternalId chfRegion = RegionUtils.countryRegionId(Country.CH);
     //forwardDefinitions.put(chf, buildForwardCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50 })));
     //fundingDefinitions.put(chf, buildFundingCurve(chf, chfRegion, makeShortEnd(false, true, true), makeLongEnd(1, 15, new int[] {20, 25, 30 })));
-    singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50})));
+    // temporary, while swiss rate is -ve.
+    //singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50})));
+    singleDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, false, false), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50})));
     forwardDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50})));
     fundingDefinitions.put(chf, buildSingleCurve(chf, chfRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 25, 30, 40, 50})));
 

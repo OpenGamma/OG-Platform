@@ -6,6 +6,8 @@
 package com.opengamma.financial.instrument;
 
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
@@ -22,7 +24,10 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremium
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -173,7 +178,28 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitSwaptionBermudaFixedIborDefinition(SwaptionBermudaFixedIborDefinition swaption);
 
-  U visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon, T data);
+  U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, T data);
 
-  U visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon);
+  U visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon);
+
+  U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data);
+
+  U visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon);
+
+  U visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, T data);
+
+  U visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon);
+
+  U visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, T data);
+
+  U visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon);
+
+  U visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, T data);
+
+  U visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond);
+
+  U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data);
+
+  U visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond);
+
 }

@@ -6,9 +6,11 @@
 package com.opengamma.master.exchange.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import javax.time.calendar.TimeZone;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.ExchangeUtils;
@@ -21,11 +23,10 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.master.exchange.impl.InMemoryExchangeMaster;
 import com.opengamma.util.i18n.Country;
 
 /**
- * Test InMemoryExchangeMaster.
+ * Test {@link InMemoryExchangeMaster}.
  */
 @Test
 public class InMemoryExchangeMasterTest {

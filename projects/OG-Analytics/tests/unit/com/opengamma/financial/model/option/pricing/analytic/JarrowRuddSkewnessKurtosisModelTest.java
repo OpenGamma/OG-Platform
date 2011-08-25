@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -19,7 +21,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.statistics.descriptive.LognormalFisherKurtosisFromVolatilityCalculator;
 import com.opengamma.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -32,13 +34,13 @@ public class JarrowRuddSkewnessKurtosisModelTest {
   private static final double T = 0.5;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA));
   private static final double SPOT = 90;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
   private static final JarrowRuddSkewnessKurtosisModel MODEL = new JarrowRuddSkewnessKurtosisModel();
   private static final double SKEW;
   private static final double KURTOSIS;
-  private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
-  private static final OptionDefinition PUT = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), false);
+  private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), true);
+  private static final OptionDefinition PUT = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), false);
   private static final SkewKurtosisOptionDataBundle NORMAL_DATA;
 
   static {

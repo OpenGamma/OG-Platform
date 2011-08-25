@@ -1,5 +1,7 @@
-rm -r 0.8.0
+export VERSION=0.9.1
+rm -r $VERSION
 dexy
-mkdir 0.8.0
-cp -r output 0.8.0/analytics
-
+mkdir -p $VERSION/java
+cp -r ../../../build/docs/javadoc-all/ $VERSION/java/javadocs
+cp -r output $VERSION/analytics
+sudo python -m SimpleHTTPServer 80

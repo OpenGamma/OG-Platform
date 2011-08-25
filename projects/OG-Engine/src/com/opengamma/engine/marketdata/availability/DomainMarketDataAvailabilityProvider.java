@@ -9,11 +9,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -63,15 +64,17 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
         return _acceptableSchemes.contains(scheme);
       }
       case SECURITY: {
-        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
-        if (security != null) {
+        try {
+          Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
           for (ExternalId identifier : security.getIdentifiers()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
               return true;
             }
           }
+          return false;
+        } catch (DataNotFoundException ex) {
+          return false;
         }
-        return false;
       }
       default:
         return false;

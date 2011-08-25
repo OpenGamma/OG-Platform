@@ -6,7 +6,9 @@
 package com.opengamma.livedata.client;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.IdResolverServer;

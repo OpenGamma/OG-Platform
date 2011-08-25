@@ -51,7 +51,7 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
     final ZonedDateTime accrualStartDate = security.getStartDate();
     final ZonedDateTime accrualEndDate = security.getEndDate();
     final double notional = security.getAmount();
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
     final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(),
         calendar, fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
         fraConvention.isEOMConvention());

@@ -6,7 +6,7 @@ print java.lang.System.getProperties()['java.class.path']
 from com.opengamma.math.number import ComplexNumber
 
 ### @export "define"
-cn = ComplexNumber(2, 3)
+cn = ComplexNumber(2, 4)
 
 ### @export "get-real"
 print cn.getReal()

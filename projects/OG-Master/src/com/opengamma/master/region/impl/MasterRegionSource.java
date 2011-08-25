@@ -19,8 +19,8 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * A {@code RegionSource} implemented using an underlying {@code RegionMaster}.
@@ -53,14 +53,12 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
   //-------------------------------------------------------------------------
   @Override
   public ManageableRegion getRegion(UniqueId uniqueId) {
-    RegionDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getRegion() : null);
+    return getDocument(uniqueId).getRegion();
   }
 
   @Override
   public ManageableRegion getRegion(ObjectId objectId, VersionCorrection versionCorrection) {
-    RegionDocument doc = getDocument(objectId, versionCorrection);
-    return (doc != null ? doc.getRegion() : null);
+    return getDocument(objectId, versionCorrection).getRegion();
   }
 
   @Override

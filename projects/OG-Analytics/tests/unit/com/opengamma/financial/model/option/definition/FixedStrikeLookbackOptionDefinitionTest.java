@@ -5,16 +5,18 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -25,7 +27,7 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
  */
 public class FixedStrikeLookbackOptionDefinitionTest {
   private static final double STRIKE = 100;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 5, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2011, 5, 1);
   private static final Expiry EXPIRY = new Expiry(DATE);
   private static final FixedStrikeLookbackOptionDefinition CALL = new FixedStrikeLookbackOptionDefinition(STRIKE, EXPIRY, true);
   private static final FixedStrikeLookbackOptionDefinition PUT = new FixedStrikeLookbackOptionDefinition(STRIKE, EXPIRY, false);
@@ -36,9 +38,9 @@ public class FixedStrikeLookbackOptionDefinitionTest {
   private static final DoubleTimeSeries<?> LOW_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_DDMMYYYY, new int[] {20100501, 20101101, 20110501}, new double[] {SPOT, SPOT - DIFF,
       SPOT});
   private static final StandardOptionWithSpotTimeSeriesDataBundle HIGH_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
-      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), HIGH_TS);
+      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), HIGH_TS);
   private static final StandardOptionWithSpotTimeSeriesDataBundle LOW_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
-      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), LOW_TS);
+      new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtils.getUTCDate(2010, 6, 1), LOW_TS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
@@ -73,8 +75,8 @@ public class FixedStrikeLookbackOptionDefinitionTest {
   public void testEqualsAndHashCode() {
     final OptionDefinition call1 = new FixedStrikeLookbackOptionDefinition(STRIKE, EXPIRY, true);
     final OptionDefinition put1 = new FixedStrikeLookbackOptionDefinition(STRIKE, EXPIRY, false);
-    final OptionDefinition call2 = new FixedStrikeLookbackOptionDefinition(STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3)), true);
-    final OptionDefinition put2 = new FixedStrikeLookbackOptionDefinition(STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3)), false);
+    final OptionDefinition call2 = new FixedStrikeLookbackOptionDefinition(STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3)), true);
+    final OptionDefinition put2 = new FixedStrikeLookbackOptionDefinition(STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3)), false);
     assertFalse(CALL.equals(PUT));
     assertEquals(call1, CALL);
     assertEquals(put1, PUT);

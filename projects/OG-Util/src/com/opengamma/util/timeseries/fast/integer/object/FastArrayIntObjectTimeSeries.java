@@ -17,9 +17,9 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -165,9 +165,6 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
-    if (endPos >= _times.length) {
-      endPos--;
-    }
     final int length = endPos - startPos;
     final int[] resultTimes = new int[length];
     final T[] resultValues = (T[]) new Object[length];

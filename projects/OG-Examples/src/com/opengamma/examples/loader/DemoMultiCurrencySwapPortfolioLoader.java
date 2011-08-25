@@ -57,7 +57,7 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -243,7 +243,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         HistoricalTimeSeriesFields.LAST_PRICE, 
         swapRateForMaturityIdentifier.toBundle(), 
         HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, 
-        tradeDate, true, tradeDate, false);
+        tradeDate, true, tradeDate, true);
     if (fixedRateSeries == null) {
       throw new OpenGammaRuntimeException("can't find time series for " + swapRateForMaturityIdentifier + " on " + tradeDate);
     }
@@ -255,7 +255,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
     HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
         HistoricalTimeSeriesFields.LAST_PRICE, liborIdentifier.toBundle(), 
-        HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, false);
+        HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier + " on " + tradeDate);
     }
@@ -286,7 +286,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     HolidaySource holidaySource = _loaderContext.getHolidaySource();
     LocalDate tradeDate;
     do {
-      tradeDate = DateUtil.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
+      tradeDate = DateUtils.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
     } while (holidaySource.isHoliday(tradeDate, ccy));
     return tradeDate;
   }

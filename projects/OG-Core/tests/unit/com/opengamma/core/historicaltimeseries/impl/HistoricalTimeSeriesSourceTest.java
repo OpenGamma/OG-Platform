@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -33,7 +31,7 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test HistoricalTimeSeriesSource.
+ * Test {@link HistoricalTimeSeriesSource}.
  */
 @Test
 public class HistoricalTimeSeriesSourceTest {
@@ -160,7 +158,8 @@ public class HistoricalTimeSeriesSourceTest {
       assertEquals(inMemSeries, cachedSeries);
       assertEquals(inMemoryHistoricalSource.getHistoricalTimeSeries(inMemSeries.getUniqueId()), cachedProvider.getHistoricalTimeSeries(cachedSeries.getUniqueId()));
       
-      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field, inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), false);
+      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field,
+          inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), true);
       assertEquals(inMemSeries, cachedSeries);
     }
   }

@@ -12,15 +12,15 @@ import java.util.Random;
 
 import javax.jms.ConnectionFactory;
 
-import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.testng.annotations.Test;
 
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
-import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtils;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -35,7 +35,7 @@ public class JmsByteArrayTransportTest {
   
   public void topicConduit() throws Exception {
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
-    ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
+    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
     jmsTemplate.setConnectionFactory(cf);
     jmsTemplate.setPubSubDomain(true);
@@ -84,7 +84,7 @@ public class JmsByteArrayTransportTest {
   
   public void requestConduit() throws Exception {
     String topicName = "JmsByteArrayTransportTest-requestConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
-    ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
+    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
     jmsTemplate.setConnectionFactory(cf);
     jmsTemplate.setPubSubDomain(true);

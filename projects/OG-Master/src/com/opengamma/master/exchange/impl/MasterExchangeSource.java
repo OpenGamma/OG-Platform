@@ -19,8 +19,8 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
@@ -53,14 +53,12 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   //-------------------------------------------------------------------------
   @Override
   public ManageableExchange getExchange(UniqueId uniqueId) {
-    ExchangeDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getExchange() : null);
+    return getDocument(uniqueId).getExchange();
   }
 
   @Override
   public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
-    ExchangeDocument doc = getDocument(objectId, versionCorrection);
-    return (doc != null ? doc.getExchange() : null);
+    return getDocument(objectId, versionCorrection).getExchange();
   }
 
   @Override

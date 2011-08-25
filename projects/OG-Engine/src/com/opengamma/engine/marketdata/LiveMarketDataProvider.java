@@ -177,7 +177,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
       _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
       _failedRequirements.removeAll(valueRequirements); //We expect a valueUpdate call for this later
-      s_logger.info("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
+      s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
       
       super.subscriptionSucceeded(valueRequirements);
     } else {
@@ -185,7 +185,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       //TODO: could be more precise here, only those which weren't in _failedRequirements
       valuesChanged(valueRequirements); //PLAT-1429: wake up the init call
       
-      s_logger.error("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+      s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
       super.subscriptionFailed(valueRequirements, subscriptionResult.getUserMessage());
     }
   }

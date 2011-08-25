@@ -13,10 +13,10 @@ import org.apache.commons.lang.text.StrBuilder;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
@@ -133,9 +133,6 @@ public final class ComputationTargetSpecification implements Serializable {
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
       case SECURITY:
         final Security security = securitySource.getSecurity(getUniqueId());
-        if (security == null) {
-          throw new OpenGammaRuntimeException("Unknown security in configured security source: " + getIdentifier());
-        }
         // Package up the other identifiers
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
       default:

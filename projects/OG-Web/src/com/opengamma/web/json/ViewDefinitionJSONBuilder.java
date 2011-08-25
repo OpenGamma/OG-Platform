@@ -23,6 +23,7 @@ import com.opengamma.engine.view.DeltaDefinition;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -77,14 +78,14 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     ViewDefinition viewDefinition = null;
     try {
       JSONObject viewJSON = new JSONObject(json);
-      UniqueId portfolioIdentifier = null;
+      ObjectId portfolioOid = null;
       if (viewJSON.opt(IDENTIFIER_FIELD) != null) {
-        portfolioIdentifier = UniqueId.parse(viewJSON.getString(IDENTIFIER_FIELD));
+        portfolioOid = ObjectId.parse(viewJSON.getString(IDENTIFIER_FIELD));
       }
       String name = viewJSON.getString(NAME_FIELD);
       UserPrincipal liveDataUser = convertJsonToObject(UserPrincipal.class, viewJSON.getJSONObject(USER_FIELD));
       ResultModelDefinition resultModelDefinition = convertJsonToObject(ResultModelDefinition.class, viewJSON.getJSONObject(RESULT_MODEL_DEFINITION_FIELD));
-      viewDefinition = new ViewDefinition(name, portfolioIdentifier, liveDataUser, resultModelDefinition);
+      viewDefinition = new ViewDefinition(name, portfolioOid, liveDataUser, resultModelDefinition);
       
       if (viewJSON.opt(CURRENCY_FIELD) != null) {
         String isoCode = viewJSON.getString(CURRENCY_FIELD);
@@ -124,6 +125,8 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
                     requirements.add(Pair.of(requiredOutput, constraints));
                   }
                 }
+              }
+              if (securityType != null) {
                 calcConfig.addPortfolioRequirements(securityType, requirements);
               }
             }
@@ -163,8 +166,8 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     try {
       jsonObject.put(String.valueOf(0), ViewDefinition.class.getName());
       jsonObject.put(NAME_FIELD, viewDefinition.getName());
-      if (viewDefinition.getPortfolioId() != null) {
-        jsonObject.put(IDENTIFIER_FIELD, viewDefinition.getPortfolioId().toString());
+      if (viewDefinition.getPortfolioOid() != null) {
+        jsonObject.put(IDENTIFIER_FIELD, viewDefinition.getPortfolioOid().toString());
       }
       jsonObject.put(USER_FIELD, toJSONObject(viewDefinition.getMarketDataUser()));
       jsonObject.put(RESULT_MODEL_DEFINITION_FIELD, toJSONObject(viewDefinition.getResultModelDefinition()));

@@ -7,10 +7,10 @@ package com.opengamma.financial.equity.future;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
-
-import org.testng.annotations.Test;
 
 /**
  * Checks the wiring of the EquityFuturesPresentValueCalculator
@@ -27,7 +27,8 @@ public class EquityFuturesPresentValueCalculatorTest {
     final EquityIndexDividendFuture eidf = new EquityIndexDividendFuture(fixing, settlement, 95., Currency.JPY, 10);
 
     final double currentPrice = 100.0;
-    double pv = PVC.visitEquityIndexDividendFuture(eidf, currentPrice);
+    EquityFutureDataBundle dataBundle = new EquityFutureDataBundle(null, currentPrice, null, null, null);
+    double pv = PVC.visitEquityIndexDividendFuture(eidf, dataBundle);
     assertEquals(50.0, pv, 1e-12);
 
   }

@@ -1,7 +1,7 @@
 <project name="og-examples" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
-	<property file="build.properties"/>
+	<property file="build.properties" />
 
-	<import file="${common.dir}/common.xml"/>
+	<import file="${common.dir}/common.xml" />
 
 	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
 	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
@@ -148,11 +148,5 @@
 	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
-
-	<target name="test-hsqldb">
-		<new-hsqldb-db path="${basedir}/temp/hsqldb/example-test" scriptdir="${basedir}" catalog="og-financial" />
-	</target>
-
-	<target name="test-batch" depends="test-hsqldb, common.test-batch" />
 
 </project>

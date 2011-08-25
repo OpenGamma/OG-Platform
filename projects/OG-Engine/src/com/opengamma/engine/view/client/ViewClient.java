@@ -14,8 +14,9 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
@@ -83,7 +84,7 @@ public interface ViewClient extends UniqueIdentifiable {
   /**
    * Gets whether this client is attached to a view process.
    * 
-   * @return {@code true} if this client is attached to a view process, {@code false} otherwise
+   * @return true if this client is attached to a view process
    */
   boolean isAttached();
   
@@ -107,8 +108,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @param viewDefinitionName  the name of the view definition, not null
    * @param executionOptions  the view execution options, not null
-   * @param newPrivateProcess  {@code true} to attach to a new process,
-   *                           {@code false} to attach to a shared process
+   * @param newPrivateProcess  true to attach to a new process, false to attach to a shared process
    * @throws IllegalStateException if the client is already attached to a process 
    */
   void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
@@ -210,7 +210,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * completes. This is intended for batch processing; if the view process is running with an infinite number of
    * evaluation times then this method will block forever. 
    * 
-   * @return {@code true} if the attached view process has completed, {@code false} otherwise
+   * @return true if the attached view process has completed
    * @throws IllegalStateException if the view client is not attached to a view process
    */
   boolean isCompleted();
@@ -231,8 +231,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * data flow restrictions being applied through this view client, so does not necessarily reflect the most recent
    * state of the view process.
    * 
-   * @return <code>true</code> if a computation result is available, <code>false</code> otherwise
-   * 
+   * @return true if a computation result is available
    * @throws IllegalStateException if the view client is not attached to a view process
    */
   boolean isResultAvailable();
@@ -241,7 +240,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * Gets the latest compiled view definition. This is consistent with any data flow restrictions being applied through
    * this view client, so does not necessarily represent the most recent state of the view process.
    * 
-   * @return the latest compiled view definition, or {@code null} if no compilation has yet been produced
+   * @return the latest compiled view definition, null if no compilation has yet been produced
    */
   CompiledViewDefinition getLatestCompiledViewDefinition();
   
@@ -251,17 +250,25 @@ public interface ViewClient extends UniqueIdentifiable {
    * <p>
    * This value is consistent with the result provided to any {@link ViewResultListener} during a callback.
    *  
-   * @return the latest result, or {@code null} if no result yet exists
+   * @return the latest result, null if no result yet exists
    * @throws IllegalStateException if the view client is not attached to a view process
    * @see #isResultAvailable()
    */
   ViewComputationResultModel getLatestResult();
   
+  /**
+   * Gets the version-correction for which the attached view process is operating. This may contain 'latest'.
+   * 
+   * @return the version-correction, not null
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  VersionCorrection getProcessVersionCorrection();
+  
   //-------------------------------------------------------------------------
   /**
    * Gets whether this client supports access to view cycles.
    *  
-   * @return {@code true} if the client can provide access to view cycles, {@code false} otherwise
+   * @return true if the client can provide access to view cycles
    */
   boolean isViewCycleAccessSupported();
   
@@ -269,7 +276,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * Sets whether this client should support access to view cycles. This feature involves overheads which are best
    * avoided if it is not needed.
    * 
-   * @param isViewCycleAccessSupported  {@code true} to enable access to  view cycles, {@code false} otherwise
+   * @param isViewCycleAccessSupported  true to enable access to view cycles
    */
   void setViewCycleAccessSupported(boolean isViewCycleAccessSupported);
   

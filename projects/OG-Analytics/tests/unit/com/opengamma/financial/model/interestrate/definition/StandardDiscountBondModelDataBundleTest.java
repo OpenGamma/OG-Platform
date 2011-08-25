@@ -5,16 +5,18 @@
  */
 package com.opengamma.financial.model.interestrate.definition;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -24,7 +26,7 @@ public class StandardDiscountBondModelDataBundleTest {
   private static final double SIGMA = 0.2;
   private static final YieldAndDiscountCurve R_CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final VolatilityCurve SIGMA_CURVE = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final StandardDiscountBondModelDataBundle DATA = new StandardDiscountBondModelDataBundle(R_CURVE, SIGMA_CURVE, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

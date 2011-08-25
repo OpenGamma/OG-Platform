@@ -8,15 +8,12 @@ package com.opengamma.web.bundle;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import org.apache.commons.io.IOUtils;
-import org.testng.annotations.Test;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import com.opengamma.web.bundle.BundleManager;
-import com.opengamma.web.bundle.BundleParser;
-import com.opengamma.web.bundle.Fragment;
+import org.apache.commons.io.IOUtils;
+import org.testng.annotations.Test;
 
 /**
  * Test BundleParser.

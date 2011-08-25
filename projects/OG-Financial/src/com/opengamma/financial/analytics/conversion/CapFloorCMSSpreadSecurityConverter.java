@@ -54,7 +54,7 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final ExternalId shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
-    final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
+    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     final ConventionBundle longConvention = _conventionSource.getConventionBundle(longId);
     if (longConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + longId);

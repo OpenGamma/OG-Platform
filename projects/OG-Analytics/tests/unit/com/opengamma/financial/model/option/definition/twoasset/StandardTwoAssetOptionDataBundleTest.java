@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.model.option.definition.twoasset;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -30,8 +32,8 @@ public class StandardTwoAssetOptionDataBundleTest {
   private static final double SPOT1 = 100;
   private static final double SPOT2 = 90;
   private static final double RHO = 0.5;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final ZonedDateTime DATE2 = DateUtil.getDateOffsetWithYearFraction(DATE, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
+  private static final ZonedDateTime DATE2 = DateUtils.getDateOffsetWithYearFraction(DATE, 1);
   private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(CURVE1, B1, B2, SURFACE1, SURFACE2, SPOT1, SPOT2, RHO, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

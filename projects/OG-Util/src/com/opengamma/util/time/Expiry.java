@@ -100,10 +100,10 @@ public class Expiry implements InstantProvider, Serializable {
   /**
    * Compares two expiry dates for equality to the given level of accuracy only.
    * 
-   * @param accuracy accuracy to compare to
-   * @param expiry1 first date/time to compare
-   * @param expiry2 second date/time to compare
-   * @return {@code true} if the two dates/times are equal to the requested accuracy, {@code false} otherwise
+   * @param accuracy  the accuracy to compare to, not null
+   * @param expiry1  the first date/time to compare, not null
+   * @param expiry2  the second date/time to compare, not null
+   * @return true if the two dates/times are equal to the requested accuracy
    */
   public static boolean equalsToAccuracy(final ExpiryAccuracy accuracy, final ZonedDateTime expiry1, final ZonedDateTime expiry2) {
     switch (accuracy) {

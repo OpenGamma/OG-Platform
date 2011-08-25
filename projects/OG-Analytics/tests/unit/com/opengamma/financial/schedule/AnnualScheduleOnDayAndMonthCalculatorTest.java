@@ -5,16 +5,16 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.schedule.AnnualScheduleOnDayAndMonthCalculator;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.util.time.DateUtil;
+import org.testng.annotations.Test;
+
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSameDayBadDates2() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2001, MONTH_OF_YEAR.getValue(), 12);
+    final ZonedDateTime date = DateUtils.getUTCDate(2001, MONTH_OF_YEAR.getValue(), 12);
     CALCULATOR.getSchedule(date, date, false, true);
   }
 
@@ -61,7 +61,7 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
 
   @Test
   public void testSameDayGoodDates2() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2001, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH);
+    final ZonedDateTime date = DateUtils.getUTCDate(2001, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH);
     final ZonedDateTime[] result = CALCULATOR.getSchedule(date, date, false, true);
     assertEquals(result.length, 1);
     assertEquals(result[0], date);
@@ -95,21 +95,21 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
 
   @Test
   public void test2() {
-    ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
-    ZonedDateTime endDate = DateUtil.getUTCDate(2000, 3, 1);
+    ZonedDateTime startDate = DateUtils.getUTCDate(2000, 1, 1);
+    ZonedDateTime endDate = DateUtils.getUTCDate(2000, 3, 1);
     ZonedDateTime[] forwards = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forwards.length, 0);
-    startDate = DateUtil.getUTCDate(2000, 5, 1);
-    endDate = DateUtil.getUTCDate(2001, 3, 1);
+    startDate = DateUtils.getUTCDate(2000, 5, 1);
+    endDate = DateUtils.getUTCDate(2001, 3, 1);
     forwards = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forwards.length, 0);
-    startDate = DateUtil.getUTCDate(2000, 1, 1);
-    endDate = DateUtil.getUTCDate(2010, 5, 1);
+    startDate = DateUtils.getUTCDate(2000, 1, 1);
+    endDate = DateUtils.getUTCDate(2010, 5, 1);
     final int years = 11;
     forwards = CALCULATOR.getSchedule(startDate, endDate, false, true);
     assertEquals(forwards.length, years);
-    assertEquals(forwards[0], DateUtil.getUTCDate(2000, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH));
-    assertEquals(forwards[years - 1], DateUtil.getUTCDate(2010, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH));
+    assertEquals(forwards[0], DateUtils.getUTCDate(2000, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH));
+    assertEquals(forwards[years - 1], DateUtils.getUTCDate(2010, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH));
     for (int i = 1; i < years; i++) {
       assertEquals(forwards[i].getYear() - forwards[i - 1].getYear(), 1);
       assertEquals(forwards[i].getMonthOfYear(), MONTH_OF_YEAR);

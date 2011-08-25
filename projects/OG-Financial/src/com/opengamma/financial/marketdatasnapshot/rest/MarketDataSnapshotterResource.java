@@ -25,6 +25,7 @@ public class MarketDataSnapshotterResource {
 
   //CSOFF: just constants
   public static final String PATH_CREATE_SNAPSHOT = "create";
+  public static final String PATH_YIELD_CURVE_SPECS = "yieldCurveSpecs";
   //CSON: just constants
 
   
@@ -54,6 +55,25 @@ public class MarketDataSnapshotterResource {
     }
   }
 
+  
+  @GET
+  @Path(PATH_YIELD_CURVE_SPECS + "/{viewClientId}" + "/{viewCycleId}")
+  public Response getYieldCurveSpecs(@PathParam("viewClientId") String viewClientIdString, @PathParam("viewCycleId") String viewCycleIdString) {
+    UniqueId viewClientId = UniqueId.parse(viewClientIdString);
+    UniqueId viewCycleId = UniqueId.parse(viewCycleIdString);
+    ViewClient client = _viewProcessor.getViewClient(viewClientId);
+    EngineResourceReference<? extends ViewCycle> cycleReference = client.createCycleReference(viewCycleId);
+    
+    if (cycleReference == null) {
+      throw new IllegalArgumentException("Cycle is not available");
+    }
+    try {
+      return Response.ok(_snapshotter.getYieldCurveSpecifications(client, cycleReference.get())).build();
+    } finally {
+      cycleReference.release();
+    }
+  }
+  
   @GET
   public Response get() {
     return Response.ok("Snapshotter").build();

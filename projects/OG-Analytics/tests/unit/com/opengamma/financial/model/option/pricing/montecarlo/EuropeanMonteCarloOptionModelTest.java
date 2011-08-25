@@ -25,7 +25,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -33,8 +33,8 @@ import com.opengamma.util.time.Expiry;
  */
 public class EuropeanMonteCarloOptionModelTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0.02, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       100., DATE);
   private static final OptionDefinition CALL1 = new EuropeanVanillaOptionDefinition(110, EXPIRY, true);

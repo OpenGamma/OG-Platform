@@ -24,7 +24,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 
 /**
  * RESTful resource for a version of a region.

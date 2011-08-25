@@ -5,15 +5,15 @@
  */
 package com.opengamma.core.position.impl;
 
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
+
 import org.testng.annotations.Test;
-import com.opengamma.core.position.impl.SimplePortfolio;
-import com.opengamma.core.position.impl.SimplePortfolioNode;
+
 import com.opengamma.id.UniqueId;
 
 /**
- * Test SimplePortfolio.
+ * Test {@link SimplePortfolio}.
  */
 @Test
 public class SimplePortfolioTest {

@@ -6,9 +6,11 @@
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Collection;
 import java.util.Random;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.currency.AbstractCurrencyMatrix;

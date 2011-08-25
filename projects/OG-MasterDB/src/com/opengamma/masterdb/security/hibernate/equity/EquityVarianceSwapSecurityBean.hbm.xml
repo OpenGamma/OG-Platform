@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.equity">
+  <union-subclass name="EquityVarianceSwapSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_equity_variance_swap">
+    <property name="annualizationFactor" type="double"  column="annualization_factor" not-null="true" />
+    <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true"/>
+    <component name="firstObservationDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="first_observation_date" type="timestamp" not-null="true" />
+      <property name="zone" column="first_observation_zone" type="string" not-null="true" />
+    </component>
+    <component name="lastObservationDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="last_observation_date" type="timestamp" not-null="true" />
+      <property name="zone" column="last_observation_zone" type="string" not-null="true" />
+    </component>
+    <property name="notional" type="double" not-null="true" />
+    <many-to-one name="observationFrequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="observation_frequency_id" not-null="true" />
+    <property name="parameterisedAsVariance" type="boolean" column="parameterised_as_variance" not-null="true" />
+    <component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+        <property name="scheme" type="string" column="region_scheme" not-null="true" />
+        <property name="identifier" type="string" column="region_id" not-null="true" />
+    </component>
+    <component name="settlementDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="settlement_date" type="timestamp" not-null="true" />
+      <property name="zone" column="settlement_zone" type="string" not-null="true" />
+    </component>
+    <component name="spotUnderlyingIdentifier" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+        <property name="scheme" type="string" column="spot_scheme" not-null="true" />
+        <property name="identifier" type="string" column="spot_id" not-null="true" />
+    </component>
+    <property name="strike" type="double" not-null="true" />
+  </union-subclass>
+
+  <query name="EquityVarianceSwapSecurityBean.one.bySecurityId"><![CDATA[
+    from 
+      EquityVarianceSwapSecurityBean as s
+    where
+      s.securityId = :securityId
+  ]]></query>
+
+  <query name="EquityVarianceSwapSecurityBean.all">
+    from EquityVarianceSwapSecurityBean
+  </query>
+
+</hibernate-mapping>

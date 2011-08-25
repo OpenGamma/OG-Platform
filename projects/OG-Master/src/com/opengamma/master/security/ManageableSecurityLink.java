@@ -204,10 +204,8 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
     ObjectId objectId = getObjectId();
     if (objectId != null) {
       Security target = source.getSecurity(objectId, versionCorrection);
-      if (target != null) {
-        setTarget(target);
-        return target;
-      }
+      setTarget(target);
+      return target;
     }
     ExternalIdBundle bundle = getExternalId();
     if (bundle.size() > 0) {

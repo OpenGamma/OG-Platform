@@ -56,14 +56,12 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
   //-------------------------------------------------------------------------
   @Override
   public ManageableHoliday getHoliday(UniqueId uniqueId) {
-    HolidayDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getHoliday() : null);
+    return getDocument(uniqueId).getHoliday();
   }
 
   @Override
   public ManageableHoliday getHoliday(ObjectId objectId, VersionCorrection versionCorrection) {
-    HolidayDocument doc = getDocument(objectId, versionCorrection);
-    return (doc != null ? doc.getHoliday() : null);
+    return getDocument(objectId, versionCorrection).getHoliday();
   }
 
   @Override

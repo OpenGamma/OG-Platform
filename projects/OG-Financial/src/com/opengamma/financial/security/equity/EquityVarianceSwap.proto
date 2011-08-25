@@ -20,7 +20,7 @@ namespace com.opengamma.financial.security.equity {
     required com.opengamma.util.money.Currency currency;
     required double strike;
     required double notional;  
-    required boolean parameterisedAsVariance;
+    required boolean parameterizedAsVariance;
     required double annualizationFactor;
     required javax.time.calendar.ZonedDateTime firstObservationDate;
     required javax.time.calendar.ZonedDateTime lastObservationDate;

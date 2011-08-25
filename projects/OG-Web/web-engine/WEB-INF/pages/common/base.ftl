@@ -80,9 +80,9 @@
 </#if>
 <#list paging.pagesStandard as page>
 <#if page.currentPage>
-      <div class="item page current">${page.page}</div>
+      <div class="item page current">${page.pageNumber}</div>
 <#else>
-      <div class="item page active"><a href="${page.uri}">${page.page}</a></div>
+      <div class="item page active"><a href="${page.uri}">${page.pageNumber}</a></div>
 </#if>
 </#list>
 <#if paging.nextPageExists>

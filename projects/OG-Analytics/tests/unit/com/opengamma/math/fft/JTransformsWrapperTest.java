@@ -6,7 +6,9 @@
 package com.opengamma.math.fft;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;

@@ -5,26 +5,28 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.Moneyness;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
  * 
  */
 public class ForwardStartOptionDefinitionTest {
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 6, 10);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2010, 7, 1));
-  private static final Expiry START = new Expiry(DateUtil.getUTCDate(2010, 6, 1));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 6, 10);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2010, 7, 1));
+  private static final Expiry START = new Expiry(DateUtils.getUTCDate(2010, 6, 1));
   private static final double PERCENT = 0.4;
   private static final Moneyness MONEYNESS = Moneyness.ATM;
   private static final double SPOT = 100;
@@ -59,7 +61,7 @@ public class ForwardStartOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPayoffTime() {
-    ATM_CALL.getPayoffFunction().getPayoff(DATA.withDate(DateUtil.getUTCDate(2009, 1, 1)), 0.);
+    ATM_CALL.getPayoffFunction().getPayoff(DATA.withDate(DateUtils.getUTCDate(2009, 1, 1)), 0.);
   }
 
   @Test
@@ -74,7 +76,7 @@ public class ForwardStartOptionDefinitionTest {
     ForwardStartOptionDefinition other = new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, MONEYNESS);
     assertEquals(other, ATM_CALL);
     assertEquals(other.hashCode(), ATM_CALL.hashCode());
-    other = new ForwardStartOptionDefinition(new Expiry(DateUtil.getUTCDate(2011, 1, 1)), true, START, PERCENT, MONEYNESS);
+    other = new ForwardStartOptionDefinition(new Expiry(DateUtils.getUTCDate(2011, 1, 1)), true, START, PERCENT, MONEYNESS);
     assertFalse(other.equals(ATM_CALL));
     other = new ForwardStartOptionDefinition(EXPIRY, false, START, PERCENT, MONEYNESS);
     assertFalse(other.equals(ATM_CALL));

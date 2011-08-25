@@ -8,6 +8,7 @@ package com.opengamma.financial.greeks;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
 
 /**

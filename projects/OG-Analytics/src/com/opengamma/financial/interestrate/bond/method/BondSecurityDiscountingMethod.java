@@ -19,6 +19,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
@@ -74,7 +75,7 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public double presentValue(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves) {
+  public double presentValue(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
     final double pvNominal = PVC.visit(bond.getNominal(), curves);
     final double pvCoupon = PVC.visit(bond.getCoupon(), curves);
     return pvNominal + pvCoupon;
@@ -87,7 +88,7 @@ public final class BondSecurityDiscountingMethod {
    * @param cleanPrice The bond clean price.
    * @return The present value.
    */
-  public double presentValueFromCleanPrice(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves, final double cleanPrice) {
+  public double presentValueFromCleanPrice(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
     Validate.isTrue(bond instanceof BondFixedSecurity, "Present value from clean price available only for fixed coupon bond");
     final BondFixedSecurity bondFixed = (BondFixedSecurity) bond;
     final double dfSettle = curves.getCurve(bondFixed.getRepoCurveName()).getDiscountFactor(bondFixed.getSettlementTime());
@@ -103,7 +104,7 @@ public final class BondSecurityDiscountingMethod {
    * @param zSpread The z-spread.
    * @return The present value.
    */
-  public double presentValueFromZSpread(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves, final double zSpread) {
+  public double presentValueFromZSpread(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double zSpread) {
     String discountingCurveName = bond.getDiscountingCurveName();
     YieldCurveBundle curvesWithZ = new YieldCurveBundle();
     curvesWithZ.addAll(curves);
@@ -119,7 +120,7 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves) {
+  public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
     final PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
     final PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
     return pvcsNominal.add(pvcsCoupon);
@@ -437,7 +438,7 @@ public final class BondSecurityDiscountingMethod {
    * @param pv The target present value.
    * @return The z-spread.
    */
-  public double zSpreadFromCurvesAndPV(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves, final double pv) {
+  public double zSpreadFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
     Validate.notNull(bond, "bond");
     Validate.notNull(curves, "curves");
 
@@ -459,7 +460,7 @@ public final class BondSecurityDiscountingMethod {
    * @param cleanPrice The target clean price.
    * @return The z-spread.
    */
-  public double zSpreadFromCurvesAndClean(final BondSecurity<? extends Payment> bond, final YieldCurveBundle curves, final double cleanPrice) {
+  public double zSpreadFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
     return zSpreadFromCurvesAndPV(bond, curves, presentValueFromCleanPrice(bond, curves, cleanPrice));
   }
 

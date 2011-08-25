@@ -18,8 +18,8 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
+import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -28,7 +28,7 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -47,11 +47,11 @@ public final class PortfolioCompiler {
    * Adds portfolio targets to the dependency graphs as required, and fully resolves the portfolio structure.
    * 
    * @param compilationContext  the context of the view definition compilation
-   * @param forcePortfolioResolution  {@code true} if there are external portfolio targets, {@code false} otherwise
-   * @return the fully-resolved portfolio structure if any portfolio targets were required, {@code null}
-   *         otherwise.
+   * @param versionCorrection  the version-correction at which to operate, not null
+   * @param forcePortfolioResolution  true if there are external portfolio targets, false otherwise
+   * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
-  protected static Portfolio execute(ViewCompilationContext compilationContext, boolean forcePortfolioResolution) {
+  protected static Portfolio execute(ViewCompilationContext compilationContext, VersionCorrection versionCorrection, boolean forcePortfolioResolution) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -63,7 +63,7 @@ public final class PortfolioCompiler {
       return null;
     }
      
-    Portfolio portfolio = forcePortfolioResolution ? getPortfolio(compilationContext) : null;
+    Portfolio portfolio = forcePortfolioResolution ? getPortfolio(compilationContext, versionCorrection) : null;
 
     for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
       if (calcConfig.getAllPortfolioRequirements().size() == 0) {
@@ -73,7 +73,7 @@ public final class PortfolioCompiler {
 
       // Actually need the portfolio now
       if (portfolio == null) {
-        portfolio = getPortfolio(compilationContext);
+        portfolio = getPortfolio(compilationContext, versionCorrection);
       }
       
       DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
@@ -111,8 +111,8 @@ public final class PortfolioCompiler {
   /**
    * Tests whether the view has portfolio outputs enabled.
    * 
-   * @param viewDefinition the view definition
-   * @return {@code true} if there is at least one portfolio target, {@code false} otherwise
+   * @param viewDefinition  the view definition
+   * @return true if there is at least one portfolio target
    */
   private static boolean isPortfolioOutputEnabled(ViewDefinition viewDefinition) {
     ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();
@@ -125,10 +125,11 @@ public final class PortfolioCompiler {
    * any underlying or related data referenced by a security will not be resolved at this stage. 
    * 
    * @param compilationContext  the compilation context containing the view being compiled, not null
+   * @param versionCorrection  the version-correction at which the portfolio is required, not null
    */
-  private static Portfolio getPortfolio(ViewCompilationContext compilationContext) {
-    UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
-    if (portfolioId == null) {
+  private static Portfolio getPortfolio(ViewCompilationContext compilationContext, VersionCorrection versionCorrection) {
+    ObjectId portfolioOid = compilationContext.getViewDefinition().getPortfolioOid();
+    if (portfolioOid == null) {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
     PositionSource positionSource = compilationContext.getServices().getPositionSource();
@@ -136,13 +137,13 @@ public final class PortfolioCompiler {
       throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName()
           + "' contains required portfolio outputs, but the compiler does not have access to a position source.");
     }
-    Portfolio portfolio = positionSource.getPortfolio(portfolioId);
+    Portfolio portfolio = positionSource.getPortfolio(portfolioOid, versionCorrection);
     if (portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource + "' used by view definition '"
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioOid + "' in position source '" + positionSource + "' used by view definition '"
           + compilationContext.getViewDefinition().getName() + "'");
     }
     Portfolio cloned = new SimplePortfolio(portfolio);
-    return resolveSecurities(compilationContext, cloned);
+    return resolveSecurities(compilationContext, cloned, versionCorrection);
   }
 
   /**
@@ -150,12 +151,13 @@ public final class PortfolioCompiler {
    * 
    * @param compilationContext  the compilation context containing the view being compiled, not null
    * @param portfolio  the portfolio to update, not null
+   * @param versionCorrection  the version-correction at which to resolve the securities, not null 
    * @return the updated portfolio, not null
    */
-  private static Portfolio resolveSecurities(ViewCompilationContext compilationContext, Portfolio portfolio) {
+  private static Portfolio resolveSecurities(ViewCompilationContext compilationContext, Portfolio portfolio, VersionCorrection versionCorrection) {
     OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", portfolio.getName());
     try {
-      new SecurityLinkResolver(compilationContext).resolveSecurities(portfolio.getRootNode());
+      new SecurityLinkResolver(compilationContext, versionCorrection).resolveSecurities(portfolio.getRootNode());
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Unable to resolve all securities for portfolio " + portfolio.getName());
     } finally {

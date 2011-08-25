@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -41,7 +41,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     }
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = curve.getInterestRate(t);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, option), getUniqueId()), b));
   }

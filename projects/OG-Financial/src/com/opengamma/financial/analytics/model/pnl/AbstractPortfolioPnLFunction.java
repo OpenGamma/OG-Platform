@@ -28,13 +28,13 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.money.MoneyCalculationUtil;
+import com.opengamma.util.money.MoneyCalculationUtils;
 
 /**
  * 
  */
 public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractPortfolioPnLFunction.class);
 
@@ -46,18 +46,18 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
     for (final Position position : allPositions) {
       final Object tradeValue = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL,
           ComputationTargetType.POSITION, position.getUniqueId()));
-      currentSum = MoneyCalculationUtil.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
+      currentSum = MoneyCalculationUtils.add(currentSum, new BigDecimal(String.valueOf(tradeValue)));
     }
     ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, node, extractCurrencyProperty(desiredValue)), getUniqueId());
     final ComputedValue result = new ComputedValue(valueSpecification, currentSum.doubleValue());
     return Sets.newHashSet(result);
   }
-  
+
   private ValueProperties extractCurrencyProperty(ValueRequirement desiredValue) {
     return ValueProperties.with(ValuePropertyNames.CURRENCY, desiredValue.getConstraint(ValuePropertyNames.CURRENCY)).get();
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
@@ -76,11 +76,11 @@ public abstract class AbstractPortfolioPnLFunction extends AbstractFunction.NonC
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPortfolioNode(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()),
-        getUniqueId()));
+          getUniqueId()));
     }
     return null;
   }
-    
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PORTFOLIO_NODE;

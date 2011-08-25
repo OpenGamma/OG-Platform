@@ -28,6 +28,9 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
    * The extra time are added in the constructor.
    */
   private final DoubleArrayList _volatilityTime;
+  /**
+   * The time used to represent infinity.
+   */
   private static final double VOLATILITY_TIME_INFINITY = 1000.0;
 
   /**

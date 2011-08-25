@@ -6,8 +6,10 @@
 package com.opengamma.livedata.server;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalScheme;
 
 /**

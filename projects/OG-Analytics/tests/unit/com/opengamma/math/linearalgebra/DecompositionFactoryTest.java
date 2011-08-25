@@ -6,6 +6,7 @@
 package com.opengamma.math.linearalgebra;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**

@@ -7,7 +7,6 @@ package com.opengamma.master.config.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -15,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.time.Instant;
 
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
@@ -68,20 +68,27 @@ public class MockConfigSource extends MasterConfigSource {
 
   @Override
   public <T> T getConfig(Class<T> clazz, UniqueId uniqueId) {
-    ConfigDocument<T> doc = getDocument(clazz, uniqueId);
-    return (doc != null ? doc.getValue() : null);
+    return getDocument(clazz, uniqueId).getValue();
   }
 
   @Override
   public <T> T getConfig(Class<T> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
-    ConfigDocument<T> doc = getDocument(clazz, objectId, versionCorrection);
-    return (doc != null ? doc.getValue() : null);
+    return getDocument(clazz, objectId, versionCorrection).getValue();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> Collection<? extends T> getConfigs(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
-    ConfigDocument<T> doc = getDocumentByName(clazz, configName, null);
-    return (doc != null ? Collections.<T>singleton(doc.getValue()) : Collections.<T>emptySet());
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(configName, "configName");
+    Pattern matchName = RegexUtils.wildcardsToPattern(configName);
+    Collection<T> result = new ArrayList<T>();
+    for (ConfigDocument<?> doc : _configs.values()) {
+      if (matchName.matcher(doc.getName()).matches() && clazz.isInstance(doc.getValue())) {
+        result.add((T) doc.getValue());
+      }
+    }
+    return result;
   }
 
   @Override
@@ -95,16 +102,17 @@ public class MockConfigSource extends MasterConfigSource {
     return doc == null ? null : doc.getValue();
   }
 
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
   public <T> ConfigDocument<T> getDocument(Class<T> clazz, UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(uniqueId.getObjectId());
-    if (clazz.isInstance(config.getValue())) {
+    if (config != null && clazz.isInstance(config.getValue())) {
       return config;
     }
-    return null;
+    throw new DataNotFoundException("Configuration not found: " + uniqueId);
   }
 
   @SuppressWarnings("unchecked")
@@ -114,10 +122,10 @@ public class MockConfigSource extends MasterConfigSource {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ConfigDocument<T> config = (ConfigDocument<T>) _configs.get(objectId);
-    if (clazz.isInstance(config.getValue())) {
+    if (config != null && clazz.isInstance(config.getValue())) {
       return config;
     }
-    return null;
+    throw new DataNotFoundException("Configuration not found: " + objectId);
   }
 
   @SuppressWarnings("unchecked")

@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -39,7 +39,7 @@ public class DebugFunctionMessage implements PublishedFunction {
     final FudgeSerializer sctx = new FudgeSerializer(ctx);
     sctx.addToMessageWithClassHeaders(msg, "foo", null, foo);
     sctx.addToMessageWithClassHeaders(msg, "bar", null, bar);
-    return DataUtil.of(msg);
+    return DataUtils.of(msg);
   }
 
   @Override

@@ -1,12 +1,14 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.HashSet;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -20,7 +22,7 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 public class FFTOptionModelTest {
@@ -31,7 +33,7 @@ public class FFTOptionModelTest {
   private static final VolatilitySurface VOLATILITY_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(BLACK_VOL));
   private static final double FORWARD = 100;
   private static final double T = 2;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2011, 1, 1);
   private static final ZonedDateTime MATURITY = DATE.plusYears((int) T);
   private static final Expiry EXPIRY = new Expiry(MATURITY);
   private static final EuropeanVanillaOptionDefinition ITM_CALL = new EuropeanVanillaOptionDefinition(99, EXPIRY, true);

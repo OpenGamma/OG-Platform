@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.Moneyness;
@@ -18,22 +20,22 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
  * 
  */
 public class ForwardStartOptionModelTest {
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final double R = 0.08;
   private static final YieldCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final double B = 0.04;
   private static final double SPOT = 60;
   private static final double PERCENT = 0.1;
-  private static final ZonedDateTime START = DateUtil.getDateOffsetWithYearFraction(DATE, 0.25);
-  private static final ZonedDateTime EXPIRY = DateUtil.getDateOffsetWithYearFraction(DATE, 1);
+  private static final ZonedDateTime START = DateUtils.getDateOffsetWithYearFraction(DATE, 0.25);
+  private static final ZonedDateTime EXPIRY = DateUtils.getDateOffsetWithYearFraction(DATE, 1);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final ForwardStartOptionDefinition FORWARD = new ForwardStartOptionDefinition(new Expiry(EXPIRY), true, new Expiry(START), PERCENT, Moneyness.OTM);
   private static final ForwardStartOptionDefinition NOW = new ForwardStartOptionDefinition(new Expiry(EXPIRY), true, new Expiry(DATE), PERCENT, Moneyness.OTM);

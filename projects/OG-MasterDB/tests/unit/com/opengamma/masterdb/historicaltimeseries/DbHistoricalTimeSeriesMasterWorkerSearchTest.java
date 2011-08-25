@@ -22,7 +22,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -46,8 +46,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(_totalHistoricalTimeSeries, test.getPaging().getTotalItems());
     
     assertEquals(_totalHistoricalTimeSeries, test.getDocuments().size());
@@ -57,12 +56,12 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   //-------------------------------------------------------------------------
   @Test
   public void test_search_pageOne() {
+    PagingRequest pr = PagingRequest.ofPage(1, 2);
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(pr);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(_totalHistoricalTimeSeries, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -72,12 +71,12 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
 
   @Test
   public void test_search_pageTwo() {
+    PagingRequest pr = PagingRequest.ofPage(2, 2);
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(pr);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
-    assertEquals(2, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(_totalHistoricalTimeSeries, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());

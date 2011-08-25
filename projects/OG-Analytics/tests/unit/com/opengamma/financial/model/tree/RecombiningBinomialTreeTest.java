@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.tree;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**

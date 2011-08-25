@@ -23,7 +23,7 @@ public interface RepositoryConfigurationSource {
   /**
    * Returns a repository configuration.
    * 
-   * @return the configuration, not {@code null}
+   * @return the configuration, not null
    */
   RepositoryConfiguration getRepositoryConfiguration();
 

@@ -37,7 +37,7 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
   }
 
   @Override
-  public IRFutureOptionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, IRFutureOptionSecurity security) {
+  public IRFutureOptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final IRFutureOptionSecurity security) {
     final IRFutureOptionSecurityBean bean = new IRFutureOptionSecurityBean();
     bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     bean.setOptionType(security.getOptionType());

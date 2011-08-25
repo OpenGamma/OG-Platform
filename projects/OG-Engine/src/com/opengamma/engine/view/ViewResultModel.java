@@ -14,6 +14,7 @@ import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -55,9 +56,16 @@ public interface ViewResultModel {
   /**
    * Gets the time taken to perform the calculation.
    * 
-   * @return the time taken to perform the calculation, not {@code null}
+   * @return the time taken to perform the calculation, not null
    */
   Duration getCalculationDuration();
+  
+  /**
+   * Gets the fully-resolved version-correction for which the results were calculated.
+   * 
+   * @return the fully-resolved version-correction, not null
+   */
+  VersionCorrection getVersionCorrection();
 
   /**
    * Returns all of the target specifications for the terminal outputs.
@@ -78,16 +86,16 @@ public interface ViewResultModel {
   /**
    * Returns the calculation result for a given configuration.
    * 
-   * @param calcConfigurationName name of the configuration, not {@code null}
-   * @return the calculation results, or {@code null} if the configuration was not found
+   * @param calcConfigurationName name of the configuration, not null
+   * @return the calculation results, null if the configuration was not found
    */
   ViewCalculationResultModel getCalculationResult(String calcConfigurationName);
 
   /**
    * Returns the calculation result for all configurations for a given target.
    * 
-   * @param targetSpecification the target to query, not {@code null}
-   * @return the calculation results, or {@code null} if the target was not found
+   * @param targetSpecification the target to query, not null
+   * @return the calculation results, null if the target was not found
    */
   ViewTargetResultModel getTargetResult(ComputationTargetSpecification targetSpecification);
   

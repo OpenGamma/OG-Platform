@@ -8,7 +8,7 @@
   <p>
     <@rowin label="Min quantity"><input type="text" size="10" maxlength="12" name="minquantity" value="${searchRequest.minQuantity}" /></@rowin>
     <@rowin label="Max quantity"><input type="text" size="10" maxlength="12" name="maxquantity" value="${searchRequest.maxQuantity}" /></@rowin>
-    <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.identifierValue}" /></@rowin>
+    <@rowin label="Identifier"><input type="text" size="30" maxlength="80" name="identifier" value="${searchRequest.securityIdValue}" /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>
   </@form>

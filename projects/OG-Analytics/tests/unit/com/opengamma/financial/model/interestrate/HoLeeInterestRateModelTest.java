@@ -6,15 +6,17 @@
 package com.opengamma.financial.model.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -22,9 +24,9 @@ import com.opengamma.util.time.DateUtil;
 public class HoLeeInterestRateModelTest {
   private static final int YEARS = 10;
   private static final HoLeeInterestRateModel MODEL = new HoLeeInterestRateModel();
-  private static final ZonedDateTime TODAY = DateUtil.getUTCDate(2010, 7, 1);
-  private static final ZonedDateTime START = DateUtil.getUTCDate(2011, 7, 1);
-  private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(START, 10);
+  private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime START = DateUtils.getUTCDate(2011, 7, 1);
+  private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(START, 10);
   private static final double IR = 0.05;
   private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(IR));
   private static final double VOL = 0.1;

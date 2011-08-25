@@ -34,7 +34,7 @@ public final class FxBarrierOptionSecurityBeanOperation extends AbstractSecurity
   }
 
   @Override
-  public FXBarrierOptionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, FXBarrierOptionSecurity security) {
+  public FXBarrierOptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final FXBarrierOptionSecurity security) {
     final FXBarrierOptionSecurityBean bean = new FXBarrierOptionSecurityBean();
     bean.setCallAmount(security.getCallAmount());
     bean.setPutAmount(security.getPutAmount());

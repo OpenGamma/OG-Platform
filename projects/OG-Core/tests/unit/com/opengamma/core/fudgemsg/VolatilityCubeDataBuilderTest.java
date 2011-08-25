@@ -11,12 +11,16 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeDataBuilder;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test {@link VolatilityCubeDataBuilder}.
+ */
 public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
 
   @Test
@@ -36,12 +40,8 @@ public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
     VolatilityCubeData cycledObject = cycleObject(VolatilityCubeData.class, simpleData);
     checkNulldata(cycledObject);
   }
-  
- 
-  
-  //TODO copied from VolatilityCubeDataTest, I don't understand why the build failed
-  
 
+  //TODO copied from VolatilityCubeDataTest, I don't understand why the build failed
   private static VolatilityCubeData getSimpleData() {
     VolatilityCubeData data = new VolatilityCubeData();
     HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
@@ -72,7 +72,7 @@ public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
     data.setStrikes(strikes);
     return data;
   }
-  
+
   private static void checkSimpleData(VolatilityCubeData data) {
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(2, smiles.size());
@@ -109,7 +109,6 @@ public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
     assertEquals(150.0, strikes.get(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK)));
   }
 
-  
   private static void checkNulldata(VolatilityCubeData data) {
     Map<Tenor, Map<Tenor, Pair<double[], double[]>>> smiles = data.getSmiles();
     assertEquals(null, smiles);
@@ -122,7 +121,7 @@ public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
     data.setDataPoints(dataPoints);
     return data;
   }
-  
+
   private static void assertMatches(Pair<double[], double[]> smile, double[] expectedStrikes, double[] expectedVols) {
     assertTrue(Arrays.equals(smile.getFirst(), expectedStrikes));
     assertTrue(Arrays.equals(smile.getSecond(), expectedVols));

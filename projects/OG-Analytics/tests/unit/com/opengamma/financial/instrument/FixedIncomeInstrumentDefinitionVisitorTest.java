@@ -30,6 +30,8 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -51,7 +53,10 @@ import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefin
 import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
+import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -69,7 +74,7 @@ import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptio
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -85,8 +90,8 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final BondDefinition BOND = new BondDefinition(CUR, LOCAL_DATES, LOCAL_DATES, 0.02, 1, BOND_CONVENTION);
   private static final BondForwardDefinition BOND_FORWARD = new BondForwardDefinition(BOND, LocalDate.of(2011, 7, 1), BOND_CONVENTION);
   private static final BondFutureDefinition BOND_FUTURE = new BondFutureDefinition(new BondDefinition[] {BOND}, new double[] {1}, BOND_CONVENTION, LocalDate.of(2010, 1, 1));
-  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtil.getUTCDate(2011, 1, 1), 1, 0.04, BOND_CONVENTION);
-  private static final ZonedDateTime SETTLE_DATE = DateUtil.getUTCDate(2011, 1, 1);
+  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1, 0.04, BOND_CONVENTION);
+  private static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   private static final Period TENOR = Period.ofYears(2);
   private static final Period FIXED_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
@@ -111,7 +116,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_1);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
   private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtil.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtil.getUTCDate(2012, 1, 1), 1000)});
+      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000)});
   private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
 
     @Override
@@ -516,12 +521,62 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon, T data) {
+    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon, T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationZeroCoupon(CouponInflationZeroCouponDefinition coupon) {
+    public String visitCouponInflationZeroCouponFirstOfMonth(CouponInflationZeroCouponMonthlyDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolation(CouponInflationZeroCouponInterpolationDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurityDefinition<?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponInterpolationGearing(CouponInflationZeroCouponInterpolationGearingDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearingDefinition coupon) {
       return null;
     }
   }

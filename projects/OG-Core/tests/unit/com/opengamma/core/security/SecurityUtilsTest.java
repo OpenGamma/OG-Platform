@@ -6,11 +6,13 @@
 package com.opengamma.core.security;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.id.ExternalId;
 
 /**
- * Test SecurityUtils.
+ * Test {@link SecurityUtils}.
  */
 @Test
 public class SecurityUtilsTest {

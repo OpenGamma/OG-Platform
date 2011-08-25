@@ -31,6 +31,7 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -365,6 +366,12 @@ public class ViewClientImpl implements ViewClient {
     return _latestCompiledViewDefinition.get();
   }
   
+  @Override
+  public VersionCorrection getProcessVersionCorrection() {
+    checkAttached();
+    return getViewProcessor().getProcessVersionCorrection(getUniqueId());
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public boolean isViewCycleAccessSupported() {
@@ -453,7 +460,7 @@ public class ViewClientImpl implements ViewClient {
    * Updates the latest result.
    * 
    * @param result  the new result
-   * @return {@code true} if the new result was the first, {@code false} otherwise
+   * @return true if the new result was the first
    */
   private boolean updateLatestResult(ViewComputationResultModel result) {
     if (isViewCycleAccessSupported()) {

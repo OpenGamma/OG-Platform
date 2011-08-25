@@ -6,11 +6,12 @@
 package com.opengamma.financial.greeks;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * 

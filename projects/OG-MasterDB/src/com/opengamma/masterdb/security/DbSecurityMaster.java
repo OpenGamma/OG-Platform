@@ -23,8 +23,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
@@ -40,10 +40,10 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 
 /**
  * A security master implementation using a database for persistence.

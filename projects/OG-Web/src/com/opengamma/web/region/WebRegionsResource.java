@@ -35,7 +35,7 @@ import com.opengamma.master.region.RegionHistoryResult;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -58,35 +58,39 @@ public class WebRegionsResource extends AbstractWebRegionResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("classification") RegionClassification classification,
       @QueryParam("regionId") List<String> regionIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, classification, regionIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, classification, regionIdStrs, uriInfo);
     return getFreemarker().build("regions/regions.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("classification") RegionClassification classification,
       @QueryParam("regionId") List<String> regionIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, classification, regionIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, classification, regionIdStrs, uriInfo);
     return getFreemarker().build("regions/jsonregions.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, RegionClassification classification,
+  private FlexiBean createSearchResultData(PagingRequest pr, String name, RegionClassification classification,
       List<String> regionIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     RegionSearchRequest searchRequest = new RegionSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setClassification(classification);
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();

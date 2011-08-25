@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import javax.time.calendar.DateProvider;
 import javax.time.calendar.LocalDate;
@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
 
   @Test
   public void testSameStartAndEnd2() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2000, 1, 1);
+    final ZonedDateTime date = DateUtils.getUTCDate(2000, 1, 1);
     final ZonedDateTime[] forward = CALCULATOR.getSchedule(date, date, false, true);
     assertEquals(forward.length, 1);
     assertEquals(forward[0], date);
@@ -61,8 +61,8 @@ public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
 
   @Test
   public void test2() {
-    final ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
-    final ZonedDateTime endDate = DateUtil.getUTCDate(2002, 2, 9);
+    final ZonedDateTime startDate = DateUtils.getUTCDate(2000, 1, 1);
+    final ZonedDateTime endDate = DateUtils.getUTCDate(2002, 2, 9);
     final ZonedDateTime[] forward = CALCULATOR.getSchedule(startDate, endDate);
     assertCalculator(startDate, endDate, forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, false, true), forward);
@@ -78,7 +78,7 @@ public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
     assertEquals(forward[days - 1], endDate);
     assertEquals(forward[days - 1], endDate);
     for (int i = 1; i < days; i++) {
-      assertEquals(DateUtil.getDaysBetween(forward[i], forward[i - 1]), 1);
+      assertEquals(DateUtils.getDaysBetween(forward[i], forward[i - 1]), 1);
     }
   }
 

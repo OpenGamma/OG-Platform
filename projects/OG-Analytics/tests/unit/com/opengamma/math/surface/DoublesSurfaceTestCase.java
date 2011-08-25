@@ -6,13 +6,15 @@
 package com.opengamma.math.surface;
 
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;

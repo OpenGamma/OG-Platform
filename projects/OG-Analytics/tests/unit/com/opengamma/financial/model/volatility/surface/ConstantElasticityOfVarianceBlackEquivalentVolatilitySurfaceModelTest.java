@@ -6,10 +6,12 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Collections;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -19,7 +21,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,8 +32,8 @@ public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModelTe
   private static final double T = 0.25;
   private static final double B = 0;
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T));
   private static final double BETA = 0.5;
   private static final ConstantElasticityOfVarianceModelDataBundle DATA = new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(0.005)), SPOT,
       DATE, BETA);

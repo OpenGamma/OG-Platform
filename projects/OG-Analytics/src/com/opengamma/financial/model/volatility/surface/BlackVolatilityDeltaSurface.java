@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import com.opengamma.financial.equity.varswap.pricing.VarSwapStaticReplication.StrikeParameterisation;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.surface.Surface;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Like BlackVolatilitySurface, a surface that contains the Black (aka implied, aka lognormal) volatility  as a function of time to maturity and strike.
@@ -30,14 +30,14 @@ public class BlackVolatilityDeltaSurface extends BlackVolatilitySurface {
   }
 
   public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final boolean strikeAxisRepresentsCalls) {
-    super(surface, strikeAxisRepresentsCalls ? StrikeParameterisation.CALLDELTA : StrikeParameterisation.PUTDELTA);
+    super(surface, strikeAxisRepresentsCalls ? StrikeParameterization.CALLDELTA : StrikeParameterization.PUTDELTA);
     _strikeAxisRepresentsCalls = strikeAxisRepresentsCalls;
 
   }
 
-  public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final StrikeParameterisation strikeType) {
+  public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {
     super(surface, strikeType);
-    _strikeAxisRepresentsCalls = strikeType == StrikeParameterisation.CALLDELTA;
+    _strikeAxisRepresentsCalls = strikeType == StrikeParameterization.CALLDELTA;
 
   }
 

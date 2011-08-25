@@ -25,6 +25,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.
  */
 public final class CouponIborGearingDiscountingMethod implements PricingMethod {
+
   private static final CouponIborGearingDiscountingMethod INSTANCE = new CouponIborGearingDiscountingMethod();
 
   /**
@@ -49,8 +50,8 @@ public final class CouponIborGearingDiscountingMethod implements PricingMethod {
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
     final double forward = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTime()) - 1) / coupon.getFixingAccrualFactor();
-    final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount())
-        * discountingCurve.getDiscountFactor(coupon.getPaymentTime());
+    final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
+    final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * (coupon.getFactor() * forward) + coupon.getSpreadAmount()) * df;
     return CurrencyAmount.of(coupon.getCurrency(), value);
   }
 
