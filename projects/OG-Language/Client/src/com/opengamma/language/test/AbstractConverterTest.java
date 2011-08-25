@@ -20,6 +20,7 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.Converters;
 import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
 import com.opengamma.language.invoke.DefaultValueConverter;
 import com.opengamma.language.invoke.TypeConverter;
 import com.opengamma.language.invoke.TypeConverterProvider;
@@ -33,7 +34,7 @@ public class AbstractConverterTest {
 
   protected AbstractConverterTest() {
     final TestUtils testUtils = new TestUtils();
-    testUtils.setTypeConverters(new Converters());
+    testUtils.setTypeConverters(getTypeConverters());
     _sessionContext = testUtils.createSessionContext();
   }
 
@@ -52,9 +53,12 @@ public class AbstractConverterTest {
    * @return the populated type converter provider, not {@code null}
    */
   protected final TypeConverterProvider useBean() {
+    final AggregatingTypeConverterProvider agg = new AggregatingTypeConverterProvider();
     final TypeConverterProviderBean bean = new TypeConverterProviderBean();
     addTypeConvertersToBean(bean);
-    return bean;
+    agg.addTypeConverterProvider(new Converters());
+    agg.addTypeConverterProvider(bean);
+    return agg;
   }
 
   /**

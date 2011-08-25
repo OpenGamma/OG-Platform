@@ -13,13 +13,13 @@ import java.util.Collection;
  */
 public class TypeConverterProviderBean extends AbstractTypeConverterProvider {
 
-  private Collection<TypeConverter> _converters;
+  private Collection<? extends TypeConverter> _converters;
 
-  public void setConverters(final Collection<TypeConverter> converters) {
+  public void setConverters(final Collection<? extends TypeConverter> converters) {
     _converters = converters;
   }
 
-  public Collection<TypeConverter> getConverters() {
+  public Collection<? extends TypeConverter> getConverters() {
     return _converters;
   }
 
