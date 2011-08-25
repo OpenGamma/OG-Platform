@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 /**
  *
  */
-//@Path("viewports/{viewportId}") // TODO is this necessary on a sub-resource?
 public class ViewportResource {
 
   private final Viewport _viewport;

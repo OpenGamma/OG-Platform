@@ -12,6 +12,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -44,7 +45,7 @@ public class WebView implements Viewport {
 
   private static final Logger s_logger = LoggerFactory.getLogger(WebView.class);
 
-  private final ViewClient _client;
+  private final ViewClient _viewClient;
   private final String _viewDefinitionName;
   private final UniqueId _snapshotId;
   private final ResultConverterCache _resultConverterCache;
@@ -56,16 +57,18 @@ public class WebView implements Viewport {
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
   private Map<Integer, Map<String, Object>> _primitiveResult;
   private Map<Integer, Map<String, Object>> _portfolioResult;
+  private ViewportDefinition _viewportDefinition;
   private AnalyticsListener _listener;
   private Map<String,Object> _gridStructures;
+  private boolean _initialized = false;
 
-  public WebView(ViewClient client, String viewDefinitionName, UniqueId snapshotId, ResultConverterCache resultConverterCache) {
-    _client = client;
+  public WebView(ViewClient viewClient, String viewDefinitionName, UniqueId snapshotId, ResultConverterCache resultConverterCache) {
+    _viewClient = viewClient;
     _viewDefinitionName = viewDefinitionName;
     _snapshotId = snapshotId;
     _resultConverterCache = resultConverterCache;
 
-    _client.setResultListener(new AbstractViewResultListener() {
+    _viewClient.setResultListener(new AbstractViewResultListener() {
       
       @Override
       public UserPrincipal getUser() {
@@ -82,7 +85,12 @@ public class WebView implements Viewport {
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
-        updateResults();
+        // TODO only call this is the deltaResult isn't empty, i.e. something has changed?
+        if (deltaResult.getAllResults().size() != 0) {
+          updateResults();
+        } else {
+          s_logger.debug("Cycle completed with no changes");
+        }
       }
 
     });
@@ -97,12 +105,13 @@ public class WebView implements Viewport {
       flags = ExecutionFlags.triggersEnabled().get();
     }
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
-    client.attachToViewProcess(viewDefinitionName, executionOptions);
+    _viewClient.setResultMode(ViewResultMode.BOTH); // TODO only need this if we're using deltas to figure out whether to publish anything
+    _viewClient.attachToViewProcess(viewDefinitionName, executionOptions);
   }
 
   // TODO make sure an update event is published when the view defs compile?
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
-    WebViewPortfolioGrid portfolioGrid = new WebViewPortfolioGrid(_client, compiledViewDefinition, _resultConverterCache);
+    WebViewPortfolioGrid portfolioGrid = new WebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
 
     _gridStructures = new HashMap<String, Object>();
 
@@ -113,26 +122,29 @@ public class WebView implements Viewport {
       _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
     }
 
-    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(_client, compiledViewDefinition, _resultConverterCache);
+    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
       _primitivesGrid = primitivesGrid;
       _gridStructures.put("primitives", _primitivesGrid.getInitialJsonGridStructure());
     }
+    _initialized = true;
+    _listener.gridStructureChanged();
+    configureGridViewports();
   }
 
   /* package */ void pause() {
-    _client.pause();
+    _viewClient.pause();
   }
 
   /* package */ void resume() {
-    _client.resume();
+    _viewClient.resume();
   }
 
   /* package */ void shutdown() {
     // Removes all listeners
-    _client.shutdown();
+    _viewClient.shutdown();
   }
   
   public String getViewDefinitionName() {
@@ -167,25 +179,30 @@ public class WebView implements Viewport {
    * TODO CONCURRENCY
    */
   public Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+    _viewportDefinition = viewportDefinition;
     _listener = listener;
-    if (_portfolioGrid != null) {
-      _portfolioGrid.setViewport(viewportDefinition.getPortfolioRows());
-      _portfolioGrid.updateDepGraphCells(viewportDefinition.getPortfolioDependencyGraphCells());
-    }
-    if (_primitivesGrid != null) {
-      _primitivesGrid.setViewport(viewportDefinition.getPrimitiveRows());
-      _primitivesGrid.updateDepGraphCells(viewportDefinition.getPrimitiveDependencyGraphCells());
-    }
-    // TODO _client.setViewCycleAccessSupported()?
-    updateResults();
+    configureGridViewports();
     return this;
   }
-  
-  private void updateResults() {
-    if (!_client.isResultAvailable()) {
+
+  private void configureGridViewports() {
+    if (!_initialized) {
       return;
     }
-    ViewComputationResultModel resultModel = _client.getLatestResult();
+    _portfolioGrid.setViewport(_viewportDefinition.getPortfolioRows());
+    _portfolioGrid.updateDepGraphCells(_viewportDefinition.getPortfolioDependencyGraphCells());
+    _primitivesGrid.setViewport(_viewportDefinition.getPrimitiveRows());
+    _primitivesGrid.updateDepGraphCells(_viewportDefinition.getPrimitiveDependencyGraphCells());
+    // TODO _client.setViewCycleAccessSupported()?
+    updateResults();
+  }
+
+  private void updateResults() {
+    // TODO what about delta results? should they be available?
+    if (!_viewClient.isResultAvailable()) {
+      return;
+    }
+    ViewComputationResultModel resultModel = _viewClient.getLatestResult();
     long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
     _portfolioResult = new HashMap<Integer, Map<String, Object>>();
     _primitiveResult = new HashMap<Integer, Map<String, Object>>();
@@ -220,11 +237,11 @@ public class WebView implements Viewport {
     // TODO this is ugly, the dep graph count belongs in the portfolio grid
     if (includeDepGraph) {
       if (_activeDepGraphCount.getAndIncrement() == 0) {
-        _client.setViewCycleAccessSupported(true);
+        _viewClient.setViewCycleAccessSupported(true);
       }
     } else {
       if (_activeDepGraphCount.decrementAndGet() == 0) {
-        _client.setViewCycleAccessSupported(false);
+        _viewClient.setViewCycleAccessSupported(false);
       }
     }
     /*WebViewGrid grid = _portfolioGrid.setIncludeDepGraph(cell, includeDepGraph);
@@ -242,7 +259,7 @@ public class WebView implements Viewport {
     if (grid == null) {
       throw new DataNotFoundException("Unknown grid '" + gridName + "'");
     }
-    ViewComputationResultModel latestResult = _client.getLatestResult();
+    ViewComputationResultModel latestResult = _viewClient.getLatestResult();
     if (latestResult == null) {
       return null;
     }
@@ -260,6 +277,7 @@ public class WebView implements Viewport {
     Map<String, Object> results = new HashMap<String, Object>();
     results.put("portfolio", _portfolioResult);
     results.put("primitive", _primitiveResult);
+    _listener.activate();
     return results;
   }
 

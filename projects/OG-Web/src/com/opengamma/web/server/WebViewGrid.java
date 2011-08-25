@@ -143,6 +143,7 @@ public abstract class WebViewGrid {
                                              Object value,
                                              Long resultTimestamp,
                                              ResultConverter<Object> converter) {
+    // TODO getViewport is returning null. something needs to be initialised
     boolean rowInViewport = getViewport().containsKey(cell.getRowId());
     Long lastHistoryTimestamp = getViewport().get(cell.getRowId());
     ConversionMode mode = getConversionMode(cell);    

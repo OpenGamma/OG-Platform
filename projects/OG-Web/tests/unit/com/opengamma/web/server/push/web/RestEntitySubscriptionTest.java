@@ -107,8 +107,7 @@ public class RestEntitySubscriptionTest {
     // send a change event that we should never see
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     String result = readFromPath("/updates/" + clientId);
-    // TODO this timeout behaviour will probably change
-    assertEquals("TIMEOUT", result);
+    assertEquals("", result);
   }
 
   @Test(expectedExceptions = FileNotFoundException.class)

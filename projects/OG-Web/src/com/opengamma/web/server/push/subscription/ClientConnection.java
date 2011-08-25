@@ -56,8 +56,8 @@ public class ClientConnection implements ChangeListener {
    * TODO logic in subscription requests? command pattern?
    * @param viewportId
    */
-  public void createViewport(String clientId, ViewportDefinition request, String viewportUrl) {
-    AnalyticsListener listener = new AnalyticsListener(viewportUrl, _listener);
+  public void createViewport(String clientId, ViewportDefinition request, String dataUrl, String gridUrl) {
+    AnalyticsListener listener = new AnalyticsListener(dataUrl, gridUrl, _listener);
     _viewport = _viewportFactory.createViewport(_clientId, request, listener);
   }
 

@@ -138,7 +138,7 @@ public class ViewportDefinition {
       if (rows.containsKey(row)) {
         throw new IllegalArgumentException("Unable to create ViewportDefinition from JSON, duplicate row number: " + row);
       }
-      long timestamp = rowArray.getLong(1);
+      long timestamp = rowArray.optLong(1); // TODO this will return zero for a null. is that right?
       if (timestamp < 0) {
         throw new IllegalArgumentException(
             "Unable to create ViewportDefinition from JSON, timestamps must not be negative: " + timestamp);

@@ -73,6 +73,7 @@ public class LiveResultsService implements ViewportFactory {
         if (webView.matches(viewDefinitionName, snapshotId)) {
           // Already initialized
           // this used to deliver the grid structure to the client
+          // TODO is there any possibility the WebView won't have a compiled view def at this point?
           return webView.configureViewport(viewportDefinition, listener);
         }
         // Existing view is different - client is switching views
@@ -87,6 +88,7 @@ public class LiveResultsService implements ViewportFactory {
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
       }
       _clientViews.put(clientId, webView);
+      // TODO at this point the view def won't be compiled so the grids won't exist and the viewport can't be configured
       return webView.configureViewport(viewportDefinition, listener);
     }
   }

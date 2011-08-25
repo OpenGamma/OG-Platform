@@ -2,18 +2,21 @@ package com.opengamma.web.server.push.subscription;
 
 /**
  * TODO the semantics aren't quite right - should discard updates when inactive for consitency with entity subs
+ * TODO gridChanged() method that publishes /viewports/{id}/grid
  */
 public class AnalyticsListener {
 
-  private final String _viewportUrl;
+  private final String _dataUrl;
+  private final String _gridStructureUrl;
   private final RestUpdateListener _listener;
-  private final Object _lock = new Object();
 
+  private final Object _lock = new Object();
   private boolean _active = false; // TODO what should the default be?
   private boolean _dataChanged = false;
 
-  public AnalyticsListener(String viewportUrl, RestUpdateListener listener) {
-    _viewportUrl = viewportUrl;
+  public AnalyticsListener(String dataUrl, String gridStructureUrl, RestUpdateListener listener) {
+    _dataUrl = dataUrl;
+    _gridStructureUrl = gridStructureUrl;
     _listener = listener;
   }
 
@@ -27,12 +30,18 @@ public class AnalyticsListener {
     }
   }
 
-  void activate() {
+  public void gridStructureChanged() {
+    synchronized (_lock) {
+      _listener.itemUpdated(_gridStructureUrl);
+    }
+  }
+
+  public void activate() {
     synchronized (_lock) {
       if (_dataChanged) {
         fireUpdate();
       } else {
-        _dataChanged = true;
+        _active = true;
       }
     }
   }
@@ -40,6 +49,6 @@ public class AnalyticsListener {
   private void fireUpdate() {
     _active = false;
     _dataChanged = false;
-    _listener.itemUpdated(_viewportUrl);
+    _listener.itemUpdated(_dataUrl);
   }
 }

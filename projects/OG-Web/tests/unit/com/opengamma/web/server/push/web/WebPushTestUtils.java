@@ -16,9 +16,12 @@ import org.json.JSONObject;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.ws.rs.core.MediaType;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -126,5 +129,35 @@ public class WebPushTestUtils {
       String result = results.getString(i);
       assertTrue("Unexpected result: " + result, expectedList.contains(result));
     }
+  }
+
+  /**
+   * @return The URL of the viewport relative to the root
+   */
+  static String createViewport(String clientId, String viewportDefJson) throws IOException {
+    String viewportUrl;
+    BufferedReader reader = null;
+    BufferedWriter writer = null;
+    try {
+      URL url = new URL("http://localhost:8080/jax/viewports?clientId=" + clientId);
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection.setDoOutput(true);
+      connection.setRequestMethod("POST");
+      connection.setRequestProperty("CONTENT-TYPE", MediaType.APPLICATION_JSON);
+      connection.connect();
+      writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+      writer.write(viewportDefJson);
+      writer.flush();
+      reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+      viewportUrl = reader.readLine();
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
+      if (writer != null) {
+        writer.close();
+      }
+    }
+    return viewportUrl;
   }
 }

@@ -10,23 +10,13 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
+import static com.opengamma.web.server.push.web.WebPushTestUtils.createViewport;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.handshake;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.Assert.assertEquals;
@@ -35,8 +25,6 @@ import static org.testng.Assert.assertEquals;
  *
  */
 public class ViewportTest {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(ViewportTest.class);
 
   private Server _server;
 
@@ -101,11 +89,11 @@ public class ViewportTest {
         "\"dependencyGraphCells\": [[1, 2]]" +
         "}" +
         "}";
-    String viewportUrl = createViewport(clientId, viewportDefJson);
-    if (StringUtils.isEmpty(viewportUrl)) {
+    String viewportUrl1 = createViewport(clientId, viewportDefJson);
+    if (StringUtils.isEmpty(viewportUrl1)) {
       Assert.fail("no URL returned for 1st viewport");
     }
-    String latestResult = readFromPath(viewportUrl + "/data");
+    String latestResult = readFromPath(viewportUrl1 + "/data");
     JSONObject jsonResults = new JSONObject(latestResult);
     assertEquals(3, jsonResults.length());
 
@@ -137,11 +125,11 @@ public class ViewportTest {
         "\"dependencyGraphCells\": [[3, 1]]" +
         "}" +
         "}";
-    viewportUrl = createViewport(clientId, viewportDefJson);
-    if (StringUtils.isEmpty(viewportUrl)) {
+    String viewportUrl2 = createViewport(clientId, viewportDefJson);
+    if (StringUtils.isEmpty(viewportUrl2)) {
       Assert.fail("no URL returned for 2nd viewport");
     }
-    latestResult = readFromPath(viewportUrl + "/data");
+    latestResult = readFromPath(viewportUrl1 + "/data");
     jsonResults = new JSONObject(latestResult);
     assertEquals(2, jsonResults.length());
 
@@ -156,40 +144,8 @@ public class ViewportTest {
     assertEquals(4, row3.getInt(0));
     assertEquals(8, row3.getInt(1));
     assertEquals(12, row3.getInt(2));
+
+    // TODO check that the original URL is no longer valid
   }
 
-  private static String createViewport(String clientId, String viewportDefJson) throws IOException {
-    String viewportUrl;
-    BufferedReader reader = null;
-    BufferedWriter writer = null;
-    try {
-      URL url = new URL("http://localhost:8080/rest/viewports?clientId=" + clientId);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setDoOutput(true);
-      connection.setRequestMethod("POST");
-      connection.setRequestProperty("CONTENT-TYPE", MediaType.APPLICATION_JSON);
-      connection.connect();
-      writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-      writer.write(viewportDefJson);
-      writer.flush();
-      reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      viewportUrl = reader.readLine();
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          s_logger.warn("failed to close reader", e);
-        }
-      }
-      if (writer != null) {
-        try {
-          writer.close();
-        } catch (IOException e) {
-          s_logger.warn("failed to close writer", e);
-        }
-      }
-    }
-    return viewportUrl;
-  }
 }

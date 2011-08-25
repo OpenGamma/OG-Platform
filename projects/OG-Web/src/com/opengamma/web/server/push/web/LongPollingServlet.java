@@ -40,7 +40,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
   private void setUpConnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Continuation continuation = ContinuationSupport.getContinuation(request);
     if (continuation.isExpired()) {
-      response.getWriter().write("TIMEOUT"); // TODO what is the best approach here?
+      // timeout - just send a blank reponse
       return;
     }
     // suspend the request

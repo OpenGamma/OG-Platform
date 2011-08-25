@@ -78,9 +78,10 @@ import java.util.concurrent.atomic.AtomicLong;
                              String clientId,
                              ViewportDefinition viewportDefinition,
                              String viewportId,
-                             String viewportUrl) {
+                             String dataUrl,
+                             String gridUrl) {
     ClientConnection connection = getConnectionByClientId(userId, clientId);
-    connection.createViewport(clientId, viewportDefinition, viewportUrl);
+    connection.createViewport(clientId, viewportDefinition, dataUrl, gridUrl);
     _connectionsByViewportId.put(viewportId, connection);
   }
 

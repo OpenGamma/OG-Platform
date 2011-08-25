@@ -47,13 +47,15 @@ public class ViewportsResource {
   @Produces(MediaType.TEXT_PLAIN) // TODO JSON? {viewportRestUrl: <url>}
   // TODO should clientId be a query param or part of the viewport def?
   public String createViewport(ViewportDefinition viewportDefinition,
-                               @QueryParam("clientId") String clientId,
+                               @QueryParam("clientId") String clientId, // TODO should this be optional? is it? viewports without updates?
                                @Context HttpServletRequest request) {
     String userId = request.getRemoteUser();
     // TODO should this be wrapped in JSON?
     String viewportId = generateViewportId();
     String viewportUrl = generateViewportUrl(viewportId, request);
-    _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportId, viewportUrl);
+    String gridUrl = generateGridUrl(viewportId, viewportUrl);
+    String dataUrl = generateDataUrl(viewportId, viewportUrl);
+    _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
     return viewportUrl;
   }
 
@@ -71,11 +73,25 @@ public class ViewportsResource {
     }
   }
 
-  private String generateViewportUrl(String viewportId, HttpServletRequest request) {
-    return UriBuilder.fromUri(request.getRequestURI()).path("{viewportId}").build(viewportId).toString();
-  }
-
   private String generateViewportId() {
     return Long.toString(_nextId.getAndIncrement());
+  }
+
+  private String generateViewportUrl(String viewportId, HttpServletRequest request) {
+    return UriBuilder.fromUri(request.getRequestURI())
+        .path(ViewportsResource.class, "findViewport")
+        .build(viewportId).toString();
+  }
+
+  private String generateDataUrl(String viewportId, String viewportUrl) {
+    return UriBuilder.fromUri(viewportUrl)
+        .path(ViewportResource.class, "getLatestData")
+        .build(viewportId).toString();
+  }
+
+  private String generateGridUrl(String viewportId, String viewportUrl) {
+    return UriBuilder.fromUri(viewportUrl)
+        .path(ViewportResource.class, "getGridStructure")
+        .build(viewportId).toString();
   }
 }

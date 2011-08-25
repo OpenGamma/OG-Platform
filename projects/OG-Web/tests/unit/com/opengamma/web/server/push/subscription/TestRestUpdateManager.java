@@ -41,7 +41,8 @@ public class TestRestUpdateManager implements RestUpdateManager {
                              String clientId,
                              ViewportDefinition viewportDefinition,
                              String viewportId,
-                             String viewportUrl) {
+                             String dataUrl,
+                             String gridUrl) {
     throw new UnsupportedOperationException("createViewport not implemented");
   }
 
