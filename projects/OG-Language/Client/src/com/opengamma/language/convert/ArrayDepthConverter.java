@@ -38,7 +38,7 @@ public class ArrayDepthConverter extends AbstractTypeConverter {
     final int targetDimensions = type.getArrayDimension();
     final int sourceDimensions = getArrayDimension(value.getClass());
     if (targetDimensions == sourceDimensions + 1) {
-      final Object result = Array.newInstance(value.getClass(), 1);
+      final Object result = Array.newInstance(type.getArrayElementType().getRawClass(), 1);
       Array.set(result, 0, value);
       conversionContext.setResult(result);
     } else if (targetDimensions == sourceDimensions - 1) {

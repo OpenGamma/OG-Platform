@@ -21,6 +21,7 @@ public final class ValueConversionContext {
   private boolean _hasResult;
   private boolean _hasFailed;
   private Object _result;
+  private int _reentrance;
 
   public ValueConversionContext(final SessionContext sessionContext, final com.opengamma.language.invoke.ValueConverter converter) {
     ArgumentChecker.notNull(sessionContext, "sessionContext");
@@ -37,8 +38,14 @@ public final class ValueConversionContext {
     return getSessionContext().getGlobalContext();
   }
 
+  public int getReentranceCount() {
+    return _reentrance;
+  }
+
   public void convertValue(final Object value, final JavaTypeInfo<?> type) {
+    _reentrance++;
     _converter.convertValue(this, value, type);
+    _reentrance--;
   }
 
   public boolean setFail() {

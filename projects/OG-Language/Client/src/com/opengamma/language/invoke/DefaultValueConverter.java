@@ -206,6 +206,19 @@ public class DefaultValueConverter extends ValueConverter {
   }
 
   private boolean stateConversion(final ValueConversionContext conversionContext, State state) {
+    /*{
+      final StringBuilder sb = new StringBuilder();
+      final Object result = conversionContext.getResult();
+      conversionContext.setResult(result);
+      sb.append(state.getCost()).append(' ').append(result);
+      State s = state;
+      do {
+        sb.append("--[").append(s.getNextStateConverter()).append("]->");
+        s = s.getNextState();
+        sb.append(s.getTargetType());
+      } while (s.getNextStateConverter() != null);
+      System.out.println(sb.toString());
+    }*/
     TypeConverter converter = state.getNextStateConverter();
     do {
       state = state.getNextState();
@@ -284,7 +297,17 @@ public class DefaultValueConverter extends ValueConverter {
       nextState: do {
         if (searchStates.isEmpty()) {
           s_logger.debug("No more states");
-          s_logger.warn("Conversion of {} to {} failed", value, type);
+          switch (conversionContext.getReentranceCount()) {
+            case 0:
+              s_logger.warn("Conversion of {} to {} failed", value, type);
+              break;
+            case 1:
+              s_logger.info("Conversion of {} to {} failed", value, type);
+              break;
+            default:
+              s_logger.debug("Conversion of {} to {} failed", value, type);
+              break;
+          }
           conversionContext.setFail();
           return;
         }
