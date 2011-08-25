@@ -200,4 +200,30 @@ public class DefaultValueConverterTest {
     assertEquals(FudgeSerializer.addClassHeader(object.toFudgeMsg(serializer), object.getClass()), data.getSingle().getMessageValue());
   }
 
+  @Test
+  public void testWithDefault() {
+    JavaTypeInfo<Boolean> dataType = JavaTypeInfo.builder(Boolean.class).defaultValue(true).get();
+    Boolean v = convert(null, dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert("TRUE", dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert("FALSE", dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert(new Data(), dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert(DataUtils.of(new Value()), dataType);
+    assertEquals(Boolean.TRUE, v);
+    dataType = JavaTypeInfo.builder(Boolean.class).defaultValue(false).get();
+    v = convert(null, dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert("TRUE", dataType);
+    assertEquals(Boolean.TRUE, v);
+    v = convert("FALSE", dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert(new Data(), dataType);
+    assertEquals(Boolean.FALSE, v);
+    v = convert(DataUtils.of(new Value()), dataType);
+    assertEquals(Boolean.FALSE, v);
+  }
+
 }
