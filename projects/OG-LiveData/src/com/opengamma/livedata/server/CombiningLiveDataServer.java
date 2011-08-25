@@ -135,6 +135,21 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
     return getServer(distributor.getFullyQualifiedLiveDataSpecification()).stopDistributor(distributor);    
   }
 
+  
+  @Override
+  public synchronized void start() {
+    for (AbstractLiveDataServer server : _underlyings) {
+      server.start();
+    }
+  }
+
+  @Override
+  public synchronized void stop() {
+    for (AbstractLiveDataServer server : _underlyings) {
+      server.stop();
+    }
+  }
+
   @Override
   protected void doConnect() {
     for (AbstractLiveDataServer server : _underlyings) {
