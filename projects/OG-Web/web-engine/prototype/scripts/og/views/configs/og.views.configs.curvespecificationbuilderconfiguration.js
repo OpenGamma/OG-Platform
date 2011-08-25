@@ -5,6 +5,7 @@
 $.register_module({
     name: 'og.views.configs.curvespecificationbuilderconfiguration',
     dependencies: [
+        'og.api.text',
         'og.api.rest',
         'og.common.util.ui',
         'og.views.forms.Constraints',
@@ -38,6 +39,7 @@ $.register_module({
                 STTY = 'stripType',
                 INST = 'instrument',
                 PRFX = 'prefix',
+                popup_module = 'og.views.forms.curve-specification-builder-popup',
                 form = new ui.Form({
                     module: 'og.views.forms.curve-specification-builder',
                     data: field_names.reduce(function (acc, val) {
@@ -59,6 +61,7 @@ $.register_module({
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
+            og.api.text({module: popup_module, handler: $.noop}); // cache popup module so there is no initial delay
             form.attach([
                 {type: 'form:load', handler: function () {
                     var header = '\
@@ -79,20 +82,58 @@ $.register_module({
                 }},
                 {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) {
                     $(e.target).parent('li').remove();
+                }},
+                {type: 'click', selector: form_id + ' .og-js-popup .og-js-cancel', handler: function (e) {
+                    $(form_id + ' .og-js-popup').remove();
+                    $(form_id + ' .og-js-cell').removeClass('og-active');
+                }},
+                {type: 'click', selector: form_id + ' .og-js-popup button', handler: function (e) {
+                    $(form_id + ' .og-js-popup').remove();
+                    $(form_id + ' .og-js-cell').removeClass('og-active');
+                }},
+                {type: 'click', selector: form_id + ' .og-js-cell', handler: function (e) {
+                    var $cell = $(e.target).is('.og-js-cell') ? $(e.target) : $(e.target).parent('.og-js-cell:first'),
+                        $row = $cell.parents('.og-js-row:first'),
+                        $holder = $(form_id + ' .og-js-holder'),
+                        cell_offset = $cell.offset(), holder_offset = $holder.offset(),
+                        block;
+                    $(form_id + ' .og-js-popup').remove();
+                    if ($cell.is('.og-active')) {
+                        $cell.removeClass('og-active');
+                        return;
+                    }
+                    $(form_id + ' .og-js-cell').removeClass('og-active');
+                    $cell.addClass('og-active');
+                    block = new form.Block({
+                        module: popup_module,
+                        handlers: [{type: 'form:load', handler: function () {
+                            var $popup = $(form_id + ' .og-js-popup'),
+                                is_last = $row.find('.og-js-strip .og-js-cell').index($cell) === 7,
+                                last_offset = is_last ? $popup.width() - $cell.width() + 3 : 0,
+                                top = Math.round(cell_offset.top - holder_offset.top) + $row.height(),
+                                left = Math.round(cell_offset.left - holder_offset.left - last_offset),
+                                css = {top: top + 'px', left: left + 'px'};
+                            $popup.css(css);
+                        }}]
+                    });
+                    block.html(function (html) {$holder.append($(html)), block.load();});
                 }}
             ]);
-            format = function (val) {
-                var json = '', formatted = val[PRFX] ? val[PRFX] + ' * ' + val[MKTS]
-                    : val[CURR] ? val[CURR] + '/' + val[SCHM] + '/' + val[STTY]
-                        : val[INST];
-                json = $.outer($('input').prop({type: 'hidden'}).attr({value: JSON.stringify(val)})[0]);
-                return '<div class="og-value og-js-cell">' + json + '<span>' + formatted + '</span><span></span></div>';
-            };
+            format = (function (dummy) {
+                return function (val) {
+                    var json = '', formatted = val[PRFX] ? val[PRFX] + ' * ' + val[MKTS]
+                        : val[CURR] ? val[CURR] + '/' + val[SCHM] + '/' + val[STTY]
+                            : val[INST];
+                    json = $.outer(dummy.attr({value: JSON.stringify(val)})[0]);
+                    return '<div class="og-value og-js-cell">' + json + '<span>' + formatted +
+                        '</span><span></span></div>';
+                }
+            })($('<input />').prop({type: 'hidden'}));
             new_strip_item = function (val, idx) {
                 var key, extras = {tenor: val.tenor};
                 delete val.tenor;
                 for (key in val) if (!val[has](key)) continue; else extras[key] = val[key] ? format(val[key])
-                    : '<div class="og-configure"><span>configure</span></div>';
+                    : '<div class="og-configure og-js-cell"><span>configure</span></div>';
                 return new form.Block({
                     module: 'og.views.forms.curve-specification-builder-strip',
                     extras: extras

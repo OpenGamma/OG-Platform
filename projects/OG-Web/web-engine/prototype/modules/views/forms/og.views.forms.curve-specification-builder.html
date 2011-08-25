@@ -147,11 +147,11 @@
     border-bottom-color: transparent;
   }
 
-  .OG-form .og-csb .og-active span {
+  .OG-form .og-csb .og-active span:last-child {
     border-bottom: none;
   }
 
-  .OG-form .og-csb .og-active span:after {
+  .OG-form .og-csb .og-active span:last-child:after {
     background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
     content: '';
     background-position: 0 -4px;
@@ -163,8 +163,8 @@
     display: block;
   }
 
-  .OG-form .og-csb .og-active:hover span,
-  .OG-form .og-csb .og-active:hover span:after {
+  .OG-form .og-csb .og-active:hover span:last-child,
+  .OG-form .og-csb .og-active:hover span:last-child:after {
     background: none;
     border: none;
   }
@@ -222,7 +222,7 @@
           <div>Basis Swap</div>
         </div>
       </h3>
-      <div class="og-mod-content">
+      <div class="og-mod-content og-js-holder" style="position: relative;">
         {{html item_0}}
         <div class="og-footer">
           <span class="OG-link-add">add row</span>
