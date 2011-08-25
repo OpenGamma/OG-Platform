@@ -17,11 +17,13 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity
  * Method to compute the price of bond future as the cheapest forward.
  */
 public final class BondFutureSecurityDiscountingMethod {
-  private static final BondFutureSecurityDiscountingMethod INSTANCE = new BondFutureSecurityDiscountingMethod();
+
   /**
    * The method to compute bond security figures.
    */
   private static final BondSecurityDiscountingMethod BOND_METHOD = BondSecurityDiscountingMethod.getInstance();
+
+  private static final BondFutureSecurityDiscountingMethod INSTANCE = new BondFutureSecurityDiscountingMethod();
 
   public static BondFutureSecurityDiscountingMethod getInstance() {
     return INSTANCE;

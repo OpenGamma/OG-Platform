@@ -42,7 +42,7 @@ public class BondFutureSecurityDiscountingMethodTest {
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
@@ -131,8 +131,8 @@ public class BondFutureSecurityDiscountingMethodTest {
     sensiFuture = sensiFuture.clean();
     sensiBond = sensiBond.clean();
     for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
-      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first,
-          sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
+      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first, sensiFuture.getSensitivities()
+          .get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
       assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).second, sensiFuture.getSensitivities()
           .get(CREDIT_CURVE_NAME).get(loopsensi).second, 1.0E-10);
     }

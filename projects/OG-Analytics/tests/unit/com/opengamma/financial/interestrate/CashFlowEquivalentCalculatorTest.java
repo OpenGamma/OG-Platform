@@ -143,7 +143,7 @@ public class CashFlowEquivalentCalculatorTest {
 
   @Test
   /**
-   * Tests the cash-flow equivalent of a fixe-Ibor swap.
+   * Tests the cash-flow equivalent of a fixed-Ibor swap.
    */
   public void swapFixedIbor() {
     GenericAnnuity<Coupon> leg = SWAP.getSecondLeg();

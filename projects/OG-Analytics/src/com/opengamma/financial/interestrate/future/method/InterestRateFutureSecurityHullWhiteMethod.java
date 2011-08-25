@@ -61,7 +61,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
     double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();
-    double futureConvexityFactor = _model.futureConvexityFactor(future, _data);
+    double futureConvexityFactor = _model.futureConvexityFactor(future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(), _data);
     double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
   }
