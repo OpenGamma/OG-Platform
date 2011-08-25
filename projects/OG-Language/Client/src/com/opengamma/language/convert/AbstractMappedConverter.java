@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 import com.opengamma.language.invoke.TypeConverter;
 import com.opengamma.util.tuple.Pair;
 
@@ -17,7 +18,7 @@ import com.opengamma.util.tuple.Pair;
  * Partial implementation of a {@link TypeConverter} that handles a 1:1 mapping of types.
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractMappedConverter implements TypeConverter {
+public abstract class AbstractMappedConverter extends AbstractTypeConverter {
 
   /**
    * Converts from type {@code F} to type {@code T}.
@@ -25,7 +26,7 @@ public abstract class AbstractMappedConverter implements TypeConverter {
    * @param <F> from type
    * @param <T> to type
    */
-  public static interface Action<F, T> {
+  public abstract static class Action<F, T> {
 
     /**
      * Cast the value to the correct from type.
@@ -33,7 +34,9 @@ public abstract class AbstractMappedConverter implements TypeConverter {
      * @param value the value to cast
      * @return the cast value, null if it is unsuitable
      */
-    F cast(Object value);
+    protected F cast(Object value) {
+      return (F) value;
+    }
 
     /**
      * Convert the value.
@@ -41,13 +44,17 @@ public abstract class AbstractMappedConverter implements TypeConverter {
      * @param value the value to convert
      * @return the converted value
      */
-    T convert(F value);
+    protected abstract T convert(F value);
+
   }
 
   private final Map<JavaTypeInfo<?>, Pair<Map<JavaTypeInfo<?>, Integer>, Action<?, ?>>> _conversions = new HashMap<JavaTypeInfo<?>, Pair<Map<JavaTypeInfo<?>, Integer>, Action<?, ?>>>();
 
   protected <F, T> void conversion(final int cost, final JavaTypeInfo<F> sourceType, final JavaTypeInfo<T> targetType, final Action<F, T> action) {
     _conversions.put(targetType, (Pair) Pair.of(TypeMap.of(cost, sourceType), action));
+    if (targetType.isAllowNull() && sourceType.isAllowNull()) {
+      _conversions.put(targetType.withAllowNull(false), (Pair) Pair.of(TypeMap.of(cost, sourceType.withAllowNull(false)), action));
+    }
   }
 
   protected <A, B> void conversion(final int cost, final JavaTypeInfo<A> typeA, final JavaTypeInfo<B> typeB, final Action<A, B> aToB, final Action<B, A> bToA) {
@@ -62,6 +69,16 @@ public abstract class AbstractMappedConverter implements TypeConverter {
 
   @Override
   public final void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if (value == null) {
+      if (type.isAllowNull()) {
+        conversionContext.setResult(null);
+      } else if (type.isDefaultValue()) {
+        conversionContext.setResult(type.getDefaultValue());
+      } else {
+        conversionContext.setFail();
+      }
+      return;
+    }
     final Action<Object, Object> action = (Action<Object, Object>) _conversions.get(type).getSecond();
     final Object cast = action.cast(value);
     if (cast != null) {

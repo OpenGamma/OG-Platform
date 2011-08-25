@@ -22,10 +22,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * Database storage of function costs.

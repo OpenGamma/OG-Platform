@@ -34,12 +34,7 @@ public class BoxingConverter extends AbstractMappedConverter {
 
   private static final Action<?, ?> s_identity = new Action<Object, Object>() {
     @Override
-    public Object cast(Object value) {
-      return value;
-    }
-
-    @Override
-    public Object convert(Object value) {
+    protected Object convert(Object value) {
       return value;
     }
   };

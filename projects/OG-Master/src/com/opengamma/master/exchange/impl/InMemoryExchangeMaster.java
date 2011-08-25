@@ -27,7 +27,7 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.Paging;
+import com.opengamma.util.Paging;
 
 /**
  * A simple, in-memory implementation of {@code ExchangeMaster}.
@@ -174,7 +174,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     if (doc != null) {
       result.getDocuments().add(doc);
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
 

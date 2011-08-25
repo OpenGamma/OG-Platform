@@ -7,6 +7,7 @@ package com.opengamma.language.context;
 
 import java.util.Properties;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionDefinitionFilter;
 import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
@@ -111,6 +112,10 @@ public class MutableGlobalContext extends GlobalContext {
   @Override
   public AggregatingTypeConverterProvider getTypeConverterProvider() {
     return getTypeConverterProviderImpl();
+  }
+
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    removeOrReplaceValue(HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
   }
 
   // Arbitrary values

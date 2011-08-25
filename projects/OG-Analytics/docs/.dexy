@@ -1,7 +1,4 @@
 {
-    "$globals" : {
-        "jinjavars" : { "OG_VERSION" : "dev" }
-    },
         "index.html|hd|ft|jinja|split" : {
             "allinputs" : true
         },

@@ -7,6 +7,8 @@
 package com.opengamma.language.definition;
 
 import java.lang.reflect.Array;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.springframework.util.ObjectUtils;
 
@@ -20,6 +22,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class JavaTypeInfo<T> {
 
+  private static final JavaTypeInfo<Object> OBJECT = builder(Object.class).get();
+
   /**
    * Constructs {@link JavaTypeInfo} instances.
    */
@@ -29,6 +33,7 @@ public final class JavaTypeInfo<T> {
     private boolean _allowNull;
     private boolean _hasDefaultValue;
     private T _defaultValue;
+    private List<JavaTypeInfo<?>> _parameter;
 
     private Builder(final Class<T> rawClass) {
       _rawClass = rawClass;
@@ -67,12 +72,31 @@ public final class JavaTypeInfo<T> {
       return this;
     }
 
+    public Builder<T> parameter(final JavaTypeInfo<?> paramType) {
+      if (_rawClass.isArray()) {
+        throw new IllegalStateException();
+      }
+      if (_parameter == null) {
+        _parameter = new LinkedList<JavaTypeInfo<?>>();
+      }
+      _parameter.add(paramType);
+      return this;
+    }
+
+    public Builder<T> parameter(final Class<?> rawClass) {
+      return parameter(builder(rawClass).get());
+    }
+
     public JavaTypeInfo<T> get() {
       final JavaTypeInfo<?>[] parameter;
       if (_rawClass.isArray()) {
         parameter = new JavaTypeInfo<?>[] {builder(_rawClass.getComponentType()).get() };
       } else {
-        parameter = null;
+        if (_parameter != null) {
+          parameter = _parameter.toArray(new JavaTypeInfo<?>[_parameter.size()]);
+        } else {
+          parameter = null;
+        }
       }
       return new JavaTypeInfo<T>(_rawClass, _allowNull, _hasDefaultValue, _defaultValue, parameter);
     }
@@ -93,10 +117,15 @@ public final class JavaTypeInfo<T> {
     _defaultValue = defaultValue;
     _parameter = parameter;
   }
-  
+
   @SuppressWarnings("unchecked")
   public JavaTypeInfo<?> arrayOf() {
     return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), _allowNull, false, null, new JavaTypeInfo<?>[] {this });
+  }
+
+  @SuppressWarnings("unchecked")
+  public JavaTypeInfo<?> withAllowNull(final boolean allowNull) {
+    return new JavaTypeInfo<Object>((Class<Object>) _rawClass, allowNull, _hasDefaultValue, _defaultValue, _parameter);
   }
 
   public Class<T> getRawClass() {
@@ -137,6 +166,14 @@ public final class JavaTypeInfo<T> {
       throw new IllegalStateException();
     }
     return _defaultValue;
+  }
+
+  public JavaTypeInfo<?> getParameterizedType(final int index) {
+    if ((_parameter != null) && (index < _parameter.length)) {
+      return _parameter[index];
+    } else {
+      return OBJECT;
+    }
   }
 
   @Override

@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -77,7 +77,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     PositionHistoryResult test = _posMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -91,10 +91,10 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   public void test_searchPositionHistoric_noInstants_pageOne() {
     ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(PagingRequest.ofPage(1, 1));
     PositionHistoryResult test = _posMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(1, test.getPaging().getPagingSize());
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -106,12 +106,12 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   public void test_searchPositionHistoric_noInstants_pageTwo() {
     ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(PagingRequest.ofPage(2, 1));
     PositionHistoryResult test = _posMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
-    assertEquals(2, test.getPaging().getFirstItem());
+    assertEquals(2, test.getPaging().getFirstItemOneBased());
     assertEquals(1, test.getPaging().getPagingSize());
     assertEquals(2, test.getPaging().getTotalItems());
     

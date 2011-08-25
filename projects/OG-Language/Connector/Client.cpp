@@ -586,7 +586,7 @@ bool CClientService::DispatchAndRelease (FudgeMsgEnvelope env) {
 /// concurrently. Another thread may still then send. This also means a deadlock won't occur if
 /// the user message callback attempts to send a message although that should be discouraged.
 ///
-/// @param lTimeout maximum time to wait for a message, in milliseconds
+/// @param[in] lTimeout maximum time to wait for a message, in milliseconds
 /// @return the received message or NULL if there was an error or the timeout elapsed
 FudgeMsgEnvelope CClientService::Recv (unsigned long lTimeout) {
 	FudgeStatus status;

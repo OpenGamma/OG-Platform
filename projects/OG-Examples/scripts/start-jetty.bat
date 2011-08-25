@@ -1,5 +1,8 @@
 @echo off
 
+REM PLAT-1527
+pushd %~dp0\..
+
 if "%JAVA_HOME%" == "" echo Warning: JAVA_HOME is not set
 set JAVACMD=%JAVA_HOME%\bin\java.exe
 
@@ -16,3 +19,6 @@ if "%RUN_MODE%" == "" set RUN_MODE=example
   start.class=com.opengamma.examples.startup.ExampleServer ^
   config\engine-spring.xml ^
   "path=config;og-examples.jar" "lib=lib"
+  
+REM PLAT-1527
+popd

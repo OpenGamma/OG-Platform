@@ -42,6 +42,11 @@ public class DbDateUtils {
   @SuppressWarnings("deprecation")
   public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, Calendar.DECEMBER, 31, 23, 59, 59, 0);
   /**
+   * The effective maximum SQL time-stamp, used when reading to avoid time zone issues.
+   */
+  @SuppressWarnings("deprecation")
+  public static final Timestamp EFFECTIVE_MAX_TIMESTAMP = new Timestamp(9990 - 1900, Calendar.DECEMBER, 31, 23, 59, 59, 0);
+  /**
    * The maximum instant, used as far-future in the database.
    */
   public static final Instant MAX_INSTANT = fromSqlTimestamp(MAX_SQL_TIMESTAMP);
@@ -87,7 +92,7 @@ public class DbDateUtils {
    * @return the instant, null if far-future
    */
   public static Instant fromSqlTimestampNullFarFuture(Timestamp timestamp) {
-    if (timestamp.equals(MAX_SQL_TIMESTAMP)) {
+    if (timestamp.compareTo(EFFECTIVE_MAX_TIMESTAMP) > 0) {
       return null;
     }
     return fromSqlTimestamp(timestamp);
@@ -132,7 +137,7 @@ public class DbDateUtils {
    * @return the date-time, null if far-future
    */
   public static LocalDateTime fromSqlDateTimeNullFarFuture(Timestamp timestamp) {
-    if (timestamp.equals(MAX_SQL_TIMESTAMP)) {
+    if (timestamp.compareTo(EFFECTIVE_MAX_TIMESTAMP) > 0) {
       return null;
     }
     return fromSqlDateTime(timestamp);

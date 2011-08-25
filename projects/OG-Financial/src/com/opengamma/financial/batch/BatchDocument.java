@@ -28,7 +28,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.Paging;
+import com.opengamma.util.Paging;
 
 /**
  * A document used to pass into and out of the batch master.

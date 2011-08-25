@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -604,28 +605,36 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
     
     Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
-    
+    ArrayList<LiveDataSpecification> distributable = new ArrayList<LiveDataSpecification>();
     for (LiveDataSpecification requestedSpecification : subscriptionRequest
         .getSpecifications()) {
-
       try {
-
         // Check that this spec can be found
         DistributionSpecification spec = distributionSpecifications.get(requestedSpecification);
         if (spec == null) {
-          responses.add(new LiveDataSubscriptionResponse(
-              requestedSpecification,
-              LiveDataSubscriptionResult.NOT_PRESENT,
-              "Could not build distribution specification for " + requestedSpecification,
-              null,
-              null, 
-              null));
-          continue;
+          responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
+              LiveDataSubscriptionResult.NOT_PRESENT, "Could not build distribution specification for "
+                  + requestedSpecification, null, null, null));
+        } else {
+          distributable.add(requestedSpecification);
         }
-
-        // Entitlement check
-        if (!getEntitlementChecker().isEntitled(
-            subscriptionRequest.getUser(), requestedSpecification)) {
+      } catch (Exception e) {
+        s_logger.error("Failed to subscribe to " + requestedSpecification, e);
+        responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
+            LiveDataSubscriptionResult.INTERNAL_ERROR,
+            e.getMessage(),
+            null,
+            null,
+            null));
+      }
+    }
+    
+    Map<LiveDataSpecification, Boolean> entitled = getEntitlementChecker().isEntitled(subscriptionRequest.getUser(), distributable);
+    for (Entry<LiveDataSpecification, Boolean> entry : entitled.entrySet()) {
+      LiveDataSpecification requestedSpecification = entry.getKey();
+      try {
+        Boolean entitlement = entry.getValue();
+        if (!entitlement) {
           String msg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
           s_logger.info(msg);
           responses.add(new LiveDataSubscriptionResponse(

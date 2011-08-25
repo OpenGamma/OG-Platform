@@ -72,8 +72,8 @@ public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements Pricing
     double[] beta0 = new double[2];
     for (int loopcf = 0; loopcf < nbCf - 1; loopcf++) {
       alpha0[loopcf] = cfa[loopcf + 1] * p0[loopcf + 1] / b0;
-      beta0[0] += alpha0[loopcf] * ht0[0][loopcf];
-      beta0[1] += alpha0[loopcf] * ht0[1][loopcf];
+      beta0[0] += alpha0[loopcf] * ht0[0][loopcf + 1];
+      beta0[1] += alpha0[loopcf] * ht0[1][loopcf + 1];
     }
     double[][] gamma = MODEL_G2PP.gamma(g2Data.getG2ppParameter(), 0, swaption.getTimeToExpiry());
     double[] tau = new double[nbCf];
@@ -95,8 +95,8 @@ public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements Pricing
     double[] betaK = new double[2];
     for (int loopcf = 0; loopcf < nbCf - 1; loopcf++) {
       alphaK[loopcf] = cfa[loopcf + 1] * pK[loopcf + 1] / k;
-      betaK[0] += alphaK[loopcf] * ht0[0][loopcf];
-      betaK[1] += alphaK[loopcf] * ht0[1][loopcf];
+      betaK[0] += alphaK[loopcf] * ht0[0][loopcf + 1];
+      betaK[1] += alphaK[loopcf] * ht0[1][loopcf + 1];
     }
     double[] betaBar = new double[] {(beta0[0] + betaK[0]) / 2.0, (beta0[1] + betaK[1]) / 2.0};
     double sigmaBar2 = gamma[0][0] * betaBar[0] * betaBar[0] + gamma[1][1] * betaBar[1] * betaBar[1] + 2 * rhog2pp * gamma[0][1] * betaBar[0] * betaBar[1];
