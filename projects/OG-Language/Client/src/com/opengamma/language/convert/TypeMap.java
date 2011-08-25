@@ -20,6 +20,10 @@ public final class TypeMap extends HashMap<JavaTypeInfo<?>, Integer> {
    */
   public static final int ZERO_LOSS = 10;
   /**
+   * No loss of precision, but an expensive or non-preferred operation.
+   */
+  public static final int ZERO_LOSS_NON_PREFERRED = 20;
+  /**
    * Slight loss of precision. 
    */
   public static final int MINOR_LOSS = 30;

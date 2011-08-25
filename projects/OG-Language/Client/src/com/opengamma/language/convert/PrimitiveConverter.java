@@ -9,6 +9,7 @@ package com.opengamma.language.convert;
 import static com.opengamma.language.convert.TypeMap.MAJOR_LOSS;
 import static com.opengamma.language.convert.TypeMap.MINOR_LOSS;
 import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
+import static com.opengamma.language.convert.TypeMap.ZERO_LOSS_NON_PREFERRED;
 
 import java.util.Map;
 
@@ -38,8 +39,7 @@ public class PrimitiveConverter extends AbstractTypeConverter {
   private static final TypeMap TO_INTEGER = TypeMap.of(ZERO_LOSS, BOOLEAN, BYTE, LONG, SHORT, STRING).with(MINOR_LOSS, FLOAT, DOUBLE);
   private static final TypeMap TO_LONG = TypeMap.of(ZERO_LOSS, BOOLEAN, BYTE, INTEGER, SHORT, STRING).with(MINOR_LOSS, FLOAT, DOUBLE);
   private static final TypeMap TO_SHORT = TypeMap.of(ZERO_LOSS, BOOLEAN, BYTE, INTEGER, LONG, STRING).with(MINOR_LOSS, FLOAT, DOUBLE);
-  // The string conversion isn't lossy, but expensive so consider it quite extreme -- TODO: revise whether this is sensible or not
-  private static final TypeMap TO_STRING = TypeMap.of(MAJOR_LOSS, BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT);
+  private static final TypeMap TO_STRING = TypeMap.of(ZERO_LOSS_NON_PREFERRED, BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT);
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {

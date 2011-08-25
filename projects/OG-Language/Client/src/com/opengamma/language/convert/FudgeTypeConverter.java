@@ -6,7 +6,7 @@
 
 package com.opengamma.language.convert;
 
-import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
+import static com.opengamma.language.convert.TypeMap.ZERO_LOSS_NON_PREFERRED;
 
 import java.util.Map;
 
@@ -35,10 +35,10 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
   private static final JavaTypeInfo<Object> OBJECT_ALLOW_NULL = JavaTypeInfo.builder(Object.class).allowNull().get();
   private static final JavaTypeInfo<FudgeMsg> FUDGE_MSG = JavaTypeInfo.builder(FudgeMsg.class).get();
   private static final JavaTypeInfo<FudgeMsg> FUDGE_MSG_ALLOW_NULL = JavaTypeInfo.builder(FudgeMsg.class).allowNull().get();
-  private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS, OBJECT);
-  private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT_ALLOW_NULL = TypeMap.of(ZERO_LOSS, OBJECT_ALLOW_NULL);
-  private static final Map<JavaTypeInfo<?>, Integer> FROM_FUDGE_MSG = TypeMap.of(ZERO_LOSS, FUDGE_MSG);
-  private static final Map<JavaTypeInfo<?>, Integer> FROM_FUDGE_MSG_ALLOW_NULL = TypeMap.of(ZERO_LOSS, FUDGE_MSG_ALLOW_NULL);
+  private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS_NON_PREFERRED, OBJECT);
+  private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT_ALLOW_NULL = TypeMap.of(ZERO_LOSS_NON_PREFERRED, OBJECT_ALLOW_NULL);
+  private static final Map<JavaTypeInfo<?>, Integer> FROM_FUDGE_MSG = TypeMap.of(ZERO_LOSS_NON_PREFERRED, FUDGE_MSG);
+  private static final Map<JavaTypeInfo<?>, Integer> FROM_FUDGE_MSG_ALLOW_NULL = TypeMap.of(ZERO_LOSS_NON_PREFERRED, FUDGE_MSG_ALLOW_NULL);
 
   private final FudgeContext _fudgeContext;
 
@@ -123,7 +123,7 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
       if (targetType.isAllowNull()) {
         builder.allowNull();
       }
-      return TypeMap.of(TypeMap.ZERO_LOSS, builder.get());
+      return TypeMap.of(TypeMap.MINOR_LOSS, builder.get());
     } else {
       // Arbitrary wire type found; dictionary conversion may be possible
       return targetType.isAllowNull() ? FROM_OBJECT_ALLOW_NULL : FROM_OBJECT;
