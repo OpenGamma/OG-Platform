@@ -26,24 +26,24 @@ public class RawSecurityBuilder implements FudgeBuilder<RawSecurity> {
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, RawSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    ManageableSecurityBuilder.buildMessage(serializer, object, msg);
     RawSecurityBuilder.buildMessage(serializer, object, msg);
     return msg;
   }
 
   public static void buildMessage(FudgeSerializer serializer, RawSecurity object, final MutableFudgeMsg msg) {
+    ManageableSecurityBuilder.buildMessage(serializer, object, msg);
     serializer.addToMessage(msg, RAW_DATA_KEY, null, object.getRawData());
   }
 
   @Override
   public RawSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     RawSecurity object = new RawSecurity("", new byte[0]);
-    ManageableSecurityBuilder.buildObject(deserializer, msg, object);
     RawSecurityBuilder.buildObject(deserializer, msg, object);
     return object;
   }
 
   public static void buildObject(FudgeDeserializer deserializer, FudgeMsg msg, RawSecurity object) {
+    ManageableSecurityBuilder.buildObject(deserializer, msg, object);
     object.setRawData(msg.getValue(byte[].class, RAW_DATA_KEY));
   }
 
