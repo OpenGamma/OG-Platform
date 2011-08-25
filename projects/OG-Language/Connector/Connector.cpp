@@ -568,7 +568,7 @@ retryCall:
 ///
 /// @param[in] poClient underlying client, never NULL
 /// @param[in] handle handle allocated from the CSynchronousCalls service
-/// @param[in] msgPayloer payload message
+/// @param[in] msgPayload payload message
 /// @return TRUE if the message was send, FALSE otherwise
 static bool _SendMessage (CClientService *poClient, fudge_i32 handle, FudgeMsg msgPayload) {
 	FudgeMsg msg;
