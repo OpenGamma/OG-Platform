@@ -31,7 +31,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
  * Fudge builder for {@code Expiry}.
  */
 @FudgeBuilderFor(Expiry.class)
-public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
+public final class ExpiryBuilder extends AbstractFudgeBuilder implements FudgeBuilder<Expiry> {
 
   /**
    * Field name for the date & time component.
@@ -57,7 +57,7 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
 
     @Override
     public Expiry primaryToSecondary(final FudgeMsg message) {
-      return fromFudgeMsg(message);
+      return fromFudgeMsg(null, message);
     }
   };
 
@@ -100,28 +100,41 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
     }
   }
 
-  public static void toFudgeMsg(final Expiry expiry, final MutableFudgeMsg message) {
-    message.add(DATETIME_KEY, expiryToDateTime(expiry));
-    message.add(TIMEZONE_KEY, expiry.getExpiry().getZone().getID());
+  //-------------------------------------------------------------------------
+  @Override
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Expiry object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
+    return msg;
   }
 
-  public static Expiry fromFudgeMsg(final FudgeMsg message) {
-    return dateTimeToExpiry(
-        message.getFieldValue(FudgeDateTime.class, message.getByName(DATETIME_KEY)),
-        message.getFieldValue(String.class, message.getByName(TIMEZONE_KEY)));
+  public static MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer, final Expiry object) {
+    if (object == null) {
+      return null;
+    }
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
+    return msg;
+  }
+
+  public static void toFudgeMsg(final FudgeSerializer serializer, final Expiry object, final MutableFudgeMsg msg) {
+    addToMessage(msg, DATETIME_KEY, expiryToDateTime(object));
+    addToMessage(msg, TIMEZONE_KEY, object.getExpiry().getZone().getID());
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Expiry expiry) {
-    final MutableFudgeMsg message = serializer.newMessage();
-    toFudgeMsg(expiry, message);
-    return message;
+  public Expiry buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return fromFudgeMsg(deserializer, msg);
   }
 
-  @Override
-  public Expiry buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    return fromFudgeMsg(message);
+  public static Expiry fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    if (msg == null) {
+      return null;
+    }
+    return dateTimeToExpiry(
+        msg.getValue(FudgeDateTime.class, DATETIME_KEY),
+        msg.getString(TIMEZONE_KEY));
   }
 
 }

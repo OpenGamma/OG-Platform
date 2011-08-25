@@ -7,19 +7,18 @@ package com.opengamma.util.fudgemsg;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class CurrencyAmountFudgeEncodingTest extends AbstractBuilderTestCase {
+public class PagingRequestFudgeEncodingTest extends AbstractBuilderTestCase {
 
   public void test() {
-    CurrencyAmount object = CurrencyAmount.of(Currency.AUD, 101);
-    assertEncodeDecodeCycle(CurrencyAmount.class, object);
+    PagingRequest object = PagingRequest.ofIndex(0, 20);
+    assertEncodeDecodeCycle(PagingRequest.class, object);
   }
 
 }

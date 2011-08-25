@@ -6,15 +6,11 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -27,7 +23,7 @@ public class ExternalIdWithDatesTest {
   private static final ExternalId IDENTIFIER = ExternalId.of(SCHEME, "value");
   private static final LocalDate VALID_FROM = LocalDate.of(2010, MonthOfYear.JANUARY, 1);
   private static final LocalDate VALID_TO = LocalDate.of(2010, MonthOfYear.DECEMBER, 1);
-  
+
   public void test_factory_ExternalId_LocalDate_LocalDate() {
     ExternalIdWithDates test = ExternalIdWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     assertEquals(IDENTIFIER, test.toExternalId());
@@ -56,7 +52,7 @@ public class ExternalIdWithDatesTest {
     assertEquals(VALID_FROM, test.getValidFrom());
     assertEquals("Scheme~value~S~2010-01-01", test.toString());
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_validFrom_after_validTo() {
     ExternalIdWithDates.of(IDENTIFIER, VALID_TO, VALID_FROM);
@@ -68,12 +64,12 @@ public class ExternalIdWithDatesTest {
     assertEquals(IDENTIFIER, test.toExternalId());
     assertEquals(VALID_FROM, test.getValidFrom());
     assertEquals(VALID_TO, test.getValidTo());
-    
+
     test = ExternalIdWithDates.parse("Scheme~value~S~2010-01-01");
     assertEquals(IDENTIFIER, test.toExternalId());
     assertEquals(VALID_FROM, test.getValidFrom());
     assertNull(test.getValidTo());
-    
+
     test = ExternalIdWithDates.parse("Scheme~value~E~2010-12-01");
     assertEquals(IDENTIFIER, test.toExternalId());
     assertEquals(VALID_TO, test.getValidTo());
@@ -106,19 +102,19 @@ public class ExternalIdWithDatesTest {
     ExternalIdWithDates d1a = ExternalIdWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     ExternalIdWithDates d1b = ExternalIdWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     ExternalIdWithDates d2 = ExternalIdWithDates.of(IDENTIFIER, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 12, 1));
-    
+
     assertEquals(true, d1a.equals(d1a));
     assertEquals(true, d1a.equals(d1b));
     assertEquals(false, d1a.equals(d2));
-    
+
     assertEquals(true, d1b.equals(d1a));
     assertEquals(true, d1b.equals(d1b));
     assertEquals(false, d1b.equals(d2));
-    
+
     assertEquals(false, d2.equals(d1a));
     assertEquals(false, d2.equals(d1b));
     assertEquals(true, d2.equals(d2));
-    
+
     assertEquals(false, d1b.equals("d1"));
     assertEquals(false, d1b.equals(null));
   }
@@ -126,48 +122,8 @@ public class ExternalIdWithDatesTest {
   public void test_hashCode() {
     ExternalIdWithDates d1a = ExternalIdWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     ExternalIdWithDates d1b = ExternalIdWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
-    
+
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }
 
-  //-------------------------------------------------------------------------
-  public void test_fudgeEncoding_with_valid_dates() {
-    ExternalId identifier = ExternalId.of("id1", "value1");
-    ExternalIdWithDates test = ExternalIdWithDates.of(identifier, VALID_FROM, VALID_TO);
-    
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(4, msg.getNumFields());
-    
-    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
-  }
-  
-  public void test_fudgeEncoding_with_validFrom() {
-    ExternalId identifier = ExternalId.of("id1", "value1");
-    ExternalIdWithDates test = ExternalIdWithDates.of(identifier, VALID_FROM, null);
-    
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(3, msg.getNumFields());
-    
-    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
-  }
-  
-  public void test_fudgeEncoding_with_validTo() {
-    ExternalId identifier = ExternalId.of("id1", "value1");
-    ExternalIdWithDates test = ExternalIdWithDates.of(identifier, null, VALID_TO);
-    
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(3, msg.getNumFields());
-    
-    ExternalIdWithDates decoded = ExternalIdWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
-  }
-  
 }

@@ -33,11 +33,11 @@ public final class CountryBuilder implements FudgeBuilder<Country> {
 
   @Override
   public Country buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final String currencyStr = msg.getString(COUNTRY_KEY);
-    if (currencyStr == null) {
+    final String countryStr = msg.getString(COUNTRY_KEY);
+    if (countryStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Country - field 'country' is not present");
     }
-    return Country.of(currencyStr);
+    return Country.of(countryStr);
   }
 
 }

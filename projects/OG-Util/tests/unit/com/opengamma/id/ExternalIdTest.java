@@ -6,11 +6,7 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -149,18 +145,6 @@ public class ExternalIdTest {
     ExternalId d1b = ExternalId.of(SCHEME, "d1");
 
     assertEquals(d1a.hashCode(), d1b.hashCode());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_fudgeEncoding() {
-    ExternalId test = ExternalId.of("id1", "value1");
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-
-    ExternalId decoded = ExternalId.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
   }
 
 }

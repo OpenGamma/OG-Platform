@@ -13,12 +13,13 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**
  * A Fudge builder for {@code RawSecurity}.
  */
 @FudgeBuilderFor(RawSecurity.class)
-public class RawSecurityBuilder implements FudgeBuilder<RawSecurity> {
+public class RawSecurityBuilder extends AbstractFudgeBuilder implements FudgeBuilder<RawSecurity> {
 
   /** Field name. */
   public static final String RAW_DATA_KEY = "rawData";
@@ -32,7 +33,7 @@ public class RawSecurityBuilder implements FudgeBuilder<RawSecurity> {
 
   public static void buildMessage(FudgeSerializer serializer, RawSecurity object, final MutableFudgeMsg msg) {
     ManageableSecurityBuilder.buildMessage(serializer, object, msg);
-    serializer.addToMessage(msg, RAW_DATA_KEY, null, object.getRawData());
+    addToMessage(msg, RAW_DATA_KEY, object.getRawData());
   }
 
   @Override

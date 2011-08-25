@@ -6,12 +6,8 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -344,29 +340,6 @@ public class UniqueIdTest {
     UniqueId d1b = UniqueId.of("Scheme", "d1", "1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_fudgeEncoding_noVersion() {
-    UniqueId test = UniqueId.of("id1", "value1");
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-    
-    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
-  }
-
-  public void test_fudgeEncoding_version() {
-    UniqueId test = UniqueId.of("id1", "value1", "1");
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(3, msg.getNumFields());
-    
-    UniqueId decoded = UniqueId.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
   }
 
 }
