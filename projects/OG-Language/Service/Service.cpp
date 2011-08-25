@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Main service control functions
-
 #include "JVM.h"
 #include "Settings.h"
 #include "ConnectionPipe.h"
@@ -15,17 +12,37 @@
 
 LOGGING(com.opengamma.language.service.Service);
 
+/// Mutex to guard access to other global variables.
 static CMutex g_oMutex;
+
+/// JVM instance running the OpenGamma Java stack
 static CJVM *g_poJVM = NULL;
+
+/// Source of incoming connections from client processes
 static CConnectionPipe *g_poPipe = NULL;
+
+/// Timeout in milliseconds to wait for the asynchronous JVM operations before giving
+/// feedback to the user (e.g. logging or reporting to a service control manager).
 static unsigned long g_lBusyTimeout = 0;
+
 #ifdef _WIN32
+/// Service status handle for reporting to the SCM.
 static SERVICE_STATUS_HANDLE g_hServiceStatus = NULL;
+
+/// Status checkpoint number for reporting to the SCM. See the Windows SDK documentation for more information.
 static DWORD g_dwServiceCheckPoint = 0;
 #endif /* ifdef _WIN32 */
+
+/// Service status; TRUE if the service is running and able to accept client connections, FALSE otherwise.
 static volatile bool g_bServiceRunning = false;
 
 #ifdef _WIN32
+/// Report the service state back to the service control manager.
+///
+/// @param[in] dwStateCode service state code
+/// @param[in] dwExitCode service exit code (if applicable, use 0 otherwise)
+/// @param[in] bInfo TRUE to log at INFO level, FALSE to log at DEBUG only
+/// @param[in] pszLabel textual description of the state to log, never NULL
 static void _ReportState (DWORD dwStateCode, DWORD dwExitCode, bool bInfo, PCTSTR pszLabel) {
 	SERVICE_STATUS sta;
 	ZeroMemory (&sta, sizeof (sta));
@@ -59,6 +76,10 @@ static void _ReportState (DWORD dwStateCode, DWORD dwExitCode, bool bInfo, PCTST
 	}
 }
 #else
+/// Report the service state back to the user (by writing to the logs).
+///
+/// @param[in] bInfo TRUE to log at INFO level, FALSE to log at DEBUG only
+/// @param[in] pszLabel textual description of the state to log, never NULL
 static void _ReportStateImpl (bool bInfo, const TCHAR *pszLabel) {
 	if (bInfo) {
 		LOGINFO (pszLabel);
@@ -69,31 +90,42 @@ static void _ReportStateImpl (bool bInfo, const TCHAR *pszLabel) {
 #define _ReportState(_win32state, _win32exitCode, _info, _label) _ReportStateImpl (_info, _label)
 #endif
 
+/// Reports a starting state to the user. This may happen any number of times (or not at all) before
+/// the service enters its running state.
 static void _ReportStateStarting () {
 	_ReportState (SERVICE_START_PENDING, 0, false, TEXT ("Service starting"));
 	g_bServiceRunning = false;
 }
 
+/// Reports a running state to the user.
 static void _ReportStateRunning () {
 	_ReportState (SERVICE_RUNNING, 0, true, TEXT ("Service started"));
 	g_bServiceRunning = true;
 }
 
+/// Reports a stopping state to the user. This may happen any number of times (or not at all) before
+/// the service enters its stopped state.
 static void _ReportStateStopping () {
 	_ReportState (SERVICE_STOP_PENDING, 0, false, TEXT ("Service stopping"));
 	g_bServiceRunning = false;
 }
 
+/// Reports a stopped state to the user.
 static void _ReportStateStopped () {
 	_ReportState (SERVICE_STOPPED, 0, true, TEXT ("Service stopped"));
 	g_bServiceRunning = false;
 }
 
+/// Reports an errored state to the user.
 static void _ReportStateErrored () {
 	_ReportState (SERVICE_STOPPED, ERROR_INVALID_ENVIRONMENT, true, TEXT ("Service stopped"));
 	g_bServiceRunning = false;
 }
 
+/// Attempts to stop the service.
+///
+/// @param[in] bForce TRUE to stop the service immediately by closing the IPC, FALSE to initiate a
+/// lazy close when the IPC goes idle.
 void ServiceStop (bool bForce) {
 	g_oMutex.Enter ();
 	if (bForce) {
@@ -105,6 +137,8 @@ void ServiceStop (bool bForce) {
 	g_oMutex.Leave ();
 }
 
+/// Breaks the service. This is provided for the unit tests only to simulate a broken JVM or service and
+/// test the recovery mechanism. Do not call it intentionally otherwise.
 void ServiceSuspend () {
 	_ReportStateStopping ();
 	g_oMutex.Enter ();
@@ -114,6 +148,9 @@ void ServiceSuspend () {
 }
 
 #ifdef _WIN32
+/// Win32 service signal handler. Responds to the STOP request only.
+///
+/// @param[in] dwAction signal to handle
 static void WINAPI ServiceHandler (DWORD dwAction) {
 	switch (dwAction) {
 	case SERVICE_CONTROL_STOP :
@@ -130,6 +167,12 @@ static void WINAPI ServiceHandler (DWORD dwAction) {
 }
 #endif /* ifdef _WIN32 */
 
+/// Prelude actions to start up the service, e.g. to set any global variables from the settings or perform
+/// any system specific actions. E.g. the Windows implementation registers with the service control manager
+/// and can optionally set the security descriptor on the process to allow clients to kill/restart it.
+///
+/// @param[in] nReason how the startup is occuring (e.g. SERVICE_RUN_INLINE) - different actions may be
+/// required depending on whether the code is running direct from main() or through another mechansim
 static void _ServiceStartup (int nReason) {
 	CSettings oSettings;
 #ifdef _WIN32
@@ -178,6 +221,10 @@ static void _ServiceStartup (int nReason) {
 	_ReportStateStarting ();
 }
 
+/// Run the service, returning when it has stopped.
+///
+/// @param[in] nReason how the service is running, e.g. SERVICE_RUN_INLINE, in case actions are different depending
+/// on how it was started.
 void ServiceRun (int nReason) {
 	_ServiceStartup (nReason);
 	g_poJVM = CJVM::Create ();
@@ -247,6 +294,9 @@ void ServiceRun (int nReason) {
 	g_poJVM = NULL;
 }
 
+/// Tests if the service is running or not.
+///
+/// @return TRUE if the service is running, FALSE otherwise
 bool ServiceRunning () {
 	return g_bServiceRunning;
 }
