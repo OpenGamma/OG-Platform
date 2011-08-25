@@ -16,10 +16,10 @@ public interface RestUpdateManager {
   /**
    * Handshake method that returns the client ID needed to identify the connection when calling all other operations.
    * @param userId
-   * @param listener
+   * @param updateListener
    * @return The client ID needed to identify the connection when calling all other operations
    */
-  String newConnection(String userId, RestUpdateListener listener);
+  String newConnection(String userId, RestUpdateListener updateListener, TimeoutListener disconnectionListener);
 
   void closeConnection(String userId, String clientId);
 

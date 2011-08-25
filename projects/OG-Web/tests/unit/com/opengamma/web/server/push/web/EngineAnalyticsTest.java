@@ -26,7 +26,10 @@ public class EngineAnalyticsTest {
         "\"dependencyGraphCells\": []" +
         "}" +
         "}";
-    String viewportUrl = createViewport(clientId, viewDefJson);
+    String viewportJson = createViewport(clientId, viewDefJson);
+    System.out.println("viewportJson: " + viewportJson);
+    JSONObject jsonObject = new JSONObject(viewportJson);
+    String viewportUrl = jsonObject.getString("viewportUrl");
     // need to request data to activate the subscription
     String firstResults = readFromPath(viewportUrl + "/data", clientId);
     System.out.println("first results: " + firstResults);

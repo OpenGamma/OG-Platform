@@ -91,4 +91,13 @@ import java.util.Set;
   private String formatUpdate(Collection<String> urls) throws JSONException {
     return new JSONObject().put(UPDATES, urls).toString();
   }
+
+  /* package */ void disconnect() {
+    // TODO any possibility of deadlocks?
+    synchronized (_lock) {
+      if (_continuation != null) {
+        _continuation.complete();
+      }
+    }
+  }
 }

@@ -32,6 +32,7 @@ public class ClientConnection implements ChangeListener {
   // TODO atomic ref?
   // TODO needs to know ID or to be stored in a pair with its ID
   private Viewport _viewport;
+  private String _viewportUrl;
 
   public ClientConnection(String userId, String clientId, RestUpdateListener listener, ViewportFactory viewportFactory) {
     // TODO check args
@@ -54,9 +55,9 @@ public class ClientConnection implements ChangeListener {
    * @param request
    * TODO refactor so the stack isn't so deep when setting up new subs? create everything in the subs manager? is that workable?
    * TODO logic in subscription requests? command pattern?
-   * @param viewportId
    */
-  public void createViewport(String clientId, ViewportDefinition request, String dataUrl, String gridUrl) {
+  public void createViewport(String clientId, ViewportDefinition request, String viewportUrl, String dataUrl, String gridUrl) {
+    _viewportUrl = viewportUrl;
     AnalyticsListener listener = new AnalyticsListener(dataUrl, gridUrl, _listener);
     _viewport = _viewportFactory.createViewport(_clientId, request, listener);
   }
@@ -87,6 +88,10 @@ public class ClientConnection implements ChangeListener {
   public Viewport getViewport(String viewportUrl) {
     // TODO check URL corresponds to the current viewport
     return _viewport;
+  }
+
+  public String getViewportUrl() {
+    return _viewportUrl;
   }
 }
 

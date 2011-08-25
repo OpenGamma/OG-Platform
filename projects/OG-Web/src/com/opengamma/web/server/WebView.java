@@ -85,7 +85,8 @@ public class WebView implements Viewport {
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
-        // TODO only call this is the deltaResult isn't empty, i.e. something has changed?
+        // only send an update if data has changed
+        // TODO is this worth the hassle?
         if (deltaResult.getAllResults().size() != 0) {
           updateResults();
         } else {
@@ -105,7 +106,8 @@ public class WebView implements Viewport {
       flags = ExecutionFlags.triggersEnabled().get();
     }
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
-    _viewClient.setResultMode(ViewResultMode.BOTH); // TODO only need this if we're using deltas to figure out whether to publish anything
+    // TODO only need this if we're using deltas to figure out whether to publish anything
+    _viewClient.setResultMode(ViewResultMode.BOTH);
     _viewClient.attachToViewProcess(viewDefinitionName, executionOptions);
   }
 

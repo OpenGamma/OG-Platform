@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.web;
 
+import com.opengamma.web.server.push.subscription.TimeoutListener;
 import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import org.eclipse.jetty.continuation.Continuation;
 
@@ -21,8 +22,7 @@ public class LongPollingConnectionManager {
   private final RestUpdateManager _restUpdateManager;
 
   // TODO what value type?
-  private final Map<String, LongPollingUpdateListener> _connections =
-          new HashMap<String, LongPollingUpdateListener>();
+  private final Map<String, LongPollingUpdateListener> _connections = new HashMap<String, LongPollingUpdateListener>();
 
   public LongPollingConnectionManager(RestUpdateManager restUpdateManager) {
     _restUpdateManager = restUpdateManager;
@@ -30,13 +30,13 @@ public class LongPollingConnectionManager {
 
   String handshake(String userId) {
     LongPollingUpdateListener connection = new LongPollingUpdateListener();
-    String clientId = _restUpdateManager.newConnection(userId, connection);
+    String clientId = _restUpdateManager.newConnection(userId, connection, new DisconnectionListener());
+    // TODO need some way of knowing if the client connection times out in the update manager
+    // could put that logic in here but the update manager feels like the right place for it
+    // this class is one of many possibly implementations but there will only ever be one update manager
     _connections.put(clientId, connection);
     return clientId;
   }
-
-  // invoked when a long-polling http connection is established
-
   /**
    * Associates a continuation with a client connection so asynchronous updates can be pushed to the client.
    * @param userId The ID of the user
@@ -60,6 +60,17 @@ public class LongPollingConnectionManager {
   boolean isClientConnected(String clientId) {
     LongPollingUpdateListener listener = _connections.get(clientId);
     return listener != null && listener.isConnected();
+  }
+
+  private class DisconnectionListener implements TimeoutListener {
+
+    @Override
+    public void timeout(String clientId) {
+      LongPollingUpdateListener connection = _connections.remove(clientId);
+      if (connection != null) {
+        connection.disconnect();
+      }
+    }
   }
 }
 

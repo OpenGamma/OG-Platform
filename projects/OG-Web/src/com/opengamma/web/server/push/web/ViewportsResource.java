@@ -6,9 +6,12 @@
 package com.opengamma.web.server.push.web;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import com.opengamma.web.server.push.subscription.Viewport;
 import com.opengamma.web.server.push.subscription.ViewportDefinition;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -44,19 +47,24 @@ public class ViewportsResource {
    */
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.TEXT_PLAIN) // TODO JSON? {viewportRestUrl: <url>}
+  @Produces(MediaType.APPLICATION_JSON) // TODO JSON? {viewportRestUrl: <url>}
   // TODO should clientId be a query param or part of the viewport def?
   public String createViewport(ViewportDefinition viewportDefinition,
                                @QueryParam("clientId") String clientId, // TODO should this be optional? is it? viewports without updates?
                                @Context HttpServletRequest request) {
     String userId = request.getRemoteUser();
-    // TODO should this be wrapped in JSON?
     String viewportId = generateViewportId();
     String viewportUrl = generateViewportUrl(viewportId, request);
     String gridUrl = generateGridUrl(viewportId, viewportUrl);
     String dataUrl = generateDataUrl(viewportId, viewportUrl);
     _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
-    return viewportUrl;
+    JSONObject jsonObject = new JSONObject();
+    try {
+      jsonObject.put("viewportUrl", viewportUrl);
+    } catch (JSONException e) {
+      throw new OpenGammaRuntimeException("Unexpected exception creating JSON", e);
+    }
+    return jsonObject.toString();
   }
 
   @Path("{viewportId}")

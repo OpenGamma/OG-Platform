@@ -48,6 +48,7 @@ public class LiveResultsService implements ViewportFactory {
   public void clientDisconnected(String clientId) {
     s_logger.debug("Client " + clientId + " disconnected");
     synchronized (_clientViews) {
+
       if (_clientViews.containsKey(clientId)) {
         WebView view = _clientViews.remove(clientId);
         view.shutdown();
@@ -69,6 +70,7 @@ public class LiveResultsService implements ViewportFactory {
     String viewDefinitionName = viewportDefinition.getViewDefinitionName();
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(clientId);
+      // TODO is this relevant any more?
       if (webView != null) {
         if (webView.matches(viewDefinitionName, snapshotId)) {
           // Already initialized

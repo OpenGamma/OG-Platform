@@ -16,8 +16,10 @@ public class TestRestUpdateManager implements RestUpdateManager {
   private volatile RestUpdateListener _listener;
 
   @Override
-  public String newConnection(String userId, RestUpdateListener listener) {
-    _listener = listener;
+  public String newConnection(String userId,
+                              RestUpdateListener updateListener,
+                              TimeoutListener disconnectionListener) {
+    _listener = updateListener;
     return LongPollingTest.CLIENT_ID;
   }
 
