@@ -10,8 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -21,6 +19,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -154,11 +153,10 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     // CMS is not fixed yet, all the details are required.
-    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
-    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final FixedCouponSwap<Coupon> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
     return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
@@ -171,16 +169,15 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
       final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
     }
     // CMS is not fixed yet, all the details are required.
-    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
-    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final FixedCouponSwap<Coupon> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
     return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
