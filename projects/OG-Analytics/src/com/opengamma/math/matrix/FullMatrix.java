@@ -122,6 +122,39 @@ public class FullMatrix implements MatrixPrimitiveInterface {
     return MatrixPrimitiveUtils.numberOfNonZeroElementsInVector(_data);
   }
 
+  /**
+   * Gets the data
+   * @return _data the FullMatrix data in it's native storage format
+   */
+  public double[] getData() {
+    return _data;
+  }
+
+  /**
+   * Gets the number of rows
+   * @return _rows the number of rows
+   */
+  public int getNumberOfRows() {
+    return _rows;
+  }
+
+
+  /**
+   * Gets the number of columns
+   * @return _cols the number of columns
+   */
+  public int getNumberOfColumns() {
+    return _cols;
+  }
+
+
+  /**
+   * The to...'s
+   */
+
+  /**
+   * @return tmp an array of arrays row major representation of the full matrix
+   */
   @Override
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
