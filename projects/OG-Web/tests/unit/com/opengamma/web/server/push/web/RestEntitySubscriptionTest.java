@@ -40,8 +40,8 @@ public class RestEntitySubscriptionTest {
 
   @BeforeClass
   public void createJettyServer() throws Exception {
-    Pair<Server,WebApplicationContext> serverAndContext = WebPushTestUtils.createJettyServer(
-        "classpath:/com/opengamma/web/rest-subscription-test.xml");
+    Pair<Server,WebApplicationContext> serverAndContext =
+        WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/rest-subscription-test.xml");
     _server = serverAndContext.getFirst();
     WebApplicationContext context = serverAndContext.getSecond();
     _changeManager = context.getBean(TestChangeManager.class);
@@ -55,7 +55,7 @@ public class RestEntitySubscriptionTest {
   @Test
   public void entitySubscription() throws IOException, JSONException {
     String clientId = handshake();
-    String restUrl = "/rest/test/" + _uidStr;
+    String restUrl = "/jax/test/" + _uidStr;
     // this REST request should set up a subscription for object ID Tst~101
     readFromPath(restUrl, clientId);
     // send a change event
@@ -68,7 +68,7 @@ public class RestEntitySubscriptionTest {
   @Test
   public void subResourceSubscription() throws IOException, JSONException {
     String clientId = handshake();
-    String restUrl = "/rest/testsub/" + _uidStr;
+    String restUrl = "/jax/testsub/" + _uidStr;
     readFromPath(restUrl, clientId);
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
     String json = readFromPath("/updates/" + clientId);
@@ -78,12 +78,12 @@ public class RestEntitySubscriptionTest {
   @Test
   public void multipleEntitySubscription() throws IOException, JSONException {
     String clientId = handshake();
-    String restUrl1 = "/rest/test/" + _uidStr;
+    String restUrl1 = "/jax/test/" + _uidStr;
     String uid2Str = "Tst~102";
     UniqueId uid2 = UniqueId.parse(uid2Str);
     UniqueId uid2V1 = uid2.withVersion("1");
     UniqueId uid2V2 = uid2.withVersion("2");
-    String restUrl2 = "/rest/test/" + uid2Str;
+    String restUrl2 = "/jax/test/" + uid2Str;
     readFromPath(restUrl1, clientId);
     readFromPath(restUrl2, clientId);
     _changeManager.entityChanged(ChangeType.UPDATED, _uidV1, _uidV2, Instant.now());
@@ -100,7 +100,7 @@ public class RestEntitySubscriptionTest {
   @Test
   public void noClientIdNoSubscription() throws IOException {
     String clientId = handshake();
-    String restUrl = "/rest/test/" + _uidStr;
+    String restUrl = "/jax/test/" + _uidStr;
     // this REST request shouldn't set up a subscription because there is no client ID so the server doesn't know
     // where to send the update
     readFromPath(restUrl);
@@ -112,7 +112,7 @@ public class RestEntitySubscriptionTest {
 
   @Test(expectedExceptions = FileNotFoundException.class)
   public void invalidClientId() throws IOException {
-    String restUrl = "/rest/test/" + _uidStr;
+    String restUrl = "/jax/test/" + _uidStr;
     // this REST request shouldn't set up a subscription because the client ID doesn't match an existing client connection
     readFromPath(restUrl);
     // send a change event that we should never see

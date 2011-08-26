@@ -32,8 +32,13 @@ import java.util.Set;
 
   private final Object _lock = new Object();
   private final Set<String> _updates = new HashSet<String>();
+  private final String _userId;
 
   private Continuation _continuation;
+
+  public LongPollingUpdateListener(String userId) {
+    _userId = userId;
+  }
 
   @Override
   public void itemUpdated(String url) {
@@ -99,5 +104,9 @@ import java.util.Set;
         _continuation.complete();
       }
     }
+  }
+
+  public String getUserId() {
+    return _userId;
   }
 }

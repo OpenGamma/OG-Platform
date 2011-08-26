@@ -4,20 +4,9 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-  <!--this stuff is different for different test cases-->
-  <!--<context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:/com/opengamma/web/rest-subscription-test.xml</param-value>
-  </context-param>
-
-  <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>-->
-
   <servlet>
     <servlet-name>rest</servlet-name>
     <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
-    <!--TODO this shouldn't be necessary in a normal deployment - Jersey scans WEB-INF/lib and WEB-INF/classes-->
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
       <param-value>com.opengamma.web.server.push.test.TestApplication</param-value>

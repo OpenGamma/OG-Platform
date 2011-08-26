@@ -2,7 +2,6 @@ package com.opengamma.web.server.push.subscription;
 
 /**
  * TODO the semantics aren't quite right - should discard updates when inactive for consitency with entity subs
- * TODO gridChanged() method that publishes /viewports/{id}/grid
  */
 public class AnalyticsListener {
 

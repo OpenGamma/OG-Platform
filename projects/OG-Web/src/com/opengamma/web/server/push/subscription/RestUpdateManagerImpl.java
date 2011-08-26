@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private static final long DEFAULT_TIMEOUT = 300000;
 
   // TODO a better way to generate client IDs
+  // TODO might not need an atomic var if all accesses end up being guarded by sync blocks
   private final AtomicLong _clientConnectionId = new AtomicLong();
   private final ChangeManager _changeManager;
   private final ViewportFactory _viewportFactory;

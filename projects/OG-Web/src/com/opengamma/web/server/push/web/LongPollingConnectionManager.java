@@ -5,35 +5,30 @@
  */
 package com.opengamma.web.server.push.web;
 
+import com.google.common.base.Objects;
 import com.opengamma.web.server.push.subscription.TimeoutListener;
 import com.opengamma.web.server.push.subscription.RestUpdateManager;
 import org.eclipse.jetty.continuation.Continuation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * maps clientIds to Jetty continuations associated with a client connection
- * TODO needs some serious concurrency thought
+ * Maps client IDs to Jetty continuations associated with a client connection.
  */
-public class LongPollingConnectionManager {
+/* package */ class LongPollingConnectionManager {
 
-  // TODO this needs to be initialized by Spring
   private final RestUpdateManager _restUpdateManager;
-
-  // TODO what value type?
-  private final Map<String, LongPollingUpdateListener> _connections = new HashMap<String, LongPollingUpdateListener>();
+  private final Map<String, LongPollingUpdateListener> _connections = new ConcurrentHashMap<String, LongPollingUpdateListener>();
 
   public LongPollingConnectionManager(RestUpdateManager restUpdateManager) {
     _restUpdateManager = restUpdateManager;
   }
 
   String handshake(String userId) {
-    LongPollingUpdateListener connection = new LongPollingUpdateListener();
+    LongPollingUpdateListener connection = new LongPollingUpdateListener(userId);
     String clientId = _restUpdateManager.newConnection(userId, connection, new DisconnectionListener());
-    // TODO need some way of knowing if the client connection times out in the update manager
-    // could put that logic in here but the update manager feels like the right place for it
-    // this class is one of many possibly implementations but there will only ever be one update manager
     _connections.put(clientId, connection);
     return clientId;
   }
@@ -46,9 +41,12 @@ public class LongPollingConnectionManager {
    * an existing connection
    */
   boolean connect(String userId, String clientId, Continuation continuation) {
-    // TODO check userId and clientId correspond
+    // TODO check args
     LongPollingUpdateListener connection = _connections.get(clientId);
     if (connection != null) {
+      if (!Objects.equal(userId, connection.getUserId())) {
+        throw new IllegalArgumentException("User ID " + userId + " doesn't correspond to client ID: " + clientId);
+      }
       connection.connect(continuation);
       return true;
     } else {
