@@ -11,14 +11,15 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * An immutable unique identifier for an item within the OpenGamma installation.
@@ -61,19 +62,6 @@ public final class UniqueId
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Fudge message key for the scheme.
-   */
-  public static final String SCHEME_FUDGE_FIELD_NAME = "Scheme";
-  /**
-   * Fudge message key for the value.
-   */
-  public static final String VALUE_FUDGE_FIELD_NAME = "Value";
-  /**
-   * Fudge message key for the version.
-   */
-  public static final String VERSION_FUDGE_FIELD_NAME = "Version";
 
   /**
    * The scheme that categorizes the identifier value.
@@ -397,51 +385,30 @@ public final class UniqueId
 
   //-------------------------------------------------------------------------
   /**
-   * Serializes to a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @param msg  the message to serialize into, not null
-   * @return the serialized message
+   * @param serializer  the serializer, not null
+   * @param msg  the message to populate, not null
+   * @deprecated Use builder
    */
-  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
-    ArgumentChecker.notNull(factory, "factory");
-    ArgumentChecker.notNull(msg, "msg");
-    msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
-    msg.add(VALUE_FUDGE_FIELD_NAME, _value);
-    if (_version != null) {
-      msg.add(VERSION_FUDGE_FIELD_NAME, _version);
-    }
-    return msg;
+  @Deprecated
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
+    UniqueIdBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
-   * Serializes to a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @return the serialized Fudge message
+   * @param deserializer  the deserializer, not null
+   * @param msg  the message to decode, not null
+   * @return the created object, not null
+   * @deprecated Use builder
    */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    return toFudgeMsg(factory, factory.newMessage());
-  }
-
-  /**
-   * Deserializes from a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
-   * 
-   * @param fudgeContext  the Fudge context
-   * @param msg  the Fudge message, not null
-   * @return the unique identifier
-   */
-  public static UniqueId fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
-    String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
-    String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
-    String version = msg.getString(VERSION_FUDGE_FIELD_NAME);
-    return UniqueId.of(scheme, value, version);
+  @Deprecated
+  public static UniqueId fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return UniqueIdBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

@@ -72,12 +72,13 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   public void saveToStorage(Set<PersistentSubscription> newState) {
     clean();
     
+    FudgeSerializer serializer = new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT);
     FudgeDeserializer deserializer = new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT);
     DBCollection dbCollection = _mongoDB.getCollection(MONGO_COLLECTION);
     
     List<DBObject> objects = new ArrayList<DBObject>();
     for (PersistentSubscription sub : newState) {
-      FudgeMsg msg = sub.getFullyQualifiedSpec().toFudgeMsg(FudgeContext.GLOBAL_DEFAULT);
+      FudgeMsg msg = sub.getFullyQualifiedSpec().toFudgeMsg(serializer);
       DBObject fieldData = deserializer.fudgeMsgToObject(DBObject.class, msg);
       BasicDBObject mainObject = new BasicDBObject();
       mainObject.append("fieldData", fieldData);

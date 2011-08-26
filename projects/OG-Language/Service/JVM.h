@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -7,20 +7,34 @@
 #ifndef __inc_og_language_service_jvm_h
 #define __inc_og_language_service_jvm_h
 
-// Start up an embedded JVM, and call methods on the "Main" class
-
 #include <Util/Library.h>
 #include <Util/Mutex.h>
 #include <Util/Thread.h>
 
+/// Maintains an embedded JVM and calls methods on the "Main" class to activate the contained Java stack.
 class CJVM {
 private:
+
+	/// Mutex guarding the other variables.
 	mutable CMutex m_oMutex;
+
+	/// The JVM library.
 	CLibrary *m_poModule;
+
+	/// The JVM instance. See the Java documentation for more information.
 	JavaVM *m_pJVM;
+
+	/// The JNI environment. See the Java documentation for more information.
 	JNIEnv *m_pEnv;
+
+	/// Operation thread for asynchronous Start and Stop calls.
 	mutable CThread *m_poBusyTask;
+
+	/// TRUE if the Java stack is running, FALSE if it has indicated termination. Note that this is not
+	/// the same as JVM termination; the JVM may still be running but the OpenGamma stack may wish to
+	/// terminate with one or more non-daemon threads still running elsewhere in the system.
 	bool m_bRunning;
+
 	CJVM (CLibrary *hModule, JavaVM *pJVM, JNIEnv *pEnv);
 	static bool Invoke (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
 	bool Invoke (const char *pszMethod);

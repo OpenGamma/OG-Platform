@@ -74,7 +74,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the price computed from the curves
    */
   public void price() {
-    final double price = METHOD.priceFromCurves(ERU2, CURVES);
+    final double price = METHOD.price(ERU2, CURVES);
     final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
     final double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
     final double expectedPrice = 1.0 - forward;
@@ -86,7 +86,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Tests the method versus the calculator for the price.
    */
   public void priceMethodVsCalculator() {
-    final double priceMethod = METHOD.priceFromCurves(ERU2, CURVES);
+    final double priceMethod = METHOD.price(ERU2, CURVES);
     final double priceCalculator = PRICE_CALCULATOR.visit(ERU2, CURVES);
     assertEquals("Bond future security Discounting: Method vs calculator", priceMethod, priceCalculator, 1.0E-10);
   }
