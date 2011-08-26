@@ -7,7 +7,6 @@ package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
@@ -20,9 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -432,21 +428,6 @@ public class ExternalIdBundleTest {
   public void test_toString_nonEmpty() {
     ExternalIdBundle test = ExternalIdBundle.of(_id11, _id12);
     assertEquals("Bundle[" + _id11.toString() + ", " + _id12.toString() + "]", test.toString());
-  }
-
-  //-------------------------------------------------------------------------
-  public void fudgeEncoding() {
-    ExternalIdBundle input = ExternalIdBundle.of(
-        ExternalId.of("id1", "value1"),
-        ExternalId.of("id2", "value2")
-        );
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = input.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-
-    ExternalIdBundle decoded = ExternalIdBundle.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(input, decoded);
   }
 
 }

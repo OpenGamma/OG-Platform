@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
- * Class describing the data required to price interest rate derivatives with Hull-White one factor model (curves and parameters).
+ * Class describing the data required to price interest rate derivatives with Hull-White one factor model (curves and model parameters).
  */
 public class HullWhiteOneFactorPiecewiseConstantDataBundle extends YieldCurveBundle {
 
