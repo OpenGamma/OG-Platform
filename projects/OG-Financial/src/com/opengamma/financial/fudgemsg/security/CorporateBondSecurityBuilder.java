@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,23 +24,23 @@ public class CorporateBondSecurityBuilder extends AbstractFudgeBuilder implement
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CorporateBondSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    CorporateBondSecurityBuilder.buildMessage(serializer, object, msg);
+    CorporateBondSecurityBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
-  public static void buildMessage(FudgeSerializer serializer, CorporateBondSecurity object, final MutableFudgeMsg msg) {
-    BondSecurityBuilder.buildMessage(serializer, object, msg);
+  public static void toFudgeMsg(FudgeSerializer serializer, CorporateBondSecurity object, final MutableFudgeMsg msg) {
+    BondSecurityBuilder.toFudgeMsg(serializer, object, msg);
   }
 
   @Override
   public CorporateBondSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     CorporateBondSecurity object = FinancialSecurityBuilder.backdoorCreateClass(CorporateBondSecurity.class);
-    CorporateBondSecurityBuilder.buildObject(deserializer, msg, object);
+    CorporateBondSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
-  public static void buildObject(FudgeDeserializer deserializer, FudgeMsg msg, CorporateBondSecurity object) {
-    BondSecurityBuilder.buildObject(deserializer, msg, object);
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CorporateBondSecurity object) {
+    BondSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
   }
 
 }
