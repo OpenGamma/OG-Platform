@@ -6,11 +6,7 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -43,6 +39,21 @@ public class ExternalIdTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_ExternalScheme_String_emptyValue() {
     ExternalId.of(SCHEME, "");
+  }
+
+  // [PLAT-1543] Fix ExternalId and enable the test
+  @Test(enabled = false)
+  public void testStringEscaping() {
+    final String[] strs = new String[] {"Foo", "~Foo", "Foo~", "~Foo~", "~", "~~", "~~~" };
+    for (String scheme : strs) {
+      for (String value : strs) {
+        final ExternalId testEID = ExternalId.of(scheme, value);
+        final String testStr = testEID.toString();
+        System.out.println("scheme = " + scheme + ", value = " + value + ", eid = " + testEID.toString());
+        final ExternalId eid = ExternalId.parse(testStr);
+        assertEquals(testEID, eid);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -149,18 +160,6 @@ public class ExternalIdTest {
     ExternalId d1b = ExternalId.of(SCHEME, "d1");
 
     assertEquals(d1a.hashCode(), d1b.hashCode());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_fudgeEncoding() {
-    ExternalId test = ExternalId.of("id1", "value1");
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = test.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-
-    ExternalId decoded = ExternalId.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(test, decoded);
   }
 
 }
