@@ -6,8 +6,8 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.List;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -25,15 +25,19 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the Hull-White one factor model method for the interest rate futures.
@@ -67,6 +71,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
       NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   // Transaction
   private static final int QUANTITY = -123;
   private static final double TRADE_PRICE = 0.985;
@@ -76,8 +81,9 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
-  private static final InterestRateFutureTransactionHullWhiteMethod METHOD = new InterestRateFutureTransactionHullWhiteMethod(MODEL_PARAMETERS);
-  private static final InterestRateFutureSecurityHullWhiteMethod METHOD_SECURITY = new InterestRateFutureSecurityHullWhiteMethod(MODEL_PARAMETERS);
+  private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(MODEL_PARAMETERS, CURVES);
+  private static final InterestRateFutureTransactionHullWhiteMethod METHOD_TRANSACTION = new InterestRateFutureTransactionHullWhiteMethod();
+  private static final InterestRateFutureSecurityHullWhiteMethod METHOD_SECURITY = new InterestRateFutureSecurityHullWhiteMethod();
 
   @Test
   /**
@@ -85,7 +91,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
    */
   public void presentValueFromPrice() {
     double quotedPrice = 0.98;
-    double pv = METHOD.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
+    double pv = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, quotedPrice);
     double expectedPv = (quotedPrice - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
     assertEquals("Present value from quoted price", expectedPv, pv);
   }
@@ -95,30 +101,40 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
    * Test the present value computed from the curves
    */
   public void presentValue() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final CurrencyAmount pv = METHOD.presentValue(FUTURE_TRANSACTION, curves);
-    double price = METHOD_SECURITY.price(ERU2, curves);
+    final CurrencyAmount pv = METHOD_TRANSACTION.presentValue(FUTURE_TRANSACTION, BUNDLE_HW);
+    double price = METHOD_SECURITY.price(ERU2, BUNDLE_HW);
     double expectedPv = (price - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
     assertEquals("Future Hull-White method: present value from curves", expectedPv, pv.getAmount());
     InterestRateDerivative derivative = FUTURE_TRANSACTION;
-    final CurrencyAmount pv2 = METHOD.presentValue(derivative, curves);
+    final CurrencyAmount pv2 = METHOD_TRANSACTION.presentValue(derivative, BUNDLE_HW);
     assertEquals("Future Hull-White method: present value from curves", pv, pv2);
   }
 
   @Test
-  public void equalHash() {
-    assertTrue(METHOD.equals(METHOD));
-    InterestRateFutureTransactionHullWhiteMethod other = new InterestRateFutureTransactionHullWhiteMethod(MODEL_PARAMETERS);
-    assertTrue(METHOD.equals(other));
-    assertEquals(METHOD.hashCode(), other.hashCode());
-    other = new InterestRateFutureTransactionHullWhiteMethod(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
-    assertTrue(METHOD.equals(other));
-    InterestRateFutureTransactionHullWhiteMethod modifiedMethod;
-    HullWhiteOneFactorPiecewiseConstantParameters otherParameters = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
-    modifiedMethod = new InterestRateFutureTransactionHullWhiteMethod(otherParameters);
-    assertFalse(METHOD.equals(modifiedMethod));
-    assertFalse(METHOD.equals(CUR));
-    assertFalse(METHOD.equals(null));
+  /**
+   * Test the present value curves sensitivity computed from the curves
+   */
+  public void presentValueCurveSensitivity() {
+    final PresentValueSensitivity pvsFuture = METHOD_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
+    pvsFuture.clean();
+    final double deltaTolerancePrice = 1.0E+2;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
+    final double deltaShift = 1.0E-6;
+    // 1. Forward curve sensitivity
+    final String bumpedCurveName = "Bumped Curve";
+    final InterestRateFutureSecurity futureSecutiryBumpedForward = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL,
+        FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, bumpedCurveName);
+    final InterestRateFutureTransaction futureTransactionBumpedForward = new InterestRateFutureTransaction(futureSecutiryBumpedForward, QUANTITY, TRADE_PRICE);
+    final double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime()};
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumpedForward, BUNDLE_HW, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift,
+        METHOD_TRANSACTION);
+    assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
+    final List<DoublesPair> sensiPvForward = pvsFuture.getSensitivities().get(FORWARD_CURVE_NAME);
+    for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
+      final DoublesPair pairPv = sensiPvForward.get(loopnode);
+      assertEquals("Sensitivity future pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
+    }
   }
 
 }
