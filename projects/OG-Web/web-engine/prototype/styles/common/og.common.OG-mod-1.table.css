@@ -17,12 +17,19 @@
 }
 
 .OG-mod-1 thead td {
+  background-color: #ecf5fa;
+  padding: 5px 10px;
+}
+
+.OG-mod-1 thead tr:first-child td {
   border-bottom: 4px solid #eee;
+  padding: 0;
+  background-color: #fff;
   color: #999;
   outline: 1px solid #fff;
 }
 
-.OG-mod-1 thead td:first-child {
+.OG-mod-1 thead tr:first-child td:first-child {
   font-size: 16px;
   color: #555;
 }
