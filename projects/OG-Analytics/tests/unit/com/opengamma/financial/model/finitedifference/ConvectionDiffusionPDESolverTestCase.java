@@ -119,10 +119,12 @@ public class ConvectionDiffusionPDESolverTestCase {
         return 0.0;
       }
     };
+    
 
     LOWER = new DirichletBoundaryCondition(spotZeroPrice, 0.0);
     // UPPER = new NeumannBoundaryCondition(upper1stDev, 5 * FORWARD, ISCALL);
     if (ISCALL) {
+
       UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * FORWARD, false);
     } else {
       UPPER = new NeumannBoundaryCondition(0.0, 5.0 * FORWARD, false);

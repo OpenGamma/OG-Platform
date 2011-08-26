@@ -13,12 +13,9 @@ import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEData
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.financial.model.finitedifference.NeumannBoundaryCondition;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function;
@@ -32,7 +29,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class VariableCoefficientWaveEquationTest {
   
-  private static final  Surface<Double,Double,Double> A = ConstantDoublesSurface.from(0);
+  private static final  Surface<Double,Double,Double> A = ConstantDoublesSurface.from(-0.01);
   private static final  Surface<Double,Double,Double> B;
   private static final  Surface<Double,Double,Double> C = ConstantDoublesSurface.from(0);
   private static final ConvectionDiffusionPDEDataBundle PDE_DATA_BUNDLE;
@@ -63,14 +60,14 @@ public class VariableCoefficientWaveEquationTest {
     LOWER = new DirichletBoundaryCondition(0, 0);
     UPPER = new DirichletBoundaryCondition(0,2*Math.PI);
   }
-  
+ 
   @Test(enabled=false)
   public void test() {
     
-    int spaceSteps = 100;//7;
+    int spaceSteps = 100;
     double h = 2*Math.PI/spaceSteps;
-    double dt = h/4;
-    double tMax = 5;
+    double dt = h/2;
+    double tMax = 8;
     int timeSteps = (int) (tMax/dt);
    
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);
