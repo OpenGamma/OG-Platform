@@ -6,11 +6,8 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -44,6 +41,21 @@ public class ObjectIdTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyValue() {
     ObjectId.of("Scheme", "");
+  }
+
+  // [PLAT-1543] Fix ObjectId and enable the test
+  @Test(enabled = false)
+  public void testStringEscaping() {
+    final String[] strs = new String[] {"Foo", "~Foo", "Foo~", "~Foo~", "~", "~~", "~~~" };
+    for (String scheme : strs) {
+      for (String value : strs) {
+        final ObjectId testOID = ObjectId.of(scheme, value);
+        final String testStr = testOID.toString();
+        System.out.println("scheme = " + scheme + ", value = " + value + ", oid = " + testOID.toString());
+        final ObjectId oid = ObjectId.parse(testStr);
+        assertEquals(testOID, oid);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -180,17 +192,6 @@ public class ObjectIdTest {
     ObjectId d1b = ObjectId.of("Scheme", "d1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_fudgeEncoding() {
-    ObjectId test = ObjectId.of("id1", "value1");
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-    
-    ObjectId decoded = ObjectId.fromFudgeMsg(msg);
-    assertEquals(test, decoded);
   }
 
 }

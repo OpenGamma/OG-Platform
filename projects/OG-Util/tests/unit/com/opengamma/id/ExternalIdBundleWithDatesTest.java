@@ -7,7 +7,6 @@ package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
@@ -21,9 +20,6 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -329,18 +325,6 @@ public class ExternalIdBundleWithDatesTest {
   public void test_toString_nonEmpty() {
     ExternalIdBundleWithDates test = new ExternalIdBundleWithDates(_idwd11, _idwd12);
     assertEquals("BundleWithDates[" + _idwd11.toString() + ", " + _idwd12.toString() + "]", test.toString());
-  }
-
-  //-------------------------------------------------------------------------
-  public void fudgeEncoding() {
-    ExternalIdBundleWithDates input = new ExternalIdBundleWithDates(_idwd11, _idwd12);
-    FudgeContext context = new FudgeContext();
-    FudgeMsg msg = input.toFudgeMsg(context);
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-    
-    ExternalIdBundleWithDates decoded = ExternalIdBundleWithDates.fromFudgeMsg(new FudgeDeserializer(context), msg);
-    assertEquals(input, decoded);
   }
 
 }

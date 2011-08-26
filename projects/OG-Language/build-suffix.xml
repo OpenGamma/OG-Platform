@@ -137,6 +137,12 @@
     <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
   </target>
 
+  <available property="config.ok" file="${basedir}/config/OpenGamma.properties" />
+  <target name="fetch-config" unless="config.ok">
+    <property file="${common.dir}/credentials.properties" />
+    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${basedir}/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+  </target>
+
   <target name="compile" depends="unpack-resolve,deploy-jars,set-version" description="--> compile all components">
     <subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml">
       <property name="wkspace.dir" value="${wkspace.dir}" />

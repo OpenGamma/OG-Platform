@@ -23,6 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * No convexity adjustment is done. 
  */
 public final class InterestRateFutureSecurityDiscountingMethod {
+
   private static final InterestRateFutureSecurityDiscountingMethod INSTANCE = new InterestRateFutureSecurityDiscountingMethod();
 
   public static InterestRateFutureSecurityDiscountingMethod getInstance() {
@@ -38,7 +39,7 @@ public final class InterestRateFutureSecurityDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price.
    */
-  public double priceFromCurves(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public double price(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -89,30 +90,4 @@ public final class InterestRateFutureSecurityDiscountingMethod {
     return result;
   }
 
-  /**
-   * Compute the present value sensitivity to rates of a interest rate future by discounting.
-   * @param future The future.
-   * @param curves The yield curves. Should contain the forward curve associated. 
-   * @return The present value rate sensitivity.
-   */
-  //TODO completely identical to the code in the transaction version 
-  public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    Validate.notNull(future, "Future");
-    Validate.notNull(curves, "Curves");
-    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
-    final double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
-    final double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
-    // Backward sweep
-    final double pvBar = 1.0;
-    final double forwardBar = -future.getPaymentAccrualFactor() * future.getNotional() * pvBar;
-    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getFixingPeriodAccrualFactor() * forwardBar;
-    final double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
-    listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(future.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
-    return result;
-  }
 }

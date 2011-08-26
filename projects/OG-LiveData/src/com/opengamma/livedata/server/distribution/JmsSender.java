@@ -14,6 +14,7 @@ import javax.jms.Session;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -87,7 +88,7 @@ public class JmsSender implements MarketDataSender {
         _cumulativeDelta.getLastKnownValues());
     s_logger.debug("{}: Sending Live Data update {}", this, liveDataValueUpdateBean);
     
-    FudgeMsg fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(_fudgeContext);
+    FudgeMsg fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(new FudgeSerializer(_fudgeContext));
     String destinationName = distributionSpec.getJmsTopic();
     final byte[] bytes = _fudgeContext.toByteArray(fudgeMsg);
     

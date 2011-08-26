@@ -114,7 +114,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final String FORWARD_CURVE_NAME = "Forward";
     InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
+    double factor = MODEL.futureConvexityFactor(ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), MODEL_PARAMETERS);
     double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }

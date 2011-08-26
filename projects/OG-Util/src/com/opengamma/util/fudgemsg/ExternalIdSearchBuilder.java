@@ -24,41 +24,55 @@ import com.opengamma.id.ExternalIdSearchType;
  * Fudge builder for {@code ExternalIdSearch}.
  */
 @FudgeBuilderFor(ExternalIdSearch.class)
-public final class ExternalIdSearchBuilder implements FudgeBuilder<ExternalIdSearch> {
+public final class ExternalIdSearchBuilder extends AbstractFudgeBuilder implements FudgeBuilder<ExternalIdSearch> {
 
   /** Field name. */
   public static final String IDENTIFIERS_KEY = "identifiers";
   /** Field name. */
   public static final String SEARCH_TYPE_KEY = "searchType";
 
+  //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExternalIdSearch object) {
-    final MutableFudgeMsg msg = serializer.newMessage();
-    final MutableFudgeMsg ids = serializer.newMessage();
-    for (ExternalId identifier : object.getExternalIds()) {
-      serializer.addToMessage(ids, null, null, identifier);
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ExternalIdSearch object) {
+    return toFudgeMsg(serializer, object);
+  }
+
+  public static MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer, final ExternalIdSearch object) {
+    if (object == null) {
+      return null;
     }
-    serializer.addToMessage(msg, IDENTIFIERS_KEY, null, ids);
-    serializer.addToMessage(msg, SEARCH_TYPE_KEY, null, object.getSearchType().name());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
+  public static void toFudgeMsg(final FudgeSerializer serializer, final ExternalIdSearch object, final MutableFudgeMsg msg) {
+    final MutableFudgeMsg ids = serializer.newMessage();
+    for (ExternalId externalId : object.getExternalIds()) {
+      addToMessage(ids, null, ExternalIdBuilder.toFudgeMsg(serializer, externalId));
+    }
+    addToMessage(msg, IDENTIFIERS_KEY, ids);
+    addToMessage(msg, SEARCH_TYPE_KEY, object.getSearchType().name());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public ExternalIdSearch buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+  public ExternalIdSearch buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return fromFudgeMsg(deserializer, msg);
+  }
+
+  public static ExternalIdSearch fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    if (msg == null) {
+      return null;
+    }
     final FudgeMsg idMsg = msg.getMessage(IDENTIFIERS_KEY);
-    if (idMsg == null) {
-      throw new IllegalArgumentException("Fudge message is not a ExternalIdSearch - field 'identifiers' is not present");
-    }
     final String searchType = msg.getString(SEARCH_TYPE_KEY);
-    if (searchType == null) {
-      throw new IllegalArgumentException("Fudge message is not a ExternalIdSearch - field 'searchType' is not present");
-    }
-    final Set<ExternalId> identifiers = new HashSet<ExternalId>();
+    Set<ExternalId> ids = new HashSet<ExternalId>();
     for (FudgeField field : idMsg) {
-      identifiers.add(deserializer.fieldValueToObject(ExternalId.class, field));
+      ids.add(ExternalIdBuilder.fromFudgeMsg((FudgeMsg) field.getValue()));
     }
-    ExternalIdSearchType type = ExternalIdSearchType.valueOf(msg.getString("searchType"));
-    return new ExternalIdSearch(identifiers, type);
+    ExternalIdSearchType type = ExternalIdSearchType.valueOf(searchType);
+    return new ExternalIdSearch(ids, type);
   }
 
 }

@@ -47,7 +47,7 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
   }
 
   @Override
-  public UserMessagePayload visitInvoke(final Invoke message, final SessionContext context) {
+  public Result visitInvoke(final Invoke message, final SessionContext context) {
     final FunctionRepository repository = context.getFunctionRepository();
     final MetaFunction function = repository.get(message.getIdentifier());
     if (function == null) {
@@ -60,7 +60,7 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
   }
 
   @Override
-  public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext context) {
+  public Available visitQueryAvailable(final QueryAvailable message, final SessionContext context) {
     final Set<MetaFunction> definitions = context.getFunctionProvider().getDefinitions();
     final FunctionRepository repository = context.getFunctionRepository();
     s_logger.info("{} functions available", definitions.size());

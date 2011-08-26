@@ -14,7 +14,7 @@ LOGGING (com.opengamma.language.connector.Pipes);
 
 /// Creates a new pipe pair.
 ///
-/// @param[in] poOuput C++ to Java pipe, never NULL
+/// @param[in] poOutput C++ to Java pipe, never NULL
 /// @param[in] poInput Java to C++ pipe, never NULL
 CClientPipes::CClientPipes (CNamedPipe *poOutput, CNamedPipe *poInput) {
 	m_poOutput = poOutput;

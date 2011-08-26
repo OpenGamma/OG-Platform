@@ -18,26 +18,48 @@ import com.opengamma.util.PagingRequest;
  * Fudge builder for {@code PagingRequest}.
  */
 @FudgeBuilderFor(PagingRequest.class)
-public final class PagingRequestBuilder implements FudgeBuilder<PagingRequest> {
+public final class PagingRequestBuilder extends AbstractFudgeBuilder implements FudgeBuilder<PagingRequest> {
 
   /** Field name. */
   public static final String FIRST_FIELD_NAME = "first";
   /** Field name. */
   public static final String SIZE_FIELD_NAME = "size";
 
+  //-------------------------------------------------------------------------
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, PagingRequest object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(FIRST_FIELD_NAME, object.getFirstItem());
-    msg.add(SIZE_FIELD_NAME, object.getPagingSize());
+    toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
+  public static MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer, final PagingRequest object) {
+    if (object == null) {
+      return null;
+    }
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
+    return msg;
+  }
+
+  public static void toFudgeMsg(final FudgeSerializer serializer, final PagingRequest object, final MutableFudgeMsg msg) {
+    addToMessage(msg, FIRST_FIELD_NAME, object.getFirstItem());
+    addToMessage(msg, SIZE_FIELD_NAME, object.getPagingSize());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public PagingRequest buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final Integer first = msg.getInt(FIRST_FIELD_NAME);
-    final Integer size = msg.getInt(SIZE_FIELD_NAME);
-    return PagingRequest.ofIndex(first != null ? first : 1, size != null ? size : PagingRequest.DEFAULT_PAGING_SIZE);
+  public PagingRequest buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return fromFudgeMsg(deserializer, msg);
+  }
+
+  public static PagingRequest fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    if (msg == null) {
+      return null;
+    }
+    final int first = msg.getInt(FIRST_FIELD_NAME);
+    final int size = msg.getInt(SIZE_FIELD_NAME);
+    return PagingRequest.ofIndex(first, size);
   }
 
 }
