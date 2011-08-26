@@ -8,11 +8,8 @@ package com.opengamma.financial.interestrate.future.method;
 import java.util.ArrayList;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
-import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -21,13 +18,12 @@ import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
  * Reference: Henrard, M. Bonds futures and their options: more than the cheapest-to-deliver; quality option and margining. Journal of Fixed Income, 2006, 16, 62-75
  */
-public class BondFutureSecurityHullWhiteMethod implements PricingMethod {
+public class BondFutureSecurityHullWhiteMethod {
 
   /**
    * The number of points used in the numerical integration process.
@@ -216,12 +212,6 @@ public class BondFutureSecurityHullWhiteMethod implements PricingMethod {
       return pv;
     }
 
-  }
-
-  @Override
-  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
-    // TODO
-    return null;
   }
 
 }
