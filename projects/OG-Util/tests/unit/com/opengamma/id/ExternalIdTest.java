@@ -45,6 +45,21 @@ public class ExternalIdTest {
     ExternalId.of(SCHEME, "");
   }
 
+  // [PLAT-1543] Fix ExternalId and enable the test
+  @Test(enabled = false)
+  public void testStringEscaping() {
+    final String[] strs = new String[] {"Foo", "~Foo", "Foo~", "~Foo~", "~", "~~", "~~~" };
+    for (String scheme : strs) {
+      for (String value : strs) {
+        final ExternalId testEID = ExternalId.of(scheme, value);
+        final String testStr = testEID.toString();
+        System.out.println("scheme = " + scheme + ", value = " + value + ", eid = " + testEID.toString());
+        final ExternalId eid = ExternalId.parse(testStr);
+        assertEquals(testEID, eid);
+      }
+    }
+  }
+
   //-------------------------------------------------------------------------
   public void test_factory_String_String() {
     ExternalId test = ExternalId.of("Scheme", "value");

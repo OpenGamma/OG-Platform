@@ -46,6 +46,21 @@ public class ObjectIdTest {
     ObjectId.of("Scheme", "");
   }
 
+  // [PLAT-1543] Fix ObjectId and enable the test
+  @Test(enabled = false)
+  public void testStringEscaping() {
+    final String[] strs = new String[] {"Foo", "~Foo", "Foo~", "~Foo~", "~", "~~", "~~~" };
+    for (String scheme : strs) {
+      for (String value : strs) {
+        final ObjectId testOID = ObjectId.of(scheme, value);
+        final String testStr = testOID.toString();
+        System.out.println("scheme = " + scheme + ", value = " + value + ", oid = " + testOID.toString());
+        final ObjectId oid = ObjectId.parse(testStr);
+        assertEquals(testOID, oid);
+      }
+    }
+  }
+
   //-------------------------------------------------------------------------
   public void test_parse() {
     ObjectId test = ObjectId.parse("Scheme~value");
