@@ -34,7 +34,6 @@ import java.util.List;
  * {@link UniqueId#parse(String)} and must also have a {@link PathParam} annotation.
  *
  * TODO this class needs access to the beans from the Spring context so it can make subscriptions
- * TODO servlet context? it's in there
  */
 public class SubscribingFilterFactory implements ResourceFilterFactory {
 

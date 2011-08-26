@@ -62,11 +62,18 @@ public class WebView implements Viewport {
   private Map<String,Object> _gridStructures;
   private boolean _initialized = false;
 
-  public WebView(ViewClient viewClient, String viewDefinitionName, UniqueId snapshotId, ResultConverterCache resultConverterCache) {
+  public WebView(ViewClient viewClient,
+                 String viewDefinitionName,
+                 UniqueId snapshotId,
+                 ResultConverterCache resultConverterCache,
+                 ViewportDefinition viewportDefinition,
+                 AnalyticsListener listener) {
     _viewClient = viewClient;
     _viewDefinitionName = viewDefinitionName;
     _snapshotId = snapshotId;
     _resultConverterCache = resultConverterCache;
+    _viewportDefinition = viewportDefinition;
+    _listener = listener;
 
     _viewClient.setResultListener(new AbstractViewResultListener() {
       

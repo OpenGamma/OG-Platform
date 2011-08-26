@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="viewDefinitionNamesResource" class="com.opengamma.web.server.push.web.ViewDefinitionNamesResource">
+    <constructor-arg ref="viewDefinitionRespository"/>
+  </bean>
+
+  <bean id="viewDefinitionRespository" class="com.opengamma.web.server.push.web.TestViewDefinitionRepository">
+    <constructor-arg>
+      <array>
+        <value>viewDef1</value>
+        <value>viewDef2</value>
+      </array>
+    </constructor-arg>
+  </bean>
+
+  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.TestRestUpdateManager"/>
+
+</beans>

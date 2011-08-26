@@ -84,14 +84,13 @@ public class LiveResultsService implements ViewportFactory {
       }
       ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
-        webView = new WebView(viewClient, viewDefinitionName, snapshotId, _resultConverterCache);
+        webView = new WebView(viewClient, viewDefinitionName, snapshotId, _resultConverterCache, viewportDefinition, listener);
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
       }
       _clientViews.put(clientId, webView);
-      // TODO at this point the view def won't be compiled so the grids won't exist and the viewport can't be configured
-      return webView.configureViewport(viewportDefinition, listener);
+      return webView;
     }
   }
 
@@ -148,67 +147,4 @@ public class LiveResultsService implements ViewportFactory {
     return new ArrayList<String>(availableViewNames);
   }
 */
-
-  // TODO this should go in a REST resource (if there isn't one already)
-/*
-  private Map<String, Map<String, String>> getSnapshotDetails() {
-    MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
-    snapshotSearchRequest.setIncludeData(false);
-    MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
-    List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getMarketDataSnapshots();
-    
-    Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
-    for (ManageableMarketDataSnapshot snapshot : snapshots) {
-      if (snapshot.getUniqueId() == null) {
-        s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
-        continue;
-      }
-      if (StringUtils.isBlank(snapshot.getName())) {
-        s_logger.warn("Ignoring snapshot {} with no name", snapshot.getUniqueId());
-        continue;
-      }
-      if (s_guidPattern.matcher(snapshot.getName()).find()) {
-        s_logger.debug("Ignoring snapshot which appears to have an auto-generated name: {}", snapshot.getName());
-        continue;
-      }
-      String basisViewName = snapshot.getBasisViewName() != null ? snapshot.getBasisViewName() : "unknown";
-      Map<String, String> snapshotsForBasisView = snapshotsByBasisView.get(basisViewName);
-      if (snapshotsForBasisView == null) {
-        snapshotsForBasisView = new HashMap<String, String>();
-        snapshotsByBasisView.put(basisViewName, snapshotsForBasisView);
-      }
-      snapshotsForBasisView.put(snapshot.getUniqueId().toString(), snapshot.getName());
-    }
-    return snapshotsByBasisView;
-  }
-*/
-
-  // TODO this will be replaced by the creation of a new viewport
-  /*@SuppressWarnings("unchecked")
-  public void processChangeViewRequest(Client remote, Message message) {
-    Map<String, Object> data = (Map<String, Object>) message.getData();
-    String viewName = (String) data.get("viewName");
-    String snapshotIdString = (String) data.get("snapshotId");
-    UniqueId snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueId.parse(snapshotIdString) : null;
-    s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
-    initializeClientView(remote, viewName, snapshotId, getUser(remote));
-  }*/
-
-  // TODO this is on Viewport. remove?
-  /*public void processPauseRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote.getId());
-    if (webView == null) {
-      return;
-    }
-    webView.pause();
-  }*/
-  
-  // TODO this is on Viewport. remove?
-  /*public void processResumeRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote.getId());
-    if (webView == null) {
-      return;
-    }
-    webView.resume();
-  }*/
 }
