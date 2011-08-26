@@ -19,11 +19,15 @@ import com.opengamma.math.matrix.FullMatrix;
 public class BLAS2Test {
 
   double [][] A ={{1,2,3,4,5},{6,7,8,9,10},{11,12,13,14,15},{16,17,18,19,20},{21,22,23,24,25}};
+  double [][] oddA ={{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16},{17,18,19,20}};
   double [] x = {1,2,3,4,5};
+  double [] oddx = {1,2,3,4};
   double [] y = {10,20,30,40,50};
+  double [] oddy = {10,20,30,40,50};
   double alpha = 7.0;
   double beta = -3.0;
   FullMatrix aMatrix = new FullMatrix(A);
+  FullMatrix oddaMatrix = new FullMatrix(oddA);
 
   // Answers to Full matrix DGEMV's
   double [] A_times_x = {55,130,205,280,355};
@@ -32,7 +36,7 @@ public class BLAS2Test {
   double [] alpha_times_A_times_x_plus_y = {395, 930, 1465, 2000, 2535};
   double [] A_times_x_plus_beta_times_y = {25,70,115,160,205};
   double [] alpha_times_A_times_x_plus_beta_times_y = {355, 850, 1345, 1840, 2335};
-
+  double [] alpha_times_oddA_times_oddx_plus_beta_times_oddy = {180, 430, 680, 930, 1180};
   // stateless manipulators
 @Test
 public void testDGEMV_ans_eq_A_times_x() {
@@ -64,6 +68,12 @@ public void testDGEMV_ans_eq_alpha_times_A_times_x_plus_beta_times_y() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix,x,beta,y),alpha_times_A_times_x_plus_beta_times_y));
 }
 
+@Test
+public void testDGEMV_ans_eq_alpha_times_oddA_times_oddx_plus_beta_times_oddy() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,oddaMatrix,oddx,beta,oddy),alpha_times_oddA_times_oddx_plus_beta_times_oddy));
+}
+
+// test the inplaces
 @Test
 public void testDGEMV_y_eq_A_times_x() {
   double [] ycp = new double[y.length];
