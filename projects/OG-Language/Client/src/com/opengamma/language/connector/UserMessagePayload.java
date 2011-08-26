@@ -5,7 +5,7 @@ package com.opengamma.language.connector;
 public class UserMessagePayload implements java.io.Serializable {
           public static final UserMessagePayload EMPTY_PAYLOAD = new UserMessagePayload ();
         
-        public <T1,T2> T1 accept (final UserMessagePayloadVisitor<T1,T2> visitor, final T2 data) {
+        public <T1,T2> T1 accept (final UserMessagePayloadVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.language.async.AsynchronousExecution {
           return visitor.visitUserMessagePayload (this, data);
         }
   private static final long serialVersionUID = 1l;

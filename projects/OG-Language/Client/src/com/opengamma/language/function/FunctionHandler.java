@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.language.Data;
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Function;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
@@ -47,7 +48,7 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
   }
 
   @Override
-  public Result visitInvoke(final Invoke message, final SessionContext context) {
+  public Result visitInvoke(final Invoke message, final SessionContext context) throws AsynchronousExecution {
     final FunctionRepository repository = context.getFunctionRepository();
     final MetaFunction function = repository.get(message.getIdentifier());
     if (function == null) {
@@ -56,6 +57,7 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
     }
     s_logger.debug("Invoking {}", function.getName());
     final List<Data> parameters = message.getParameter();
+    // invoke produces a "Result", so allow its async. exception to propogate out
     return function.getInvoker().invoke(context, (parameters != null) ? parameters : Collections.<Data>emptyList());
   }
 

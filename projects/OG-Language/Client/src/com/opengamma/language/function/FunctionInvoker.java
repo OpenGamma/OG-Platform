@@ -9,6 +9,7 @@ package com.opengamma.language.function;
 import java.util.List;
 
 import com.opengamma.language.Data;
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 
 /**
@@ -16,7 +17,15 @@ import com.opengamma.language.context.SessionContext;
  */
 public interface FunctionInvoker {
 
-  Result invoke(SessionContext sessionContext, List<Data> parameterValue);
+  /**
+   * Invokes the function to produce a result message.
+   * 
+   * @param sessionContext the client session context, not null
+   * @param parameters parameters as received from the client, may be null or empty
+   * @throws AsynchronousExecution if the operation is deferred
+   * @return the result message containing the function result, or containing any error information for the user 
+   */
+  Result invoke(SessionContext sessionContext, List<Data> parameters) throws AsynchronousExecution;
 
   // TODO: note that implementations of a FunctionInvoker will typically take the
   // MetaParameter list and JavaTypeInfo of the return type so that a conversion
