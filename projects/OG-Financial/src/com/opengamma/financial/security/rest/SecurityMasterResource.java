@@ -39,6 +39,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * RESTful resource publishing details from a {@link SecurityMaster}.
@@ -116,7 +117,7 @@ public class SecurityMasterResource {
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
-        return new FudgeMsgEnvelope(uid.toFudgeMsg(getFudgeContext()));
+        return new FudgeMsgEnvelope(UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), uid));
       }
     }
 
@@ -128,7 +129,7 @@ public class SecurityMasterResource {
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
-        return new FudgeMsgEnvelope(uid.toFudgeMsg(getFudgeContext()));
+        return new FudgeMsgEnvelope(UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), uid));
       }
     }
 
@@ -148,7 +149,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializer().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().add(document);
-      return new FudgeMsgEnvelope(document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), document.getUniqueId()));
     }
 
     @Path("{uid}")

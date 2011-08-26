@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -6,8 +6,6 @@
 
 #ifndef __inc_og_language_service_settings_h
 #define __inc_og_language_service_settings_h
-
-// Runtime configuration options
 
 #include "Public.h"
 
@@ -28,6 +26,7 @@
 #define SETTINGS_SERVICE_SDDL				TEXT ("serviceSDDL")
 #endif
 
+/// Configuration settings for the JVM service components
 class CSettings : public CAbstractSettings {
 private:
 	const TCHAR *GetAnnotationCache (const TCHAR *pszDefault) const { return Get (SETTINGS_ANNOTATION_CACHE, pszDefault); }

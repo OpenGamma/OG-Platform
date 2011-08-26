@@ -66,10 +66,10 @@ $.register_module({
                     }
                     json_header = r.data.header;
                     from = from_page * DEFAULT_PAGESIZE;
-                    to = from + json_header.pageSize;
-                    data.length = parseInt(json_header.total);
+                    to = from + json_header.pgSze;
+                    data.length = parseInt(json_header.pgTtl);
                     // Create Data Object for slickgrid
-                    data.total = r.data.header.total;
+                    data.total = r.data.header.pgTtl;
                     $.each(r.data.data, function (i, row) {
                         var field_values = row.split('|'),
                             field_names = json_header.dataFields,

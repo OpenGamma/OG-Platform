@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,9 +31,13 @@ public class EHCachingDistributionSpecificationResolver
   implements DistributionSpecificationResolver {
   
   /**
-   * Cache key for distribution specs.
+   * Cache key format for distribution specs.
    */
-  private static final String DISTRIBUTION_SPEC_CACHE = "distributionSpecification";
+  private static final String DISTRIBUTION_SPEC_CACHE_FORMAT = "distributionSpecification.{0}";
+  /**
+   * Default cache key format arg distribution specs.
+   */
+  private static final String DISTRIBUTION_SPEC_CACHE_DEFAULT_ARG = "DEFAULT";
   
   private final DistributionSpecificationResolver _underlying;
   
@@ -47,12 +52,18 @@ public class EHCachingDistributionSpecificationResolver
   private final Cache _cache;
   
   public EHCachingDistributionSpecificationResolver(final DistributionSpecificationResolver underlying, final CacheManager cacheManager) {
+    this(underlying, cacheManager, DISTRIBUTION_SPEC_CACHE_DEFAULT_ARG);
+  }
+  
+  public EHCachingDistributionSpecificationResolver(final DistributionSpecificationResolver underlying, final CacheManager cacheManager, String cacheName) {
     ArgumentChecker.notNull(underlying, "Underlying DistributionSpecificationResolver");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
+    ArgumentChecker.notNull(cacheName, "cacheName");
     _underlying = underlying;
     _cacheManager = cacheManager;
-    EHCacheUtils.addCache(cacheManager, DISTRIBUTION_SPEC_CACHE);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, DISTRIBUTION_SPEC_CACHE);
+    String combinedCacheName = MessageFormat.format(DISTRIBUTION_SPEC_CACHE_FORMAT, cacheName);
+    EHCacheUtils.addCache(cacheManager, combinedCacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, combinedCacheName);
   }
   
   public CacheManager getCacheManager() {

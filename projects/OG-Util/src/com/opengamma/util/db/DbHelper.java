@@ -12,6 +12,8 @@ import org.hibernate.dialect.Dialect;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
+import com.opengamma.util.PagingRequest;
+
 /**
  * Helper for working with databases with subclasses for different databases.
  */
@@ -137,12 +139,12 @@ public abstract class DbHelper {
     // OFFSET ... FETCH ... needs to be fully wordy to satisfy Derby
     // MySQL uses LIMIT ... OFFSET ...
     // Others use window functions (more complex)
-    if (paging.getFirstItemIndex() == 0) {
+    if (paging.getFirstItem() == 0) {
       return sqlSelectFromWhere + sqlOrderBy +
           "FETCH FIRST " + paging.getPagingSize() + " ROWS ONLY ";
     }
     return sqlSelectFromWhere + sqlOrderBy +
-        "OFFSET " + paging.getFirstItemIndex() + " ROWS " +
+        "OFFSET " + paging.getFirstItem() + " ROWS " +
         "FETCH NEXT " + paging.getPagingSize() + " ROWS ONLY ";
   }
 

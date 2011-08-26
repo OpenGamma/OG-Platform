@@ -45,7 +45,10 @@ public class InvalidConversionException extends IllegalArgumentException {
   }
 
   /**
-   * Tidy up the raw values. This string is likely to be visible to a user so should make sense to them.
+   * Returns a version of {@link #getMessage} that is more useful to display to a user but less-so for programmer diagnostics
+   * in the stack trace.
+   * 
+   * @return a tidied message string.
    */
   public String getClientMessage() {
     final StringBuilder sb = new StringBuilder();

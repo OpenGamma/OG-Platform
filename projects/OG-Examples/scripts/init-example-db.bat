@@ -1,4 +1,6 @@
 @echo off
+REM PLAT-1527
+pushd %~dp0\..
 
 if "%JAVA_HOME%" == "" echo Warning: JAVA_HOME is not set
 set JAVACMD=%JAVA_HOME%\bin\java.exe
@@ -41,3 +43,6 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
   -Dopengamma.platform.marketdatasource=direct ^
   -Dopengamma.platform.os=posix ^
   com.opengamma.examples.loader.DemoDatabasePopulater
+
+REM PLAT-1527
+popd

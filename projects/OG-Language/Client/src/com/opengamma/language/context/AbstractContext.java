@@ -54,6 +54,20 @@ public abstract class AbstractContext<ParentContext extends AbstractContext<?>> 
   }
 
   /**
+   * Returns a key that a class can use for local data. The key is composed from the class' simple name and the requested key.
+   * For example, {@code getClassPrivateKey(Foo.class, "bar")} returns {@code Foo.bar}.
+   * 
+   * @param clazz class to scope the local data within, not {@code null}
+   * @param key key name, not {@code null}
+   * @return the constructed key name, not {@code null}
+   */
+  public static String getClassPrivateKey(final Class<?> clazz, final String key) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(key, "key");
+    return clazz.getSimpleName() + "." + key;
+  }
+
+  /**
    * Set a value within the context. The value must not already have been set.
    * 
    * @param key key

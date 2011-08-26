@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.test.AbstractConverterTest;
 
 /**
  * Tests the {@link PrimitiveConverter} class.

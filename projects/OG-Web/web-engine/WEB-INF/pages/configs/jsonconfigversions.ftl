@@ -3,9 +3,9 @@
     "header": {
         "type": "ConfigHistory",
         <#if versionsResult??>
-        "total" : ${"${paging.totalItems}"?replace(',','')},
-        "page": ${"${paging.page}"?replace(',','')},
-        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
+        "pgIdx": ${"${paging.firstItem}"?replace(',','')},
+        "pgSze": ${"${paging.pagingSize}"?replace(',','')},
+        "pgTtl": ${"${paging.totalItems}"?replace(',','')},
         </#if>
         "object_id": "${config.uniqueId.objectId}",
         "dataFields": ["version", "name", "validFrom", "validTo", "correctionFrom", "correctionTo"]

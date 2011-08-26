@@ -64,7 +64,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @return The security price.
    */
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
-    final double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
     return optionPriceFromFuturePrice(security, sabrData, priceFuture);
   }
 
@@ -76,7 +76,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
    */
   public PresentValueSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
     // Forward sweep
-    double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
     double rateStrike = 1.0 - security.getStrike();
     EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     double forward = 1 - priceFuture;
@@ -102,7 +102,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
   public PresentValueSABRSensitivityDataBundle priceSABRSensitivity(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     // Forward sweep
-    double priceFuture = METHOD_FUTURE.priceFromCurves(security.getUnderlyingFuture(), sabrData);
+    double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
     double rateStrike = 1.0 - security.getStrike();
     EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     double forward = 1 - priceFuture;

@@ -46,7 +46,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -74,8 +74,9 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("identifier") String identifier,
       @QueryParam("dataSource") String dataSource,
       @QueryParam("dataProvider") String dataProvider,
@@ -83,15 +84,17 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @QueryParam("observationTime") String observationTime,
       @QueryParam("name") String name,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
     return getFreemarker().build("timeseries/alltimeseries.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("identifier") String identifier,
       @QueryParam("dataSource") String dataSource,
       @QueryParam("dataProvider") String dataProvider,
@@ -99,15 +102,16 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       @QueryParam("observationTime") String observationTime,
       @QueryParam("name") String name,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, identifier, dataSource, dataProvider, dataField, observationTime, name, uriInfo);
     return getFreemarker().build("timeseries/jsonalltimeseries.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, String name, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(PagingRequest pr, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, String name, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setExternalIdValue(StringUtils.trimToNull(identifier));
     searchRequest.setDataSource(StringUtils.trimToNull(dataSource));
     searchRequest.setDataProvider(StringUtils.trimToNull(dataProvider));

@@ -21,6 +21,7 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -75,7 +76,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /**
    * The bundle hint cache.
    */
-  private Cache _bundleHintCache;
+  private final Cache _bundleHintCache;
   /**
    * Listens for changes in the underlying security source.
    */
@@ -235,12 +236,16 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     Element hintUid = _bundleHintCache.get(key);
     if (hintUid != null) {
       ObjectId hint = (ObjectId) hintUid.getValue();
-      //Caching is based on the idea that this query is significantly faster
-      Security candidate = getSecurity(hint, versionCorrection);
-      if (candidate.getIdentifiers().containsAny(bundle)) {
-        //This is a good enough result with the current resolution logic,
-        // h'ver as soon as we have rules about which of multiple matches to use this caching must be rewritten
-        return candidate;
+      try { 
+        //Caching is based on the idea that this query is significantly faster
+        Security candidate = getSecurity(hint, versionCorrection);
+        if (candidate.getIdentifiers().containsAny(bundle)) {
+          //This is a good enough result with the current resolution logic,
+          // h'ver as soon as we have rules about which of multiple matches to use this caching must be rewritten
+          return candidate;
+        }
+      } catch (DataNotFoundException dnfe) {
+        s_logger.debug("Hinted security {} has dissapeared", hint);
       }
     }
     

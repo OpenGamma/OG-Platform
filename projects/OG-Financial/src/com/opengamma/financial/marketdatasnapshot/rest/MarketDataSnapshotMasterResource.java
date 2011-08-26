@@ -30,6 +30,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * RESTful resource publishing details from a {@code MarketDataSnapshotMaster}.
@@ -124,8 +125,9 @@ public class MarketDataSnapshotMasterResource {
     if (document == null) {
       return null;
     }
-    final MutableFudgeMsg resp = getFudgeContext().newMessage();
-    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg resp = serializer.newMessage();
+    resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -135,9 +137,7 @@ public class MarketDataSnapshotMasterResource {
     final UniqueId uid = UniqueId.parse(uidString);
     try {
       final MarketDataSnapshotDocument document = getSnapshotMaster().get(uid);
-      final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
-      
-      MutableFudgeMsg resp = sctx.objectToFudgeMsg(document);
+      MutableFudgeMsg resp = getFudgeSerializer().objectToFudgeMsg(document);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -160,8 +160,7 @@ public class MarketDataSnapshotMasterResource {
   @Path("snapshots/{uid}")
   public FudgeMsgEnvelope update(@PathParam("uid") final String uidString, final FudgeMsgEnvelope payload) {
     final UniqueId uid = UniqueId.parse(uidString);
-    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
-    final ManageableMarketDataSnapshot snapshot = deserializer.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
+    final ManageableMarketDataSnapshot snapshot = getFudgeDeserializer().fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
 
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(uid, snapshot);
     try {
@@ -169,10 +168,9 @@ public class MarketDataSnapshotMasterResource {
       if (document == null) {
         return null;
       }
-      final MutableFudgeMsg resp = getFudgeContext().newMessage();
-      resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      final MutableFudgeMsg resp = getFudgeSerializer().newMessage();
+      resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), document.getUniqueId()));
       return new FudgeMsgEnvelope(resp);
-
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }

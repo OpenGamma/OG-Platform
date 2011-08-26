@@ -18,11 +18,18 @@ import com.opengamma.core.security.Security;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
+/**
+ * Test the Fudge encoding of securities.
+ */
 @Test
 public class FudgeSecurityEncodingTest extends SecurityTestCase {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FudgeSecurityEncodingTest.class);
 
+  /**
+   * The Fudge context.
+   */
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   @Override

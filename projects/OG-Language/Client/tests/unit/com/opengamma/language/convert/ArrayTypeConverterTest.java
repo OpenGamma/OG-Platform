@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.test.AbstractConverterTest;
 
 /**
  * Tests the {@link ArrayTypeConverter} class.

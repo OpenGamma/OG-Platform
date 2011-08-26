@@ -126,7 +126,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    */
   public void presentValue() {
     final InterestRateFutureSecurityDiscountingMethod methodFuture = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    final double priceFuture = methodFuture.priceFromCurves(EDU2, CURVES_BUNDLE);
+    final double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
     final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
     final double pvNoPremium = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
     final double pvNoPremiumExpected = METHOD.presentValueFromFuturePrice(transactionNoPremium, SABR_BUNDLE, priceFuture).getAmount();

@@ -30,7 +30,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
@@ -55,7 +55,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     PositionSearchRequest request = new PositionSearchRequest();
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
@@ -67,10 +67,10 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_pageOne() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(PagingRequest.of(1, 2));
+    request.setPagingRequest(PagingRequest.ofPage(1, 2));
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
@@ -82,10 +82,10 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_pageTwo() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(PagingRequest.of(2, 2));
+    request.setPagingRequest(PagingRequest.ofPage(2, 2));
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(3, test.getPaging().getFirstItem());
+    assertEquals(3, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     
@@ -97,10 +97,10 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_pageThree() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(PagingRequest.of(3, 2));
+    request.setPagingRequest(PagingRequest.ofPage(3, 2));
     PositionSearchResult test = _posMaster.search(request);
     
-    assertEquals(5, test.getPaging().getFirstItem());
+    assertEquals(5, test.getPaging().getFirstItemOneBased());
     assertEquals(2, test.getPaging().getPagingSize());
     assertEquals(_totalPositions, test.getPaging().getTotalItems());
     

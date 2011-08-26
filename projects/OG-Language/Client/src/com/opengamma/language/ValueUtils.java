@@ -99,7 +99,7 @@ public final class ValueUtils {
     } else if (data.getDoubleValue() != null) {
       return data.getDoubleValue();
     } else if (data.getIntValue() != null) {
-      return (double) data.getIntValue();
+      return data.getIntValue().doubleValue();
     } else if (data.getBoolValue() != null) {
       return data.getBoolValue() ? 1.0 : 0.0;
     } else if (data.getStringValue() != null) {
