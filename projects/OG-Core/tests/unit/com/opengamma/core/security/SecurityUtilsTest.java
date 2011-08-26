@@ -6,11 +6,13 @@
 package com.opengamma.core.security;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
-import com.opengamma.id.Identifier;
+
+import com.opengamma.id.ExternalId;
 
 /**
- * Test SecurityUtils.
+ * Test {@link SecurityUtils}.
  */
 @Test
 public class SecurityUtilsTest {
@@ -26,13 +28,13 @@ public class SecurityUtilsTest {
   }
 
   public void test_identifiers() {
-    assertEquals(Identifier.of("ISIN", "A"), SecurityUtils.isinSecurityId("A"));
-    assertEquals(Identifier.of("CUSIP", "A"), SecurityUtils.cusipSecurityId("A"));
-    assertEquals(Identifier.of("SEDOL1", "A"), SecurityUtils.sedol1SecurityId("A"));
-    assertEquals(Identifier.of("BLOOMBERG_BUID", "A"), SecurityUtils.bloombergBuidSecurityId("A"));
-    assertEquals(Identifier.of("BLOOMBERG_TICKER", "A"), SecurityUtils.bloombergTickerSecurityId("A"));
-    assertEquals(Identifier.of("BLOOMBERG_TCM", "T 4.75 15/08/43 Govt"), SecurityUtils.bloombergTCMSecurityId("T", "4.75", "15/08/43", "Govt"));
-    assertEquals(Identifier.of("RIC", "A"), SecurityUtils.ricSecurityId("A"));
+    assertEquals(ExternalId.of("ISIN", "A"), SecurityUtils.isinSecurityId("A"));
+    assertEquals(ExternalId.of("CUSIP", "A"), SecurityUtils.cusipSecurityId("A"));
+    assertEquals(ExternalId.of("SEDOL1", "A"), SecurityUtils.sedol1SecurityId("A"));
+    assertEquals(ExternalId.of("BLOOMBERG_BUID", "A"), SecurityUtils.bloombergBuidSecurityId("A"));
+    assertEquals(ExternalId.of("BLOOMBERG_TICKER", "A"), SecurityUtils.bloombergTickerSecurityId("A"));
+    assertEquals(ExternalId.of("BLOOMBERG_TCM", "T 4.75 15/08/43 Govt"), SecurityUtils.bloombergTCMSecurityId("T", "4.75", "15/08/43", "Govt"));
+    assertEquals(ExternalId.of("RIC", "A"), SecurityUtils.ricSecurityId("A"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

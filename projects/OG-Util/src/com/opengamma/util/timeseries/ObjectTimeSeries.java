@@ -18,13 +18,13 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
  * and a {@code List} of date-time to value pairs.
  * As such, the date/times do not have to be evenly spread over time within the series.
  * 
- * @param <T> the time, such as {@code Instant} or {@code LocalDate}
+ * @param <T> the date-time type, such as {@code Instant} or {@code LocalDate}
  * @param <V> the value being viewed over time, such as {@code Double}
  */
 public interface ObjectTimeSeries<T, V> extends TimeSeries<T, V> {
 
   @Override
-  ObjectTimeSeries<T, V> subSeries(T startTime, boolean inclusiveStart, T endTime, boolean exclusiveEnd);
+  ObjectTimeSeries<T, V> subSeries(T startTime, boolean includeStart, T endTime, boolean includeEnd);
 
   @Override
   ObjectTimeSeries<T, V> subSeries(T startTimeInclusive, T endTimeExclusive);

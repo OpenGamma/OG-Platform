@@ -34,9 +34,9 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -96,10 +96,10 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map, final SwaptionSecurity security, final ZonedDateTime now) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
     final ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
-    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(IdentifierBundle.of(security.getUnderlyingIdentifier()));
+    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
     final ZonedDateTime swapMaturity = underlying.getMaturityDate();
-    final double swaptionExpiryYears = DateUtil.getDifferenceInYears(now, swaptionExpiry);
-    final double swapMaturityYears = DateUtil.getDifferenceInYears(now, swapMaturity);
+    final double swaptionExpiryYears = DateUtils.getDifferenceInYears(now, swaptionExpiry);
+    final double swapMaturityYears = DateUtils.getDifferenceInYears(now, swapMaturity);
     return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[] {FORMATTER.format(swaptionExpiryYears)},
                                       new Double[] {entry.getKey().second}, new Object[] {FORMATTER.format(swapMaturityYears)},
                                       new double[][] {new double[] {entry.getValue()}});

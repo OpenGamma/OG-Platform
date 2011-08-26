@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.volatility.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -15,7 +17,7 @@ import com.opengamma.financial.model.option.definition.FXOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -24,8 +26,8 @@ public class FXVannaVolgaVolatilityCurveModelTest {
   private static final YieldAndDiscountCurve DOMESTIC = new DiscountCurve(ConstantDoublesCurve.from(0.9902752));
   private static final YieldAndDiscountCurve FOREIGN = new DiscountCurve(ConstantDoublesCurve.from(0.9945049));
   private static final double SPOT = 1.205;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(DATE, 94. / 365);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime MATURITY = DateUtils.getDateOffsetWithYearFraction(DATE, 94. / 365);
   private static final double RR = -0.005;
   private static final double ATM = 0.0905;
   private static final double VWB = 0.0013;

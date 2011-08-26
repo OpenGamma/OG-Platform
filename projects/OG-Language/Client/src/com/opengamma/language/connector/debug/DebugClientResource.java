@@ -10,7 +10,7 @@ import java.util.concurrent.TimeoutException;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,7 @@ public class DebugClientResource implements FudgeMessageReceiver {
   }
   
   protected void sendUserMessage(final UserMessage userMessage) {
-    FudgeMsg fudgeMsg = userMessage.toFudgeMsg(new FudgeSerializationContext(getClientContext().getFudgeContext()));
+    FudgeMsg fudgeMsg = userMessage.toFudgeMsg(new FudgeSerializer(getClientContext().getFudgeContext()));
     s_logger.debug("Sending user message {} as Fudge message {}", userMessage, fudgeMsg);
     getFudgeConnection().getFudgeMessageSender().send(fudgeMsg);
   }

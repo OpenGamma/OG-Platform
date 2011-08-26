@@ -7,14 +7,14 @@ package com.opengamma.financial.currency;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -126,14 +126,14 @@ public abstract class CurrencyMatrixValue {
       return getValueRequirement().hashCode() * 17 + ObjectUtils.hashCode(isReciprocal());
     }
 
-    public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-      final MutableFudgeMsg msg = context.objectToFudgeMsg(getValueRequirement());
+    public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+      final MutableFudgeMsg msg = serializer.objectToFudgeMsg(getValueRequirement());
       msg.add("reciprocal", null, FudgeWireType.BOOLEAN, isReciprocal());
       return msg;
     }
 
-    public static CurrencyMatrixValueRequirement fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-      return new CurrencyMatrixValueRequirement(context.fudgeMsgToObject(ValueRequirement.class, msg), msg.getBoolean("reciprocal"));
+    public static CurrencyMatrixValueRequirement fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+      return new CurrencyMatrixValueRequirement(deserializer.fudgeMsgToObject(ValueRequirement.class, msg), msg.getBoolean("reciprocal"));
     }
 
     @Override
@@ -213,7 +213,7 @@ public abstract class CurrencyMatrixValue {
    * @param uniqueId the unique identifier to retrieve market data for
    * @return the matrix value
    */
-  public static CurrencyMatrixValueRequirement of(final UniqueIdentifier uniqueId) {
+  public static CurrencyMatrixValueRequirement of(final UniqueId uniqueId) {
     return new CurrencyMatrixValueRequirement(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueId), false);
   }
 

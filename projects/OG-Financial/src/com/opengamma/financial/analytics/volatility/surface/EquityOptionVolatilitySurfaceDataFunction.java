@@ -38,9 +38,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -122,10 +122,10 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
       // don't care what these are
       for (final Y y : definition.getYs()) {
         provider.init(true); // generate puts
-        final Identifier putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
+        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), putIdentifier));
         provider.init(false);
-        final Identifier callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
+        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), callIdentifier));
       }
     }
@@ -193,13 +193,13 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
             } else {
               provider.init(true); // generate identifiers for put options
             }
-            final Identifier identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
+            final ExternalId identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             @SuppressWarnings("unused")
             final double relativeStrikeBps = ((underlyingSpot - strike) / underlyingSpot) * 100;
             // TODO: totally bogus
             @SuppressWarnings("unused")
-            final double relativeExpiry = DateUtil.getDifferenceInYears(now, expiry.atTime(now.toOffsetTime())); 
+            final double relativeExpiry = DateUtils.getDifferenceInYears(now, expiry.atTime(now.toOffsetTime())); 
             if (inputs.getValue(requirement) != null) {
               numFound++;
               final Double volatility = (Double) inputs.getValue(requirement);

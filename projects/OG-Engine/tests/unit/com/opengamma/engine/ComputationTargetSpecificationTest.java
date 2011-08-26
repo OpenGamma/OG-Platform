@@ -6,21 +6,23 @@
 package com.opengamma.engine;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Test ComputationTargetSpecification.
@@ -28,25 +30,25 @@ import com.opengamma.id.UniqueIdentifier;
 @Test
 public class ComputationTargetSpecificationTest {
 
-  private static final Identifier ID = Identifier.of("Test", "0");
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "1");
-  private static final UniqueIdentifier UID2 = UniqueIdentifier.of("Test", "2");
-  private static final Identifiable IDENTIFIABLE = new Identifiable() {
+  private static final ExternalId ID = ExternalId.of("Test", "0");
+  private static final UniqueId UID = UniqueId.of("Test", "1");
+  private static final UniqueId UID2 = UniqueId.of("Test", "2");
+  private static final ExternalIdentifiable IDENTIFIABLE = new ExternalIdentifiable() {
     @Override
-    public Identifier getIdentityKey() {
-      return Identifier.of("Test", "3");
+    public ExternalId getExternalId() {
+      return ExternalId.of("Test", "3");
     }
   };
   private static final UniqueIdentifiable UNIQUE_IDENTIFIABLE = new UniqueIdentifiable() {
     @Override
-    public UniqueIdentifier getUniqueId() {
-      return UniqueIdentifier.of("Test", "4");
+    public UniqueId getUniqueId() {
+      return UniqueId.of("Test", "4");
     }
   };
-  private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
-  private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
-  private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UID, "", "", IdentifierBundle.EMPTY);
+  private static final Portfolio PORTFOLIO = new SimplePortfolio(UID, "Name");
+  private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UID, "Name");
+  private static final Position POSITION = new SimplePosition(UID, new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UID, "", "", ExternalIdBundle.EMPTY);
 
   public void test_constructor_Object_Portfolio() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);
@@ -81,13 +83,13 @@ public class ComputationTargetSpecificationTest {
   public void test_constructor_Object_ID() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(ID);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(UniqueIdentifier.of("Test", "0"), test.getUniqueId());
+    assertEquals(UniqueId.of("Test", "0"), test.getUniqueId());
   }
 
   public void test_constructor_Object_Identifiable() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(IDENTIFIABLE);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(UniqueIdentifier.of("Test", "3"), test.getUniqueId());
+    assertEquals(UniqueId.of("Test", "3"), test.getUniqueId());
   }
 
   public void test_constructor_Object_UniqueIdentifiable() {
@@ -97,21 +99,21 @@ public class ComputationTargetSpecificationTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_constructor_Type_UniqueIdentifier_ok() {
+  public void test_constructor_Type_UniqueId_ok() {
     new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UID);
     new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     new ComputationTargetSpecification(ComputationTargetType.SECURITY, UID);
-    new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
+    new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueId) null);
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_constructor_Type_UniqueIdentifier_nullType() {
+  public void test_constructor_Type_UniqueId_nullType() {
     new ComputationTargetSpecification(null, UID);
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_constructor_Type_UniqueIdentifier_nullId() {
-    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, (UniqueIdentifier) null);
+  public void test_constructor_Type_UniqueId_nullId() {
+    new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, (UniqueId) null);
   }
 
   //-------------------------------------------------------------------------

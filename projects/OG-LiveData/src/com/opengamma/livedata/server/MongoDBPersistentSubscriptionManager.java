@@ -12,8 +12,8 @@ import java.util.Set;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +53,16 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
 
   @Override
   protected void readFromStorage() {
-    FudgeSerializationContext fsc = new FudgeSerializationContext(FudgeContext.GLOBAL_DEFAULT);
-    FudgeDeserializationContext fdc = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
+    FudgeSerializer serializer = new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT);
+    FudgeDeserializer deserializer = new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT);
     DBCollection dbCollection = _mongoDB.getCollection(MONGO_COLLECTION);
     
     DBCursor cursor = dbCollection.find();
     while (cursor.hasNext()) {
       DBObject mainObject = cursor.next();
       DBObject fieldData = (DBObject) mainObject.get("fieldData");
-      MutableFudgeMsg msg = fsc.objectToFudgeMsg(fieldData);
-      LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(fdc, msg);
+      MutableFudgeMsg msg = serializer.objectToFudgeMsg(fieldData);
+      LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(deserializer, msg);
       addPersistentSubscription(new PersistentSubscription(spec));
     }
     
@@ -72,13 +72,14 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   public void saveToStorage(Set<PersistentSubscription> newState) {
     clean();
     
-    FudgeDeserializationContext context = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
+    FudgeSerializer serializer = new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT);
+    FudgeDeserializer deserializer = new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT);
     DBCollection dbCollection = _mongoDB.getCollection(MONGO_COLLECTION);
     
     List<DBObject> objects = new ArrayList<DBObject>();
     for (PersistentSubscription sub : newState) {
-      FudgeMsg msg = sub.getFullyQualifiedSpec().toFudgeMsg(FudgeContext.GLOBAL_DEFAULT);
-      DBObject fieldData = context.fudgeMsgToObject(DBObject.class, msg);
+      FudgeMsg msg = sub.getFullyQualifiedSpec().toFudgeMsg(serializer);
+      DBObject fieldData = deserializer.fudgeMsgToObject(DBObject.class, msg);
       BasicDBObject mainObject = new BasicDBObject();
       mainObject.append("fieldData", fieldData);
       objects.add(mainObject);

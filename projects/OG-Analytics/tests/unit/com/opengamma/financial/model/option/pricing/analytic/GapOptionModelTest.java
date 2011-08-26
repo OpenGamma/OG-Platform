@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -19,7 +21,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,10 +32,10 @@ public class GapOptionModelTest {
   private static final double B = 0.09;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.2));
   private static final double SPOT = 50;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final double STRIKE = 50;
   private static final double PAYOFF_STRIKE = 57;
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<GapOptionDefinition, StandardOptionDataBundle> MODEL = new GapOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();

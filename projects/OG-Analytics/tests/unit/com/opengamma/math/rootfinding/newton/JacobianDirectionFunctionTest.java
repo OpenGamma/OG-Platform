@@ -6,7 +6,9 @@
 package com.opengamma.math.rootfinding.newton;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.linearalgebra.SVDecompositionColt;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;

@@ -5,27 +5,29 @@
  */
 package com.opengamma.engine;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 
 import javax.time.calendar.OffsetDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.CounterpartyImpl;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test ComputationTargetType.
@@ -33,13 +35,13 @@ import com.opengamma.id.UniqueIdentifier;
 @Test
 public class ComputationTargetTypeTest {
 
-  private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
-  private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl();
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
+  private static final Portfolio PORTFOLIO = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
+  private static final SimplePortfolioNode NODE = new SimplePortfolioNode();
+  private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity("");
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
-  private static final Trade TRADE = new TradeImpl(POSITION.getUniqueId(), SECURITY, new BigDecimal(1), 
-      new CounterpartyImpl(Identifier.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+  private static final Trade TRADE = new SimpleTrade(POSITION.getUniqueId(), SECURITY, new BigDecimal(1), 
+      new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
 
   public void determine() {
     

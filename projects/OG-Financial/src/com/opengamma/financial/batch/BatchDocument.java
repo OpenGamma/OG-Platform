@@ -26,9 +26,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.Paging;
+import com.opengamma.util.Paging;
 
 /**
  * A document used to pass into and out of the batch master.
@@ -43,7 +43,7 @@ public class BatchDocument extends DirectBean {
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The batch date, not null.
    */
@@ -116,7 +116,7 @@ public class BatchDocument extends DirectBean {
    * 
    * @param uniqueId  the batch unique identifier, not null
    */
-  public BatchDocument(UniqueIdentifier uniqueId) {
+  public BatchDocument(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     setUniqueId(uniqueId);
   }
@@ -201,7 +201,7 @@ public class BatchDocument extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case 950748666:  // observationDate
         setObservationDate((LocalDate) newValue);
@@ -292,7 +292,7 @@ public class BatchDocument extends DirectBean {
    * This field is managed by the master but must be set for updates.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -301,7 +301,7 @@ public class BatchDocument extends DirectBean {
    * This field is managed by the master but must be set for updates.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -310,7 +310,7 @@ public class BatchDocument extends DirectBean {
    * This field is managed by the master but must be set for updates.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -629,8 +629,8 @@ public class BatchDocument extends DirectBean {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", BatchDocument.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", BatchDocument.class, UniqueId.class);
     /**
      * The meta-property for the {@code observationDate} property.
      */
@@ -771,7 +771,7 @@ public class BatchDocument extends DirectBean {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 

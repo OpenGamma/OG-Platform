@@ -44,8 +44,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.id.Identifier;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -132,12 +132,12 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
     for (final Object x : volSurfaceDefinition.getXs()) {
       // don't care what these are
       for (final Object y : volSurfaceDefinition.getYs()) {
-        final Identifier identifier = volSurfaceProvider.getInstrument(x, (Double) y, atInstant.toLocalDate());
+        final ExternalId identifier = volSurfaceProvider.getInstrument(x, (Double) y, atInstant.toLocalDate());
         result.add(new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier));
       }
     }
     for (final Object x : futurePriceCurveDefinition.getXs()) {
-      final Identifier identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
+      final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
       result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier));
     }
     return result;
@@ -195,7 +195,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
           final Number xNum = (Number) x;
           final double t = getTime(xNum, now);
           final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) _priceCurveSpecification.getCurveInstrumentProvider();
-          Identifier identifier = futurePriceCurveProvider.getInstrument(xNum, now.toLocalDate());
+          ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, now.toLocalDate());
           ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
             final Double futurePrice = (Double) inputs.getValue(requirement);
@@ -235,13 +235,13 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         if (n == 1) {
           final LocalDate nextExpiry = NEXT_EXPIRY_ADJUSTER.adjustDate(now.toLocalDate());
           final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
-          return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?          
+          return DateUtils.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?          
         }
         final LocalDate date = FIRST_OF_MONTH_ADJUSTER.adjustDate(now.toLocalDate());
         final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly
         final LocalDate thirdWednesday = NEXT_EXPIRY_ADJUSTER.adjustDate(plusMonths);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
-        return DateUtil.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
+        return DateUtils.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
       }
 
       private double getRate(final double quote) {

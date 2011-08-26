@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.test.DBTest;
@@ -39,8 +39,8 @@ public class QueryConfigDbConfigMasterWorkerMetaDataTest extends AbstractDbConfi
     ConfigMetaDataResult result = _cfgMaster.metaData(request);
     assertNotNull(result);
     assertEquals(2, result.getConfigTypes().size());
-    assertTrue(result.getConfigTypes().contains(Identifier.class));
-    assertTrue(result.getConfigTypes().contains(IdentifierBundle.class));
+    assertTrue(result.getConfigTypes().contains(ExternalId.class));
+    assertTrue(result.getConfigTypes().contains(ExternalIdBundle.class));
   }
 
   public void test_metaData_noTypes() {

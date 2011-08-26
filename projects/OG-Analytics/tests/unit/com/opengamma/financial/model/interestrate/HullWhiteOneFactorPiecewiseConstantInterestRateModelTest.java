@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of the Hull-White one factor model with piecewise constant volatility. The computation of several model related factors are also tested.
@@ -97,7 +97,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final Currency CUR = Currency.EUR;
     final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
     // Future
-    final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtil.getUTCDate(2012, 9, 19);
+    final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
     final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, CALENDAR, -SETTLEMENT_DAYS);
     final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR);
     final double NOTIONAL = 1000000.0; // 1m
@@ -114,7 +114,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final String FORWARD_CURVE_NAME = "Forward";
     InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
+    double factor = MODEL.futureConvexityFactor(ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), MODEL_PARAMETERS);
     double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }

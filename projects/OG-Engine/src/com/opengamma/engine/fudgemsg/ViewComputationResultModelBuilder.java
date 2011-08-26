@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
 import com.opengamma.engine.value.ComputedValue;
@@ -26,15 +26,15 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   private static final String FIELD_LIVEDATA = "liveData";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewComputationResultModel resultModel) {
-    final MutableFudgeMsg message = ViewResultModelBuilder.createResultModelMessage(context, resultModel);
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewComputationResultModel resultModel) {
+    final MutableFudgeMsg message = ViewResultModelBuilder.createResultModelMessage(serializer, resultModel);
     
     // Prevent subclass headers from being added to the message later, ensuring that this builder will be used for deserialization
-    FudgeSerializationContext.addClassHeader(message, ViewComputationResultModel.class);
+    FudgeSerializer.addClassHeader(message, ViewComputationResultModel.class);
     
-    final MutableFudgeMsg liveDataMsg = context.newMessage();
+    final MutableFudgeMsg liveDataMsg = serializer.newMessage();
     for (ComputedValue value : resultModel.getAllMarketData()) {
-      context.addToMessage(liveDataMsg, null, 1, value);
+      serializer.addToMessage(liveDataMsg, null, 1, value);
     }
     message.add(FIELD_LIVEDATA, liveDataMsg);
     
@@ -42,11 +42,11 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   }
 
   @Override
-  public ViewComputationResultModel buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    InMemoryViewComputationResultModel resultModel = (InMemoryViewComputationResultModel) bootstrapCommonDataFromMessage(context, message);
+  public ViewComputationResultModel buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    InMemoryViewComputationResultModel resultModel = (InMemoryViewComputationResultModel) bootstrapCommonDataFromMessage(deserializer, message);
     
     for (FudgeField field : message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_LIVEDATA))) {
-      ComputedValue liveData = context.fieldValueToObject(ComputedValue.class, field);
+      ComputedValue liveData = deserializer.fieldValueToObject(ComputedValue.class, field);
       resultModel.addMarketData(liveData);      
     }
     

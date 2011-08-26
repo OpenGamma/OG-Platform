@@ -24,7 +24,7 @@ import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -46,7 +46,7 @@ public class BondFutureDefinitionTest {
   private static final BondDefinition BOND_DEFINITION3 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 2, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final BondDefinition BOND_DEFINITION4 = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final LocalDate DELIVERY_DATE = LocalDate.of(2010, 6, 15);
-  private static final ZonedDateTime ZONED_DELIVERY_DATE = DateUtil.getUTCDate(2010, 6, 15);
+  private static final ZonedDateTime ZONED_DELIVERY_DATE = DateUtils.getUTCDate(2010, 6, 15);
   private static final BondConvention BOND_FUTURE_CONVENTION = new BondConvention(0, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new MondayToFridayCalendar("Weekend"), true, "USD Bond Future", 0, SimpleYieldConvention.MONEY_MARKET);
   private static final double[] CONVERSION_FACTORS = new double[] {1, .8, .6, .4};

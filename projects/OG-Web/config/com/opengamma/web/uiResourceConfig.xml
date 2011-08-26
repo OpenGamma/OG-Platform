@@ -10,7 +10,6 @@
     <fragment>/styles/common/og.common.form.css</fragment>
     <fragment>/styles/common/og.common.fonts.css</fragment>
     <fragment>/styles/common/og.common.links.css</fragment>
-    <fragment>/styles/common/og.common.OG-resizeBar.css</fragment>
     <fragment>/styles/common/og.common.buttons.css</fragment>
     <fragment>/styles/common/og.common.OG-toolbar.css</fragment>
     <fragment>/styles/common/og.common.OG-tabs.css</fragment>
@@ -42,7 +41,6 @@
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-02.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-rounded.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-shadow.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-shadow-light.css</fragment>
@@ -72,7 +70,6 @@
     <fragment>/styles/common/details/og.common.OG-details.OG-default.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
-    <fragment>/styles/common/forms/og.common.forms.OG-constraints.css</fragment><!-- LEGACY -->
     <fragment>/styles/common/forms/og.common.forms.OG-form.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.css</fragment>
@@ -94,7 +91,7 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.core.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.datepicker.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.resizable.css</fragment>
-    <fragment>/styles/common/jquery/ui/og.common.jquery.ui.autocomplete.css</fragment>
+    <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
   </bundle>
   <bundle id="slickgrid.css">
     <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
@@ -103,6 +100,7 @@
   <bundle id="jquery.css">
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.dialog.css</fragment>
+    <fragment>/styles/common/jquery/ui/og.common.jquery.ui.autocomplete.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -130,7 +128,7 @@
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
-    <fragment>/scripts/lib/jquery/jquery-1.5.1.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-1.6.2.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>
@@ -152,6 +150,7 @@
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
     <fragment>/scripts/lib/routemap.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
   </bundle>
   <bundle id="api.js">
     <fragment>/scripts/og/common/og.common.core.js</fragment>
@@ -169,13 +168,10 @@
   <bundle id="util_ui.js">
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.form.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toggle_text_on_focus.js</fragment>
-    <fragment>/scripts/og/common/util/ui/og.common.util.ui.expand_height_to_window_bottom.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.render_plot.js</fragment>
-    <fragment>/scripts/og/common/util/ui/og.common.util.ui.resize_panes.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
-    <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
   </bundle>
   <bundle id="common.js">
@@ -183,7 +179,6 @@
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.portfolios.js</fragment>
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.positions.js</fragment>
     <fragment>/scripts/og/common/slickgrid/og.common.slickgrid.manager.js</fragment>
-    <fragment>/scripts/og/common/og.common.layout.resize.js</fragment>
     <fragment>/scripts/og/common/masthead/og.common.masthead.menu.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.timeseries_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.region_functions.js</fragment>
@@ -194,12 +189,15 @@
     <fragment>/scripts/og/common/search_results/og.common.search_results.minimize.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
   </bundle>
-  <bundle id="views.js">
+  <bundle id="views_common.js">
+    <fragment>/scripts/og/views/og.views.common.state.js</fragment>
+    <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
+    <fragment>/scripts/og/views/og.views.common.default_details.js</fragment>
+  </bundle>
+  <bundle id="views_default.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
     <fragment>/scripts/og/views/forms/og.views.forms.dropdown.js</fragment>
     <fragment>/scripts/og/views/forms/og.views.forms.ruletransform.js</fragment>
-    <fragment>/scripts/og/views/og.views.common.state.js</fragment>
-    <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.default.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.yieldcurvedefinition.js</fragment>
@@ -212,18 +210,26 @@
     <fragment>/scripts/og/views/og.views.regions.js</fragment>
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
     <fragment>/scripts/og/views/og.views.batches.js</fragment>
+  </bundle>
+  <bundle id="analytics.js">
     <fragment>/scripts/og/views/og.views.analytics.js</fragment>
   </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.min.js</fragment>
+    <fragment>/scripts/lib/jquery-innershiv.js</fragment>
   </bundle>
-  <bundle id="og_all.js">
+  <bundle id="og_common.js">
     <bundle idref="lib.js" />
     <bundle idref="api.js" />
     <bundle idref="util.js" />
     <bundle idref="util_ui.js" />
     <bundle idref="common.js" />
-    <bundle idref="views.js" />
-    <fragment>/scripts/og/common/og.common.init.js</fragment>
+    <bundle idref="views_common.js" />
+  </bundle>
+  <bundle id="og_main.js">
+    <bundle idref="views_default.js" />
+  </bundle>
+  <bundle id="og_analytics.js">
+    <bundle idref="analytics.js" />
   </bundle>
 </uiResourceConfig>

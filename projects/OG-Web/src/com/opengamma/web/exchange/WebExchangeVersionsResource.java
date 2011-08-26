@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -54,10 +54,12 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(data().getExchange().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(pr);
     ExchangeHistoryResult result = data().getExchangeMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -87,7 +89,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
   public WebExchangeVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     ExchangeDocument doc = data().getExchange();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       ExchangeDocument versioned = data().getExchangeMaster().get(combined);
       data().setVersioned(versioned);

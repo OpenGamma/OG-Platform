@@ -59,17 +59,17 @@ $.register_module({
                     var from, to, json_header;
                     if (r.error) {
                         ui.message({
-                            location: '.OG-js-search-panel',
+                            location: '.OG-js-search',
                             message: 'oops, something bad happened (' + r.message + ')'
                         });
                         return;
                     }
                     json_header = r.data.header;
                     from = from_page * DEFAULT_PAGESIZE;
-                    to = from + json_header.pageSize;
-                    data.length = parseInt(json_header.total);
+                    to = from + json_header.pgSze;
+                    data.length = parseInt(json_header.pgTtl);
                     // Create Data Object for slickgrid
-                    data.total = r.data.header.total;
+                    data.total = r.data.header.pgTtl;
                     $.each(r.data.data, function (i, row) {
                         var field_values = row.split('|'),
                             field_names = json_header.dataFields,
@@ -85,7 +85,7 @@ $.register_module({
                         data[from + i].index = from + i;
                     });
                     on_data_loaded.notify({from: from,to: to});
-                    ui.message({location: '.OG-js-search-panel', destroy: true});
+                    ui.message({location: '.OG-js-search', destroy: true});
                     clearTimeout(timer);
                 }
                 /**
@@ -95,7 +95,7 @@ $.register_module({
                     og.api.rest[obj.page_type].get($.extend({
                         handler: handle_data,
                         loading: function () {
-                            ui.message({location: '.OG-js-search-panel',
+                            ui.message({location: '.OG-js-search',
                                 message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,

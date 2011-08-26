@@ -6,12 +6,14 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -25,15 +27,15 @@ import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 public class PoweredOptionModelTest {
   private static final AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> POWERED_MODEL = new PoweredOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
   private static final double B = 0.07;
   private static final double SPOT = 100;

@@ -7,8 +7,8 @@ package com.opengamma.engine.view.cache;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.SlaveChannelMessage;
@@ -40,19 +40,19 @@ public class RemoteCacheClient {
     }
 
     private <Request extends CacheMessage, Response extends CacheMessage> Response sendMessage(final Request request, final Class<Response> responseClass) {
-      final FudgeSerializationContext scontext = new FudgeSerializationContext(getMessageSender().getFudgeContext());
+      final FudgeSerializer scontext = new FudgeSerializer(getMessageSender().getFudgeContext());
       final long correlationId = getNextCorrelationId();
       request.setCorrelationId(correlationId);
-      final FudgeMsg responseMsg = sendRequestAndWaitForResponse(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(request), request.getClass(), CacheMessage.class),
+      final FudgeMsg responseMsg = sendRequestAndWaitForResponse(FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(request), request.getClass(), CacheMessage.class),
           correlationId);
-      final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(getMessageSender().getFudgeContext());
+      final FudgeDeserializer dcontext = new FudgeDeserializer(getMessageSender().getFudgeContext());
       final Response response = dcontext.fudgeMsgToObject(responseClass, responseMsg);
       return response;
     }
 
     private <Message extends CacheMessage> void postMessage(final Message message) {
-      final FudgeSerializationContext scontext = new FudgeSerializationContext(getMessageSender().getFudgeContext());
-      sendMessage(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(message), message.getClass(), CacheMessage.class));
+      final FudgeSerializer scontext = new FudgeSerializer(getMessageSender().getFudgeContext());
+      sendMessage(FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(message), message.getClass(), CacheMessage.class));
     }
 
   }

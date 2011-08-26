@@ -1,14 +1,22 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.core.marketdatasnapshot;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
- * 
+ * Listener providing callbacks when the market data snapshot changes.
  */
 public interface MarketDataSnapshotChangeListener {
 
   /**
-   * Called if the uid now refers to a different snapshot
+   * Callback that is invoked if the unique identifier now refers to a different snapshot.
+   * 
+   * @param uniqueId  the unique identifier, not null
    */
-  void snapshotChanged(UniqueIdentifier uid);
+  void snapshotChanged(UniqueId uniqueId);
+
 }

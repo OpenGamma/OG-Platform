@@ -13,20 +13,20 @@ import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test ManageableTrade Fudge.
+ * Test {@link ManageableTrade} Fudge.
  */
 @Test
 public class ManageableTradeFudgeEncodingTest {
@@ -36,18 +36,18 @@ public class ManageableTradeFudgeEncodingTest {
 
   public void test() {
     ManageableTrade obj = new ManageableTrade();
-    obj.setUniqueId(UniqueIdentifier.of("U", "1"));
+    obj.setUniqueId(UniqueId.of("U", "1"));
     obj.setQuantity(BigDecimal.ONE);
-    obj.setSecurityLink(new SecurityLink(Identifier.of("A", "B")));
-    obj.getSecurityLink().setObjectId(ObjectIdentifier.of("O", "1"));
+    obj.setSecurityLink(new ManageableSecurityLink(ExternalId.of("A", "B")));
+    obj.getSecurityLink().setObjectId(ObjectId.of("O", "1"));
     obj.setTradeDate(LocalDate.of(2011, 6, 1));
-    obj.setCounterpartyKey(Identifier.of("C", "D"));
+    obj.setCounterpartyExternalId(ExternalId.of("C", "D"));
     testFudgeMessage(obj);
   }
 
   private void testFudgeMessage(final ManageableTrade obj) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeMsg msg = context.objectToFudgeMsg(obj);
+    final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
+    FudgeMsg msg = serializer.objectToFudgeMsg(obj);
     s_logger.debug("ManageableTrade {}", obj);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

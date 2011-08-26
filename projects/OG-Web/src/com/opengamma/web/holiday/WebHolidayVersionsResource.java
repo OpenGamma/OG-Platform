@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -54,10 +54,12 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     HolidayHistoryRequest request = new HolidayHistoryRequest(data().getHoliday().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(pr);
     HolidayHistoryResult result = data().getHolidayMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -87,7 +89,7 @@ public class WebHolidayVersionsResource extends AbstractWebHolidayResource {
   public WebHolidayVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     HolidayDocument doc = data().getHoliday();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       HolidayDocument versioned = data().getHolidayMaster().get(combined);
       data().setVersioned(versioned);

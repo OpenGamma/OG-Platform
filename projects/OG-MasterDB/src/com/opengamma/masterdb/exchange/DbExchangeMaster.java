@@ -23,11 +23,11 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
@@ -38,10 +38,10 @@ import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -60,7 +60,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
   private static final Logger s_logger = LoggerFactory.getLogger(DbExchangeMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbExg";
   /**
@@ -104,8 +104,8 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     s_logger.debug("search {}", request);
     
     final ExchangeSearchResult result = new ExchangeSearchResult();
-    if ((request.getExchangeIds() != null && request.getExchangeIds().size() == 0) ||
-        (IdentifierSearch.canMatch(request.getExchangeKeys()) == false)) {
+    if ((request.getObjectIds() != null && request.getObjectIds().size() == 0) ||
+        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -114,9 +114,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()));
-    if (request.getExchangeKeys() != null) {
+    if (request.getExternalIdSearch() != null) {
       int i = 0;
-      for (Identifier id : request.getExchangeKeys()) {
+      for (ExternalId id : request.getExternalIdSearch()) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
@@ -138,17 +138,17 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     if (request.getName() != null) {
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
-    if (request.getExchangeIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getExchangeIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getExchangeIds()) {
+    if (request.getObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
+      for (ObjectId objectId : request.getObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getExchangeKeys() != null && request.getExchangeKeys().size() > 0) {
-      where += sqlSelectMatchingExchangeKeys(request.getExchangeKeys());
+    if (request.getExternalIdSearch() != null && request.getExternalIdSearch().size() > 0) {
+      where += sqlSelectMatchingExchangeKeys(request.getExternalIdSearch());
     }
     where += sqlAdditionalWhere();
     
@@ -160,12 +160,12 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
   }
 
   /**
-   * Gets the SQL to match the {@code IdentifierSearch}.
+   * Gets the SQL to match the {@code ExternalIdSearch}.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingExchangeKeys(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingExchangeKeys(final ExternalIdSearch idSearch) {
     switch (idSearch.getSearchType()) {
       case EXACT:
         return "AND id IN (" + sqlSelectMatchingExchangeKeysExact(idSearch) + ") ";
@@ -185,7 +185,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingExchangeKeysExact(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingExchangeKeysExact(final ExternalIdSearch idSearch) {
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT exchange_id AS matched_exchange_id, COUNT(exchange_id) AS matched_count " +
@@ -215,7 +215,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingExchangeKeysAll(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingExchangeKeysAll(final ExternalIdSearch idSearch) {
     // only return exchange_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT exchange_id " +
@@ -235,7 +235,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingExchangeKeysAny(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingExchangeKeysAny(final ExternalIdSearch idSearch) {
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT exchange_id " +
@@ -253,7 +253,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingExchangeKeysOr(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingExchangeKeysOr(final ExternalIdSearch idSearch) {
     String select = "SELECT id FROM exg_idkey ";
     for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");
@@ -264,7 +264,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument get(final UniqueIdentifier uniqueId) {
+  public ExchangeDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new ExchangeDocumentExtractor(), "Exchange");
   }
 
@@ -296,7 +296,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final long docId = nextId("exg_exchange_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // set the uniqueId (needs to go in Fudge message)
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     // the arguments for inserting into the exchange table
@@ -315,7 +315,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    for (Identifier id : exchange.getIdentifiers()) {
+    for (ExternalId id : exchange.getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
@@ -418,7 +418,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       ManageableExchange exchange = FUDGE_CONTEXT.readObject(ManageableExchange.class, new ByteArrayInputStream(bytes));
       
       ExchangeDocument doc = new ExchangeDocument();
-      doc.setUniqueId(createUniqueIdentifier(docOid, docId));
+      doc.setUniqueId(createUniqueId(docOid, docId));
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

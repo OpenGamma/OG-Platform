@@ -20,8 +20,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -39,7 +39,7 @@ public class LiveMarketDataProviderTest {
   UserPrincipal TEST_USER_2 = new UserPrincipal("alice", "127.0.0.1");
   
   protected ValueRequirement constructRequirement(String ticker) {
-    return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("testdomain", ticker));
+    return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", ticker));
   }
   
   public void snapshotting() {
@@ -72,10 +72,10 @@ public class LiveMarketDataProviderTest {
     MutableFudgeMsg msg3b = new FudgeContext().newMessage();
     msg3b.add(_marketDataRequirement, 52.17);
     
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test1")), msg1);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test2")), msg2);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test3")), msg3a);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test3")), msg3b);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test1")), msg1);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test2")), msg2);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test3")), msg3a);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test3")), msg3b);
     
     MarketDataSnapshot snapshot = provider.snapshot(null);
     snapshot.init(Collections.<ValueRequirement>emptySet(), 0, TimeUnit.MILLISECONDS);

@@ -7,17 +7,22 @@ package com.opengamma.engine.test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifiables;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSupplier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.IdUtils;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSupplier;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,27 +36,43 @@ public class MockSecuritySource implements SecuritySource {
   /**
    * The securities keyed by identifier.
    */
-  private final Map<UniqueIdentifier, Security> _securities = new HashMap<UniqueIdentifier, Security>();
+  private final Map<ObjectId, Security> _securities = Maps.newHashMap();
   /**
    * The suppler of unique identifiers.
    */
-  private final UniqueIdentifierSupplier _uidSupplier;
+  private final UniqueIdSupplier _uidSupplier;
 
   /**
    * Creates the security master.
    */
   public MockSecuritySource() {
-    _uidSupplier = new UniqueIdentifierSupplier("Mock");
+    _uidSupplier = new UniqueIdSupplier("Mock");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier identifier) {
-    return identifier == null ? null : _securities.get(identifier);
+  public Security getSecurity(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    Security security = _securities.get(uniqueId.getObjectId());
+    if (security == null) {
+      throw new DataNotFoundException("Security not found: " + uniqueId);
+    }
+    return security;
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Security security = _securities.get(objectId);
+    if (security == null) {
+      throw new DataNotFoundException("Security not found: " + objectId);
+    }
+    return security;
+  }
+
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
@@ -61,11 +82,19 @@ public class MockSecuritySource implements SecuritySource {
     }
     return result;
   }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // Mock source doesn't support versioning
+    return getSecurities(bundle);
+  }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    for (Identifier secId : bundle.getIdentifiers()) {
+    for (ExternalId secId : bundle.getExternalIds()) {
       for (Security sec : _securities.values()) {
         if (sec.getIdentifiers().contains(secId)) {
           return sec;
@@ -73,6 +102,20 @@ public class MockSecuritySource implements SecuritySource {
       }
     }
     return null;
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // Mock source doesn't support versioning
+    return getSecurity(bundle);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return DummyChangeManager.INSTANCE;
   }
 
   //-------------------------------------------------------------------------
@@ -83,8 +126,8 @@ public class MockSecuritySource implements SecuritySource {
    */
   public void addSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
-    UniqueIdentifiables.setInto(security, _uidSupplier.get());
-    _securities.put(security.getUniqueId(), security);
+    IdUtils.setInto(security, _uidSupplier.get());
+    _securities.put(security.getUniqueId().getObjectId(), security);
   }
 
 }

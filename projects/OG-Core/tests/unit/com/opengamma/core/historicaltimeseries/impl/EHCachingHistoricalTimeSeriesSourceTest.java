@@ -20,14 +20,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.HistoricalTimeSeriesImpl;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
- * Test EHCachingHistoricalTimeSeriesSource.
+ * Test {@link EHCachingHistoricalTimeSeriesSource}.
  */
 @Test
 public class EHCachingHistoricalTimeSeriesSourceTest {
@@ -35,7 +33,7 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
   private HistoricalTimeSeriesSource _underlyingSource;
   private EHCachingHistoricalTimeSeriesSource _cachingSource;
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static final UniqueId UID = UniqueId.of("A", "B");
 
   @BeforeMethod
   public void setUp() throws Exception {
@@ -46,11 +44,11 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void getHistoricalTimeSeries_UniqueIdentifier() {
+  public void getHistoricalTimeSeries_UniqueId() {
     LocalDate[] dates = {LocalDate.of(2011, 6, 30)};
     double[] values = {12.34d};
     ArrayLocalDateDoubleTimeSeries timeSeries = new ArrayLocalDateDoubleTimeSeries(dates, values);
-    HistoricalTimeSeries series = new HistoricalTimeSeriesImpl(UID, timeSeries);
+    HistoricalTimeSeries series = new SimpleHistoricalTimeSeries(UID, timeSeries);
     
     when(_underlyingSource.getHistoricalTimeSeries(UID)).thenReturn(series);
     

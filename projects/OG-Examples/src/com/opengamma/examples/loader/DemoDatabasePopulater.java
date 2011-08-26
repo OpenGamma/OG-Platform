@@ -5,6 +5,9 @@
  */
 package com.opengamma.examples.loader;
 
+import java.net.URL;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -13,10 +16,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
+import com.google.common.collect.Sets;
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
+import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.RunMode;
+import com.opengamma.util.money.Currency;
 
 /**
  * Example code to create a demo portfolio and view
@@ -29,6 +37,8 @@ public class DemoDatabasePopulater {
   /** Logger. */
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DemoDatabasePopulater.class);
+  
+  private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
 
   /**
    * The context.
@@ -56,7 +66,8 @@ public class DemoDatabasePopulater {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(lc);
       lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
+      URL logbackResource = ClassLoader.getSystemResource("com/opengamma/examples/server/logback.xml");
+      configurator.doConfigure(logbackResource);
       
       // Set the run mode to EXAMPLE so we use the HSQLDB example database.
       PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
@@ -65,19 +76,9 @@ public class DemoDatabasePopulater {
       appContext.start();
       
       try {
-        SelfContainedEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("selfContainedEquityPortfolioAndSecurityLoader", SelfContainedEquityPortfolioAndSecurityLoader.class);
-        System.out.println("Creating example equity portfolio");
-        equityLoader.createExamplePortfolio();
-        System.out.println("Finished");
-        
-        SelfContainedSwapPortfolioLoader swapLoader = appContext.getBean("selfContainedSwapPortfolioLoader", SelfContainedSwapPortfolioLoader.class);
-        System.out.println("Creating example swap portfolio");
-        swapLoader.createExamplePortfolio();
-        System.out.println("Finished");
-        
-        DemoViewsPopulater populator = appContext.getBean("demoViewsPopulater", DemoViewsPopulater.class);
-        System.out.println("Creating demo view definition");
-        populator.persistViewDefinitions();
+        TimeSeriesRatingLoader tsConfigLoader = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
+        System.out.println("Creating Timeseries configuration");
+        tsConfigLoader.saveHistoricalTimeSeriesRatings();
         System.out.println("Finished");
         
         SimulatedHistoricalDataGenerator historicalDataGenerator = appContext.getBean("simulatedHistoricalDataGenerator", SimulatedHistoricalDataGenerator.class);
@@ -85,10 +86,28 @@ public class DemoDatabasePopulater {
         historicalDataGenerator.run();
         System.out.println("Finished");
         
-        TimeSeriesRatingLoader tsConfigLoader = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
-        System.out.println("Creating Timeseries configuration");
-        tsConfigLoader.saveHistoricalTimeSeriesRatings();
+        DemoEquityPortfolioAndSecurityLoader equityLoader = appContext.getBean("demoEquityPortfolioAndSecurityLoader", DemoEquityPortfolioAndSecurityLoader.class);
+        System.out.println("Creating example equity portfolio");
+        equityLoader.createExamplePortfolio();
+        System.out.println("Finished");
         
+        DemoSwapPortfolioLoader swapLoader = appContext.getBean("demoSwapPortfolioLoader", DemoSwapPortfolioLoader.class);
+        System.out.println("Creating example swap portfolio");
+        swapLoader.createExamplePortfolio();
+        System.out.println("Finished");
+        
+        DemoMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = appContext.getBean("demoMultiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
+        System.out.println("Creating example multi currency swap portfolio");
+        multiCurrSwapLoader.createPortfolio();
+        System.out.println("Finished");
+        
+        System.out.println("Creating libor raw securities");
+        PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), swapLoader.getLoaderContext());
+        System.out.println("Finished");
+        
+        DemoViewsPopulater populator = appContext.getBean("demoViewsPopulater", DemoViewsPopulater.class);
+        System.out.println("Creating demo view definition");
+        populator.persistViewDefinitions();
         
       } finally {
         appContext.close();
@@ -99,6 +118,14 @@ public class DemoDatabasePopulater {
       ex.printStackTrace();
     }
     System.exit(0);
+  }
+
+  private static Set<Currency> getAllCurrencies() {    
+    return s_currencies;
+  }
+  
+  public static void populateYieldCurveConfig(ConfigMaster configMaster) {
+    YieldCurveConfigPopulator.populateCurveConfigMaster(configMaster);
   }
 
 }

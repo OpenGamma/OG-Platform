@@ -113,7 +113,7 @@ public:
 	/// Returns a hash code for a string.
 	/// 
 	/// @param[in] psz string to hash
-	/// @Return the hashed value
+	/// @return the hashed value
 	size_t operator () (PTSTR const &psz) const {
 		size_t v = 1;
 		PCTSTR _psz = psz;

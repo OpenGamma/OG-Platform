@@ -10,13 +10,15 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.money.Currency;
 
 /**
  * A key used to identify a yield curve.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldCurveKey>, Serializable {
 
@@ -111,14 +113,14 @@ public class YieldCurveKey implements StructuredMarketDataKey, Comparable<YieldC
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("currency", _currency.getCode());
     msg.add("name", _name);
     return msg;
   }
 
-  public static YieldCurveKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
+  public static YieldCurveKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     return new YieldCurveKey(Currency.of(msg.getString("currency")), msg.getString("name"));
   }
 

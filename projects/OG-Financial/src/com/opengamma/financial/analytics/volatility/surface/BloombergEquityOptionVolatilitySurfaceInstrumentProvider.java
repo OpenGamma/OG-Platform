@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 
 /**
  * Generates equity option Bloomberg ticker codes from ATM strike (set via ini
@@ -24,7 +24,7 @@ import com.opengamma.id.Identifier;
  */
 public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<LocalDate, Double> {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
-  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
 
   private final String _underlyingPrefix; //expecting something like USDJPY
   private final String _postfix; //expecting Curncy
@@ -60,16 +60,16 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
   }
 
   @Override
-  public Identifier getInstrument(final LocalDate expiry, final Double strike) {
+  public ExternalId getInstrument(final LocalDate expiry, final Double strike) {
     throw new OpenGammaRuntimeException("Need surface date to calculate expiry");
   }
 
   @Override
-  public Identifier getInstrument(final LocalDate expiry, final Double strike, final LocalDate surfaceDate) {
+  public ExternalId getInstrument(final LocalDate expiry, final Double strike, final LocalDate surfaceDate) {
     return createEquityOptionVolatilityCode(expiry, strike, surfaceDate);
   }
 
-  private Identifier createEquityOptionVolatilityCode(final LocalDate expiry, final Double strike, final LocalDate surfaceDate) {
+  private ExternalId createEquityOptionVolatilityCode(final LocalDate expiry, final Double strike, final LocalDate surfaceDate) {
     if (_generatePuts == null) {
       s_logger.error("Cannot create option volatility code until atm strike is set (use init method)");
     }
@@ -88,7 +88,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
     ticker.append(strike);
     ticker.append(" ");
     ticker.append(_postfix);
-    return Identifier.of(SCHEME, ticker.toString());
+    return ExternalId.of(SCHEME, ticker.toString());
   }
 
   @Override

@@ -14,7 +14,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -57,7 +57,7 @@ public final class ValueRequirement implements Serializable {
    * @param targetType  the target type, not null
    * @param targetId  the target identifier, may be null
    */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetId) {
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueId targetId) {
     this(valueName, new ComputationTargetSpecification(targetType, targetId));
   }
 
@@ -71,7 +71,7 @@ public final class ValueRequirement implements Serializable {
    * @param targetId  the unique identifier of the target, not null
    * @param constraints  the value constraints that must be satisfied
    */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetId, ValueProperties constraints) {
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueId targetId, ValueProperties constraints) {
     this(valueName, new ComputationTargetSpecification(targetType, targetId), constraints);
   }
 
@@ -163,7 +163,7 @@ public final class ValueRequirement implements Serializable {
    * If the constraint allows multiple specific values an arbitrary one is returned. 
    * 
    * @param constraintName  the constraint to query
-   * @return the constraint value, or null if it is not defined 
+   * @return the constraint value, null if it is not defined 
    * @throws IllegalArgumentException if the constraint is a wild-card definition
    */
   public String getConstraint(final String constraintName) {
@@ -187,7 +187,7 @@ public final class ValueRequirement implements Serializable {
    * </ul>
    * 
    * @param valueSpecification  the value specification to test, not null
-   * @return {@code true} if this requirement is satisfied by the specification, {@code false} otherwise.
+   * @return true if this requirement is satisfied by the specification
    */
   public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
     // value names are interned by this and specifications

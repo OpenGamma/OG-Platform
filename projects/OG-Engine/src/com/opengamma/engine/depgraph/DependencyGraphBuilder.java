@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -35,8 +35,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- */
+*
+*/
 public class DependencyGraphBuilder {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilder.class);
   // Injected Inputs:
@@ -49,72 +49,72 @@ public class DependencyGraphBuilder {
   private DependencyGraph _graph;
 
   /**
-   * @return the calculationConfigurationName
-   */
+  * @return the calculationConfigurationName
+  */
   public String getCalculationConfigurationName() {
     return _calculationConfigurationName;
   }
 
   /**
-   * @param calculationConfigurationName the calculationConfigurationName to set
-   */
+  * @param calculationConfigurationName the calculationConfigurationName to set
+  */
   public void setCalculationConfigurationName(String calculationConfigurationName) {
     _calculationConfigurationName = calculationConfigurationName;
     _graph = new DependencyGraph(_calculationConfigurationName);
   }
 
   /**
-   * @return the market data availability provider
-   */
+  * @return the market data availability provider
+  */
   public MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
     return _marketDataAvailabilityProvider;
   }
 
   /**
-   * @param marketDataAvailabilityProvider the market data availability provider to set
-   */
+  * @param marketDataAvailabilityProvider the market data availability provider to set
+  */
   public void setMarketDataAvailabilityProvider(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
     _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
   }
 
   /**
-   * @return the functionResolver
-   */
+  * @return the functionResolver
+  */
   public CompiledFunctionResolver getFunctionResolver() {
     return _functionResolver;
   }
 
   /**
-   * @param functionResolver the functionResolver to set
-   */
+  * @param functionResolver the functionResolver to set
+  */
   public void setFunctionResolver(CompiledFunctionResolver functionResolver) {
     _functionResolver = functionResolver;
   }
 
   /**
-   * @return the targetResolver
-   */
+  * @return the targetResolver
+  */
   public ComputationTargetResolver getTargetResolver() {
     return _targetResolver;
   }
 
   /**
-   * @param targetResolver the targetResolver to set
-   */
+  * @param targetResolver the targetResolver to set
+  */
   public void setTargetResolver(ComputationTargetResolver targetResolver) {
     _targetResolver = targetResolver;
   }
 
   /**
-   * @return the compilationContext
-   */
+  * @return the compilationContext
+  */
   public FunctionCompilationContext getCompilationContext() {
     return _compilationContext;
   }
 
   /**
-   * @param compilationContext the compilationContext to set
-   */
+  * @param compilationContext the compilationContext to set
+  */
   public void setCompilationContext(FunctionCompilationContext compilationContext) {
     _compilationContext = compilationContext;
   }
@@ -163,9 +163,7 @@ public class DependencyGraphBuilder {
     ComputationTargetResolver targetResolver = getTargetResolver();
     final ComputationTarget target = targetResolver.resolve(requirement.getTargetSpecification());
     if (target == null) {
-      throw new UnsatisfiableDependencyGraphException(requirement, "No ComputationTarget")
-          .addState("targetResolver ComputationTargetResolver", targetResolver)
-          .addState("dependent DependencyNode", dependent);
+      throw new UnsatisfiableDependencyGraphException(ResolutionFailure.couldNotResolve(requirement));
     }
     s_logger.info("Resolving target requirement for {} on {}", requirement, target);
     // Find existing nodes in the graph
@@ -232,10 +230,10 @@ public class DependencyGraphBuilder {
           /*
           final DependencyNode existingNode = _graph.getNodeProducing(resolvedOutput);
           if (existingNode != null) {
-            // Resolved function output already in the graph
-            s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
-            resolutionState.addExistingNode(existingNode, resolvedOutput);
-            return true;
+          // Resolved function output already in the graph
+          s_logger.debug("Found {} - already in graph", resolvedFunction.getSecond());
+          resolutionState.addExistingNode(existingNode, resolvedOutput);
+          return true;
           }
           */
           if (_node == null) {
@@ -313,7 +311,7 @@ public class DependencyGraphBuilder {
             graphNode.clearInputs();
             resolved.removeFirst();
             if (resolved.isEmpty()) {
-              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
+              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement());
             }
             continue;
           }
@@ -358,7 +356,7 @@ public class DependencyGraphBuilder {
           graphNode.clearInputs();
           resolved.removeFirst();
           if (resolved.isEmpty()) {
-            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement());
           }
           continue;
         }
@@ -368,15 +366,18 @@ public class DependencyGraphBuilder {
       ValueSpecification resolvedOutput = resolutionNode.getValueSpecification();
       Set<ValueSpecification> originalOutputValues = null;
       if (!strictConstraints) {
-        final Set<ValueSpecification> newOutputValues;
+        Set<ValueSpecification> newOutputValues;
         try {
           newOutputValues = functionDefinition.getResults(getCompilationContext(), graphNode.getComputationTarget(), requirementLookup);
         } catch (Throwable ex) {
           // detect failure from .getResults
           s_logger.debug("Deep backtracking at late resolution failure", ex);
+          newOutputValues = null;
+        }
+        if (newOutputValues == null) {
           graphNode.clearInputs();
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
-            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement());
           }
           continue;
         }
@@ -415,11 +416,8 @@ public class DependencyGraphBuilder {
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
-              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), "Deep backtracing failed")
-                  .addState("resolved ResolutonState", resolved)
-                  .addState("functionDefinition CompiledFunctionDefinition", functionDefinition)
-                  .addState("newOutputValues Set<ValueSpecification>", newOutputValues)
-                  .addState("originalOutputValues Set<ValueSpecification>", originalOutputValues);
+              throw new UnsatisfiableDependencyGraphException(ResolutionFailure.functionApplication(resolved.getValueRequirement(), graphNode.getFunction(), resolutionNode.getValueSpecification())
+                  .lateResolutionFailure());
             }
             continue;
           }
@@ -445,7 +443,8 @@ public class DependencyGraphBuilder {
             graphNode.addOutputValues(originalOutputValues);
           }
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
-            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
+            throw new UnsatisfiableDependencyGraphException(ResolutionFailure.functionApplication(resolved.getValueRequirement(), graphNode.getFunction(), resolvedOutput)
+                .getAdditionalRequirementsFailed());
           }
           continue;
         }
@@ -477,6 +476,11 @@ public class DependencyGraphBuilder {
       }
     }
     return _graph;
+  }
+
+  // Dummy function for compatability with code that works with the PLAT-1049 version
+  public Map<Throwable, Integer> getExceptions() {
+    return Collections.emptyMap();
   }
 
 }

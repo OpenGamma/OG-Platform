@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -54,10 +54,12 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     SecurityHistoryRequest request = new SecurityHistoryRequest(data().getSecurity().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(pr);
     SecurityHistoryResult result = data().getSecurityMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -87,7 +89,7 @@ public class WebSecurityVersionsResource extends AbstractWebSecurityResource {
   public WebSecurityVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     SecurityDocument doc = data().getSecurity();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       SecurityDocument versioned = data().getSecurityMaster().get(combined);
       data().setVersioned(versioned);

@@ -37,6 +37,7 @@ public class ViewDeltaResultCalculator {
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setCalculationTime(result.getCalculationTime());
     deltaModel.setCalculationDuration(result.getCalculationDuration());
+    deltaModel.setVersionCorrection(result.getVersionCorrection());
     deltaModel.setViewCycleId(result.getViewCycleId());
     deltaModel.setViewProcessId(result.getViewProcessId());
     

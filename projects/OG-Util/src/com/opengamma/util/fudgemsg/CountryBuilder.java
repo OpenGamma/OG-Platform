@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.i18n.Country;
 
@@ -24,20 +24,20 @@ public final class CountryBuilder implements FudgeBuilder<Country> {
   public static final String COUNTRY_KEY = "country";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Country object) {
-    final MutableFudgeMsg msg = context.newMessage();
-    FudgeSerializationContext.addClassHeader(msg, Country.class);
-    context.addToMessage(msg, COUNTRY_KEY, null, object.getCode());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Country object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    FudgeSerializer.addClassHeader(msg, Country.class);
+    serializer.addToMessage(msg, COUNTRY_KEY, null, object.getCode());
     return msg;
   }
 
   @Override
-  public Country buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    final String currencyStr = msg.getString(COUNTRY_KEY);
-    if (currencyStr == null) {
+  public Country buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    final String countryStr = msg.getString(COUNTRY_KEY);
+    if (countryStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Country - field 'country' is not present");
     }
-    return Country.of(currencyStr);
+    return Country.of(countryStr);
   }
 
 }

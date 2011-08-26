@@ -24,7 +24,7 @@ public final class TenorSecondaryType extends SecondaryFieldType<Tenor, String> 
   @FudgeSecondaryType
   public static final TenorSecondaryType INSTANCE = new TenorSecondaryType();
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**

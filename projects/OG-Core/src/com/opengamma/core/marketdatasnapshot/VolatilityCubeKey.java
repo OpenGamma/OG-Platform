@@ -10,16 +10,18 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.money.Currency;
 
 /**
  * A key used to identify a volatility cube.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
-  
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -111,15 +113,17 @@ public class VolatilityCubeKey implements StructuredMarketDataKey, Comparable<Vo
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("currency", _currency.getCode());
     msg.add("name", _name);
     return msg;
   }
 
-  public static VolatilityCubeKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-    return new VolatilityCubeKey(Currency.of(msg.getString("currency")), msg.getString("name"));
+  public static VolatilityCubeKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    Currency currency = Currency.of(msg.getString("currency"));
+    String name = msg.getString("name");
+    return new VolatilityCubeKey(currency, name);
   }
 
 }

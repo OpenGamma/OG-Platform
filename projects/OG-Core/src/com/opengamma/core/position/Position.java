@@ -8,7 +8,7 @@ package com.opengamma.core.position;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -19,6 +19,9 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * It differs from a trade in that it may represent the combined result from a set of trades.
  * The collection of trades is optional and if present may be incomplete.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface Position extends PositionOrTrade {
@@ -30,7 +33,7 @@ public interface Position extends PositionOrTrade {
    * 
    * @return the unique identifier, null if not attached to a node
    */
-  UniqueIdentifier getParentNodeId();
+  UniqueId getParentNodeId();
 
   /**
    * Gets the trades that are immediate children of this position.

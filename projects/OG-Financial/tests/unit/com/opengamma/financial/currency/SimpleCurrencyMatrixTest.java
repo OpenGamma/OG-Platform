@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.currency;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -84,7 +86,7 @@ public class SimpleCurrencyMatrixTest {
   @Test
   public void testLiveData () {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix ();
-    matrix.setLiveData(currencyUSD, currencyGBP, UniqueIdentifier.of("Test", "USD_GBP"));
+    matrix.setLiveData(currencyUSD, currencyGBP, UniqueId.of("Test", "USD_GBP"));
     CurrencyMatrixValue val = matrix.getConversion(currencyUSD, currencyGBP);
     assertTrue(val instanceof CurrencyMatrixValueRequirement);
     assertFalse(((CurrencyMatrixValueRequirement) val).isReciprocal());

@@ -13,9 +13,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * An implementation of ReferenceRate for use by the InMemoryReferenceRateRepository.  Note it is NOT immutable, because the repository needs to be able to assign 
@@ -23,15 +23,15 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class ConventionBundleImpl implements ConventionBundle {
 
-  private UniqueIdentifier _uniqueId;
-  private IdentifierBundle _bundle;
+  private UniqueId _uniqueId;
+  private ExternalIdBundle _bundle;
   private final String _name;
   private DayCount _dayCount;
   private BusinessDayConvention _businessDayConvention;
   private Integer _settlementDays;
   private Frequency _frequency;
   private Period _period;
-  private Identifier _region;
+  private ExternalId _region;
 
   private DayCount _swapFixedLegDayCount;
   private BusinessDayConvention _swapFixedLegBusinessDayConvention;
@@ -41,28 +41,28 @@ public class ConventionBundleImpl implements ConventionBundle {
   private BusinessDayConvention _swapFloatingLegBusinessDayConvention;
   private Frequency _swapFloatingLegFrequency;
   private Integer _swapFloatingLegSettlementDays;
-  private Identifier _swapFloatingLegInitialRate;
+  private ExternalId _swapFloatingLegInitialRate;
   private Double _yearFraction;
 
   //Equity models
-  private String _capmRiskFreeRateName;
-  private String _capmMarketName;
+  private ExternalIdBundle _capmRiskFreeRate;
+  private ExternalIdBundle _capmMarket;
 
   // basis swaps
   private DayCount _basisSwapPayFloatingLegDayCount;
   private BusinessDayConvention _basisSwapPayFloatingLegBusinessDayConvention;
   private Frequency _basisSwapPayFloatingLegFrequency;
   private Integer _basisSwapPayFloatingLegSettlementDays;
-  private Identifier _basisSwapPayFloatingLegInitialRate;
-  private Identifier _basisSwapPayFloatingLegRegion;
+  private ExternalId _basisSwapPayFloatingLegInitialRate;
+  private ExternalId _basisSwapPayFloatingLegRegion;
   private DayCount _basisSwapReceiveFloatingLegDayCount;
   private BusinessDayConvention _basisSwapReceiveFloatingLegBusinessDayConvention;
   private Frequency _basisSwapReceiveFloatingLegFrequency;
   private Integer _basisSwapReceiveFloatingLegSettlementDays;
-  private Identifier _basisSwapReceiveFloatingLegInitialRate;
-  private Identifier _basisSwapReceiveFloatingLegRegion;
-  private Identifier _swapFixedLegRegion;
-  private Identifier _swapFloatingLegRegion;
+  private ExternalId _basisSwapReceiveFloatingLegInitialRate;
+  private ExternalId _basisSwapReceiveFloatingLegRegion;
+  private ExternalId _swapFixedLegRegion;
+  private ExternalId _swapFloatingLegRegion;
 
   // bonds
   private boolean _isEOMConvention;
@@ -75,7 +75,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   private boolean _isCashSettled;
 
   // cash/general
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
       final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
@@ -86,7 +86,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // generic cash
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
@@ -96,8 +96,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // cash/general
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
-      final int settlementDays, final Identifier region) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final ExternalId region) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -108,8 +108,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // cash/general - with EOM indicated
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
-      final int settlementDays, final boolean isEOM, final Identifier region) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final boolean isEOM, final ExternalId region) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -121,7 +121,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // ibor indices that act as underlyings (e.g. floating reference rate for swaps)
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays, final boolean isEOMConvention) {
     _bundle = initialBundle;
     _name = name;
@@ -132,7 +132,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // futures
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
       final int settlementDays, final double yearFraction) {
     _bundle = initialBundle;
     _name = name;
@@ -144,10 +144,10 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // swaps
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
-      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final Identifier swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
+      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
       final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
-      final Identifier swapFloatingLegInitialRate, final Identifier swapFloatingLegRegion) {
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -168,11 +168,11 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // basis swaps
-  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
       final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency, final Integer basisSwapPayFloatingLegSettlementDays,
-      final Identifier basisSwapPayFloatingLegInitialRate, final Identifier basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
+      final ExternalId basisSwapPayFloatingLegInitialRate, final ExternalId basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
       final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency, final Integer basisSwapReceiveFloatingLegSettlementDays,
-      final Identifier basisSwapReceiveFloatingLegInitialRate, final Identifier basisSwapReceiveFloatingLegRegion) {
+      final ExternalId basisSwapReceiveFloatingLegInitialRate, final ExternalId basisSwapReceiveFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -194,13 +194,13 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   //equity CAPM
-  public ConventionBundleImpl(final String name, final String capmRiskFreeRateName, final String capmMarketName) {
+  public ConventionBundleImpl(final String name, final ExternalIdBundle capmRiskFreeRate, final ExternalIdBundle capmMarket) {
     Validate.notNull(name, "name");
-    Validate.notNull(capmRiskFreeRateName, "CAPM risk free rate name");
-    Validate.notNull(capmMarketName, "CAPM market name");
+    Validate.notNull(capmRiskFreeRate, "CAPM risk free rate");
+    Validate.notNull(capmMarket, "CAPM market");
     _name = name;
-    _capmRiskFreeRateName = capmRiskFreeRateName;
-    _capmMarketName = capmMarketName;
+    _capmRiskFreeRate = capmRiskFreeRate;
+    _capmMarket = capmMarket;
   }
 
   //Bonds
@@ -269,20 +269,20 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public IdentifierBundle getIdentifiers() {
+  public ExternalIdBundle getIdentifiers() {
     return _bundle;
   }
 
-  public void setIdentifiers(final IdentifierBundle updatedBundle) {
+  public void setIdentifiers(final ExternalIdBundle updatedBundle) {
     _bundle = updatedBundle;
   }
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
-  public void setUniqueId(final UniqueIdentifier uniqueId) {
+  public void setUniqueId(final UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 
@@ -327,7 +327,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the region identifier for the fixed leg
    */
   @Override
-  public Identifier getSwapFixedLegRegion() {
+  public ExternalId getSwapFixedLegRegion() {
     return _swapFixedLegRegion;
   }
 
@@ -372,7 +372,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the swapFloatingLegInitialRate
    */
   @Override
-  public Identifier getSwapFloatingLegInitialRate() {
+  public ExternalId getSwapFloatingLegInitialRate() {
     return _swapFloatingLegInitialRate;
   }
 
@@ -381,7 +381,7 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the region identifier for the floating leg
    */
   @Override
-  public Identifier getSwapFloatingLegRegion() {
+  public ExternalId getSwapFloatingLegRegion() {
     return _swapFloatingLegRegion;
   }
 
@@ -399,8 +399,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the name
    */
   @Override
-  public String getCAPMRiskFreeRateName() {
-    return _capmRiskFreeRateName;
+  public ExternalIdBundle getCAPMRiskFreeRate() {
+    return _capmRiskFreeRate;
   }
 
   /**
@@ -408,8 +408,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @return the name
    */
   @Override
-  public String getCAPMMarketName() {
-    return _capmMarketName;
+  public ExternalIdBundle getCAPMMarket() {
+    return _capmMarket;
   }
 
   @Override
@@ -433,12 +433,12 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public Identifier getBasisSwapPayFloatingLegInitialRate() {
+  public ExternalId getBasisSwapPayFloatingLegInitialRate() {
     return _basisSwapPayFloatingLegInitialRate;
   }
 
   @Override
-  public Identifier getBasisSwapPayFloatingLegRegion() {
+  public ExternalId getBasisSwapPayFloatingLegRegion() {
     return _basisSwapPayFloatingLegRegion;
   }
 
@@ -463,12 +463,12 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public Identifier getBasisSwapReceiveFloatingLegInitialRate() {
+  public ExternalId getBasisSwapReceiveFloatingLegInitialRate() {
     return _basisSwapReceiveFloatingLegInitialRate;
   }
 
   @Override
-  public Identifier getBasisSwapReceiveFloatingLegRegion() {
+  public ExternalId getBasisSwapReceiveFloatingLegRegion() {
     return _basisSwapReceiveFloatingLegRegion;
   }
 
@@ -508,7 +508,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public Identifier getRegion() {
+  public ExternalId getRegion() {
     return _region;
   }
 }

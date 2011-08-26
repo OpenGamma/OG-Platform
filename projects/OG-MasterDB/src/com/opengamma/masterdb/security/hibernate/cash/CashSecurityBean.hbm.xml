@@ -5,7 +5,7 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cash">
   <union-subclass name="CashSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_cash">
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
-  	<component name="region" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+  	<component name="region" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
   	  <property name="scheme" column="region_scheme" type="string" />
   	  <property name="identifier" column="region_identifier" type="string" />
   	</component>

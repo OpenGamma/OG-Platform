@@ -5,18 +5,22 @@
  */
 package com.opengamma.master.region.impl;
 
+import java.util.Collection;
+
+import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * A {@code RegionSource} implemented using an underlying {@code RegionMaster}.
@@ -48,20 +52,31 @@ public class MasterRegionSource extends AbstractMasterSource<RegionDocument, Reg
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableRegion getRegion(UniqueIdentifier uniqueId) {
-    RegionDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getRegion() : null);
+  public ManageableRegion getRegion(UniqueId uniqueId) {
+    return getDocument(uniqueId).getRegion();
   }
 
   @Override
-  public ManageableRegion getHighestLevelRegion(Identifier regionId) {
+  public ManageableRegion getRegion(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getDocument(objectId, versionCorrection).getRegion();
+  }
+
+  @Override
+  public Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    RegionSearchRequest request = new RegionSearchRequest(bundle);
+    request.setVersionCorrection(getVersionCorrection());
+    return getMaster().search(request).getRegions();
+  }
+
+  @Override
+  public ManageableRegion getHighestLevelRegion(ExternalId regionId) {
     RegionSearchRequest request = new RegionSearchRequest(regionId);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionCorrection(getVersionCorrection());
     return getMaster().search(request).getFirstRegion();
   }
 
-  public ManageableRegion getHighestLevelRegion(IdentifierBundle regionIds) {
+  public ManageableRegion getHighestLevelRegion(ExternalIdBundle regionIds) {
     RegionSearchRequest request = new RegionSearchRequest(regionIds);
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionCorrection(getVersionCorrection());

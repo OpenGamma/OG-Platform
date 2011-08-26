@@ -26,12 +26,12 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.region.RegionClassification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
@@ -59,7 +59,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
     
-    for (UniqueIdentifier parentId : data().getRegion().getRegion().getParentRegionIds()) {
+    for (UniqueId parentId : data().getRegion().getRegion().getParentRegionIds()) {
       RegionDocument parent = data().getRegionMaster().get(parentId);
       data().getRegionParents().add(parent);
     }
@@ -77,7 +77,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     RegionSearchResult children = data().getRegionMaster().search(search);
     data().setRegionChildren(children.getDocuments());
 
-    for (UniqueIdentifier parentId : data().getRegion().getRegion().getParentRegionIds()) {
+    for (UniqueId parentId : data().getRegion().getRegion().getParentRegionIds()) {
       RegionDocument parent = data().getRegionMaster().get(parentId);
       data().getRegionParents().add(parent);
     }
@@ -315,7 +315,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
    * @param overrideRegionId  the override region id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebRegionData data, final UniqueIdentifier overrideRegionId) {
+  public static URI uri(final WebRegionData data, final UniqueId overrideRegionId) {
     String regionId = data.getBestRegionUriId(overrideRegionId);
     return data.getUriInfo().getBaseUriBuilder().path(WebRegionResource.class).build(regionId);
   }

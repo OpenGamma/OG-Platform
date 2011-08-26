@@ -16,16 +16,16 @@ namespace com.opengamma.financial.security.equity {
     
     
     
-    required id.Identifier spotUnderlyingIdentifier;
+    required id.ExternalId spotUnderlyingIdentifier;
     required com.opengamma.util.money.Currency currency;
     required double strike;
     required double notional;  
-    required boolean parameterisedAsVariance;
+    required boolean parameterizedAsVariance;
     required double annualizationFactor;
     required javax.time.calendar.ZonedDateTime firstObservationDate;
     required javax.time.calendar.ZonedDateTime lastObservationDate;
     required javax.time.calendar.ZonedDateTime settlementDate;
-    required id.Identifier region;
+    required id.ExternalId region;
     required com.opengamma.financial.convention.frequency.Frequency observationFrequency;
    
     binding Java {

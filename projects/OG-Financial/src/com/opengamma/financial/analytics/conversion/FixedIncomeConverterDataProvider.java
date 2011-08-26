@@ -33,9 +33,9 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -80,10 +80,10 @@ public class FixedIncomeConverterDataProvider {
 
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
-    final IdentifierBundle id = security.getIdentifiers();
-    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final ExternalIdBundle id = security.getIdentifiers();
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
+          .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
@@ -96,10 +96,10 @@ public class FixedIncomeConverterDataProvider {
 
   public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
-    final IdentifierBundle id = IdentifierBundle.of(security.getUnderlyingIdentifier());
-    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final ExternalIdBundle id = ExternalIdBundle.of(security.getUnderlyingIdentifier());
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-            .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
+            .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
@@ -110,10 +110,10 @@ public class FixedIncomeConverterDataProvider {
 
   public InterestRateDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
-    final Identifier id = security.getUnderlyingIdentifier();
-    final LocalDate startDate = DateUtil.previousWeekDay(now.toLocalDate().minusDays(7));
+    final ExternalId id = security.getUnderlyingIdentifier();
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(_fieldName, IdentifierBundle.of(id), null, null, startDate, true, now.toLocalDate(), true);
+          .getHistoricalTimeSeries(_fieldName, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + id);
     }
@@ -156,22 +156,22 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
 
-      final Identifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
-      final IdentifierBundle id;
+      final ExternalId indexID = floatingLeg.getFloatingReferenceRateIdentifier();
+      final ExternalIdBundle id;
       //if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateIdentifier());
       if (indexConvention == null) {
         //TODO remove this immediately
-        indexConvention = _conventionSource.getConventionBundle(Identifier.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
+        indexConvention = _conventionSource.getConventionBundle(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
       }
       id = indexConvention.getIdentifiers();
       //indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
 
-      //final IdentifierBundle id = indexID.toBundle();
+      //final ExternalIdBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
       final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), true);
+          .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString() + " bundle used was " + id);
       }

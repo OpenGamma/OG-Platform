@@ -14,10 +14,10 @@ import javax.time.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
@@ -27,7 +27,7 @@ import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.Paging;
+import com.opengamma.util.Paging;
 
 /**
  * A simple, in-memory implementation of {@code ExchangeMaster}.
@@ -40,24 +40,24 @@ import com.opengamma.util.db.Paging;
 public class InMemoryExchangeMaster implements ExchangeMaster {
 
   /**
-   * The default scheme used for each {@link ObjectIdentifier}.
+   * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemExg";
 
   /**
    * A cache of exchanges by identifier.
    */
-  private final ConcurrentMap<ObjectIdentifier, ExchangeDocument> _store = new ConcurrentHashMap<ObjectIdentifier, ExchangeDocument>();
+  private final ConcurrentMap<ObjectId, ExchangeDocument> _store = new ConcurrentHashMap<ObjectId, ExchangeDocument>();
   /**
    * The supplied of identifiers.
    */
-  private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  private final Supplier<ObjectId> _objectIdSupplier;
 
   /**
-   * Creates an empty exchange master using the default scheme for any {@link ObjectIdentifier}s created.
+   * Creates an empty exchange master using the default scheme for any {@link ObjectId}s created.
    */
   public InMemoryExchangeMaster() {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
   }
 
   /**
@@ -65,7 +65,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
    * 
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryExchangeMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+  public InMemoryExchangeMaster(final Supplier<ObjectId> objectIdSupplier) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     _objectIdSupplier = objectIdSupplier;
   }
@@ -88,7 +88,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public ExchangeDocument get(final UniqueIdentifier uniqueId) {
+  public ExchangeDocument get(final UniqueId uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
@@ -110,8 +110,8 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
-    final ObjectIdentifier objectId = _objectIdSupplier.get();
-    final UniqueIdentifier uniqueId = objectId.atVersion("");
+    final ObjectId objectId = _objectIdSupplier.get();
+    final UniqueId uniqueId = objectId.atVersion("");
     final ManageableExchange exchange = document.getExchange().clone();
     exchange.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
@@ -132,7 +132,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
-    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final ExchangeDocument storedDocument = _store.get(uniqueId.getObjectId());
     if (storedDocument == null) {
@@ -150,7 +150,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public void remove(final UniqueIdentifier uniqueId) {
+  public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Exchange not found: " + uniqueId);
@@ -174,7 +174,7 @@ public class InMemoryExchangeMaster implements ExchangeMaster {
     if (doc != null) {
       result.getDocuments().add(doc);
     }
-    result.setPaging(Paging.of(result.getDocuments()));
+    result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
   }
 

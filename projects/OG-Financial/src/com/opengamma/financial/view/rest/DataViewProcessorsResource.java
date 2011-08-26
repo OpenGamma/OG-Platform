@@ -20,7 +20,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * RESTful back-end to provide access to view processors
@@ -28,7 +28,7 @@ import com.opengamma.id.UniqueIdentifier;
 @Path("/data/viewProcessors")
 public class DataViewProcessorsResource {
   
-  private final Map<UniqueIdentifier, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<UniqueIdentifier, DataViewProcessorResource>();
+  private final Map<UniqueId, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<UniqueId, DataViewProcessorResource>();
   
   public DataViewProcessorsResource() {
   }
@@ -59,7 +59,7 @@ public class DataViewProcessorsResource {
   
   @Path("{viewProcessorId}")
   public DataViewProcessorResource findViewProcessor(@PathParam("viewProcessorId") String viewProcessorId) {
-    return _viewProcessorResourceMap.get(UniqueIdentifier.parse(viewProcessorId));
+    return _viewProcessorResourceMap.get(UniqueId.parse(viewProcessorId));
   }
   
   @GET

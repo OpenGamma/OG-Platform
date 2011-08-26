@@ -21,7 +21,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class BondIborSecurityDefinitionTest {
 
@@ -39,7 +39,7 @@ public class BondIborSecurityDefinitionTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, CALENDAR, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM);
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 3; // Standard for euro-bonds.
-  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtil.getUTCDate(2011, 7, 13);
+  private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

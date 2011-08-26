@@ -8,7 +8,7 @@ package com.opengamma.financial.user;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
 /**
@@ -40,7 +40,7 @@ public class UserInterpolatedYieldCurveDefinitionMaster implements InterpolatedY
   }
 
   @Override
-  public YieldCurveDefinitionDocument get(UniqueIdentifier uniqueId) {
+  public YieldCurveDefinitionDocument get(UniqueId uniqueId) {
     return _underlying.get(uniqueId);
   }
 
@@ -50,7 +50,7 @@ public class UserInterpolatedYieldCurveDefinitionMaster implements InterpolatedY
   }
 
   @Override
-  public void remove(UniqueIdentifier uniqueId) {
+  public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
     _tracker.deleted(uniqueId);
   }

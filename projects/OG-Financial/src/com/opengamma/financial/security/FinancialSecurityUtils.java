@@ -8,7 +8,6 @@ package com.opengamma.financial.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -32,7 +31,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 
@@ -59,8 +58,8 @@ public class FinancialSecurityUtils {
       }
         break;
       case PRIMITIVE: {
-        final UniqueIdentifier uid = target.getUniqueId();
-        if (uid.getScheme().equals(Currency.OBJECT_IDENTIFIER_SCHEME)) {
+        final UniqueId uid = target.getUniqueId();
+        if (uid.getScheme().equals(Currency.OBJECT_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }
@@ -315,6 +314,110 @@ public class FinancialSecurityUtils {
       return ccy;
     }
     return null;
+  }
+  
+  /**
+   * Check if a security is exchange traded
+   * 
+   * @param security the security to be examined.
+   * @return true if exchange traded or false otherwise.
+   */
+  public static boolean isExchangedTraded(final Security security) {
+    boolean result = false;
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final Boolean isExchangeTraded = finSec.accept(new FinancialSecurityVisitor<Boolean>() {
+
+        @Override
+        public Boolean visitBondSecurity(BondSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitCashSecurity(CashSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitEquitySecurity(EquitySecurity security) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitFRASecurity(FRASecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitFutureSecurity(FutureSecurity security) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitSwapSecurity(SwapSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitEquityOptionSecurity(EquityOptionSecurity security) {
+          return true;
+        }
+
+        @Override
+        public Boolean visitFXOptionSecurity(FXOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitSwaptionSecurity(SwaptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitFXSecurity(FXSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitFXForwardSecurity(FXForwardSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitCapFloorSecurity(CapFloorSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+          return null;
+        }
+      });
+      
+      result = isExchangeTraded == null ? false : isExchangeTraded;
+    }
+    
+    return result;
   }
 
 }

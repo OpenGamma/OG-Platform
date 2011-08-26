@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.covariance;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.timeseries.returns.SimpleNetRelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.SimpleNetTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;

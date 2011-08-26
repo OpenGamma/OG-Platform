@@ -11,9 +11,9 @@ $.register_module({
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name);
         module.rules = {
-            load: {route: '/' + page_name, method: module.name + '.load'},
-            load_view: {route: '/' + page_name + '/:view', method: module.name + '.load_view'},
-            load_view_mode: {route: '/' + page_name + '/:view/:mode', method: module.name + '.load_view_mode'}
+            load: {route: '/', method: module.name + '.load'},
+            load_view: {route: '/' + '/:view', method: module.name + '.load_view'},
+            load_view_mode: {route: '/' + '/:view/:mode', method: module.name + '.load_view_mode'}
         };
         mode_handler = {
             portfolio: function (view, structure) {
@@ -26,11 +26,8 @@ $.register_module({
         return analytics = {
             load: function (args) {
                 masthead.menu.set_tab(page_name);
-                layout('analytics');
-                $('#OG-analytics .OG-toolbar').hide();
-                $('.OG-js-analytics-panel .OG-analytics').html('<iframe id="temp_analytics_frame" ' +
-                        'src="/analytics/" width="100%"></iframe>');
-                og.common.util.ui.expand_height_to_window_bottom({element: '#temp_analytics_frame', offsetpx: -59});
+                $('.ui-layout-center').html('<iframe id="temp_analytics_frame" src="/analytics/"\
+                    style="position: absolute; top: 3px; height: 99%; width: 100%;"></iframe>');
             },
             load_view: function (args) {
                 check_state({args: args, conditions: [{new_page: analytics.load}]});

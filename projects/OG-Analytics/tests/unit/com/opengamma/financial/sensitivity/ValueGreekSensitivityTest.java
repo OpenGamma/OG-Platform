@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.sensitivity;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.util.Arrays;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.pnl.UnderlyingType;

@@ -6,9 +6,11 @@
 package com.opengamma.financial.pnl;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.sensitivity.ValueGreek;
@@ -75,8 +77,8 @@ public class SensitivityPnLCalculatorTest {
     final DoubleTimeSeries<?> ts = CALCULATOR.evaluate(DATA);
     final FastLongDoubleTimeSeries pnl = ts.toFastLongDoubleTimeSeries();
     assertEquals(pnl.getEncoding(), ENCODING);
-    assertEquals(pnl.getTime(0).longValue(), TIMES[0]);
-    assertEquals(pnl.getTime(1).longValue(), TIMES[1]);
+    assertEquals(pnl.getTimeAt(0).longValue(), TIMES[0]);
+    assertEquals(pnl.getTimeAt(1).longValue(), TIMES[1]);
     assertEquals(pnl.getValueAt(0), 680.5, 1e-9);
     assertEquals(pnl.getValueAt(1), 775.875, 1e-9);
 

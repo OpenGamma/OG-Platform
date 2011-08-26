@@ -24,7 +24,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 
@@ -174,7 +174,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
    * @param overridePositionId  the override position id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebPositionsData data, final UniqueIdentifier overridePositionId) {
+  public static URI uri(final WebPositionsData data, final UniqueId overridePositionId) {
     String positionId = data.getBestPositionUriId(overridePositionId);
     return data.getUriInfo().getBaseUriBuilder().path(WebPositionResource.class).build(positionId);
   }

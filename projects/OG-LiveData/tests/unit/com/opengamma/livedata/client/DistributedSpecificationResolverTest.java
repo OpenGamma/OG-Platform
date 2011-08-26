@@ -6,8 +6,10 @@
 package com.opengamma.livedata.client;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
-import com.opengamma.id.Identifier;
+
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.IdResolverServer;
 import com.opengamma.livedata.resolver.IdentityIdResolver;
@@ -32,7 +34,7 @@ public class DistributedSpecificationResolverTest {
     
     DistributedSpecificationResolver client = new DistributedSpecificationResolver(fudgeRequestSender);
     
-    LiveDataSpecification testSpec = new LiveDataSpecification("test1", Identifier.of("test1", "test1"));
+    LiveDataSpecification testSpec = new LiveDataSpecification("test1", ExternalId.of("test1", "test1"));
     LiveDataSpecification resolvedSpec = client.resolve(testSpec);
     assertEquals(resolvedSpec, testSpec);
   }

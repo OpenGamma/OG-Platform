@@ -24,7 +24,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -67,8 +67,8 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
   public Future<Object> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
-    final List<Map<UniqueIdentifier, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes = 
-      new ArrayList<Map<UniqueIdentifier, Collection<DependencyNode>>>();
+    final List<Map<UniqueId, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes = 
+      new ArrayList<Map<UniqueId, Collection<DependencyNode>>>();
     final Collection<DependencyNode> portfolioNodes = new HashSet<DependencyNode>();
     
     for (DependencyNode node : graph.getDependencyNodes()) {
@@ -93,14 +93,14 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
           
           if (passNumber > passNumber2Target2SecurityAndPositionNodes.size() - 1) {
             for (int i = passNumber2Target2SecurityAndPositionNodes.size(); i <= passNumber; i++) {
-              passNumber2Target2SecurityAndPositionNodes.add(new HashMap<UniqueIdentifier, Collection<DependencyNode>>());
+              passNumber2Target2SecurityAndPositionNodes.add(new HashMap<UniqueId, Collection<DependencyNode>>());
             }
           }
           
-          Map<UniqueIdentifier, Collection<DependencyNode>> target2SecurityAndPositionNodes = 
+          Map<UniqueId, Collection<DependencyNode>> target2SecurityAndPositionNodes = 
             passNumber2Target2SecurityAndPositionNodes.get(passNumber);
           
-          UniqueIdentifier uniqueId;
+          UniqueId uniqueId;
           if (node.getComputationTarget().getType() == ComputationTargetType.SECURITY) {
             uniqueId = node.getComputationTarget().getUniqueId(); 
           } else if (node.getComputationTarget().getType() == ComputationTargetType.POSITION) {
@@ -147,7 +147,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     s_logger.info("Executing {} passes of SECURITY and POSITION nodes", passNumber2Target2SecurityAndPositionNodes.size());
     
     int passNumber = 0;
-    for (Map<UniqueIdentifier, Collection<DependencyNode>> target2SecurityAndPositionNodes : 
+    for (Map<UniqueId, Collection<DependencyNode>> target2SecurityAndPositionNodes : 
       passNumber2Target2SecurityAndPositionNodes) {
       
       s_logger.info("Executing pass number {}", passNumber, target2SecurityAndPositionNodes.size());

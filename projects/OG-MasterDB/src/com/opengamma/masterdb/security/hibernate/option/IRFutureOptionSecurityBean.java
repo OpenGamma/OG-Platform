@@ -14,7 +14,7 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.ExchangeBean;
 import com.opengamma.masterdb.security.hibernate.ExpiryBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 
 /**
@@ -30,7 +30,7 @@ public class IRFutureOptionSecurityBean extends SecurityBean {
   private ExchangeBean _exchange;
   private Boolean _margined;
   private Double _pointValue;
-  private IdentifierBean _underlying;
+  private ExternalIdBean _underlying;
 
   public IRFutureOptionSecurityBean() {
     super();
@@ -100,14 +100,14 @@ public class IRFutureOptionSecurityBean extends SecurityBean {
   /**
    * @return the underlyingIdentifier
    */
-  public IdentifierBean getUnderlying() {
+  public ExternalIdBean getUnderlying() {
     return _underlying;
   }
 
   /**
    * @param underlying the underlyingIdentifier to set
    */
-  public void setUnderlying(final IdentifierBean underlying) {
+  public void setUnderlying(final ExternalIdBean underlying) {
     _underlying = underlying;
   }
 

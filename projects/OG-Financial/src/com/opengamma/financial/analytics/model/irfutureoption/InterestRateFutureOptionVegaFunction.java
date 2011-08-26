@@ -53,20 +53,19 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   private static final DoublesPairComparator COMPARATOR = new DoublesPairComparator();
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.OG_ALGEBRA;
 
-  public InterestRateFutureOptionVegaFunction(final String surfaceName) {
-    super(surfaceName, ValueRequirementNames.VEGA_MATRIX);
+  public InterestRateFutureOptionVegaFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
+    super(forwardCurveName, fundingCurveName, surfaceName, ValueRequirementNames.VEGA_MATRIX);
   }
 
   @SuppressWarnings({"unchecked" })
   @Override
   protected Set<ComputedValue> getResults(final InterestRateDerivative irFutureOption, final SABRInterestRateDataBundle data, final ValueSpecification[] specifications,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
-    final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     final String ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     final ValueProperties sensitivityProperties = ValueProperties
         .with(ValuePropertyNames.CURRENCY, ccy)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveNames.getFirst())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveNames.getSecond())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
         .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
     if (alphaSensitivityObject == null) {
@@ -147,12 +146,10 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>(super.getRequirements(context, target, desiredValue));
-    final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context, desiredValue);
-    final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context, desiredValue);
     final ValueProperties sensitivityProperties = ValueProperties
               .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-              .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-              .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+              .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
+              .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
               .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getTrade(), sensitivityProperties));

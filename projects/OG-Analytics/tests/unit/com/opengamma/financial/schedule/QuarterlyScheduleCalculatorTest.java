@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.schedule.QuarterlyScheduleCalculator;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.util.time.DateUtil;
+import org.testng.annotations.Test;
+
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class QuarterlyScheduleCalculatorTest extends ScheduleCalculatorTestCase 
 
   @Test
   public void testStartAndEndEqual2() {
-    final ZonedDateTime date = DateUtil.getUTCDate(2010, 1, 1);
+    final ZonedDateTime date = DateUtils.getUTCDate(2010, 1, 1);
     final ZonedDateTime[] result = CALCULATOR.getSchedule(date, date, true, true);
     assertEquals(result.length, 1);
     assertEquals(result[0], date);
@@ -78,24 +78,24 @@ public class QuarterlyScheduleCalculatorTest extends ScheduleCalculatorTestCase 
 
   @Test
   public void test2() {
-    ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
-    ZonedDateTime endDate = DateUtil.getUTCDate(2000, 3, 30);
+    ZonedDateTime startDate = DateUtils.getUTCDate(2000, 1, 1);
+    ZonedDateTime endDate = DateUtils.getUTCDate(2000, 3, 30);
     ZonedDateTime[] forward = CALCULATOR.getSchedule(startDate, endDate, false, false);
     ZonedDateTime[] backward = CALCULATOR.getSchedule(startDate, endDate, true, false);
     assertEquals(forward.length, 1);
     assertEquals(backward.length, 1);
     assertEquals(forward[0], startDate);
     assertEquals(backward[0], endDate);
-    startDate = DateUtil.getUTCDate(2000, 1, 1);
-    endDate = DateUtil.getUTCDate(2002, 4, 9);
+    startDate = DateUtils.getUTCDate(2000, 1, 1);
+    endDate = DateUtils.getUTCDate(2002, 4, 9);
     final int quarters = 10;
     forward = CALCULATOR.getSchedule(startDate, endDate, false, false);
     backward = CALCULATOR.getSchedule(startDate, endDate, true, false);
     assertEquals(forward.length, quarters);
     assertEquals(backward.length, quarters);
     assertEquals(forward[0], startDate);
-    assertEquals(backward[0], DateUtil.getUTCDate(2000, 1, 9));
-    assertEquals(forward[quarters - 1], DateUtil.getUTCDate(2002, 4, 1));
+    assertEquals(backward[0], DateUtils.getUTCDate(2000, 1, 9));
+    assertEquals(forward[quarters - 1], DateUtils.getUTCDate(2002, 4, 1));
     assertEquals(backward[quarters - 1], endDate);
     for (int i = 1; i < quarters; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
@@ -130,18 +130,18 @@ public class QuarterlyScheduleCalculatorTest extends ScheduleCalculatorTestCase 
 
   @Test
   public void testEndOfMonth2() {
-    final ZonedDateTime startDate = DateUtil.getUTCDate(2008, 11, 30);
-    final ZonedDateTime endDate = DateUtil.getUTCDate(2010, 8, 31);
-    final ZonedDateTime[] fromStart = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 11, 30), DateUtil.getUTCDate(2009, 2, 28), DateUtil.getUTCDate(2009, 5, 30), DateUtil.getUTCDate(2009, 8, 30),
-        DateUtil.getUTCDate(2009, 11, 30), DateUtil.getUTCDate(2010, 2, 28), DateUtil.getUTCDate(2010, 5, 30), DateUtil.getUTCDate(2010, 8, 30)};
-    final ZonedDateTime[] fromStartRecursive = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 11, 30), DateUtil.getUTCDate(2009, 2, 28), DateUtil.getUTCDate(2009, 5, 28),
-        DateUtil.getUTCDate(2009, 8, 28), DateUtil.getUTCDate(2009, 11, 28), DateUtil.getUTCDate(2010, 2, 28), DateUtil.getUTCDate(2010, 5, 28), DateUtil.getUTCDate(2010, 8, 28)};
-    final ZonedDateTime[] fromEnd = new ZonedDateTime[] {DateUtil.getUTCDate(2008, 11, 30), DateUtil.getUTCDate(2009, 2, 28), DateUtil.getUTCDate(2009, 5, 31), DateUtil.getUTCDate(2009, 8, 31),
-        DateUtil.getUTCDate(2009, 11, 30),
-        DateUtil.getUTCDate(2010, 2, 28), DateUtil.getUTCDate(2010, 5, 31), DateUtil.getUTCDate(2010, 8, 31)};
-    final ZonedDateTime[] fromEndRecursive = new ZonedDateTime[] {DateUtil.getUTCDate(2009, 2, 28), DateUtil.getUTCDate(2009, 5, 28), DateUtil.getUTCDate(2009, 8, 28),
-        DateUtil.getUTCDate(2009, 11, 28), DateUtil.getUTCDate(2010, 2, 28),
-        DateUtil.getUTCDate(2010, 5, 31), DateUtil.getUTCDate(2010, 8, 31)};
+    final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 11, 30);
+    final ZonedDateTime endDate = DateUtils.getUTCDate(2010, 8, 31);
+    final ZonedDateTime[] fromStart = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 11, 30), DateUtils.getUTCDate(2009, 2, 28), DateUtils.getUTCDate(2009, 5, 30), DateUtils.getUTCDate(2009, 8, 30),
+        DateUtils.getUTCDate(2009, 11, 30), DateUtils.getUTCDate(2010, 2, 28), DateUtils.getUTCDate(2010, 5, 30), DateUtils.getUTCDate(2010, 8, 30)};
+    final ZonedDateTime[] fromStartRecursive = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 11, 30), DateUtils.getUTCDate(2009, 2, 28), DateUtils.getUTCDate(2009, 5, 28),
+        DateUtils.getUTCDate(2009, 8, 28), DateUtils.getUTCDate(2009, 11, 28), DateUtils.getUTCDate(2010, 2, 28), DateUtils.getUTCDate(2010, 5, 28), DateUtils.getUTCDate(2010, 8, 28)};
+    final ZonedDateTime[] fromEnd = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 11, 30), DateUtils.getUTCDate(2009, 2, 28), DateUtils.getUTCDate(2009, 5, 31), DateUtils.getUTCDate(2009, 8, 31),
+        DateUtils.getUTCDate(2009, 11, 30),
+        DateUtils.getUTCDate(2010, 2, 28), DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 8, 31)};
+    final ZonedDateTime[] fromEndRecursive = new ZonedDateTime[] {DateUtils.getUTCDate(2009, 2, 28), DateUtils.getUTCDate(2009, 5, 28), DateUtils.getUTCDate(2009, 8, 28),
+        DateUtils.getUTCDate(2009, 11, 28), DateUtils.getUTCDate(2010, 2, 28),
+        DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 8, 31)};
     assertArrayEquals(fromStart, CALCULATOR.getSchedule(startDate, endDate, false, false));
     assertArrayEquals(fromStartRecursive, CALCULATOR.getSchedule(startDate, endDate, false, true));
     assertArrayEquals(fromEnd, CALCULATOR.getSchedule(startDate, endDate, true, false));

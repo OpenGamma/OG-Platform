@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -56,10 +56,12 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   @SuppressWarnings({"unchecked", "rawtypes" })
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId(), Object.class);
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(pr);
     ConfigHistoryResult<?> result = data().getConfigMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -89,7 +91,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   public WebConfigVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     ConfigDocument<?> doc = data().getConfig();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       ConfigDocument<?> versioned = data().getConfigMaster().get(combined);
       data().setVersioned(versioned);

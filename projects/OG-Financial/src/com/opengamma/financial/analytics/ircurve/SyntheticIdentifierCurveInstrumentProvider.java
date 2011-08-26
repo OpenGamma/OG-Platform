@@ -9,8 +9,8 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -20,8 +20,8 @@ import com.opengamma.util.time.Tenor;
 public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrumentProvider {
   private Currency _ccy;
   private StripInstrumentType _type;
-  private IdentificationScheme _scheme;
-  public SyntheticIdentifierCurveInstrumentProvider(Currency ccy, StripInstrumentType type, IdentificationScheme scheme) {
+  private ExternalScheme _scheme;
+  public SyntheticIdentifierCurveInstrumentProvider(Currency ccy, StripInstrumentType type, ExternalScheme scheme) {
     Validate.notNull(ccy, "currency");
     Validate.notNull(type, "instrument type");
     Validate.notNull(scheme, "generated identifier scheme");
@@ -30,13 +30,13 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
     _scheme = scheme;
   }
   @Override
-  public Identifier getInstrument(LocalDate curveDate, Tenor tenor) {
-    return Identifier.of(_scheme, _ccy.getCode() + _type.name() + tenor.getPeriod().toString());
+  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
+    return ExternalId.of(_scheme, _ccy.getCode() + _type.name() + tenor.getPeriod().toString());
   }
   
   @Override
-  public Identifier getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
-    return Identifier.of(_scheme, _ccy.getCode() + _type.name() + tenor.getPeriod().toString());
+  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+    return ExternalId.of(_scheme, _ccy.getCode() + _type.name() + tenor.getPeriod().toString());
   }
   
   public Currency getCurrency() {
@@ -47,7 +47,7 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
     return _type;
   }
   
-  public IdentificationScheme getScheme() {
+  public ExternalScheme getScheme() {
     return _scheme;
   }
   

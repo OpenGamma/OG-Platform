@@ -5,26 +5,28 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
  * 
  */
 public class SupershareOptionDefinitionTest {
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getUTCDate(2010, 7, 1));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2010, 7, 1));
   private static final double LOWER = 10;
   private static final double UPPER = 30;
   private static final double SPOT = 20;
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), SPOT, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), 20,
-      DateUtil.getUTCDate(
+      DateUtils.getUTCDate(
           2009, 1, 1));
   private static final SupershareOptionDefinition OPTION = new SupershareOptionDefinition(EXPIRY, LOWER, UPPER);
 
@@ -55,7 +57,7 @@ public class SupershareOptionDefinitionTest {
     SupershareOptionDefinition other = new SupershareOptionDefinition(EXPIRY, LOWER, UPPER);
     assertEquals(other, OPTION);
     assertEquals(other.hashCode(), OPTION.hashCode());
-    other = new SupershareOptionDefinition(new Expiry(DateUtil.getUTCDate(2011, 1, 1)), LOWER, UPPER);
+    other = new SupershareOptionDefinition(new Expiry(DateUtils.getUTCDate(2011, 1, 1)), LOWER, UPPER);
     assertFalse(other.equals(OPTION));
     other = new SupershareOptionDefinition(EXPIRY, LOWER + 1, UPPER);
     assertFalse(other.equals(OPTION));

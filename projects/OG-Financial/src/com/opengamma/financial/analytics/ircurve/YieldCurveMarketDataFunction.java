@@ -13,8 +13,14 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -33,9 +39,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
@@ -44,7 +50,7 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class YieldCurveMarketDataFunction extends AbstractFunction {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveMarketDataFunction.class);
   private ValueSpecification _marketDataResult;
   private Set<ValueSpecification> _results;
   private final YieldCurveFunctionHelper _helper;
@@ -120,17 +126,27 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
-    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(Identifier.of(
+    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(ExternalId.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
-    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(IdentifierBundle
+    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(ExternalIdBundle
         .of(conventionBundle.getSwapFloatingLegInitialRate()));
-    final Identifier initialRefRateId = referenceRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
+    
+    SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    Security security = securitySource.getSecurity(referenceRateConvention.getIdentifiers());
+    
+    if (security == null) {
+      s_logger.warn("No security returned for {} from security source", referenceRateConvention.getIdentifiers());
+      final ExternalId initialRefRateId = referenceRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
+    } else {
+      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,  ComputationTargetType.SECURITY, security.getUniqueId()));
+    }
+    
     return Collections.unmodifiableSet(result);
   }
 
   private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
-    final Map<UniqueIdentifier, Double> marketDataMap = new HashMap<UniqueIdentifier, Double>();
+    final Map<UniqueId, Double> marketDataMap = new HashMap<UniqueId, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
       final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
       marketDataMap.put(targetSpecification.getUniqueId(), (Double) value.getValue());
@@ -142,8 +158,13 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context,
-        atInstant);
-    return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
+    try {
+      Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
+      return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
+    } catch (OpenGammaRuntimeException ogre) {
+      s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...", new Object[] {getShortName(), _helper.getCurveName(), _helper.getCurrency() });
+      throw ogre;
+    }
+    
   }
 }

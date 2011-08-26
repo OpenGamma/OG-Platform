@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.var.parametric;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.util.Collections;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;

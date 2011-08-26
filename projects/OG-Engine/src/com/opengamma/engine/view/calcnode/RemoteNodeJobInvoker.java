@@ -15,8 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,8 +100,8 @@ import com.opengamma.transport.FudgeMessageSender;
       if (scaling != null) {
         s_logger.debug("Sending scaling message ", scaling);
         final MutableFudgeMsg scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
-        FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
-        scaling.toFudgeMsg(new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext()), scalingMessage);
+        FudgeSerializer.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
+        scaling.toFudgeMsg(new FudgeSerializer(getFudgeMessageSender().getFudgeContext()), scalingMessage);
         getFudgeMessageSender().send(scalingMessage);
       }
     }
@@ -196,8 +196,8 @@ import com.opengamma.transport.FudgeMessageSender;
   }
 
   protected void sendMessage(final RemoteCalcNodeMessage message) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeMessageSender().getFudgeContext());
-    getFudgeMessageSender().send(FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeMessageSender().getFudgeContext());
+    getFudgeMessageSender().send(FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
   }
 
   @Override
@@ -251,8 +251,7 @@ import com.opengamma.transport.FudgeMessageSender;
   }
 
   /**
-   * Returns {@code true} with the remote client generating failure messages if anything is
-   * not alive. 
+   * Returns true with the remote client generating failure messages if anything is not alive. 
    */
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
@@ -287,8 +286,8 @@ import com.opengamma.transport.FudgeMessageSender;
 
   @Override
   public void messageReceived(final FudgeContext fudgeContext, final FudgeMsgEnvelope msgEnvelope) {
-    final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
-    final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
+    final FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
+    final RemoteCalcNodeMessage message = deserializer.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
     message.accept(_messageVisitor);
   }
 

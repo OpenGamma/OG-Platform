@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class DistributedSpecificationResolver {
     
     s_logger.info("Sending message to resolve ", spec);
     ResolveRequest resolveRequest = new ResolveRequest(spec);
-    FudgeMsg requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
+    FudgeMsg requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializer(_fudgeContext));
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicReference<LiveDataSpecification> resolved = new AtomicReference<LiveDataSpecification>();
     _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {
@@ -60,7 +60,7 @@ public class DistributedSpecificationResolver {
           FudgeMsgEnvelope msgEnvelope) {
         
         FudgeMsg msg = msgEnvelope.getMessage();
-        ResolveResponse response = ResolveResponse.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
+        ResolveResponse response = ResolveResponse.fromFudgeMsg(new FudgeDeserializer(_fudgeContext), msg);
         resolved.set(response.getResolvedSpecification());
         responseReceived.set(true);
         
@@ -74,7 +74,7 @@ public class DistributedSpecificationResolver {
         Thread.interrupted();
       }
       if ((System.currentTimeMillis() - start) >= TIMEOUT_MS) {
-        throw new OpenGammaRuntimeException("Timeout. Waited for entitlement response for " + TIMEOUT_MS + " with no response.");
+        throw new OpenGammaRuntimeException("Timeout. Waited for specification resolution response for " + TIMEOUT_MS + " with no response.");
       }
     }
     

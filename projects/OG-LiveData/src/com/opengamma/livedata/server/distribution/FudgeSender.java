@@ -6,6 +6,7 @@
 package com.opengamma.livedata.server.distribution;
 
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.FudgeMessageSender;
@@ -17,9 +18,10 @@ import com.opengamma.util.ArgumentChecker;
  * Useful in tests. 
  */
 public class FudgeSender implements MarketDataSender {
+
   private final FudgeMessageSender _fudgeMessageSender;
   private final MarketDataDistributor _distributor;
-  
+
   public FudgeSender(FudgeMessageSender fudgeMessageSender, MarketDataDistributor distributor) {
     ArgumentChecker.notNull(fudgeMessageSender, "Fudge Message Sender");
     ArgumentChecker.notNull(distributor, "Market Data Distributor");
@@ -30,7 +32,7 @@ public class FudgeSender implements MarketDataSender {
   public FudgeMessageSender getFudgeMessageSender() {
     return _fudgeMessageSender;
   }
-  
+
   @Override
   public MarketDataDistributor getDistributor() {
     return _distributor;
@@ -38,7 +40,8 @@ public class FudgeSender implements MarketDataSender {
 
   @Override
   public void sendMarketData(LiveDataValueUpdateBean data) {
-    FudgeMsg fudgeMsg = data.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
+    FudgeSerializer serializer = new FudgeSerializer(getFudgeMessageSender().getFudgeContext());
+    FudgeMsg fudgeMsg = data.toFudgeMsg(serializer);
     getFudgeMessageSender().send(fudgeMsg);
   }
 

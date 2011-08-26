@@ -32,27 +32,29 @@ public class VolatilityPoint extends DirectBean {
    */
   @PropertyDefinition
   private Tenor _swapTenor;
-  
   /**
    * The option expiry
    */
   @PropertyDefinition
   private Tenor _optionExpiry;
-  
   /**
    * The strike relative to at the money, in Bps
    */
   @PropertyDefinition
   private double _relativeStrike;
-  
-  
+
+  /**
+   * Restricted constructor.
+   */
   private VolatilityPoint() {
   }
-  
+
   /**
-   * @param swapTenor the swap tenor
-   * @param optionExpiry the option expiry
-   * @param relativeStrike the relative strike
+   * Creates an instance.
+   * 
+   * @param swapTenor  the swap tenor
+   * @param optionExpiry  the option expiry
+   * @param relativeStrike  the relative strike
    */
   public VolatilityPoint(Tenor swapTenor, Tenor optionExpiry, double relativeStrike) {
     super();

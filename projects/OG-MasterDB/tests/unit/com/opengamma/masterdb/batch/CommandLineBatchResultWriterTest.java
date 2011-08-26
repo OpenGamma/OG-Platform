@@ -25,7 +25,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -44,8 +44,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.MissingInputException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DBTest;
@@ -147,10 +147,10 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
     _hibernateTemplate.saveOrUpdateAll(_valueNames);
     
     _mockFunctionComputationTarget = new com.opengamma.engine.ComputationTarget(ComputationTargetType.POSITION, 
-        new PositionImpl(
-            UniqueIdentifier.of("Mock", "AAPL Stock UID"), 
+        new SimplePosition(
+            UniqueId.of("Mock", "AAPL Stock UID"), 
             new BigDecimal(500), 
-            Identifier.of("Mock", "AAPL Stock ID")));
+            ExternalId.of("Mock", "AAPL Stock ID")));
     _mockFunctionOutput = new Double(4000.50);   
     _mockFunction = CalculationNodeUtils.getMockFunction(_mockFunctionComputationTarget, _mockFunctionOutput);
     

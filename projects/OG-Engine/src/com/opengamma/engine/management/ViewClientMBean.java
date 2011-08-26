@@ -8,7 +8,7 @@ package com.opengamma.engine.management;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -21,7 +21,7 @@ public interface ViewClientMBean {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /**
    * Gets the user for whom the view client was created. This user necessarily has sufficient permissions on the
@@ -41,7 +41,7 @@ public interface ViewClientMBean {
   /**
    * Gets whether this client is attached to a view process.
    * 
-   * @return {@code true} if this client is attached to a view process, {@code false} otherwise
+   * @return true if this client is attached to a view process
    */
   boolean isAttached();
   
@@ -74,7 +74,7 @@ public interface ViewClientMBean {
    * completes. This is intended for batch processing; if the view process is running with an infinite number of
    * evaluation times then this method will block forever. 
    * 
-   * @return {@code true} if the attached view process has completed, {@code false} otherwise
+   * @return true if the attached view process has completed
    * @throws IllegalStateException if the view client is not attached to a view process
    */
   boolean isCompleted();
@@ -84,8 +84,7 @@ public interface ViewClientMBean {
    * data flow restrictions being applied through this view client, so does not necessarily reflect the most recent
    * state of the view process.
    * 
-   * @return <code>true</code> if a computation result is available, <code>false</code> otherwise
-   * 
+   * @return true> if a computation result is available
    * @throws IllegalStateException if the view client is not attached to a view process
    */
   boolean isResultAvailable();
@@ -94,7 +93,7 @@ public interface ViewClientMBean {
    * Gets the full result from the latest view cycle. This is consistent with any data flow restrictions being applied
    * through this view client, so does not necessarily represent the most recent state of the view process.
    *  
-   * @return the latest result, or {@code null} if no result yet exists
+   * @return the latest result, null if no result yet exists
    * @throws IllegalStateException if the view client is not attached to a view process
    * @see #isResultAvailable()
    */
@@ -104,7 +103,7 @@ public interface ViewClientMBean {
   /**
    * Gets whether this client supports access to view cycles.
    *  
-   * @return {@code true} if the client can provide access to view cycles, {@code false} otherwise
+   * @return true if the client can provide access to view cycles
    */
   boolean isViewCycleAccessSupported();
   
@@ -112,7 +111,7 @@ public interface ViewClientMBean {
    * Sets whether this client should support access to view cycles. This feature involves overheads which are best
    * avoided if it is not needed.
    * 
-   * @param isViewCycleAccessSupported  {@code true} to enable access to  view cycles, {@code false} otherwise
+   * @param isViewCycleAccessSupported  true to enable access to view cycles
    */
   void setViewCycleAccessSupported(boolean isViewCycleAccessSupported);
   

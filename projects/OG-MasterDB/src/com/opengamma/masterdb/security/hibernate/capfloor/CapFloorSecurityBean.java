@@ -12,8 +12,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -31,7 +31,7 @@ public class CapFloorSecurityBean extends SecurityBean {
   private double _notional;
   private ZonedDateTimeBean _startDate;
   private double _strike;
-  private IdentifierBean _underlyingIdentifier;
+  private ExternalIdBean _underlyingIdentifier;
   
   /**
    * Gets the currency.
@@ -197,7 +197,7 @@ public class CapFloorSecurityBean extends SecurityBean {
    * Gets the underlyingIdentifier.
    * @return the underlyingIdentifier
    */
-  public IdentifierBean getUnderlyingIdentifier() {
+  public ExternalIdBean getUnderlyingIdentifier() {
     return _underlyingIdentifier;
   }
 
@@ -205,7 +205,7 @@ public class CapFloorSecurityBean extends SecurityBean {
    * Sets the underlyingIdentifier.
    * @param underlyingIdentifier  the underlyingIdentifier
    */
-  public void setUnderlyingIdentifier(IdentifierBean underlyingIdentifier) {
+  public void setUnderlyingIdentifier(ExternalIdBean underlyingIdentifier) {
     _underlyingIdentifier = underlyingIdentifier;
   }
 

@@ -9,48 +9,62 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.util.db.Paging;
+import com.opengamma.util.Paging;
+import com.opengamma.util.PagingRequest;
 
 /**
  * Fudge builder for {@code Paging}.
  */
 @FudgeBuilderFor(Paging.class)
-public final class PagingBuilder implements FudgeBuilder<Paging> {
+public final class PagingBuilder extends AbstractFudgeBuilder implements FudgeBuilder<Paging> {
 
   /** Field name. */
-  public static final String PAGE_FIELD_NAME = "page";
+  public static final String FIRST_FIELD_NAME = "first";
   /** Field name. */
-  public static final String PAGING_SIZE_FIELD_NAME = "pagingSize";
+  public static final String SIZE_FIELD_NAME = "size";
   /** Field name. */
-  public static final String TOTAL_FIELD_NAME = "totalItems";
+  public static final String TOTAL_FIELD_NAME = "total";
 
+  //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Paging object) {
-    final MutableFudgeMsg msg = context.newMessage();
-    msg.add(PAGE_FIELD_NAME, object.getPage());
-    msg.add(PAGING_SIZE_FIELD_NAME, object.getPagingSize());
-    msg.add(TOTAL_FIELD_NAME, object.getTotalItems());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Paging object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
+  public static MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer, final Paging object) {
+    if (object == null) {
+      return null;
+    }
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
+    return msg;
+  }
+
+  public static void toFudgeMsg(final FudgeSerializer serializer, final Paging object, final MutableFudgeMsg msg) {
+    addToMessage(msg, FIRST_FIELD_NAME, object.getRequest().getFirstItem());
+    addToMessage(msg, SIZE_FIELD_NAME, object.getRequest().getPagingSize());
+    addToMessage(msg, TOTAL_FIELD_NAME, object.getTotalItems());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public Paging buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    final Integer page = msg.getInt(PAGE_FIELD_NAME);
-    if (page == null) {
-      throw new IllegalArgumentException("Fudge message is not a Paging - field 'page' is not present");
+  public Paging buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return fromFudgeMsg(deserializer, msg);
+  }
+
+  public static Paging fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    if (msg == null) {
+      return null;
     }
-    final Integer pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
-    if (pagingSize == null) {
-      throw new IllegalArgumentException("Fudge message is not a Paging - field 'pagingSize' is not present");
-    }
-    final Integer totalItems = msg.getInt(TOTAL_FIELD_NAME);
-    if (totalItems == null) {
-      throw new IllegalArgumentException("Fudge message is not a Paging - field 'totalItems' is not present");
-    }
-    return Paging.of(page, pagingSize, totalItems);
+    final int first = msg.getInt(FIRST_FIELD_NAME);
+    final int size = msg.getInt(SIZE_FIELD_NAME);
+    final int total = msg.getInt(TOTAL_FIELD_NAME);
+    return Paging.of(PagingRequest.ofIndex(first, size), total);
   }
 
 }

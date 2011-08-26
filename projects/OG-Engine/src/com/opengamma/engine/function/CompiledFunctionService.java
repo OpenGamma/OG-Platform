@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -37,20 +37,20 @@ public class CompiledFunctionService {
   private final FunctionRepositoryCompiler _functionRepositoryCompiler;
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<FunctionDefinition> _reinitializingFunctionDefinitions;
-  private Set<UniqueIdentifier> _reinitializingFunctionRequirements;
+  private Set<UniqueId> _reinitializingFunctionRequirements;
   private boolean _localExecutorService;
   private ExecutorService _executorService;
   private final FunctionReinitializer _reinitializer = new FunctionReinitializer() {
 
     @Override
-    public synchronized void reinitializeFunction(FunctionDefinition function, UniqueIdentifier identifier) {
+    public synchronized void reinitializeFunction(FunctionDefinition function, UniqueId identifier) {
       s_logger.debug("Re-initialize function {} on change to {}", function, identifier);
       _reinitializingFunctionDefinitions.add(function);
       _reinitializingFunctionRequirements.add(identifier);
     }
 
     @Override
-    public synchronized void reinitializeFunction(FunctionDefinition function, Collection<UniqueIdentifier> identifiers) {
+    public synchronized void reinitializeFunction(FunctionDefinition function, Collection<UniqueId> identifiers) {
       s_logger.debug("Re-initialize function {} on changes to {}", function, identifiers);
       _reinitializingFunctionDefinitions.add(function);
       _reinitializingFunctionRequirements.addAll(identifiers);
@@ -71,7 +71,10 @@ public class CompiledFunctionService {
   }
 
   protected ExecutorService createDefaultExecutorService() {
-    return new ThreadPoolExecutor(1, Math.max(Runtime.getRuntime().availableProcessors(), 1), 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    final int processors = Math.max(Runtime.getRuntime().availableProcessors(), 1);
+    final ThreadPoolExecutor executorService = new ThreadPoolExecutor(processors, processors, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    executorService.allowCoreThreadTimeOut(true);
+    return executorService;
   }
 
   public void setExecutorService(final ExecutorService executorService) {
@@ -127,7 +130,7 @@ public class CompiledFunctionService {
    * 
    * @return the set of unique identifiers that should trigger re-initialization
    */
-  public Set<UniqueIdentifier> initialize() {
+  public Set<UniqueId> initialize() {
     // If the view processor node has restarted, remote nodes might have old values knocking around. We need a value
     // that won't "accidentally" be the same as theirs. As we increment the ID by 1 each time, the clock is possibly
     // a good choice unless we're clocking config changes at sub-millisecond speeds.
@@ -144,10 +147,10 @@ public class CompiledFunctionService {
    * @param initId the initialization identifier
    * @return the set of unique identifiers that should trigger re-initialization
    */
-  public synchronized Set<UniqueIdentifier> initialize(final long initId) {
+  public synchronized Set<UniqueId> initialize(final long initId) {
     s_logger.info("Initializing all function definitions to {}", initId);
     _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-    _reinitializingFunctionRequirements = new HashSet<UniqueIdentifier>();
+    _reinitializingFunctionRequirements = new HashSet<UniqueId>();
     initializeImpl(initId, getFunctionRepository().getAllFunctions());
     return _reinitializingFunctionRequirements;
   }
@@ -161,7 +164,7 @@ public class CompiledFunctionService {
         getFunctionCompilationContext().setFunctionInitId(initId);
       } else {
         _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-        _reinitializingFunctionRequirements = new HashSet<UniqueIdentifier>();
+        _reinitializingFunctionRequirements = new HashSet<UniqueId>();
         initializeImpl(initId, reinitialize);
       }
     }
@@ -172,7 +175,7 @@ public class CompiledFunctionService {
    * 
    * @return the set of unique identifiers requested by any initialized functions that should trigger re-initialization
    */
-  public synchronized Set<UniqueIdentifier> reinitialize() {
+  public synchronized Set<UniqueId> reinitialize() {
     long initId = getFunctionCompilationContext().getFunctionInitId() + 1;
     s_logger.info("Re-initializing all function definitions to {}", initId);
     final Set<FunctionDefinition> reinitialize = _reinitializingFunctionDefinitions;
@@ -181,7 +184,7 @@ public class CompiledFunctionService {
       getFunctionCompilationContext().setFunctionInitId(initId);
     } else {
       _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-      _reinitializingFunctionRequirements = new HashSet<UniqueIdentifier>();
+      _reinitializingFunctionRequirements = new HashSet<UniqueId>();
       initializeImpl(initId, reinitialize);
     }
     return _reinitializingFunctionRequirements;

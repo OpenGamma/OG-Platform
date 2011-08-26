@@ -1,47 +1,44 @@
-<div class="OG-toolbar"></div>
-<header class="OG-header-generic">
-  <h1>${name}</h1>
-</header>
-<div class="OG-details-container">
-<div class="og-details-content OG-security">
-  <div class="OG-c10 og-grid-last OG-max-width-l">
-    <section class="OG-mod-1 OG-c6">
-      <table>
-        <col style="width: 40%" />
-        <col style="width: 60%" />
-        <thead>
-          <tr>
-            <td>${securityType}</td><td></td>
-          </tr>
-        </thead>
-        <tbody class="og-mod-content og-dotted">
-          <tr><td><span>Exercise type</span></td><td>${exerciseType}</td></tr>
-          <tr><td><span>Pay off style</span></td><td>${payOffStyle}</td></tr>
-          <tr><td><span>Option type</span></td><td>${optionType}</td></tr>
-          <tr><td><span>Strike</span></td><td>${strike}</td></tr>
-          <tr><td><span>Expiry date</span></td><td>${expiryDate}</td></tr>
-          <tr><td><span>Expiry accuracy</span></td><td>${expiryAccuracy}</td></tr>
-          <tr><td><span>Underlying identifier</span></td><td>${underlyingIdentifier}</td></tr>
-          <tr><td><span>Currency</span></td><td>${currency}</td></tr>
-        </tbody>
-      </table>
-    </section>
-    <section class="OG-mod-1 og-style-2 OG-c4">
-      <table>
-        <col style="width: 40%" />
-        <col style="width: 60%" />
-          <thead>
-          <tr>
-            <td>Identifiers</td><td></td>
-          </tr>
-        </thead>
-        <tbody class="og-js-identifiers og-mod-content og-dotted"></tbody>
-      </table>
-    </section>
-    <div class="og-box">
-      <div class="og-lbl">Identifiers</div>
-      <div class="og-cnt og-js-identifiers"></div>
+<article>
+  <header class="OG-header-generic">
+    <div class="OG-toolbar"></div>
+    <h1>${name}</h1>
+  </header>
+  <section>
+    <div class="og-details-content OG-security OG-js-details-panel">
+      <div class="OG-c10 og-grid-last OG-max-width-l">
+        <section class="OG-mod-1 OG-c6">
+          <table>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+            <thead>
+              <tr>
+                <td>${securityType}</td><td></td>
+              </tr>
+            </thead>
+            <tbody class="og-mod-content og-dotted">
+              <tr><td><span>Exercise type</span></td><td>${exerciseType}</td></tr>
+              <tr><td><span>Option type</span></td><td>${optionType}</td></tr>
+              <tr><td><span>Point Value</span></td><td>${pointValue}</td></tr>
+              <tr><td><span>Strike</span></td><td>${strike}</td></tr>
+              <tr><td><span>Expiry date</span></td><td>${expiry}</td></tr>
+              <tr><td><span>Underlying identifier</span></td><td>${underlyingExternalId}</td></tr>
+              <tr><td><span>Currency</span></td><td>${currency}</td></tr>
+            </tbody>
+          </table>
+        </section>
+        <section class="OG-mod-1 og-style-2 OG-c4">
+          <table>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+              <thead>
+              <tr>
+                <td>Identifiers</td><td></td>
+              </tr>
+            </thead>
+            <tbody class="og-js-identifiers og-mod-content og-dotted"></tbody>
+          </table>
+        </section>
+      </div>
     </div>
-  </div>
-</div>
-</div>
+  </section>
+</article>

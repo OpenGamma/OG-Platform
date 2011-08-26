@@ -8,7 +8,7 @@ package com.opengamma.engine.view.compilation;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,10 +18,12 @@ import java.util.concurrent.Executors;
 
 import javax.time.Instant;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -39,8 +41,10 @@ import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 @Test
@@ -52,11 +56,11 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testEmptyView() {
-    Identifier secIdentifier = Identifier.of("SEC", "1");
-    PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
-    PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
+    ExternalId secIdentifier = ExternalId.of("SEC", "1");
+    SimplePosition pos = new SimplePosition(new BigDecimal(1), secIdentifier);
+    SimplePortfolioNode pn = new SimplePortfolioNode("node");
     pn.addPosition(pos);
-    PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
+    SimplePortfolio p = new SimplePortfolio(UniqueId.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
 
     MockPositionSource positionSource = new MockPositionSource();
@@ -82,9 +86,9 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertTrue(compiledViewDefinition.getDependencyGraphsByConfiguration().isEmpty());
@@ -92,11 +96,11 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testSingleValueNoLiveData() {
-    Identifier secIdentifier = Identifier.of("SEC", "1");
-    PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
-    PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
+    ExternalId secIdentifier = ExternalId.of("SEC", "1");
+    SimplePosition pos = new SimplePosition(new BigDecimal(1), secIdentifier);
+    SimplePortfolioNode pn = new SimplePortfolioNode("node");
     pn.addPosition(pos);
-    PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
+    SimplePortfolio p = new SimplePortfolio(UniqueId.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
 
     MockPositionSource positionSource = new MockPositionSource();
@@ -129,7 +133,7 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
 
     // We've not provided a function that targets the position level, so we can't ask for it.
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -138,7 +142,7 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -147,12 +151,12 @@ public class ViewDefinitionCompilerTest {
   }
 
   public void testSingleValueExternalDependency() {
-    Identifier secIdentifier1 = Identifier.of("SEC", "1");
-    Identifier secIdentifier2 = Identifier.of("SEC", "2");
-    PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier1);
-    PortfolioNodeImpl pn = new PortfolioNodeImpl("node");
+    ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
+    ExternalId secIdentifier2 = ExternalId.of("SEC", "2");
+    SimplePosition pos = new SimplePosition(new BigDecimal(1), secIdentifier1);
+    SimplePortfolioNode pn = new SimplePortfolioNode("node");
     pn.addPosition(pos);
-    PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("FOO", "BAR"), "portfolio");
+    SimplePortfolio p = new SimplePortfolio(UniqueId.of("FOO", "BAR"), "portfolio");
     p.setRootNode(pn);
 
     MockPositionSource positionSource = new MockPositionSource();
@@ -187,12 +191,13 @@ public class ViewDefinitionCompilerTest {
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService, securitySource,
         positionSource);
 
-    ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
+    ViewDefinition viewDefinition = new ViewDefinition("My View", ObjectId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -211,7 +216,7 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
+    UniqueId t1 = UniqueId.of("TestScheme", "t1");
 
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
 
@@ -229,7 +234,7 @@ public class ViewDefinitionCompilerTest {
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
 
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -242,13 +247,13 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    Identifier secIdentifier1 = Identifier.of("SEC", "1");
+    ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
     MockSecurity sec1 = new MockSecurity("My Sec");
     sec1.addIdentifier(secIdentifier1);
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(sec1);
 
-    UniqueIdentifier t1 = UniqueIdentifier.of("TestScheme", "t1");
+    UniqueId t1 = UniqueId.of("TestScheme", "t1");
 
     InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
 
@@ -271,7 +276,7 @@ public class ViewDefinitionCompilerTest {
     // source.
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
@@ -279,19 +284,19 @@ public class ViewDefinitionCompilerTest {
 
     // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
-    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
 
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
-    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition);
   }
 
-  private void assertTargets(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, UniqueIdentifier... targets) {
-    Set<UniqueIdentifier> expectedTargets = new HashSet<UniqueIdentifier>(Arrays.asList(targets));
+  private void assertTargets(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, UniqueId... targets) {
+    Set<UniqueId> expectedTargets = new HashSet<UniqueId>(Arrays.asList(targets));
     Set<ComputationTarget> actualTargets = compiledViewDefinition.getComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());
     for (ComputationTarget actualTarget : actualTargets) {

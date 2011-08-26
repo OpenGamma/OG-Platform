@@ -19,7 +19,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -121,7 +121,7 @@ public class CurrencyCrossRateFunction extends AbstractFunction.NonCompiledInvok
   }
 
   private ValueRequirement createRequirement(final String numerator, final String denominator) {
-    return new ValueRequirement(getRateLookupValueName(), ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), denominator + "_" + numerator));
+    return new ValueRequirement(getRateLookupValueName(), ComputationTargetType.PRIMITIVE, UniqueId.of(getRateLookupIdentifierScheme(), denominator + "_" + numerator));
   }
 
   @Override

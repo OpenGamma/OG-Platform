@@ -18,8 +18,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.id.UniqueIdentifiable;
@@ -33,10 +33,10 @@ import com.opengamma.util.tuple.Pair;
 public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurfaceData<?, ?>> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final VolatilitySurfaceData<?, ?> object) {
-    final MutableFudgeMsg message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceData<?, ?> object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     // the following forces it not to use a secondary type if one is available.
-    message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
+    message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     // for compatibility with old code, remove.
     if (object.getTarget() instanceof Currency) {
       message.add("currency", object.getCurrency());
@@ -45,26 +45,26 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
       message.add("currency", Currency.USD);
     }
 
-    context.addToMessage(message, "target", null, object.getTarget());
+    serializer.addToMessage(message, "target", null, object.getTarget());
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
     for (final Object x : object.getXs()) {
       if (x != null) {
-        message.add("xs", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(x), x.getClass()));
+        message.add("xs", null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(x), x.getClass()));
       }
     }
     for (final Object y : object.getYs()) {
       if (y != null) {
-        message.add("ys", null, FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(y), y.getClass()));
+        message.add("ys", null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(y), y.getClass()));
       }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
       @SuppressWarnings("unchecked")
       final Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
-      final MutableFudgeMsg subMessage = context.newMessage();
+      final MutableFudgeMsg subMessage = serializer.newMessage();
       if (pair.getFirst() != null && pair.getSecond() != null) {
-        subMessage.add("x", null, context.objectToFudgeMsg(pair.getFirst()));
-        subMessage.add("y", null, context.objectToFudgeMsg(pair.getSecond()));
+        subMessage.add("x", null, serializer.objectToFudgeMsg(pair.getFirst()));
+        subMessage.add("y", null, serializer.objectToFudgeMsg(pair.getSecond()));
         subMessage.add("value", null, entry.getValue());
         message.add("values", null, subMessage);
       }
@@ -73,12 +73,12 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
   }
 
   @Override
-  public VolatilitySurfaceData<?, ?> buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public VolatilitySurfaceData<?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     UniqueIdentifiable target;
     if (!message.hasField("target")) {
-      target = context.fieldValueToObject(Currency.class, message.getByName("currency"));
+      target = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
     } else {
-      target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+      target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     }
     final String definitionName = message.getString("definitionName");
     final String specificationName = message.getString("specificationName");
@@ -86,7 +86,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
     final List<Object> xs = new ArrayList<Object>();
     Object[] xsArray = null;
     for (final FudgeField xField : xsFields) {
-      final Object x = context.fieldValueToObject(xField);
+      final Object x = deserializer.fieldValueToObject(xField);
       xs.add(x);
       if (xsArray == null) {
         xsArray = (Object[]) Array.newInstance(x.getClass(), 0);
@@ -96,7 +96,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
     final List<Object> ys = new ArrayList<Object>();
     Object[] ysArray = null;
     for (final FudgeField yField : ysFields) {
-      final Object y = context.fieldValueToObject(yField);
+      final Object y = deserializer.fieldValueToObject(yField);
       ys.add(y);
       if (ysArray == null) {
         ysArray = (Object[]) Array.newInstance(y.getClass(), 0);
@@ -109,8 +109,8 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
       final List<FudgeField> valuesFields = message.getAllByName("values");
       for (final FudgeField valueField : valuesFields) {
         final FudgeMsg subMessage = (FudgeMsg) valueField.getValue();
-        final Object x = context.fieldValueToObject(xClazz, subMessage.getByName("x"));
-        final Object y = context.fieldValueToObject(yClazz, subMessage.getByName("y"));
+        final Object x = deserializer.fieldValueToObject(xClazz, subMessage.getByName("x"));
+        final Object y = deserializer.fieldValueToObject(yClazz, subMessage.getByName("y"));
         final Double value = subMessage.getDouble("value");
         values.put(Pair.of(x, y), value);
       }

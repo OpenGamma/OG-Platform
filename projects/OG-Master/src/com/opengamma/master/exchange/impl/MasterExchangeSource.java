@@ -5,18 +5,22 @@
  */
 package com.opengamma.master.exchange.impl;
 
+import java.util.Collection;
+
+import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
@@ -48,13 +52,24 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageableExchange getExchange(UniqueIdentifier uniqueId) {
-    ExchangeDocument doc = getDocument(uniqueId);
-    return (doc != null ? doc.getExchange() : null);
+  public ManageableExchange getExchange(UniqueId uniqueId) {
+    return getDocument(uniqueId).getExchange();
   }
 
   @Override
-  public ManageableExchange getSingleExchange(Identifier identifier) {
+  public Exchange getExchange(ObjectId objectId, VersionCorrection versionCorrection) {
+    return getDocument(objectId, versionCorrection).getExchange();
+  }
+
+  @Override
+  public Collection<? extends Exchange> getExchanges(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);
+    searchRequest.setVersionCorrection(getVersionCorrection());
+    return getMaster().search(searchRequest).getExchanges();
+  }
+
+  @Override
+  public ManageableExchange getSingleExchange(ExternalId identifier) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifier);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(getVersionCorrection());
@@ -62,7 +77,7 @@ public class MasterExchangeSource extends AbstractMasterSource<ExchangeDocument,
   }
 
   @Override
-  public ManageableExchange getSingleExchange(IdentifierBundle identifiers) {
+  public ManageableExchange getSingleExchange(ExternalIdBundle identifiers) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(identifiers);
     searchRequest.setPagingRequest(PagingRequest.ONE);
     searchRequest.setVersionCorrection(getVersionCorrection());

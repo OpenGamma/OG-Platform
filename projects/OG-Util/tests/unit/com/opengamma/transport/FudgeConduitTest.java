@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
 /**
@@ -51,8 +51,8 @@ public class FudgeConduitTest {
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
       @Override
       public FudgeMsg requestReceived(
-          FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-        MutableFudgeMsg response = context.getFudgeContext().newMessage();
+          FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
+        MutableFudgeMsg response = deserializer.getFudgeContext().newMessage();
         response.add("Killing", "In The Name Of");
         return response;
       }

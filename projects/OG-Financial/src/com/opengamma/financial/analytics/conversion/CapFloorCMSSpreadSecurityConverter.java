@@ -22,7 +22,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurityVisitor;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -50,11 +50,11 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final double accrualFactor = capFloorCMSSpreadSecurity.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
     final double strike = capFloorCMSSpreadSecurity.getStrike();
     final boolean isCap = capFloorCMSSpreadSecurity.getIsCap();
-    final Identifier longId = capFloorCMSSpreadSecurity.getLongIdentifier();
-    final Identifier shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
+    final ExternalId longId = capFloorCMSSpreadSecurity.getLongIdentifier();
+    final ExternalId shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
-    final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
+    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     final ConventionBundle longConvention = _conventionSource.getConventionBundle(longId);
     if (longConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + longId);

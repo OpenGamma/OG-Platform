@@ -59,7 +59,7 @@ import com.opengamma.engine.view.permission.PermissiveViewPermissionProvider;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.position.impl.MasterPositionSource;
@@ -357,7 +357,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     viewDefinitionRepository.addViewDefinition(new AddViewDefinitionRequest(_viewDefinitionConfig.getValue()));
     
     ViewProcessor viewProcessor = new ViewProcessorImpl(
-        UniqueIdentifier.of("Vp", "Batch"),
+        UniqueId.of("Vp", "Batch"),
         viewDefinitionRepository,
         securitySource,
         positionSource,
@@ -382,7 +382,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider.getAvailabilityProvider(), functionResolver,
         functionCompilationService.getFunctionCompilationContext(), computationTargetResolver, functionCompilationService.getExecutorService(), securitySource, positionSource);
-    CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
+    CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime(), VersionCorrection.LATEST);
     setCompiledViewDefinition(compiledViewDefinition);
   }
 

@@ -29,6 +29,7 @@ $.register_module({
                 });
             if (obj.live_for) // Kill everything after live_for milliseconds
                 setTimeout(function () {return clear_timers(), $(location).find(css_class).remove();}, obj.live_for);
+
         }
     }
 });

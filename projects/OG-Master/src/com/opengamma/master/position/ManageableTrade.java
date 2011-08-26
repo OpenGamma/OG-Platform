@@ -28,13 +28,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.CounterpartyImpl;
+import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
@@ -50,22 +50,20 @@ import com.opengamma.util.money.Currency;
 @BeanDefinition
 public class ManageableTrade extends DirectBean implements Trade, MutableUniqueIdentifiable, Serializable {
 
-  /**
-   * Version
-   */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
    * The trade unique identifier.
    * This field should be null until added to the master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The parent position unique identifier.
    * This field is managed by the master.
    */
   @PropertyDefinition
-  private UniqueIdentifier _parentPositionId;
+  private UniqueId _parentPositionId;
   /**
    * The quantity.
    * This field must not be null for the object to be valid.
@@ -77,7 +75,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This may also hold the resolved security.
    */
   @PropertyDefinition(validate = "notNull")
-  private SecurityLink _securityLink;
+  private ManageableSecurityLink _securityLink;
   /**
    * The trade date.
    * This field must not be null for the object to be valid.
@@ -90,17 +88,17 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   @PropertyDefinition
   private OffsetTime _tradeTime;
   /**
-   * The counterparty key identifier, null if not known.
+   * The counterparty external identifier, null if not known.
    */
   @PropertyDefinition
-  private Identifier _counterpartyKey;
+  private ExternalId _counterpartyExternalId;
   /**
-   * The provider key identifier for the data, null if not applicable.
+   * The provider external identifier for the data, null if not applicable.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _providerKey;
+  private ExternalId _providerId;
   /**
    * Amount paid for trade at time of purchase, null if not known.
    */
@@ -139,7 +137,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * Creates an instance.
    */
   public ManageableTrade() {
-    _securityLink = new SecurityLink();
+    _securityLink = new ManageableSecurityLink();
   }
 
   /**
@@ -152,10 +150,10 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     ArgumentChecker.notNull(trade.getAttributes(), "trade.attributes");
     _parentPositionId = trade.getParentPositionId();
     _quantity = trade.getQuantity();
-    _securityLink = trade.getSecurityLink().clone();
+    _securityLink = new ManageableSecurityLink(trade.getSecurityLink());
     _tradeDate = trade.getTradeDate();
     _tradeTime = trade.getTradeTime();
-    _counterpartyKey = (trade.getCounterparty() != null ? trade.getCounterparty().getIdentifier() : null);
+    _counterpartyExternalId = (trade.getCounterparty() != null ? trade.getCounterparty().getExternalId() : null);
     _premium = trade.getPremium();
     _premiumCurrency = trade.getPremiumCurrency();
     _premiumDate = trade.getPremiumDate();
@@ -174,7 +172,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * @param tradeTime  the trade time with offset, may be null
    * @param counterpartyId  the counterparty identifier, not null
    */
-  public ManageableTrade(final BigDecimal quantity, final Identifier securityKey, final LocalDate tradeDate, final OffsetTime tradeTime, final Identifier counterpartyId) {
+  public ManageableTrade(final BigDecimal quantity, final ExternalId securityKey, final LocalDate tradeDate, final OffsetTime tradeTime, final ExternalId counterpartyId) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notNull(counterpartyId, "counterpartyId");
@@ -182,8 +180,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     _quantity = quantity;
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
-    _counterpartyKey = counterpartyId;
-    _securityLink = new SecurityLink(securityKey);
+    _counterpartyExternalId = counterpartyId;
+    _securityLink = new ManageableSecurityLink(securityKey);
   }
 
   /**
@@ -195,7 +193,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * @param tradeTime  the trade time with offset, may be null
    * @param counterpartyId  the counterparty identifier, not null
    */
-  public ManageableTrade(final BigDecimal quantity, final IdentifierBundle securityKey, final LocalDate tradeDate, final OffsetTime tradeTime, final Identifier counterpartyId) {
+  public ManageableTrade(final BigDecimal quantity, final ExternalIdBundle securityKey, final LocalDate tradeDate, final OffsetTime tradeTime, final ExternalId counterpartyId) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "securityKey");
     ArgumentChecker.notNull(tradeDate, "tradeDate");
@@ -203,8 +201,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     _quantity = quantity;
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
-    _counterpartyKey = counterpartyId;
-    _securityLink = new SecurityLink(securityKey);
+    _counterpartyExternalId = counterpartyId;
+    _securityLink = new ManageableSecurityLink(securityKey);
   }
 
   //-------------------------------------------------------------------------
@@ -223,7 +221,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   //-------------------------------------------------------------------------
   @Override
   public Counterparty getCounterparty() {
-    return new CounterpartyImpl(getCounterpartyKey());
+    return new SimpleCounterparty(getCounterpartyExternalId());
   }
 
   @Override
@@ -264,10 +262,10 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
         return getTradeDate();
       case 752903761:  // tradeTime
         return getTradeTime();
-      case 624096149:  // counterpartyKey
-        return getCounterpartyKey();
-      case 2064682670:  // providerKey
-        return getProviderKey();
+      case 432285776:  // counterpartyExternalId
+        return getCounterpartyExternalId();
+      case 205149932:  // providerId
+        return getProviderId();
       case -318452137:  // premium
         return getPremium();
       case 1136581512:  // premiumCurrency
@@ -289,16 +287,16 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case -108882834:  // parentPositionId
-        setParentPositionId((UniqueIdentifier) newValue);
+        setParentPositionId((UniqueId) newValue);
         return;
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
         return;
       case 807992154:  // securityLink
-        setSecurityLink((SecurityLink) newValue);
+        setSecurityLink((ManageableSecurityLink) newValue);
         return;
       case 752419634:  // tradeDate
         setTradeDate((LocalDate) newValue);
@@ -306,11 +304,11 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
       case 752903761:  // tradeTime
         setTradeTime((OffsetTime) newValue);
         return;
-      case 624096149:  // counterpartyKey
-        setCounterpartyKey((Identifier) newValue);
+      case 432285776:  // counterpartyExternalId
+        setCounterpartyExternalId((ExternalId) newValue);
         return;
-      case 2064682670:  // providerKey
-        setProviderKey((Identifier) newValue);
+      case 205149932:  // providerId
+        setProviderId((ExternalId) newValue);
         return;
       case -318452137:  // premium
         setPremium((Double) newValue);
@@ -353,8 +351,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
-          JodaBeanUtils.equal(getCounterpartyKey(), other.getCounterpartyKey()) &&
-          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getCounterpartyExternalId(), other.getCounterpartyExternalId()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
           JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
           JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
           JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
@@ -374,8 +372,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyKey());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyExternalId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
@@ -391,7 +389,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -400,7 +398,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -409,7 +407,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field should be null until added to the master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -419,7 +417,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field is managed by the master.
    * @return the value of the property
    */
-  public UniqueIdentifier getParentPositionId() {
+  public UniqueId getParentPositionId() {
     return _parentPositionId;
   }
 
@@ -428,7 +426,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field is managed by the master.
    * @param parentPositionId  the new value of the property
    */
-  public void setParentPositionId(UniqueIdentifier parentPositionId) {
+  public void setParentPositionId(UniqueId parentPositionId) {
     this._parentPositionId = parentPositionId;
   }
 
@@ -437,7 +435,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This field is managed by the master.
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> parentPositionId() {
+  public final Property<UniqueId> parentPositionId() {
     return metaBean().parentPositionId().createProperty(this);
   }
 
@@ -475,7 +473,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This may also hold the resolved security.
    * @return the value of the property, not null
    */
-  public SecurityLink getSecurityLink() {
+  public ManageableSecurityLink getSecurityLink() {
     return _securityLink;
   }
 
@@ -484,7 +482,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This may also hold the resolved security.
    * @param securityLink  the new value of the property, not null
    */
-  public void setSecurityLink(SecurityLink securityLink) {
+  public void setSecurityLink(ManageableSecurityLink securityLink) {
     JodaBeanUtils.notNull(securityLink, "securityLink");
     this._securityLink = securityLink;
   }
@@ -494,7 +492,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
    * This may also hold the resolved security.
    * @return the property, not null
    */
-  public final Property<SecurityLink> securityLink() {
+  public final Property<ManageableSecurityLink> securityLink() {
     return metaBean().securityLink().createProperty(this);
   }
 
@@ -553,58 +551,58 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the counterparty key identifier, null if not known.
+   * Gets the counterparty external identifier, null if not known.
    * @return the value of the property
    */
-  public Identifier getCounterpartyKey() {
-    return _counterpartyKey;
+  public ExternalId getCounterpartyExternalId() {
+    return _counterpartyExternalId;
   }
 
   /**
-   * Sets the counterparty key identifier, null if not known.
-   * @param counterpartyKey  the new value of the property
+   * Sets the counterparty external identifier, null if not known.
+   * @param counterpartyExternalId  the new value of the property
    */
-  public void setCounterpartyKey(Identifier counterpartyKey) {
-    this._counterpartyKey = counterpartyKey;
+  public void setCounterpartyExternalId(ExternalId counterpartyExternalId) {
+    this._counterpartyExternalId = counterpartyExternalId;
   }
 
   /**
-   * Gets the the {@code counterpartyKey} property.
+   * Gets the the {@code counterpartyExternalId} property.
    * @return the property, not null
    */
-  public final Property<Identifier> counterpartyKey() {
-    return metaBean().counterpartyKey().createProperty(this);
+  public final Property<ExternalId> counterpartyExternalId() {
+    return metaBean().counterpartyExternalId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the provider key identifier for the data, null if not applicable.
+   * Gets the provider external identifier for the data, null if not applicable.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getProviderKey() {
-    return _providerKey;
+  public ExternalId getProviderId() {
+    return _providerId;
   }
 
   /**
-   * Sets the provider key identifier for the data, null if not applicable.
+   * Sets the provider external identifier for the data, null if not applicable.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
-   * @param providerKey  the new value of the property
+   * @param providerId  the new value of the property
    */
-  public void setProviderKey(Identifier providerKey) {
-    this._providerKey = providerKey;
+  public void setProviderId(ExternalId providerId) {
+    this._providerId = providerId;
   }
 
   /**
-   * Gets the the {@code providerKey} property.
+   * Gets the the {@code providerId} property.
    * This optional field can be used to capture the identifier used by the data provider.
    * This can be useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> providerKey() {
-    return metaBean().providerKey().createProperty(this);
+  public final Property<ExternalId> providerId() {
+    return metaBean().providerId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -780,13 +778,13 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ManageableTrade.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableTrade.class, UniqueId.class);
     /**
      * The meta-property for the {@code parentPositionId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _parentPositionId = DirectMetaProperty.ofReadWrite(
-        this, "parentPositionId", ManageableTrade.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _parentPositionId = DirectMetaProperty.ofReadWrite(
+        this, "parentPositionId", ManageableTrade.class, UniqueId.class);
     /**
      * The meta-property for the {@code quantity} property.
      */
@@ -795,8 +793,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     /**
      * The meta-property for the {@code securityLink} property.
      */
-    private final MetaProperty<SecurityLink> _securityLink = DirectMetaProperty.ofReadWrite(
-        this, "securityLink", ManageableTrade.class, SecurityLink.class);
+    private final MetaProperty<ManageableSecurityLink> _securityLink = DirectMetaProperty.ofReadWrite(
+        this, "securityLink", ManageableTrade.class, ManageableSecurityLink.class);
     /**
      * The meta-property for the {@code tradeDate} property.
      */
@@ -808,15 +806,15 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     private final MetaProperty<OffsetTime> _tradeTime = DirectMetaProperty.ofReadWrite(
         this, "tradeTime", ManageableTrade.class, OffsetTime.class);
     /**
-     * The meta-property for the {@code counterpartyKey} property.
+     * The meta-property for the {@code counterpartyExternalId} property.
      */
-    private final MetaProperty<Identifier> _counterpartyKey = DirectMetaProperty.ofReadWrite(
-        this, "counterpartyKey", ManageableTrade.class, Identifier.class);
+    private final MetaProperty<ExternalId> _counterpartyExternalId = DirectMetaProperty.ofReadWrite(
+        this, "counterpartyExternalId", ManageableTrade.class, ExternalId.class);
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code providerId} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
-        this, "providerKey", ManageableTrade.class, Identifier.class);
+    private final MetaProperty<ExternalId> _providerId = DirectMetaProperty.ofReadWrite(
+        this, "providerId", ManageableTrade.class, ExternalId.class);
     /**
      * The meta-property for the {@code premium} property.
      */
@@ -859,8 +857,8 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
         "securityLink",
         "tradeDate",
         "tradeTime",
-        "counterpartyKey",
-        "providerKey",
+        "counterpartyExternalId",
+        "providerId",
         "premium",
         "premiumCurrency",
         "premiumDate",
@@ -889,10 +887,10 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
           return _tradeDate;
         case 752903761:  // tradeTime
           return _tradeTime;
-        case 624096149:  // counterpartyKey
-          return _counterpartyKey;
-        case 2064682670:  // providerKey
-          return _providerKey;
+        case 432285776:  // counterpartyExternalId
+          return _counterpartyExternalId;
+        case 205149932:  // providerId
+          return _providerId;
         case -318452137:  // premium
           return _premium;
         case 1136581512:  // premiumCurrency
@@ -929,7 +927,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 
@@ -937,7 +935,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
      * The meta-property for the {@code parentPositionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> parentPositionId() {
+    public final MetaProperty<UniqueId> parentPositionId() {
       return _parentPositionId;
     }
 
@@ -953,7 +951,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
      * The meta-property for the {@code securityLink} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SecurityLink> securityLink() {
+    public final MetaProperty<ManageableSecurityLink> securityLink() {
       return _securityLink;
     }
 
@@ -974,19 +972,19 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
     }
 
     /**
-     * The meta-property for the {@code counterpartyKey} property.
+     * The meta-property for the {@code counterpartyExternalId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> counterpartyKey() {
-      return _counterpartyKey;
+    public final MetaProperty<ExternalId> counterpartyExternalId() {
+      return _counterpartyExternalId;
     }
 
     /**
-     * The meta-property for the {@code providerKey} property.
+     * The meta-property for the {@code providerId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> providerKey() {
-      return _providerKey;
+    public final MetaProperty<ExternalId> providerId() {
+      return _providerId;
     }
 
     /**

@@ -21,11 +21,11 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -48,41 +48,41 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _positionIds;
+  private List<ObjectId> _positionObjectIds;
   /**
    * The set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectIdentifier> _tradeIds;
+  private List<ObjectId> _tradeObjectIds;
   /**
-   * The security keys to match, null to not match on security keys.
+   * The security external identifiers to match, null to not match on security identifiers.
    */
   @PropertyDefinition
-  private IdentifierSearch _securityKeys;
+  private ExternalIdSearch _securityIdSearch;
   /**
-   * The identifier value, matching against the <b>value</b> of the identifiers,
+   * The external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    */
   @PropertyDefinition
-  private String _identifierValue;
+  private String _securityIdValue;
   /**
-   * The position data provider key to match, null to not match on provider.
+   * The position data provider identifier to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _positionProviderKey;
+  private ExternalId _positionProviderId;
   /**
-   * The trade data provider key to match, null to not match on provider.
+   * The trade data provider identifier to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
   @PropertyDefinition
-  private Identifier _tradeProviderKey;
+  private ExternalId _tradeProviderId;
   /**
    * The minimum quantity, inclusive, null for no minimum.
    */
@@ -106,12 +106,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * 
    * @param positionId  the position object identifier to add, not null
    */
-  public void addPositionId(ObjectIdentifiable positionId) {
+  public void addPositionObjectId(ObjectIdentifiable positionId) {
     ArgumentChecker.notNull(positionId, "positionId");
-    if (_positionIds == null) {
-      _positionIds = new ArrayList<ObjectIdentifier>();
+    if (_positionObjectIds == null) {
+      _positionObjectIds = new ArrayList<ObjectId>();
     }
-    _positionIds.add(positionId.getObjectId());
+    _positionObjectIds.add(positionId.getObjectId());
   }
 
   /**
@@ -120,13 +120,13 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * 
    * @param positionIds  the new position identifiers, null clears the position id search
    */
-  public void setPositionIds(Iterable<? extends ObjectIdentifiable> positionIds) {
+  public void setPositionObjectIds(Iterable<? extends ObjectIdentifiable> positionIds) {
     if (positionIds == null) {
-      _positionIds = null;
+      _positionObjectIds = null;
     } else {
-      _positionIds = new ArrayList<ObjectIdentifier>();
+      _positionObjectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable positionId : positionIds) {
-        _positionIds.add(positionId.getObjectId());
+        _positionObjectIds.add(positionId.getObjectId());
       }
     }
   }
@@ -136,12 +136,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * 
    * @param tradeId  the trade object identifier to add, not null
    */
-  public void addTradeId(ObjectIdentifiable tradeId) {
+  public void addTradeObjectId(ObjectIdentifiable tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
-    if (_tradeIds == null) {
-      _tradeIds = new ArrayList<ObjectIdentifier>();
+    if (_tradeObjectIds == null) {
+      _tradeObjectIds = new ArrayList<ObjectId>();
     }
-    _tradeIds.add(tradeId.getObjectId());
+    _tradeObjectIds.add(tradeId.getObjectId());
   }
 
   /**
@@ -151,59 +151,59 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * 
    * @param tradeIds  the new trade identifiers, null clears the trade id search
    */
-  public void setTradeIds(Iterable<? extends ObjectIdentifiable> tradeIds) {
+  public void setTradeObjectIds(Iterable<? extends ObjectIdentifiable> tradeIds) {
     if (tradeIds == null) {
-      _tradeIds = null;
+      _tradeObjectIds = null;
     } else {
-      _tradeIds = new ArrayList<ObjectIdentifier>();
+      _tradeObjectIds = new ArrayList<ObjectId>();
       for (ObjectIdentifiable tradeId : tradeIds) {
-        _tradeIds.add(tradeId.getObjectId());
+        _tradeObjectIds.add(tradeId.getObjectId());
       }
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adds a single security key identifier to the collection to search for.
+   * Adds a single security external identifier to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param securityKey  the security key identifier to add, not null
+   * @param securityId  the security key identifier to add, not null
    */
-  public void addSecurityKey(Identifier securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    addSecurityKeys(Arrays.asList(securityKey));
+  public void addSecurityExternalId(ExternalId securityId) {
+    ArgumentChecker.notNull(securityId, "securityId");
+    addSecurityExternalIds(Arrays.asList(securityId));
   }
 
   /**
-   * Adds a collection of security key identifiers to the collection to search for.
+   * Adds a collection of security external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param securityKeys  the security key identifiers to add, not null
+   * @param securityIds  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Identifier... securityKeys) {
-    ArgumentChecker.notNull(securityKeys, "securityKeys");
-    if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(securityKeys));
+  public void addSecurityExternalIds(ExternalId... securityIds) {
+    ArgumentChecker.notNull(securityIds, "securityIds");
+    if (getSecurityIdSearch() == null) {
+      setSecurityIdSearch(new ExternalIdSearch(securityIds));
     } else {
-      getSecurityKeys().addIdentifiers(securityKeys);
+      getSecurityIdSearch().addExternalIds(securityIds);
     }
   }
 
   /**
-   * Adds a collection of security key identifiers to the collection to search for.
+   * Adds a collection of security external identifiers to the collection to search for.
    * Unless customized, the search will match 
-   * {@link IdentifierSearchType#ANY any} of the identifiers.
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
    * 
-   * @param securityKeys  the security key identifiers to add, not null
+   * @param securityIds  the security key identifiers to add, not null
    */
-  public void addSecurityKeys(Iterable<Identifier> securityKeys) {
-    ArgumentChecker.notNull(securityKeys, "securityKeys");
-    if (getSecurityKeys() == null) {
-      setSecurityKeys(new IdentifierSearch(securityKeys));
+  public void addSecurityExternalIds(Iterable<ExternalId> securityIds) {
+    ArgumentChecker.notNull(securityIds, "securityIds");
+    if (getSecurityIdSearch() == null) {
+      setSecurityIdSearch(new ExternalIdSearch(securityIds));
     } else {
-      getSecurityKeys().addIdentifiers(securityKeys);
+      getSecurityIdSearch().addExternalIds(securityIds);
     }
   }
 
@@ -215,19 +215,19 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     }
     final PositionDocument document = (PositionDocument) obj;
     final ManageablePosition position = document.getPosition();
-    if (getPositionIds() != null && getPositionIds().contains(document.getObjectId()) == false) {
+    if (getPositionObjectIds() != null && getPositionObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getTradeIds() != null && position.matchesAnyTrade(getTradeIds()) == false) {
+    if (getTradeObjectIds() != null && position.matchesAnyTrade(getTradeObjectIds()) == false) {
       return false;
     }
-    if (getSecurityKeys() != null && getSecurityKeys().matches(position.getSecurityLink().getAllIdentifiers()) == false) {
+    if (getSecurityIdSearch() != null && getSecurityIdSearch().matches(position.getSecurityLink().getAllExternalIds()) == false) {
       return false;
     }
-    if (getPositionProviderKey() != null && getPositionProviderKey().equals(position.getProviderKey()) == false) {
+    if (getPositionProviderId() != null && getPositionProviderId().equals(position.getProviderId()) == false) {
       return false;
     }
-    if (getTradeProviderKey() != null && position.matchesAnyTradeProviderKey(getTradeProviderKey()) == false) {
+    if (getTradeProviderId() != null && position.matchesAnyTradeProviderId(getTradeProviderId()) == false) {
       return false;
     }
     if (getMinQuantity() != null && (position.getQuantity() == null || position.getQuantity().compareTo(getMinQuantity()) < 0)) {
@@ -260,18 +260,18 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -137459505:  // positionIds
-        return getPositionIds();
-      case 1271202484:  // tradeIds
-        return getTradeIds();
-      case 807958868:  // securityKeys
-        return getSecurityKeys();
-      case 2085582408:  // identifierValue
-        return getIdentifierValue();
-      case -370050619:  // positionProviderKey
-        return getPositionProviderKey();
-      case -510247254:  // tradeProviderKey
-        return getTradeProviderKey();
+      case -88800304:  // positionObjectIds
+        return getPositionObjectIds();
+      case 572505589:  // tradeObjectIds
+        return getTradeObjectIds();
+      case 1137408515:  // securityIdSearch
+        return getSecurityIdSearch();
+      case -930478666:  // securityIdValue
+        return getSecurityIdValue();
+      case 680799477:  // positionProviderId
+        return getPositionProviderId();
+      case -293554320:  // tradeProviderId
+        return getTradeProviderId();
       case 69860605:  // minQuantity
         return getMinQuantity();
       case 747293199:  // maxQuantity
@@ -284,23 +284,23 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -137459505:  // positionIds
-        setPositionIds((List<ObjectIdentifier>) newValue);
+      case -88800304:  // positionObjectIds
+        setPositionObjectIds((List<ObjectId>) newValue);
         return;
-      case 1271202484:  // tradeIds
-        setTradeIds((List<ObjectIdentifier>) newValue);
+      case 572505589:  // tradeObjectIds
+        setTradeObjectIds((List<ObjectId>) newValue);
         return;
-      case 807958868:  // securityKeys
-        setSecurityKeys((IdentifierSearch) newValue);
+      case 1137408515:  // securityIdSearch
+        setSecurityIdSearch((ExternalIdSearch) newValue);
         return;
-      case 2085582408:  // identifierValue
-        setIdentifierValue((String) newValue);
+      case -930478666:  // securityIdValue
+        setSecurityIdValue((String) newValue);
         return;
-      case -370050619:  // positionProviderKey
-        setPositionProviderKey((Identifier) newValue);
+      case 680799477:  // positionProviderId
+        setPositionProviderId((ExternalId) newValue);
         return;
-      case -510247254:  // tradeProviderKey
-        setTradeProviderKey((Identifier) newValue);
+      case -293554320:  // tradeProviderId
+        setTradeProviderId((ExternalId) newValue);
         return;
       case 69860605:  // minQuantity
         setMinQuantity((BigDecimal) newValue);
@@ -319,12 +319,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PositionSearchRequest other = (PositionSearchRequest) obj;
-      return JodaBeanUtils.equal(getPositionIds(), other.getPositionIds()) &&
-          JodaBeanUtils.equal(getTradeIds(), other.getTradeIds()) &&
-          JodaBeanUtils.equal(getSecurityKeys(), other.getSecurityKeys()) &&
-          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
-          JodaBeanUtils.equal(getPositionProviderKey(), other.getPositionProviderKey()) &&
-          JodaBeanUtils.equal(getTradeProviderKey(), other.getTradeProviderKey()) &&
+      return JodaBeanUtils.equal(getPositionObjectIds(), other.getPositionObjectIds()) &&
+          JodaBeanUtils.equal(getTradeObjectIds(), other.getTradeObjectIds()) &&
+          JodaBeanUtils.equal(getSecurityIdSearch(), other.getSecurityIdSearch()) &&
+          JodaBeanUtils.equal(getSecurityIdValue(), other.getSecurityIdValue()) &&
+          JodaBeanUtils.equal(getPositionProviderId(), other.getPositionProviderId()) &&
+          JodaBeanUtils.equal(getTradeProviderId(), other.getTradeProviderId()) &&
           JodaBeanUtils.equal(getMinQuantity(), other.getMinQuantity()) &&
           JodaBeanUtils.equal(getMaxQuantity(), other.getMaxQuantity()) &&
           super.equals(obj);
@@ -335,12 +335,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKeys());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionProviderKey());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionProviderId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeProviderId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMinQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxQuantity());
     return hash ^ super.hashCode();
@@ -352,17 +352,17 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getPositionIds() {
-    return _positionIds;
+  public List<ObjectId> getPositionObjectIds() {
+    return _positionObjectIds;
   }
 
   /**
-   * Gets the the {@code positionIds} property.
+   * Gets the the {@code positionObjectIds} property.
    * Note that an empty set will return no positions.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> positionIds() {
-    return metaBean().positionIds().createProperty(this);
+  public final Property<List<ObjectId>> positionObjectIds() {
+    return metaBean().positionObjectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -372,139 +372,139 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the value of the property
    */
-  public List<ObjectIdentifier> getTradeIds() {
-    return _tradeIds;
+  public List<ObjectId> getTradeObjectIds() {
+    return _tradeObjectIds;
   }
 
   /**
-   * Gets the the {@code tradeIds} property.
+   * Gets the the {@code tradeObjectIds} property.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    * @return the property, not null
    */
-  public final Property<List<ObjectIdentifier>> tradeIds() {
-    return metaBean().tradeIds().createProperty(this);
+  public final Property<List<ObjectId>> tradeObjectIds() {
+    return metaBean().tradeObjectIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security keys to match, null to not match on security keys.
+   * Gets the security external identifiers to match, null to not match on security identifiers.
    * @return the value of the property
    */
-  public IdentifierSearch getSecurityKeys() {
-    return _securityKeys;
+  public ExternalIdSearch getSecurityIdSearch() {
+    return _securityIdSearch;
   }
 
   /**
-   * Sets the security keys to match, null to not match on security keys.
-   * @param securityKeys  the new value of the property
+   * Sets the security external identifiers to match, null to not match on security identifiers.
+   * @param securityIdSearch  the new value of the property
    */
-  public void setSecurityKeys(IdentifierSearch securityKeys) {
-    this._securityKeys = securityKeys;
+  public void setSecurityIdSearch(ExternalIdSearch securityIdSearch) {
+    this._securityIdSearch = securityIdSearch;
   }
 
   /**
-   * Gets the the {@code securityKeys} property.
+   * Gets the the {@code securityIdSearch} property.
    * @return the property, not null
    */
-  public final Property<IdentifierSearch> securityKeys() {
-    return metaBean().securityKeys().createProperty(this);
+  public final Property<ExternalIdSearch> securityIdSearch() {
+    return metaBean().securityIdSearch().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the identifier value, matching against the <b>value</b> of the identifiers,
+   * Gets the external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    * @return the value of the property
    */
-  public String getIdentifierValue() {
-    return _identifierValue;
+  public String getSecurityIdValue() {
+    return _securityIdValue;
   }
 
   /**
-   * Sets the identifier value, matching against the <b>value</b> of the identifiers,
+   * Sets the external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
-   * @param identifierValue  the new value of the property
+   * @param securityIdValue  the new value of the property
    */
-  public void setIdentifierValue(String identifierValue) {
-    this._identifierValue = identifierValue;
+  public void setSecurityIdValue(String securityIdValue) {
+    this._securityIdValue = securityIdValue;
   }
 
   /**
-   * Gets the the {@code identifierValue} property.
+   * Gets the the {@code securityIdValue} property.
    * null to not match by identifier value.
-   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
    * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    * @return the property, not null
    */
-  public final Property<String> identifierValue() {
-    return metaBean().identifierValue().createProperty(this);
+  public final Property<String> securityIdValue() {
+    return metaBean().securityIdValue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the position data provider key to match, null to not match on provider.
+   * Gets the position data provider identifier to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getPositionProviderKey() {
-    return _positionProviderKey;
+  public ExternalId getPositionProviderId() {
+    return _positionProviderId;
   }
 
   /**
-   * Sets the position data provider key to match, null to not match on provider.
+   * Sets the position data provider identifier to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param positionProviderKey  the new value of the property
+   * @param positionProviderId  the new value of the property
    */
-  public void setPositionProviderKey(Identifier positionProviderKey) {
-    this._positionProviderKey = positionProviderKey;
+  public void setPositionProviderId(ExternalId positionProviderId) {
+    this._positionProviderId = positionProviderId;
   }
 
   /**
-   * Gets the the {@code positionProviderKey} property.
+   * Gets the the {@code positionProviderId} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> positionProviderKey() {
-    return metaBean().positionProviderKey().createProperty(this);
+  public final Property<ExternalId> positionProviderId() {
+    return metaBean().positionProviderId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trade data provider key to match, null to not match on provider.
+   * Gets the trade data provider identifier to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    * @return the value of the property
    */
-  public Identifier getTradeProviderKey() {
-    return _tradeProviderKey;
+  public ExternalId getTradeProviderId() {
+    return _tradeProviderId;
   }
 
   /**
-   * Sets the trade data provider key to match, null to not match on provider.
+   * Sets the trade data provider identifier to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
-   * @param tradeProviderKey  the new value of the property
+   * @param tradeProviderId  the new value of the property
    */
-  public void setTradeProviderKey(Identifier tradeProviderKey) {
-    this._tradeProviderKey = tradeProviderKey;
+  public void setTradeProviderId(ExternalId tradeProviderId) {
+    this._tradeProviderId = tradeProviderId;
   }
 
   /**
-   * Gets the the {@code tradeProviderKey} property.
+   * Gets the the {@code tradeProviderId} property.
    * This field is useful when receiving updates from the same provider.
    * @return the property, not null
    */
-  public final Property<Identifier> tradeProviderKey() {
-    return metaBean().tradeProviderKey().createProperty(this);
+  public final Property<ExternalId> tradeProviderId() {
+    return metaBean().tradeProviderId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -568,37 +568,37 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code positionIds} property.
+     * The meta-property for the {@code positionObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _positionIds = DirectMetaProperty.ofReadWrite(
-        this, "positionIds", PositionSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _positionObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "positionObjectIds", PositionSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code tradeIds} property.
+     * The meta-property for the {@code tradeObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _tradeIds = DirectMetaProperty.ofReadWrite(
-        this, "tradeIds", PositionSearchRequest.class, (Class) List.class);
+    private final MetaProperty<List<ObjectId>> _tradeObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "tradeObjectIds", PositionSearchRequest.class, (Class) List.class);
     /**
-     * The meta-property for the {@code securityKeys} property.
+     * The meta-property for the {@code securityIdSearch} property.
      */
-    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(
-        this, "securityKeys", PositionSearchRequest.class, IdentifierSearch.class);
+    private final MetaProperty<ExternalIdSearch> _securityIdSearch = DirectMetaProperty.ofReadWrite(
+        this, "securityIdSearch", PositionSearchRequest.class, ExternalIdSearch.class);
     /**
-     * The meta-property for the {@code identifierValue} property.
+     * The meta-property for the {@code securityIdValue} property.
      */
-    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
-        this, "identifierValue", PositionSearchRequest.class, String.class);
+    private final MetaProperty<String> _securityIdValue = DirectMetaProperty.ofReadWrite(
+        this, "securityIdValue", PositionSearchRequest.class, String.class);
     /**
-     * The meta-property for the {@code positionProviderKey} property.
+     * The meta-property for the {@code positionProviderId} property.
      */
-    private final MetaProperty<Identifier> _positionProviderKey = DirectMetaProperty.ofReadWrite(
-        this, "positionProviderKey", PositionSearchRequest.class, Identifier.class);
+    private final MetaProperty<ExternalId> _positionProviderId = DirectMetaProperty.ofReadWrite(
+        this, "positionProviderId", PositionSearchRequest.class, ExternalId.class);
     /**
-     * The meta-property for the {@code tradeProviderKey} property.
+     * The meta-property for the {@code tradeProviderId} property.
      */
-    private final MetaProperty<Identifier> _tradeProviderKey = DirectMetaProperty.ofReadWrite(
-        this, "tradeProviderKey", PositionSearchRequest.class, Identifier.class);
+    private final MetaProperty<ExternalId> _tradeProviderId = DirectMetaProperty.ofReadWrite(
+        this, "tradeProviderId", PositionSearchRequest.class, ExternalId.class);
     /**
      * The meta-property for the {@code minQuantity} property.
      */
@@ -614,12 +614,12 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "positionIds",
-        "tradeIds",
-        "securityKeys",
-        "identifierValue",
-        "positionProviderKey",
-        "tradeProviderKey",
+        "positionObjectIds",
+        "tradeObjectIds",
+        "securityIdSearch",
+        "securityIdValue",
+        "positionProviderId",
+        "tradeProviderId",
         "minQuantity",
         "maxQuantity");
 
@@ -632,18 +632,18 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -137459505:  // positionIds
-          return _positionIds;
-        case 1271202484:  // tradeIds
-          return _tradeIds;
-        case 807958868:  // securityKeys
-          return _securityKeys;
-        case 2085582408:  // identifierValue
-          return _identifierValue;
-        case -370050619:  // positionProviderKey
-          return _positionProviderKey;
-        case -510247254:  // tradeProviderKey
-          return _tradeProviderKey;
+        case -88800304:  // positionObjectIds
+          return _positionObjectIds;
+        case 572505589:  // tradeObjectIds
+          return _tradeObjectIds;
+        case 1137408515:  // securityIdSearch
+          return _securityIdSearch;
+        case -930478666:  // securityIdValue
+          return _securityIdValue;
+        case 680799477:  // positionProviderId
+          return _positionProviderId;
+        case -293554320:  // tradeProviderId
+          return _tradeProviderId;
         case 69860605:  // minQuantity
           return _minQuantity;
         case 747293199:  // maxQuantity
@@ -669,51 +669,51 @@ public class PositionSearchRequest extends AbstractSearchRequest {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code positionIds} property.
+     * The meta-property for the {@code positionObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> positionIds() {
-      return _positionIds;
+    public final MetaProperty<List<ObjectId>> positionObjectIds() {
+      return _positionObjectIds;
     }
 
     /**
-     * The meta-property for the {@code tradeIds} property.
+     * The meta-property for the {@code tradeObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectIdentifier>> tradeIds() {
-      return _tradeIds;
+    public final MetaProperty<List<ObjectId>> tradeObjectIds() {
+      return _tradeObjectIds;
     }
 
     /**
-     * The meta-property for the {@code securityKeys} property.
+     * The meta-property for the {@code securityIdSearch} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<IdentifierSearch> securityKeys() {
-      return _securityKeys;
+    public final MetaProperty<ExternalIdSearch> securityIdSearch() {
+      return _securityIdSearch;
     }
 
     /**
-     * The meta-property for the {@code identifierValue} property.
+     * The meta-property for the {@code securityIdValue} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> identifierValue() {
-      return _identifierValue;
+    public final MetaProperty<String> securityIdValue() {
+      return _securityIdValue;
     }
 
     /**
-     * The meta-property for the {@code positionProviderKey} property.
+     * The meta-property for the {@code positionProviderId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> positionProviderKey() {
-      return _positionProviderKey;
+    public final MetaProperty<ExternalId> positionProviderId() {
+      return _positionProviderId;
     }
 
     /**
-     * The meta-property for the {@code tradeProviderKey} property.
+     * The meta-property for the {@code tradeProviderId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Identifier> tradeProviderKey() {
-      return _tradeProviderKey;
+    public final MetaProperty<ExternalId> tradeProviderId() {
+      return _tradeProviderId;
     }
 
     /**

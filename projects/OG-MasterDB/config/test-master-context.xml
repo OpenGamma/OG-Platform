@@ -17,8 +17,8 @@
     </property>
   </bean>
 
-  <bean id="positionMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
-  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="positionMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
 
   <!-- ============================================================================== -->
   <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -36,44 +36,48 @@
 
   <bean id="hsqldbDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbCfg" />
+    <property name="uniqueIdScheme" value="DbCfg" />
   </bean>
 
   <bean id="hsqldbDbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbPrt" />
+    <property name="uniqueIdScheme" value="DbPrt" />
   </bean>
 
   <bean id="hsqldbDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="changeManager" ref="positionMasterChangeManager" />
-    <property name="identifierScheme" value="DbPos" />
+    <property name="uniqueIdScheme" value="DbPos" />
   </bean>
 
   <bean id="hsqldbDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
-    <property name="identifierScheme" value="DbSec" />
+    <property name="uniqueIdScheme" value="DbSec" />
   </bean>
 
   <bean id="hsqldbDbHistoricalTimeSeriesMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbHts" />
+    <property name="uniqueIdScheme" value="DbHts" />
   </bean>
 
   <bean id="hsqldbDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbExg" />
+    <property name="uniqueIdScheme" value="DbExg" />
   </bean>
   
   <bean id="hsqldbDbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbSnp" />
+    <property name="uniqueIdScheme" value="DbSnp" />
   </bean>
 
   <bean id="hsqldbDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="hsqldbDbSource" />
-    <property name="identifierScheme" value="DbHol" />
+    <property name="uniqueIdScheme" value="DbHol" />
+  </bean>
+  
+  <bean id="hsqldbDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
+    <constructor-arg ref="hsqldbDbSource" />
   </bean>
 
   <!-- ============================================================================== -->
@@ -92,44 +96,48 @@
 
   <bean id="postgresDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
     <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbCfg" />
+    <property name="uniqueIdScheme" value="DbCfg" />
   </bean>
 
   <bean id="postgresDbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbPrt" />
+    <property name="uniqueIdScheme" value="DbPrt" />
   </bean>
 
   <bean id="postgresDbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="changeManager" ref="positionMasterChangeManager" />
-    <property name="identifierScheme" value="DbPos" />
+    <property name="uniqueIdScheme" value="DbPos" />
   </bean>
 
   <bean id="postgresDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
-    <property name="identifierScheme" value="DbSec" />
+    <property name="uniqueIdScheme" value="DbSec" />
   </bean>
 
   <bean id="postgresDbHistoricalTimeSeriesMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
     <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbHts" />
+    <property name="uniqueIdScheme" value="DbHts" />
   </bean>
 
   <bean id="postgresDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbExg" />
+    <property name="uniqueIdScheme" value="DbExg" />
   </bean>
   
   <bean id="postgresDbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbSnp" />
+    <property name="uniqueIdScheme" value="DbSnp" />
   </bean>
 
   <bean id="postgresDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="postgresDbSource" />
-    <property name="identifierScheme" value="DbHol" />
+    <property name="uniqueIdScheme" value="DbHol" />
+  </bean>
+  
+  <bean id="postgresDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
+    <constructor-arg ref="postgresDbSource" />
   </bean>
 
 </beans>

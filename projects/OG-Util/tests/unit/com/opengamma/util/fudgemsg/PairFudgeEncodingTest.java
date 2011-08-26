@@ -5,18 +5,12 @@
  */
 package com.opengamma.util.fudgemsg;
 
-import static org.testng.AssertJUnit.fail;
-
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.IntDoublePair;
@@ -24,74 +18,54 @@ import com.opengamma.util.tuple.LongDoublePair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test Pair Fudge.
+ * Test Fudge encoding.
  */
 @Test
-public class PairFudgeEncodingTest {
+public class PairFudgeEncodingTest extends AbstractBuilderTestCase {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PairFudgeEncodingTest.class);
-  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-
-  public void test_OO_IdentifierBundle() {
-    Pair<String, IdentifierBundle> pair = Pair.of("Hello", IdentifierBundle.of(Identifier.of("A", "B")));
-    testFudgeMessage(pair);
+  public void test_OO_Bundle() {
+    Pair<String, ExternalIdBundle> object = Pair.of("Hello", ExternalIdBundle.of(ExternalId.of("A", "B")));
+    assertEncodeDecodeCycle(Pair.class, object);
   }
 
-//  public void test_OO_UniqueIdentifier() {
-//    Pair<String, UniqueIdentifier> pair = Pair.of("Hello", UniqueIdentifier.of("A", "B"));
-//    testFudgeMessage(pair);
+//  public void test_OO_UniqueId() {
+//    Pair<String, UniqueId> object = Pair.of("Hello", UniqueId.of("A", "B"));
+//    assertEncodeDecodeCycle(Pair.class, object);
 //  }
 
   public void test_OO_null() {
-    Pair<String, UniqueIdentifier> pair = Pair.of("Hello", null);
-    testFudgeMessage(pair);
+    Pair<String, UniqueId> object = Pair.of("Hello", null);
+    assertEncodeDecodeCycle(Pair.class, object);
   }
 
 //  public void test_LO() {
-//    Pair<Long, UniqueIdentifier> pair = LongObjectPair.of(23L, UniqueIdentifier.of("A", "B"));
-//    testFudgeMessage(pair);
+//    Pair<Long, UniqueId> object = LongObjectPair.of(23L, UniqueId.of("A", "B"));
+//    assertEncodeDecodeCycle(Pair.class, object);
 //  }
 
   public void test_LD() {
-    Pair<Long, Double> pair = LongDoublePair.of(23L, 4.5d);
-    testFudgeMessage(pair);
+    Pair<Long, Double> object = LongDoublePair.of(23L, 4.5d);
+    assertEncodeDecodeCycle(Pair.class, object);
   }
 
 //  public void test_IO() {
-//    Pair<Integer, UniqueIdentifier> pair = IntObjectPair.of(23, UniqueIdentifier.of("A", "B"));
-//    testFudgeMessage(pair);
+//    Pair<Integer, UniqueId> object = IntObjectPair.of(23, UniqueId.of("A", "B"));
+//    assertEncodeDecodeCycle(Pair.class, object);
 //  }
 
   public void test_ID() {
-    Pair<Integer, Double> pair = IntDoublePair.of(23, 4.5d);
-    testFudgeMessage(pair);
+    Pair<Integer, Double> object = IntDoublePair.of(23, 4.5d);
+    assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_DD() {
-    Pair<Double, Double> pair = DoublesPair.of(23.2, 4.5d);
-    testFudgeMessage(pair);
-  }
-  
-  public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
-    Pair<Tenor, Tenor> pair = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
-    testFudgeMessage(pair);
+    Pair<Double, Double> object = DoublesPair.of(23.2, 4.5d);
+    assertEncodeDecodeCycle(Pair.class, object);
   }
 
-  private void testFudgeMessage(final Pair<?, ?> pair) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeMsg msg = context.objectToFudgeMsg(pair);
-    s_logger.debug("Paging {}", pair);
-    s_logger.debug("Encoded to {}", msg);
-    final byte[] bytes = s_fudgeContext.toByteArray(msg);
-    msg = s_fudgeContext.deserialize(bytes).getMessage();
-    s_logger.debug("Serialised to {}", msg);
-    final Pair<?, ?> decoded = s_fudgeContext.fromFudgeMsg(Pair.class, msg);
-    s_logger.debug("Decoded to {}", decoded);
-    if (!pair.equals(decoded)) {
-      s_logger.warn("Expected {}", pair);
-      s_logger.warn("Received {}", decoded);
-      fail();
-    }
+  public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
+    Pair<Tenor, Tenor> object = Pair.of(Tenor.DAY, Tenor.WORKING_DAYS_IN_MONTH);
+    assertEncodeDecodeCycle(Pair.class, object);
   }
 
 }

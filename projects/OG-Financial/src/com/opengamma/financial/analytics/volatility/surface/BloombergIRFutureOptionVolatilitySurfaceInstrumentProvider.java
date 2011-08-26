@@ -19,8 +19,8 @@ import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 
 /**
  * 
@@ -28,7 +28,7 @@ import com.opengamma.id.Identifier;
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Number, Double> {
   private static BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
   static {
@@ -65,17 +65,17 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
   }
 
   @Override
-  public Identifier getInstrument(final Number futureOptionNumber, final Double strike) {
+  public ExternalId getInstrument(final Number futureOptionNumber, final Double strike) {
     throw new OpenGammaRuntimeException("Need a surface date to create an interest rate future option surface");
   }
 
   @Override
-  public Identifier getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
+  public ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futureOptionPrefix);
     ticker.append(createQuarterlyFutureOptions(futureOptionNumber.intValue(), strike, surfaceDate));
     ticker.append(_postfix);
-    return Identifier.of(SCHEME, ticker.toString());
+    return ExternalId.of(SCHEME, ticker.toString());
   }
 
   private String createQuarterlyFutureOptions(final int futureOptionNumber, final Double strike, final LocalDate surfaceDate) {

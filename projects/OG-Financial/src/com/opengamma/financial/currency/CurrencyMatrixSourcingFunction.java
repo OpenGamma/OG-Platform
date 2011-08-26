@@ -28,7 +28,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -53,7 +53,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     _currencyMatrixName = currencyMatrixName;
   }
 
-  private static Pair<Currency, Currency> parse(final UniqueIdentifier uniqueId) {
+  private static Pair<Currency, Currency> parse(final UniqueId uniqueId) {
     final int underscore = uniqueId.getValue().indexOf('_');
     final Currency source = Currency.of(uniqueId.getValue().substring(0, underscore));
     final Currency target = Currency.of(uniqueId.getValue().substring(underscore + 1));
@@ -114,7 +114,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     if (getCurrencyMatrix() == null) {
       return false;
     }
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+    if ((target.getType() != ComputationTargetType.PRIMITIVE) || (target.getUniqueId () == null)) {
       return false;
     }
     if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
@@ -220,6 +220,13 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
+  }
+  
+  public int getPriority() {
+    if (_currencyMatrixName.contains(CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA)) {
+      return -1;
+    }
+    return 0;
   }
 
 }

@@ -32,7 +32,7 @@ import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -56,7 +56,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   public FixedIncomeInstrumentConverter<?> visitCorporateBondSecurity(final CorporateBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
     Validate.notNull(domicile, "bond security domicile cannot be null");
-    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
+    final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
@@ -64,12 +64,12 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   public FixedIncomeInstrumentConverter<?> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
     Validate.notNull(domicile, "bond security domicile cannot be null");
-    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_TREASURY_BOND_CONVENTION"));
+    final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
   public FixedIncomeInstrumentConverter<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
-    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
     final Currency currency = security.getCurrency();
     final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();

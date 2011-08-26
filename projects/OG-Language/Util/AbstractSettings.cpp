@@ -77,14 +77,18 @@ CAbstractSettings::CAbstractSettings () {
 #ifndef DEFAULT_CONFIG_BASE
 #define DEFAULT_CONFIG_BASE		"/usr/local"
 #endif /* ifndef DEFAULT_CONFIG_BASE */
-	FILE *f = _OpenSettings (szSettingsLocation, getenv ("HOME"), TEXT (DEFAULT_CONFIG_FOLDER));
+	const TCHAR *pszConfig = getenv ("OG_LANGUAGE_CONFIG_PATH");
+	FILE *f = pszConfig ? _OpenSettings (szSettingsLocation, TEXT (""), pszConfig) : NULL;
 	if (!f) {
-		f = _OpenSettings (szSettingsLocation, TEXT (DEFAULT_CONFIG_BASE), TEXT (DEFAULT_CONFIG_FOLDER));
+		f = _OpenSettings (szSettingsLocation, getenv ("HOME"), TEXT (DEFAULT_CONFIG_FOLDER));
 		if (!f) {
-			f = _OpenSettings (szSettingsLocation, TEXT (""), TEXT (DEFAULT_CONFIG_FOLDER));
+			f = _OpenSettings (szSettingsLocation, TEXT (DEFAULT_CONFIG_BASE), TEXT (DEFAULT_CONFIG_FOLDER));
 			if (!f) {
-				LOGWARN (TEXT ("Couldn't open configuration file"));
-				return;
+				f = _OpenSettings (szSettingsLocation, TEXT (""), TEXT (DEFAULT_CONFIG_FOLDER));
+				if (!f) {
+					LOGWARN (TEXT ("Couldn't open configuration file"));
+					return;
+				}
 			}
 		}
 	}

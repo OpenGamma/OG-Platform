@@ -27,8 +27,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention UK_BUMP_DMO_METHOD = new SimpleYieldConvention("UK:BUMP/DMO METHOD");
   /**
-   * Dunno what this represents.
-   * 
+   * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
    */
   public static final YieldConvention US_IL_REAL = new SimpleYieldConvention("US I/L real");
   /**
@@ -59,6 +58,10 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * US short duration T-bill.
    */
   public static final YieldConvention DISCOUNT = new SimpleYieldConvention("DISCOUNT");
+  /**
+   * Some bonds have this code.
+   */
+  public static final YieldConvention STEP_FLOATER = new SimpleYieldConvention("STEP FLOATER"); // TODO: check if real yield convention
 
   /**
    * The convention name.

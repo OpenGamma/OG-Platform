@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -24,19 +24,19 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
   private final ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>> _values = new ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>>();
   private final ConcurrentHashMap<Currency, AtomicInteger> _targets = new ConcurrentHashMap<Currency, AtomicInteger>();
 
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
 
   // MutableUniqueIdentifiable
 
   @Override
-  public void setUniqueId(final UniqueIdentifier uniqueId) {
+  public void setUniqueId(final UniqueId uniqueId) {
     _uniqueId = uniqueId;
   }
 
   // UniqueIdentifiable
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 

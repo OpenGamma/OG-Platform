@@ -10,7 +10,7 @@ import java.util.Map;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -20,6 +20,9 @@ import com.opengamma.util.money.Currency;
  * A trade is fundamentally a quantity of a security.
  * It differs from a position in that it represents a real transaction with a
  * counterparty at an instant in time.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface Trade extends PositionOrTrade {
@@ -29,7 +32,7 @@ public interface Trade extends PositionOrTrade {
    * 
    * @return the unique identifier of the parent position, null if not attached to a position
    */
-  UniqueIdentifier getParentPositionId();
+  UniqueId getParentPositionId();
 
   /**
    * Gets the counterparty associated with the trade.

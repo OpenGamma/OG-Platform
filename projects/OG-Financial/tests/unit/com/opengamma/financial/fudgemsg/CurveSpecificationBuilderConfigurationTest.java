@@ -6,9 +6,10 @@
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;

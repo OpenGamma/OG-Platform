@@ -11,8 +11,8 @@ import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.math.rootfinding.RealSingleRootFinder;
 
 /**
  * A calculator to determine the upper limit of the Fourier integral for a characteristic function {@latex.inline $\\phi$}.

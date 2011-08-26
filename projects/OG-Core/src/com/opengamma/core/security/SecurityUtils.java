@@ -13,64 +13,68 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Utilities and constants for securities.
+ * Utilities and constants for {@code Security}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 @PublicAPI
 public class SecurityUtils {
-  private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class); 
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityUtils.class);
 
   /**
    * Identification scheme for the ISIN code.
    */
-  public static final IdentificationScheme ISIN = IdentificationScheme.of("ISIN");
+  public static final ExternalScheme ISIN = ExternalScheme.of("ISIN");
   /**
    * Identification scheme for the CUSIP code.
    */
-  public static final IdentificationScheme CUSIP = IdentificationScheme.of("CUSIP");
+  public static final ExternalScheme CUSIP = ExternalScheme.of("CUSIP");
   /**
    * Identification scheme for SEDOL1.
    */
-  public static final IdentificationScheme SEDOL1 = IdentificationScheme.of("SEDOL1");
+  public static final ExternalScheme SEDOL1 = ExternalScheme.of("SEDOL1");
   /**
    * Identification scheme for Bloomberg BUIDs.
    */
-  public static final IdentificationScheme BLOOMBERG_BUID = IdentificationScheme.of("BLOOMBERG_BUID");
+  public static final ExternalScheme BLOOMBERG_BUID = ExternalScheme.of("BLOOMBERG_BUID");
   /**
    * Identification scheme for weak Bloomberg BUIDs.
    * A weak ID permits the underlying market data to return old data. 
    */
-  public static final IdentificationScheme BLOOMBERG_BUID_WEAK = IdentificationScheme.of("BLOOMBERG_BUID_WEAK");
+  public static final ExternalScheme BLOOMBERG_BUID_WEAK = ExternalScheme.of("BLOOMBERG_BUID_WEAK");
   /**
    * Identification scheme for Bloomberg tickers.
    */
-  public static final IdentificationScheme BLOOMBERG_TICKER = IdentificationScheme.of("BLOOMBERG_TICKER");
+  public static final ExternalScheme BLOOMBERG_TICKER = ExternalScheme.of("BLOOMBERG_TICKER");
   /**
    * Identification scheme for weak Bloomberg tickers.
    * A weak ID permits the underlying market data to return old data. 
    */
-  public static final IdentificationScheme BLOOMBERG_TICKER_WEAK = IdentificationScheme.of("BLOOMBERG_TICKER_WEAK");
+  public static final ExternalScheme BLOOMBERG_TICKER_WEAK = ExternalScheme.of("BLOOMBERG_TICKER_WEAK");
   /**
    * Identification scheme for Bloomberg tickers.
    */
-  public static final IdentificationScheme BLOOMBERG_TCM = IdentificationScheme.of("BLOOMBERG_TCM");
+  public static final ExternalScheme BLOOMBERG_TCM = ExternalScheme.of("BLOOMBERG_TCM");
   /**
    * Identification scheme for Reuters RICs.
    */
-  public static final IdentificationScheme RIC = IdentificationScheme.of("RIC");
+  public static final ExternalScheme RIC = ExternalScheme.of("RIC");
   /**
    * Identification scheme for ActivFeed tickers.
    */
-  public static final IdentificationScheme ACTIVFEED_TICKER = IdentificationScheme.of("ACTIVFEED_TICKER");
+  public static final ExternalScheme ACTIVFEED_TICKER = ExternalScheme.of("ACTIVFEED_TICKER");
   /**
    * Identification scheme for OpenGamma synthetic instruments.
    */
-  public static final IdentificationScheme OG_SYNTHETIC_TICKER = IdentificationScheme.of("OG_SYNTHETIC_TICKER");
+  public static final ExternalScheme OG_SYNTHETIC_TICKER = ExternalScheme.of("OG_SYNTHETIC_TICKER");
 
   /**
    * Restricted constructor.
@@ -90,15 +94,15 @@ public class SecurityUtils {
    * @param code  the ISIN code, not null
    * @return the security identifier, not null
    */
-  public static Identifier isinSecurityId(final String code) {
+  public static ExternalId isinSecurityId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.length() == 0) {
       throw new IllegalArgumentException("ISIN code is invalid: " + code);
     }
-//    if (code.matches("[A-Z]{2}[A-Z0-9]{9}[0-9]") == false) {
-//      throw new IllegalArgumentException("ISIN code is invalid: " + code);
-//    }
-    return Identifier.of(ISIN, code);
+    //    if (code.matches("[A-Z]{2}[A-Z0-9]{9}[0-9]") == false) {
+    //      throw new IllegalArgumentException("ISIN code is invalid: " + code);
+    //    }
+    return ExternalId.of(ISIN, code);
   }
 
   /**
@@ -111,15 +115,15 @@ public class SecurityUtils {
    * @param code  the CUSIP code, not null
    * @return the security identifier, not null
    */
-  public static Identifier cusipSecurityId(final String code) {
+  public static ExternalId cusipSecurityId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.length() == 0) {
       throw new IllegalArgumentException("CUSIP code is invalid: " + code);
     }
-//    if (code.matches("[A-Z0-9]{8}[0-9]?") == false) {
-//      throw new IllegalArgumentException("CUSIP code is invalid: " + code);
-//    }
-    return Identifier.of(CUSIP, code);
+    //    if (code.matches("[A-Z0-9]{8}[0-9]?") == false) {
+    //      throw new IllegalArgumentException("CUSIP code is invalid: " + code);
+    //    }
+    return ExternalId.of(CUSIP, code);
   }
 
   /**
@@ -132,15 +136,15 @@ public class SecurityUtils {
    * @param code  the SEDOL code, not null
    * @return the security identifier, not null
    */
-  public static Identifier sedol1SecurityId(final String code) {
+  public static ExternalId sedol1SecurityId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.length() == 0) {
       throw new IllegalArgumentException("SEDOL1 code is invalid: " + code);
     }
-//    if (code.matches("[A-Z0-9]{6}[0-9]?") == false) {
-//      throw new IllegalArgumentException("SEDOL1 code is invalid: " + code);
-//    }
-    return Identifier.of(SEDOL1, code);
+    //    if (code.matches("[A-Z0-9]{6}[0-9]?") == false) {
+    //      throw new IllegalArgumentException("SEDOL1 code is invalid: " + code);
+    //    }
+    return ExternalId.of(SEDOL1, code);
   }
 
   /**
@@ -152,12 +156,12 @@ public class SecurityUtils {
    * @param code  the Bloomberg BIUD code, not null
    * @return the security identifier, not null
    */
-  public static Identifier bloombergBuidSecurityId(final String code) {
+  public static ExternalId bloombergBuidSecurityId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.length() == 0) {
       throw new IllegalArgumentException("BUID code is invalid: " + code);
     }
-    return Identifier.of(BLOOMBERG_BUID, code);
+    return ExternalId.of(BLOOMBERG_BUID, code);
   }
 
   /**
@@ -169,14 +173,14 @@ public class SecurityUtils {
    * @param ticker  the Bloomberg ticker, not null
    * @return the security identifier, not null
    */
-  public static Identifier bloombergTickerSecurityId(final String ticker) {
+  public static ExternalId bloombergTickerSecurityId(final String ticker) {
     ArgumentChecker.notNull(ticker, "code");
     if (ticker.length() == 0) {
       throw new IllegalArgumentException("Ticker is invalid: " + ticker);
     }
-    return Identifier.of(BLOOMBERG_TICKER, ticker);
+    return ExternalId.of(BLOOMBERG_TICKER, ticker);
   }
-  
+
   /**
    * Creates a Bloomberg ticker coupon maturity identifier.
    * <p>
@@ -189,7 +193,7 @@ public class SecurityUtils {
    * @param marketSector  the sector, not null
    * @return the security identifier, not null
    */
-  public static Identifier bloombergTCMSecurityId(final String tickerWithoutSector, final String coupon, final String maturity, final String marketSector) {
+  public static ExternalId bloombergTCMSecurityId(final String tickerWithoutSector, final String coupon, final String maturity, final String marketSector) {
     ArgumentChecker.notNull(tickerWithoutSector, "tickerWithoutSector");
     ArgumentChecker.notNull(coupon, "coupon");
     ArgumentChecker.notNull(maturity, "maturity");
@@ -219,9 +223,9 @@ public class SecurityUtils {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       } catch (CalendricalException ce) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
-      }  
+      }
     }
-    return Identifier.of(BLOOMBERG_TCM, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
+    return ExternalId.of(BLOOMBERG_TCM, tickerWithoutSector + " " + couponDbl + " " + maturity + " " + marketSector);
   }
 
   /**
@@ -233,14 +237,14 @@ public class SecurityUtils {
    * @param code  the BIUD code, not null
    * @return the security identifier, not null
    */
-  public static Identifier ricSecurityId(final String code) {
+  public static ExternalId ricSecurityId(final String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.length() == 0) {
       throw new IllegalArgumentException("RIC code is invalid: " + code);
     }
-    return Identifier.of(RIC, code);
+    return ExternalId.of(RIC, code);
   }
-  
+
   /**
    * Creates an ActivFeed ticker.
    * <p>
@@ -250,12 +254,12 @@ public class SecurityUtils {
    * @param ticker  the ActivFeed ticker, not null
    * @return the security identifier, not null
    */
-  public static Identifier activFeedTickerSecurityId(final String ticker) {
+  public static ExternalId activFeedTickerSecurityId(final String ticker) {
     ArgumentChecker.notNull(ticker, "code");
     if (ticker.length() == 0) {
       throw new IllegalArgumentException("Ticker is invalid: " + ticker);
     }
-    return Identifier.of(ACTIVFEED_TICKER, ticker);
+    return ExternalId.of(ACTIVFEED_TICKER, ticker);
   }
 
 }

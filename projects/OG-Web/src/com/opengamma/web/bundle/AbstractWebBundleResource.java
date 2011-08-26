@@ -16,7 +16,7 @@ import com.opengamma.web.AbstractWebResource;
 /**
  * Abstract base class for RESTful bundle resources.
  */
-public class AbstractWebBundleResource extends AbstractWebResource {
+public abstract class AbstractWebBundleResource extends AbstractWebResource {
 
   /**
    * The backing bean.

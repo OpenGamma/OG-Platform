@@ -5,55 +5,30 @@
  */
 package com.opengamma.util.fudgemsg;
 
-import static org.testng.AssertJUnit.fail;
-
 import javax.time.Instant;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class VersionCorrectionFudgeEncodingTest {
+public class VersionCorrectionFudgeEncodingTest extends AbstractBuilderTestCase {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(VersionCorrectionFudgeEncodingTest.class);
-  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final Instant INSTANT1 = Instant.ofEpochSeconds(1);
   private static final Instant INSTANT2 = Instant.ofEpochSeconds(2);
 
-  public void test() {
+  public void test_instants() {
     VersionCorrection object = VersionCorrection.of(INSTANT1, INSTANT2);
-    testFudgeMessage(object);
+    assertEncodeDecodeCycle(VersionCorrection.class, object);
   }
 
-  public void testLatest() {
+  public void test_latest() {
     VersionCorrection object = VersionCorrection.LATEST;
-    testFudgeMessage(object);
-  }
-
-  private void testFudgeMessage(final VersionCorrection object) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeMsg msg = context.objectToFudgeMsg(object);
-    s_logger.debug("Paging {}", object);
-    s_logger.debug("Encoded to {}", msg);
-    final byte[] bytes = s_fudgeContext.toByteArray(msg);
-    msg = s_fudgeContext.deserialize(bytes).getMessage();
-    s_logger.debug("Serialised to {}", msg);
-    final VersionCorrection decoded = s_fudgeContext.fromFudgeMsg(VersionCorrection.class, msg);
-    s_logger.debug("Decoded to {}", decoded);
-    if (!object.equals(decoded)) {
-      s_logger.warn("Expected {}", object);
-      s_logger.warn("Received {}", decoded);
-      fail();
-    }
+    assertEncodeDecodeCycle(VersionCorrection.class, object);
   }
 
 }

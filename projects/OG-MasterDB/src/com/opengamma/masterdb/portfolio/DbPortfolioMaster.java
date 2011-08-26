@@ -26,9 +26,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -41,10 +41,10 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -63,7 +63,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
   private static final Logger s_logger = LoggerFactory.getLogger(DbPortfolioMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbPrt";
   /**
@@ -111,8 +111,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     s_logger.debug("search {}", request);
     
     final PortfolioSearchResult result = new PortfolioSearchResult();
-    if ((request.getPortfolioIds() != null && request.getPortfolioIds().size() == 0) ||
-        (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
+    if ((request.getPortfolioObjectIds() != null && request.getPortfolioObjectIds().size() == 0) ||
+        (request.getNodeObjectIds() != null && request.getNodeObjectIds().size() == 0)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -138,18 +138,18 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     if (request.getName() != null) {
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
-    if (request.getPortfolioIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getPortfolioIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getPortfolioIds()) {
+    if (request.getPortfolioObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getPortfolioObjectIds().size() * 10);
+      for (ObjectId objectId : request.getPortfolioObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getNodeIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getNodeIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getNodeIds()) {
+    if (request.getNodeObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getNodeObjectIds().size() * 10);
+      for (ObjectId objectId : request.getNodeObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -170,7 +170,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
 
   //-------------------------------------------------------------------------
   @Override
-  public PortfolioDocument get(final UniqueIdentifier uniqueId) {
+  public PortfolioDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new PortfolioDocumentExtractor(true), "Portfolio");
   }
 
@@ -221,7 +221,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     
     final Long portfolioId = nextId("prt_master_seq");
     final Long portfolioOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : portfolioId);
-    final UniqueIdentifier portfolioUid = createUniqueIdentifier(portfolioOid, portfolioId);
+    final UniqueId portfolioUid = createUniqueId(portfolioOid, portfolioId);
     
     // the arguments for inserting into the portfolio table
     final DbMapSqlParameterSource portfolioArgs = new DbMapSqlParameterSource()
@@ -265,14 +265,14 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    * @param posList  the list of arguments to for inserting positions, not null
    */
   protected void insertBuildArgs(
-      final UniqueIdentifier portfolioUid, final UniqueIdentifier parentNodeUid,
+      final UniqueId portfolioUid, final UniqueId parentNodeUid,
       final ManageablePortfolioNode node, final boolean update,
       final Long portfolioId, final Long portfolioOid, final Long parentNodeId, final Long parentNodeOid,
       final AtomicInteger counter, final int depth, final List<DbMapSqlParameterSource> argsList, final List<DbMapSqlParameterSource> posList) {
     // need to insert parent before children for referential integrity
     final Long nodeId = nextId("prt_master_seq");
     final Long nodeOid = (update && node.getUniqueId() != null ? extractOid(node.getUniqueId()) : nodeId);
-    UniqueIdentifier nodeUid = createUniqueIdentifier(nodeOid, nodeId);
+    UniqueId nodeUid = createUniqueId(nodeOid, nodeId);
     node.setUniqueId(nodeUid);
     node.setParentNodeId(parentNodeUid);
     node.setPortfolioId(portfolioUid);
@@ -288,10 +288,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     argsList.add(treeArgs);
     
     // store position links
-    Set<ObjectIdentifier> positionIds = new LinkedHashSet<ObjectIdentifier>(node.getPositionIds());
+    Set<ObjectId> positionIds = new LinkedHashSet<ObjectId>(node.getPositionIds());
     node.getPositionIds().clear();
     node.getPositionIds().addAll(positionIds);
-    for (ObjectIdentifier positionId : positionIds) {
+    for (ObjectId positionId : positionIds) {
       final DbMapSqlParameterSource posArgs = new DbMapSqlParameterSource()
         .addValue("node_id", nodeId)
         .addValue("key_scheme", positionId.getScheme())
@@ -344,7 +344,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
 
   //-------------------------------------------------------------------------
   @Override
-  public ManageablePortfolioNode getNode(final UniqueIdentifier uniqueId) {
+  public ManageablePortfolioNode getNode(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
     
@@ -363,7 +363,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    * @param correctedTo  the instant to fetch, not null
    * @return the node, null if not found
    */
-  protected ManageablePortfolioNode getNodeByInstants(final UniqueIdentifier uniqueId, final Instant versionAsOf, final Instant correctedTo) {
+  protected ManageablePortfolioNode getNodeByInstants(final UniqueId uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getNodeByLatest {}", uniqueId);
     final Instant now = now();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
@@ -404,7 +404,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    * @param uniqueId  the unique identifier, not null
    * @return the node, null if not found
    */
-  protected ManageablePortfolioNode getNodeById(final UniqueIdentifier uniqueId) {
+  protected ManageablePortfolioNode getNodeById(final UniqueId uniqueId) {
     s_logger.debug("getNodeById {}", uniqueId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("node_id", extractRowId(uniqueId));
@@ -484,7 +484,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         final String posIdScheme = rs.getString("POS_KEY_SCHEME");
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
-          UniqueIdentifier id = UniqueIdentifier.of(posIdScheme, posIdValue);
+          UniqueId id = UniqueId.of(posIdScheme, posIdValue);
           _node.addPosition(id);
         }
       }
@@ -499,7 +499,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = StringUtils.defaultString(rs.getString("PORTFOLIO_NAME"));
       _portfolio = new ManageablePortfolio(name);
-      _portfolio.setUniqueId(createUniqueIdentifier(portfolioOid, portfolioId));
+      _portfolio.setUniqueId(createUniqueId(portfolioOid, portfolioId));
       final PortfolioDocument doc = new PortfolioDocument(_portfolio);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
@@ -515,14 +515,14 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       final long treeRight = rs.getLong("TREE_RIGHT");
       final String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
       _node = new ManageablePortfolioNode(name);
-      _node.setUniqueId(createUniqueIdentifier(nodeOid, nodeId));
+      _node.setUniqueId(createUniqueId(nodeOid, nodeId));
       _node.setPortfolioId(_portfolio.getUniqueId());
       if (_nodes.size() == 0) {
         if (_complete == false) {
           final Long parentNodeId = (Long) rs.getObject("PARENT_NODE_ID");
           final Long parentNodeOid = (Long) rs.getObject("PARENT_NODE_OID");
           if (parentNodeId != null && parentNodeOid != null) {
-            _node.setParentNodeId(createUniqueIdentifier(parentNodeOid, parentNodeId));
+            _node.setParentNodeId(createUniqueId(parentNodeOid, parentNodeId));
           }
         }
         _portfolio.setRootNode(_node);

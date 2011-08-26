@@ -24,18 +24,18 @@ public interface CompiledFunctionRepository {
   FunctionCompilationContext getCompilationContext();
 
   /**
-   * Returns the earliest time at which all functions can be successfully executed, or {@code null}
-   * if no functions have a limit.
+   * Returns the earliest time at which all functions can be successfully executed,
+   * null if no functions have a limit.
    * 
-   * @return timestamp, not {@code null}.
+   * @return the earliest timestamp, not null
    */
   Instant getEarliestInvocationTime();
 
   /**
-   * Returns the latest time at which all functions can be successfully executed, or {@code null}
-   * if no functions have a limit.
+   * Returns the latest time at which all functions can be successfully executed,
+   * null if no functions have a limit.
    * 
-   * @return timestamp, not {@code null}.
+   * @return the latest timestamp, not null
    */
   Instant getLatestInvocationTime();
 

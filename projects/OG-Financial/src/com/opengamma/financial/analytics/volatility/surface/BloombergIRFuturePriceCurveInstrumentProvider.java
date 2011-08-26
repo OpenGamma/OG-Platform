@@ -19,8 +19,8 @@ import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 
 /**
  * 
@@ -28,7 +28,7 @@ import com.opengamma.id.Identifier;
 public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
   private static BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final IdentificationScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
   static {
@@ -62,17 +62,17 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
   }
 
   @Override
-  public Identifier getInstrument(final Number futureNumber) {
+  public ExternalId getInstrument(final Number futureNumber) {
     throw new OpenGammaRuntimeException("Need a surface date to create an interest rate future option surface");
   }
 
   @Override
-  public Identifier getInstrument(final Number futureNumber, final LocalDate surfaceDate) {
+  public ExternalId getInstrument(final Number futureNumber, final LocalDate surfaceDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futurePrefix);
     ticker.append(createQuarterlyFutures(futureNumber.intValue(), surfaceDate));
     ticker.append(_postfix);
-    return Identifier.of(SCHEME, ticker.toString());
+    return ExternalId.of(SCHEME, ticker.toString());
   }
 
   private String createQuarterlyFutures(final int futureNumber, final LocalDate surfaceDate) {

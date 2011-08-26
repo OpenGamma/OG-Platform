@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 
 /**
  * Provides instruments for each point on the surface
@@ -18,9 +18,9 @@ public interface SurfaceInstrumentProvider<X, Y> {
 
   //TODO in general, each instrument type will need a different set of inputs - not sure how helpful this class actually is
 
-  Identifier getInstrument(X xAxis, Y yAxis);
+  ExternalId getInstrument(X xAxis, Y yAxis);
 
-  Identifier getInstrument(X xAxis, Y yAxis, LocalDate surfaceDate);
+  ExternalId getInstrument(X xAxis, Y yAxis, LocalDate surfaceDate);
 
   String getDataFieldName();
 }

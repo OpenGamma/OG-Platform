@@ -31,7 +31,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -73,8 +73,8 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final Security security = target.getSecurity();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries tsObject = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
-        .toLocalDate(), false);
+    final HistoricalTimeSeries tsObject = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSource, _dataProvider,
+        _field, _startDate, true, now.toLocalDate(), true);
     if (tsObject == null) {
       throw new NullPointerException("Could not get time series for " + security.getIdentifiers());
     }
@@ -117,7 +117,7 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final UniqueIdentifier uid = target.getSecurity().getUniqueId();
+      final UniqueId uid = target.getSecurity().getUniqueId();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()));
       results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));

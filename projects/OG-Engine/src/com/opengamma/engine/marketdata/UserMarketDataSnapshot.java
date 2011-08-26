@@ -36,8 +36,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -54,7 +54,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
   private static final Map<String, StructuredMarketDataKeyFactory> s_structuredKeyFactories = new HashMap<String, StructuredMarketDataKeyFactory>();
   
   private final MarketDataSnapshotSource _snapshotSource;
-  private final UniqueIdentifier _snapshotId;
+  private final UniqueId _snapshotId;
   private StructuredMarketDataSnapshot _snapshot;
   
   /**
@@ -66,24 +66,24 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     /**
      * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
      * 
-     * @param valueRequirement  the value requirement, not {@code null}
-     * @return the structured market data key, or {@code null} if the value requirement does not correspond to a key
+     * @param valueRequirement  the value requirement, not null
+     * @return the structured market data key, null if the value requirement does not correspond to a key
      */
     public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
     
     protected Currency getCurrency(ValueRequirement valueRequirement) {
-      UniqueIdentifier targetId = getTarget(valueRequirement);
+      UniqueId targetId = getTarget(valueRequirement);
       if (targetId == null) {
         return null;
       }
-      if (!Currency.OBJECT_IDENTIFIER_SCHEME.equals(targetId.getScheme())) {
+      if (!Currency.OBJECT_SCHEME.equals(targetId.getScheme())) {
         return null;
       }
       Currency currency = Currency.of(targetId.getValue());
       return currency;
     }
     
-    protected UniqueIdentifier getTarget(ValueRequirement valueRequirement) {
+    protected UniqueId getTarget(ValueRequirement valueRequirement) {
       if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
         return null;
       }
@@ -147,7 +147,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     });
   }
   
-  public UserMarketDataSnapshot(MarketDataSnapshotSource snapshotSource, UniqueIdentifier snapshotId) {
+  public UserMarketDataSnapshot(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     _snapshotSource = snapshotSource;
     _snapshotId = snapshotId;
   }
@@ -313,7 +313,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
     return _snapshotSource;
   }
   
-  private UniqueIdentifier getSnapshotId() {
+  private UniqueId getSnapshotId() {
     return _snapshotId;
   }
   
@@ -335,7 +335,7 @@ public class UserMarketDataSnapshot implements MarketDataSnapshot {
 
   private SnapshotDataBundle buildBundle(UnstructuredMarketDataSnapshot values) {
     SnapshotDataBundle ret = new SnapshotDataBundle();
-    HashMap<UniqueIdentifier, Double> points = new HashMap<UniqueIdentifier, Double>();
+    HashMap<UniqueId, Double> points = new HashMap<UniqueId, Double>();
     for (Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
       Double value = query(entry.getValue().get(MarketDataRequirementNames.MARKET_VALUE));
       points.put(entry.getKey().getUniqueId(), value);

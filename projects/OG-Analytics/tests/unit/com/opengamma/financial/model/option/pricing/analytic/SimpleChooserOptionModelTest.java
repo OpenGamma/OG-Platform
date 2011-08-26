@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -19,7 +21,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -27,9 +29,9 @@ import com.opengamma.util.time.Expiry;
  */
 public class SimpleChooserOptionModelTest {
   private static final double EPS = 1e-4;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry CHOOSE_DATE = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25));
-  private static final Expiry UNDERLYING_EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry CHOOSE_DATE = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.25));
+  private static final Expiry UNDERLYING_EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final double STRIKE = 50;
   private static final double SPOT = 50;
   private static final SimpleChooserOptionDefinition DEFINITION = new SimpleChooserOptionDefinition(CHOOSE_DATE, STRIKE, UNDERLYING_EXPIRY);

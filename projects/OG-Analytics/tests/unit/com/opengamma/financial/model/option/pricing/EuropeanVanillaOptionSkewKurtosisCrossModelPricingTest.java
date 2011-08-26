@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.model.option.pricing;
 
-import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -20,7 +21,7 @@ import com.opengamma.financial.model.option.pricing.analytic.ModifiedCorradoSuSk
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -28,8 +29,8 @@ import com.opengamma.util.time.Expiry;
  */
 public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
   private static final Double STRIKE = 9.5;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   @SuppressWarnings("unused")
   private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.08, new VolatilitySurface(
       ConstantDoublesSurface.from(0.3)), 10., DATE, 0., 3.);

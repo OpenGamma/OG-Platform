@@ -5,13 +5,15 @@
  */
 package com.opengamma.core.exchange;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Utilities and constants for exchanges.
+ * Utilities and constants for {@code Exchange}.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 @PublicAPI
 public class ExchangeUtils {
@@ -19,7 +21,7 @@ public class ExchangeUtils {
   /**
    * Identification scheme for the MIC exchange code ISO standard.
    */
-  public static final IdentificationScheme ISO_MIC = IdentificationScheme.of("ISO_MIC");
+  public static final ExternalScheme ISO_MIC = ExternalScheme.of("ISO_MIC");
 
   /**
    * Restricted constructor.
@@ -36,12 +38,12 @@ public class ExchangeUtils {
    * @param code  the code, not null
    * @return the region identifier, not null
    */
-  public static Identifier isoMicExchangeId(String code) {
+  public static ExternalId isoMicExchangeId(String code) {
     ArgumentChecker.notNull(code, "code");
     if (code.matches("[A-Z0-9]{4}([-][A-Z0-9]{3})?") == false) {
       throw new IllegalArgumentException("ISO MIC code is invalid: " + code);
     }
-    return Identifier.of(ISO_MIC, code);
+    return ExternalId.of(ISO_MIC, code);
   }
 
 }

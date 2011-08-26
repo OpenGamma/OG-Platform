@@ -38,14 +38,19 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
 /**
@@ -106,7 +111,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private URI updateSecurity(SecurityDocument doc) {
-    IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
+    ExternalIdBundle identifierBundle = doc.getSecurity().getIdentifiers();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
     return WebSecurityResource.uri(data());
   }
@@ -151,7 +156,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
-    if (security.getSecurityType().equals("SWAP")) {
+    if (security.getSecurityType().equals(SwapSecurity.SECURITY_TYPE)) {
       SwapSecurity swapSecurity = (SwapSecurity) security;
       out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
       out.put("receiveLegType", swapSecurity.getReceiveLeg().accept(new SwapLegClassifierVisitor()));
@@ -161,15 +166,30 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       out.put("futureSecurityType", futureSecurity.accept(new FutureSecurityTypeVisitor()));
       out.put("basket", getBondFutureBasket(security));
     }
+    if (security.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
+      EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
+      out.put("underlyingSecurity", getSecurity(equityOption.getUnderlyingIdentifier()));
+    }
   }
   
+  private ManageableSecurity getSecurity(ExternalId underlyingIdentifier) {
+    if (underlyingIdentifier == null) {
+      return null;
+    }
+    SecurityMaster securityMaster = data().getSecurityMaster();
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addExternalId(underlyingIdentifier);
+    SecuritySearchResult search = securityMaster.search(request);
+    return search.getFirstSecurity();
+  }
+
   private Map<String, Double> getBondFutureBasket(ManageableSecurity security) {
     Map<String, Double> result = Maps.newHashMap();
     if (security instanceof BondFutureSecurity) {
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
-        String identifierValue = bondFutureDeliverable.getIdentifiers().getIdentifierValue(SecurityUtils.BLOOMBERG_BUID);
+        String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
         result.put("BLOOMBERG BUID - " + identifierValue, bondFutureDeliverable.getConversionFactor());
       }
     }
@@ -264,7 +284,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * @param overrideSecurityId  the override security id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebSecuritiesData data, final UniqueIdentifier overrideSecurityId) {
+  public static URI uri(final WebSecuritiesData data, final UniqueId overrideSecurityId) {
     String securityId = data.getBestSecurityUriId(overrideSecurityId);
     return data.getUriInfo().getBaseUriBuilder().path(WebSecurityResource.class).build(securityId);
   }

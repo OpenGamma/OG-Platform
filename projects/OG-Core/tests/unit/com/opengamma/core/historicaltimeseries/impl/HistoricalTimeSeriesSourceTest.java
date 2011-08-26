@@ -22,10 +22,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -33,7 +31,7 @@ import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test HistoricalTimeSeriesSource.
+ * Test {@link HistoricalTimeSeriesSource}.
  */
 @Test
 public class HistoricalTimeSeriesSourceTest {
@@ -88,15 +86,15 @@ public class HistoricalTimeSeriesSourceTest {
     return id;
   }
 
-  private IdentifierBundle makeDomainSpecificIdentifiers() {
-    return IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId(makeUniqueRandomId()), SecurityUtils.bloombergBuidSecurityId(makeUniqueRandomId()));
+  private ExternalIdBundle makeBundle() {
+    return ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(makeUniqueRandomId()), SecurityUtils.bloombergBuidSecurityId(makeUniqueRandomId()));
   }
 
-  private Pair<HistoricalTimeSeriesSource, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
+  private Pair<HistoricalTimeSeriesSource, Set<ExternalIdBundle>> buildAndTestInMemoryProvider() {
     MockHistoricalTimeSeriesSource inMemoryHistoricalSource = new MockHistoricalTimeSeriesSource();
-    Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
+    Map<ExternalIdBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<ExternalIdBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i = 0; i < 100; i++) {
-      IdentifierBundle ids = makeDomainSpecificIdentifiers();
+      ExternalIdBundle ids = makeBundle();
       Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>> dsidsSubMap = map.get(ids);
       if (dsidsSubMap == null) {
         dsidsSubMap = new HashMap<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>();
@@ -122,7 +120,7 @@ public class HistoricalTimeSeriesSourceTest {
         }
       }
     }
-    for (IdentifierBundle dsids : map.keySet()) {
+    for (ExternalIdBundle dsids : map.keySet()) {
       for (String dataSource : new String[] {"BLOOMBERG", "REUTERS", "JPM"}) {
         for (String dataProvider : new String[] {"UNKNOWN", "CMPL", "CMPT"}) {
           for (String field : new String[] {"PX_LAST", "VOLUME"}) {
@@ -142,16 +140,16 @@ public class HistoricalTimeSeriesSourceTest {
   }
 
   public void testEHCachingHistoricalTimeSeriesSource() {
-    Pair<HistoricalTimeSeriesSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
+    Pair<HistoricalTimeSeriesSource, Set<ExternalIdBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalTimeSeriesSource inMemoryHistoricalSource = providerAndDsids.getFirst();
     EHCachingHistoricalTimeSeriesSource cachedProvider = new EHCachingHistoricalTimeSeriesSource(inMemoryHistoricalSource, EHCacheUtils.createCacheManager());
-    Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
-    IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
+    Set<ExternalIdBundle> identifiers = providerAndDsids.getSecond();
+    ExternalIdBundle[] dsids = identifiers.toArray(new ExternalIdBundle[] {});
     String[] dataSources = new String[] {"BLOOMBERG", "REUTERS", "JPM"};
     String[] dataProviders = new String[] {"UNKNOWN", "CMPL", "CMPT"};
     String[] fields = new String[] {"PX_LAST", "VOLUME"};
     for (int i = 0; i < 10000; i++) {
-      IdentifierBundle ids = dsids[random(dsids.length)];
+      ExternalIdBundle ids = dsids[random(dsids.length)];
       String dataSource = dataSources[random(dataSources.length)];
       String dataProvider = dataProviders[random(dataProviders.length)];
       String field = fields[random(fields.length)];
@@ -160,7 +158,8 @@ public class HistoricalTimeSeriesSourceTest {
       assertEquals(inMemSeries, cachedSeries);
       assertEquals(inMemoryHistoricalSource.getHistoricalTimeSeries(inMemSeries.getUniqueId()), cachedProvider.getHistoricalTimeSeries(cachedSeries.getUniqueId()));
       
-      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field, inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), false);
+      cachedSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field,
+          inMemSeries.getTimeSeries().getEarliestTime(), true, inMemSeries.getTimeSeries().getLatestTime(), true);
       assertEquals(inMemSeries, cachedSeries);
     }
   }

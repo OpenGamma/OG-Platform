@@ -13,10 +13,10 @@ import org.apache.commons.lang.text.StrBuilder;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
@@ -36,7 +36,7 @@ public final class ComputationTargetSpecification implements Serializable {
   /**
    * The identifier of the target.
    */
-  private final UniqueIdentifier _uniqueId;
+  private final UniqueId _uniqueId;
 
   /**
    * Construct a specification that refers to the specified object.
@@ -56,12 +56,12 @@ public final class ComputationTargetSpecification implements Serializable {
       case PRIMITIVE: {
         if (target instanceof UniqueIdentifiable) {
           _uniqueId = ((UniqueIdentifiable) target).getUniqueId();
-        } else if (target instanceof Identifiable) {
-          final Identifier id = ((Identifiable) target).getIdentityKey();
-          _uniqueId = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
-        } else if (target instanceof Identifier) {
-          final Identifier id = (Identifier) target;
-          _uniqueId = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
+        } else if (target instanceof ExternalIdentifiable) {
+          final ExternalId id = ((ExternalIdentifiable) target).getExternalId();
+          _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
+        } else if (target instanceof ExternalId) {
+          final ExternalId id = (ExternalId) target;
+          _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
         } else {
           _uniqueId = null;
         }
@@ -77,7 +77,7 @@ public final class ComputationTargetSpecification implements Serializable {
    * @param targetType the type of the target, not null
    * @param uid  the target identifier, may be null
    */
-  public ComputationTargetSpecification(final ComputationTargetType targetType, final UniqueIdentifier uid) {
+  public ComputationTargetSpecification(final ComputationTargetType targetType, final UniqueId uid) {
     ArgumentChecker.notNull(targetType, "target type");
     if (targetType != ComputationTargetType.PRIMITIVE) {
       ArgumentChecker.notNull(uid, "identifier");
@@ -99,18 +99,18 @@ public final class ComputationTargetSpecification implements Serializable {
    * Gets the identifier to the actual target.
    * @return the identifier, may be null
    */
-  public Identifier getIdentifier() {
+  public ExternalId getIdentifier() {
     if (_uniqueId == null) {
       return null;
     }
-    return Identifier.of(_uniqueId.getScheme(), _uniqueId.getValue());
+    return ExternalId.of(_uniqueId.getScheme(), _uniqueId.getValue());
   }
 
   /**
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -133,9 +133,6 @@ public final class ComputationTargetSpecification implements Serializable {
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
       case SECURITY:
         final Security security = securitySource.getSecurity(getUniqueId());
-        if (security == null) {
-          throw new OpenGammaRuntimeException("Unknown security in configured security source: " + getIdentifier());
-        }
         // Package up the other identifiers
         return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
       default:

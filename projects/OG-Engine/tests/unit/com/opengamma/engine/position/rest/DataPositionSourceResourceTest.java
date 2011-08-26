@@ -16,7 +16,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -26,14 +26,14 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.CounterpartyImpl;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.core.security.SecurityLink;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -42,8 +42,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @Test
 public class DataPositionSourceResourceTest {
 
-  private static final UniqueIdentifier UID1 = UniqueIdentifier.of("Test", "A");
-  private static final UniqueIdentifier UID2 = UniqueIdentifier.of("Test", "B");
+  private static final UniqueId UID1 = UniqueId.of("Test", "A");
+  private static final UniqueId UID2 = UniqueId.of("Test", "B");
   private PositionSource _underlying;
   private DataPositionSourceResource _resource;
 
@@ -54,18 +54,18 @@ public class DataPositionSourceResourceTest {
   }
   
   private <T> T decodeResponse (final Class<T> clazz, final String field, final FudgeMsgEnvelope response) {
-    final FudgeDeserializationContext fdc = new FudgeDeserializationContext (_resource.getFudgeContext ());
-    return fdc.fieldValueToObject(clazz, response.getMessage ().getByName(field));
+    final FudgeDeserializer deserializer = new FudgeDeserializer (_resource.getFudgeContext ());
+    return deserializer.fieldValueToObject(clazz, response.getMessage ().getByName(field));
   }
 
   //-------------------------------------------------------------------------
   public void testGetPortfolio() {
-    final Position position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
-    final PortfolioNodeImpl node = new PortfolioNodeImpl(UID1, "TestNode");
-    final PortfolioNodeImpl child = new PortfolioNodeImpl(UID1, "Child");
+    final Position position = new SimplePosition(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
+    final SimplePortfolioNode node = new SimplePortfolioNode(UID1, "TestNode");
+    final SimplePortfolioNode child = new SimplePortfolioNode(UID1, "Child");
     node.addChildNode(child);
     node.addPosition(position);
-    final PortfolioImpl portfolio = new PortfolioImpl(UID1, "TestPortfolio");
+    final SimplePortfolio portfolio = new SimplePortfolio(UID1, "TestPortfolio");
     portfolio.setRootNode(node);
     when(_underlying.getPortfolio(eq(UID1))).thenReturn(portfolio);
     
@@ -73,9 +73,9 @@ public class DataPositionSourceResourceTest {
   }
 
   public void testGetPortfolioNode() {
-    final PortfolioNodeImpl node = new PortfolioNodeImpl(UID1, "TestNode");
-    final PortfolioNodeImpl child = new PortfolioNodeImpl(UID1, "Child");
-    final Position position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
+    final SimplePortfolioNode node = new SimplePortfolioNode(UID1, "TestNode");
+    final SimplePortfolioNode child = new SimplePortfolioNode(UID1, "Child");
+    final Position position = new SimplePosition(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
     node.addChildNode(child);
     node.addPosition(position);
     when(_underlying.getPortfolioNode(eq(UID1))).thenReturn(node);
@@ -84,9 +84,9 @@ public class DataPositionSourceResourceTest {
   }
 
   public void testGetPosition() {
-    final PositionImpl position = new PositionImpl(UID1, BigDecimal.TEN, Identifier.of("A", "B"));
+    final SimplePosition position = new SimplePosition(UID1, BigDecimal.TEN, ExternalId.of("A", "B"));
     position.setParentNodeId(UID2);
-    final TradeImpl trade = new TradeImpl(position.getUniqueId(), new SecurityLink(Identifier.of("A", "B")), BigDecimal.TEN, new CounterpartyImpl(Identifier.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
+    final SimpleTrade trade = new SimpleTrade(position.getUniqueId(), new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, new SimpleCounterparty(ExternalId.of("Foo", "Bar")), LocalDate.now(), OffsetTime.now());
     position.addTrade(trade);
     when(_underlying.getPosition(eq(UID1))).thenReturn(position);
     
@@ -94,8 +94,8 @@ public class DataPositionSourceResourceTest {
   }
 
   public void testGetTrade() {
-    final Counterparty cparty = new CounterpartyImpl(Identifier.of("C", "D"));
-    final TradeImpl trade = new TradeImpl(UID2, new SecurityLink(Identifier.of("A", "B")), BigDecimal.TEN, cparty, LocalDate.of(2010, 12, 6), null);
+    final Counterparty cparty = new SimpleCounterparty(ExternalId.of("C", "D"));
+    final SimpleTrade trade = new SimpleTrade(UID2, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.TEN, cparty, LocalDate.of(2010, 12, 6), null);
     trade.setUniqueId(UID1);
     when(_underlying.getTrade(eq(UID1))).thenReturn(trade);
     

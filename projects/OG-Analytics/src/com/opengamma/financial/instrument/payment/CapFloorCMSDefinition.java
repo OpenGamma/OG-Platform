@@ -9,8 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -20,6 +18,7 @@ import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -155,9 +154,8 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
       final double fixedRate = indexFixingTS.getValue(getFixingDate());
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));

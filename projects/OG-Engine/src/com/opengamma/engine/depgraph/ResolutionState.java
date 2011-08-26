@@ -22,7 +22,8 @@ import com.opengamma.util.tuple.Pair;
  * State required by the {@link DependencyGraphBuilder} to iterate over and backtrack through
  * alternative resolutions to node requirements.
  */
-/*package*/ final class ResolutionState {
+
+/*package*/final class ResolutionState {
 
   /**
    * 
@@ -190,8 +191,7 @@ import com.opengamma.util.tuple.Pair;
 
   public Pair<DependencyNode, ValueSpecification> getLastValid() {
     if (_lastValid == null) {
-      throw new UnsatisfiableDependencyGraphException(getValueRequirement(), "No last valid")
-          .addState("ResolutionState", this);
+      throw new UnsatisfiableDependencyGraphException(getValueRequirement());
     }
     return _lastValid;
   }

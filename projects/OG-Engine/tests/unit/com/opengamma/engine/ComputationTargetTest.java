@@ -6,18 +6,20 @@
 package com.opengamma.engine;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.test.MockSecurity;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * Test ComputationTarget.
@@ -25,10 +27,10 @@ import com.opengamma.id.UniqueIdentifier;
 @Test
 public class ComputationTargetTest {
 
-  private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
-  private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
+  private static final Portfolio PORTFOLIO = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
+  private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UniqueId.of("A", "B"), "Name");
+  private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
+  private static final Security SECURITY = new MockSecurity(UniqueId.of("Test", "SEC"), "Test security", "EQUITY", ExternalIdBundle.EMPTY);
 
   public void test_constructor_Object_Portfolio() {
     ComputationTarget test = new ComputationTarget(PORTFOLIO);

@@ -6,7 +6,7 @@
 package com.opengamma.master.config.impl;
 
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractMaster;
@@ -18,7 +18,7 @@ import com.opengamma.master.AbstractMaster;
 /*package*/ abstract class AbstractInMemoryMaster<D extends AbstractDocument> implements AbstractMaster<D> {
   
   @Override
-  public D get(UniqueIdentifier uniqueId) {
+  public D get(UniqueId uniqueId) {
     throw new UnsupportedOperationException();
   }
 

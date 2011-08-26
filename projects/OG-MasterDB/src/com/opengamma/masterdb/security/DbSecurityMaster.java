@@ -20,12 +20,12 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierSearch;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
@@ -40,10 +40,10 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 
 /**
  * A security master implementation using a database for persistence.
@@ -61,7 +61,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSec";
   /**
@@ -151,8 +151,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     s_logger.debug("search {}", request);
     
     final SecuritySearchResult result = new SecuritySearchResult();
-    if ((request.getSecurityIds() != null && request.getSecurityIds().size() == 0) ||
-        (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
+    if ((request.getObjectIds() != null && request.getObjectIds().size() == 0) ||
+        (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -162,10 +162,10 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("sec_type", request.getSecurityType())
-      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
-    if (request.getSecurityKeys() != null) {
+      .addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getExternalIdValue()));
+    if (request.getExternalIdSearch() != null) {
       int i = 0;
-      for (Identifier id : request.getSecurityKeys()) {
+      for (ExternalId id : request.getExternalIdSearch()) {
         args.addValue("key_scheme" + i, id.getScheme().getName());
         args.addValue("key_value" + i, id.getValue());
         i++;
@@ -195,20 +195,20 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     if (request.getSecurityType() != null) {
       where += "AND UPPER(sec_type) = UPPER(:sec_type) ";
     }
-    if (request.getSecurityIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getSecurityIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getSecurityIds()) {
+    if (request.getObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getObjectIds().size() * 10);
+      for (ObjectId objectId : request.getObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
       buf.setLength(buf.length() - 2);
       where += "AND oid IN (" + buf + ") ";
     }
-    if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
-      where += sqlSelectMatchingSecurityKeys(request.getSecurityKeys());
+    if (request.getExternalIdSearch() != null && request.getExternalIdSearch().size() > 0) {
+      where += sqlSelectMatchingSecurityKeys(request.getExternalIdSearch());
     }
-    if (request.getIdentifierValue() != null) {
-      where += sqlSelectIdentifierValue(request.getIdentifierValue());
+    if (request.getExternalIdValue() != null) {
+      where += sqlSelectExternalIdValue(request.getExternalIdValue());
     }
     where += sqlAdditionalWhere();
     
@@ -229,7 +229,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * @param identifierValue the identifier value, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectIdentifierValue(String identifierValue) {
+  protected String sqlSelectExternalIdValue(String identifierValue) {
     String select = "SELECT DISTINCT security_id " +
         "FROM sec_security2idkey, sec_security main " +
         "WHERE security_id = main.id " +
@@ -240,12 +240,12 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   }
 
   /**
-   * Gets the SQL to match the {@code IdentifierSearch}.
+   * Gets the SQL to match the {@code ExternalIdSearch}.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeys(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeys(final ExternalIdSearch idSearch) {
     switch (idSearch.getSearchType()) {
       case EXACT:
         return "AND id IN (" + sqlSelectMatchingSecurityKeysExact(idSearch) + ") ";
@@ -265,7 +265,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysExact(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysExact(final ExternalIdSearch idSearch) {
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT security_id AS matched_security_id, COUNT(security_id) AS matched_count " +
@@ -295,7 +295,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysAll(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysAll(final ExternalIdSearch idSearch) {
     // only return security_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT security_id " +
@@ -315,7 +315,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysAny(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysAny(final ExternalIdSearch idSearch) {
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT security_id " +
@@ -333,7 +333,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
    */
-  protected String sqlSelectMatchingSecurityKeysOr(final IdentifierSearch idSearch) {
+  protected String sqlSelectMatchingSecurityKeysOr(final ExternalIdSearch idSearch) {
     String select = "SELECT id FROM sec_idkey ";
     for (int i = 0; i < idSearch.size(); i++) {
       select += (i == 0 ? "WHERE " : "OR ");
@@ -344,7 +344,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
 
   //-------------------------------------------------------------------------
   @Override
-  public SecurityDocument get(final UniqueIdentifier uniqueId) {
+  public SecurityDocument get(final UniqueId uniqueId) {
     SecurityDocument doc = doGet(uniqueId, new SecurityDocumentExtractor(), "Security");
     loadDetail(Collections.singletonList(doc));
     return doc;
@@ -418,7 +418,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    for (Identifier id : document.getSecurity().getIdentifiers()) {
+    for (ExternalId id : document.getSecurity().getIdentifiers()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
@@ -438,7 +438,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     getJdbcTemplate().batchUpdate(sqlInsertIdKey(), idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlInsertSecurityIdKey(), assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
     // set the uniqueId
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     document.getSecurity().setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     // store the detail
@@ -543,8 +543,8 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         final String idScheme = rs.getString("KEY_SCHEME");
         final String idValue = rs.getString("KEY_VALUE");
         if (idScheme != null && idValue != null) {
-          Identifier id = Identifier.of(idScheme, idValue);
-          _security.setIdentifiers(_security.getIdentifiers().withIdentifier(id));
+          ExternalId id = ExternalId.of(idScheme, idValue);
+          _security.setIdentifiers(_security.getIdentifiers().withExternalId(id));
         }
       }
       return _documents;
@@ -558,7 +558,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final String name = rs.getString("NAME");
       final String type = rs.getString("SEC_TYPE");
-      UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
       String detailType = rs.getString("DETAIL_TYPE");
       if (detailType.equalsIgnoreCase("R")) {
         LobHandler lob = getDbHelper().getLobHandler();
@@ -567,7 +567,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         _security.setUniqueId(uniqueId);
         _security.setName(name);  
       } else {
-        _security = new ManageableSecurity(uniqueId, name, type, IdentifierBundle.EMPTY);
+        _security = new ManageableSecurity(uniqueId, name, type, ExternalIdBundle.EMPTY);
       }
       SecurityDocument doc = new SecurityDocument(_security);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));

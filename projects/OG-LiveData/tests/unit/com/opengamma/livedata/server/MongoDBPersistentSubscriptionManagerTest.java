@@ -5,11 +5,13 @@
  */
 package com.opengamma.livedata.server;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
-import com.opengamma.id.IdentificationScheme;
+
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.MongoDBConnectionSettings;
 import com.opengamma.util.test.MongoDBTestUtils;
 
@@ -21,7 +23,7 @@ public class MongoDBPersistentSubscriptionManagerTest {
   @Test(enabled=false)
   public void persistentSubscriptionManagement() {
     
-    IdentificationScheme identificationDomain = IdentificationScheme.of("TestDomain");
+    ExternalScheme identificationDomain = ExternalScheme.of("TestDomain");
     
     MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
     server.connect();

@@ -18,36 +18,41 @@ $.register_module({
                         var options = $.extend({}, {
                             cache_for: 30 * 1000,
                             handler: function (result) {
+                                var options = 0;
                                 if (result.error) return handler('an error occurred');
                                 if (meta) {
                                     result.data.types.forEach(function (datum) {
-                                        var $option = $('<option/>').attr('value', datum).html(datum);
+                                        options += 1;
+                                        var $option = $('<option/>').attr('value', datum).text(datum);
                                         if (value === datum) $option[0].setAttribute('selected', 'selected');
                                         $select.append($option);
                                     });
                                 } else {
                                     result.data.data.forEach(function (datum) {
+                                        options += 1;
                                         var fields = datum.split('|'),
-                                            $option = $('<option/>').attr('value', fields[values]).html(fields[texts]);
+                                            $option = $('<option/>').attr('value', fields[values]).text(fields[texts]);
                                         if (value === fields[values]) $option[0].setAttribute('selected', 'selected');
                                         $select.append($option);
                                     });
                                 }
-                                handler($html.html());
+                                if (!options) $select.attr('disabled', 'disabled');
+                                handler($.outer($select[0]));
                             }
-                        }, rest_options), $html = $('<p><select/></p>'), $select = $html.find('select');
+                        }, rest_options), $select = $('<select/>');
                         if (name) $select.attr('name', name);
                         if (classes) $select.attr('class', classes);
                         $select.attr('id', id);
-                        if (placeholder) $select.append($('<option/>').html(placeholder));;
+                        if (placeholder) $select.append($('<option value="" />').text(placeholder));;
                         if (!data_generator) return og.api.rest[resource].get(options);
                         data_generator(function (data) {
                             data.forEach(function (datum) {
-                                var $option = $('<option/>').attr('value', datum.value).html(datum.text);
+                                var $option = $('<option/>').attr('value', datum.value).text(datum.text);
                                 if (value === datum.value) $option[0].setAttribute('selected', 'selected');
                                 $select.append($option);
                             });
-                            return handler($html.html());
+                            if (!data.length) $select.attr('disabled', 'disabled');
+                            return handler($.outer($select[0]));
                         });
                     },
                     handlers: config.handlers || []

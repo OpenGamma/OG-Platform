@@ -6,15 +6,15 @@
 package com.opengamma.util;
 
 /**
- * If implemented allows something to be canceled.
+ * Defines an object that may be cancelled.
  */
 public interface Cancellable {
 
   /**
    * Attempts to cancel the operation.
    * 
-   * @param mayInterruptIfRunning {@code true} if the thread can be interrupted, {@code false} if tasks should be allowed to complete naturally
-   * @return {@code true} if the operation was canceled, {@code false} otherwise
+   * @param mayInterruptIfRunning  true if the thread can be interrupted, false if tasks should be allowed to complete naturally
+   * @return true if the operation was canceled
    */
   boolean cancel(boolean mayInterruptIfRunning);
 

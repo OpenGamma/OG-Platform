@@ -30,7 +30,8 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,7 +44,7 @@ public class ViewClientImpl implements ViewClient {
   
   private final ReentrantLock _clientLock = new ReentrantLock();
   
-  private final UniqueIdentifier _id;
+  private final UniqueId _id;
   private final ViewProcessorImpl _viewProcessor;
   private final UserPrincipal _user;
   private final EngineResourceRetainer _latestCycleRetainer;
@@ -78,7 +79,7 @@ public class ViewClientImpl implements ViewClient {
    * @param user  the user who owns this client
    * @param timer  the timer to use for scheduled tasks
    */
-  public ViewClientImpl(UniqueIdentifier id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
+  public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(user, "user");
@@ -171,7 +172,7 @@ public class ViewClientImpl implements ViewClient {
   }
 
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _id;
   }
   
@@ -222,7 +223,7 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public void attachToViewProcess(UniqueIdentifier processId) {
+  public void attachToViewProcess(UniqueId processId) {
     _clientLock.lock();
     try {
       checkNotTerminated();
@@ -264,8 +265,8 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public ViewDefinition getViewDefinition() {
-    return getViewProcessor().getViewDefinition(getUniqueId());
+  public ViewDefinition getLatestViewDefinition() {
+    return getViewProcessor().getLatestViewDefinition(getUniqueId());
   }
   
   //-------------------------------------------------------------------------
@@ -365,6 +366,12 @@ public class ViewClientImpl implements ViewClient {
     return _latestCompiledViewDefinition.get();
   }
   
+  @Override
+  public VersionCorrection getProcessVersionCorrection() {
+    checkAttached();
+    return getViewProcessor().getProcessVersionCorrection(getUniqueId());
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public boolean isViewCycleAccessSupported() {
@@ -398,7 +405,7 @@ public class ViewClientImpl implements ViewClient {
   }
 
   @Override
-  public EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueIdentifier cycleId) {
+  public EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId) {
     if (!isViewCycleAccessSupported()) {
       throw new UnsupportedOperationException("Access to computation cycles is not supported from this client");
     }
@@ -453,7 +460,7 @@ public class ViewClientImpl implements ViewClient {
    * Updates the latest result.
    * 
    * @param result  the new result
-   * @return {@code true} if the new result was the first, {@code false} otherwise
+   * @return true if the new result was the first
    */
   private boolean updateLatestResult(ViewComputationResultModel result) {
     if (isViewCycleAccessSupported()) {

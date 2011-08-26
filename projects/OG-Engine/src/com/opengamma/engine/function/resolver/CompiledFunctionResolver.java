@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -22,6 +21,20 @@ import com.opengamma.util.tuple.Pair;
 @PublicAPI
 public interface CompiledFunctionResolver {
 
+  // PLAT-1049 version
+  //  /**
+  //   * Resolves the requirement for a node to one or more functions.
+  //   * <p>
+  //   * The resolution finds functions that are capable of satisfying the requirement.
+  //   * If multiple functions can satisfy, they should be returned from highest priority
+  //   * to lowest priority.
+  //   * 
+  //   * @param requirement Output requirement to satisfy
+  //   * @param target Target to satisfy the requirement on
+  //   * @return the function(s) found
+  //   */
+  //  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
+
   /**
    * Resolves the requirement for a node to one or more functions.
    * <p>
@@ -29,10 +42,9 @@ public interface CompiledFunctionResolver {
    * If multiple functions can satisfy, they should be returned from highest priority
    * to lowest priority.
    * 
-   * @param requirement   the output requirement to satisfy, not null
-   * @param atNode  the node in a dependency graph the function would be assigned to, not null
-   * @return one or more matching functions, from highest to lowest priority, not null
-   * @throws UnsatisfiableDependencyGraphException if there is a problem
+   * @param requirement Output requirement to satisfy
+   * @param atNode The node in a dependency graph the function would be assigned to
+   * @return the function(s) found
    */
   Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
 

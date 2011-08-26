@@ -5,23 +5,24 @@
  */
 package com.opengamma.financial.batch;
 
-import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Collections;
 import java.util.concurrent.Future;
 
 import javax.time.Instant;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -31,7 +32,7 @@ public class BatchResultWriterExecutorTest {
   @Test
   public void basicOperation() throws Exception {
     
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", Instant.now(), 1L);
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), "config", Instant.now(), 1L);
     CalculationJobResult result = new CalculationJobResult(spec, 
         500, 
         Collections.<CalculationJobResultItem>emptyList(),

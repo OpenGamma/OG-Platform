@@ -30,7 +30,7 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
    * inputs must declare the same property value, and this will be propagated to the outputs, or the function will
    * fail. If no inputs declare a property then it will not appear on the outputs.
    * 
-   * @return the properties which the function is required to preserve, not {@code null}
+   * @return the properties which the function is required to preserve, not null
    */
   protected abstract Collection<String> getPreservedProperties();
   
@@ -39,7 +39,7 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
    * the function outputs if the property is present and has the same value across every input, otherwise it will be
    * dropped.
    * 
-   * @return the properties which the function will attempt to preserve, not {@code null}
+   * @return the properties which the function will attempt to preserve, not null
    */
   protected abstract Collection<String> getOptionalPreservedProperties();
 
@@ -136,8 +136,9 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
       } else {
         ValueProperties requiredPropertyComposition = _requiredProperties.compose(input.getProperties());
         if (!requiredPropertyComposition.equals(referenceRequiredProperties)) {
-          throw new IllegalArgumentException("Required property composition " + requiredPropertyComposition +
-              " produced from input " + input + " differs from current required property composition " + referenceRequiredProperties + " implying incompatible property values among the inputs");
+          // Required property composition 'requiredPropertyComposition' produced from input 'input' differs from current required
+          // property composition 'referenceRequiredProperties' implying incompatible property values among the inputs
+          return null;
         }
         // Know that the required properties are preserved correctly, so now compose everything 
         compositeProperties = composeStrict(compositeProperties, input.getProperties());

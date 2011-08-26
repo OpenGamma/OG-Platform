@@ -6,10 +6,12 @@
 package com.opengamma.livedata.server.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
-import com.opengamma.id.Identifier;
+import org.testng.annotations.Test;
+
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -22,7 +24,7 @@ public class MarketDataDistributorTest {
   
   public static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
     return new MarketDataDistributor(new DistributionSpecification(
-        Identifier.of("RIC", "AAPL.O"),
+        ExternalId.of("RIC", "AAPL.O"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Equity.AAPL"),
         new Subscription("", factory),

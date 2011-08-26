@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
@@ -31,7 +31,7 @@ import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 /**
  * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer} 
  * NOTE: this is only really a partial implementation of AbstractLiveDataServer
- *        e.g. Entitlement checking will have to be set up on thi client as wekk as on the underlyings 
+ *        e.g. Entitlement checking will have to be set up on this client as well as on the underlyings 
  */
 public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   //TODO: things include Entitlement checking
@@ -135,6 +135,21 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
     return getServer(distributor.getFullyQualifiedLiveDataSpecification()).stopDistributor(distributor);    
   }
 
+  
+  @Override
+  public synchronized void start() {
+    for (AbstractLiveDataServer server : _underlyings) {
+      server.start();
+    }
+  }
+
+  @Override
+  public synchronized void stop() {
+    for (AbstractLiveDataServer server : _underlyings) {
+      server.stop();
+    }
+  }
+
   @Override
   protected void doConnect() {
     for (AbstractLiveDataServer server : _underlyings) {
@@ -173,7 +188,7 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   }
 
   @Override
-  protected IdentificationScheme getUniqueIdDomain() {
+  protected ExternalScheme getUniqueIdDomain() {
     throw new IllegalArgumentException();
   }
 

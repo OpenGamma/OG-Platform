@@ -37,16 +37,16 @@ public interface CompiledFunctionDefinition {
    * While this can be determined by the subgraph, it is provided at this
    * level for ease of programming, and for performance purposes.
    *  
-   * @return The target type to which this instance can apply.
+   * @return the target type to which this instance can apply, not null
    */
   ComputationTargetType getTargetType();
 
   /**
    * Determine whether this function instance is capable of operating on the specified target.
    * 
-   * @param context The compilation context with view-specific parameters and configurations.
-   * @param target The target for which calculation is desired.
-   * @return {@code true} iff this function can produce results for the specified target.
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @return true iff this function can produce results for the specified target
    */
   boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
 
@@ -54,27 +54,28 @@ public interface CompiledFunctionDefinition {
    * Obtain all input requirements necessary for the operation of this function at execution time.
    * The target requirement is available to allow property constraints on input requirements to be
    * specified if necessary. It is only valid to call this on a function which has previously
-   * returned {@code true} to {@link #canApplyTo} for the given target, its behavior is otherwise
+   * returned true to {@link #canApplyTo} for the given target, its behavior is otherwise
    * undefined.
    * 
-   * @param context The compilation context with view-specific parameters and configurations.
-   * @param target The target for which calculation is desired.
-   * @param desiredValue The output the function has been selected to satisfy; i.e. one of the
-   * values returned by {@link #getResults} satisfies satisfy it.
-   * @return All input requirements to execute this function on the specified target with the specified configuration.
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @param desiredValue  the output the function has been selected to satisfy; i.e. one of the
+   * values returned by {@link #getResults} satisfies it
+   * @return All input requirements to execute this function on the specified target with the specified configuration. A return
+   *         value of null indicates that the function cannot produce the desired value.
    */
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue);
 
   /**
    * Determine any additional input requirements needed as a result of input and output resolution.
    * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}. It
-   * is only valid to call this on a function which has previously returned {@code true} to {@link #canApplyTo}
+   * is only valid to call this on a function which has previously returned true to {@link #canApplyTo}
    * for the given target, its behavior is otherwise undefined.
    * 
-   * @param context The compilation context with view-specific parameters and configurations.
-   * @param target The target for which calculation is desired.
-   * @param inputs The fully resolved input specifications.
-   * @param outputs The fully resolved output specifications.
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @param inputs  the fully resolved input specifications
+   * @param outputs  the fully resolved output specifications
    * @return Any additional input requirements to satisfy execution on the given inputs to deliver the given outputs.
    */
   Set<ValueRequirement> getAdditionalRequirements(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs);
@@ -83,12 +84,13 @@ public interface CompiledFunctionDefinition {
    * Determine which result values can be produced by this function when applied to the
    * specified target assuming no input constraints. Should return the <b>maximal</b> set of potential outputs.
    * <b>Actual</b> computed values will be trimmed. It is only valid to call this on a function which has
-   * previously returned {@code true} to {@link #canApplyTo} for the given target, its behavior is otherwise
+   * previously returned true to {@link #canApplyTo} for the given target, its behavior is otherwise
    * undefined.
    * 
-   * @param context The compilation context with view-specific parameters and configurations.
-   * @param target The target for which calculation is desired.
-   * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @return All results <b>possible</b> to be computed by this function for this target, null or the empty set
+   *         if no values are possible.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 
@@ -100,38 +102,42 @@ public interface CompiledFunctionDefinition {
    * a function specified both its outputs and inputs using a wildcard, with the outputs depending on the
    * inputs, it should override this to implement that dependency. If it is not possible to generate any
    * results using the inputs given, an empty set must be returned. It is only valid to call this on a
-   * function which has previously returned {@code true} to {@link #canApplyTo} for the given target, its
+   * function which has previously returned true to {@link #canApplyTo} for the given target, its
    * behavior is otherwise undefined.
    * 
-   * @param context The compilation context with view-specific parameters and configurations.
-   * @param target The target for which calculation is desired.
-   * @param inputs The resolved inputs to the function, mapped to the originally requested requirements
+   * @param context  the compilation context with view-specific parameters and configurations
+   * @param target  the target for which calculation is desired
+   * @param inputs  the resolved inputs to the function, mapped to the originally requested requirements
    * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
+   *  A return value of null or the empty set indicates that the function cannot operate on the resolved inputs.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs);
 
   /**
-   * Returns an invocation handle to the compiled function. If the function is not available at this node,
-   * for example because it requires a native library, {@code null} may be returned. It is not necessary for
-   * an implementation to cache the invoker objects.
+   * Returns an invocation handle to the compiled function.
+   * <p>
+   * If the function is not available at this node, for example because it requires a native library,
+   * null may be returned. It is not necessary for an implementation to cache the invoker objects.
    * 
-   * @return the function invoker
+   * @return the function invoker, null if not available at this node
    */
   FunctionInvoker getFunctionInvoker();
 
   /**
-   * States the earliest time that this metadata and invoker will be valid for. If the definition is always
-   * valid returns {@code null}.
+   * States the earliest time that this metadata and invoker will be valid for.
+   * <p>
+   * If the definition is always valid returns null.
    * 
-   * @return the earliest timestamp. 
+   * @return the earliest timestamp, null if definition always valid
    */
   Instant getEarliestInvocationTime();
 
   /**
-   * States the latest time that this metadata and invoker will be valid for. If the definition is always
-   * valid returns {@code null}.
+   * States the latest time that this metadata and invoker will be valid for.
+   * <p>
+   * If the definition is always valid returns null.
    * 
-   * @return the latest timestamp.
+   * @return the latest timestamp, null if definition always valid
    */
   Instant getLatestInvocationTime();
 

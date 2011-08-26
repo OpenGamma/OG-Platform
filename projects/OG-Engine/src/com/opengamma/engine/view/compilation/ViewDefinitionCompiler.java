@@ -9,12 +9,16 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
@@ -26,6 +30,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
@@ -43,12 +48,13 @@ public final class ViewDefinitionCompiler {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionCompiler.class);
   private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
   private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
+  private static final boolean OUTPUT_FAILURE_REPORTS = false;
 
   private ViewDefinitionCompiler() {
   }
 
   //-------------------------------------------------------------------------
-  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
+  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
 
@@ -63,7 +69,7 @@ public final class ViewDefinitionCompiler {
     s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
     t -= System.nanoTime();
     boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
-    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, requirePortfolioResolution);
+    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
     t += System.nanoTime();
     s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
     t -= System.nanoTime();
@@ -78,17 +84,33 @@ public final class ViewDefinitionCompiler {
     if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
       outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
     }
-
+    if (OUTPUT_FAILURE_REPORTS) {
+      outputFailureReports(viewCompilationContext.getBuilders());
+    }
     return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
-  //-------------------------------------------------------------------------
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
+    final ExecutorCompletionService<DependencyGraphBuilder> completer = new ExecutorCompletionService<DependencyGraphBuilder>(context.getServices().getExecutorService());
+    final AtomicInteger count = new AtomicInteger();
+    for (final DependencyGraphBuilder builder : context.getBuilders().values()) {
+      count.incrementAndGet();
+      completer.submit(new Callable<DependencyGraphBuilder>() {
+        @Override
+        public DependencyGraphBuilder call() {
+          builder.getDependencyGraph(/*false*/);
+          return builder;
+        }
+      });
+    }
     Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
-    for (DependencyGraphBuilder builder : context.getBuilders().values()) {
-      DependencyGraph dependencyGraph = builder.getDependencyGraph();
-      dependencyGraph.removeUnnecessaryValues();
-      result.put(builder.getCalculationConfigurationName(), dependencyGraph);
+    while (count.getAndDecrement() > 0) {
+      try {
+        final DependencyGraphBuilder builder = completer.take().get();
+        result.put(builder.getCalculationConfigurationName(), builder.getDependencyGraph());
+      } catch (Exception e) {
+        throw new OpenGammaRuntimeException("Caught exception", e);
+      }
     }
     return result;
   }
@@ -123,6 +145,33 @@ public final class ViewDefinitionCompiler {
       }
     }
     s_logger.warn("Live data requirements -- \n{}", sb);
+  }
+
+  private static void outputFailureReports(final Map<String, DependencyGraphBuilder> buildersByConfiguration) {
+    for (DependencyGraphBuilder builder : buildersByConfiguration.values()) {
+      outputFailureReport(builder);
+    }
+  }
+
+  private static void outputFailureReport(final DependencyGraphBuilder builder) {
+    final Map<Throwable, Integer> exceptions = builder.getExceptions();
+    if (!exceptions.isEmpty()) {
+      for (Map.Entry<Throwable, Integer> entry : exceptions.entrySet()) {
+        final Throwable exception = entry.getKey();
+        final Integer count = entry.getValue();
+        if (exception.getCause() != null) {
+          if (s_logger.isDebugEnabled()) {
+            s_logger.debug("Nested exception raised " + count + " time(s)", exception);
+          }
+        } else {
+          if (s_logger.isWarnEnabled()) {
+            s_logger.warn("Exception raised " + count + " time(s)", exception);
+          }
+        }
+      }
+    } else {
+      s_logger.info("No exceptions raised for configuration {}", builder.getCalculationConfigurationName());
+    }
   }
 
 }

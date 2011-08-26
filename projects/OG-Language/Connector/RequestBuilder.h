@@ -60,13 +60,14 @@ public:
 	/// @return the connector instance, never NULL
     const CConnector *GetConnector () const { m_poConnector->Retain (); return m_poConnector; }
 
+#define CONCAT(_a_, _b_) _a_##_b_
 #define REQUESTBUILDER_REQUEST(_objtype_) \
 protected: \
 	_objtype_ m_request; \
 	bool Send (_objtype_ *obj) { \
 		if (!obj) return false; \
 		FudgeMsg msg; \
-		if (_objtype_##_toFudgeMsg (obj, &msg) != FUDGE_OK) return false; \
+		if (CONCAT(_objtype_, _toFudgeMsg) (obj, &msg) != FUDGE_OK) return false; \
 		bool bResult = SendMsg (msg); \
 		FudgeMsg_release (msg); \
 		return bResult; \
@@ -80,14 +81,14 @@ public: \
 #define REQUESTBUILDER_RESPONSE(_objtype_) \
 protected: \
 	void _Done () { \
-		if (m_pResponse) { _objtype_##_free ((_objtype_*)m_pResponse); m_pResponse = NULL; } \
+		if (m_pResponse) { CONCAT (_objtype_, _free) ((_objtype_*)m_pResponse); m_pResponse = NULL; } \
 	} \
 public: \
 	_objtype_ *Recv (long lTimeout) { \
 		if (m_pResponse) return (_objtype_*)m_pResponse; \
 		FudgeMsg msg = RecvMsg (lTimeout); \
 		if (!msg) return NULL; \
-		if (_objtype_##_fromFudgeMsg (msg, (_objtype_**)&m_pResponse) != FUDGE_OK) { \
+		if (CONCAT (_objtype_, _fromFudgeMsg) (msg, (_objtype_**)&m_pResponse) != FUDGE_OK) { \
 			m_pResponse = NULL; \
 		} \
 		FudgeMsg_release (msg); \

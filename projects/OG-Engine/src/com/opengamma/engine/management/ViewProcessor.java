@@ -13,7 +13,7 @@ import javax.management.ObjectName;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessorInternal;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -54,8 +54,8 @@ public final class ViewProcessor implements ViewProcessorMBean {
   }
 
   @Override
-  public Set<UniqueIdentifier> getViewProcesses() {
-    Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>();
+  public Set<UniqueId> getViewProcesses() {
+    Set<UniqueId> result = new HashSet<UniqueId>();
     for (com.opengamma.engine.view.ViewProcess viewProcess : _viewProcessor.getViewProcesses()) {
       result.add(viewProcess.getUniqueId());
     }

@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -70,7 +70,7 @@ public class DepGraphTestHelper {
 
   public DepGraphTestHelper() {
     _functionRepo = new InMemoryFunctionRepository();
-    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
+    UniqueId targetId = UniqueId.of("Scheme", "Value");
     _target = new ComputationTarget(targetId);
     _req1 = new ValueRequirement(REQUIREMENT_1, targetId);
     _spec1 = new ValueSpecification(_req1, MockFunction.UNIQUE_ID);
@@ -154,7 +154,9 @@ public class DepGraphTestHelper {
     if (_builder == null) {
       _builder = new DependencyGraphBuilder();
       _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
-      final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+      final FunctionCompilationContext context = new FunctionCompilationContext();
+      _builder.setCompilationContext(context);
+      final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
       final DefaultFunctionResolver resolver;
       if (prioritizer != null) {
         resolver = new DefaultFunctionResolver(compilationService, prioritizer);

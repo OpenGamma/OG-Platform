@@ -15,13 +15,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test InMemoryHolidayMaster.
+ * Test {@link InMemoryHolidayMaster}.
  */
 @Test
 public class InMemoryHolidayMasterTest {
@@ -43,12 +43,12 @@ public class InMemoryHolidayMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
-    master.get(UniqueIdentifier.of("A", "B"));
+    master.get(UniqueId.of("A", "B"));
   }
 
   public void test_get_match() {
     HolidayDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(UniqueIdentifier.of("MemHol", "1"), result.getUniqueId());
+    assertEquals(UniqueId.of("MemHol", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 

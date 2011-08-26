@@ -27,5 +27,5 @@ public class InMemoryViewComputationResultModel extends InMemoryViewResultModel 
   public Set<ComputedValue> getAllMarketData() {
     return Collections.unmodifiableSet(_allMarketData);
   }
-  
+
 }

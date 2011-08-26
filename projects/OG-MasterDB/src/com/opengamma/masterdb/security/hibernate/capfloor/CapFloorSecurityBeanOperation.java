@@ -9,9 +9,9 @@ package com.opengamma.masterdb.security.hibernate.capfloor;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import javax.time.calendar.ZonedDateTime;
@@ -19,7 +19,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -53,7 +53,7 @@ public final class CapFloorSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setPayer(security.getIsPayer());
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setStrike(security.getStrike());
-    bean.setUnderlyingIdentifier(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlyingIdentifier(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
     return bean;
   }
 
@@ -62,7 +62,7 @@ public final class CapFloorSecurityBeanOperation extends AbstractSecurityBeanOpe
     
     ZonedDateTime startDate = zonedDateTimeBeanToDateTimeWithZone(bean.getStartDate());
     ZonedDateTime maturityDate = zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate());
-    Identifier underlyingIdentifier = identifierBeanToIdentifier(bean.getUnderlyingIdentifier());
+    ExternalId underlyingIdentifier = externalIdBeanToExternalId(bean.getUnderlyingIdentifier());
     Frequency frequency = frequencyBeanToFrequency(bean.getFrequency());
     Currency currency = currencyBeanToCurrency(bean.getCurrency());
     DayCount dayCount = dayCountBeanToDayCount(bean.getDayCount());

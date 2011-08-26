@@ -8,15 +8,16 @@ package com.opengamma.livedata;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.fudgemsg.ExternalIdBundleBuilder;
 
 /**
  * Specifies what data you want, in what format.
@@ -28,7 +29,7 @@ public class LiveDataSpecification {
   private static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
   
   /** A set of IDs for a single ticker **/
-  private final IdentifierBundle _domainSpecificIdentifiers;
+  private final ExternalIdBundle _externalIdBundle;
   
   /** What format it should be sent to the client **/
   private final String _normalizationRuleSetId;
@@ -37,22 +38,22 @@ public class LiveDataSpecification {
     this(source.getNormalizationRuleSetId(), source.getIdentifiers());        
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Identifier... identifiers) {
-    this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, ExternalId... identifiers) {
+    this(normalizationRuleSetId, ExternalIdBundle.of(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Collection<Identifier> identifiers) {
-    this(normalizationRuleSetId, IdentifierBundle.of(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, Collection<ExternalId> identifiers) {
+    this(normalizationRuleSetId, ExternalIdBundle.of(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Identifier identifier) {
-    this(normalizationRuleSetId, IdentifierBundle.of(identifier));
+  public LiveDataSpecification(String normalizationRuleSetId, ExternalId identifier) {
+    this(normalizationRuleSetId, ExternalIdBundle.of(identifier));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, IdentifierBundle domainSpecificIdentifiers) {
+  public LiveDataSpecification(String normalizationRuleSetId, ExternalIdBundle bundle) {
     ArgumentChecker.notNull(normalizationRuleSetId, "Client data format");
-    ArgumentChecker.notNull(domainSpecificIdentifiers, "Identifiers");
-    _domainSpecificIdentifiers = domainSpecificIdentifiers;
+    ArgumentChecker.notNull(bundle, "bundle");
+    _externalIdBundle = bundle;
     _normalizationRuleSetId = normalizationRuleSetId;
   }
   
@@ -60,25 +61,25 @@ public class LiveDataSpecification {
     return _normalizationRuleSetId;
   }
 
-  public IdentifierBundle getIdentifiers() {
-    return _domainSpecificIdentifiers;
+  public ExternalIdBundle getIdentifiers() {
+    return _externalIdBundle;
   }
   
-  public String getIdentifier(IdentificationScheme scheme) {
-    return _domainSpecificIdentifiers.getIdentifierValue(scheme);
+  public String getIdentifier(ExternalScheme scheme) {
+    return _externalIdBundle.getValue(scheme);
   }
   
-  public static LiveDataSpecification fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg fudgeMsg) {
+  public static LiveDataSpecification fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    IdentifierBundle ids = IdentifierBundle.fromFudgeMsg(fudgeContext, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
+    ExternalIdBundle ids = ExternalIdBundleBuilder.fromFudgeMsg(deserializer, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory fudgeMessageFactory) {
-    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
-    MutableFudgeMsg msg = fudgeMessageFactory.newMessage();
+  public FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
+    ArgumentChecker.notNull(serializer, "FudgeSerializer");
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(NORMALIZATION_RULE_SET_ID_FIELD_NAME, _normalizationRuleSetId);
-    msg.add(DOMAIN_SPECIFIC_IDS_FIELD_NAME, _domainSpecificIdentifiers.toFudgeMsg(fudgeMessageFactory));
+    msg.add(DOMAIN_SPECIFIC_IDS_FIELD_NAME, ExternalIdBundleBuilder.toFudgeMsg(serializer, _externalIdBundle));
     return msg;
   }
   
@@ -86,7 +87,7 @@ public class LiveDataSpecification {
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("LiveDataSpecification[");
-    stringBuilder.append(_domainSpecificIdentifiers.toString());
+    stringBuilder.append(_externalIdBundle.toString());
     stringBuilder.append("]");
     return stringBuilder.toString(); 
   }
@@ -97,8 +98,8 @@ public class LiveDataSpecification {
     int result = 1;
     result = prime
         * result
-        + ((_domainSpecificIdentifiers == null) ? 0
-            : _domainSpecificIdentifiers.hashCode());
+        + ((_externalIdBundle == null) ? 0
+            : _externalIdBundle.hashCode());
     result = prime
         * result
         + ((_normalizationRuleSetId == null) ? 0 : _normalizationRuleSetId
@@ -118,11 +119,11 @@ public class LiveDataSpecification {
       return false;
     }
     LiveDataSpecification other = (LiveDataSpecification) obj;
-    if (_domainSpecificIdentifiers == null) {
-      if (other._domainSpecificIdentifiers != null) {
+    if (_externalIdBundle == null) {
+      if (other._externalIdBundle != null) {
         return false;
       }
-    } else if (!_domainSpecificIdentifiers.equals(other._domainSpecificIdentifiers)) {
+    } else if (!_externalIdBundle.equals(other._externalIdBundle)) {
       return false;
     }
     if (_normalizationRuleSetId == null) {

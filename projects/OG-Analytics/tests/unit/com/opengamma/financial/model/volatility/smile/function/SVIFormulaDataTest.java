@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
 
 /**

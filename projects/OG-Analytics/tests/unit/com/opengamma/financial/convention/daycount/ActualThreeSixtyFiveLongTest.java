@@ -6,20 +6,22 @@
 package com.opengamma.financial.convention.daycount;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import com.opengamma.util.time.DateUtil;
+import org.testng.annotations.Test;
+
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test ActualThreeSixtyFiveLong.
  */
 public class ActualThreeSixtyFiveLongTest {
 
-  protected static final ZonedDateTime D1 = DateUtil.getUTCDate(2010, 1, 1);
-  protected static final ZonedDateTime D2 = DateUtil.getUTCDate(2010, 4, 1);
-  protected static final ZonedDateTime D3 = DateUtil.getUTCDate(2010, 7, 1);
+  protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
+  protected static final ZonedDateTime D2 = DateUtils.getUTCDate(2010, 4, 1);
+  protected static final ZonedDateTime D3 = DateUtils.getUTCDate(2010, 7, 1);
   protected static final double COUPON = 0.01;
   protected static final int PAYMENTS = 4;
   private static final ActualThreeSixtyFiveLong DC = new ActualThreeSixtyFiveLong();

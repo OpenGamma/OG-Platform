@@ -11,7 +11,7 @@ namespace com.opengamma.engine.marketdata.spec {
    */
   message UserMarketDataSpecification extends MarketDataSpecification {
   
-    required com.opengamma.id.UniqueIdentifier userSnapshotId;
+    required com.opengamma.id.UniqueId userSnapshotId;
     
     binding Java {
       methods "equals, hashCode, toString";

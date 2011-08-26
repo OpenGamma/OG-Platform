@@ -14,9 +14,9 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentifierBundleWithDates;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.RandomTimeSeriesGenerator;
@@ -62,8 +62,8 @@ public class PerformanceTest extends DBTest {
     int NUM_POINTS = 100;
     
     for (int i = 0; i < NUM_SERIES; i++) {
-      Identifier id1 = Identifier.of("sa" + i, "ida" + i);
-      IdentifierBundle identifiers = IdentifierBundle.of(id1);
+      ExternalId id1 = ExternalId.of("sa" + i, "ida" + i);
+      ExternalIdBundle identifiers = ExternalIdBundle.of(id1);
       
       ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
       info.setName("BLOOMBERG CMPL");
@@ -71,7 +71,7 @@ public class PerformanceTest extends DBTest {
       info.setDataProvider("CMPL");
       info.setDataSource("BLOOMBERG");
       info.setObservationTime("LDN_CLOSE");
-      info.setIdentifiers(IdentifierBundleWithDates.of(identifiers));
+      info.setExternalIdBundle(ExternalIdBundleWithDates.of(identifiers));
       HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
       s_logger.debug("adding timeseries {}", doc);
       doc = _htsMaster.add(doc);
@@ -82,7 +82,7 @@ public class PerformanceTest extends DBTest {
       
       for (int j = 1; j < NUM_POINTS; j++) {
         ArrayLocalDateDoubleTimeSeries points = new ArrayLocalDateDoubleTimeSeries(
-            Lists.newArrayList(randomPoints.getTime(j)),
+            Lists.newArrayList(randomPoints.getTimeAt(j)),
             Lists.newArrayList(randomPoints.getValueAt(j)));
         s_logger.debug("adding data points {}", points);
         _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), points);

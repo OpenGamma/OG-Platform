@@ -9,8 +9,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
@@ -31,7 +31,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * 
    * @return the identifier, not null
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
   
   /** 
    * Gets this view processor's view definition repository containing the {@link ViewDefinition}s available for
@@ -50,7 +50,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no view process with that unique identifier
    */
-  ViewProcess getViewProcess(UniqueIdentifier viewProcessId);
+  ViewProcess getViewProcess(UniqueId viewProcessId);
 
   //-------------------------------------------------------------------------
   /**
@@ -69,7 +69,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if there is no view with that unique identifier
    */
-  ViewClient getViewClient(UniqueIdentifier clientId);
+  ViewClient getViewClient(UniqueId clientId);
   
   //-------------------------------------------------------------------------
   /**

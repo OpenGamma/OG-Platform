@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -17,8 +17,10 @@ import javax.time.Instant;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -28,7 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -40,8 +42,8 @@ public class CalculationJobTest {
 
   public void fudgeEncodingNoInputsOutputs() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
-    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
+    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
         .<ValueRequirement> emptySet()));
@@ -49,11 +51,11 @@ public class CalculationJobTest {
     CalculationJob inputJob = new CalculationJob(spec, 123L, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
-    FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
+    FudgeSerializer serContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serContext.objectToFudgeMsg(inputJob);
     
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     assertNotNull(outputJob);
     outputJob.resolveInputs(identifierMap);
@@ -73,21 +75,21 @@ public class CalculationJobTest {
 
   public void fudgeEncodingOneInputOneOutput() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
-    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
+    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
 
-    ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));
-    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")), "mockFunctionId");
+    ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value2"));
+    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3")), "mockFunctionId");
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
 
     CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
 
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
+    FudgeSerializer serializationContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputJob);
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     
     assertNotNull(outputJob);

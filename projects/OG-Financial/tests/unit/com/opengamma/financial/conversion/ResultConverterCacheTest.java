@@ -7,7 +7,9 @@ package com.opengamma.financial.conversion;
 
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.matrix.DoubleMatrix1D;

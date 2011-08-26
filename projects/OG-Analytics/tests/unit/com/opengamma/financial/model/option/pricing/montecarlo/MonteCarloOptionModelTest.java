@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.montecarlo;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Collections;
+
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -20,7 +22,7 @@ import com.opengamma.financial.model.stochastic.StochasticProcess;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.random.RandomNumberGenerator;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -55,36 +57,36 @@ public class MonteCarloOptionModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
-    MODEL.getGreeks(null, new StandardOptionDataBundle(null, 0, null, 100, DateUtil.getUTCDate(2010, 1, 1)), Sets.newHashSet(Greek.FAIR_PRICE));
+    MODEL.getGreeks(null, new StandardOptionDataBundle(null, 0, null, 100, DateUtils.getUTCDate(2010, 1, 1)), Sets.newHashSet(Greek.FAIR_PRICE));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getUTCDate(2010, 1, 1)), true), null, Sets.newHashSet(Greek.FAIR_PRICE));
+    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getUTCDate(2010, 1, 1)), true), null, Sets.newHashSet(Greek.FAIR_PRICE));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreeks() {
-    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100, DateUtil.getUTCDate(2010, 1, 1)),
+    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100, DateUtils.getUTCDate(2010, 1, 1)),
         null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyGreeks() {
-    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100, DateUtil.getUTCDate(2010, 1, 1)),
+    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100, DateUtils.getUTCDate(2010, 1, 1)),
         Collections.<Greek> emptySet());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongGreeks() {
-    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100, DateUtil.getUTCDate(2010, 1, 1)),
+    MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100, DateUtils.getUTCDate(2010, 1, 1)),
         Sets.newHashSet(Greek.DELTA, Greek.GAMMA));
   }
 
   @Test
   public void testPriceOnly() {
-    final GreekResultCollection result = MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100,
-        DateUtil.getUTCDate(2010, 1, 1)), Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA));
+    final GreekResultCollection result = MODEL.getGreeks(new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getUTCDate(2010, 1, 1)), true), new StandardOptionDataBundle(null, 0, null, 100,
+        DateUtils.getUTCDate(2010, 1, 1)), Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA));
     assertEquals(result.size(), 1);
     assertEquals(result.keySet().iterator().next(), Greek.FAIR_PRICE);
     assertEquals(result.values().iterator().next(), 2., 0);

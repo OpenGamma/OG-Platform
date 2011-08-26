@@ -26,7 +26,7 @@ import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 public class CapFloorCMSTest {
   //Swap 5Y
@@ -35,7 +35,7 @@ public class CapFloorCMSTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Period ANNUITY_TENOR = Period.ofYears(5);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   //Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
@@ -52,10 +52,10 @@ public class CapFloorCMSTest {
   // CMS coupon construction
   private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 4, 6);
-  private static final ZonedDateTime FIXING_DATE = DateUtil.getUTCDate(2010, 12, 30);
-  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 1, 5);
-  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 4, 5);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
+  private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
+  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 5);
+  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 5);
   private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final double ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 1000000; //1m
@@ -66,7 +66,7 @@ public class CapFloorCMSTest {
   private static final boolean IS_CAP = true;
   private static final CapFloorCMSDefinition CMS_CAP_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
   // to derivatives
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};

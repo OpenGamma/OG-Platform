@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -16,7 +18,7 @@ import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAsset
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,9 +32,9 @@ public class RelativeOutperformanceOptionModelTest {
   private static final double B2 = 0.03;
   private static final VolatilitySurface SIGMA1 = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final VolatilitySurface SIGMA2 = new VolatilitySurface(ConstantDoublesSurface.from(0.4));
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final RelativeOutperformanceOptionModel MODEL = new RelativeOutperformanceOptionModel();
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25));
+  private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.25));
   private static final double EPS = 1e-4;
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -5,47 +5,21 @@
  */
 package com.opengamma.util.fudgemsg;
 
-import static org.testng.AssertJUnit.fail;
-
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.AbstractBuilderTestCase;
 
 /**
- * Test CurrencyAmount Fudge.
+ * Test Fudge encoding.
  */
 @Test
-public class CurrencyAmountFudgeEncodingTest {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(CurrencyAmountFudgeEncodingTest.class);
-  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
+public class CurrencyAmountFudgeEncodingTest extends AbstractBuilderTestCase {
 
   public void test() {
-    CurrencyAmount ca = CurrencyAmount.of(Currency.AUD, 101);
-    testFudgeMessage(ca);
-  }
-
-  private void testFudgeMessage(final CurrencyAmount ca) {
-    final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeMsg msg = context.objectToFudgeMsg(ca);
-    s_logger.debug("CurrencyAmount {}", ca);
-    s_logger.debug("Encoded to {}", msg);
-    final byte[] bytes = s_fudgeContext.toByteArray(msg);
-    msg = s_fudgeContext.deserialize(bytes).getMessage();
-    s_logger.debug("Serialised to {}", msg);
-    final CurrencyAmount decoded = s_fudgeContext.fromFudgeMsg(CurrencyAmount.class, msg);
-    s_logger.debug("Decoded to {}", decoded);
-    if (!ca.equals(decoded)) {
-      s_logger.warn("Expected {}", ca);
-      s_logger.warn("Received {}", decoded);
-      fail();
-    }
+    CurrencyAmount object = CurrencyAmount.of(Currency.AUD, 101);
+    assertEncodeDecodeCycle(CurrencyAmount.class, object);
   }
 
 }

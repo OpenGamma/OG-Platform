@@ -5,16 +5,18 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -22,7 +24,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class LogOptionDefinitionTest {
   private static final double STRIKE = 120;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
   private static final Expiry EXPIRY = new Expiry(DATE);
   private static final LogOptionDefinition DEFINITION = new LogOptionDefinition(STRIKE, EXPIRY);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),

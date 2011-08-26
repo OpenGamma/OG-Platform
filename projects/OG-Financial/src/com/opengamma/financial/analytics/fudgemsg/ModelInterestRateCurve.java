@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -35,14 +35,14 @@ import com.opengamma.math.curve.Curve;
 
     @SuppressWarnings("unchecked")
     @Override
-    public YieldCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final Curve<Double, Double> curve = context.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
+    public YieldCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Curve<Double, Double> curve = deserializer.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
       return new YieldCurve(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final YieldCurve object) {
-      context.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final YieldCurve object) {
+      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }
 
@@ -55,14 +55,14 @@ import com.opengamma.math.curve.Curve;
 
     @SuppressWarnings("unchecked")
     @Override
-    public DiscountCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final Curve<Double, Double> curve = context.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
+    public DiscountCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Curve<Double, Double> curve = deserializer.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
       return new DiscountCurve(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DiscountCurve object) {
-      context.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DiscountCurve object) {
+      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }
 

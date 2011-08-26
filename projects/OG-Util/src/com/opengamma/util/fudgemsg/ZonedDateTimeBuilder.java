@@ -13,39 +13,55 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 /**
  * Fudge builder for {@code ZonedDateTime}.
  */
 @FudgeBuilderFor(ZonedDateTime.class)
-public final class ZonedDateTimeBuilder implements FudgeBuilder<ZonedDateTime> {
+public final class ZonedDateTimeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<ZonedDateTime> {
 
   /** Field name. */
   public static final String DATETIME_FIELD_NAME = "datetime";
   /** Field name. */
   public static final String ZONE_FIELD_NAME = "zone";
 
+  //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ZonedDateTime object) {
-    final MutableFudgeMsg msg = context.newMessage();
-    msg.add(DATETIME_FIELD_NAME, object.toOffsetDateTime());
-    msg.add(ZONE_FIELD_NAME, object.getZone().getID());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ZonedDateTime object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
+  public static MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer, final ZonedDateTime object) {
+    if (object == null) {
+      return null;
+    }
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
+    return msg;
+  }
+
+  public static void toFudgeMsg(final FudgeSerializer serializer, final ZonedDateTime object, final MutableFudgeMsg msg) {
+    addToMessage(msg, DATETIME_FIELD_NAME, object.toOffsetDateTime());
+    addToMessage(msg, ZONE_FIELD_NAME, object.getZone());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public ZonedDateTime buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public ZonedDateTime buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return fromFudgeMsg(deserializer, msg);
+  }
+
+  public static ZonedDateTime fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    if (msg == null) {
+      return null;
+    }
     final OffsetDateTime odt = msg.getValue(OffsetDateTime.class, DATETIME_FIELD_NAME);
-    if (odt == null) {
-      throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'datetime' is not present");
-    }
-    final String zone = msg.getString(ZONE_FIELD_NAME);
-    if (zone == null) {
-      throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'zone' is not present");
-    }
-    return ZonedDateTime.of(odt, TimeZone.of(zone));
+    final TimeZone zone = msg.getValue(TimeZone.class, ZONE_FIELD_NAME);
+    return ZonedDateTime.of(odt, zone);
   }
 
 }

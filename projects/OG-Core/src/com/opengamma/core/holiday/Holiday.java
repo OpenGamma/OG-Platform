@@ -9,10 +9,10 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.PublicSPI;
+import com.opengamma.util.PublicAPI;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,16 +21,21 @@ import com.opengamma.util.money.Currency;
  * Markets have, on occasion, holidays when there is no business.
  * These can form part of algorithms and contracts.
  * Instances of this interface represent all known holiday dates for a single type of business.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
-@PublicSPI
+@PublicAPI
 public interface Holiday extends UniqueIdentifiable {
 
   /**
-   * The unique identifier of the holiday.
+   * Gets the unique identifier of the holiday.
+   * <p>
+   * This specifies a single version-correction of the holiday.
    * 
-   * @return the unique identifier for this holiday entry, not null
+   * @return the unique identifier for this holiday, not null within the engine
    */
-  UniqueIdentifier getUniqueId();
+  UniqueId getUniqueId();
 
   /**
    * The type of the holiday.
@@ -44,14 +49,14 @@ public interface Holiday extends UniqueIdentifiable {
    * 
    * @return an identifier for the region, if this is a BANK holiday, null otherwise
    */
-  Identifier getRegionKey();
+  ExternalId getRegionExternalId();
 
   /**
    * The exchange key identifier, used when this is a holiday of type SETTLEMENT or TRADING.
    * 
    * @return an identifier for the exchange, if this is a SETTLEMENT or TRADING holiday, null otherwise
    */
-  Identifier getExchangeKey();
+  ExternalId getExchangeExternalId();
 
   /**
    * The currency, used when this is a holiday of type CURRENCY.

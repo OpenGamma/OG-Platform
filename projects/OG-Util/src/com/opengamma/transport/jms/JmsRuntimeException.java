@@ -12,7 +12,7 @@ import javax.jms.JMSException;
  */
 public class JmsRuntimeException extends RuntimeException {
 
-  /** Serializatoin version. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**

@@ -6,8 +6,10 @@
 package com.opengamma.livedata.entitlement;
 
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
-import com.opengamma.id.Identifier;
+
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.client.DistributedEntitlementChecker;
@@ -34,7 +36,7 @@ public class DistributedEntitlementCheckerTest {
     
     LiveDataSpecification testSpec = new LiveDataSpecification(
         "TestNormalization",
-        Identifier.of("test1", "test1"));
+        ExternalId.of("test1", "test1"));
     UserPrincipal megan = new UserPrincipal("megan", "127.0.0.1");
     assertTrue(client.isEntitled(megan, testSpec));
   }

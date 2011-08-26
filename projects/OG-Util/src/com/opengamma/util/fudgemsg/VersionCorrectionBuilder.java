@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,8 +11,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.VersionCorrection;
 
@@ -20,27 +20,45 @@ import com.opengamma.id.VersionCorrection;
  * Fudge builder for {@code VersionCorrection}.
  */
 @FudgeBuilderFor(VersionCorrection.class)
-public final class VersionCorrectionBuilder implements FudgeBuilder<VersionCorrection> {
+public final class VersionCorrectionBuilder extends AbstractFudgeBuilder implements FudgeBuilder<VersionCorrection> {
 
   /** Field name. */
   public static final String VERSION_AS_OF_FIELD_NAME = "versionAsOf";
   /** Field name. */
   public static final String CORRECTED_TO_FIELD_NAME = "correctedTo";
 
+  //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VersionCorrection object) {
-    final MutableFudgeMsg msg = context.newMessage();
-    if (object.getVersionAsOf() != null) {
-      msg.add(VERSION_AS_OF_FIELD_NAME, object.getVersionAsOf());
-    }
-    if (object.getCorrectedTo() != null) {
-      msg.add(CORRECTED_TO_FIELD_NAME, object.getCorrectedTo());
-    }
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, VersionCorrection object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
+  public static MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer, final VersionCorrection object) {
+    if (object == null) {
+      return null;
+    }
+    final MutableFudgeMsg msg = serializer.newMessage();
+    toFudgeMsg(serializer, object, msg);
+    return msg;
+  }
+
+  public static void toFudgeMsg(final FudgeSerializer serializer, final VersionCorrection object, final MutableFudgeMsg msg) {
+    addToMessage(msg, VERSION_AS_OF_FIELD_NAME, object.getVersionAsOf());
+    addToMessage(msg, CORRECTED_TO_FIELD_NAME, object.getCorrectedTo());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public VersionCorrection buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
+  public VersionCorrection buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return fromFudgeMsg(deserializer, msg);
+  }
+
+  public static VersionCorrection fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    if (msg == null) {
+      return null;
+    }
     final Instant versionAsOf = msg.getValue(Instant.class, VERSION_AS_OF_FIELD_NAME);
     final Instant correctedTo = msg.getValue(Instant.class, CORRECTED_TO_FIELD_NAME);
     return VersionCorrection.of(versionAsOf, correctedTo);

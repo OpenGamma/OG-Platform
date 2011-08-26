@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Collections;
 
 import javax.time.Instant;
@@ -17,8 +17,10 @@ import javax.time.Instant;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -27,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -39,8 +41,8 @@ public class CalculationJobResultTest {
   
   public void fudge() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap ();
-    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
-    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
+    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
     
     CalculationJobItem item = new CalculationJobItem(
         "1",
@@ -56,11 +58,11 @@ public class CalculationJobResultTest {
         Lists.newArrayList(item1, item2),
         "localhost");
     result.convertInputs(identifierMap);
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
+    FudgeSerializer serializationContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(result);
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     CalculationJobResult outputJob = deserializationContext.fudgeMsgToObject(CalculationJobResult.class, outputMsg);
     
     assertNotNull(outputJob);

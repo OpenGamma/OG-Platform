@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -54,10 +54,12 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(data().getPortfolio().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(pr);
     PortfolioHistoryResult result = data().getPortfolioMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -87,7 +89,7 @@ public class WebPortfolioVersionsResource extends AbstractWebPortfolioResource {
   public WebPortfolioVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     PortfolioDocument doc = data().getPortfolio();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       PortfolioDocument versioned = data().getPortfolioMaster().get(combined);
       data().setVersioned(versioned);

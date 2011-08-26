@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -26,11 +26,11 @@ import com.opengamma.util.time.DateUtil;
 public class PaymentFixedDefinitionTest {
 
   private static final Currency CUR = Currency.USD;
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 1, 3);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double AMOUNT = 1000000; //1m
   private static final PaymentFixedDefinition FIXED_PAYMENT = new PaymentFixedDefinition(CUR, PAYMENT_DATE, AMOUNT);
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 12, 27); //For conversion to derivative
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {

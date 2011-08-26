@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -28,9 +28,9 @@ public class DebugFunctionIncrement implements PublishedFunction {
 
   private Value execute(final Value parameter) {
     if (parameter.getDoubleValue() != null) {
-      return ValueUtil.of(parameter.getDoubleValue() + 1);
+      return ValueUtils.of(parameter.getDoubleValue() + 1);
     } else if (parameter.getIntValue() != null) {
-      return ValueUtil.of(parameter.getIntValue() + 1);
+      return ValueUtils.of(parameter.getIntValue() + 1);
     } else {
       throw new IllegalArgumentException("invalid parameter " + parameter);
     }
@@ -52,11 +52,11 @@ public class DebugFunctionIncrement implements PublishedFunction {
 
   private Data execute(final Data parameter) {
     if (parameter.getSingle() != null) {
-      return DataUtil.of(execute(parameter.getSingle()));
+      return DataUtils.of(execute(parameter.getSingle()));
     } else if (parameter.getLinear() != null) {
-      return DataUtil.of(execute(parameter.getLinear()));
+      return DataUtils.of(execute(parameter.getLinear()));
     } else if (parameter.getMatrix() != null) {
-      return DataUtil.of(execute(parameter.getMatrix()));
+      return DataUtils.of(execute(parameter.getMatrix()));
     } else {
       throw new IllegalArgumentException("Expected single, linear or matrix");
     }

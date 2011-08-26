@@ -13,16 +13,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -129,7 +130,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(final UniqueIdentifier uniqueId) {
+  public Portfolio getPortfolio(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePortfolio manPrt;
@@ -142,27 +143,42 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     } catch (DataNotFoundException ex) {
       return null;
     }
-    PortfolioImpl prt = new PortfolioImpl(manPrt.getUniqueId(), manPrt.getName());
+    SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
     convertNode(manPrt.getRootNode(), prt.getRootNode());
     return prt;
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(final UniqueIdentifier uniqueId) {
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ManageablePortfolio manPrt;
+    try {
+      manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
+    SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
+    convertNode(manPrt.getRootNode(), prt.getRootNode());
+    return prt;
+  }
+
+  @Override
+  public PortfolioNode getPortfolioNode(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePortfolioNode manNode;
     if (vc != null) {
       // use defined instants
       PortfolioSearchRequest portfolioSearch = new PortfolioSearchRequest();
-      portfolioSearch.addNodeId(uniqueId);
+      portfolioSearch.addNodeObjectId(uniqueId);
       portfolioSearch.setVersionCorrection(vc);
       PortfolioSearchResult portfolios = getPortfolioMaster().search(portfolioSearch);
       if (portfolios.getDocuments().size() != 1) {
         return null;
       }
       ManageablePortfolio manPrt = portfolios.getFirstPortfolio();
-      manNode = manPrt.getRootNode().findNodeByObjectIdentifier(uniqueId);
+      manNode = manPrt.getRootNode().findNodeByObjectId(uniqueId);
     } else {
       // match by uniqueId
       try {
@@ -171,13 +187,13 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
         return null;
       }
     }
-    PortfolioNodeImpl node = new PortfolioNodeImpl();
+    SimplePortfolioNode node = new SimplePortfolioNode();
     convertNode(manNode, node);
     return node;
   }
 
   @Override
-  public Position getPosition(final UniqueIdentifier uniqueId) {
+  public Position getPosition(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
     String[] values = StringUtils.split(uniqueId.getValue(), '-');
@@ -185,8 +201,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
       throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uniqueId);
     }
-    UniqueIdentifier nodeId = UniqueIdentifier.of(schemes[0], values[0], versions[0]);
-    UniqueIdentifier posId = UniqueIdentifier.of(schemes[1], values[1], versions[1]);
+    UniqueId nodeId = UniqueId.of(schemes[0], values[0], versions[0]);
+    UniqueId posId = UniqueId.of(schemes[1], values[1], versions[1]);
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageablePosition manPos;
     try {
@@ -198,13 +214,13 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     } catch (DataNotFoundException ex) {
       return null;
     }
-    PositionImpl pos = new PositionImpl();
+    SimplePosition pos = new SimplePosition();
     convertPosition(nodeId, manPos, pos);
     return pos;
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier uniqueId) {
+  public Trade getTrade(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
     String[] values = StringUtils.split(uniqueId.getValue(), '-');
@@ -212,14 +228,14 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
       throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uniqueId);
     }
-    UniqueIdentifier nodeId = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[0], values[0]) : UniqueIdentifier.of(schemes[0], values[0], versions[0]);
-    UniqueIdentifier tradeId = versions[0].length() == 0 ? UniqueIdentifier.of(schemes[1], values[1]) : UniqueIdentifier.of(schemes[1], values[1], versions[1]);
+    UniqueId nodeId = versions[0].length() == 0 ? UniqueId.of(schemes[0], values[0]) : UniqueId.of(schemes[0], values[0], versions[0]);
+    UniqueId tradeId = versions[0].length() == 0 ? UniqueId.of(schemes[1], values[1]) : UniqueId.of(schemes[1], values[1], versions[1]);
     final VersionCorrection vc = getVersionCorrection();  // lock against change
     ManageableTrade manTrade;
     if (vc != null) {
       // use defined instants
       PositionSearchRequest positionSearch = new PositionSearchRequest();
-      positionSearch.addTradeId(tradeId);
+      positionSearch.addTradeObjectId(tradeId);
       positionSearch.setVersionCorrection(vc);
       PositionSearchResult positions = getPositionMaster().search(positionSearch);
       if (positions.getDocuments().size() != 1) {
@@ -241,8 +257,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
 
   private static int populatePositionSearchRequest(final PositionSearchRequest positionSearch, final ManageablePortfolioNode node) {
     int count = 0;
-    for (ObjectIdentifier positionIdentifier : node.getPositionIds()) {
-      positionSearch.addPositionId(positionIdentifier);
+    for (ObjectId positionId : node.getPositionIds()) {
+      positionSearch.addPositionObjectId(positionId);
       count++;
     }
     for (ManageablePortfolioNode child : node.getChildNodes()) {
@@ -257,9 +273,9 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param manNode the manageable node, not null
    * @param sourceNode the source node, not null
    */
-  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode) {
+  protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode) {
     PositionSearchRequest positionSearch = new PositionSearchRequest();
-    final Map<ObjectIdentifier, ManageablePosition> positionCache;
+    final Map<ObjectId, ManageablePosition> positionCache;
     final int positionCount = populatePositionSearchRequest(positionSearch, manNode);
     if (positionCount > 0) {
       positionCache = Maps.newHashMapWithExpectedSize(positionCount);
@@ -281,25 +297,25 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param sourceNode the source node, not null
    * @param positionCache the positions, not null
    */
-  protected void convertNode(final ManageablePortfolioNode manNode, final PortfolioNodeImpl sourceNode, final Map<ObjectIdentifier, ManageablePosition> positionCache) {
-    final UniqueIdentifier nodeId = manNode.getUniqueId();
+  protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode, final Map<ObjectId, ManageablePosition> positionCache) {
+    final UniqueId nodeId = manNode.getUniqueId();
     sourceNode.setUniqueId(nodeId);
     sourceNode.setName(manNode.getName());
     sourceNode.setParentNodeId(manNode.getParentNodeId());
     if (manNode.getPositionIds().size() > 0) {
-      for (ObjectIdentifier positionIdentifier : manNode.getPositionIds()) {
-        final ManageablePosition foundPosition = positionCache.get(positionIdentifier);
+      for (ObjectId positionId : manNode.getPositionIds()) {
+        final ManageablePosition foundPosition = positionCache.get(positionId);
         if (foundPosition != null) {
-          final PositionImpl position = new PositionImpl();
+          final SimplePosition position = new SimplePosition();
           convertPosition(nodeId, foundPosition, position);
           sourceNode.addPosition(position);
         } else {
-          s_logger.warn("Position {} not found for portfolio node {}", positionIdentifier, nodeId);
+          s_logger.warn("Position {} not found for portfolio node {}", positionId, nodeId);
         }
       }
     }
     for (ManageablePortfolioNode child : manNode.getChildNodes()) {
-      PortfolioNodeImpl childNode = new PortfolioNodeImpl();
+      SimplePortfolioNode childNode = new SimplePortfolioNode();
       convertNode(child, childNode, positionCache);
       sourceNode.addChildNode(childNode);
     }
@@ -312,8 +328,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param manPos  the manageable position, not null
    * @param sourcePosition  the source position, not null
    */
-  protected void convertPosition(final UniqueIdentifier nodeId, final ManageablePosition manPos, final PositionImpl sourcePosition) {
-    UniqueIdentifier posId = convertId(manPos.getUniqueId(), nodeId);
+  protected void convertPosition(final UniqueId nodeId, final ManageablePosition manPos, final SimplePosition sourcePosition) {
+    UniqueId posId = convertId(manPos.getUniqueId(), nodeId);
     sourcePosition.setUniqueId(posId);
     sourcePosition.setParentNodeId(nodeId);
     sourcePosition.setQuantity(manPos.getQuantity());
@@ -332,7 +348,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param posId  the converted position unique identifier, not null
    * @param manTrade  the manageable trade, not null
    */
-  protected void convertTrade(final UniqueIdentifier nodeId, final UniqueIdentifier posId, final ManageableTrade manTrade) {
+  protected void convertTrade(final UniqueId nodeId, final UniqueId posId, final ManageableTrade manTrade) {
     manTrade.setUniqueId(convertId(manTrade.getUniqueId(), nodeId));
     manTrade.setParentPositionId(posId);
   }
@@ -344,11 +360,19 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * @param nodeId  the node unique identifier, not null
    * @return the combined unique identifier, not null
    */
-  protected UniqueIdentifier convertId(final UniqueIdentifier positionOrTradeId, final UniqueIdentifier nodeId) {
-    return UniqueIdentifier.of(
+  protected UniqueId convertId(final UniqueId positionOrTradeId, final UniqueId nodeId) {
+    return UniqueId.of(
         nodeId.getScheme() + '-' + positionOrTradeId.getScheme(),
         nodeId.getValue() + '-' + positionOrTradeId.getValue(),
         StringUtils.defaultString(nodeId.getVersion()) + '-' + StringUtils.defaultString(positionOrTradeId.getVersion()));
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    // NOTE jonathan 2011-08-03 -- PortfolioMaster does not currently implement ChangeProvider so currently return the
+    // PositionMaster's ChangeManager.
+    return getPositionMaster().changeManager();
   }
 
   //-------------------------------------------------------------------------

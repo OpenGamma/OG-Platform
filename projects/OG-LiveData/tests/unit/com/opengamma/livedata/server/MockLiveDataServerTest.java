@@ -5,18 +5,20 @@
  */
 package com.opengamma.livedata.server;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.util.Collections;
 
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
@@ -32,12 +34,12 @@ import com.opengamma.livedata.server.distribution.MarketDataDistributor;
  */
 public class MockLiveDataServerTest {
   
-  private IdentificationScheme _domain;
+  private ExternalScheme _domain;
   private MockLiveDataServer _server;
   
   @BeforeMethod
   public void setUp() {
-    _domain = IdentificationScheme.of("test");
+    _domain = ExternalScheme.of("test");
     _server = new MockLiveDataServer(_domain);
     _server.connect();
   }
@@ -55,7 +57,7 @@ public class MockLiveDataServerTest {
   private LiveDataSpecification getSpec(String uniqueId) {
     LiveDataSpecification spec = new LiveDataSpecification(
         _server.getDefaultNormalizationRuleSetId(),
-        Identifier.of(_server.getUniqueIdDomain(), uniqueId));
+        ExternalId.of(_server.getUniqueIdDomain(), uniqueId));
     return spec;
   }
   
@@ -137,7 +139,7 @@ public class MockLiveDataServerTest {
     
     LiveDataSpecification requestedSpec = new LiveDataSpecification(
         StandardRules.getNoNormalization().getId(), 
-        Identifier.of(_domain, "testsub"));
+        ExternalId.of(_domain, "testsub"));
     
     LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(
         user,
@@ -202,7 +204,7 @@ public class MockLiveDataServerTest {
     
     LiveDataSpecification requestedSpec = new LiveDataSpecification(
         StandardRules.getNoNormalization().getId(), 
-        Identifier.of(_domain, "testsub"));
+        ExternalId.of(_domain, "testsub"));
     
     LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(
         user,

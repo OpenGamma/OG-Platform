@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.security.test.MockSecurity;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
@@ -50,11 +50,13 @@ import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.CommandLineBatchJob;
 import com.opengamma.financial.batch.CommandLineBatchJobRun;
 import com.opengamma.financial.batch.LiveDataValue;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
@@ -90,24 +92,24 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     
-    UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
+    ObjectId portfolioOid = ObjectId.of("foo", "bar");
     
     MockPositionSource positionSource = new MockPositionSource();
-    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    positionSource.addPortfolio(new SimplePortfolio(portfolioOid.atVersion("1"), "test_portfolio"));
     env.setPositionSource(positionSource);
     
-    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioOid, "ViewTestUser");
     env.setViewDefinition(viewDefinition);
     
     env.init();
     
-    CompiledViewDefinition compiledViewDefinition = env.compileViewDefinition(Instant.now());
+    CompiledViewDefinition compiledViewDefinition = env.compileViewDefinition(Instant.now(), VersionCorrection.LATEST);
     _batchJobRun.setCompiledViewDefinition(compiledViewDefinition);
     
     _batchJobRun.setViewProcessor(env.getViewProcessor());
     
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
-    doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
+    doc.setUniqueId(UniqueId.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
@@ -219,9 +221,9 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     assertEquals(0, snapshot.getSnapshotEntries().size());
     
     Set<ComputationTargetSpecification> specs = Sets.newHashSet();
-    specs.add(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)));
-    specs.add(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12346", "1")));
-    specs.add(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12347", "2")));
+    specs.add(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12345", null)));
+    specs.add(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12346", "1")));
+    specs.add(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12347", "2")));
     
     Set<LiveDataValue> values = new HashSet<LiveDataValue>();
     for (ComputationTargetSpecification spec : specs) {
@@ -248,9 +250,9 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     
     // should update 2, add 1
     values = new HashSet<LiveDataValue>();
-    values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)), "field_name", 123.46));
-    values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12347", "2")), "field_name", 123.47));
-    values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12348")), "field_name", 123.45));
+    values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12345", null)), "field_name", 123.46));
+    values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12347", "2")), "field_name", 123.47));
+    values.add(new LiveDataValue(new ComputationTargetSpecification(ExternalId.of("BUID", "EQ12348")), "field_name", 123.45));
     
     _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
     snapshot = _batchMaster.getLiveDataSnapshot(_batchJobRun);
@@ -367,35 +369,35 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
 
   @Test
   public void getComputationTargetBySpec() {
-    UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
+    UniqueId uniqueId = UniqueId.of("foo", "bar");
     
     ComputationTarget portfolio = _batchMaster.getComputationTarget(
-        new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, uid));
+        new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, uniqueId));
     assertNotNull(portfolio);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE.ordinal(), portfolio.getComputationTargetType());
-    assertEquals(uid.getScheme(), portfolio.getIdScheme());
-    assertEquals(uid.getValue(), portfolio.getIdValue());
-    assertEquals(uid.getVersion(), portfolio.getIdVersion());
+    assertEquals(uniqueId.getScheme(), portfolio.getIdScheme());
+    assertEquals(uniqueId.getValue(), portfolio.getIdValue());
+    assertEquals(uniqueId.getVersion(), portfolio.getIdVersion());
     
     ComputationTarget position = _batchMaster.getComputationTarget(
-        new ComputationTargetSpecification(ComputationTargetType.POSITION, uid));
+        new ComputationTargetSpecification(ComputationTargetType.POSITION, uniqueId));
     assertEquals(ComputationTargetType.POSITION.ordinal(), position.getComputationTargetType());
     
     ComputationTarget security = _batchMaster.getComputationTarget(
-        new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
+        new ComputationTargetSpecification(ComputationTargetType.SECURITY, uniqueId));
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     
     ComputationTarget primitive = _batchMaster.getComputationTarget(
-        new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uid));
+        new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId));
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
   }
 
   @Test
   public void getComputationTarget() {
-    UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar", "1");
+    UniqueId uniqueId = UniqueId.of("foo", "bar", "1");
     
-    MockSecurity mockSecurity = new MockSecurity("option");
-    mockSecurity.setUniqueId(uid);
+    SimpleSecurity mockSecurity = new SimpleSecurity("option");
+    mockSecurity.setUniqueId(uniqueId);
     mockSecurity.setName("myOption");
     
     ComputationTarget security = _batchMaster.getComputationTarget(
@@ -404,21 +406,21 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     assertEquals("myOption", security.getName());
     
     ComputationTarget primitive = _batchMaster.getComputationTarget(
-        new com.opengamma.engine.ComputationTarget(uid));
+        new com.opengamma.engine.ComputationTarget(uniqueId));
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
     assertNull(primitive.getName());
   }
 
   @Test
   public void updateComputationTarget() {
-    UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
+    UniqueId uniqueId = UniqueId.of("foo", "bar");
     
-    MockSecurity mockSecurity = new MockSecurity("option");
-    mockSecurity.setUniqueId(uid);
+    SimpleSecurity mockSecurity = new SimpleSecurity("option");
+    mockSecurity.setUniqueId(uniqueId);
     mockSecurity.setName("myOption");
     
     ComputationTarget security = _batchMaster.getComputationTarget(
-        new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
+        new ComputationTargetSpecification(ComputationTargetType.SECURITY, uniqueId));
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     assertNull(security.getName());
     
@@ -502,7 +504,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   @Test(expectedExceptions=DataNotFoundException.class)
   public void get_dataNonexistentBatch() {
     BatchGetRequest request = new BatchGetRequest();
-    request.setUniqueId(UniqueIdentifier.of("DbBat", "2000-05-05-" + _batchJobRun.getObservationTime()));
+    request.setUniqueId(UniqueId.of("DbBat", "2000-05-05-" + _batchJobRun.getObservationTime()));
     
     _batchMaster.get(request);
   }
@@ -513,7 +515,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     _batchMaster.startBatch(_batchJobRun);
     
     BatchGetRequest request = new BatchGetRequest();
-    request.setUniqueId(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
+    request.setUniqueId(UniqueId.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
     
     commit();
     startNewTransaction();
@@ -529,7 +531,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     _batchMaster.startBatch(_batchJobRun);
     
     BatchGetRequest request = new BatchGetRequest();
-    request.setUniqueId(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
+    request.setUniqueId(UniqueId.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
     request.setDataPagingRequest(PagingRequest.NONE);
     request.setErrorPagingRequest(PagingRequest.ALL);
     
@@ -545,7 +547,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
   public void deleteNonExisting() {
     assertNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
     
-    _batchMaster.delete(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
+    _batchMaster.delete(UniqueId.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
   }
 
   @Test
@@ -557,7 +559,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     
     assertNotNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
     
-    _batchMaster.delete(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
+    _batchMaster.delete(UniqueId.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
     assertNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
   }
 
@@ -571,9 +573,9 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.setCalculationTime(now);
     result.setValuationTime(now);
-    result.setViewProcessId(UniqueIdentifier.of("Test", "ViewProcess"));
+    result.setViewProcessId(UniqueId.of("Test", "ViewProcess"));
     
-    ComputationTargetSpecification spec = new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)); 
+    ComputationTargetSpecification spec = new ComputationTargetSpecification(UniqueId.of("BUID", "EQ12345", null)); 
     result.addMarketData(new ComputedValue(
         new ValueSpecification(
             "MarketValue", 

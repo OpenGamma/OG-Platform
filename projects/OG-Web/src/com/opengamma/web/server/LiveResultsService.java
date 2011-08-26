@@ -24,11 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -71,8 +73,17 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
     
+    viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
+
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        sendInitData(false);
+      }
+      
+    });
+    
     s_logger.info("Subscribing to services");
-    subscribe("/service/initData", "processInitDataRequest");
+    subscribe("/service/getInitData", "processInitDataRequest");
     subscribe("/service/changeView", "processChangeViewRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
@@ -104,7 +115,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
   }
 
-  private void initializeClientView(final Client remote, final String viewDefinitionName, final UniqueIdentifier snapshotId, final UserPrincipal user) {
+  private void initializeClientView(final Client remote, final String viewDefinitionName, final UniqueId snapshotId, final UserPrincipal user) {
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(remote.getId());
       if (webView != null) {
@@ -189,15 +200,21 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   public void processInitDataRequest(Client remote, Message message) {
     s_logger.info("processInitDataRequest");
+    sendInitData(true);
+  }
+  
+  private void sendInitData(boolean includeSnapshots) {
     Map<String, Object> reply = new HashMap<String, Object>();
     
     List<String> availableViewNames = getViewNames();
     reply.put("viewNames", availableViewNames);
     
-    Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
-    reply.put("snapshots", snapshotDetails);
+    if (includeSnapshots) {
+      Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
+      reply.put("snapshots", snapshotDetails);
+    }
     
-    remote.deliver(getClient(), "/initData", reply, null);
+    getBayeux().getChannel("/initData", true).publish(getClient(), reply, null);
   }
 
   private List<String> getViewNames() {
@@ -242,7 +259,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     Map<String, Object> data = (Map<String, Object>) message.getData();
     String viewName = (String) data.get("viewName");
     String snapshotIdString = (String) data.get("snapshotId");
-    UniqueIdentifier snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueIdentifier.parse(snapshotIdString) : null;
+    UniqueId snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueId.parse(snapshotIdString) : null;
     s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
     initializeClientView(remote, viewName, snapshotId, getUser(remote));
   }

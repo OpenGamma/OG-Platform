@@ -17,9 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -49,8 +48,8 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noSecurityId() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
+    UniqueId uniqueId = UniqueId.of("DbSec", "101");
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     _secMaster.correct(doc);
@@ -59,22 +58,22 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noSecurity() {
     SecurityDocument doc = new SecurityDocument();
-    doc.setUniqueId(UniqueIdentifier.of("DbSec", "101", "0"));
+    doc.setUniqueId(UniqueId.of("DbSec", "101", "0"));
     _secMaster.correct(doc);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
+    UniqueId uniqueId = UniqueId.of("DbSec", "0", "0");
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.correct(doc);
   }
 
 //  @Test(expected = IllegalArgumentException.class)
 //  public void test_correct_notLatestCorrection() {
-//    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
-//    DefaultSecurity security = new DefaultSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
+//    UniqueId uniqueId = UniqueId("DbSec", "201", "0");
+//    DefaultSecurity security = new DefaultSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
 //    SecurityDocument doc = new SecurityDocument(security);
 //    _worker.correct(doc);
 //  }
@@ -83,9 +82,9 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   public void test_correct_getUpdateGet() {
     Instant now = Instant.now(_secMaster.getTimeSource());
     
-    UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101", "0");
-    SecurityDocument base = _secMaster.get(uid);
-    ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of("A", "B"));
+    UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
+    SecurityDocument base = _secMaster.get(uniqueId);
+    ManageableSecurity security = new ManageableSecurity(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
     SecurityDocument input = new SecurityDocument(security);
     
     SecurityDocument corrected = _secMaster.correct(input);
@@ -96,7 +95,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals(input.getSecurity(), corrected.getSecurity());
     
-    SecurityDocument old = _secMaster.get(UniqueIdentifier.of("DbSec", "101", "0"));
+    SecurityDocument old = _secMaster.get(UniqueId.of("DbSec", "101", "0"));
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());

@@ -25,12 +25,12 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -207,7 +207,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     }
     final Set<String> possibleCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (possibleCurrencies == null) {
-      throw new IllegalArgumentException("Must specify a currency constraint; use DefaultCurrencyFunction instead");
+      s_logger.debug("Must specify a currency constraint; use DefaultCurrencyFunction instead");
+      return null;
     } else if (possibleCurrencies.isEmpty()) {
       if (isAllowViewDefaultCurrency()) {
         // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
@@ -220,7 +221,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
             ValuePropertyNames.CURRENCY, defaultCurrencyISO).get()));
         return req;
       } else {
-        throw new IllegalArgumentException("Cannot satisfy a wildcard currency constraint");
+        s_logger.debug("Cannot satisfy a wildcard currency constraint");
+        return null;
       }
     } else {
       // Actual input requirement is desired requirement with the currency wild-carded
@@ -278,7 +280,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of(getRateLookupIdentifierScheme(), fromCurrency + "_"
+    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of(getRateLookupIdentifierScheme(), fromCurrency + "_"
         + toCurrency)));
   }
 

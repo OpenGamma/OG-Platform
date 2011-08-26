@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text', 'og.api.rest'],
     obj: function () {
-        var stall = 500, item_prefix = 'item_', id_count = 0, dummy = '<p></p>',
+        var stall = 500, item_prefix = 'item_', id_count = 0, dummy = '<p/>',
             form_template = '<form action="." id="${id}"><div class="OG-form">' +
                 '{{html html}}<input type="submit" style="display: none;"></div></form>',
             api_text = og.api.text, api_rest = og.api.rest,
@@ -114,7 +114,7 @@ $.register_module({
             };
             form.Block = Block.partial(form);
             form.dom = form.html.partial(function (html) {
-                $root.html($.tmpl(form_template, {id: form.id, html: html}));
+                $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(function (e) {
                     var self = 'onsubmit', raw = $form.serializeArray(),

@@ -11,7 +11,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.region.RegionUtils;
@@ -24,22 +24,22 @@ import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.i18n.Country;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
 @SuppressWarnings("synthetic-access")
 public class SwapScheduleCalculatorTest {
-  private static final ZonedDateTime EFFECTIVE = DateUtil.getUTCDate(2010, 6, 1);
-  private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
-  private static final Identifier REGION_ID = RegionUtils.countryRegionId(Country.US);
+  private static final ZonedDateTime EFFECTIVE = DateUtils.getUTCDate(2010, 6, 1);
+  private static final ZonedDateTime MATURITY = DateUtils.getUTCDate(2020, 6, 1);
+  private static final ExternalId REGION_ID = RegionUtils.countryRegionId(Country.US);
   private static final Notional NOTIONAL = new Notional() {
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
       // Okay to return NULL as we're not doing any messaging with this
       return null;
     }
@@ -78,7 +78,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
       return null;
     }
 
@@ -92,7 +92,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializationContext fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
       return null;
     }
 

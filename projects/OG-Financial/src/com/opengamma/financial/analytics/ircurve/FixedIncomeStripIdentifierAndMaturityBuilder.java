@@ -21,6 +21,8 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
@@ -32,10 +34,11 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -53,7 +56,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     _secSource = secSource;
   }
 
-  public InterpolatedYieldCurveSpecificationWithSecurities resolveToSecurity(final InterpolatedYieldCurveSpecification curveSpecification, final Map<Identifier, Double> marketValues) {
+  public InterpolatedYieldCurveSpecificationWithSecurities resolveToSecurity(final InterpolatedYieldCurveSpecification curveSpecification, final Map<ExternalId, Double> marketValues) {
     final LocalDate curveDate = curveSpecification.getCurveDate();
     final Collection<FixedIncomeStripWithSecurity> securityStrips = new ArrayList<FixedIncomeStripWithSecurity>();
     for (final FixedIncomeStripWithIdentifier strip : curveSpecification.getStrips()) {
@@ -140,50 +143,59 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(), securityStrips);
   }
 
-  private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<Identifier, Double> marketValues) {
+  private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
     final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC),
         marketValues.get(strip.getSecurity()), 1.0d);
-    sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
+    sec.setIdentifiers(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }
 
-  private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<Identifier, Double> marketValues) {
+  private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
     final LocalDate curveDate = spec.getCurveDate(); // quick hack
     final LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(3));
     final LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
-    final Identifier underlyingIdentifier = strip.getSecurity();
+    final ExternalId underlyingIdentifier = strip.getSecurity();
     //TODO this normalization should not be done here
     return new FRASecurity(spec.getCurrency(), spec.getRegion(),
         startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
   }
 
   private FutureSecurity getFuture(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip) {
-    return (FutureSecurity) _secSource.getSecurity(IdentifierBundle.of(strip.getSecurity()));
+    return (FutureSecurity) _secSource.getSecurity(ExternalIdBundle.of(strip.getSecurity()));
   }
 
   private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
-      final Map<Identifier, Double> marketValues) {
-    final Identifier swapIdentifier = strip.getSecurity();
+      final Map<ExternalId, Double> marketValues) {
+    final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
     final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
-    final ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
+    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
-    final Identifier floatRateBloombergTicker = floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId floatRateBloombergTicker = floatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     Double initialRate = null;
-    for (final Identifier identifier : floatRateConvention.getIdentifiers()) {
+    for (final ExternalId identifier : floatRateConvention.getIdentifiers()) {
       if (marketValues.containsKey(identifier)) {
         initialRate = marketValues.get(identifier); // get the initial rate.
         break;
       }
     }
     if (initialRate == null) {
-      throw new OpenGammaRuntimeException("Could not get initial rate");
+      //try using unique id from secMaster
+      Security security = _secSource.getSecurity(floatRateConvention.getIdentifiers());
+      if (security != null) {
+        UniqueId uniqueId = security.getUniqueId();
+        ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uniqueId).getIdentifier();
+        initialRate = marketValues.get(identifier);
+      }
+      if (initialRate == null) {
+        throw new OpenGammaRuntimeException("Could not get initial rate for " + floatRateConvention.getIdentifiers());
+      }
     }
     final double spread = 0;
     if (rate == null) {
@@ -212,26 +224,26 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 fixedRate));
-    swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
+    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
   private SwapSecurity getTenorSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
-      final Map<Identifier, Double> marketValues) {
-    final Identifier swapIdentifier = strip.getSecurity();
+      final Map<ExternalId, Double> marketValues) {
+    final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
     final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
-    final ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
+    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
     final String counterparty = "";
     final ConventionBundle payLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     final ConventionBundle receiveLegFloatRateConvention = source.getConventionBundle(convention.getBasisSwapReceiveFloatingLegInitialRate());
-    final Identifier payLegFloatRateBloombergTicker = payLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-    final Identifier receiveLegFloatRateBloombergTicker = receiveLegFloatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId payLegFloatRateBloombergTicker = payLegFloatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId receiveLegFloatRateBloombergTicker = receiveLegFloatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get spread; was trying " + swapIdentifier);
     }
@@ -262,35 +274,35 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 0.,
                                                 spread,
                                                 true));
-    swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
+    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
-  private CashSecurity getOISCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<Identifier, Double> marketValues) {
-    final Identifier identifier = strip.getSecurity();
+  private CashSecurity getOISCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
+    final ExternalId identifier = strip.getSecurity();
     final double rate = marketValues.get(identifier);
     final ZonedDateTime maturity = spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     final Currency currency = spec.getCurrency();
-    final Identifier region = spec.getRegion();
+    final ExternalId region = spec.getRegion();
     final CashSecurity cash = new CashSecurity(currency, region, maturity, rate, 1);
-    cash.setIdentifiers(IdentifierBundle.of(identifier));
+    cash.setIdentifiers(ExternalIdBundle.of(identifier));
     return cash;
   }
 
   private SwapSecurity getOISSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
-      final Map<Identifier, Double> marketValues) {
-    final Identifier swapIdentifier = strip.getSecurity();
+      final Map<ExternalId, Double> marketValues) {
+    final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
     final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
-    final ZonedDateTime effectiveDate = DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
+    final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
+    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
-    final Identifier floatRateBloombergTicker = floatRateConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId floatRateBloombergTicker = floatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     if (rate == null) {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
@@ -317,7 +329,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 fixedRate));
-    swap.setIdentifiers(IdentifierBundle.of(swapIdentifier));
+    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 

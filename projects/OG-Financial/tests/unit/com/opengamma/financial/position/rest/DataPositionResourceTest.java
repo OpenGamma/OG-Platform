@@ -5,21 +5,22 @@
  */
 package com.opengamma.financial.position.rest;
 
-import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.math.BigDecimal;
 
 import javax.ws.rs.core.Response;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -31,7 +32,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 public class DataPositionResourceTest {
 
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "PosA");
+  private static final UniqueId UID = UniqueId.of("Test", "PosA");
   private PositionMaster _underlying;
   private DataPositionResource _resource;
 
@@ -44,7 +45,7 @@ public class DataPositionResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testGetPosition() {
-    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     final PositionDocument result = new PositionDocument(position);
     when(_underlying.get(UID, VersionCorrection.LATEST)).thenReturn(result);
     
@@ -55,7 +56,7 @@ public class DataPositionResourceTest {
 
   @Test
   public void testUpdatePosition() {
-    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    final ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     final PositionDocument request = new PositionDocument(position);
     request.setUniqueId(UID);
     

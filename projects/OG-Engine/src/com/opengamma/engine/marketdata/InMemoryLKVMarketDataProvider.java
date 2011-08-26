@@ -22,9 +22,9 @@ import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
@@ -49,7 +49,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   /**
    * Constructs an instance.
    * 
-   * @param securitySource  the security source for resolution of Identifiers, or {@code null} to prevent this support
+   * @param securitySource  the security source for resolution of Identifiers, null to prevent this support
    */
   public InMemoryLKVMarketDataProvider(SecuritySource securitySource) {
     _securitySource = securitySource;
@@ -114,7 +114,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
   
   @Override
-  public void addValue(Identifier identifier, String valueName, Object value) {
+  public void addValue(ExternalId identifier, String valueName, Object value) {
     ValueRequirement valueRequirement = resolveRequirement(identifier, valueName);
     addValue(valueRequirement, value);
   }
@@ -126,7 +126,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   }
   
   @Override
-  public void removeValue(Identifier identifier, String valueName) {
+  public void removeValue(ExternalId identifier, String valueName) {
     ValueRequirement valueRequirement = resolveRequirement(identifier, valueName);
     removeValue(valueRequirement);
   }
@@ -145,26 +145,26 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     return new HashMap<ValueRequirement, Object>(_lastKnownValues);
   }
   
-  private ValueRequirement resolveRequirement(Identifier identifier, String valueName) {
+  private ValueRequirement resolveRequirement(ExternalId identifier, String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
     
     Security security = null;
     if (_securitySource != null) {
       // 1 - see if the identifier can be resolved to a security
-      security = _securitySource.getSecurity(IdentifierBundle.of(identifier));
+      security = _securitySource.getSecurity(ExternalIdBundle.of(identifier));
       
-      // 2 - see if the so-called Identifier is actually the UniqueIdentifier of a security
+      // 2 - see if the so-called Identifier is actually the UniqueId of a security
       // if (security == null) {
-        // Can't do this as the UniqueIdentifier may be the wrong type for the master - does this case really matter?
+        // Can't do this as the UniqueId may be the wrong type for the master - does this case really matter?
         // security = _securitySource.getSecurity(uniqueIdentifier);
       // }
     }
     if (security != null) {
       return new ValueRequirement(valueName, ComputationTargetType.SECURITY, security.getUniqueId());
     } else {
-      // 3 - treat the identifier as a UniqueIdentifier and assume it's a PRIMITIVE
-      UniqueIdentifier uniqueIdentifier = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
+      // 3 - treat the identifier as a UniqueId and assume it's a PRIMITIVE
+      UniqueId uniqueIdentifier = UniqueId.of(identifier.getScheme().getName(), identifier.getValue());
       return new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueIdentifier);
     }
   }

@@ -15,8 +15,8 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -80,7 +80,7 @@ public class ComputationTarget implements Serializable {
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     final Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
       return ((UniqueIdentifiable) value).getUniqueId();
@@ -155,10 +155,9 @@ public class ComputationTarget implements Serializable {
    * <p>
    * This can the portfolio name, the security name,
    * the name of the security underlying a position,
-   * or - for primitives - {@code null}.
+   * or - for primitives - null.
    * 
-   * @return the name of the computation target, {@code null}
-   * if a primitive 
+   * @return the name of the computation target, null if a primitive 
    */
   public String getName() {
     switch (getType()) {

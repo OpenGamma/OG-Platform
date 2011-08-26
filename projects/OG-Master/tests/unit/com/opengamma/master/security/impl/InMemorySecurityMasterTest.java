@@ -5,41 +5,43 @@
  */
 package com.opengamma.master.security.impl;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+
 import java.util.List;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdSupplier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * Test InMemorySecurityMaster.
+ * Test {@link InMemorySecurityMaster}.
  */
 @Test
 public class InMemorySecurityMasterTest {
 
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
 
-  private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
-  private static final Identifier ID1 = Identifier.of("A", "B");
-  private static final Identifier ID2 = Identifier.of("A", "C");
-  private static final IdentifierBundle BUNDLE1 = IdentifierBundle.of(ID1);
-  private static final IdentifierBundle BUNDLE2 = IdentifierBundle.of(ID2);
-  private static final ManageableSecurity SEC1 = new ManageableSecurity(UniqueIdentifier.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
-  private static final ManageableSecurity SEC2 = new ManageableSecurity(UniqueIdentifier.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
+  private static final UniqueId OTHER_UID = UniqueId.of("U", "1");
+  private static final ExternalId ID1 = ExternalId.of("A", "B");
+  private static final ExternalId ID2 = ExternalId.of("A", "C");
+  private static final ExternalIdBundle BUNDLE1 = ExternalIdBundle.of(ID1);
+  private static final ExternalIdBundle BUNDLE2 = ExternalIdBundle.of(ID2);
+  private static final ManageableSecurity SEC1 = new ManageableSecurity(UniqueId.of("Test", "sec1"), "Test 1", "TYPE1", BUNDLE1);
+  private static final ManageableSecurity SEC2 = new ManageableSecurity(UniqueId.of("Test", "sec2"), "Test 2", "TYPE2", BUNDLE2);
 
   private InMemorySecurityMaster testEmpty;
   private InMemorySecurityMaster testPopulated;
@@ -48,8 +50,8 @@ public class InMemorySecurityMasterTest {
 
   @BeforeMethod
   public void setUp() {
-    testEmpty = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
-    testPopulated = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
+    testEmpty = new InMemorySecurityMaster(new ObjectIdSupplier("Test"));
+    testPopulated = new InMemorySecurityMaster(new ObjectIdSupplier("Test"));
     doc1 = new SecurityDocument();
     doc1.setSecurity(SEC1);
     doc1 = testPopulated.add(doc1);
@@ -61,7 +63,7 @@ public class InMemorySecurityMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
-    new InMemorySecurityMaster((Supplier<ObjectIdentifier>) null);
+    new InMemorySecurityMaster((Supplier<ObjectId>) null);
   }
 
   public void test_defaultSupplier() {
@@ -73,7 +75,7 @@ public class InMemorySecurityMasterTest {
   }
 
   public void test_alternateSupplier() {
-    InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Hello"));
+    InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdSupplier("Hello"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
     SecurityDocument added = master.add(doc);
@@ -108,8 +110,8 @@ public class InMemorySecurityMasterTest {
 
   public void test_search_populatedMaster_filterByBundle_both() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(BUNDLE1);
-    request.addSecurityKeys(BUNDLE2);
+    request.addExternalIds(BUNDLE1);
+    request.addExternalIds(BUNDLE2);
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(2, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();
@@ -138,9 +140,9 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
   
-  public void test_search_popluatedMaster_filterByIdentifierValue() {
+  public void test_search_popluatedMaster_filterByExternalIdValue() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifierValue("B");
+    request.setExternalIdValue("B");
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();
@@ -148,9 +150,9 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc1));
   }
   
-  public void test_search_popluatedMaster_filterByIdentifierValue_case() {
+  public void test_search_popluatedMaster_filterByExternalIdValue_case() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setIdentifierValue("b");
+    request.setExternalIdValue("b");
     SecuritySearchResult result = testPopulated.search(request);
     assertEquals(1, result.getPaging().getTotalItems());
     List<SecurityDocument> docs = result.getDocuments();

@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.fudgemsg;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.surface.Surface;
@@ -34,14 +34,14 @@ import com.opengamma.math.surface.Surface;
     private static final String SURFACE_FIELD_NAME = "sigma";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final VolatilitySurface object) {
-      context.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final VolatilitySurface object) {
+      serializer.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public VolatilitySurface buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-      final Surface<Double, Double, Double> surface = context.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
+    public VolatilitySurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Surface<Double, Double, Double> surface = deserializer.fieldValueToObject(Surface.class, message.getByName(SURFACE_FIELD_NAME));
       return new VolatilitySurface(surface);
     }
   }

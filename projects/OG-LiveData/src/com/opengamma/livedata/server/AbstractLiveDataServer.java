@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -172,7 +173,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @return Identification domain that uniquely identifies securities for this
    *         type of server.
    */
-  protected abstract IdentificationScheme getUniqueIdDomain();
+  protected abstract ExternalScheme getUniqueIdDomain();
   
   /**
    * Connects to the underlying market data provider.
@@ -282,7 +283,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public LiveDataSpecification getLiveDataSpecification(String securityUniqueId) {
     LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
         getDefaultNormalizationRuleSetId(),
-        Identifier.of(getUniqueIdDomain(), securityUniqueId));
+        ExternalId.of(getUniqueIdDomain(), securityUniqueId));
     return liveDataSpecification;
   }
 
@@ -604,28 +605,36 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
     
     Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
-    
+    ArrayList<LiveDataSpecification> distributable = new ArrayList<LiveDataSpecification>();
     for (LiveDataSpecification requestedSpecification : subscriptionRequest
         .getSpecifications()) {
-
       try {
-
         // Check that this spec can be found
         DistributionSpecification spec = distributionSpecifications.get(requestedSpecification);
         if (spec == null) {
-          responses.add(new LiveDataSubscriptionResponse(
-              requestedSpecification,
-              LiveDataSubscriptionResult.NOT_PRESENT,
-              "Could not build distribution specification for " + requestedSpecification,
-              null,
-              null, 
-              null));
-          continue;
+          responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
+              LiveDataSubscriptionResult.NOT_PRESENT, "Could not build distribution specification for "
+                  + requestedSpecification, null, null, null));
+        } else {
+          distributable.add(requestedSpecification);
         }
-
-        // Entitlement check
-        if (!getEntitlementChecker().isEntitled(
-            subscriptionRequest.getUser(), requestedSpecification)) {
+      } catch (Exception e) {
+        s_logger.error("Failed to subscribe to " + requestedSpecification, e);
+        responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
+            LiveDataSubscriptionResult.INTERNAL_ERROR,
+            e.getMessage(),
+            null,
+            null,
+            null));
+      }
+    }
+    
+    Map<LiveDataSpecification, Boolean> entitled = getEntitlementChecker().isEntitled(subscriptionRequest.getUser(), distributable);
+    for (Entry<LiveDataSpecification, Boolean> entry : entitled.entrySet()) {
+      LiveDataSpecification requestedSpecification = entry.getKey();
+      try {
+        Boolean entitlement = entry.getValue();
+        if (!entitlement) {
           String msg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
           s_logger.info(msg);
           responses.add(new LiveDataSubscriptionResponse(

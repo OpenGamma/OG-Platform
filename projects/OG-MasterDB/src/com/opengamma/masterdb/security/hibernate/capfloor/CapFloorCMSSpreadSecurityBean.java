@@ -12,8 +12,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -26,10 +26,10 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   private FrequencyBean _frequency;
   private boolean _isCap;
   private boolean _isPayer;
-  private IdentifierBean _longIdentifier;
+  private ExternalIdBean _longIdentifier;
   private ZonedDateTimeBean _maturityDate;
   private double _notional;
-  private IdentifierBean _shortIdentifier;
+  private ExternalIdBean _shortIdentifier;
   private ZonedDateTimeBean _startDate;
   private double _strike;
   
@@ -181,7 +181,7 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
    * Gets the longIdentifier.
    * @return the longIdentifier
    */
-  public IdentifierBean getLongIdentifier() {
+  public ExternalIdBean getLongIdentifier() {
     return _longIdentifier;
   }
 
@@ -189,7 +189,7 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
    * Sets the longIdentifier.
    * @param longIdentifier  the longIdentifier
    */
-  public void setLongIdentifier(IdentifierBean longIdentifier) {
+  public void setLongIdentifier(ExternalIdBean longIdentifier) {
     _longIdentifier = longIdentifier;
   }
 
@@ -197,7 +197,7 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
    * Gets the shortIdentifier.
    * @return the shortIdentifier
    */
-  public IdentifierBean getShortIdentifier() {
+  public ExternalIdBean getShortIdentifier() {
     return _shortIdentifier;
   }
 
@@ -205,7 +205,7 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
    * Sets the shortIdentifier.
    * @param shortIdentifier  the shortIdentifier
    */
-  public void setShortIdentifier(IdentifierBean shortIdentifier) {
+  public void setShortIdentifier(ExternalIdBean shortIdentifier) {
     _shortIdentifier = shortIdentifier;
   }
 

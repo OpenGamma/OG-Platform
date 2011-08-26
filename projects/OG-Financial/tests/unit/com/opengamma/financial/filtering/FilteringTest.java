@@ -15,31 +15,31 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.id.UniqueId;
 
 /**
  * Tests the portfolio filtering classes.
  */
 public class FilteringTest {
 
-  private static TradeImpl sampleTrade(final AtomicInteger attribSource) {
-    final TradeImpl trade = new TradeImpl();
+  private static SimpleTrade sampleTrade(final AtomicInteger attribSource) {
+    final SimpleTrade trade = new SimpleTrade();
     trade.addAttribute("Foo", Integer.toString(attribSource.getAndIncrement()));
     return trade;
   }
 
-  private static PositionImpl samplePosition(final AtomicInteger attribSource) {
-    final PositionImpl position = new PositionImpl();
+  private static SimplePosition samplePosition(final AtomicInteger attribSource) {
+    final SimplePosition position = new SimplePosition();
     position.addTrade(sampleTrade(attribSource));
     return position;
   }
 
-  private static PortfolioNodeImpl samplePortfolioNode(final AtomicInteger attribSource, final int depth) {
-    final PortfolioNodeImpl node = new PortfolioNodeImpl();
+  private static SimplePortfolioNode samplePortfolioNode(final AtomicInteger attribSource, final int depth) {
+    final SimplePortfolioNode node = new SimplePortfolioNode();
     node.setName("Node " + attribSource.getAndIncrement());
     if (depth > 0) {
       node.addChildNode(samplePortfolioNode(attribSource, depth - 1));
@@ -52,11 +52,11 @@ public class FilteringTest {
 
   private static Portfolio samplePortfolio() {
     final AtomicInteger num = new AtomicInteger();
-    final PortfolioNodeImpl root = new PortfolioNodeImpl();
+    final SimplePortfolioNode root = new SimplePortfolioNode();
     root.setName("Sample");
     root.addChildNode(samplePortfolioNode(num, 2));
     root.addChildNode(samplePortfolioNode(num, 2));
-    return new PortfolioImpl(UniqueIdentifier.of("Test", "Sample"), "Sample", root);
+    return new SimplePortfolio(UniqueId.of("Test", "Sample"), "Sample", root);
   }
 
   private static void assertShape(final PortfolioNode portfolioNode, final Object[] tree) {

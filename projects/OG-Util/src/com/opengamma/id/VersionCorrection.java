@@ -30,8 +30,8 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * A fully versioned object in an OpenGamma installation will have a single state for
  * any combination of version and correction. This state is assigned a version string
- * which is used as the third component in a {@link UniqueIdentifier}, where all versions
- * share the same {@link ObjectIdentifier}.
+ * which is used as the third component in a {@link UniqueId}, where all versions
+ * share the same {@link ObjectId}.
  * <p>
  * This class represents a single version-correction combination suitable for identifying
  * a single state. It is typically used to obtain an object, while the version string is
@@ -87,7 +87,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Obtains a {@code VersionCorrection} from a version instant and the latest correction.
+   * Obtains a {@code VersionCorrection} from a version instant and the latest
+   * correction.
    * 
    * @param versionAsOf  the version as of instant, null for latest
    * @return the version-correction combination, not null
@@ -97,7 +98,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Obtains a {@code VersionCorrection} from a version instant and the latest correction.
+   * Obtains a {@code VersionCorrection} from a correction instant and the latest
+   * version.
    * 
    * @param correctedTo  the corrected to instant, null for latest
    * @return the version-correction combination, not null
@@ -126,27 +128,50 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
     }
     String verStr = str.substring(1, posC);
     String corrStr = str.substring(posC + 2);
-    Instant versionAsOf;
-    Instant correctedTo;
-    if (verStr.equals("LATEST")) {
-      versionAsOf = null;
-    } else {
-      try {
-        versionAsOf = OffsetDateTime.parse(verStr).toInstant();  // TODO: should be Instant.parse()
-      } catch (CalendricalException ex) {
-        throw new IllegalArgumentException(ex);
-      }
-    }
-    if (corrStr.equals("LATEST")) {
-      correctedTo = null;
-    } else {
-      try {
-        correctedTo = OffsetDateTime.parse(corrStr).toInstant();  // TODO: should be Instant.parse()
-      } catch (CalendricalException ex) {
-        throw new IllegalArgumentException(ex);
-      }
-    }
+    Instant versionAsOf = parseInstantString(verStr);
+    Instant correctedTo = parseInstantString(corrStr);
     return of(versionAsOf, correctedTo);
+  }
+
+  /**
+   * Parses a {@code VersionCorrection} from standard string representations of the
+   * version and correction.
+   * <p>
+   * This parses the version-correction from the forms produced by
+   * {@link #getVersionAsOfString()} and {@link #getCorrectedToString()}.
+   * 
+   * @param versionAsOfString  the version as of string, not null
+   * @param correctedToString  the corrected to string, not null
+   * @return the version-correction combination, not null
+   * @throws IllegalArgumentException if the version-correction cannot be parsed
+   */
+  public static VersionCorrection parse(String versionAsOfString, String correctedToString) {
+    ArgumentChecker.notEmpty(versionAsOfString, "versionAsOfString");
+    ArgumentChecker.notEmpty(correctedToString, "correctedToString");
+    Instant versionAsOf = parseInstantString(versionAsOfString);
+    Instant correctedTo = parseInstantString(correctedToString);
+    return of(versionAsOf, correctedTo);
+  }
+
+  /**
+   * Parses a version-correction {@code Instant} from a standard string representation.
+   * <p>
+   * The string representation must be either {@code LATEST} for null, or the ISO-8601
+   * representation of the desired {@code Instant}.
+   * 
+   * @param instantStr  the instant string, not null
+   * @return the instant, not null
+   */
+  private static Instant parseInstantString(String instantStr) {
+    if (instantStr.equals("LATEST")) {
+      return null;
+    } else {
+      try {
+        return OffsetDateTime.parse(instantStr).toInstant();  // TODO: JSR-310 should be Instant.parse()
+      } catch (CalendricalException ex) {
+        throw new IllegalArgumentException(ex);
+      }
+    }
   }
 
   /**
@@ -245,6 +270,31 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
 
   //-------------------------------------------------------------------------
   /**
+   * Gets a string representation of the version as of instant.
+   * <p>
+   * This is either the ISO-8601 representation of the version as of instant, such as
+   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * 
+   * @return the string version as of, not null
+   */
+  public String getVersionAsOfString() {
+    return ObjectUtils.defaultIfNull(_versionAsOf, "LATEST").toString();
+  }
+
+  /**
+   * Gets a string representation of the corrected to instant.
+   * <p>
+   * This is either the ISO-8601 representation of the corrected to instant, such as
+   * {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * 
+   * @return the string corrected to, not null
+   */
+  public String getCorrectedToString() {
+    return ObjectUtils.defaultIfNull(_correctedTo, "LATEST").toString();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Compares the version-corrections, sorting by version followed by correction.
    * 
    * @param other  the other identifier, not null
@@ -289,7 +339,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    */
   @Override
   public String toString() {
-    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + ".C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
+    return "V" + getVersionAsOfString() + ".C" + getCorrectedToString();
   }
 
 }

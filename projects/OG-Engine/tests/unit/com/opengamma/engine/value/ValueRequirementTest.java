@@ -5,24 +5,26 @@
  */
 package com.opengamma.engine.value;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PositionImpl;
+import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -31,9 +33,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @Test
 public class ValueRequirementTest {
 
-  private static final UniqueIdentifier USD = UniqueIdentifier.of("currency", "USD");  
-  private static final UniqueIdentifier GBP = UniqueIdentifier.of("currency", "GBP");
-  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("A", "B"), new BigDecimal(1), IdentifierBundle.EMPTY);
+  private static final UniqueId USD = UniqueId.of("currency", "USD");  
+  private static final UniqueId GBP = UniqueId.of("currency", "GBP");
+  private static final Position POSITION = new SimplePosition(UniqueId.of("A", "B"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
 
   public void test_constructor_Position() {
@@ -52,19 +54,19 @@ public class ValueRequirementTest {
     new ValueRequirement("DATA", null);
   }
 
-  public void test_constructor_TypeUniqueIdentifier_Position() {
+  public void test_constructor_TypeUniqueId_Position() {
     ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.POSITION, POSITION.getUniqueId());
     assertEquals("DATA", test.getValueName());
     assertEquals(SPEC, test.getTargetSpecification());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_constructor_TypeUniqueIdentifier_nullValue() {
+  public void test_constructor_TypeUniqueId_nullValue() {
     new ValueRequirement(null, ComputationTargetType.POSITION, POSITION.getUniqueId());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
-  public void test_constructor_TypeUniqueIdentifier_nullType() {
+  public void test_constructor_TypeUniqueId_nullType() {
     new ValueRequirement("DATA", null, POSITION.getUniqueId());
   }
 
@@ -101,7 +103,7 @@ public class ValueRequirementTest {
     assertFalse(req1.equals(req2));
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (UniqueId) null);
     assertFalse(req1.equals(req2));
   }
 
@@ -116,7 +118,7 @@ public class ValueRequirementTest {
     assertFalse(req1.hashCode() == req2.hashCode());
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (UniqueId) null);
     assertFalse(req1.hashCode() == req2.hashCode());
   }
 
@@ -132,8 +134,8 @@ public class ValueRequirementTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding() {
     FudgeContext context = OpenGammaFudgeContext.getInstance();
-    FudgeSerializationContext serializationContext = new FudgeSerializationContext(context);
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(context);
+    FudgeSerializer serializationContext = new FudgeSerializer(context);
+    FudgeDeserializer deserializationContext = new FudgeDeserializer(context);
     ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.PRIMITIVE, USD);
     MutableFudgeMsg inMsg = serializationContext.objectToFudgeMsg(test);
     assertNotNull(inMsg);

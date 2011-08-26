@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 
@@ -38,7 +38,7 @@ public class RemoteLiveDataInjector implements MarketDataInjector {
   }
   
   @Override
-  public void addValue(Identifier identifier, String valueName, Object value) {
+  public void addValue(ExternalId identifier, String valueName, Object value) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
     AddValueRequest request = new AddValueRequest();
@@ -62,7 +62,7 @@ public class RemoteLiveDataInjector implements MarketDataInjector {
   }
 
   @Override
-  public void removeValue(Identifier identifier, String valueName) {
+  public void removeValue(ExternalId identifier, String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
     RemoveValueRequest request = new RemoveValueRequest();

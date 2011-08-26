@@ -7,12 +7,12 @@ package com.opengamma.livedata.resolver;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.ResolveRequest;
 import com.opengamma.livedata.msg.ResolveResponse;
@@ -36,19 +36,19 @@ public class IdResolverServer implements FudgeRequestReceiver {
   }
   
   @Override
-  public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+  public FudgeMsg requestReceived(FudgeDeserializer deserializer, FudgeMsgEnvelope requestEnvelope) {
     FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
-    ResolveRequest resolveRequest = ResolveRequest.fromFudgeMsg(context, requestFudgeMsg);
+    ResolveRequest resolveRequest = ResolveRequest.fromFudgeMsg(deserializer, requestFudgeMsg);
     s_logger.debug("Received resolve request for {}", resolveRequest.getRequestedSpecification());
     
     LiveDataSpecification requestedSpec = resolveRequest.getRequestedSpecification();
-    Identifier resolvedId = _delegate.resolve(requestedSpec.getIdentifiers());
+    ExternalId resolvedId = _delegate.resolve(requestedSpec.getIdentifiers());
     LiveDataSpecification resolvedSpec = new LiveDataSpecification(
         requestedSpec.getNormalizationRuleSetId(),
         resolvedId);
     
     ResolveResponse response = new ResolveResponse(resolvedSpec);
-    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializer(deserializer.getFudgeContext()));
     return responseFudgeMsg;
   }
   

@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.position;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -13,15 +13,18 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * Trades have a counterparty to link the other side of the deal.
  * This entity might be an exchange where the final counterparty is unknown.
+ * <p>
+ * This interface is read-only.
+ * Implementations may be mutable.
  */
 @PublicSPI
 public interface Counterparty {
 
   /**
-   * Gets the identifier of the counterparty.
+   * Gets the external identifier of the counterparty.
    * 
-   * @return the identifier, not null
+   * @return the counterparty external identifier, not null
    */
-  Identifier getIdentifier();
+  ExternalId getExternalId();
 
 }

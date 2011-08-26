@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests for the methods related to interest rate securities pricing without convexity adjustment.
@@ -46,7 +46,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Future
-  private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtil.getUTCDate(2012, 9, 19);
+  private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR);
   private static final double NOTIONAL = 1000000.0; // 1m
@@ -74,7 +74,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the price computed from the curves
    */
   public void price() {
-    final double price = METHOD.priceFromCurves(ERU2, CURVES);
+    final double price = METHOD.price(ERU2, CURVES);
     final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
     final double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
     final double expectedPrice = 1.0 - forward;
@@ -86,7 +86,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Tests the method versus the calculator for the price.
    */
   public void priceMethodVsCalculator() {
-    final double priceMethod = METHOD.priceFromCurves(ERU2, CURVES);
+    final double priceMethod = METHOD.price(ERU2, CURVES);
     final double priceCalculator = PRICE_CALCULATOR.visit(ERU2, CURVES);
     assertEquals("Bond future security Discounting: Method vs calculator", priceMethod, priceCalculator, 1.0E-10);
   }

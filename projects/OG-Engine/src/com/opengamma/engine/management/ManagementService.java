@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.management;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,13 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListener;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,7 +40,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   private final ViewProcessorImpl _viewProcessor;
   private final MBeanServer _mBeanServer;
   private final TotallingGraphStatisticsGathererProvider _statisticsProvider;
-  private final ConcurrentHashMap<UniqueIdentifier, Set<String>> _calcConfigByViewProcessId = new ConcurrentHashMap<UniqueIdentifier, Set<String>>();
+  private final ConcurrentHashMap<UniqueId, Set<String>> _calcConfigByViewProcessId = new ConcurrentHashMap<UniqueId, Set<String>>();
 
   /**
    * A constructor for a management service for a range of possible MBeans.
@@ -97,7 +99,7 @@ public final class ManagementService implements ViewProcessorEventListener {
 
   private void initializeGraphExecutionStatistics() throws Exception {
     for (ViewProcess viewProcess : _viewProcessor.getViewProcesses()) {
-      Set<String> configurationNames = viewProcess.getDefinition().getAllCalculationConfigurationNames();
+      Set<String> configurationNames = viewProcess.getLatestViewDefinition().getAllCalculationConfigurationNames();
       _calcConfigByViewProcessId.putIfAbsent(viewProcess.getUniqueId(), configurationNames);
       for (String calcConfigName : configurationNames) {
         com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =
@@ -164,7 +166,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   @Override
-  public void notifyViewProcessAdded(UniqueIdentifier viewProcessId) {
+  public void notifyViewProcessAdded(UniqueId viewProcessId) {
     ViewProcessInternal view = _viewProcessor.getViewProcess(viewProcessId);
     if (view == null) {
       return;
@@ -175,7 +177,11 @@ public final class ManagementService implements ViewProcessorEventListener {
     } catch (Exception e) {
       s_logger.warn("Error registering view for management for " + viewManagement.getObjectName() + " . Error was " + e.getMessage(), e);
     }
-    Set<String> configurationNames = view.getDefinition().getAllCalculationConfigurationNames();
+    ViewDefinition definition = view.getLatestViewDefinition();
+    Set<String> configurationNames = Collections.emptySet();
+    if (definition != null) {
+      configurationNames = definition.getAllCalculationConfigurationNames();
+    }
     _calcConfigByViewProcessId.putIfAbsent(viewProcessId, configurationNames);
     for (String calcConfigName : configurationNames) {
       com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =
@@ -190,7 +196,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   @Override
-  public void notifyViewProcessRemoved(UniqueIdentifier viewProcessId) {
+  public void notifyViewProcessRemoved(UniqueId viewProcessId) {
     ObjectName objectName = null;
     try {
       objectName = com.opengamma.engine.management.ViewProcess.createObjectName(_viewProcessor.getUniqueId(), viewProcessId);
@@ -214,7 +220,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
   
   @Override
-  public void notifyViewClientAdded(UniqueIdentifier viewClientId) {
+  public void notifyViewClientAdded(UniqueId viewClientId) {
     ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
     com.opengamma.engine.management.ViewClient viewClientBean = new com.opengamma.engine.management.ViewClient(viewClient);
     try {
@@ -225,7 +231,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   @Override
-  public void notifyViewClientRemoved(UniqueIdentifier viewClientId) {
+  public void notifyViewClientRemoved(UniqueId viewClientId) {
     ObjectName objectName = null;
     try {
       objectName = com.opengamma.engine.management.ViewClient.createObjectName(_viewProcessor.getUniqueId(), viewClientId);

@@ -23,8 +23,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -108,25 +108,25 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
 
   //-------------------------------------------------------------------------
   protected void assert101(final PortfolioDocument test, final int depth) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "101", "0");
+    UniqueId uniqueId = UniqueId.of("DbPrt", "101", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueId());
+    assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio101", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
-    assertNode111(rootNode, depth, uid);
+    assertNode111(rootNode, depth, uniqueId);
   }
 
-  protected void assertNode111(final ManageablePortfolioNode node, final int depth, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "111", "0"), node.getUniqueId());
+  protected void assertNode111(final ManageablePortfolioNode node, final int depth, final UniqueId portfolioId) {
+    assertEquals(UniqueId.of("DbPrt", "111", "0"), node.getUniqueId());
     assertEquals("TestNode111", node.getName());
     assertEquals(null, node.getParentNodeId());
-    assertEquals(portfolioUid, node.getPortfolioId());
+    assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getPositionIds().size());
     if (depth == 0) {
       assertEquals(0, node.getChildNodes().size());
@@ -134,97 +134,97 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
     }
     assertEquals(1, node.getChildNodes().size());
     ManageablePortfolioNode child112 = node.getChildNodes().get(0);
-    assertNode112(child112, depth, portfolioUid);
+    assertNode112(child112, depth, portfolioId);
   }
 
-  protected void assertNode112(final ManageablePortfolioNode node, final int depth, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "112", "0"), node.getUniqueId());
+  protected void assertNode112(final ManageablePortfolioNode node, final int depth, final UniqueId portfolioId) {
+    assertEquals(UniqueId.of("DbPrt", "112", "0"), node.getUniqueId());
     assertEquals("TestNode112", node.getName());
-    assertEquals(UniqueIdentifier.of("DbPrt", "111", "0"), node.getParentNodeId());
-    assertEquals(portfolioUid, node.getPortfolioId());
+    assertEquals(UniqueId.of("DbPrt", "111", "0"), node.getParentNodeId());
+    assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
+    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
     if (depth == 1) {
       assertEquals(0, node.getChildNodes().size());
       return;
     }
     assertEquals(1, node.getChildNodes().size());
     ManageablePortfolioNode child113 = node.getChildNodes().get(0);
-    assertNode113(child113, portfolioUid);
+    assertNode113(child113, portfolioId);
   }
 
-  protected void assertNode113(final ManageablePortfolioNode node, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "113", "0"), node.getUniqueId());
+  protected void assertNode113(final ManageablePortfolioNode node, final UniqueId portfolioId) {
+    assertEquals(UniqueId.of("DbPrt", "113", "0"), node.getUniqueId());
     assertEquals("TestNode113", node.getName());
-    assertEquals(UniqueIdentifier.of("DbPrt", "112", "0"), node.getParentNodeId());
-    assertEquals(portfolioUid, node.getPortfolioId());
+    assertEquals(UniqueId.of("DbPrt", "112", "0"), node.getParentNodeId());
+    assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
     assertEquals(2, node.getPositionIds().size());
-    assertEquals(true, node.getPositionIds().contains(ObjectIdentifier.of("DbPos", "501")));
-    assertEquals(true, node.getPositionIds().contains(ObjectIdentifier.of("DbPos", "502")));
+    assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "501")));
+    assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "502")));
   }
 
   protected void assert102(final PortfolioDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "102", "0");
+    UniqueId uniqueId = UniqueId.of("DbPrt", "102", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueId());
+    assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio102", portfolio.getName());
   }
 
   protected void assert201(final PortfolioDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "201", "0");
+    UniqueId uniqueId = UniqueId.of("DbPrt", "201", "0");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version1Instant, test.getVersionFromInstant());
     assertEquals(_version2Instant, test.getVersionToInstant());
     assertEquals(_version1Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueId());
+    assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio201", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
-    assertNode211(rootNode, uid);
+    assertNode211(rootNode, uniqueId);
   }
 
-  protected void assertNode211(final ManageablePortfolioNode node, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "211", "0"), node.getUniqueId());
+  protected void assertNode211(final ManageablePortfolioNode node, final UniqueId portfolioId) {
+    assertEquals(UniqueId.of("DbPrt", "211", "0"), node.getUniqueId());
     assertEquals("TestNode211", node.getName());
     assertEquals(null, node.getParentNodeId());
-    assertEquals(portfolioUid, node.getPortfolioId());
+    assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
     assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
+    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
   }
 
   protected void assert202(final PortfolioDocument test) {
-    UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "201", "1");
+    UniqueId uniqueId = UniqueId.of("DbPrt", "201", "1");
     assertNotNull(test);
-    assertEquals(uid, test.getUniqueId());
+    assertEquals(uniqueId, test.getUniqueId());
     assertEquals(_version2Instant, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(_version2Instant, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageablePortfolio portfolio = test.getPortfolio();
-    assertEquals(uid, portfolio.getUniqueId());
+    assertEquals(uniqueId, portfolio.getUniqueId());
     assertEquals("TestPortfolio202", portfolio.getName());
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
-    assertNode212(rootNode, uid);
+    assertNode212(rootNode, uniqueId);
   }
 
-  protected void assertNode212(final ManageablePortfolioNode node, final UniqueIdentifier portfolioUid) {
-    assertEquals(UniqueIdentifier.of("DbPrt", "211", "1"), node.getUniqueId());
+  protected void assertNode212(final ManageablePortfolioNode node, final UniqueId portfolioId) {
+    assertEquals(UniqueId.of("DbPrt", "211", "1"), node.getUniqueId());
     assertEquals("TestNode212", node.getName());
     assertEquals(null, node.getParentNodeId());
-    assertEquals(portfolioUid, node.getPortfolioId());
+    assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
     assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectIdentifier.of("DbPos", "500"), node.getPositionIds().get(0));
+    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
   }
 
 }

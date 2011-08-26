@@ -10,15 +10,17 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 
 /**
  * A key used to identify a volatility surface.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable<VolatilitySurfaceKey>, Serializable {
 
@@ -28,7 +30,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   /**
    * The target.
    */
-  private final UniqueIdentifier _target;
+  private final UniqueId _target;
   /**
    * The curve name.
    */
@@ -37,11 +39,13 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * The instrument type.
    */
   private final String _instrumentType;
-  
+
   /**
-   * @param target the target
-   * @param name the name
-   * @param instrumentType the instrument type
+   * Creates an instance.
+   * 
+   * @param target  the target
+   * @param name  the name
+   * @param instrumentType  the instrument type
    */
   public VolatilitySurfaceKey(UniqueIdentifiable target, String name, String instrumentType) {
     super();
@@ -49,20 +53,26 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     _name = name;
     _instrumentType = instrumentType;
   }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the target field.
+   * 
    * @return the target
    */
-  public UniqueIdentifier getTarget() {
+  public UniqueId getTarget() {
     return _target;
   }
+
   /**
    * Gets the name field.
+   * 
    * @return the name
    */
   public String getName() {
     return _name;
   }
+
   /**
    * Gets the instrumentType field.
    * @return the instrumentType
@@ -70,7 +80,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   public String getInstrumentType() {
     return _instrumentType;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Compares this key to another, by currency then name.
@@ -88,7 +98,6 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     if (nameCompare != 0) {
       return nameCompare;
     }
-
     return _instrumentType.compareTo(other._instrumentType);
   }
 
@@ -125,23 +134,23 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("target", _target.toString());
     msg.add("name", _name);
     msg.add("instrumentType", _instrumentType);
     return msg;
   }
 
-  public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-    UniqueIdentifier targetUid;
+  public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    UniqueId targetUid;
     String target = msg.getString("target");
     if (target == null) {
       //Handle old form of snapshot
       Currency curr = Currency.of(msg.getString("currency"));
       targetUid = curr.getUniqueId();
     } else {
-      targetUid = UniqueIdentifier.parse(target);
+      targetUid = UniqueId.parse(target);
     }
     return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"));
   }

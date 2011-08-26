@@ -9,12 +9,18 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.PositionSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.core.position.Trade;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -66,6 +72,14 @@ public class EHCachingPositionSource implements PositionSource {
    * The trade cache.
    */
   private final Cache _tradeCache;
+  /**
+   * Listens for changes in the underlying position source.
+   */
+  private final ChangeListener _changeListener;
+  /**
+   * Local change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
    * Creates the cache around an underlying position source.
@@ -86,6 +100,20 @@ public class EHCachingPositionSource implements PositionSource {
     _portfolioNodeCache = EHCacheUtils.getCacheFromManager(cacheManager, PORTFOLIONODE_CACHE);
     _positionCache = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
     _tradeCache = EHCacheUtils.getCacheFromManager(cacheManager, TRADE_CACHE);
+    _changeManager = new BasicChangeManager();
+    _changeListener = new ChangeListener() {
+      @Override
+      public void entityChanged(ChangeEvent event) {
+        if (event.getBeforeId() != null) {
+          cleanCaches(event.getBeforeId());
+        }
+        if (event.getAfterId() != null) {
+          cleanCaches(event.getAfterId());
+        }
+        changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
+      }
+    };
+    underlying.changeManager().addChangeListener(_changeListener);
   }
 
   //-------------------------------------------------------------------------
@@ -109,71 +137,90 @@ public class EHCachingPositionSource implements PositionSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(UniqueIdentifier identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getPortfolio(identifier);
+  public Portfolio getPortfolio(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
+      if (portfolio != null) {
+        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
+      }
+      return portfolio;
     }
-    Element e = _portfolioCache.get(identifier);
+    Element e = _portfolioCache.get(uniqueId);
     if (e != null) {
       return (Portfolio) e.getValue();
     } else {
-      Portfolio p = getUnderlying().getPortfolio(identifier);
-      if (p != null) {
-        _portfolioCache.put(new Element(identifier, p));
+      Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
+      if (portfolio != null) {
+        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
       }
-      return p;
+      return portfolio;
     }
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getPortfolioNode(identifier);
+  public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
+    Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
+    if (portfolio != null) {
+      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
     }
-    Element e = _portfolioNodeCache.get(identifier);
+    return portfolio;
+  }
+
+  @Override
+  public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return getUnderlying().getPortfolioNode(uniqueId);
+    }
+    Element e = _portfolioNodeCache.get(uniqueId);
     if (e != null) {
       return (PortfolioNode) e.getValue();
     } else {
-      PortfolioNode pn = getUnderlying().getPortfolioNode(identifier);
-      if (pn != null) {
-        _portfolioNodeCache.put(new Element(identifier, pn));
+      PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId);
+      if (node != null) {
+        _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
       }
-      return pn;
+      return node;
     }
   }
 
   @Override
-  public Position getPosition(UniqueIdentifier identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getPosition(identifier);
+  public Position getPosition(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return getUnderlying().getPosition(uniqueId);
     }
-    Element e = _positionCache.get(identifier);
+    Element e = _positionCache.get(uniqueId);
     if (e != null) {
       return (Position) e.getValue();
     } else {
-      Position p = getUnderlying().getPosition(identifier);
-      if (p != null) {
-        _positionCache.put(new Element(identifier, p));
+      Position position = getUnderlying().getPosition(uniqueId);
+      if (position != null) {
+        _positionCache.put(new Element(position.getUniqueId(), position));
       }
-      return p;
+      return position;
     }
   }
 
   @Override
-  public Trade getTrade(UniqueIdentifier identifier) {
-    if (identifier.isLatest()) {
-      return getUnderlying().getTrade(identifier);
+  public Trade getTrade(UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return getUnderlying().getTrade(uniqueId);
     }
-    Element e = _tradeCache.get(identifier);
+    Element e = _tradeCache.get(uniqueId);
     if (e != null) {
       return (Trade) e.getValue();
     } else {
-      Trade t = getUnderlying().getTrade(identifier);
-      if (t != null) {
-        _tradeCache.put(new Element(identifier, t));
+      Trade trade = getUnderlying().getTrade(uniqueId);
+      if (trade != null) {
+        _tradeCache.put(new Element(trade.getUniqueId(), trade));
       }
-      return t;
+      return trade;
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
   /**
@@ -181,11 +228,22 @@ public class EHCachingPositionSource implements PositionSource {
    * It should not be part of a generic lifecycle method.
    */
   protected void shutdown() {
+    _underlying.changeManager().removeChangeListener(_changeListener);
     _cacheManager.removeCache(PORTFOLIO_CACHE);
     _cacheManager.removeCache(PORTFOLIONODE_CACHE);
     _cacheManager.removeCache(POSITION_CACHE);
     _cacheManager.removeCache(TRADE_CACHE);
     _cacheManager.shutdown();
+  }
+
+  //-------------------------------------------------------------------------
+  private void cleanCaches(UniqueId id) {
+    // Only care where the unversioned ID has been cached since it now represents something else
+    UniqueId latestId = id.toLatest();
+    _portfolioNodeCache.remove(latestId);
+    _portfolioCache.remove(latestId);
+    _positionCache.remove(latestId);
+    _tradeCache.remove(latestId);
   }
 
 }

@@ -29,10 +29,10 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
@@ -40,7 +40,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -63,40 +63,44 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("exchangeId") List<String> exchangeIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, exchangeIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, exchangeIdStrs, uriInfo);
     return getFreemarker().build("exchanges/exchanges.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("name") String name,
       @QueryParam("exchangeId") List<String> exchangeIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, exchangeIdStrs, uriInfo);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, name, exchangeIdStrs, uriInfo);
     return getFreemarker().build("exchanges/jsonexchanges.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, List<String> exchangeIdStrs, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(PagingRequest pr, String name, List<String> exchangeIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setName(StringUtils.trimToNull(name));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
-      Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
-      searchRequest.addExchangeKey(id);
+      ExternalId id = ExternalId.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
+      searchRequest.addExternalId(id);
     }
     for (String exchangeIdStr : exchangeIdStrs) {
-      searchRequest.addExchangeId(ObjectIdentifier.parse(exchangeIdStr));
+      searchRequest.addObjectId(ObjectId.parse(exchangeIdStr));
     }
     out.put("searchRequest", searchRequest);
     
@@ -169,9 +173,9 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   }
 
   private URI createExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
-    Identifier id = Identifier.of(idScheme, idValue);
-    Identifier region = Identifier.of(regionScheme, regionValue);
-    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
+    ExternalId id = ExternalId.of(idScheme, idValue);
+    ExternalId region = ExternalId.of(regionScheme, regionValue);
+    ManageableExchange exchange = new ManageableExchange(ExternalIdBundle.of(id), name, ExternalIdBundle.of(region), null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
@@ -182,7 +186,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @Path("{exchangeId}")
   public WebExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     data().setUriExchangeId(idStr);
-    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    UniqueId oid = UniqueId.parse(idStr);
     try {
       ExchangeDocument doc = data().getExchangeMaster().get(oid);
       data().setExchange(doc);
@@ -226,12 +230,12 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
    * @param identifiers  the identifiers to search for, may be null
    * @return the URI, not null
    */
-  public static URI uri(WebExchangeData data, IdentifierBundle identifiers) {
+  public static URI uri(WebExchangeData data, ExternalIdBundle identifiers) {
     UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebExchangesResource.class);
     if (identifiers != null) {
-      Iterator<Identifier> it = identifiers.iterator();
+      Iterator<ExternalId> it = identifiers.iterator();
       for (int i = 0; it.hasNext(); i++) {
-        Identifier id = it.next();
+        ExternalId id = it.next();
         builder.queryParam("idscheme." + i, id.getScheme().getName());
         builder.queryParam("idvalue." + i, id.getValue());
       }

@@ -7,9 +7,9 @@
 package com.opengamma.language.invoke;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
+import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
-import com.opengamma.language.ValueUtil;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.definition.JavaTypeInfo;
 
 /**
@@ -45,15 +45,18 @@ public class InvalidConversionException extends IllegalArgumentException {
   }
 
   /**
-   * Tidy up the raw values. This string is likely to be visible to a user so should make sense to them.
+   * Returns a version of {@link #getMessage} that is more useful to display to a user but less-so for programmer diagnostics
+   * in the stack trace.
+   * 
+   * @return a tidied message string.
    */
   public String getClientMessage() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Could not convert ");
     if (_value instanceof Value) {
-      sb.append(ValueUtil.toString((Value) _value, true));
+      sb.append(ValueUtils.toString((Value) _value, true));
     } else if (_value instanceof Data) {
-      sb.append(DataUtil.toString((Data) _value, true));
+      sb.append(DataUtils.toString((Data) _value, true));
     } else {
       sb.append(_value.toString());
     }

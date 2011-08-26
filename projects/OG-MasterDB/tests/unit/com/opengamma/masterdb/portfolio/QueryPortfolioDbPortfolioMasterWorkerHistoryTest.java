@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -39,7 +39,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents_noInstants_node_depthZero() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
@@ -50,7 +50,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_documents_noInstants_node_depthOne() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "101");
+    UniqueId oid = UniqueId.of("DbPrt", "101");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setDepth(1);
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -59,7 +59,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_documents_noInstants_node_maxDepth() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "101");
+    UniqueId oid = UniqueId.of("DbPrt", "101");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setDepth(-1);
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -69,12 +69,11 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
+    assertEquals(PagingRequest.ALL, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(2, test.getDocuments().size());
@@ -85,13 +84,13 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants_pageOne() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
+    PagingRequest pr = PagingRequest.ofPage(1, 1);
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(pr);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertEquals(1, test.getDocuments().size());
@@ -100,15 +99,15 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_noInstants_pageTwo() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
+    PagingRequest pr = PagingRequest.ofPage(2, 1);
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(pr);
     PortfolioHistoryResult test = _prtMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
-    assertEquals(2, test.getPaging().getFirstItem());
-    assertEquals(1, test.getPaging().getPagingSize());
+    assertEquals(pr, test.getPaging().getRequest());
     assertEquals(2, test.getPaging().getTotalItems());
     
     assertNotNull(test.getDocuments());
@@ -119,7 +118,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsFrom_preFirst() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -133,7 +132,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_versionsFrom_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -147,7 +146,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_versionsFrom_postSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -161,7 +160,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
   //-------------------------------------------------------------------------
   @Test
   public void test_history_versionsTo_preFirst() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -173,7 +172,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_versionsTo_firstToSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
     PortfolioHistoryResult test = _prtMaster.history(request);
@@ -186,7 +185,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   @Test
   public void test_history_versionsTo_postSecond() {
-    UniqueIdentifier oid = UniqueIdentifier.of("DbPrt", "201");
+    UniqueId oid = UniqueId.of("DbPrt", "201");
     PortfolioHistoryRequest request = new PortfolioHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     PortfolioHistoryResult test = _prtMaster.history(request);

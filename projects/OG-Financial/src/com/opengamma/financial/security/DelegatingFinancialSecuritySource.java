@@ -8,11 +8,15 @@ package com.opengamma.financial.security;
 import java.util.Collection;
 import java.util.Map;
 
+import com.opengamma.core.change.AggregatingChangeManager;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.id.UniqueIdentifierSchemeDelegator;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdSchemeDelegator;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,9 +26,14 @@ import com.opengamma.util.ArgumentChecker;
  * If no scheme-specific handler has been registered, a default is used.
  */
 public class DelegatingFinancialSecuritySource
-    extends UniqueIdentifierSchemeDelegator<FinancialSecuritySource>
+    extends UniqueIdSchemeDelegator<FinancialSecuritySource>
     implements FinancialSecuritySource {
 
+  /**
+   * The change manager
+   */
+  private final ChangeManager _changeManager;
+  
   /**
    * Creates an instance specifying the default delegate.
    * 
@@ -32,6 +41,7 @@ public class DelegatingFinancialSecuritySource
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource) {
     super(defaultSource);
+    _changeManager = defaultSource.changeManager();
   }
 
   /**
@@ -42,17 +52,31 @@ public class DelegatingFinancialSecuritySource
    */
   public DelegatingFinancialSecuritySource(FinancialSecuritySource defaultSource, Map<String, FinancialSecuritySource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
+    
+    AggregatingChangeManager changeManager = new AggregatingChangeManager();
+    changeManager.addChangeManager(defaultSource.changeManager());
+    for (FinancialSecuritySource source : schemePrefixToSourceMap.values()) {
+      changeManager.addChangeManager(source.changeManager());
+    }
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Security getSecurity(UniqueIdentifier uid) {
+  public Security getSecurity(UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
-    return chooseDelegate(uid).getSecurity(uid);
+    return chooseDelegate(uid.getScheme()).getSecurity(uid);
+  }
+  
+  @Override
+  public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return chooseDelegate(objectId.getScheme()).getSecurity(objectId, versionCorrection);
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle bundle) {
+  public Collection<Security> getSecurities(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
@@ -63,9 +87,23 @@ public class DelegatingFinancialSecuritySource
     }
     return getDefaultDelegate().getSecurities(bundle);
   }
+  
+  @Override
+  public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    // best implementation is to return first matching result
+    for (SecuritySource delegateSource : getDelegates().values()) {
+      Collection<Security> result = delegateSource.getSecurities(bundle, versionCorrection);
+      if (!result.isEmpty()) {
+        return result;
+      }
+    }
+    return getDefaultDelegate().getSecurities(bundle, versionCorrection);
+  }
 
   @Override
-  public Security getSecurity(IdentifierBundle bundle) {
+  public Security getSecurity(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     // best implementation is to return first matching result
     for (SecuritySource delegateSource : getDelegates().values()) {
@@ -75,6 +113,21 @@ public class DelegatingFinancialSecuritySource
       }
     }
     return getDefaultDelegate().getSecurity(bundle);
+  }
+  
+  @Override
+  public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ArgumentChecker.notNull(bundle, "bundle");
+    // best implementation is to return first matching result
+    for (SecuritySource delegateSource : getDelegates().values()) {
+      Security result = delegateSource.getSecurity(bundle, versionCorrection);
+      if (result != null) {
+        return result;
+      }
+    }
+    return getDefaultDelegate().getSecurity(bundle, versionCorrection);
   }
 
   @Override
@@ -87,6 +140,12 @@ public class DelegatingFinancialSecuritySource
       }
     }
     return getDefaultDelegate().getBondsWithIssuerName(issuerName);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

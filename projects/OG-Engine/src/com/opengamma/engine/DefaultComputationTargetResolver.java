@@ -8,19 +8,20 @@ package com.opengamma.engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.PortfolioImpl;
-import com.opengamma.core.position.impl.PortfolioNodeImpl;
-import com.opengamma.core.position.impl.PositionImpl;
-import com.opengamma.core.position.impl.TradeImpl;
+import com.opengamma.core.position.impl.SimplePortfolio;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
+import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -141,7 +142,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    final UniqueIdentifier uid = specification.getUniqueId();
+    final UniqueId uid = specification.getUniqueId();
     switch (specification.getType()) {
       case PRIMITIVE:
         return resolvePrimitive(specification, uid);
@@ -166,7 +167,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param uid  the unique identifier of the target
    * @return the resolved primitive target, not null
    */
-  protected ComputationTarget resolvePrimitive(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolvePrimitive(final ComputationTargetSpecification specification, final UniqueId uid) {
     return new ComputationTarget(specification.getType(), uid);
   }
 
@@ -178,11 +179,13 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param securityId  the unique identifier of the target
    * @return the resolved security target, not null
    */
-  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueIdentifier securityId) {
+  protected ComputationTarget resolveSecurity(final ComputationTargetSpecification specification, final UniqueId securityId) {
     checkSecuritySource(ComputationTargetType.SECURITY);
     
-    final Security security = getSecuritySource().getSecurity(securityId);
-    if (security == null) {
+    final Security security;
+    try {
+      security = getSecuritySource().getSecurity(securityId);
+    } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve security UID {}", securityId);
       return null;
     }
@@ -198,13 +201,15 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param positionId  the unique identifier of the target
    * @return the resolved position target, not null
    */
-  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueIdentifier positionId) {
+  protected ComputationTarget resolvePosition(final ComputationTargetSpecification specification, final UniqueId positionId) {
     checkSecuritySource(ComputationTargetType.POSITION);
     checkPositionSource(ComputationTargetType.POSITION);
     
     // resolve position
-    Position position = getPositionSource().getPosition(positionId);
-    if (position == null) {
+    Position position;
+    try {
+      position = getPositionSource().getPosition(positionId);
+    } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve position UID {}", positionId);
       return null;
     }
@@ -217,7 +222,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       s_logger.info("Resolved security link {} to security {}", position.getSecurityLink(), security);
     }
-    final PositionImpl newPosition = new PositionImpl(position);
+    final SimplePosition newPosition = new SimplePosition(position);
     for (Trade trade : position.getTrades()) {
       final ComputationTargetSpecification tradeSpec = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
       final ComputationTarget resolvedTradeTarget = getRecursiveResolver().resolve(tradeSpec);
@@ -235,13 +240,15 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param tradeId  the unique identifier of the target
    * @return the resolved trade target, not null
    */
-  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueIdentifier tradeId) {
+  protected ComputationTarget resolveTrade(final ComputationTargetSpecification specification, final UniqueId tradeId) {
     checkSecuritySource(ComputationTargetType.TRADE);
     checkPositionSource(ComputationTargetType.TRADE);
     
     // resolve trade
-    Trade trade = getPositionSource().getTrade(tradeId);
-    if (trade == null) {
+    Trade trade;
+    try {
+      trade = getPositionSource().getTrade(tradeId);
+    } catch (DataNotFoundException ex) {
       s_logger.info("Unable to resolve trade UID {}", tradeId);
       return null;
     }
@@ -254,7 +261,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     } else {
       s_logger.info("Resolved security link {} to security {}", trade.getSecurityLink(), security);
     }
-    trade = new TradeImpl(trade);
+    trade = new SimpleTrade(trade);
     return new ComputationTarget(ComputationTargetType.TRADE, trade);
   }
 
@@ -263,25 +270,29 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * This is only called if the specification is of type node.
    * 
    * @param specification  the specification being resolved, not null
-   * @param uid  the unique identifier of the target
+   * @param uniqueId  the unique identifier of the target
    * @return the resolved node target, not null
    */
-  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueIdentifier uid) {
+  protected ComputationTarget resolveNode(final ComputationTargetSpecification specification, final UniqueId uniqueId) {
     checkPositionSource(ComputationTargetType.PORTFOLIO_NODE);
     
-    PortfolioNode node = getPositionSource().getPortfolioNode(uid);
-    if (node != null) {
-      s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
-      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolveNodeTree(uid, node));
+    // try node
+    try {
+      PortfolioNode node = getPositionSource().getPortfolioNode(uniqueId);
+      s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uniqueId, node);
+      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolveNodeTree(uniqueId, node));
+    } catch (DataNotFoundException ex) {
+      // try portfolio
+      try {
+        Portfolio portfolio = getPositionSource().getPortfolio(uniqueId);
+        s_logger.info("Resolved multiple-position UID {} to portfolio {}", uniqueId, portfolio);
+        SimplePortfolio resolvedPortfolio = new SimplePortfolio(portfolio.getUniqueId(), portfolio.getName(), resolveNodeTree(uniqueId, portfolio.getRootNode()));
+        return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, resolvedPortfolio);
+      } catch (DataNotFoundException ex2) {
+        s_logger.info("Unable to resolve multiple-position UID {}", uniqueId);
+        return null;
+      }
     }
-    final Portfolio portfolio = getPositionSource().getPortfolio(uid);
-    if (portfolio != null) {
-      s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
-      node = portfolio.getRootNode();
-      return new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, new PortfolioImpl(portfolio.getUniqueId(), portfolio.getName(), resolveNodeTree(uid, node)));
-    }
-    s_logger.info("Unable to resolve multiple-position UID {}", uid);
-    return null;
   }
 
   /**
@@ -291,8 +302,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * @param node  the node
    * @return the resolved node, not null
    */
-  private PortfolioNodeImpl resolveNodeTree(final UniqueIdentifier uid, final PortfolioNode node) {
-    final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueId(), node.getName());
+  private SimplePortfolioNode resolveNodeTree(final UniqueId uid, final PortfolioNode node) {
+    final SimplePortfolioNode newNode = new SimplePortfolioNode(node.getUniqueId(), node.getName());
     newNode.setParentNodeId(node.getParentNodeId());
     for (PortfolioNode child : node.getChildNodes()) {
       final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, child.getUniqueId()));

@@ -20,7 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
@@ -86,7 +86,7 @@ public class DataPositionsResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @Path("{positionId}")
   public DataPositionResource findPosition(@PathParam("positionId") String idStr) {
-    UniqueIdentifier id = UniqueIdentifier.parse(idStr);
+    UniqueId id = UniqueId.parse(idStr);
     return new DataPositionResource(this, id);
   }
 

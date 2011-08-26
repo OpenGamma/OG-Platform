@@ -19,9 +19,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 
 /**
  * Request containing options for getting a single batch data set.
@@ -39,7 +39,7 @@ public class BatchGetRequest extends DirectBean {
    * This must not be null for a valid search,
    */
   @PropertyDefinition
-  private UniqueIdentifier _uniqueId;
+  private UniqueId _uniqueId;
   /**
    * The request for paging the main batch data.
    * By default, the entire data set will be returned.
@@ -67,7 +67,7 @@ public class BatchGetRequest extends DirectBean {
    * 
    * @param uniqueId  the batch unique identifier, not null
    */
-  public BatchGetRequest(UniqueIdentifier uniqueId) {
+  public BatchGetRequest(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     setUniqueId(uniqueId);
   }
@@ -107,7 +107,7 @@ public class BatchGetRequest extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
-        setUniqueId((UniqueIdentifier) newValue);
+        setUniqueId((UniqueId) newValue);
         return;
       case -100490791:  // dataPagingRequest
         setDataPagingRequest((PagingRequest) newValue);
@@ -148,7 +148,7 @@ public class BatchGetRequest extends DirectBean {
    * This must not be null for a valid search,
    * @return the value of the property
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -157,7 +157,7 @@ public class BatchGetRequest extends DirectBean {
    * This must not be null for a valid search,
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(UniqueIdentifier uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -166,7 +166,7 @@ public class BatchGetRequest extends DirectBean {
    * This must not be null for a valid search,
    * @return the property, not null
    */
-  public final Property<UniqueIdentifier> uniqueId() {
+  public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
   }
 
@@ -239,8 +239,8 @@ public class BatchGetRequest extends DirectBean {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", BatchGetRequest.class, UniqueIdentifier.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", BatchGetRequest.class, UniqueId.class);
     /**
      * The meta-property for the {@code dataPagingRequest} property.
      */
@@ -299,7 +299,7 @@ public class BatchGetRequest extends DirectBean {
      * The meta-property for the {@code uniqueId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueIdentifier> uniqueId() {
+    public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
     }
 

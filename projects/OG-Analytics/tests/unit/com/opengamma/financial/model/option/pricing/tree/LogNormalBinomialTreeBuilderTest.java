@@ -6,10 +6,12 @@
 package com.opengamma.financial.model.option.pricing.tree;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -26,7 +28,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -41,7 +43,7 @@ public class LogNormalBinomialTreeBuilderTest {
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final double ATM_VOL = 0.20;
   private static final double SIGMA_BETA;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final OptionDefinition OPTION;
   private static final BinomialTreeBuilder<GeneralLogNormalOptionDataBundle> BUILDER = new LogNormalBinomialTreeBuilder<GeneralLogNormalOptionDataBundle>();
   private static final DriftSurface DRIFTLESS;
@@ -51,7 +53,7 @@ public class LogNormalBinomialTreeBuilderTest {
   static {
     SIGMA_BETA = ATM_VOL * Math.pow(SPOT, 1 - BETA);
     FORWARD = SPOT / YIELD_CURVE.getDiscountFactor(T);
-    OPTION = new EuropeanVanillaOptionDefinition(FORWARD, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
+    OPTION = new EuropeanVanillaOptionDefinition(FORWARD, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), true);
 
     final Function<Double, Double> driftless = new Function<Double, Double>() {
       @Override

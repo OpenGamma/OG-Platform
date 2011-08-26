@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Ibor coupon with gearing factor and spread.
@@ -39,18 +39,18 @@ public class CouponIborGearingTest {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Coupon
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 5, 23);
-  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 8, 22);
+  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
+  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 8, 22);
   private static final double ACCRUAL_FACTOR = DAY_COUNT_COUPON.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 1000000; //1m
   private static final double FACTOR = 2.0;
   private static final double SPREAD = 0.0050;
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, CALENDAR, -SETTLEMENT_DAYS);
-  private static final ZonedDateTime FIXING_START_DATE = DateUtil.getUTCDate(2011, 5, 23);
+  private static final ZonedDateTime FIXING_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, BUSINESS_DAY, CALENDAR, TENOR);
   // Time
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 12, 27);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final double ACCRUAL_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, ACCRUAL_END_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
   private static final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIXING_START_DATE);

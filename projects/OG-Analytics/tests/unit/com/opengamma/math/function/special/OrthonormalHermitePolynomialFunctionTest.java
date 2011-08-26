@@ -6,8 +6,10 @@
 package com.opengamma.math.function.special;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.apache.commons.math.util.MathUtils;
+import org.testng.annotations.Test;
+
 import com.opengamma.math.function.DoubleFunction1D;
 
 /**

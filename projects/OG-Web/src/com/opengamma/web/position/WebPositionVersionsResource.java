@@ -17,11 +17,11 @@ import javax.ws.rs.core.Response;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -54,10 +54,12 @@ public class WebPositionVersionsResource extends AbstractWebPositionResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize) {
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze) {
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
     PositionHistoryRequest request = new PositionHistoryRequest(data().getPosition().getUniqueId());
-    request.setPagingRequest(PagingRequest.of(page, pageSize));
+    request.setPagingRequest(pr);
     PositionHistoryResult result = data().getPositionMaster().history(request);
     
     FlexiBean out = createRootData();
@@ -87,7 +89,7 @@ public class WebPositionVersionsResource extends AbstractWebPositionResource {
   public WebPositionVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
     PositionDocument doc = data().getPosition();
-    UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
+    UniqueId combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
       PositionDocument versioned = data().getPositionMaster().get(combined);
       data().setVersioned(versioned);

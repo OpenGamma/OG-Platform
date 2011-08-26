@@ -7,23 +7,32 @@ package com.opengamma.examples;
 
 import static org.testng.AssertJUnit.fail;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.ZipUtils;
 import com.opengamma.util.test.AbstractSpringContextValidationTestNG;
 import com.opengamma.util.test.DBTool;
 
 
 public class ExampleServerSpringTest extends AbstractSpringContextValidationTestNG {
   
+  private static final File SCRIPT_ZIP_PATH = new File(System.getProperty("user.dir"), "lib/sql/com.opengamma/og-masterdb");
+  private static final File SCRIPT_INSTALL_DIR = new File(System.getProperty("user.dir"), "temp/" + ExampleServerSpringTest.class.getSimpleName());
+  
   @BeforeMethod
   public void setUp() throws IOException {
+    createSQLScripts();
     Properties props = new Properties();
     props.load(getClass().getResourceAsStream("/demoMasters-test.properties"));
     DBTool dbTool = new DBTool();
@@ -34,8 +43,26 @@ public class ExampleServerSpringTest extends AbstractSpringContextValidationTest
     dbTool.setDrop(true);
     dbTool.setCreate(true);
     dbTool.setCreateTables(true);
-    dbTool.setDbScriptDir(System.getProperty("user.dir"));
+    dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
     dbTool.execute();
+  }
+  
+  @SuppressWarnings("unchecked")
+  private void createSQLScripts() throws IOException {
+    cleanUp();
+    for (File file : (Collection<File>) FileUtils.listFiles(SCRIPT_ZIP_PATH, new String[] {"zip"}, false)) {
+      ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
+    }
+  }
+
+  @AfterMethod
+  public void runAfter() {
+    getSpringContext().close();
+    cleanUp();
+  }
+
+  private void cleanUp() {
+    FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
   }
 
   @Test(dataProvider = "runModes", dataProviderClass = ExampleServerSpringTest.class)

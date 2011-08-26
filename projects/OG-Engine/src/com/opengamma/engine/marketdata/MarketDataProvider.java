@@ -45,8 +45,8 @@ public interface MarketDataProvider {
    * asynchronously. The existence of a subscription might notify the provider that the value should be included in
    * snapshots.
    * 
-   * @param user  the user making the subscription, not {@code null}
-   * @param valueRequirement  the market data requirement, not {@code null}
+   * @param user  the user making the subscription, not null
+   * @param valueRequirement  the market data requirement, not null
    */
   void subscribe(UserPrincipal user, ValueRequirement valueRequirement);
   
@@ -55,24 +55,24 @@ public interface MarketDataProvider {
    * asynchronously. The existence of a subscription might notify the provider that the value should be included in
    * snapshots.
    *
-   * @param user  the user making the subscription, not {@code null}
-   * @param valueRequirements  the market data requirements, not {@code null}
+   * @param user  the user making the subscription, not null
+   * @param valueRequirements  the market data requirements, not null
    */
   void subscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements);
   
   /**
    * Unsubscribes a user from a piece of market data.
    * 
-   * @param user  the user who made the subscription, not {@code null}
-   * @param valueRequirement  the market data requirement, not {@code null}
+   * @param user  the user who made the subscription, not null
+   * @param valueRequirement  the market data requirement, not null
    */
   void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement);
   
   /**
    * Unsubscribes a user from a set of market data.
    * 
-   * @param user  the user who made the subscription, not {@code null}
-   * @param valueRequirements  the market data requirements, not {@code null}
+   * @param user  the user who made the subscription, not null
+   * @param valueRequirements  the market data requirements, not null
    */
   void unsubscribe(UserPrincipal user, Set<ValueRequirement> valueRequirements);
   
@@ -83,14 +83,14 @@ public interface MarketDataProvider {
    * in order to build the dependency graphs, and the result on each occasion is cached and reused throughout that
    * compilation. 
    * 
-   * @return the availability provider, not {@code null}
+   * @return the availability provider, not null
    */
   MarketDataAvailabilityProvider getAvailabilityProvider();
   
   /**
-   * Gets the permission provider, not {@code null}
+   * Gets the permission provider, not null
    * 
-   * @return  the permission provider, not {@code null}
+   * @return  the permission provider, not null
    */
   MarketDataPermissionProvider getPermissionProvider();
 
@@ -100,16 +100,16 @@ public interface MarketDataProvider {
    * indicate that the specification can be satisfied, only whether the market data provider knows how to make the best
    * attempt to satisfy it.
    * 
-   * @param marketDataSpec  describes the market data, not {@code null}
-   * @return {@code true} if the specification is compatible with this provider, {@code false} otherwise
+   * @param marketDataSpec  describes the market data, not null
+   * @return true if the specification is compatible with this provider
    */
   boolean isCompatible(MarketDataSpecification marketDataSpec);
   
   /**
    * Obtains access to a snapshot of market data.
    * 
-   * @param marketDataSpec  describes the market data to obtain, not {@code null}
-   * @return  the snapshot, not {@code null}
+   * @param marketDataSpec  describes the market data to obtain, not null
+   * @return  the snapshot, not null
    */
   MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec);
   
@@ -118,9 +118,9 @@ public interface MarketDataProvider {
    * replaying data at a different rate from normal then this will not correspond to the actual duration between the
    * two instants.
    * 
-   * @param fromInstant  the instant from which the duration begins, not {@code null}
-   * @param toInstant  the instant at which the duration ends, not {@code null}
-   * @return the real-time duration, or {@code null} if the market data provider is not able to tell
+   * @param fromInstant  the instant from which the duration begins, not null
+   * @param toInstant  the instant at which the duration ends, not null
+   * @return the real-time duration, null if the market data provider is not able to tell
    */
   Duration getRealTimeDuration(Instant fromInstant, Instant toInstant);
   

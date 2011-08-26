@@ -6,13 +6,14 @@
 package com.opengamma.master.config.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.time.Instant;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.config.ConfigDocument;
@@ -20,8 +21,8 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.
@@ -118,9 +119,27 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   }
 
   @Override
-  public <T> T get(final Class<T> clazz, final UniqueIdentifier uniqueId) {
-    ConfigDocument<T> doc = getDocument(clazz, uniqueId);
-    return (doc != null ? doc.getValue() : null);
+  public <T> T getConfig(final Class<T> clazz, final UniqueId uniqueId) {
+    return getDocument(clazz, uniqueId).getValue();
+  }
+
+  @Override
+  public <T> T getConfig(final Class<T> clazz, final ObjectId objectId, VersionCorrection versionCorrection) {
+    return getDocument(clazz, objectId, versionCorrection).getValue();
+  }
+
+  @Override
+  public <T> Collection<? extends T> getConfigs(Class<T> clazz, String configName, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(configName, "configName");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    
+    ConfigSearchRequest<T> request = new ConfigSearchRequest<T>();
+    request.setVersionCorrection(versionCorrection);
+    request.setName(configName);
+    request.setType(clazz);
+    ConfigSearchResult<T> searchResult = getMaster().search(request);
+    return searchResult.getValues();
   }
 
   @Override
@@ -143,19 +162,31 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    * @param uniqueId  the unique identifier, not null
    * @return the configuration document, null if not found
    */
-  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueIdentifier uniqueId) {
+  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    VersionCorrection vc = getVersionCorrection();  // lock against change
-    try {
-      if (vc != null) {
-        return getMaster().get(uniqueId, vc, clazz);
-      } else {
-        return getMaster().get(uniqueId, clazz);
-      }
-    } catch (DataNotFoundException ex) {
-      return null;
+    VersionCorrection vc = getVersionCorrection(); // lock against change
+    if (vc != null) {
+      return getMaster().get(uniqueId, vc, clazz);
+    } else {
+      return getMaster().get(uniqueId, clazz);
     }
+  }
+
+  /**
+   * Gets a configuration document by object identifier and version-correction.
+   * 
+   * @param <T>  the type of configuration element
+   * @param clazz  the configuration element type, not null
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction, not null
+   * @return the configuration document, null if not found
+   */
+  public <T> ConfigDocument<T> getDocument(final Class<T> clazz, final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return getMaster().get(objectId, versionCorrection, clazz);
   }
 
   /**
@@ -169,7 +200,7 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    * @param name  the element name to search for, wildcards allowed, not null
    * @param versionAsOf  the version to fetch, null means latest
    * @return the versioned configuration document matching the request, null if not found
-   */  
+   */
   public <T> ConfigDocument<T> getDocumentByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");

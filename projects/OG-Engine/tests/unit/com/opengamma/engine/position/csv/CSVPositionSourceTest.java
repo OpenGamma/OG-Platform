@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.position.csv;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -16,11 +16,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Test CSVPositionSource.
@@ -28,7 +32,7 @@ import com.opengamma.id.UniqueIdentifier;
 @Test
 public class CSVPositionSourceTest {
 
-  private static UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
+  private static UniqueId UID = UniqueId.of("A", "B");
 
   public void parseLineEmpty() {
     assertNull(CSVPositionSource.parseLine(new String[] {""}, UID));
@@ -47,8 +51,8 @@ public class CSVPositionSourceTest {
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
     
-    assertEquals(1, position.getSecurityLink().getIdentifiers().size());
-    Identifier id = position.getSecurityLink().getIdentifiers().iterator().next();
+    assertEquals(1, position.getSecurityLink().getExternalId().size());
+    ExternalId id = position.getSecurityLink().getExternalId().iterator().next();
     assertNotNull(id);
     assertNotNull(id.getScheme());
     assertEquals("KIRK", id.getScheme().getName());
@@ -63,9 +67,9 @@ public class CSVPositionSourceTest {
     assertNotNull(position.getQuantity());
     assertEquals(0, new BigDecimal(984).scaleByPowerOfTen(-1).compareTo(position.getQuantity()));
     
-    assertEquals(3, position.getSecurityLink().getIdentifiers().size());
+    assertEquals(3, position.getSecurityLink().getExternalId().size());
     
-    for (Identifier id : position.getSecurityLink().getIdentifiers()) {
+    for (ExternalId id : position.getSecurityLink().getExternalId()) {
       assertNotNull(id);
       assertNotNull(id.getScheme());
       assertNotNull(id.getValue());
@@ -114,14 +118,16 @@ public class CSVPositionSourceTest {
     assertEquals(2, pm.getPortfolioIds().size());
     
     // Loaded correctly
-    UniqueIdentifier[] portIds = pm.getPortfolioIds().toArray(new UniqueIdentifier[0]);
-    Portfolio port1 = pm.getPortfolio(portIds[0]);
+    ObjectId[] portIds = pm.getPortfolioIds().toArray(new ObjectId[0]);
+    Portfolio port1 = pm.getPortfolio(portIds[0].atVersion("0"));
     assertEquals(6, port1.getRootNode().getPositions().size());   
-    Portfolio port2 = pm.getPortfolio(portIds[1]);
+    Portfolio port2 = pm.getPortfolio(portIds[1].atVersion("0"));
     assertEquals(4, port2.getRootNode().getPositions().size());
+    Portfolio port2b = pm.getPortfolio(portIds[1], VersionCorrection.LATEST);
+    assertEquals(4, port2b.getRootNode().getPositions().size());
     
     // Unknown portfolio should return null
-    Portfolio unknownPort = pm.getPortfolio(UniqueIdentifier.of("Wrong scheme", "Irrelevant value"));
+    Portfolio unknownPort = pm.getPortfolio(UniqueId.of("Wrong scheme", "Irrelevant value"));
     assertNull(unknownPort);
     
     // Retrieval by root node

@@ -12,7 +12,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.testng.annotations.AfterClass;
@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
-import com.opengamma.util.test.ActiveMQTestUtil;
+import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
  * 
@@ -38,7 +38,7 @@ public class JmsSenderTest {
 
   @BeforeClass
   public void setUpClass() {
-    ActiveMQConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
+    ActiveMQConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
 
     JmsTemplate jmsTemplate = new JmsTemplate(cf);
     jmsTemplate.setPubSubDomain(true);
@@ -94,10 +94,10 @@ public class JmsSenderTest {
     Thread.sleep(100);
     assertEquals(1, _collectingReceiver.getMessages().size());
     
-    FudgeDeserializationContext fdc = new FudgeDeserializationContext(fudgeContext);
+    FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
     for (byte[] byteArray : _collectingReceiver.getMessages()) {
       FudgeMsgEnvelope msgEnvelope = fudgeContext.deserialize(byteArray);
-      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fdc, msgEnvelope.getMessage());
+      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(deserializer, msgEnvelope.getMessage());
       assertEquals(msg, update.getFields());
     }
   }
@@ -135,10 +135,10 @@ public class JmsSenderTest {
     assertEquals(3, _collectingReceiver.getMessages().size());
     LiveDataValueUpdateBean[] updates = new LiveDataValueUpdateBean[3]; 
     
-    FudgeDeserializationContext fdc = new FudgeDeserializationContext(fudgeContext);
+    FudgeDeserializer deserializer = new FudgeDeserializer(fudgeContext);
     for (int i = 0; i < _collectingReceiver.getMessages().size(); i++) {
       FudgeMsgEnvelope msgEnvelope = fudgeContext.deserialize(_collectingReceiver.getMessages().get(i));
-      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fdc, msgEnvelope.getMessage());
+      LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(deserializer, msgEnvelope.getMessage());
       updates[i] = update;
     }
     

@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.DataNotFoundException;
 
 /**
- * Test DataNotFoundException. 
+ * Test {@link DataNotFoundException}. 
  */
 @Test
 public class DataNotFoundExceptionTest {

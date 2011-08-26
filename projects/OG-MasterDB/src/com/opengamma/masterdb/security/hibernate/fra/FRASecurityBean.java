@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
-import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -20,12 +20,12 @@ import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
  */
 public class FRASecurityBean extends SecurityBean {
   private CurrencyBean _currency;
-  private IdentifierBean _region;
+  private ExternalIdBean _region;
   private ZonedDateTimeBean _startDate;
   private ZonedDateTimeBean _endDate;
   private double _rate;
   private double _amount;
-  private IdentifierBean _underlying;
+  private ExternalIdBean _underlying;
   /**
    * Gets the rate field.
    * @return the rate
@@ -79,7 +79,7 @@ public class FRASecurityBean extends SecurityBean {
    * Gets the region field.
    * @return the region
    */
-  public IdentifierBean getRegion() {
+  public ExternalIdBean getRegion() {
     return _region;
   }
 
@@ -87,7 +87,7 @@ public class FRASecurityBean extends SecurityBean {
    * Sets the region field.
    * @param region  the region
    */
-  public void setRegion(IdentifierBean region) {
+  public void setRegion(ExternalIdBean region) {
     _region = region;
   }
 
@@ -123,11 +123,11 @@ public class FRASecurityBean extends SecurityBean {
     _endDate = endDate;
   }
   
-  public IdentifierBean getUnderlying() {
+  public ExternalIdBean getUnderlying() {
     return _underlying;
   }
 
-  public void setUnderlying(final IdentifierBean underlying) {
+  public void setUnderlying(final ExternalIdBean underlying) {
     _underlying = underlying;
   }
 

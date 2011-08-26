@@ -9,11 +9,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,7 +30,7 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
   /**
    * The set of acceptable schemes.
    */
-  private final Set<IdentificationScheme> _acceptableSchemes;
+  private final Set<ExternalScheme> _acceptableSchemes;
   /**
    * The set of acceptable market data fields.
    */
@@ -42,12 +43,12 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
    * @param acceptableSchemes  the acceptable schemes, not null
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public DomainMarketDataAvailabilityProvider(final SecuritySource securitySource, final Collection<IdentificationScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
+  public DomainMarketDataAvailabilityProvider(final SecuritySource securitySource, final Collection<ExternalScheme> acceptableSchemes, final Collection<String> validMarketDataRequirementNames) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(acceptableSchemes, "acceptableSchemes");
     ArgumentChecker.notNull(validMarketDataRequirementNames, "validMarketDataRequirementNames");
     _securitySource = securitySource;
-    _acceptableSchemes = new HashSet<IdentificationScheme>(acceptableSchemes);
+    _acceptableSchemes = new HashSet<ExternalScheme>(acceptableSchemes);
     _validMarketDataRequirementNames = new HashSet<String>(validMarketDataRequirementNames);
   }
 
@@ -59,19 +60,21 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
     }
     switch (requirement.getTargetSpecification().getType()) {
       case PRIMITIVE: {
-        IdentificationScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
+        ExternalScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
         return _acceptableSchemes.contains(scheme);
       }
       case SECURITY: {
-        Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
-        if (security != null) {
-          for (Identifier identifier : security.getIdentifiers()) {
+        try {
+          Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
+          for (ExternalId identifier : security.getIdentifiers()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
               return true;
             }
           }
+          return false;
+        } catch (DataNotFoundException ex) {
+          return false;
         }
-        return false;
       }
       default:
         return false;

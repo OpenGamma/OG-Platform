@@ -14,6 +14,7 @@ import static org.testng.AssertJUnit.assertNull;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.time.Instant;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -32,10 +33,10 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -46,7 +47,7 @@ import com.opengamma.util.time.Expiry;
 public class RESTMethodTest {
 
   private final SecuritySourceService _securitySourceService = new SecuritySourceService(OpenGammaFudgeContext.getInstance());
-  private UniqueIdentifier _uid1;
+  private UniqueId _uid1;
 
   protected SecuritySourceService getSecuritySourceService() {
     return _securitySourceService;
@@ -59,14 +60,14 @@ public class RESTMethodTest {
   @BeforeMethod
   public void configureService() {
     MockFinancialSecuritySource securitySource = new MockFinancialSecuritySource();
-    Identifier secId1 = Identifier.of(IdentificationScheme.of("d1"), "v1");
-    Identifier secId2 = Identifier.of(IdentificationScheme.of("d2"), "v2");
+    ExternalId secId1 = ExternalId.of(ExternalScheme.of("d1"), "v1");
+    ExternalId secId2 = ExternalId.of(ExternalScheme.of("d2"), "v2");
     MockSecurity sec1 = new MockSecurity("t1");
-    sec1.setIdentifiers(IdentifierBundle.of(secId1));
+    sec1.setIdentifiers(ExternalIdBundle.of(secId1));
     sec1.setSecurityType("BOND");
     securitySource.addSecurity(sec1);
     MockSecurity sec2 = new MockSecurity("t2");
-    sec2.setIdentifiers(IdentifierBundle.of(secId2));
+    sec2.setIdentifiers(ExternalIdBundle.of(secId2));
     securitySource.addSecurity(sec2);
     
     BondSecurity bondSec = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
@@ -74,7 +75,7 @@ public class RESTMethodTest {
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100, 100000000, 5000, 1000, 100, 100);
-    bondSec.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
+    bondSec.setIdentifiers(ExternalIdBundle.of(ExternalId.of("A", "B")));
     securitySource.addSecurity(bondSec);
     
     getSecuritySourceService().setUnderlying(securitySource);
@@ -90,17 +91,22 @@ public class RESTMethodTest {
   @Test
   public void testGetSecurityByIdentifier() {
     final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(_uid1.toString());
-    assertNotNull(fme);
-    final FudgeMsg msg = fme.getMessage();
-    assertNotNull(msg);
-    FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeMsg security = msg.getFieldValue(FudgeMsg.class, msg.getByName(SECURITYSOURCE_SECURITY));
-    assertNotNull(security);
+    checkSecurityMessage(fme);
   }
 
   @Test
   public void testGetSecurityByBundle() {
-    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"), null, null);
+    checkSecurityMessage(fme);
+  }
+  
+  @Test
+  public void testGetSecurityByBundleVersionCorrection() {
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"), Instant.now().toString(), Instant.now().toString());
+    checkSecurityMessage(fme);
+  }
+  
+  private void checkSecurityMessage(final FudgeMsgEnvelope fme) {
     assertNotNull(fme);
     final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
@@ -111,7 +117,17 @@ public class RESTMethodTest {
 
   @Test
   public void testGetSecurities() {
-    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"), null, null);
+    checkSecuritiesMessage(fme);
+  }
+  
+  @Test
+  public void testGetSecuritiesVersionCorrection() {
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"), Instant.now().toString(), Instant.now().toString());
+    checkSecuritiesMessage(fme);
+  }
+  
+  private void checkSecuritiesMessage(final FudgeMsgEnvelope fme) {
     assertNotNull(fme);
     final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);

@@ -6,18 +6,20 @@
 package com.opengamma.engine.view.cache;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.AssertJUnit;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -32,7 +34,7 @@ public class CachingValueSpecificationIdentifierSourceTest {
     final ValueSpecification[] valueSpec = new ValueSpecification[6];
     final Map<ValueSpecification, Long> realIdentifiers = new HashMap<ValueSpecification, Long> ();
     for (int i = 0; i < valueSpec.length; i++) {
-      valueSpec[i] = new ValueSpecification(new ValueRequirement("value" + i, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("scheme", "fibble"))), "mockFunctionId");
+      valueSpec[i] = new ValueSpecification(new ValueRequirement("value" + i, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("scheme", "fibble"))), "mockFunctionId");
       realIdentifiers.put (valueSpec[i], (long)i);
     }
     

@@ -43,7 +43,8 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -164,9 +165,9 @@ public class RemoteViewClient implements ViewClient {
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_UNIQUE_ID);
-    return _client.access(uri).get(UniqueIdentifier.class);
+    return _client.access(uri).get(UniqueId.class);
   }
 
   @Override
@@ -215,7 +216,7 @@ public class RemoteViewClient implements ViewClient {
   }
 
   @Override
-  public void attachToViewProcess(UniqueIdentifier processId) {
+  public void attachToViewProcess(UniqueId processId) {
     _listenerLock.lock();
     try {
       _completionLatch = new CountDownLatch(1);
@@ -245,7 +246,7 @@ public class RemoteViewClient implements ViewClient {
   }
   
   @Override
-  public ViewDefinition getViewDefinition() {
+  public ViewDefinition getLatestViewDefinition() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_DEFINITION);
     return _client.access(uri).get(ViewDefinition.class);
   }
@@ -439,6 +440,12 @@ public class RemoteViewClient implements ViewClient {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_COMPILED_VIEW_DEFINITION);
     return _client.access(uri).get(CompiledViewDefinition.class);
   }
+  
+  @Override
+  public VersionCorrection getProcessVersionCorrection() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PROCESS_VERSION_CORRECTION);
+    return _client.access(uri).get(VersionCorrection.class);
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -456,7 +463,7 @@ public class RemoteViewClient implements ViewClient {
   }
 
   @Override
-  public EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueIdentifier cycleId) {
+  public EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId) {
     URI createReferenceUri = getUri(_baseUri, DataViewClientResource.PATH_CREATE_CYCLE_REFERENCE);
     ClientResponse response = _client.access(createReferenceUri).post(ClientResponse.class, cycleId);
     if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
@@ -505,4 +512,5 @@ public class RemoteViewClient implements ViewClient {
   public void stopHeartbeating() {
     _scheduledHeartbeat.cancel(true);
   }
+
 }

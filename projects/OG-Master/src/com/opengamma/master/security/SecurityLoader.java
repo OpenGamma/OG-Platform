@@ -8,8 +8,8 @@ package com.opengamma.master.security;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -22,12 +22,12 @@ import com.opengamma.util.PublicSPI;
 public interface SecurityLoader {
 
   /**
-   * Loads the security data for the requested IdentifierBundles
+   * Loads the security data for the requested bundles.
    * 
    * @param identifiers  a collection of identifiers to load, not null
    * @return a map of input bundle to created unique identifier from the master, not null
    */
-  Map<IdentifierBundle, UniqueIdentifier> loadSecurity(Collection<IdentifierBundle> identifiers);
+  Map<ExternalIdBundle, UniqueId> loadSecurity(Collection<ExternalIdBundle> identifiers);
 
   /**
    * Gets the associated master.

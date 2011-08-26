@@ -275,7 +275,10 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     private final boolean _isCall;
 
     /**
-     * Constructor
+     * Constructor of the integrant.
+     * @param cmsCap The CMS cap/floor.
+     * @param sabrParameter The SABR parameters.
+     * @param forward The swap forward rate.
      */
     public CMSIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
@@ -312,7 +315,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param x The swap rate.
      * @return The discount factor.
      */
-    private double h(final double x) {
+    double h(final double x) {
       return Math.pow(1.0 + _tau * x, _eta);
     }
 
@@ -321,7 +324,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param x The swap rate.
      * @return The annuity.
      */
-    private double g(final double x) {
+    double g(final double x) {
       if (x >= EPS) {
         final double periodFactor = 1 + x / _nbFixedPaymentYear;
         final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
@@ -335,7 +338,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param x The swap rate. 
      * @return The factor.
      */
-    private double k(final double x) {
+    double k(final double x) {
       double g;
       double h;
       if (x >= EPS) {
@@ -373,11 +376,12 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
         gp = -_nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear);
         gpp = _nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) * (1.0 + (_nbFixedPeriod + 2.0) / 3.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear * _nbFixedPaymentYear);
       }
+      double g2 = g * g;
       final double h = Math.pow(1.0 + _tau * x, _eta);
       final double hp = _eta * _tau * h / periodFactor;
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
-      final double kp = hp / g - h * gp / (g * g);
-      final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
+      final double kp = hp / g - h * gp / g2;
+      final double kpp = hpp / g - 2 * hp * gp / g2 - h * (gpp / g2 - 2 * (gp * gp) / (g2 * g));
       return new double[] {kp, kpp};
     }
 
@@ -394,107 +398,37 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       final Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
     }
+
+    /**
+     * Gets the eps field.
+     * @return the eps
+     */
+    public double getEps() {
+      return EPS;
+    }
+
   }
 
-  /**
-   * Inner class to implement the integration used in price replication.
-   */
-  //TODO Refactor CMSDeltaIntegrant and CMSVegaIntegrant as extension of CMSIntegrant
-  private class CMSDeltaIntegrant extends Function1D<Double, Double> {
-    private static final double EPS = 1E-10;
-    private final int _nbFixedPeriod;
-    private final int _nbFixedPaymentYear;
-    private final double _tau;
-    private final double _delta;
-    private final double _eta;
-    private final double _timeToExpiry;
-    private final double _maturity;
-    private final double _strike;
-    private final double _forward;
-    private final SABRFormulaData _sabrData;
-    /**
-     * The function containing the SABR volatility formula.
-     */
-    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
-    private final BlackPriceFunction _blackFunction = new BlackPriceFunction();
-    private final boolean _isCall;
+  private class CMSDeltaIntegrant extends CMSIntegrant {
+
     private final double[] _nnp;
 
     /**
-     * 
+     * @param cmsCap
+     * @param sabrParameter
+     * @param forward
      */
-    public CMSDeltaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
-      _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
-      _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
-      _tau = 1.0 / _nbFixedPaymentYear;
-      _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
-      _eta = -_delta;
-      _timeToExpiry = cmsCap.getFixingTime();
-      _forward = forward;
-      final AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
-      _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
-      final DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
-      final double alpha = sabrParameter.getAlpha(expiryMaturity);
-      final double beta = sabrParameter.getBeta(expiryMaturity);
-      final double rho = sabrParameter.getRho(expiryMaturity);
-      final double nu = sabrParameter.getNu(expiryMaturity);
-      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
-      _sabrFunction = sabrParameter.getSabrFunction();
-      _isCall = cmsCap.isCap();
-      _strike = cmsCap.getStrike();
-      _nnp = nnp(_forward);
+    public CMSDeltaIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameters sabrParameter, double forward) {
+      super(cmsCap, sabrParameter, forward);
+      _nnp = nnp(forward);
     }
 
     @Override
     public Double evaluate(final Double x) {
-      final double[] kD = kpkpp(x);
+      final double[] kD = super.kpkpp(x);
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
       final double[] bs = bsbsp(x);
-      return (kD[1] * (x - _strike) + 2.0 * kD[0]) * (_nnp[1] * bs[0] + _nnp[0] * bs[1]);
-    }
-
-    /**
-     * The approximation of the discount factor as function of the swap rate.
-     * @param x The swap rate.
-     * @return The discount factor.
-     */
-    private double h(final double x) {
-      return Math.pow(1.0 + _tau * x, _eta);
-    }
-
-    private double[] hhp(final double x) {
-      final double[] result = new double[2];
-      result[0] = Math.pow(1.0 + _tau * x, _eta);
-      result[1] = _eta * _tau * result[0] / (1 + x * _tau);
-      return result;
-    }
-
-    /**
-     * The cash annuity.
-     * @param x The swap rate.
-     * @return The annuity.
-     */
-    private double g(final double x) {
-      if (x >= EPS) {
-        final double periodFactor = 1 + x / _nbFixedPaymentYear;
-        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-        return 1.0 / x * (1.0 - nPeriodDiscount);
-      }
-      return ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
-    }
-
-    private double[] ggp(final double x) {
-      final double[] result = new double[2];
-      if (x >= EPS) {
-        final double periodFactor = 1 + x / _nbFixedPaymentYear;
-        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-        result[0] = 1.0 / x * (1.0 - nPeriodDiscount);
-        result[1] = -result[0] / x + _tau * _nbFixedPeriod / x * nPeriodDiscount / periodFactor;
-      } else {
-        result[0] = _nbFixedPeriod * _tau;
-        result[1] = -_nbFixedPeriod * (_nbFixedPeriod + 1.0) * _tau * _tau / 2.0;
-      }
-      return result;
+      return (kD[1] * (x - super._strike) + 2.0 * kD[0]) * (_nnp[1] * bs[0] + _nnp[0] * bs[1]);
     }
 
     private double[] nnp(final double x) {
@@ -506,55 +440,25 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       return result;
     }
 
-    /**
-     * The factor used in the strike part and in the integration of the replication.
-     * @param x The swap rate. 
-     * @return The factor.
-     */
-    private double k(final double x) {
-      double g;
-      double h;
-      if (x >= EPS) {
-        final double periodFactor = 1 + x / _nbFixedPaymentYear;
-        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-        g = 1.0 / x * (1.0 - nPeriodDiscount);
-        h = Math.pow(1.0 + _tau * x, _eta);
+    private double[] ggp(final double x) {
+      final double[] result = new double[2];
+      if (x >= getEps()) {
+        final double periodFactor = 1 + x / super._nbFixedPaymentYear;
+        final double nPeriodDiscount = Math.pow(periodFactor, -super._nbFixedPeriod);
+        result[0] = 1.0 / x * (1.0 - nPeriodDiscount);
+        result[1] = -result[0] / x + super._tau * super._nbFixedPeriod / x * nPeriodDiscount / periodFactor;
       } else {
-        g = ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
-        h = 1.0;
+        result[0] = super._nbFixedPeriod * super._tau;
+        result[1] = -super._nbFixedPeriod * (super._nbFixedPeriod + 1.0) * super._tau * super._tau / 2.0;
       }
-      return h / g;
+      return result;
     }
 
-    /**
-     * The first and second derivative of the function k.
-     * @param x The swap rate.
-     * @return The derivative (first element is the first derivative, second element is second derivative.
-     */
-    private double[] kpkpp(final double x) {
-      final double periodFactor = 1 + x / _nbFixedPaymentYear;
-      final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-      /**
-       * The value of the annuity and its first and second derivative.
-       */
-      double g, gp, gpp;
-      if (x >= EPS) {
-        g = 1.0 / x * (1.0 - nPeriodDiscount);
-        gp = -g / x + _nbFixedPeriod / x / _nbFixedPaymentYear * nPeriodDiscount / periodFactor;
-        gpp = 2.0 / (x * x) * g - 2.0 * _nbFixedPeriod / (x * x) / _nbFixedPaymentYear * nPeriodDiscount / periodFactor - (_nbFixedPeriod + 1.0) * _nbFixedPeriod / x
-            / (_nbFixedPaymentYear * _nbFixedPaymentYear) * nPeriodDiscount / (periodFactor * periodFactor);
-      } else {
-        // Implementation comment: When x is (almost) 0, useful for CMS swaps which are priced as CMS cap of strike 0.
-        g = ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
-        gp = -_nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear);
-        gpp = _nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) * (1.0 + (_nbFixedPeriod + 2.0) / 3.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear * _nbFixedPaymentYear);
-      }
-      final double h = Math.pow(1.0 + _tau * x, _eta);
-      final double hp = _eta * _tau * h / periodFactor;
-      final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
-      final double kp = hp / g - h * gp / (g * g);
-      final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
-      return new double[] {kp, kpp};
+    private double[] hhp(final double x) {
+      final double[] result = new double[2];
+      result[0] = Math.pow(1.0 + super._tau * x, super._eta);
+      result[1] = super._eta * super._tau * result[0] / (1 + x * super._tau);
+      return result;
     }
 
     /**
@@ -564,77 +468,29 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      */
     double[] bsbsp(final double strike) {
       final double[] result = new double[2];
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
-      final double[] volatility = sabrHaganFunction.getVolatilityAdjoint(option, _sabrData);
-      final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility[0]);
-      final double[] bsAdjoint = _blackFunction.getPriceAdjoint(option, dataBlack);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, super._timeToExpiry, super._isCall);
+      final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) super._sabrFunction;
+      final double[] volatility = sabrHaganFunction.getVolatilityAdjoint(option, super._sabrData);
+      final BlackFunctionData dataBlack = new BlackFunctionData(super._forward, 1.0, volatility[0]);
+      final double[] bsAdjoint = super._blackFunction.getPriceAdjoint(option, dataBlack);
       result[0] = bsAdjoint[0];
       result[1] = bsAdjoint[1] + bsAdjoint[2] * volatility[1];
       return result;
     }
+
   }
 
-  /**
-   * Inner class to implement the integration used in price replication.
-   */
-  private class CMSVegaIntegrant extends Function1D<Double, Double> {
-    private static final double EPS = 1E-10;
-    private final int _nbFixedPeriod;
-    private final int _nbFixedPaymentYear;
-    private final double _tau;
-    private final double _delta;
-    private final double _eta;
-    private final double _timeToExpiry;
-    private final double _maturity;
-    private final double _strike;
-    private final double _forward;
-    private final double _factor;
-    private final SABRFormulaData _sabrData;
-    /**
-     * The function containing the SABR volatility formula.
-     */
-    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
-    //    private final SABRInterestRateParameter _sabrParameter;
-    private final BlackPriceFunction _blackFunction = new BlackPriceFunction();
-    private final boolean _isCall;
+  private class CMSVegaIntegrant extends CMSIntegrant {
+
     private int _parameterIndex;
 
     /**
-     * 
+     * @param cmsCap
+     * @param sabrParameter
+     * @param forward
      */
-    public CMSVegaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
-      _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
-      _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
-      _tau = 1.0 / _nbFixedPaymentYear;
-      _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
-      _eta = -_delta;
-      //      _sabrParameter = sabrParameter;
-      _timeToExpiry = cmsCap.getFixingTime();
-      _forward = forward;
-      final AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
-      _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
-      final DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
-      final double alpha = sabrParameter.getAlpha(expiryMaturity);
-      final double beta = sabrParameter.getBeta(expiryMaturity);
-      final double rho = sabrParameter.getRho(expiryMaturity);
-      final double nu = sabrParameter.getNu(expiryMaturity);
-      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
-      _sabrFunction = sabrParameter.getSabrFunction();
-      _isCall = cmsCap.isCap();
-      // Implementation note: to avoid singularity at 0.
-      _strike = (cmsCap.getStrike() < 1E-4 ? 1E-4 : cmsCap.getStrike());
-      _factor = g(_forward) / h(_forward);
-    }
-
-    @Override
-    public Double evaluate(final Double x) {
-      final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(x, _timeToExpiry, _isCall);
-      final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
-      final double[] volatilityAdjoint = sabrHaganFunction.getVolatilityAdjoint(option, _sabrData);
-      return _factor * (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x) * volatilityAdjoint[3 + _parameterIndex];
+    public CMSVegaIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameters sabrParameter, double forward) {
+      super(cmsCap, sabrParameter, forward);
     }
 
     /**
@@ -645,78 +501,14 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       this._parameterIndex = parameterIndex;
     }
 
-    /**
-     * The approximation of the discount factor as function of the swap rate.
-     * @param x The swap rate.
-     * @return The discount factor.
-     */
-    private double h(final double x) {
-      return Math.pow(1.0 + _tau * x, _eta);
-    }
-
-    /**
-     * The cash annuity.
-     * @param x The swap rate.
-     * @return The annuity.
-     */
-    private double g(final double x) {
-      if (x >= EPS) {
-        final double periodFactor = 1 + x / _nbFixedPaymentYear;
-        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-        return 1.0 / x * (1.0 - nPeriodDiscount);
-      }
-      return ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
-    }
-
-    /**
-     * The factor used in the strike part and in the integration of the replication.
-     * @param x The swap rate. 
-     * @return The factor.
-     */
-    private double k(final double x) {
-      double g;
-      double h;
-      if (x >= EPS) {
-        final double periodFactor = 1 + x / _nbFixedPaymentYear;
-        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-        g = 1.0 / x * (1.0 - nPeriodDiscount);
-        h = Math.pow(1.0 + _tau * x, _eta);
-      } else {
-        g = ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
-        h = 1.0;
-      }
-      return h / g;
-    }
-
-    /**
-     * The first and second derivative of the function k.
-     * @param x The swap rate.
-     * @return The derivative (first element is the first derivative, second element is second derivative.
-     */
-    private double[] kpkpp(final double x) {
-      final double periodFactor = 1 + x / _nbFixedPaymentYear;
-      final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
-      /**
-       * The value of the annuity and its first and second derivative.
-       */
-      double g, gp, gpp;
-      if (x >= EPS) {
-        g = 1.0 / x * (1.0 - nPeriodDiscount);
-        gp = -g / x + _nbFixedPeriod / x / _nbFixedPaymentYear * nPeriodDiscount / periodFactor;
-        gpp = 2.0 / (x * x) * g - 2.0 * _nbFixedPeriod / (x * x) / _nbFixedPaymentYear * nPeriodDiscount / periodFactor - (_nbFixedPeriod + 1.0) * _nbFixedPeriod / x
-            / (_nbFixedPaymentYear * _nbFixedPaymentYear) * nPeriodDiscount / (periodFactor * periodFactor);
-      } else {
-        // Implementation comment: When x is (almost) 0, useful for CMS swaps which are priced as CMS cap of strike 0.
-        g = ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
-        gp = -_nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear);
-        gpp = _nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) * (1.0 + (_nbFixedPeriod + 2.0) / 3.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear * _nbFixedPaymentYear);
-      }
-      final double h = Math.pow(1.0 + _tau * x, _eta);
-      final double hp = _eta * _tau * h / periodFactor;
-      final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
-      final double kp = hp / g - h * gp / (g * g);
-      final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
-      return new double[] {kp, kpp};
+    @Override
+    public Double evaluate(final Double x) {
+      final double[] kD = super.kpkpp(x);
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(x, super._timeToExpiry, super._isCall);
+      final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) super._sabrFunction;
+      final double[] volatilityAdjoint = sabrHaganFunction.getVolatilityAdjoint(option, super._sabrData);
+      return super._factor * (kD[1] * (x - super._strike) + 2.0 * kD[0]) * bs(x) * volatilityAdjoint[3 + _parameterIndex];
     }
 
     /**
@@ -724,15 +516,16 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param strike The strike.
      * @return The Black-Scholes formula derivative with respect to volatility.
      */
+    @Override
     double bs(final double strike) {
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option);
-      final double volatility = funcSabr.evaluate(_sabrData);
-      //      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
-      final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      final double[] bsAdjoint = _blackFunction.getPriceAdjoint(option, dataBlack);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, super._timeToExpiry, super._isCall);
+      final Function1D<SABRFormulaData, Double> funcSabr = super._sabrFunction.getVolatilityFunction(option);
+      final double volatility = funcSabr.evaluate(super._sabrData);
+      final BlackFunctionData dataBlack = new BlackFunctionData(super._forward, 1.0, volatility);
+      final double[] bsAdjoint = super._blackFunction.getPriceAdjoint(option, dataBlack);
       return bsAdjoint[2];
     }
+
   }
 
 }

@@ -21,12 +21,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierSearch;
-import com.opengamma.id.IdentifierSearchType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -39,10 +39,10 @@ import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -61,7 +61,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   private static final Logger s_logger = LoggerFactory.getLogger(DbHolidayMaster.class);
 
   /**
-   * The scheme used for UniqueIdentifier objects.
+   * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbHol";
   /**
@@ -120,12 +120,12 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     s_logger.debug("search {}", request);
     
     final HolidaySearchResult result = new HolidaySearchResult();
-    IdentifierSearch regionKeys = request.getRegionKeys();
-    IdentifierSearch exchangeKeys = request.getExchangeKeys();
+    ExternalIdSearch regionSearch = request.getRegionExternalIdSearch();
+    ExternalIdSearch exchangeSearch = request.getExchangeExternalIdSearch();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getCode() : null);
-    if ((request.getHolidayIds() != null && request.getHolidayIds().size() == 0) ||
-        IdentifierSearch.canMatch(regionKeys) == false ||
-        IdentifierSearch.canMatch(exchangeKeys) == false) {
+    if ((request.getHolidayObjectIds() != null && request.getHolidayObjectIds().size() == 0) ||
+        ExternalIdSearch.canMatch(regionSearch) == false ||
+        ExternalIdSearch.canMatch(exchangeSearch) == false) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
@@ -136,27 +136,27 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       .addValueNullIgnored("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValueNullIgnored("hol_type", request.getType() != null ? request.getType().name() : null)
       .addValueNullIgnored("currency_iso", currencyISO);
-    if (request.getProviderKey() != null) {
-      args.addValue("provider_scheme", request.getProviderKey().getScheme().getName());
-      args.addValue("provider_value", request.getProviderKey().getValue());
+    if (request.getProviderId() != null) {
+      args.addValue("provider_scheme", request.getProviderId().getScheme().getName());
+      args.addValue("provider_value", request.getProviderId().getValue());
     }
-    if (regionKeys != null) {
-      if (regionKeys.getSearchType() != IdentifierSearchType.ANY) {
-        throw new IllegalArgumentException("Unsupported search type: " + regionKeys.getSearchType());
+    if (regionSearch != null) {
+      if (regionSearch.getSearchType() != ExternalIdSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + regionSearch.getSearchType());
       }
       int i = 0;
-      for (Identifier idKey : regionKeys.getIdentifiers()) {
+      for (ExternalId idKey : regionSearch.getExternalIds()) {
         args.addValue("region_scheme" + i, idKey.getScheme().getName());
         args.addValue("region_value" + i, idKey.getValue());
         i++;
       }
     }
-    if (exchangeKeys != null) {
-      if (exchangeKeys.getSearchType() != IdentifierSearchType.ANY) {
-        throw new IllegalArgumentException("Unsupported search type: " + exchangeKeys.getSearchType());
+    if (exchangeSearch != null) {
+      if (exchangeSearch.getSearchType() != ExternalIdSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + exchangeSearch.getSearchType());
       }
       int i = 0;
-      for (Identifier idKey : exchangeKeys.getIdentifiers()) {
+      for (ExternalId idKey : exchangeSearch.getExternalIds()) {
         args.addValue("exchange_scheme" + i, idKey.getScheme().getName());
         args.addValue("exchange_value" + i, idKey.getValue());
         i++;
@@ -181,21 +181,21 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     if (request.getType() != null) {
       where += "AND hol_type = :hol_type ";
     }
-    if (request.getProviderKey() != null) {
+    if (request.getProviderId() != null) {
       where += "AND provider_scheme = :provider_scheme AND provider_value = :provider_value ";
     }
-    if (request.getRegionKeys() != null) {
-      where += "AND (" + sqlSelectIdKeys(request.getRegionKeys(), "region") + ") ";
+    if (request.getRegionExternalIdSearch() != null) {
+      where += "AND (" + sqlSelectIdKeys(request.getRegionExternalIdSearch(), "region") + ") ";
     }
-    if (request.getExchangeKeys() != null) {
-      where += "AND (" + sqlSelectIdKeys(request.getExchangeKeys(), "exchange") + ") ";
+    if (request.getExchangeExternalIdSearch() != null) {
+      where += "AND (" + sqlSelectIdKeys(request.getExchangeExternalIdSearch(), "exchange") + ") ";
     }
     if (request.getCurrency() != null) {
       where += "AND currency_iso = :currency_iso ";
     }
-    if (request.getHolidayIds() != null) {
-      StringBuilder buf = new StringBuilder(request.getHolidayIds().size() * 10);
-      for (ObjectIdentifier objectId : request.getHolidayIds()) {
+    if (request.getHolidayObjectIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getHolidayObjectIds().size() * 10);
+      for (ObjectId objectId : request.getHolidayObjectIds()) {
         checkScheme(objectId);
         buf.append(extractOid(objectId)).append(", ");
       }
@@ -218,7 +218,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
    * @param type  the type to search for, not null
    * @return the SQL search and count, not null
    */
-  protected String sqlSelectIdKeys(final IdentifierSearch bundle, final String type) {
+  protected String sqlSelectIdKeys(final ExternalIdSearch bundle, final String type) {
     List<String> list = new ArrayList<String>();
     for (int i = 0; i < bundle.size(); i++) {
       list.add("(" + type + "_scheme = :" + type + "_scheme" + i + " AND " + type + "_value = :" + type + "_value" + i + ") ");
@@ -228,7 +228,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
 
   //-------------------------------------------------------------------------
   @Override
-  public HolidayDocument get(final UniqueIdentifier uniqueId) {
+  public HolidayDocument get(final UniqueId uniqueId) {
     return doGet(uniqueId, new HolidayDocumentExtractor(), "Holiday");
   }
 
@@ -268,13 +268,13 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("provider_scheme", (document.getProviderKey() != null ? document.getProviderKey().getScheme().getName() : null))
-      .addValue("provider_value", (document.getProviderKey() != null ? document.getProviderKey().getValue() : null))
+      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
+      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
       .addValue("hol_type", holiday.getType() != null ? holiday.getType().name() : null)
-      .addValue("region_scheme", (holiday.getRegionKey() != null ? holiday.getRegionKey().getScheme().getName() : null))
-      .addValue("region_value", (holiday.getRegionKey() != null ? holiday.getRegionKey().getValue() : null))
-      .addValue("exchange_scheme", (holiday.getExchangeKey() != null ? holiday.getExchangeKey().getScheme().getName() : null))
-      .addValue("exchange_value", (holiday.getExchangeKey() != null ? holiday.getExchangeKey().getValue() : null))
+      .addValue("region_scheme", (holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null))
+      .addValue("region_value", (holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null))
+      .addValue("exchange_scheme", (holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null))
+      .addValue("exchange_value", (holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null))
       .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null));
     // the arguments for inserting into the date table
     final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
@@ -287,7 +287,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     getJdbcTemplate().update(sqlInsertHoliday(), holidayArgs);
     getJdbcTemplate().batchUpdate(sqlInsertDate(), dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
     // set the uniqueId
-    final UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+    final UniqueId uniqueId = createUniqueId(docOid, docId);
     holiday.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
     return document;
@@ -371,15 +371,15 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       final String exchangeScheme = rs.getString("EXCHANGE_SCHEME");
       final String exchangeValue = rs.getString("EXCHANGE_VALUE");
       final String currencyISO = rs.getString("CURRENCY_ISO");
-      UniqueIdentifier uniqueId = createUniqueIdentifier(docOid, docId);
+      UniqueId uniqueId = createUniqueId(docOid, docId);
       ManageableHoliday holiday = new ManageableHoliday();
       holiday.setUniqueId(uniqueId);
       holiday.setType(HolidayType.valueOf(type));
       if (regionScheme != null && regionValue != null) {
-        holiday.setRegionKey(Identifier.of(regionScheme, regionValue));
+        holiday.setRegionExternalId(ExternalId.of(regionScheme, regionValue));
       }
       if (exchangeScheme != null && exchangeValue != null) {
-        holiday.setExchangeKey(Identifier.of(exchangeScheme, exchangeValue));
+        holiday.setExchangeExternalId(ExternalId.of(exchangeScheme, exchangeValue));
       }
       if (currencyISO != null) {
         holiday.setCurrency(Currency.of(currencyISO));
@@ -392,7 +392,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       doc.setUniqueId(uniqueId);
       doc.setName(name);
       if (providerScheme != null && providerValue != null) {
-        doc.setProviderKey(Identifier.of(providerScheme, providerValue));
+        doc.setProviderId(ExternalId.of(providerScheme, providerValue));
       }
       _holiday = doc.getHoliday();
       _documents.add(doc);

@@ -32,8 +32,7 @@ import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -74,7 +73,7 @@ public class DbSecurityMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_secMaster);
-    assertEquals(true, _secMaster.getIdentifierScheme().equals("DbSec"));
+    assertEquals(true, _secMaster.getUniqueIdScheme().equals("DbSec"));
     assertNotNull(_secMaster.getDbSource());
     assertNotNull(_secMaster.getTimeSource());
   }
@@ -86,7 +85,7 @@ public class DbSecurityMasterTest extends DBTest {
     sec.setName("OpenGamma");
     sec.setGicsCode(GICSCode.getInstance(2));
     sec.setShortName("OG");
-    sec.setIdentifiers(IdentifierBundle.of("Test", "OG"));
+    sec.setIdentifiers(ExternalIdBundle.of("Test", "OG"));
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
     

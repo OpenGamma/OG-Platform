@@ -13,13 +13,14 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Fudge message builder for {@link ExecutionOptions}
@@ -37,11 +38,12 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
+  private static final String VERSION_CORRECTION_FIELD = "versionCorrection";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ExecutionOptions object) {
-    MutableFudgeMsg msg = context.newMessage();
-    context.addToMessageWithClassHeaders(msg, EXECUTION_SEQUENCE_FIELD, null, object.getExecutionSequence());
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionOptions object) {
+    MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, EXECUTION_SEQUENCE_FIELD, null, object.getExecutionSequence());
     msg.add(AWAIT_MARKET_DATA_FIELD, object.getFlags().contains(ViewExecutionFlags.AWAIT_MARKET_DATA));
     msg.add(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD, object.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED));
     msg.add(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD, object.getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED));
@@ -50,13 +52,14 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
     if (object.getMaxSuccessiveDeltaCycles() != null) {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
-    context.addToMessage(msg, DEFAULT_EXECUTION_OPTIONS_FIELD, null, object.getDefaultExecutionOptions());
+    serializer.addToMessage(msg, DEFAULT_EXECUTION_OPTIONS_FIELD, null, object.getDefaultExecutionOptions());
+    serializer.addToMessage(msg, VERSION_CORRECTION_FIELD, null, object.getVersionCorrection());
     return msg;
   }
 
   @Override
-  public ExecutionOptions buildObject(FudgeDeserializationContext context, FudgeMsg message) {
-    ViewCycleExecutionSequence executionSequence = context.fudgeMsgToObject(ViewCycleExecutionSequence.class, message.getMessage(EXECUTION_SEQUENCE_FIELD));
+  public ExecutionOptions buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    ViewCycleExecutionSequence executionSequence = deserializer.fudgeMsgToObject(ViewCycleExecutionSequence.class, message.getMessage(EXECUTION_SEQUENCE_FIELD));
     EnumSet<ViewExecutionFlags> flags = EnumSet.noneOf(ViewExecutionFlags.class);
     if (BooleanUtils.isTrue(message.getBoolean(AWAIT_MARKET_DATA_FIELD))) {
       flags.add(ViewExecutionFlags.AWAIT_MARKET_DATA);
@@ -77,10 +80,15 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
     if (message.hasField(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD)) {
       maxSuccessiveDeltaCycles = message.getInt(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD);
     }
+    
     FudgeField defaultExecutionOptionsField = message.getByName(DEFAULT_EXECUTION_OPTIONS_FIELD);
     ViewCycleExecutionOptions defaultExecutionOptions = defaultExecutionOptionsField != null ?
-        context.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
-    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions);
+        deserializer.fieldValueToObject(ViewCycleExecutionOptions.class, defaultExecutionOptionsField) : null;
+    
+    FudgeField versionCorrectionField = message.getByName(VERSION_CORRECTION_FIELD);
+    VersionCorrection versionCorrection = deserializer.fieldValueToObject(VersionCorrection.class, versionCorrectionField);
+        
+    return new ExecutionOptions(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, versionCorrection);
   }
 
 }

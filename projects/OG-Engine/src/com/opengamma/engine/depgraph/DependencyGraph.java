@@ -69,7 +69,7 @@ public class DependencyGraph {
   /**
    * Creates a new, initially empty, dependency graph for the named configuration.
    * 
-   * @param calcConfName configuration name, not {@code null}
+   * @param calcConfName configuration name, not null
    */
   public DependencyGraph(String calcConfName) {
     ArgumentChecker.notNull(calcConfName, "Calculation configuration name");
@@ -106,8 +106,8 @@ public class DependencyGraph {
   /**
    * Tests if the given node is a root node in this graph or sub-graph.
    * 
-   * @param node node to test, not {@code null}
-   * @return {@code true} if the node is a root node, {@code false} otherwise
+   * @param node node to test, not null
+   * @return true if the node is a root node
    */
   public boolean isRootNode(DependencyNode node) {
     return _rootNodes.contains(node);
@@ -116,8 +116,8 @@ public class DependencyGraph {
   /**
    * Tests if the given node is contained in this graph or sub-graph.
    * 
-   * @param node node to test, not {@code null}
-   * @return {@code true} if the node is in his graph or sub-graph, {@code false} otherwise
+   * @param node node to test, not null
+   * @return true if the node is in his graph or sub-graph
    */
   public boolean containsNode(DependencyNode node) {
     return _dependencyNodes.contains(node);
@@ -157,7 +157,7 @@ public class DependencyGraph {
    * Returns the set of all output values for computation targets of a specific type. For example
    * the output values for all {@link PortfolioNode} targets.
    * 
-   * @param type computation target type, not {@code null}
+   * @param type computation target type, not null
    * @return the set of output values
    */
   public Set<ValueSpecification> getOutputSpecifications(ComputationTargetType type) {
@@ -194,7 +194,7 @@ public class DependencyGraph {
    * set is backed by the graph so structural changes to the graph will be reflected in the returned
    * set.
    * 
-   * @param type computation target type, not {@code null}
+   * @param type computation target type, not null
    * @return the set of nodes
    */
   public Set<DependencyNode> getDependencyNodes(ComputationTargetType type) {
@@ -222,7 +222,7 @@ public class DependencyGraph {
    * is returned.
    * 
    * @param requirement requirement to search for
-   * @return the node and exact value specification, or {@code null} if there is none
+   * @return the node and exact value specification, null if there is none
    */
   public Pair<DependencyNode, ValueSpecification> getNodeSatisfying(final ValueRequirement requirement) {
     final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(requirement.getValueName());
@@ -246,7 +246,7 @@ public class DependencyGraph {
    * Finds a node which has an output value of the given specification.
    * 
    * @param specification specification to search for
-   * @return the node, or {@code null} if there is none
+   * @return the node, null if there is none
    */
   public DependencyNode getNodeProducing(final ValueSpecification specification) {
     return _specification2DependencyNode.get(specification);
@@ -258,7 +258,7 @@ public class DependencyGraph {
    * handling multiple node returns.
    * 
    * @param requirement requirement to search for
-   * @return the nodes and exact value specifications, or {@code null} if there are none
+   * @return the nodes and exact value specifications, null if there are none
    */
   public Collection<Pair<DependencyNode, ValueSpecification>> getNodesSatisfying(final ValueRequirement requirement) {
     final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(requirement.getValueName());
@@ -286,7 +286,7 @@ public class DependencyGraph {
    * Adds a node to the graph. A node will be rejected if there is already one in the graph that produces the same
    * output value - indicating a fault in the graph construction algorithm.
    * 
-   * @param node node to add, not {@code null}
+   * @param node node to add, not null
    */
   public void addDependencyNode(DependencyNode node) {
     ArgumentChecker.notNull(node, "Node");
@@ -429,11 +429,11 @@ public class DependencyGraph {
           if (node.getOutputValues().isEmpty()) {
             unnecessaryNodes.add(node);
           }
-        }
-        for (ValueSpecification unnecessaryValue : unnecessaryValues) {
-          DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
-          if (removed == null) {
-            throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+          for (ValueSpecification unnecessaryValue : unnecessaryValues) {
+            DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
+            if (removed == null) {
+              throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+            }
           }
         }
       }

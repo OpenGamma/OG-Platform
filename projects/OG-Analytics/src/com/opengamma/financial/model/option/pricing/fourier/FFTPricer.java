@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static  com.opengamma.math.number.ComplexNumber.ZERO;
+import static com.opengamma.math.number.ComplexNumber.ZERO;
 
 import org.apache.commons.lang.Validate;
 

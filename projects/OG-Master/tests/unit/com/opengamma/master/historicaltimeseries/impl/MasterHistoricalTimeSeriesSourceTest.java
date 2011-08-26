@@ -20,8 +20,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
@@ -29,22 +29,22 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test MasterHistoricalTimeSeriesSource.
+ * Test {@link MasterHistoricalTimeSeriesSource}.
  * Ensure it makes the right method calls to the underlying master and resolver.
  */
 @Test
 public class MasterHistoricalTimeSeriesSourceTest {
 
   private static final String TEST_CONFIG = "TEST_CONFIG";
-  private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "1");
+  private static final UniqueId UID = UniqueId.of("A", "1");
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
   private static final String BBG_DATA_SOURCE = "BLOOMBERG";
-  private static final IdentifierBundle IDENTIFIERS = IdentifierBundle.of("A", "B");
+  private static final ExternalIdBundle IDENTIFIERS = ExternalIdBundle.of("A", "B");
   
   private HistoricalTimeSeriesMaster _mockMaster;
   private HistoricalTimeSeriesResolver _mockResolver;
@@ -82,7 +82,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     new MasterHistoricalTimeSeriesSource(null, null);
   }
 
-  public void getHistoricalTimeSeriesByIdentifierWithMetaData() throws Exception {
+  public void getHistoricalTimeSeriesByExternalIdWithMetaData() throws Exception {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(IDENTIFIERS);
     request.setDataSource(BBG_DATA_SOURCE);
     request.setDataProvider(CMPL_DATA_PROVIDER);
@@ -107,7 +107,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
     assertEquals(UID, test.getUniqueId());
   }
 
-  public void getHistoricalTimeSeriesByIdentifierWithoutMetaData() throws Exception {
+  public void getHistoricalTimeSeriesByExternalIdWithoutMetaData() throws Exception {
     ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
@@ -123,7 +123,7 @@ public class MasterHistoricalTimeSeriesSourceTest {
   }
 
   public void getHistoricalWithInclusiveExclusiveDates() throws Exception {
-    LocalDate end = DateUtil.previousWeekDay();
+    LocalDate end = DateUtils.previousWeekDay();
     LocalDate start = end.minusDays(7);
     
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(IDENTIFIERS);
@@ -138,24 +138,24 @@ public class MasterHistoricalTimeSeriesSourceTest {
     doc.getInfo().setTimeSeriesObjectId(UID.getObjectId());
     searchResult.getDocuments().add(doc);
     
-    for (boolean startIncluded : new boolean[] {true, false})  {
-      for (boolean endExcluded : new boolean[] {true, false}) {
+    for (boolean includeStart : new boolean[] {true, false})  {
+      for (boolean includeEnd : new boolean[] {true, false}) {
         LocalDate startInput = start;
         LocalDate endInput = end;
-        if (!startIncluded) {
+        if (!includeStart) {
           startInput = start.plusDays(1);
         }
-        if (endExcluded) {
+        if (!includeEnd) {
           endInput = end.minusDays(1);
         }
         
         ManageableHistoricalTimeSeries hts = new ManageableHistoricalTimeSeries();
         hts.setUniqueId(UID);
-        hts.setTimeSeries(timeSeries.subSeries(start, startIncluded, end, endExcluded).toLocalDateDoubleTimeSeries());
+        hts.setTimeSeries(timeSeries.subSeries(start, includeStart, end, includeEnd).toLocalDateDoubleTimeSeries());
         when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, startInput, endInput)).thenReturn(hts);
         when(_mockMaster.search(request)).thenReturn(searchResult);
         
-        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, startIncluded, end, endExcluded);
+        HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, includeStart, end, includeEnd);
         assertEquals(UID, test.getUniqueId());
         assertEquals(hts.getTimeSeries(), test.getTimeSeries());
       }

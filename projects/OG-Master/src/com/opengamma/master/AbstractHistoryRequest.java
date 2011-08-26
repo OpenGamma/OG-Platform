@@ -21,11 +21,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.db.PagingRequest;
 
 /**
  * Request for the history of a document.
@@ -63,7 +63,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
    * The object identifier to match.
    */
   @PropertyDefinition
-  private ObjectIdentifier _objectId;
+  private ObjectId _objectId;
   /**
    * The instant to retrieve versions on or after (inclusive).
    * If this instant equals the {@code versionsToInstant} the search is at a single instant.
@@ -121,7 +121,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
    * @param correctedToInstantProvider  the instant that the data should be corrected to, null for all corrections
    */
   public AbstractHistoryRequest(final ObjectIdentifiable objectId, InstantProvider versionInstantProvider, InstantProvider correctedToInstantProvider) {
-    ArgumentChecker.notNull(objectId, "oid");
+    ArgumentChecker.notNull(objectId, "objectId");
     setObjectId(objectId.getObjectId());
     if (versionInstantProvider != null) {
       final Instant versionInstant = Instant.of(versionInstantProvider);
@@ -179,7 +179,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
         setPagingRequest((PagingRequest) newValue);
         return;
       case 90495162:  // objectId
-        setObjectId((ObjectIdentifier) newValue);
+        setObjectId((ObjectId) newValue);
         return;
       case 825630012:  // versionsFromInstant
         setVersionsFromInstant((Instant) newValue);
@@ -259,7 +259,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
    * Gets the object identifier to match.
    * @return the value of the property
    */
-  public ObjectIdentifier getObjectId() {
+  public ObjectId getObjectId() {
     return _objectId;
   }
 
@@ -267,7 +267,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
    * Sets the object identifier to match.
    * @param objectId  the new value of the property
    */
-  public void setObjectId(ObjectIdentifier objectId) {
+  public void setObjectId(ObjectId objectId) {
     this._objectId = objectId;
   }
 
@@ -275,7 +275,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
    * Gets the the {@code objectId} property.
    * @return the property, not null
    */
-  public final Property<ObjectIdentifier> objectId() {
+  public final Property<ObjectId> objectId() {
     return metaBean().objectId().createProperty(this);
   }
 
@@ -430,8 +430,8 @@ public abstract class AbstractHistoryRequest extends DirectBean {
     /**
      * The meta-property for the {@code objectId} property.
      */
-    private final MetaProperty<ObjectIdentifier> _objectId = DirectMetaProperty.ofReadWrite(
-        this, "objectId", AbstractHistoryRequest.class, ObjectIdentifier.class);
+    private final MetaProperty<ObjectId> _objectId = DirectMetaProperty.ofReadWrite(
+        this, "objectId", AbstractHistoryRequest.class, ObjectId.class);
     /**
      * The meta-property for the {@code versionsFromInstant} property.
      */
@@ -517,7 +517,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
      * The meta-property for the {@code objectId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ObjectIdentifier> objectId() {
+    public final MetaProperty<ObjectId> objectId() {
       return _objectId;
     }
 

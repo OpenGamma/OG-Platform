@@ -8,7 +8,7 @@ package com.opengamma.masterdb.security.hibernate.swap;
 
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
-import com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean;
+import com.opengamma.masterdb.security.hibernate.UniqueIdBean;
 
 /**
  * A bean representation of a {@link Notional}.
@@ -19,7 +19,7 @@ public class NotionalBean {
   private NotionalType _notionalType;
   private CurrencyBean _currency;
   private double _amount;
-  private UniqueIdentifierBean _identifier;
+  private UniqueIdBean _identifier;
 
   public NotionalType getNotionalType() {
     return _notionalType;
@@ -65,7 +65,7 @@ public class NotionalBean {
    * Gets the identifier field.
    * @return the identifier
    */
-  public UniqueIdentifierBean getIdentifier() {
+  public UniqueIdBean getIdentifier() {
     return _identifier;
   }
 
@@ -73,7 +73,7 @@ public class NotionalBean {
    * Sets the identifier field.
    * @param identifier  the identifier
    */
-  public void setIdentifier(UniqueIdentifierBean identifier) {
+  public void setIdentifier(UniqueIdBean identifier) {
     _identifier = identifier;
   }
 

@@ -10,9 +10,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.testng.annotations.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.testng.annotations.Test;
 
 /**
  * Test DbSource.

@@ -8,13 +8,16 @@ package com.opengamma.core.marketdatasnapshot;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An immutable specification of an individual piece of unstructured market data.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class MarketDataValueSpecification {
   //TODO This is a whole lot like LiveDataSpecification, but decoupled.  We may want to unify them
@@ -26,16 +29,17 @@ public class MarketDataValueSpecification {
   /**
    * The identifier of the target.
    */
-  private final UniqueIdentifier _uniqueId;
+  private final UniqueId _uniqueId;
 
   /**
    * Creates an instance for a type of market data and a unique identifier.
    * 
-   * @param type  the type of market data this refers to 
-   * @param uniqueId  the unique identifier of the data this refers to
+   * @param type  the type of market data this refers to, not null
+   * @param uniqueId  the unique identifier of the data this refers to, not null
    */
-  public MarketDataValueSpecification(MarketDataValueType type, UniqueIdentifier uniqueId) {
-    super();
+  public MarketDataValueSpecification(MarketDataValueType type, UniqueId uniqueId) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     _type = type;
     _uniqueId = uniqueId;
   }
@@ -55,7 +59,7 @@ public class MarketDataValueSpecification {
    * 
    * @return the unique identifier
    */
-  public UniqueIdentifier getUniqueId() {
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
@@ -92,17 +96,17 @@ public class MarketDataValueSpecification {
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeMsg msg = context.newMessage();
-    msg.add("type", null, context.objectToFudgeMsg(_type));
-    msg.add("uniqueId", null, context.objectToFudgeMsg(_uniqueId));
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    msg.add("type", null, serializer.objectToFudgeMsg(_type));
+    msg.add("uniqueId", null, serializer.objectToFudgeMsg(_uniqueId));
     return msg;
   }
 
-  public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
-    return new MarketDataValueSpecification(
-        context.fieldValueToObject(MarketDataValueType.class, msg.getByName("type")), context.fieldValueToObject(
-            UniqueIdentifier.class, msg.getByName("uniqueId")));
+  public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
+    UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, msg.getByName("uniqueId"));
+    return new MarketDataValueSpecification(type, uniqueId);
   }
 
 }

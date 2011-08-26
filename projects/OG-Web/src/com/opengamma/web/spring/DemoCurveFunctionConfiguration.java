@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumen
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -86,11 +86,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       for (Map.Entry<String, Set<String>> currencyCurves : currencyToCurves.entrySet()) {
         final String currencyISO = currencyCurves.getKey();
         final Set<String> curveNames = currencyCurves.getValue();
-        if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
-//          if (curveNames.contains("SECONDARY")) {
-//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-//            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-//          }
+        if (_conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
+          if (curveNames.contains("SECONDARY")) {
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
+            addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          }
           if (curveNames.contains("SINGLE")) {
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
             addYieldCurveFunction(configs, currencyISO, "SINGLE", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);

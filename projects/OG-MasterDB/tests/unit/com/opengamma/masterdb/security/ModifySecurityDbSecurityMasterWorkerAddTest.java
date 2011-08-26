@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.util.test.DBTest;
@@ -56,35 +56,35 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
   public void test_add_add() {
     Instant now = Instant.now(_secMaster.getTimeSource());
     
-    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument test = _secMaster.add(doc);
     
-    UniqueIdentifier uid = test.getUniqueId();
-    assertNotNull(uid);
-    assertEquals("DbSec", uid.getScheme());
-    assertTrue(uid.isVersioned());
-    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
-    assertEquals("0", uid.getVersion());
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbSec", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
     assertEquals(now, test.getVersionFromInstant());
     assertEquals(null, test.getVersionToInstant());
     assertEquals(now, test.getCorrectionFromInstant());
     assertEquals(null, test.getCorrectionToInstant());
     ManageableSecurity testSecurity = test.getSecurity();
     assertNotNull(testSecurity);
-    assertEquals(uid, testSecurity.getUniqueId());
+    assertEquals(uniqueId, testSecurity.getUniqueId());
     assertEquals("TestSecurity", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    IdentifierBundle idKey = security.getIdentifiers();
+    ExternalIdBundle idKey = security.getIdentifiers();
     assertNotNull(idKey);
     assertEquals(1, idKey.size());
-    assertEquals(Identifier.of("A", "B"), idKey.getIdentifiers().iterator().next());
+    assertEquals(ExternalId.of("A", "B"), idKey.getExternalIds().iterator().next());
   }
 
   @Test
   public void test_add_addThenGet() {
-    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", IdentifierBundle.of("A", "B"));
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(security);
     SecurityDocument added = _secMaster.add(doc);

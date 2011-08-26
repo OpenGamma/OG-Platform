@@ -40,6 +40,18 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
     return _surface.getZValue(xy);
   }
 
+  /**
+   * Return a volatility for the expiry,strike pair provided. 
+   * Interpolation/extrapolation behaviour depends on underlying surface  
+   * @param t time to maturity
+   * @param k strike
+   * @return The Black (implied) volatility 
+   */
+  public double getVolatility(final double t, final double k) {
+    final DoublesPair temp = new DoublesPair(t, k);
+    return getVolatility(temp);
+  }
+
   public VolatilityCurve getSlice(final Axis axis, final double here, final Interpolator1D<Interpolator1DDataBundle> interpolator) {
     final Curve<Double, Double> curve = SurfaceSliceFunction.cut(_surface, axis, here, interpolator);
     return new VolatilityCurve(curve);

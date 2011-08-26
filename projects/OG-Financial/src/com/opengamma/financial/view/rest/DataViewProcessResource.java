@@ -56,8 +56,8 @@ public class DataViewProcessResource {
   
   @GET
   @Path(PATH_DEFINITION)
-  public Response getDefinition() {
-    return Response.ok(_viewProcess.getDefinition()).build();
+  public Response getLatestViewDefinition() {
+    return Response.ok(_viewProcess.getLatestViewDefinition()).build();
   }
   
   @GET

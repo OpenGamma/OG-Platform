@@ -23,7 +23,8 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * A simple in-memory implementation of {@link ViewResultModel}.
@@ -32,30 +33,31 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
 
   private static final long serialVersionUID = 1L;
   
-  private UniqueIdentifier _viewProcessId;
-  private UniqueIdentifier _viewCycleId;
+  private UniqueId _viewProcessId;
+  private UniqueId _viewCycleId;
   private Instant _valuationTime;
   private Instant _calculationTime;
   private Duration _calculationDuration;
+  private VersionCorrection _versionCorrection;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
   private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
   
   @Override
-  public UniqueIdentifier getViewProcessId() {
+  public UniqueId getViewProcessId() {
     return _viewProcessId;
   }
 
-  public void setViewProcessId(UniqueIdentifier viewProcessId) {
+  public void setViewProcessId(UniqueId viewProcessId) {
     _viewProcessId = viewProcessId;
   }
   
   @Override
-  public UniqueIdentifier getViewCycleId() {
+  public UniqueId getViewCycleId() {
     return _viewCycleId;
   }
   
-  public void setViewCycleId(UniqueIdentifier viewCycleId) {
+  public void setViewCycleId(UniqueId viewCycleId) {
     _viewCycleId = viewCycleId;
   }
 
@@ -84,6 +86,15 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   
   public void setCalculationDuration(Duration calculationDuration) {
     _calculationDuration = calculationDuration;
+  }
+  
+  @Override
+  public VersionCorrection getVersionCorrection() {
+    return _versionCorrection;
+  }
+  
+  public void setVersionCorrection(VersionCorrection versionCorrection) {
+    _versionCorrection = versionCorrection;
   }
 
   @Override

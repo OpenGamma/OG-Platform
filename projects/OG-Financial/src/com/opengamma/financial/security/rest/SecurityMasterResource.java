@@ -24,11 +24,11 @@ import javax.ws.rs.core.Response;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -39,6 +39,7 @@ import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * RESTful resource publishing details from a {@link SecurityMaster}.
@@ -72,12 +73,12 @@ public class SecurityMasterResource {
     return _fudgeContext;
   }
 
-  public FudgeSerializationContext getFudgeSerializationContext() {
-    return new FudgeSerializationContext(getFudgeContext());
+  public FudgeSerializer getFudgeSerializer() {
+    return new FudgeSerializer(getFudgeContext());
   }
 
-  public FudgeDeserializationContext getFudgeDeserializationContext() {
-    return new FudgeDeserializationContext(getFudgeContext());
+  public FudgeDeserializer getFudgeDeserializer() {
+    return new FudgeDeserializer(getFudgeContext());
   }
 
   /**
@@ -85,9 +86,9 @@ public class SecurityMasterResource {
    */
   public class IdentifiedSecurityResource {
 
-    private final UniqueIdentifier _uniqueId;
+    private final UniqueId _uniqueId;
 
-    public IdentifiedSecurityResource(final UniqueIdentifier uid) {
+    public IdentifiedSecurityResource(final UniqueId uid) {
       _uniqueId = uid;
     }
 
@@ -96,12 +97,12 @@ public class SecurityMasterResource {
       try {
         if (_uniqueId.isVersioned()) {
           final SecurityDocument document = getSecurityMaster().get(_uniqueId);
-          return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(document));
+          return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(document));
         } else {
           Instant v = (versionAsOf != null ? Instant.parse(versionAsOf) : null);
           Instant c = (correctedTo != null ? Instant.parse(correctedTo) : null);
           final SecurityDocument document = getSecurityMaster().get(_uniqueId, VersionCorrection.of(v, c));
-          return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(document));
+          return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(document));
         }
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -110,25 +111,25 @@ public class SecurityMasterResource {
 
     @PUT
     public FudgeMsgEnvelope correct(final FudgeMsgEnvelope payload) {
-      SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
+      SecurityDocument document = getFudgeDeserializer().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().correct(document);
-      final UniqueIdentifier uid = document.getUniqueId();
+      final UniqueId uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
-        return new FudgeMsgEnvelope(uid.toFudgeMsg(getFudgeContext()));
+        return new FudgeMsgEnvelope(UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), uid));
       }
     }
 
     @POST
     public FudgeMsgEnvelope update(final FudgeMsgEnvelope payload) {
-      SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
+      SecurityDocument document = getFudgeDeserializer().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().update(document);
-      final UniqueIdentifier uid = document.getUniqueId();
+      final UniqueId uid = document.getUniqueId();
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
-        return new FudgeMsgEnvelope(uid.toFudgeMsg(getFudgeContext()));
+        return new FudgeMsgEnvelope(UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), uid));
       }
     }
 
@@ -146,14 +147,14 @@ public class SecurityMasterResource {
 
     @POST
     public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
-      SecurityDocument document = getFudgeDeserializationContext().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
+      SecurityDocument document = getFudgeDeserializer().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().add(document);
-      return new FudgeMsgEnvelope(document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(UniqueIdBuilder.toFudgeMsg(getFudgeSerializer(), document.getUniqueId()));
     }
 
     @Path("{uid}")
     public Object resource(@PathParam("uid") String uid) {
-      final UniqueIdentifier uniqueId = UniqueIdentifier.parse(uid);
+      final UniqueId uniqueId = UniqueId.parse(uid);
       return new IdentifiedSecurityResource(uniqueId);
     }
 
@@ -167,25 +168,25 @@ public class SecurityMasterResource {
   @POST
   @Path(SECURITYMASTER_METADATA)
   public FudgeMsgEnvelope metaData(final FudgeMsgEnvelope payload) {
-    final SecurityMetaDataRequest request = getFudgeDeserializationContext().fudgeMsgToObject(SecurityMetaDataRequest.class, payload.getMessage());
+    final SecurityMetaDataRequest request = getFudgeDeserializer().fudgeMsgToObject(SecurityMetaDataRequest.class, payload.getMessage());
     final SecurityMetaDataResult result = getSecurityMaster().metaData(request);
-    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
+    return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(result));
   }
 
   @POST
   @Path(SECURITYMASTER_SEARCH)
   public FudgeMsgEnvelope search(final FudgeMsgEnvelope payload) {
-    final SecuritySearchRequest request = getFudgeDeserializationContext().fudgeMsgToObject(SecuritySearchRequest.class, payload.getMessage());
+    final SecuritySearchRequest request = getFudgeDeserializer().fudgeMsgToObject(SecuritySearchRequest.class, payload.getMessage());
     final SecuritySearchResult result = getSecurityMaster().search(request);
-    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
+    return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(result));
   }
 
   @POST
   @Path(SECURITYMASTER_HISTORIC)
   public FudgeMsgEnvelope history(final FudgeMsgEnvelope payload) {
-    final SecurityHistoryRequest request = getFudgeDeserializationContext().fudgeMsgToObject(SecurityHistoryRequest.class, payload.getMessage());
+    final SecurityHistoryRequest request = getFudgeDeserializer().fudgeMsgToObject(SecurityHistoryRequest.class, payload.getMessage());
     final SecurityHistoryResult result = getSecurityMaster().history(request);
-    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
+    return new FudgeMsgEnvelope(getFudgeSerializer().objectToFudgeMsg(result));
   }
 
   /**

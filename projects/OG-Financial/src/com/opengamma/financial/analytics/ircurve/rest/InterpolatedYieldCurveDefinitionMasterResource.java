@@ -17,14 +17,15 @@ import javax.ws.rs.core.Response;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * 
@@ -50,43 +51,45 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   @POST
   @Path("add")
   public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final YieldCurveDefinition curveDefinition = deserializer.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
     YieldCurveDefinitionDocument document = new YieldCurveDefinitionDocument(curveDefinition);
     document = getUnderlying().add(document);
     if (document == null) {
       return null;
     }
-    final MutableFudgeMsg resp = getFudgeContext().newMessage();
-    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg resp = serializer.newMessage();
+    resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
   @POST
   @Path("addOrUpdate")
   public FudgeMsgEnvelope addOrUpdate(final FudgeMsgEnvelope payload) {
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final YieldCurveDefinition curveDefinition = deserializer.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
     YieldCurveDefinitionDocument document = new YieldCurveDefinitionDocument(curveDefinition);
     document = getUnderlying().addOrUpdate(document);
     if (document == null) {
       return null;
     }
-    final MutableFudgeMsg resp = getFudgeContext().newMessage();
-    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg resp = serializer.newMessage();
+    resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
   @GET
   @Path("curves/{uid}")
   public FudgeMsgEnvelope get(@PathParam("uid") final String uidString) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     try {
       final YieldCurveDefinitionDocument document = getUnderlying().get(uid);
-      final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
-      final MutableFudgeMsg resp = sctx.newMessage();
-      resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
-      sctx.addToMessageWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
+      final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+      final MutableFudgeMsg resp = serializer.newMessage();
+      resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
+      serializer.addToMessageWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -96,7 +99,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   @DELETE
   @Path("curves/{uid}")
   public FudgeMsgEnvelope remove(@PathParam("uid") final String uidString) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
+    final UniqueId uid = UniqueId.parse(uidString);
     try {
       getUnderlying().remove(uid);
       return null;
@@ -108,9 +111,9 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
   @PUT
   @Path("curves/{uid}")
   public FudgeMsgEnvelope update(@PathParam("uid") final String uidString, final FudgeMsgEnvelope payload) {
-    final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
-    final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
-    final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
+    final UniqueId uid = UniqueId.parse(uidString);
+    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+    final YieldCurveDefinition curveDefinition = deserializer.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
     YieldCurveDefinitionDocument document = new YieldCurveDefinitionDocument(uid, curveDefinition);
     try {
       document = getUnderlying().update(document);

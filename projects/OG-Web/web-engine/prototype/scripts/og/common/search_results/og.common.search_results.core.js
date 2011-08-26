@@ -16,18 +16,16 @@ $.register_module({
                         editable: false,
                         enableAddRow: false,
                         enableCellNavigation: false,
-                        showHeaderRow: false
+                        showHeaderRow: false,
+                        headerHeight: 33
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
-                    og.common.layout.resize({
-                        element: '.OG-js-search',
-                        offsetpx: -40,
-                        callback: function () {
+                    window.onresize = function () {
+                        setTimeout(function () {
                             grid.resizeCanvas();
-                            clearTimeout(timer);
-                            timer = setTimeout(function () {filter($.extend(true, filters_obj, {filter: false}))}, 150);
-                        }
-                    });
+                            filter($.extend(true, filters_obj, {filter: false}));
+                        }, 300);
+                    };
                     filters_obj = obj.url;
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
@@ -38,7 +36,7 @@ $.register_module({
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
-                                filter_type: (last && last.args.filter_type) || '',
+                                type: (last && last.args.type) || '',
                                 filter: slick_manager.data[$(e.currentTarget).attr('row')].filter
                             };
                         delete obj_url.node;

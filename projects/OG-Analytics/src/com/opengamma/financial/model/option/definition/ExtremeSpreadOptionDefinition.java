@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -26,8 +26,8 @@ public class ExtremeSpreadOptionDefinition extends OptionDefinition {
       Validate.notNull(data, "data");
       final DoubleTimeSeries<ZonedDateTime> ts = data.getSpotTimeSeries().toZonedDateTimeDoubleTimeSeries();
       final ZonedDateTime periodEnd = getPeriodEnd().getExpiry();
-      final DoubleTimeSeries<ZonedDateTime> firstPeriod = ts.subSeries(data.getDate(), true, periodEnd, false);
-      final DoubleTimeSeries<ZonedDateTime> secondPeriod = ts.subSeries(periodEnd, false, ts.getLatestTime(), false);
+      final DoubleTimeSeries<ZonedDateTime> firstPeriod = ts.subSeries(data.getDate(), true, periodEnd, true);
+      final DoubleTimeSeries<ZonedDateTime> secondPeriod = ts.subSeries(periodEnd, false, ts.getLatestTime(), true);
       if (isCall()) {
         return isReverse() ? Math.abs(secondPeriod.minValue() - firstPeriod.minValue()) : Math.abs(secondPeriod.maxValue() - firstPeriod.maxValue());
       }
@@ -61,7 +61,7 @@ public class ExtremeSpreadOptionDefinition extends OptionDefinition {
 
   public double getTimeFromPeriodEnd(final ZonedDateTime date) {
     Validate.notNull(date, "date");
-    return DateUtil.getDifferenceInYears(_periodEnd.getExpiry(), date);
+    return DateUtils.getDifferenceInYears(_periodEnd.getExpiry(), date);
   }
 
   public Expiry getPeriodEnd() {

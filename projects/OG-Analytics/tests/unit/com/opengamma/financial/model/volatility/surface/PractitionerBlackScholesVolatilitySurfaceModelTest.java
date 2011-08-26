@@ -6,13 +6,15 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -23,7 +25,7 @@ import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -37,12 +39,12 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final double B = 0.03;
   private static final double SPOT = 100;
   private static final boolean IS_CALL = true;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry[] EXPIRY = new Expiry[] {new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25)), new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5)),
-      new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75)), new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1))};
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
+  private static final Expiry[] EXPIRY = new Expiry[] {new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.25)), new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5)),
+      new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.75)), new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1))};
   private static final double[] OFFSET = new double[] {0.05, 0.1, 0.125};
-  private static final Expiry[] TEST_EXPIRY = new Expiry[] {new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[0].getExpiry(), OFFSET[0])),
-      new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[1].getExpiry(), OFFSET[1])), new Expiry(DateUtil.getDateOffsetWithYearFraction(EXPIRY[2].getExpiry(), OFFSET[2]))};
+  private static final Expiry[] TEST_EXPIRY = new Expiry[] {new Expiry(DateUtils.getDateOffsetWithYearFraction(EXPIRY[0].getExpiry(), OFFSET[0])),
+      new Expiry(DateUtils.getDateOffsetWithYearFraction(EXPIRY[1].getExpiry(), OFFSET[1])), new Expiry(DateUtils.getDateOffsetWithYearFraction(EXPIRY[2].getExpiry(), OFFSET[2]))};
   private static final double[] STRIKE = new double[] {80, 86, 100, 101, 110};
   private static final double[] TEST_STRIKE = new double[] {85, 95, 104};
   private static final double EPS = 1e-9;
@@ -78,7 +80,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     final VolatilitySurface surface = MODEL.getSurface(prices, data);
     for (final Expiry expiry : TEST_EXPIRY) {
       for (final double strike : TEST_STRIKE) {
-        assertEquals(surface.getVolatility(DoublesPair.of(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), sigma, EPS);
+        assertEquals(surface.getVolatility(DoublesPair.of(DateUtils.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), sigma, EPS);
       }
     }
   }
@@ -103,9 +105,9 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     Expiry expiry;
     for (int i = 0; i < TEST_EXPIRY.length; i++) {
       expiry = TEST_EXPIRY[i];
-      result = sigma[i] + 4 * diff * DateUtil.getDifferenceInYears(EXPIRY[i], expiry);
+      result = sigma[i] + 4 * diff * DateUtils.getDifferenceInYears(EXPIRY[i], expiry);
       for (final double strike : TEST_STRIKE) {
-        assertEquals(surface.getVolatility(DoublesPair.of(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), result, EPS);
+        assertEquals(surface.getVolatility(DoublesPair.of(DateUtils.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), result, EPS);
       }
     }
   }

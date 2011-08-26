@@ -11,9 +11,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * Repository for rates and associated metadata - e.g. LIBOR/EURIBOR etc...
@@ -24,36 +24,36 @@ public interface ConventionBundleMaster {
 
   ConventionBundleSearchResult searchHistoricConventionBundle(ConventionBundleSearchHistoricRequest searchRequest);
 
-  ConventionBundleDocument getConventionBundle(UniqueIdentifier uniqueId);
+  ConventionBundleDocument getConventionBundle(UniqueId uniqueId);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM,
-      Identifier region);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM,
+      ExternalId region);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays,
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays,
       double pointValue);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays, boolean isEOMConvention);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays, boolean isEOMConvention);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, Frequency swapFixedLegFrequency,
-      Integer swapFixedLegSettlementDays, Identifier swapFixedLegRegion, DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention,
-      Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays, Identifier swapFloatingLegInitialRate, Identifier swapFloatingLegRegion);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, Frequency swapFixedLegFrequency,
+      Integer swapFixedLegSettlementDays, ExternalId swapFixedLegRegion, DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention,
+      Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays, ExternalId swapFloatingLegInitialRate, ExternalId swapFloatingLegRegion);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount basisSwapPayFloatingLegDayCount, BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention,
-      Frequency basisSwapPayFloatingLegFrequency, Integer basisSwapPayFloatingLegSettlementDays, Identifier basisSwapPayFloatingLegInitialRate, Identifier basisSwapPayFloatingLegRegion,
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount basisSwapPayFloatingLegDayCount, BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention,
+      Frequency basisSwapPayFloatingLegFrequency, Integer basisSwapPayFloatingLegSettlementDays, ExternalId basisSwapPayFloatingLegInitialRate, ExternalId basisSwapPayFloatingLegRegion,
       DayCount basisSwapReceiveFloatingLegDayCount, BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, Frequency basisSwapReceiveFloatingLegFrequency,
-      Integer basisSwapReceiveFloatingLegSettlementDays, Identifier basisSwapReceiveFloatingLegInitialRate, Identifier basisSwapReceiveFloatingLegRegion);
+      Integer basisSwapReceiveFloatingLegSettlementDays, ExternalId basisSwapReceiveFloatingLegInitialRate, ExternalId basisSwapReceiveFloatingLegRegion);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, String capmRiskFreeRateName, String capmMarketName);
-
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays,
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays,
       boolean rollToSettlement);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays, DayCount dayCount,
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, boolean isEOMConvention, boolean calculateScheduleFromMaturity, int exDividendDays, int settlementDays, DayCount dayCount,
       BusinessDayConvention businessDayConvention, YieldConvention yieldConvention);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, boolean isCashSettled);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, boolean isCashSettled);
+
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, ExternalIdBundle capmRiskFreeRate, ExternalIdBundle capmMarket);
 }

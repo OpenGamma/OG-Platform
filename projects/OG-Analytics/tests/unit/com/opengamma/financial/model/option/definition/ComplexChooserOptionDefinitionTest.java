@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -20,7 +22,7 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,10 +32,10 @@ public class ComplexChooserOptionDefinitionTest {
   private static final double CALL_STRIKE = 110;
   private static final double PUT_STRIKE = 90;
   private static final double DIFF = 50;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 6, 1);
-  private static final Expiry CHOOSE_DATE = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
-  private static final Expiry CALL_EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 2));
-  private static final Expiry PUT_EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 3));
+  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 6, 1);
+  private static final Expiry CHOOSE_DATE = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
+  private static final Expiry CALL_EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 2));
+  private static final Expiry PUT_EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 3));
   private static final ComplexChooserOptionDefinition CHOOSER = new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
   private static final OptionDefinition VANILLA_CALL = new EuropeanVanillaOptionDefinition(CALL_STRIKE, CALL_EXPIRY, true);
   private static final OptionDefinition VANILLA_PUT = new EuropeanVanillaOptionDefinition(PUT_STRIKE, PUT_EXPIRY, false);
@@ -70,22 +72,22 @@ public class ComplexChooserOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCallExpiry() {
-    new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)), PUT_STRIKE, PUT_EXPIRY);
+    new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)), PUT_STRIKE, PUT_EXPIRY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPutExpiry() {
-    new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)));
+    new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, new Expiry(DateUtils.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCallExpiryTime() {
-    CHOOSER.getTimeToCallExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5));
+    CHOOSER.getTimeToCallExpiry(DateUtils.getDateOffsetWithYearFraction(DATE, 5));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPutExpiryTime() {
-    CHOOSER.getTimeToPutExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5));
+    CHOOSER.getTimeToPutExpiry(DateUtils.getDateOffsetWithYearFraction(DATE, 5));
   }
 
   @Test
@@ -105,7 +107,7 @@ public class ComplexChooserOptionDefinitionTest {
     OptionDefinition chooser = new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
     assertEquals(chooser, CHOOSER);
     assertEquals(chooser.hashCode(), CHOOSER.hashCode());
-    chooser = new ComplexChooserOptionDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), 0.5)), CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
+    chooser = new ComplexChooserOptionDefinition(new Expiry(DateUtils.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), 0.5)), CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
     assertFalse(chooser.equals(CHOOSER));
     chooser = new ComplexChooserOptionDefinition(CHOOSE_DATE, PUT_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
     assertFalse(chooser.equals(CHOOSER));

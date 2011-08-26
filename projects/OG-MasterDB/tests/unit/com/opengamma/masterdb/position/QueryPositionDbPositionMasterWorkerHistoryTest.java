@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ObjectIdentifier;
+import com.opengamma.id.ObjectId;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -39,7 +39,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   //-------------------------------------------------------------------------
   @Test
   public void test_searchPositionHistoric_documents() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     PositionHistoryResult test = _posMaster.history(request);
     
@@ -50,7 +50,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_documentCountWhenMultipleSecurities() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "121");
+    ObjectId oid = ObjectId.of("DbPos", "121");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     PositionHistoryResult test = _posMaster.history(request);
     
@@ -61,7 +61,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_documentCountWhenMultipleSecuritiesAndMultipleTrades() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "123");
+    ObjectId oid = ObjectId.of("DbPos", "123");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     PositionHistoryResult test = _posMaster.history(request);
     
@@ -73,11 +73,11 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   //-------------------------------------------------------------------------
   @Test
   public void test_searchPositionHistoric_noInstants() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     PositionHistoryResult test = _posMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(Integer.MAX_VALUE, test.getPaging().getPagingSize());
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -89,12 +89,12 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   //-------------------------------------------------------------------------
   @Test
   public void test_searchPositionHistoric_noInstants_pageOne() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(1, 1));
+    request.setPagingRequest(PagingRequest.ofPage(1, 1));
     PositionHistoryResult test = _posMaster.history(request);
     
-    assertEquals(1, test.getPaging().getFirstItem());
+    assertEquals(1, test.getPaging().getFirstItemOneBased());
     assertEquals(1, test.getPaging().getPagingSize());
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -104,14 +104,14 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_noInstants_pageTwo() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    request.setPagingRequest(PagingRequest.of(2, 1));
+    request.setPagingRequest(PagingRequest.ofPage(2, 1));
     PositionHistoryResult test = _posMaster.history(request);
     
     assertNotNull(test);
     assertNotNull(test.getPaging());
-    assertEquals(2, test.getPaging().getFirstItem());
+    assertEquals(2, test.getPaging().getFirstItemOneBased());
     assertEquals(1, test.getPaging().getPagingSize());
     assertEquals(2, test.getPaging().getTotalItems());
     
@@ -123,7 +123,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   //-------------------------------------------------------------------------
   @Test
   public void test_searchPositionHistoric_versionsFrom_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.minusSeconds(5));
     PositionHistoryResult test = _posMaster.history(request);
@@ -137,7 +137,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_versionsFrom_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsFromInstant(_version1Instant.plusSeconds(5));
     PositionHistoryResult test = _posMaster.history(request);
@@ -151,7 +151,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_versionsFrom_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     PositionHistoryResult test = _posMaster.history(request);
@@ -165,7 +165,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   //-------------------------------------------------------------------------
   @Test
   public void test_searchPositionHistoric_versionsTo_preFirst() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.minusSeconds(5));
     PositionHistoryResult test = _posMaster.history(request);
@@ -177,7 +177,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_versionsTo_firstToSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsToInstant(_version1Instant.plusSeconds(5));
     PositionHistoryResult test = _posMaster.history(request);
@@ -190,7 +190,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Test
   public void test_searchPositionHistoric_versionsTo_postSecond() {
-    ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
+    ObjectId oid = ObjectId.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     PositionHistoryResult test = _posMaster.history(request);

@@ -31,6 +31,7 @@ import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecur
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBeanOperation;
@@ -142,6 +143,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(FXForwardSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CapFloorSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CapFloorCMSSpreadSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(EquityVarianceSwapSecurityBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------
@@ -199,9 +201,11 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
           s_logger.debug("no detail found for security {}", base.getUniqueId());
           return base;
         }
-//        final SecurityBeanOperation beanOperation = getBeanOperation(security);
         security = beanOperation.resolve(getOperationContext(), secMasterSession, null, security);
         final ManageableSecurity result = (ManageableSecurity) beanOperation.createSecurity(getOperationContext(), security);
+        if (result == null) {
+          throw new IllegalStateException("Unable to convert security from database: " + base.getUniqueId() + " " + base.getSecurityType());
+        }
         if (Objects.equal(base.getSecurityType(), result.getSecurityType()) == false) {
           throw new IllegalStateException("Security type returned by Hibernate load does not match");
         }

@@ -24,7 +24,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvi
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -191,7 +191,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   public ViewProcessor createObject() {
     checkInjectedInputs();
     return new ViewProcessorImpl(
-        UniqueIdentifier.of(VIEW_PROCESSOR_ID_SCHEME, getId().toString()),
+        UniqueId.of(VIEW_PROCESSOR_ID_SCHEME, getId().toString()),
         getViewDefinitionRepository(),
         getSecuritySource(),
         getPositionSource(),

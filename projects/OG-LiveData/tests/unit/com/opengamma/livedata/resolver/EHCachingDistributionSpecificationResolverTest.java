@@ -5,19 +5,20 @@
  */
 package com.opengamma.livedata.resolver;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.id.Identifier;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
+import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -36,11 +37,11 @@ public class EHCachingDistributionSpecificationResolverTest {
   @Test
   public void testCaching() {
     
-    Identifier id = Identifier.of("foo", "bar");
+    ExternalId id = ExternalId.of("foo", "bar");
     
     LiveDataSpecification request = new LiveDataSpecification(
         "TestNormalization",
-        Identifier.of("foo", "bar"));
+        ExternalId.of("foo", "bar"));
     
     DistributionSpecification distributionSpec = new DistributionSpecification(
         id,

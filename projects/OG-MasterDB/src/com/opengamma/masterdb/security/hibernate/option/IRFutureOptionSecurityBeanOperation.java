@@ -8,8 +8,8 @@ package com.opengamma.masterdb.security.hibernate.option;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
-import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
+import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -37,13 +37,13 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
   }
 
   @Override
-  public IRFutureOptionSecurityBean createBean(OperationContext context, HibernateSecurityMasterDao secMasterSession, IRFutureOptionSecurity security) {
+  public IRFutureOptionSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final IRFutureOptionSecurity security) {
     final IRFutureOptionSecurityBean bean = new IRFutureOptionSecurityBean();
     bean.setOptionExerciseType(OptionExerciseType.identify(security.getExerciseType()));
     bean.setOptionType(security.getOptionType());
     bean.setStrike(security.getStrike());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
-    bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setExchange(secMasterSession.getOrCreateExchangeBean(security.getExchange(), ""));
     bean.setPointValue(security.getPointValue());
@@ -79,7 +79,7 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
     IRFutureOptionSecurity sec = new IRFutureOptionSecurity(bean.getExchange().getName(), 
         expiryBeanToExpiry(bean.getExpiry()), 
         exerciseType, 
-        identifierBeanToIdentifier(bean.getUnderlying()), 
+        externalIdBeanToExternalId(bean.getUnderlying()), 
         bean.getPointValue(), 
         bean.isMargined(), 
         currencyBeanToCurrency(bean.getCurrency()), 

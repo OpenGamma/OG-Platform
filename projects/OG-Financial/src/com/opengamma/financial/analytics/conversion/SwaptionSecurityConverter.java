@@ -19,8 +19,8 @@ import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefi
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  * 
@@ -42,9 +42,9 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
   @Override
   public FixedIncomeInstrumentConverter<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
     Validate.notNull(swaptionSecurity, "swaption security");
-    final Identifier underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
+    final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
-    final FixedIncomeInstrumentConverter<?> underlyingSwap = ((SwapSecurity) _securitySource.getSecurity(IdentifierBundle.of(underlyingIdentifier))).accept(_swapConverter);
+    final FixedIncomeInstrumentConverter<?> underlyingSwap = ((SwapSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }

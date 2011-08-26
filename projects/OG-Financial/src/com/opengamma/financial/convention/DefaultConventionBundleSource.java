@@ -6,9 +6,9 @@
 package com.opengamma.financial.convention;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 
 /**
  * Default implementation of ReferenceRateSource that uses an underlying ReferenceRateMaster as a data source. 
@@ -21,7 +21,7 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
     _referenceRateMaster = referenceRateMaster;
   }
   @Override
-  public ConventionBundle getConventionBundle(Identifier identifier) {
+  public ConventionBundle getConventionBundle(ExternalId identifier) {
     ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifier));
     final int size = result.getResults().size();
     switch (size) {
@@ -35,7 +35,7 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getConventionBundle(IdentifierBundle identifiers) {
+  public ConventionBundle getConventionBundle(ExternalIdBundle identifiers) {
     ConventionBundleSearchResult result = _referenceRateMaster.searchConventionBundle(new ConventionBundleSearchRequest(identifiers));
     final int size = result.getResults().size();
     switch (size) {
@@ -49,7 +49,7 @@ public class DefaultConventionBundleSource implements ConventionBundleSource {
   }
 
   @Override
-  public ConventionBundle getConventionBundle(UniqueIdentifier identifier) {
+  public ConventionBundle getConventionBundle(UniqueId identifier) {
     ConventionBundleDocument doc = _referenceRateMaster.getConventionBundle(identifier);
     if (doc != null) {
       return doc.getValue();

@@ -23,7 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the construction of Cap/floor on Ibor.
@@ -43,10 +43,10 @@ public class CapFloorIborTest {
   private static final double STRIKE = 0.04;
   private static final boolean IS_CAP = true;
   // The dates are not standard but selected for insure correct testing.
-  private static final ZonedDateTime FIXING_DATE = DateUtil.getUTCDate(2011, 1, 3);
-  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 1, 6);
-  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 4, 4);
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 4, 6);
+  private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
+  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
+  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 4, 4);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime FIXING_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, CALENDAR, SETTLEMENT_DAYS);
   private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, BUSINESS_DAY, CALENDAR, TENOR);
   private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");

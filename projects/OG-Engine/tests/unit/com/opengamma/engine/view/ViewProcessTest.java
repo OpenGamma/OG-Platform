@@ -68,7 +68,7 @@ public class ViewProcessTest {
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
     assertNull(client.getLatestResult());
-    assertEquals(env.getViewDefinition(), viewProcess.getDefinition());
+    assertEquals(env.getViewDefinition(), viewProcess.getLatestViewDefinition());
     
     vp.stop();
   }

@@ -30,7 +30,7 @@ public class GlobalContextFactoryBean implements GlobalContextFactory {
    * registered when the extension is made are applied, changes to the context factory extended
    * made after this call have no effect.
    * 
-   * @param extendedFrom the context factory to extend from, not {@code null} and can only be set once
+   * @param extendedFrom the context factory to extend from, not null and can only be set once
    */
   public synchronized void setExtendedFrom(final GlobalContextFactoryBean extendedFrom) {
     ArgumentChecker.notNull(extendedFrom, "extendedFrom");
@@ -41,9 +41,11 @@ public class GlobalContextFactoryBean implements GlobalContextFactory {
     // Prepend the event handlers of the factory we're extending from
     setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(extendedFrom.getGlobalContextEventHandler()) {
 
+      private final GlobalContextEventHandler _chain = getGlobalContextEventHandler();
+
       @Override
       protected void initContextImpl(MutableGlobalContext context) {
-        getGlobalContextEventHandler().initContext(context);
+        _chain.initContext(context);
       }
 
     });

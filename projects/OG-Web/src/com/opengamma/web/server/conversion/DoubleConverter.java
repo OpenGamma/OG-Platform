@@ -8,8 +8,6 @@ package com.opengamma.web.server.conversion;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,164 +32,116 @@ public class DoubleConverter implements ResultConverter<Object> {
   // user configs can be taken into account, and the entire set of formatting rules can be shared between different
   // types of client.
 
-  private static enum PrecisionType {
-    SIGNIFICANT_FIGURES, DECIMAL_PLACES
-  }
+  private static final DoubleValueFormatter DEFAULT_CONVERSION = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
+  private static final Map<String, DoubleValueFormatter> VALUE_CONVERSION_MAP = new HashMap<String, DoubleValueFormatter>();
 
-  private static class DoubleValueConversionSettings {
-
-    public static final DoubleValueConversionSettings NON_CCY_5SF = DoubleValueConversionSettings.of(5,
-        PrecisionType.SIGNIFICANT_FIGURES, false);
-    public static final DoubleValueConversionSettings NON_CCY_2DP = DoubleValueConversionSettings.of(2,
-        PrecisionType.DECIMAL_PLACES, false);
-    public static final DoubleValueConversionSettings NON_CCY_4DP = DoubleValueConversionSettings.of(4,
-        PrecisionType.DECIMAL_PLACES, false);
-    public static final DoubleValueConversionSettings NON_CCY_6DP = DoubleValueConversionSettings.of(6,
-        PrecisionType.DECIMAL_PLACES, false);
-    public static final DoubleValueConversionSettings CCY_2DP = DoubleValueConversionSettings.of(2,
-        PrecisionType.DECIMAL_PLACES, true);
-    public static final DoubleValueConversionSettings CCY_4DP = DoubleValueConversionSettings.of(4,
-        PrecisionType.DECIMAL_PLACES, true);
-    public static final DoubleValueConversionSettings CCY_6DP = DoubleValueConversionSettings.of(6,
-        PrecisionType.DECIMAL_PLACES, true);
-
-    private final int _precision;
-    private final PrecisionType _precisionType;
-    private final boolean _isCurrencyAmount;
-
-    public DoubleValueConversionSettings(int precision, PrecisionType precisionType, boolean isCurrencyAmount) {
-      _precision = precision;
-      _precisionType = precisionType;
-      _isCurrencyAmount = isCurrencyAmount;
-    }
-
-    public static DoubleValueConversionSettings of(int precision, PrecisionType precisionType, boolean isCurrencyAmount) {
-      return new DoubleValueConversionSettings(precision, precisionType, isCurrencyAmount);
-    }
-
-    public int getPrecision() {
-      return _precision;
-    }
-
-    public PrecisionType getPrecisionType() {
-      return _precisionType;
-    }
-
-    public boolean isCurrencyAmount() {
-      return _isCurrencyAmount;
-    }
-
-  }
-
-  private static final DoubleValueConversionSettings DEFAULT_CONVERSION = DoubleValueConversionSettings.NON_CCY_5SF;
-  private static final Map<String, DoubleValueConversionSettings> VALUE_CONVERSION_MAP = new HashMap<String, DoubleConverter.DoubleValueConversionSettings>();
-
-  static {
+  static {   
     // General
-    addConversion(ValueRequirementNames.DISCOUNT_CURVE, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.YIELD_CURVE, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VOLATILITY_SURFACE, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VOLATILITY_SURFACE_DATA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.COST_OF_CARRY, DoubleValueConversionSettings.CCY_2DP);
+    addConversion(ValueRequirementNames.DISCOUNT_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.YIELD_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VOLATILITY_SURFACE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VOLATILITY_SURFACE_DATA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.COST_OF_CARRY, DoubleValueDecimalPlaceFormatter.CCY_2DP);
 
     // Pricing
-    addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueConversionSettings.CCY_2DP);
-    addConversion(ValueRequirementNames.PV01, DoubleValueConversionSettings.CCY_2DP);
-    addConversion(ValueRequirementNames.PAR_RATE, DoubleValueConversionSettings.CCY_6DP);
-    addConversion(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueConversionSettings.CCY_6DP);
-    addConversion(ValueRequirementNames.FAIR_VALUE, DoubleValueConversionSettings.CCY_4DP);
-    addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueConversionSettings.CCY_4DP);
-    addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueConversionSettings.CCY_2DP);
+    addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.PV01, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.PAR_RATE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
+    addConversion(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
+    addConversion(ValueRequirementNames.FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_4DP);
+    addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_4DP);
+    addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    
+    // PnL
+    addConversion(ValueRequirementNames.PNL, DoubleValueDecimalPlaceFormatter.CCY_2DP);
 
     // Greeks
-    addConversion(ValueRequirementNames.DELTA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.DELTA_BLEED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.STRIKE_DELTA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.GAMMA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.GAMMA_P, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.STRIKE_GAMMA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.GAMMA_BLEED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.GAMMA_P_BLEED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VEGA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VEGA_P, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VARIANCE_VEGA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VEGA_BLEED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.THETA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.RHO, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CARRY_RHO, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.YIELD_CURVE_JACOBIAN, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.ULTIMA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VARIANCE_ULTIMA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.SPEED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.SPEED_P, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VANNA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VARIANCE_VANNA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.DVANNA_DVOL, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VOMMA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VOMMA_P, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.VARIANCE_VOMMA, DoubleValueConversionSettings.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.DELTA_BLEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.STRIKE_DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.GAMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.GAMMA_P, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.STRIKE_GAMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.GAMMA_BLEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.GAMMA_P_BLEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VEGA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VEGA_P, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VARIANCE_VEGA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VEGA_BLEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.THETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.RHO, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CARRY_RHO, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.YIELD_CURVE_JACOBIAN, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VARIANCE_ULTIMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.SPEED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.SPEED_P, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VANNA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VARIANCE_VANNA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.DVANNA_DVOL, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VOMMA_P, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.VARIANCE_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Position/value greeks
-    addBulkConversion("(POSITION_|VALUE_).*", DoubleValueConversionSettings.CCY_2DP);
+    addBulkConversion("(POSITION_|VALUE_).*", DoubleValueDecimalPlaceFormatter.CCY_2DP);
 
     // Series analysis
-    addConversion(ValueRequirementNames.SKEW, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.FISHER_KURTOSIS, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.PEARSON_KURTOSIS, DoubleValueConversionSettings.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.SKEW, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.FISHER_KURTOSIS, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.PEARSON_KURTOSIS, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
 
     // VaR
-    addConversion(ValueRequirementNames.HISTORICAL_VAR, DoubleValueConversionSettings.CCY_2DP);
-    addConversion(ValueRequirementNames.PARAMETRIC_VAR, DoubleValueConversionSettings.CCY_2DP);
+    addConversion(ValueRequirementNames.HISTORICAL_VAR, DoubleValueDecimalPlaceFormatter.CCY_2DP);
+    addConversion(ValueRequirementNames.PARAMETRIC_VAR, DoubleValueDecimalPlaceFormatter.CCY_2DP);
 
     // Capital Asset Pricing
-    addConversion(ValueRequirementNames.CAPM_BETA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA,
-        DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA,
-        DoubleValueConversionSettings.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_BETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA_RESIDUALS, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_RESIDUALS, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_ADJUSTED_R_SQUARED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA_TSTATS, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_TSTATS, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_ALPHA_PVALUES, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_BETA_PVALUES, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_MEAN_SQUARE_ERROR, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_R_SQUARED, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CAPM_REGRESSION_STANDARD_ERROR_OF_BETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Traditional Risk-Reward
-    addConversion(ValueRequirementNames.SHARPE_RATIO, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.TREYNOR_RATIO, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.JENSENS_ALPHA, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.TOTAL_RISK_ALPHA, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.WEIGHT, DoubleValueConversionSettings.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.SHARPE_RATIO, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.TREYNOR_RATIO, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.JENSENS_ALPHA, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.TOTAL_RISK_ALPHA, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.WEIGHT, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
 
     // Bonds
-    addConversion(ValueRequirementNames.CLEAN_PRICE, DoubleValueConversionSettings.NON_CCY_6DP);
-    addConversion(ValueRequirementNames.DIRTY_PRICE, DoubleValueConversionSettings.NON_CCY_6DP);
-    addConversion(ValueRequirementNames.YTM, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.MARKET_YTM, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.MARKET_DIRTY_PRICE, DoubleValueConversionSettings.NON_CCY_6DP);
-    addConversion(ValueRequirementNames.MACAULAY_DURATION, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.CONVEXITY, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.Z_SPREAD, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.CONVERTION_FACTOR, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.IMPLIED_REPO, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.GROSS_BASIS, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.NET_BASIS, DoubleValueConversionSettings.NON_CCY_4DP);
-    addConversion(ValueRequirementNames.BOND_TENOR, DoubleValueConversionSettings.NON_CCY_2DP);
-    addConversion(ValueRequirementNames.NS_BOND_CURVE, DoubleValueConversionSettings.NON_CCY_5SF);
-    addConversion(ValueRequirementNames.NSS_BOND_CURVE, DoubleValueConversionSettings.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.CLEAN_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
+    addConversion(ValueRequirementNames.DIRTY_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
+    addConversion(ValueRequirementNames.YTM, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.MARKET_YTM, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.MARKET_DIRTY_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
+    addConversion(ValueRequirementNames.MACAULAY_DURATION, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.CONVEXITY, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.Z_SPREAD, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.CONVERTION_FACTOR, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.IMPLIED_REPO, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.GROSS_BASIS, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.NET_BASIS, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
+    addConversion(ValueRequirementNames.BOND_TENOR, DoubleValueDecimalPlaceFormatter.NON_CCY_2DP);
+    addConversion(ValueRequirementNames.NS_BOND_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.NSS_BOND_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     
     // FX
-    addConversion(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueConversionSettings.CCY_2DP);
+    addConversion(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueDecimalPlaceFormatter.CCY_2DP);
   }
 
   private static void addBulkConversion(String valueRequirementFieldNamePattern,
-      DoubleValueConversionSettings conversionSettings) {
+      DoubleValueDecimalPlaceFormatter conversionSettings) {
     Pattern pattern = Pattern.compile(valueRequirementFieldNamePattern);
     for (Field field : ValueRequirementNames.class.getFields()) {
       if ((field.getModifiers() & (Modifier.STATIC | Modifier.PUBLIC)) == (Modifier.STATIC | Modifier.PUBLIC)
@@ -207,7 +157,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     }
   }
 
-  private static void addConversion(String valueName, DoubleValueConversionSettings conversionSettings) {
+  private static void addConversion(String valueName, DoubleValueFormatter conversionSettings) {
     VALUE_CONVERSION_MAP.put(valueName, conversionSettings);
   }
 
@@ -215,46 +165,42 @@ public class DoubleConverter implements ResultConverter<Object> {
 
   //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
   @Override
-  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value,
-      ConversionMode mode) {
-    double doubleValue;
-    boolean useCurrencyFromProperties;
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
+    Double doubleValue = null;
+    String displayValue = null;
+    BigDecimal bigDecimalValue = null;
+    String ccy = null;
+    
     if (value instanceof Double) {
       doubleValue = (Double) value;
-      useCurrencyFromProperties = true;
+    } else if (value instanceof CurrencyAmount) {
+      CurrencyAmount currencyAmount = (CurrencyAmount) value;
+      doubleValue = currencyAmount.getAmount();
+      ccy = currencyAmount.getCurrency().getCode();
+    } else if (value instanceof BigDecimal) {
+      bigDecimalValue = (BigDecimal) value;
     } else {
-      doubleValue = ((CurrencyAmount) value).getAmount();
-      useCurrencyFromProperties = false;
+      throw new OpenGammaRuntimeException(getClass().getSimpleName() + " is unable to process value of type " + value.getClass());
     }
-    String displayValue;
-    DoubleValueConversionSettings conversion = getConversion(valueSpec);
 
-    if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
-      displayValue = Double.toString(doubleValue);
-    } else {
-      switch (conversion.getPrecisionType()) {
-        case DECIMAL_PLACES:
-          BigDecimal decimalValue = new BigDecimal(doubleValue);
-          displayValue = decimalValue.setScale(conversion.getPrecision(), RoundingMode.HALF_UP).toString();
-          break;
-        case SIGNIFICANT_FIGURES:
-          long maxValueForSigFig = (long) Math.pow(10, conversion.getPrecision() - 1);
-          if (doubleValue > maxValueForSigFig) {
-            displayValue = Long.toString(Math.round(doubleValue));
-          } else {
-            MathContext mathContext = new MathContext(conversion.getPrecision(), RoundingMode.HALF_UP);
-            displayValue = new BigDecimal(doubleValue, mathContext).toString();
-          }
-          break;
-        default:
-          throw new IllegalArgumentException("Unsupported precision type: " + conversion.getPrecisionType());
+    if (doubleValue != null) {
+      if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
+        displayValue = Double.toString(doubleValue);
+      } else {
+        bigDecimalValue = BigDecimal.valueOf(doubleValue);
       }
     }
-
-    if (conversion.isCurrencyAmount()) {
-      if (useCurrencyFromProperties) {
+    
+    DoubleValueFormatter formatter = getFormatter(valueSpec);
+    
+    if (displayValue == null) {
+      assert bigDecimalValue != null;
+      displayValue = formatter.format(bigDecimalValue);
+    }
+    
+    if (formatter.isCurrencyAmount()) {
+      if (ccy == null) {
         Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
-        String ccy;
         if (currencyValues == null) {
           ccy = DISPLAY_UNKNOWN_CCY ? "?" : "";
         } else if (currencyValues.isEmpty()) {
@@ -262,17 +208,14 @@ public class DoubleConverter implements ResultConverter<Object> {
         } else {
           ccy = currencyValues.iterator().next();
         }
-        displayValue = ccy + " " + displayValue;
-      } else {
-        String ccy = ((CurrencyAmount) value).getCurrency().getCode();
-        displayValue = ccy + " " + displayValue;
       }
+      displayValue = ccy + " " + displayValue;
     }
     return displayValue;
   }
 
-  private DoubleValueConversionSettings getConversion(ValueSpecification valueSpec) {
-    DoubleValueConversionSettings conversion = null;
+  private DoubleValueFormatter getFormatter(ValueSpecification valueSpec) {
+    DoubleValueFormatter conversion = null;
     if (valueSpec != null) {
       conversion = VALUE_CONVERSION_MAP.get(valueSpec.getValueName());
     }
@@ -290,6 +233,8 @@ public class DoubleConverter implements ResultConverter<Object> {
       doubleValue = (Double) value;
     } else if (value instanceof CurrencyAmount) {
       doubleValue = ((CurrencyAmount) value).getAmount();
+    } else if (value instanceof BigDecimal) {
+      doubleValue = ((BigDecimal) value).doubleValue();
     } else {
       throw new OpenGammaRuntimeException("Cannot convert objects of type " + value.getClass());
     }

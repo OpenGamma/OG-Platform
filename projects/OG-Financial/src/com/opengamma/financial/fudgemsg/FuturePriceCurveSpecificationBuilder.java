@@ -10,8 +10,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
@@ -24,20 +24,20 @@ import com.opengamma.id.UniqueIdentifiable;
 public class FuturePriceCurveSpecificationBuilder implements FudgeBuilder<FuturePriceCurveSpecification> {
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final FuturePriceCurveSpecification object) {
-    final MutableFudgeMsg message = context.newMessage();
-    message.add("target", FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FuturePriceCurveSpecification object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
-    context.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
+    serializer.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
     return message;
   }
 
   @Override
-  public FuturePriceCurveSpecification buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
-    final UniqueIdentifiable target = context.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
+  public FuturePriceCurveSpecification buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final UniqueIdentifiable target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     final String name = message.getString("name");
     final FudgeField field = message.getByName("curveInstrumentProvider");
-    final FuturePriceCurveInstrumentProvider<?> curveInstrumentProvider = (FuturePriceCurveInstrumentProvider<?>) context.fieldValueToObject(field);
+    final FuturePriceCurveInstrumentProvider<?> curveInstrumentProvider = (FuturePriceCurveInstrumentProvider<?>) deserializer.fieldValueToObject(field);
     return new FuturePriceCurveSpecification(name, target, curveInstrumentProvider);
   }
 
