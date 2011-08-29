@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
@@ -29,9 +30,13 @@ public class FudgeProtoCrossCheckSecurityEncodingTest extends SecurityTestCase {
   @Override
   protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
     FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
-    final FudgeMsg message1 = serializer.objectToFudgeMsg(security);
-    final FudgeMsg message2 = security.toFudgeMsg(serializer);
-    assertEquals(message2, message1);
+    final FudgeMsg builderMsg = serializer.objectToFudgeMsg(security);
+    final FudgeMsg protoMsg = security.toFudgeMsg(serializer);
+    assertEquals(protoMsg, builderMsg);
+    
+    FudgeDeserializer deserializer = new FudgeDeserializer(s_fudgeContext);
+    final ManageableSecurity builderObj = deserializer.fudgeMsgToObject(securityClass, builderMsg);
+    assertEquals(security, builderObj);
   }
 
 }
