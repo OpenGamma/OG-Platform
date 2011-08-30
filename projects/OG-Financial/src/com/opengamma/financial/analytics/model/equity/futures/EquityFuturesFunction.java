@@ -165,7 +165,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getSecurity() instanceof com.opengamma.financial.security.future.EquityFutureSecurity;
+    return target.getTrade().getSecurity() instanceof com.opengamma.financial.security.future.EquityFutureSecurity;
   }
 
   @Override

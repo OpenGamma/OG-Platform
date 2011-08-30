@@ -29,7 +29,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class VariableCoefficientWaveEquationTest {
   
-  private static final  Surface<Double,Double,Double> A = ConstantDoublesSurface.from(0);
+  private static final  Surface<Double,Double,Double> A = ConstantDoublesSurface.from(-0.01);
   private static final  Surface<Double,Double,Double> B;
   private static final  Surface<Double,Double,Double> C = ConstantDoublesSurface.from(0);
   private static final ConvectionDiffusionPDEDataBundle PDE_DATA_BUNDLE;
@@ -60,14 +60,14 @@ public class VariableCoefficientWaveEquationTest {
     LOWER = new DirichletBoundaryCondition(0, 0);
     UPPER = new DirichletBoundaryCondition(0,2*Math.PI);
   }
-  
+ 
   @Test(enabled=false)
   public void test() {
     
-    int spaceSteps = 100;//7;
+    int spaceSteps = 100;
     double h = 2*Math.PI/spaceSteps;
-    double dt = h/4;
-    double tMax = 5;
+    double dt = h/2;
+    double tMax = 8;
     int timeSteps = (int) (tMax/dt);
    
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);

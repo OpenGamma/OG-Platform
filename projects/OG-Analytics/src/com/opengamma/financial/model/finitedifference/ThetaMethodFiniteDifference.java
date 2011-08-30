@@ -167,9 +167,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         setA(i, _pdeData.getA(0, x));
         setB(i, _pdeData.getB(0, x));
         setC(i, _pdeData.getC(0, x));
-       //debug
-        setRho(i,getA(i));
-        // setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
+        //TODO R White 4/08/2011 change this back debug
+        //setRho(i, getA(i));
+        setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
       }
       setT1(0.0);
     }
@@ -244,6 +244,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         setA(i - 1, _pdeData.getA(getT2(), x));
         setB(i - 1, _pdeData.getB(getT2(), x));
         setC(i - 1, _pdeData.getC(getT2(), x));
+        //TODO R White 4/08/2011 change this back debug
+        //setRho(i - 1, getA(i - 1));
         setRho(i - 1, getFittingParameter(getGrid(), getA(i - 1), getB(i - 1), i));
       }
     }
@@ -252,8 +254,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       final double omega = 1.0;
       @SuppressWarnings("unused")
       //NOTE get this working again with dynamic omega
-     final int count = solveBySOR(omega);
-   //   solveByLU();
+      final int count = solveBySOR(omega);
+      //   solveByLU();
       //      if (oldCount > 0) {
       //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
       //          omega = Math.max(1.0, omega * 0.9);
@@ -319,10 +321,12 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
       // convection dominated
       if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
+        // a > 0 is unphysical as it corresponds to a negative diffusion 
+        double sign = (a > 0.0 ? -1.0 : 1.0);
         if (b > 0) {
-          rho = -b * x1st[0] / x2nd[0];
+          rho = sign * b * x1st[0] / x2nd[0];
         } else {
-          rho = -b * x1st[2] / x2nd[2];
+          rho = -sign * b * x1st[2] / x2nd[2];
         }
       } else if (Math.abs(a) > 10 * Math.abs(bdx1) || Math.abs(a) > 10 * Math.abs(bdx2)) {
         rho = a; // diffusion dominated

@@ -433,7 +433,8 @@
     </copy>
     <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"
-      doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.footer}"
+      doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.bottom}"
+      header="${javadoc-all.header}"
     	maxmemory="2G">
       <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
       <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>

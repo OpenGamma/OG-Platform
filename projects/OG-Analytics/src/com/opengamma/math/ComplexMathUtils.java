@@ -58,8 +58,15 @@ public class ComplexMathUtils {
     final double b = z1.getImaginary();
     final double c = z2.getReal();
     final double d = z2.getImaginary();
-    final double denom = c * c + d * d;
-    return new ComplexNumber((a * c + b * d) / denom, (b * c - a * d) / denom);
+    if (Math.abs(c) > Math.abs(d)) {
+      final double dOverC = d / c;
+      final double denom = c + d * dOverC;
+      return new ComplexNumber((a + b * dOverC) / denom, (b - a * dOverC) / denom);
+    } else {
+      final double cOverD = c / d;
+      final double denom = c * cOverD + d;
+      return new ComplexNumber((a * cOverD + b) / denom, (b * cOverD - a) / denom);
+    }
   }
 
   public static ComplexNumber divide(final ComplexNumber z, final double x) {
@@ -69,8 +76,17 @@ public class ComplexMathUtils {
 
   public static ComplexNumber divide(final double x, final ComplexNumber z) {
     ArgumentChecker.notNull(z, "z");
-    final double denom = z.getReal() * z.getReal() + z.getImaginary() * z.getImaginary();
-    return new ComplexNumber(x * z.getReal() / denom, -x * z.getImaginary() / denom);
+    final double c = z.getReal();
+    final double d = z.getImaginary();
+    if (Math.abs(c) > Math.abs(d)) {
+      final double dOverC = d / c;
+      final double denom = c + d * dOverC;
+      return new ComplexNumber(x / denom, -x * dOverC / denom);
+    } else {
+      final double cOverD = c / d;
+      final double denom = c * cOverD + d;
+      return new ComplexNumber(x * cOverD / denom, -x / denom);
+    }
   }
 
   public static ComplexNumber exp(final ComplexNumber z) {
@@ -81,8 +97,17 @@ public class ComplexMathUtils {
 
   public static ComplexNumber inverse(final ComplexNumber z) {
     ArgumentChecker.notNull(z, "z");
-    final double denom = z.getReal() * z.getReal() + z.getImaginary() * z.getImaginary();
-    return new ComplexNumber(z.getReal() / denom, -z.getImaginary() / denom);
+    final double c = z.getReal();
+    final double d = z.getImaginary();
+    if (Math.abs(c) > Math.abs(d)) {
+      final double dOverC = d / c;
+      final double denom = c + d * dOverC;
+      return new ComplexNumber(1 / denom, -dOverC / denom);
+    } else {
+      final double cOverD = c / d;
+      final double denom = c * cOverD + d;
+      return new ComplexNumber(cOverD / denom, -1 / denom);
+    }
   }
 
   /**
@@ -151,7 +176,29 @@ public class ComplexMathUtils {
 
   public static ComplexNumber sqrt(final ComplexNumber z) {
     ArgumentChecker.notNull(z, "z");
-    return pow(z, 0.5);
+    final double c = z.getReal();
+    final double d = z.getImaginary();
+    if (c == 0.0 && d == 0.0) {
+      return z;
+    }
+    double w;
+    if (Math.abs(c) > Math.abs(d)) {
+      final double dOverC = d / c;
+      w = Math.sqrt(Math.abs(c)) * Math.sqrt((1 + Math.sqrt(1 + dOverC * dOverC)) / 2);
+    } else {
+      final double cOverD = c / d;
+      w = Math.sqrt(Math.abs(d)) * Math.sqrt((Math.abs(cOverD) + Math.sqrt(1 + cOverD * cOverD)) / 2);
+    }
+    if (c >= 0.0) {
+      return new ComplexNumber(w, d / 2 / w);
+    } else {
+      if (d >= 0.0) {
+        return new ComplexNumber(d / 2 / w, w);
+      } else {
+        return new ComplexNumber(-d / 2 / w, -w);
+      }
+    }
+    //return pow(z, 0.5);
   }
 
   public static ComplexNumber subtract(final ComplexNumber z1, final ComplexNumber z2) {
