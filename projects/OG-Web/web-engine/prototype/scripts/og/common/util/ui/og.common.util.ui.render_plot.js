@@ -81,6 +81,7 @@ $.register_module({
                 var options = $.extend(true, {}, p1_options, {xaxis: {min: ranges.xaxis.from, max: ranges.xaxis.to}});
                 $p1 = $.plot($(p1_selector), d, options);
                 $p2.setSelection(ranges, true);
+                $(tenor + ' .OG-link').removeClass('OG-link-active');
             });
             $(p1_selector).bind('plotpan', function (e, obj) { // panning
                 var xaxes = obj.getXAxes()[0];
