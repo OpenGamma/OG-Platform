@@ -77,6 +77,11 @@ $.register_module({
                 {type: 'form:submit', handler: function (result) {
                     save_resource(result.data, submit_type === 'save_as_new');
                 }},
+                {type: 'keydown', selector: form_id + ' .og-js-popup input', handler: function (e) {
+                    if (e.keyCode !== $.ui.keyCode.ESCAPE) return;
+                    $(form_id + ' .og-js-popup').remove();
+                    $(form_id + ' .og-js-cell').removeClass('og-active');
+                }},
                 {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
                     $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                 }},
@@ -88,6 +93,12 @@ $.register_module({
                     $(form_id + ' .og-js-cell').removeClass('og-active');
                 }},
                 {type: 'click', selector: form_id + ' .og-js-popup button', handler: function (e) {
+                    var data_type = null;
+                    if (data_type) ({
+                        'static': function () {},
+                        'future': function () {},
+                        'synthetic': function () {}
+                    })[data_type]();
                     $(form_id + ' .og-js-popup').remove();
                     $(form_id + ' .og-js-cell').removeClass('og-active');
                 }},
@@ -96,25 +107,51 @@ $.register_module({
                         $row = $cell.parents('.og-js-row:first'),
                         $holder = $(form_id + ' .og-js-holder'),
                         cell_offset = $cell.offset(), holder_offset = $holder.offset(),
+                        data = JSON.parse($cell.find('input[type=hidden]').val() || '{}'),
                         block;
                     $(form_id + ' .og-js-popup').remove();
-                    if ($cell.is('.og-active')) {
-                        $cell.removeClass('og-active');
-                        return;
-                    }
+                    if ($cell.is('.og-active')) return $cell.removeClass('og-active');
                     $(form_id + ' .og-js-cell').removeClass('og-active');
                     $cell.addClass('og-active');
                     block = new form.Block({
                         module: popup_module,
-                        handlers: [{type: 'form:load', handler: function () {
-                            var $popup = $(form_id + ' .og-js-popup'),
-                                is_last = $row.find('.og-js-strip .og-js-cell').index($cell) === 7,
-                                last_offset = is_last ? $popup.width() - $cell.width() + 3 : 0,
-                                top = Math.round(cell_offset.top - holder_offset.top) + $row.height(),
-                                left = Math.round(cell_offset.left - holder_offset.left - last_offset),
-                                css = {top: top + 'px', left: left + 'px'};
-                            $popup.css(css);
-                        }}]
+                        handlers: [
+                            {type: 'change', selector: form_id + ' .og-js-type', handler: function (e) {
+                                var $popup = $(form_id + ' .og-js-popup'), data_type = $(e.target).val().toLowerCase();
+                                ['static', 'future', 'synthetic'].forEach(function (type) {
+                                    $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
+                                });
+                            }},
+                            {type: 'form:load', handler: function () {
+                                console.log('data', data);
+                                var $popup = $(form_id + ' .og-js-popup'),
+                                    last_offset = $row.find('.og-js-strip .og-js-cell').index($cell) === 7 ?
+                                        $popup.width() - $cell.width() + 3 : 0,
+                                    top = Math.round(cell_offset.top - holder_offset.top) + $row.height(),
+                                    left = Math.round(cell_offset.left - holder_offset.left - last_offset),
+                                    data_type = data.type ? data.type.toLowerCase() : '';
+                                $popup.css({top: top + 'px', left: left + 'px'});
+                                $popup.find('.og-js-type').val(data.type);
+                                ['static', 'future', 'synthetic'].forEach(function (type) {
+                                    $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
+                                });
+                                if (data_type) ({
+                                    'static': function () {
+                                        if (!data.instrument) return;
+                                        var scheme_id = data[INST].split('~');
+                                        $popup.find('.og-js-scheme').val(scheme_id[0]);
+                                        $popup.find('.og-js-identifier').val(scheme_id[1]).focus();
+                                    },
+                                    'future': function () {
+                                        $popup.find('.og-js-prefix').val(data[PRFX]);
+                                        $popup.find('.og-js-market-sector').val(data[MKTS]).focus();
+                                    },
+                                    'synthetic': function () {
+                                        $popup.find('.og-js-currency').val(data[CURR]).focus();
+                                    }
+                                })[data_type]();
+                            }}
+                        ]
                     });
                     block.html(function (html) {$holder.append($(html)), block.load();});
                 }}
@@ -140,10 +177,11 @@ $.register_module({
                 });
             };
             transposed = field_names.reduce(function (acc, val) {
-                acc[val] = master[fields[val]].reduce(function (acc, val) {
+                acc[val] = (master[fields[val]] || []).reduce(function (acc, val) {
                     for (var tenor in val) if (val[has](tenor)) acc[tenor] = val[tenor];
                     return acc;
                 }, {});
+                // fill out sparse array, populating nulls
                 master.tenors.forEach(function (tenor) {if (!acc[val][has](tenor)) acc[val][tenor] = null;});
                 return acc;
             }, {});

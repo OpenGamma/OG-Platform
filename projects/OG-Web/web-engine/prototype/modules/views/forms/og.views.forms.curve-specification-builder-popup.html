@@ -1,15 +1,44 @@
 <div class="og-config-popup OG-shadow og-js-popup">
   <label>
     <span>Type</span>
-    <select><option>Static</option></select>
+    <select class="og-js-type">
+      <option value="">Please select...</option>
+      <option value="Future">Future</option>
+      <option value="Static">Static</option>
+      <option value="Synthetic">Synthetic</option>
+    </select>
   </label>
-  <label>
+  <label class="og-js-static">
     <span>Scheme Type</span>
-    <select><option>Bloomberg Ticker</option></select>
+    <select class="og-js-scheme">
+      <option value="">Please select...</option>
+      <option value="ACTIVFEED_TICKER">ACTIVFEED_TICKER</option>
+      <option value="BLOOMBERG_BUID">BLOOMBERG_BUID</option>
+      <option value="BLOOMBERG_BUID_WEAK">BLOOMBERG_BUID_WEAK</option>
+      <option value="BLOOMBERG_TCM">BLOOMBERG_TCM</option>
+      <option value="BLOOMBERG_TICKER">BLOOMBERG_TICKER</option>
+      <option value="BLOOMBERG_TICKER_WEAK">BLOOMBERG_TICKER_WEAK</option>
+      <option value="CUSIP">CUSIP</option>
+      <option value="ISIN">ISIN</option>
+      <option value="RIC">RIC</option>
+      <option value="SEDOL1">SEDOL1</option>
+    </select>
   </label>
-  <label>
+  <label class="og-js-static">
     <span>Identifier</span>
-    <input type="text" />
+    <input class="og-js-identifier" type="text" />
+  </label>
+  <label class="og-js-synthetic">
+    <span>Currency</span>
+    <input class="og-js-currency" type="text" />
+  </label>
+  <label class="og-js-future">
+    <span>Prefix</span>
+    <input class="og-js-prefix" type="text" />
+  </label>
+  <label class="og-js-future">
+    <span>Market Sector</span>
+    <input class="og-js-market-sector" type="text" />
   </label>
   <button>update</button>
   <span class="OG-link-cancel og-js-cancel">cancel</span>
