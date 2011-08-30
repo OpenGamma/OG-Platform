@@ -9,9 +9,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.language.context.UserContext;
-
 /**
  * Tests the {@link UserViewClient} class.
  */
@@ -37,7 +34,7 @@ public class UserViewClientTest {
     private int _counter;
 
     @Override
-    protected CustomData create(final UserContext userContext, final ViewClient viewClient, final ViewClientKey viewClientKey) {
+    protected CustomData create(final UserViewClient viewClient) {
       return new CustomData("Foo" + ++_counter);
     }
   }
@@ -47,7 +44,7 @@ public class UserViewClientTest {
     private int _counter;
 
     @Override
-    protected CustomData create(final UserContext userContext, final ViewClient viewClient, final ViewClientKey viewClientKey) {
+    protected CustomData create(final UserViewClient viewClient) {
       return new CustomData("Bar" + ++_counter);
     }
   }

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.UserContext;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +20,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewClients {
 
-  private final ConcurrentMap<ViewClientKey, UserViewClient> _clients = new ConcurrentHashMap<ViewClientKey, UserViewClient>();
+  private final ConcurrentMap<ViewClientKey, UserViewClient> _clientsByKey = new ConcurrentHashMap<ViewClientKey, UserViewClient>();
+  private final ConcurrentMap<UniqueId, UserViewClient> _clientsByUID = new ConcurrentHashMap<UniqueId, UserViewClient>();
   private final UserContext _userContext;
 
   public ViewClients(final UserContext userContext) {
@@ -27,8 +29,12 @@ public class ViewClients {
     _userContext = userContext;
   }
 
-  private ConcurrentMap<ViewClientKey, UserViewClient> getClients() {
-    return _clients;
+  private ConcurrentMap<ViewClientKey, UserViewClient> getClientsByKey() {
+    return _clientsByKey;
+  }
+
+  private ConcurrentMap<UniqueId, UserViewClient> getClientsByUID() {
+    return _clientsByUID;
   }
 
   private UserContext getUserContext() {
@@ -36,7 +42,9 @@ public class ViewClients {
   }
 
   protected ViewClient createViewClient() {
-    return getUserContext().getGlobalContext().getViewProcessor().createViewClient(getUserContext().getLiveDataUser());
+    final ViewClient viewClient = getUserContext().getGlobalContext().getViewProcessor().createViewClient(getUserContext().getLiveDataUser());
+    viewClient.setResultMode(ViewResultMode.DELTA_ONLY);
+    return viewClient;
   }
 
   /**
@@ -56,12 +64,13 @@ public class ViewClients {
   public UserViewClient lockViewClient(final ViewClientKey viewClientKey) {
     UserViewClient client;
     do {
-      client = getClients().get(viewClientKey);
+      client = getClientsByKey().get(viewClientKey);
       if (client == null) {
         final ViewClient viewClient = createViewClient();
         client = new UserViewClient(getUserContext(), viewClient, viewClientKey);
-        final UserViewClient existing = getClients().putIfAbsent(viewClientKey, client);
+        final UserViewClient existing = getClientsByKey().putIfAbsent(viewClientKey, client);
         if (existing == null) {
+          getClientsByUID().put(client.getUniqueId(), client);
           return client;
         }
         client = existing;
@@ -78,19 +87,39 @@ public class ViewClients {
    */
   public void unlockViewClient(final UserViewClient viewClient) {
     if (!viewClient.decrementRefCount()) {
-      getClients().remove(viewClient.getViewClientKey());
+      getClientsByKey().remove(viewClient.getViewClientKey());
+      getClientsByUID().remove(viewClient.getUniqueId());
       viewClient.destroy();
     }
+  }
+
+  /**
+   * Gets the view client identified and increments the lock count. The client must already have been locked by a call to
+   * {@link #lockViewClient}. Each call to lock a client must be balanced by a call to unlock it. Do not call after (or while)
+   * calling {@link #destroyAll}.
+   * 
+   * @param uniqueId identifier of the view client
+   * @return the client or null if the client is not already locked
+   */
+  public UserViewClient lockViewClient(final UniqueId uniqueId) {
+    UserViewClient viewClient;
+    do {
+      viewClient = getClientsByUID().get(uniqueId);
+      if (viewClient == null) {
+        return null;
+      }
+    } while (!viewClient.incrementRefCount());
+    return viewClient;
   }
 
   /**
    * Destroys any remaining view clients. Do not call {@link #lockViewClient} or {@link #unlockViewClient} again. 
    */
   protected void destroyAll() {
-    for (UserViewClient client : getClients().values()) {
+    for (UserViewClient client : getClientsByKey().values()) {
       client.destroy();
     }
-    getClients().clear();
+    getClientsByKey().clear();
   }
 
 }
