@@ -8,6 +8,8 @@ package com.opengamma.language.context;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
+import com.opengamma.language.view.ViewClients;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * A mutable version of {@link UserContext}. 
@@ -49,6 +51,16 @@ public class MutableUserContext extends UserContext {
   @Override
   public AggregatingProcedureProvider getProcedureProvider() {
     return getProcedureProviderImpl();
+  }
+
+  // Standard context members
+
+  public void setLiveDataUser(final UserPrincipal liveDataUser) {
+    setValue(LIVEDATA_USER, liveDataUser);
+  }
+
+  public void setViewClients(final ViewClients viewClients) {
+    setValue(VIEW_CLIENTS, viewClients);
   }
 
   // Arbitrary values

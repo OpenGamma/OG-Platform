@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
+import com.opengamma.language.view.ViewClients;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * An information context shared by any client instances running for a given user. 
@@ -21,6 +23,16 @@ import com.opengamma.language.procedure.AggregatingProcedureProvider;
 public abstract class UserContext extends AbstractContext<GlobalContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(UserContext.class);
+
+  /**
+   * Name under which the Live Data user principal is bound.
+   */
+  protected static final String LIVEDATA_USER = "liveDataUser";
+
+  /**
+   * Name under which the user's view clients are bound.
+   */
+  protected static final String VIEW_CLIENTS = "viewClients";
 
   private final Set<SessionContext> _sessionContexts = new HashSet<SessionContext>();
   private final String _userName;
@@ -33,6 +45,8 @@ public abstract class UserContext extends AbstractContext<GlobalContext> {
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
   }
 
+  // Core members
+
   public GlobalContext getGlobalContext() {
     return getParentContext();
   }
@@ -40,6 +54,18 @@ public abstract class UserContext extends AbstractContext<GlobalContext> {
   public String getUserName() {
     return _userName;
   }
+
+  // Standard context members
+
+  public UserPrincipal getLiveDataUser() {
+    return getValue(LIVEDATA_USER);
+  }
+
+  public ViewClients getViewClients() {
+    return getValue(VIEW_CLIENTS);
+  }
+
+  // System calls
 
   protected abstract void doneContext();
 
@@ -62,7 +88,7 @@ public abstract class UserContext extends AbstractContext<GlobalContext> {
     }
   }
 
-  // TODO
+  // Misc
 
   @Override
   public synchronized String toString() {

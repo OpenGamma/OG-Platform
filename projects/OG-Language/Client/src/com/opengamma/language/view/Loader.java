@@ -18,6 +18,7 @@ import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.context.MutableUserContext;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -87,6 +88,16 @@ public class Loader extends ContextInitializationBean {
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getScheduler()));
     // TODO: add function provider
     // TODO: add type converter provider
+  }
+
+  @Override
+  protected void initContext(final MutableUserContext userContext) {
+    userContext.setViewClients(new ViewClients(userContext));
+  }
+
+  @Override
+  protected void doneContext(final MutableUserContext userContext) {
+    userContext.getViewClients().destroyAll();
   }
 
 }

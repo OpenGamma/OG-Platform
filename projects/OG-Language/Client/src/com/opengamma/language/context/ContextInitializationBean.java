@@ -69,11 +69,27 @@ public class ContextInitializationBean implements InitializingBean {
   }
 
   /**
+   * Cleans up a session context.
+   * 
+   * @param context the context
+   */
+  protected void doneContext(final MutableSessionContext context) {
+  }
+
+  /**
    * Initializes a user context.
    * 
    * @param context the context
    */
   protected void initContext(final MutableUserContext context) {
+  }
+
+  /**
+   * Cleans up a user context 
+   *
+   * @param context the context
+   */
+  protected void doneContext(final MutableUserContext context) {
   }
 
   /**
@@ -100,12 +116,25 @@ public class ContextInitializationBean implements InitializingBean {
       }
       getSessionContextFactory().setSessionContextEventHandler(
           new AbstractSessionContextEventHandler(getSessionContextFactory().getSessionContextEventHandler()) {
+
+            private boolean _initialised;
+
             @Override
             protected void initContextImpl(final MutableSessionContext context) {
               if (Conditional.holds(getCondition(), context)) {
                 ContextInitializationBean.this.initContext(context);
+                _initialised = true;
               }
             }
+
+            @Override
+            protected void doneContextImpl(final MutableSessionContext context) {
+              if (_initialised) {
+                ContextInitializationBean.this.doneContext(context);
+                _initialised = false;
+              }
+            }
+
           });
     } else if (getUserContextFactory() != null) {
       if ((getSessionContextFactory() != null) || (getGlobalContextFactory() != null)) {
@@ -113,12 +142,25 @@ public class ContextInitializationBean implements InitializingBean {
       }
       getUserContextFactory().setUserContextEventHandler(
           new AbstractUserContextEventHandler(getUserContextFactory().getUserContextEventHandler()) {
+
+            private boolean _initialised;
+
             @Override
             protected void initContextImpl(final MutableUserContext context) {
               if (Conditional.holds(getCondition(), context)) {
                 ContextInitializationBean.this.initContext(context);
+                _initialised = true;
               }
             }
+
+            @Override
+            protected void doneContextImpl(final MutableUserContext context) {
+              if (_initialised) {
+                ContextInitializationBean.this.doneContext(context);
+                _initialised = false;
+              }
+            }
+
           });
     } else if (getGlobalContextFactory() != null) {
       if ((getSessionContextFactory() != null) || (getUserContextFactory() != null)) {
