@@ -12,7 +12,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -49,14 +48,14 @@ public class WebView implements Viewport {
   private final String _viewDefinitionName;
   private final UniqueId _snapshotId;
   private final ResultConverterCache _resultConverterCache;
+  private final Map<String,Object> _latestResults = new HashMap<String, Object>();
+  private final Object _lock = new Object();
 
   private RequirementBasedWebViewGrid _portfolioGrid;
   private RequirementBasedWebViewGrid _primitivesGrid;
 
   // TODO get the state from the grids
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
-  private Map<Integer, Map<String, Object>> _primitiveResult;
-  private Map<Integer, Map<String, Object>> _portfolioResult;
   private ViewportDefinition _viewportDefinition;
   private AnalyticsListener _listener;
   private Map<String,Object> _gridStructures;
@@ -92,13 +91,7 @@ public class WebView implements Viewport {
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
-        // only send an update if data has changed
-        // TODO is this worth the hassle?
-        if (deltaResult.getAllResults().size() != 0) {
-          updateResults();
-        } else {
-          s_logger.debug("Cycle completed with no changes");
-        }
+        updateResults();
       }
 
     });
@@ -113,47 +106,54 @@ public class WebView implements Viewport {
       flags = ExecutionFlags.triggersEnabled().get();
     }
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
-    // TODO only need this if we're using deltas to figure out whether to publish anything
-    _viewClient.setResultMode(ViewResultMode.BOTH);
     _viewClient.attachToViewProcess(viewDefinitionName, executionOptions);
   }
 
   // TODO make sure an update event is published when the view defs compile?
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
-    WebViewPortfolioGrid portfolioGrid = new WebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+    synchronized (_lock) {
+      WebViewPortfolioGrid portfolioGrid = new WebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
 
-    _gridStructures = new HashMap<String, Object>();
+      _gridStructures = new HashMap<String, Object>();
 
-    if (portfolioGrid.getGridStructure().isEmpty()) {
-      _portfolioGrid = null;
-    } else {
-      _portfolioGrid = portfolioGrid;
-      _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
+      if (portfolioGrid.getGridStructure().isEmpty()) {
+        _portfolioGrid = null;
+      } else {
+        _portfolioGrid = portfolioGrid;
+        _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
+        _gridStructures.put("portfolio", _portfolioGrid.getInitialJsonGridStructure());
+      }
+
+      RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+      if (primitivesGrid.getGridStructure().isEmpty()) {
+        _primitivesGrid = null;
+      } else {
+        _primitivesGrid = primitivesGrid;
+        _gridStructures.put("primitives", _primitivesGrid.getInitialJsonGridStructure());
+      }
+      _initialized = true;
+      _listener.gridStructureChanged();
+      configureGridViewports();
     }
-
-    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
-    if (primitivesGrid.getGridStructure().isEmpty()) {
-      _primitivesGrid = null;
-    } else {
-      _primitivesGrid = primitivesGrid;
-      _gridStructures.put("primitives", _primitivesGrid.getInitialJsonGridStructure());
-    }
-    _initialized = true;
-    _listener.gridStructureChanged();
-    configureGridViewports();
   }
 
   /* package */ void pause() {
-    _viewClient.pause();
+    synchronized (_lock) {
+      _viewClient.pause();
+    }
   }
 
   /* package */ void resume() {
-    _viewClient.resume();
+    synchronized (_lock) {
+      _viewClient.resume();
+    }
   }
 
   /* package */ void shutdown() {
     // Removes all listeners
-    _viewClient.shutdown();
+    synchronized (_lock) {
+      _viewClient.shutdown();
+    }
   }
   
   public String getViewDefinitionName() {
@@ -161,7 +161,7 @@ public class WebView implements Viewport {
   }
 
   /* package */ boolean matches(String viewDefinitionName, UniqueId snapshotId) {
-    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(_snapshotId, snapshotId);
+    return _viewDefinitionName.equals(viewDefinitionName) && ObjectUtils.equals(_snapshotId, snapshotId);
   }
 
   private WebViewGrid getGridByName(String name) {
@@ -185,13 +185,15 @@ public class WebView implements Viewport {
   }
 
   /**
-   * TODO CONCURRENCY
+   *
    */
-  public Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
-    _viewportDefinition = viewportDefinition;
-    _listener = listener;
-    configureGridViewports();
-    return this;
+  /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+    synchronized (_lock) {
+      _viewportDefinition = viewportDefinition;
+      _listener = listener;
+      configureGridViewports();
+      return this;
+    }
   }
 
   private void configureGridViewports() {
@@ -207,38 +209,42 @@ public class WebView implements Viewport {
   }
 
   private void updateResults() {
-    // TODO what about delta results? should they be available?
-    if (!_viewClient.isResultAvailable()) {
-      return;
-    }
-    ViewComputationResultModel resultModel = _viewClient.getLatestResult();
-    long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
-    _portfolioResult = new HashMap<Integer, Map<String, Object>>();
-    _primitiveResult = new HashMap<Integer, Map<String, Object>>();
-
-    for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
-      switch (target.getType()) {
-        case PRIMITIVE:
-          if (_primitivesGrid != null) {
-            Map<String, Object> targetResult = _primitivesGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
-            if (targetResult != null) {
-              Integer rowId = (Integer) targetResult.get("rowId");
-              _primitiveResult.put(rowId, targetResult);
-            }
-          }
-          break;
-        case PORTFOLIO_NODE:
-        case POSITION:
-          if (_portfolioGrid != null) {
-            Map<String, Object> targetResult = _portfolioGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
-            if (targetResult != null) {
-              Integer rowId = (Integer) targetResult.get("rowId");
-              _portfolioResult.put(rowId, targetResult);
-            }
-          }
+    synchronized (_lock) {
+      if (!_viewClient.isResultAvailable()) {
+        return;
       }
+      ViewComputationResultModel resultModel = _viewClient.getLatestResult();
+      long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
+      HashMap<Integer, Map<String, Object>> portfolioResult = new HashMap<Integer, Map<String, Object>>();
+      HashMap<Integer, Map<String, Object>> primitiveResult = new HashMap<Integer, Map<String, Object>>();
+
+      for (ComputationTargetSpecification target : resultModel.getAllTargets()) {
+        switch (target.getType()) {
+          case PRIMITIVE:
+            if (_primitivesGrid != null) {
+              Map<String, Object> targetResult = _primitivesGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+              if (targetResult != null) {
+                Integer rowId = (Integer) targetResult.get("rowId");
+                primitiveResult.put(rowId, targetResult);
+              }
+            }
+            break;
+          case PORTFOLIO_NODE:
+          case POSITION:
+            if (_portfolioGrid != null) {
+              Map<String, Object> targetResult = _portfolioGrid.getTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
+              if (targetResult != null) {
+                Integer rowId = (Integer) targetResult.get("rowId");
+                portfolioResult.put(rowId, targetResult);
+              }
+            }
+        }
+      }
+      _latestResults.clear();
+      _latestResults.put("portfolio", portfolioResult);
+      _latestResults.put("primitive", primitiveResult);
+      _listener.dataChanged();
     }
-    _listener.dataChanged();
   }
 
   // TODO this logic need to go in configureViewport
@@ -262,7 +268,9 @@ public class WebView implements Viewport {
       }
     }*/
   }
-  
+
+  // TODO refactor this?
+  // TODO CONCURRENCY
   public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
     WebViewGrid grid = getGridByName(gridName);
     if (grid == null) {
@@ -278,16 +286,17 @@ public class WebView implements Viewport {
 
   @Override
   public Map<String, Object> getGridStructure() {
-    return _gridStructures;
+    synchronized (_lock) {
+      return _gridStructures;
+    }
   }
 
   @Override
   public Map<String, Object> getLatestResults() {
-    Map<String, Object> results = new HashMap<String, Object>();
-    results.put("portfolio", _portfolioResult);
-    results.put("primitive", _primitiveResult);
-    _listener.activate();
-    return results;
+    synchronized (_lock) {
+      _listener.activate();
+      return _latestResults;
+    }
   }
 
   @Override
@@ -298,5 +307,10 @@ public class WebView implements Viewport {
   @Override
   public void setConversionMode(ConversionMode mode) {
     throw new UnsupportedOperationException("setConversionMode not implemented");
+  }
+
+  @Override
+  public void close() {
+    throw new UnsupportedOperationException("close not implemented");
   }
 }

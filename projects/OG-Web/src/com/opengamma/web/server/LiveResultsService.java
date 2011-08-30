@@ -47,12 +47,12 @@ public class LiveResultsService implements ViewportFactory {
   // TODO this needs to be called from the update manager when the client disconnects
   public void clientDisconnected(String clientId) {
     s_logger.debug("Client " + clientId + " disconnected");
+    WebView view;
     synchronized (_clientViews) {
-
-      if (_clientViews.containsKey(clientId)) {
-        WebView view = _clientViews.remove(clientId);
-        view.shutdown();
-      }
+      view = _clientViews.remove(clientId);
+    }
+    if (view != null) {
+      view.shutdown();
     }
   }
 
@@ -94,17 +94,6 @@ public class LiveResultsService implements ViewportFactory {
     }
   }
 
-  // TODO rename / move logic into createViewport()
-  // called when the client wants more data
-  /*public void processUpdateRequest(Client remote, Message message) {
-    s_logger.info("Received portfolio data request from {}, getting client view...", remote);
-    webView.triggerUpdate(message);
-    if (webView == null) {
-      // Disconnected client has come back to life
-      return;
-    }
-  }*/
-  
   /*@SuppressWarnings("unchecked")
   public void processUpdateModeRequest(Client remote, Message message) {
     WebView webView = getClientView(remote.getId());
@@ -123,28 +112,4 @@ public class LiveResultsService implements ViewportFactory {
       grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
     }
   }*/
-
-  // TODO this logic needs to be moved to to view view initialisation
-  /*@SuppressWarnings("unchecked")
-  public void processDepGraphRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote.getId());
-    if (webView == null) {
-      return;
-    }
-    Map<String, Object> dataMap = (Map<String, Object>) message.getData();
-    String gridName = (String) dataMap.get("gridName");
-    long jsRowId = (Long) dataMap.get("rowId");
-    long jsColId = (Long) dataMap.get("colId");
-    boolean includeDepGraph = (Boolean) dataMap.get("includeDepGraph");
-    webView.setIncludeDepGraph(gridName, WebGridCell.of((int) jsRowId, (int) jsColId), includeDepGraph);
-  }*/
-
-  // TODO this should go in a REST resource (if there isn't one already)
-/*
-  private List<String> getViewNames() {
-    Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
-    s_logger.debug("Available view names: " + availableViewNames);
-    return new ArrayList<String>(availableViewNames);
-  }
-*/
 }

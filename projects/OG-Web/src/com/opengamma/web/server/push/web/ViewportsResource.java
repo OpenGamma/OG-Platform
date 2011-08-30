@@ -68,7 +68,7 @@ public class ViewportsResource {
   }
 
   @Path("{viewportId}")
-  public ViewportResource findViewport(@QueryParam("clientId") String clientId,
+  public ViewportResource findViewport(@QueryParam("clientId") String clientId, // TODO should this be optional? how?
                                        @PathParam("viewportId") String viewportId,
                                        @Context HttpServletRequest request) {
     String userId = request.getRemoteUser();

@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private final ViewportFactory _viewportFactory;
   private final long _timeout;
   private final long _timeoutCheckPeriod;
+  private final Object _lock = new Object();
 
   // TODO what map impl? concurrent? or handle concurrency somewhere else?
   /** Connections keyed on client ID */
@@ -66,34 +67,42 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public String newConnection(String userId, RestUpdateListener updateListener, TimeoutListener timeoutListener) {
     // TODO check args
-    String clientId = Long.toString(_clientConnectionId.getAndIncrement());
-    ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportFactory);
-    _changeManager.addChangeListener(connection);
-    _connectionsByClientId.put(clientId, connection);
-    ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(userId, clientId, timeoutListener);
-    _timeoutTasks.put(clientId, timeoutTask);
-    _timer.scheduleAtFixedRate(timeoutTask, _timeoutCheckPeriod, _timeoutCheckPeriod);
-    return clientId;
+    synchronized (_lock) {
+      String clientId = Long.toString(_clientConnectionId.getAndIncrement());
+      ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportFactory);
+      _changeManager.addChangeListener(connection);
+      _connectionsByClientId.put(clientId, connection);
+      ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(userId, clientId, timeoutListener);
+      _timeoutTasks.put(clientId, timeoutTask);
+      _timer.scheduleAtFixedRate(timeoutTask, _timeoutCheckPeriod, _timeoutCheckPeriod);
+      return clientId;
+    }
   }
 
   @Override
   public void closeConnection(String userId, String clientId) {
-    ClientConnection connection = getConnectionByClientId(userId, clientId);
-    _connectionsByClientId.remove(clientId);
-    _connectionsByViewportUrl.remove(connection.getViewportUrl());
-    _timeoutTasks.remove(clientId);
-    _changeManager.removeChangeListener(connection);
-    connection.disconnect();
+    synchronized (_lock) {
+      ClientConnection connection = getConnectionByClientId(userId, clientId);
+      _connectionsByClientId.remove(clientId);
+      _connectionsByViewportUrl.remove(connection.getViewportUrl());
+      _timeoutTasks.remove(clientId);
+      _changeManager.removeChangeListener(connection);
+      connection.disconnect();
+    }
   }
 
   @Override
   public void subscribe(String userId, String clientId, UniqueId uid, String url) {
-    getConnectionByClientId(userId, clientId).subscribe(uid, url);
+    synchronized (_lock) {
+      getConnectionByClientId(userId, clientId).subscribe(uid, url);
+    }
   }
 
   @Override
   public Viewport getViewport(String userId, String clientId, String viewportUrl) {
-    return getConnectionByViewportUrl(userId, viewportUrl).getViewport(viewportUrl);
+    synchronized (_lock) {
+      return getConnectionByViewportUrl(userId, viewportUrl).getViewport(viewportUrl);
+    }
   }
 
   @Override
@@ -103,9 +112,14 @@ import java.util.concurrent.atomic.AtomicLong;
                              String viewportUrl,
                              String dataUrl,
                              String gridUrl) {
-    ClientConnection connection = getConnectionByClientId(userId, clientId);
-    connection.createViewport(clientId, viewportDefinition, viewportUrl, dataUrl, gridUrl);
-    _connectionsByViewportUrl.put(viewportUrl, connection);
+    synchronized (_lock) {
+      ClientConnection connection = getConnectionByClientId(userId, clientId);
+      // TODO this isn't great - need to do this in a sync block to avoid a race condition where the connection is keyed
+      // by viewport URL before it's created the viewport.  but creating a viewport can involve creating and attaching
+      // a view client which might be slow and is locking this class for all clients.
+      connection.createViewport(viewportDefinition, viewportUrl, dataUrl, gridUrl);
+      _connectionsByViewportUrl.put(viewportUrl, connection);
+    }
   }
 
   private ClientConnection getConnectionByClientId(String userId, String clientId) {

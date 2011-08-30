@@ -59,5 +59,10 @@ public class TestViewportFactory implements ViewportFactory {
     public void setConversionMode(ConversionMode mode) {
       s_logger.info("setConversionMode(), mode: {}", mode);
     }
+
+    @Override
+    public void close() {
+      throw new UnsupportedOperationException("close not implemented");
+    }
   }
 }

@@ -1,7 +1,7 @@
 package com.opengamma.web.server.push.subscription;
 
 /**
- * TODO the semantics aren't quite right - should discard updates when inactive for consitency with entity subs
+ *
  */
 public class AnalyticsListener {
 
@@ -10,8 +10,7 @@ public class AnalyticsListener {
   private final RestUpdateListener _listener;
 
   private final Object _lock = new Object();
-  private boolean _active = false; // TODO what should the default be?
-  private boolean _dataChanged = false;
+  private boolean _active = false;
 
   public AnalyticsListener(String dataUrl, String gridStructureUrl, RestUpdateListener listener) {
     _dataUrl = dataUrl;
@@ -22,9 +21,8 @@ public class AnalyticsListener {
   public void dataChanged() {
     synchronized (_lock) {
       if (_active) {
-        fireUpdate();
-      } else {
-        _dataChanged = true;
+        _active = false;
+        _listener.itemUpdated(_dataUrl);
       }
     }
   }
@@ -37,17 +35,7 @@ public class AnalyticsListener {
 
   public void activate() {
     synchronized (_lock) {
-      if (_dataChanged) {
-        fireUpdate();
-      } else {
-        _active = true;
-      }
+      _active = true;
     }
-  }
-
-  private void fireUpdate() {
-    _active = false;
-    _dataChanged = false;
-    _listener.itemUpdated(_dataUrl);
   }
 }

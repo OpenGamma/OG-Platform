@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
     _connections.put(clientId, connection);
     return clientId;
   }
+
   /**
    * Associates a continuation with a client connection so asynchronous updates can be pushed to the client.
    * @param userId The ID of the user
