@@ -91,9 +91,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
   /**
    * Constructs a new output set.
    * 
-   * @param portfolio the portfolio (must be resolved), not {@code null}
-   * @param functionRepository the functions, not {@code null}
-   * @param anyValue value to use when composing a wild-card with a finite set of property values, or {@code null} to not compose
+   * @param portfolio the portfolio (must be resolved), not null
+   * @param functionRepository the functions, not null
+   * @param anyValue value to use when composing a wild-card with a finite set of property values, or null to not compose
    */
   public AvailablePortfolioOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository, final String anyValue) {
     ArgumentChecker.notNull(portfolio, "portfolio");

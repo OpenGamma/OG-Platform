@@ -130,7 +130,7 @@ public class ComputationTarget implements Serializable {
    * @throws IllegalStateException if the type is not a POSITION or TRADE
    */
   public PositionOrTrade getPositionOrTrade() {
-    if (getType() != ComputationTargetType.POSITION || getType() != ComputationTargetType.TRADE) {
+    if (getType() != ComputationTargetType.POSITION && getType() != ComputationTargetType.TRADE) {
       throw new IllegalStateException("Requested a Position or Trade for a target of type " + getType());
     }
     return (PositionOrTrade) getValue();

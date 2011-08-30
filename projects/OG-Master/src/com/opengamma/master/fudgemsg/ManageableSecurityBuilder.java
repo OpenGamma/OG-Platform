@@ -35,11 +35,11 @@ public class ManageableSecurityBuilder extends AbstractFudgeBuilder implements F
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ManageableSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    ManageableSecurityBuilder.buildMessage(serializer, object, msg);
+    ManageableSecurityBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
-  public static void buildMessage(FudgeSerializer serializer, ManageableSecurity object, final MutableFudgeMsg msg) {
+  public static void toFudgeMsg(FudgeSerializer serializer, ManageableSecurity object, final MutableFudgeMsg msg) {
     addToMessage(msg, UNIQUE_ID_KEY, UniqueIdBuilder.toFudgeMsg(serializer, object.getUniqueId()));
     addToMessage(msg, NAME_KEY, object.getName());
     addToMessage(msg, SECURITY_TYPE_KEY, object.getSecurityType());
@@ -49,11 +49,11 @@ public class ManageableSecurityBuilder extends AbstractFudgeBuilder implements F
   @Override
   public ManageableSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     ManageableSecurity object = new ManageableSecurity("");
-    ManageableSecurityBuilder.buildObject(deserializer, msg, object);
+    ManageableSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
-  public static void buildObject(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity object) {
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity object) {
     object.setUniqueId(UniqueIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_KEY)));
     object.setName(msg.getString(NAME_KEY));
     object.setSecurityType(msg.getString(SECURITY_TYPE_KEY));

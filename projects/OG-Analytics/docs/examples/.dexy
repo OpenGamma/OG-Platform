@@ -5,8 +5,8 @@
         "*.py|pyg" : {},
         "*.java|pyg" : {},
         "*.py|dexy" : {},
-        "*.java|java" : {
-            "env" : { "CLASSPATH" : "../../../../OG-Util/lib/classpath.jar:../../../lib/classpath.jar:../../../build/classes:../../../tests/classes:../../../../OG-Util/build/classes" }
+        "*.java|fn|java" : {
+            "env" : { "CLASSPATH" : "../../../build/classes:../../../tests/classes:../../../lib/classpath.jar:../../../../OG-Util/build/classes:../../../../OG-Util/lib/classpath.jar" }
         },
         "*.py|idio|jythoni|pyg|l" : {
             "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../tests/classes:../../../OG-Util/build/classes:/java/fastutil-6.2.2.jar" }

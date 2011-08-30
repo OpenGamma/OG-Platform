@@ -185,6 +185,12 @@
     </constructor-arg>
     <constructor-arg ref="demoFunctionCompilationContext" />
   </bean>
+  <bean id="demoAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
+    <constructor-arg ref="demoFunctionCompilation" />
+    <constructor-arg ref="combinedPositionSource" />
+    <constructor-arg ref="combinedSecuritySource" />
+    <constructor-arg value="*" />
+  </bean>
   
   <!-- Calculation nodes -->
   <!--
