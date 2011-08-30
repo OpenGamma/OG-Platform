@@ -1,288 +1,566 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.option;
-public class FXOptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public <T> T accept (FXOptionSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity(this); }
-  private static final long serialVersionUID = -7446774431750652014l;
-  private com.opengamma.util.money.Currency _putCurrency;
-  public static final String PUT_CURRENCY_KEY = "putCurrency";
-  private com.opengamma.util.money.Currency _callCurrency;
-  public static final String CALL_CURRENCY_KEY = "callCurrency";
-  private double _putAmount;
-  public static final String PUT_AMOUNT_KEY = "putAmount";
-  private double _callAmount;
-  public static final String CALL_AMOUNT_KEY = "callAmount";
-  private com.opengamma.util.time.Expiry _expiry;
-  public static final String EXPIRY_KEY = "expiry";
-  private javax.time.calendar.ZonedDateTime _settlementDate;
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private boolean _isLong;
-  public static final String IS_LONG_KEY = "isLong";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * A security for FX options.
+ */
+@BeanDefinition
+public class FXOptionSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "FX_OPTION";
-  public FXOptionSecurity (com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, boolean isLong) {
-    super (SECURITY_TYPE);
-    if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
-    _putCurrency = putCurrency;
-    if (callCurrency == null) throw new NullPointerException ("callCurrency' cannot be null");
-    _callCurrency = callCurrency;
-    _putAmount = putAmount;
-    _callAmount = callAmount;
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    _isLong = isLong;
+
+  /**
+   * The put currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _putCurrency;
+  /**
+   * The call currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _callCurrency;
+  /**
+   * The put amount.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _putAmount;
+  /**
+   * The call amount.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _callAmount;
+  /**
+   * The expiry.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Expiry _expiry;
+  /**
+   * The settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _settlementDate;
+  /**
+   * The expiry.
+   */
+  @PropertyDefinition(get = "get")
+  private boolean _isLong;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public FXOptionSecurity() {
   }
-  protected FXOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (PUT_CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'putCurrency' is not present");
-    try {
-      _putCurrency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'putCurrency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (CALL_CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'callCurrency' is not present");
-    try {
-      _callCurrency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'callCurrency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (PUT_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'putAmount' is not present");
-    try {
-      _putAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'putAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (CALL_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'callAmount' is not present");
-    try {
-      _callAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'callAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'expiry' is not present");
-    try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'expiry' is not Expiry message", e);
-    }
-    fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'settlementDate' is not present");
-    try {
-      _settlementDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (IS_LONG_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'isLong' is not present");
-    try {
-      _isLong = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXOptionSecurity - field 'isLong' is not boolean", e);
-    }
+
+  public FXOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
+      ZonedDateTime settlementDate, boolean isLong) {
+    super(SECURITY_TYPE);
+    setPutCurrency(putCurrency);
+    setCallCurrency(callCurrency);
+    setPutAmount(putAmount);
+    setCallAmount(callAmount);
+    setExpiry(expiry);
+    setSettlementDate(settlementDate);
+    setIsLong(isLong);
   }
-  public FXOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, boolean isLong) {
-    super (uniqueId, name, securityType, identifiers);
-    if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
-    _putCurrency = putCurrency;
-    if (callCurrency == null) throw new NullPointerException ("callCurrency' cannot be null");
-    _callCurrency = callCurrency;
-    _putAmount = putAmount;
-    _callAmount = callAmount;
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    _isLong = isLong;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitFXOptionSecurity(this);
   }
-  protected FXOptionSecurity (final FXOptionSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _putCurrency = source._putCurrency;
-    _callCurrency = source._callCurrency;
-    _putAmount = source._putAmount;
-    _callAmount = source._callAmount;
-    if (source._expiry == null) _expiry = null;
-    else {
-      _expiry = source._expiry;
-    }
-    if (source._settlementDate == null) _settlementDate = null;
-    else {
-      _settlementDate = source._settlementDate;
-    }
-    _isLong = source._isLong;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(FXOptionSecurityVisitor<T> visitor) {
+    return visitor.visitFXOptionSecurity(this);
+  };
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FXOptionSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static FXOptionSecurity.Meta meta() {
+    return FXOptionSecurity.Meta.INSTANCE;
   }
-  public FXOptionSecurity clone () {
-    return new FXOptionSecurity (this);
+  static {
+    JodaBeanUtils.registerMetaBean(FXOptionSecurity.Meta.INSTANCE);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public FXOptionSecurity.Meta metaBean() {
+    return FXOptionSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_putCurrency != null)  {
-      msg.add (PUT_CURRENCY_KEY, null, _putCurrency);
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 516393024:  // putCurrency
+        return getPutCurrency();
+      case 643534991:  // callCurrency
+        return getCallCurrency();
+      case -984864697:  // putAmount
+        return getPutAmount();
+      case 1066661974:  // callAmount
+        return getCallAmount();
+      case -1289159373:  // expiry
+        return getExpiry();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
+      case -1180327226:  // isLong
+        return getIsLong();
     }
-    if (_callCurrency != null)  {
-      msg.add (CALL_CURRENCY_KEY, null, _callCurrency);
-    }
-    msg.add (PUT_AMOUNT_KEY, null, _putAmount);
-    msg.add (CALL_AMOUNT_KEY, null, _callAmount);
-    if (_expiry != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
-      _expiry.toFudgeMsg (serializer, fudge1);
-      msg.add (EXPIRY_KEY, null, fudge1);
-    }
-    if (_settlementDate != null)  {
-      serializer.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
-    }
-    msg.add (IS_LONG_KEY, null, _isLong);
+    return super.propertyGet(propertyName, quiet);
   }
-  public static FXOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.option.FXOptionSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.option.FXOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 516393024:  // putCurrency
+        setPutCurrency((Currency) newValue);
+        return;
+      case 643534991:  // callCurrency
+        setCallCurrency((Currency) newValue);
+        return;
+      case -984864697:  // putAmount
+        setPutAmount((Double) newValue);
+        return;
+      case 1066661974:  // callAmount
+        setCallAmount((Double) newValue);
+        return;
+      case -1289159373:  // expiry
+        setExpiry((Expiry) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTime) newValue);
+        return;
+      case -1180327226:  // isLong
+        setIsLong((Boolean) newValue);
+        return;
     }
-    return new FXOptionSecurity (deserializer, fudgeMsg);
+    super.propertySet(propertyName, newValue, quiet);
   }
-  public com.opengamma.util.money.Currency getPutCurrency () {
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_putCurrency, "putCurrency");
+    JodaBeanUtils.notNull(_callCurrency, "callCurrency");
+    JodaBeanUtils.notNull(_putAmount, "putAmount");
+    JodaBeanUtils.notNull(_callAmount, "callAmount");
+    JodaBeanUtils.notNull(_expiry, "expiry");
+    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXOptionSecurity other = (FXOptionSecurity) obj;
+      return JodaBeanUtils.equal(getPutCurrency(), other.getPutCurrency()) &&
+          JodaBeanUtils.equal(getCallCurrency(), other.getCallCurrency()) &&
+          JodaBeanUtils.equal(getPutAmount(), other.getPutAmount()) &&
+          JodaBeanUtils.equal(getCallAmount(), other.getCallAmount()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getIsLong(), other.getIsLong()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIsLong());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the put currency.
+   * @return the value of the property, not null
+   */
+  public Currency getPutCurrency() {
     return _putCurrency;
   }
-  public void setPutCurrency (com.opengamma.util.money.Currency putCurrency) {
-    if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
-    _putCurrency = putCurrency;
+
+  /**
+   * Sets the put currency.
+   * @param putCurrency  the new value of the property, not null
+   */
+  public void setPutCurrency(Currency putCurrency) {
+    JodaBeanUtils.notNull(putCurrency, "putCurrency");
+    this._putCurrency = putCurrency;
   }
-  public com.opengamma.util.money.Currency getCallCurrency () {
+
+  /**
+   * Gets the the {@code putCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> putCurrency() {
+    return metaBean().putCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the call currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCallCurrency() {
     return _callCurrency;
   }
-  public void setCallCurrency (com.opengamma.util.money.Currency callCurrency) {
-    if (callCurrency == null) throw new NullPointerException ("callCurrency' cannot be null");
-    _callCurrency = callCurrency;
+
+  /**
+   * Sets the call currency.
+   * @param callCurrency  the new value of the property, not null
+   */
+  public void setCallCurrency(Currency callCurrency) {
+    JodaBeanUtils.notNull(callCurrency, "callCurrency");
+    this._callCurrency = callCurrency;
   }
-  public double getPutAmount () {
+
+  /**
+   * Gets the the {@code callCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> callCurrency() {
+    return metaBean().callCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the put amount.
+   * @return the value of the property, not null
+   */
+  public double getPutAmount() {
     return _putAmount;
   }
-  public void setPutAmount (double putAmount) {
-    _putAmount = putAmount;
+
+  /**
+   * Sets the put amount.
+   * @param putAmount  the new value of the property, not null
+   */
+  public void setPutAmount(double putAmount) {
+    JodaBeanUtils.notNull(putAmount, "putAmount");
+    this._putAmount = putAmount;
   }
-  public double getCallAmount () {
+
+  /**
+   * Gets the the {@code putAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> putAmount() {
+    return metaBean().putAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the call amount.
+   * @return the value of the property, not null
+   */
+  public double getCallAmount() {
     return _callAmount;
   }
-  public void setCallAmount (double callAmount) {
-    _callAmount = callAmount;
+
+  /**
+   * Sets the call amount.
+   * @param callAmount  the new value of the property, not null
+   */
+  public void setCallAmount(double callAmount) {
+    JodaBeanUtils.notNull(callAmount, "callAmount");
+    this._callAmount = callAmount;
   }
-  public com.opengamma.util.time.Expiry getExpiry () {
+
+  /**
+   * Gets the the {@code callAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> callAmount() {
+    return metaBean().callAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the expiry.
+   * @return the value of the property, not null
+   */
+  public Expiry getExpiry() {
     return _expiry;
   }
-  public void setExpiry (com.opengamma.util.time.Expiry expiry) {
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
+
+  /**
+   * Sets the expiry.
+   * @param expiry  the new value of the property, not null
+   */
+  public void setExpiry(Expiry expiry) {
+    JodaBeanUtils.notNull(expiry, "expiry");
+    this._expiry = expiry;
   }
-  public javax.time.calendar.ZonedDateTime getSettlementDate () {
+
+  /**
+   * Gets the the {@code expiry} property.
+   * @return the property, not null
+   */
+  public final Property<Expiry> expiry() {
+    return metaBean().expiry().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
+
+  /**
+   * Sets the settlement date.
+   * @param settlementDate  the new value of the property, not null
+   */
+  public void setSettlementDate(ZonedDateTime settlementDate) {
+    JodaBeanUtils.notNull(settlementDate, "settlementDate");
+    this._settlementDate = settlementDate;
   }
-  public boolean getIsLong () {
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the expiry.
+   * @return the value of the property
+   */
+  public boolean getIsLong() {
     return _isLong;
   }
-  public void setIsLong (boolean isLong) {
-    _isLong = isLong;
+
+  /**
+   * Sets the expiry.
+   * @param isLong  the new value of the property
+   */
+  public void setIsLong(boolean isLong) {
+    this._isLong = isLong;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FXOptionSecurity)) return false;
-    FXOptionSecurity msg = (FXOptionSecurity)o;
-    if (_putCurrency != null) {
-      if (msg._putCurrency != null) {
-        if (!_putCurrency.equals (msg._putCurrency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._putCurrency != null) return false;
-    if (_callCurrency != null) {
-      if (msg._callCurrency != null) {
-        if (!_callCurrency.equals (msg._callCurrency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._callCurrency != null) return false;
-    if (_putAmount != msg._putAmount) return false;
-    if (_callAmount != msg._callAmount) return false;
-    if (_expiry != null) {
-      if (msg._expiry != null) {
-        if (!_expiry.equals (msg._expiry)) return false;
-      }
-      else return false;
-    }
-    else if (msg._expiry != null) return false;
-    if (_settlementDate != null) {
-      if (msg._settlementDate != null) {
-        if (!_settlementDate.equals (msg._settlementDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._settlementDate != null) return false;
-    if (_isLong != msg._isLong) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code isLong} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> isLong() {
+    return metaBean().isLong().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_putCurrency != null) hc += _putCurrency.hashCode ();
-    hc *= 31;
-    if (_callCurrency != null) hc += _callCurrency.hashCode ();
-    hc = (hc * 31) + (int)_putAmount;
-    hc = (hc * 31) + (int)_callAmount;
-    hc *= 31;
-    if (_expiry != null) hc += _expiry.hashCode ();
-    hc *= 31;
-    if (_settlementDate != null) hc += _settlementDate.hashCode ();
-    hc *= 31;
-    if (_isLong) hc++;
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FXOptionSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code putCurrency} property.
+     */
+    private final MetaProperty<Currency> _putCurrency = DirectMetaProperty.ofReadWrite(
+        this, "putCurrency", FXOptionSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code callCurrency} property.
+     */
+    private final MetaProperty<Currency> _callCurrency = DirectMetaProperty.ofReadWrite(
+        this, "callCurrency", FXOptionSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code putAmount} property.
+     */
+    private final MetaProperty<Double> _putAmount = DirectMetaProperty.ofReadWrite(
+        this, "putAmount", FXOptionSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code callAmount} property.
+     */
+    private final MetaProperty<Double> _callAmount = DirectMetaProperty.ofReadWrite(
+        this, "callAmount", FXOptionSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code expiry} property.
+     */
+    private final MetaProperty<Expiry> _expiry = DirectMetaProperty.ofReadWrite(
+        this, "expiry", FXOptionSecurity.class, Expiry.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", FXOptionSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code isLong} property.
+     */
+    private final MetaProperty<Boolean> _isLong = DirectMetaProperty.ofReadWrite(
+        this, "isLong", FXOptionSecurity.class, Boolean.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "putCurrency",
+        "callCurrency",
+        "putAmount",
+        "callAmount",
+        "expiry",
+        "settlementDate",
+        "isLong");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 516393024:  // putCurrency
+          return _putCurrency;
+        case 643534991:  // callCurrency
+          return _callCurrency;
+        case -984864697:  // putAmount
+          return _putAmount;
+        case 1066661974:  // callAmount
+          return _callAmount;
+        case -1289159373:  // expiry
+          return _expiry;
+        case -295948169:  // settlementDate
+          return _settlementDate;
+        case -1180327226:  // isLong
+          return _isLong;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends FXOptionSecurity> builder() {
+      return new DirectBeanBuilder<FXOptionSecurity>(new FXOptionSecurity());
+    }
+
+    @Override
+    public Class<? extends FXOptionSecurity> beanType() {
+      return FXOptionSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code putCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> putCurrency() {
+      return _putCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code callCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> callCurrency() {
+      return _callCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code putAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> putAmount() {
+      return _putAmount;
+    }
+
+    /**
+     * The meta-property for the {@code callAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> callAmount() {
+      return _callAmount;
+    }
+
+    /**
+     * The meta-property for the {@code expiry} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Expiry> expiry() {
+      return _expiry;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> settlementDate() {
+      return _settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code isLong} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> isLong() {
+      return _isLong;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

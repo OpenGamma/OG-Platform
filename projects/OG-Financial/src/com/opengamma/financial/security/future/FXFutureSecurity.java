@@ -1,154 +1,322 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.future;
-public class FXFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
-  public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitFXFutureSecurity (this); }
-  private static final long serialVersionUID = 48781265047866760l;
-  private com.opengamma.util.money.Currency _numerator;
-  public static final String NUMERATOR_KEY = "numerator";
-  private com.opengamma.util.money.Currency _denominator;
-  public static final String DENOMINATOR_KEY = "denominator";
-  private double _multiplicationFactor;
-  public static final String MULTIPLICATION_FACTOR_KEY = "multiplicationFactor";
-  public static final double MULTIPLICATION_FACTOR = 1.0;
-  public FXFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.util.money.Currency numerator, com.opengamma.util.money.Currency denominator) {
-    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    if (numerator == null) throw new NullPointerException ("numerator' cannot be null");
-    _numerator = numerator;
-    if (denominator == null) throw new NullPointerException ("denominator' cannot be null");
-    _denominator = denominator;
-    setMultiplicationFactor (MULTIPLICATION_FACTOR);
+
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * A security for FX futures.
+ */
+@BeanDefinition
+public class FXFutureSecurity extends FutureSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The numerator currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _numerator;
+  /**
+   * The denominator currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _denominator;
+  /**
+   * The multiplication factor.
+   */
+  @PropertyDefinition
+  private double _multiplicationFactor = 1.0;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public FXFutureSecurity() {
+    super();
   }
-  protected FXFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (NUMERATOR_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'numerator' is not present");
-    try {
-      _numerator = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'numerator' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (DENOMINATOR_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'denominator' is not present");
-    try {
-      _denominator = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'denominator' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (MULTIPLICATION_FACTOR_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'multiplicationFactor' is not present");
-    try {
-      _multiplicationFactor = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXFutureSecurity - field 'multiplicationFactor' is not double", e);
-    }
+
+  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
+      Currency numerator, Currency denominator) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
+    setNumerator(numerator);
+    setDenominator(denominator);
   }
-  public FXFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.util.money.Currency numerator, com.opengamma.util.money.Currency denominator, double multiplicationFactor) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    if (numerator == null) throw new NullPointerException ("numerator' cannot be null");
-    _numerator = numerator;
-    if (denominator == null) throw new NullPointerException ("denominator' cannot be null");
-    _denominator = denominator;
-    _multiplicationFactor = multiplicationFactor;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+    return visitor.visitFXFutureSecurity(this);
   }
-  protected FXFutureSecurity (final FXFutureSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _numerator = source._numerator;
-    _denominator = source._denominator;
-    _multiplicationFactor = source._multiplicationFactor;
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FXFutureSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static FXFutureSecurity.Meta meta() {
+    return FXFutureSecurity.Meta.INSTANCE;
   }
-  public FXFutureSecurity clone () {
-    return new FXFutureSecurity (this);
+  static {
+    JodaBeanUtils.registerMetaBean(FXFutureSecurity.Meta.INSTANCE);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public FXFutureSecurity.Meta metaBean() {
+    return FXFutureSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_numerator != null)  {
-      msg.add (NUMERATOR_KEY, null, _numerator);
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1747334793:  // numerator
+        return getNumerator();
+      case -1983274394:  // denominator
+        return getDenominator();
+      case 866676853:  // multiplicationFactor
+        return getMultiplicationFactor();
     }
-    if (_denominator != null)  {
-      msg.add (DENOMINATOR_KEY, null, _denominator);
-    }
-    msg.add (MULTIPLICATION_FACTOR_KEY, null, _multiplicationFactor);
+    return super.propertyGet(propertyName, quiet);
   }
-  public static FXFutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.future.FXFutureSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.future.FXFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1747334793:  // numerator
+        setNumerator((Currency) newValue);
+        return;
+      case -1983274394:  // denominator
+        setDenominator((Currency) newValue);
+        return;
+      case 866676853:  // multiplicationFactor
+        setMultiplicationFactor((Double) newValue);
+        return;
     }
-    return new FXFutureSecurity (deserializer, fudgeMsg);
+    super.propertySet(propertyName, newValue, quiet);
   }
-  public com.opengamma.util.money.Currency getNumerator () {
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_numerator, "numerator");
+    JodaBeanUtils.notNull(_denominator, "denominator");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXFutureSecurity other = (FXFutureSecurity) obj;
+      return JodaBeanUtils.equal(getNumerator(), other.getNumerator()) &&
+          JodaBeanUtils.equal(getDenominator(), other.getDenominator()) &&
+          JodaBeanUtils.equal(getMultiplicationFactor(), other.getMultiplicationFactor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumerator());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDenominator());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMultiplicationFactor());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the numerator currency.
+   * @return the value of the property, not null
+   */
+  public Currency getNumerator() {
     return _numerator;
   }
-  public void setNumerator (com.opengamma.util.money.Currency numerator) {
-    if (numerator == null) throw new NullPointerException ("numerator' cannot be null");
-    _numerator = numerator;
+
+  /**
+   * Sets the numerator currency.
+   * @param numerator  the new value of the property, not null
+   */
+  public void setNumerator(Currency numerator) {
+    JodaBeanUtils.notNull(numerator, "numerator");
+    this._numerator = numerator;
   }
-  public com.opengamma.util.money.Currency getDenominator () {
+
+  /**
+   * Gets the the {@code numerator} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> numerator() {
+    return metaBean().numerator().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the denominator currency.
+   * @return the value of the property, not null
+   */
+  public Currency getDenominator() {
     return _denominator;
   }
-  public void setDenominator (com.opengamma.util.money.Currency denominator) {
-    if (denominator == null) throw new NullPointerException ("denominator' cannot be null");
-    _denominator = denominator;
+
+  /**
+   * Sets the denominator currency.
+   * @param denominator  the new value of the property, not null
+   */
+  public void setDenominator(Currency denominator) {
+    JodaBeanUtils.notNull(denominator, "denominator");
+    this._denominator = denominator;
   }
-  public double getMultiplicationFactor () {
+
+  /**
+   * Gets the the {@code denominator} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> denominator() {
+    return metaBean().denominator().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the multiplication factor.
+   * @return the value of the property
+   */
+  public double getMultiplicationFactor() {
     return _multiplicationFactor;
   }
-  public void setMultiplicationFactor (double multiplicationFactor) {
-    _multiplicationFactor = multiplicationFactor;
+
+  /**
+   * Sets the multiplication factor.
+   * @param multiplicationFactor  the new value of the property
+   */
+  public void setMultiplicationFactor(double multiplicationFactor) {
+    this._multiplicationFactor = multiplicationFactor;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FXFutureSecurity)) return false;
-    FXFutureSecurity msg = (FXFutureSecurity)o;
-    if (_numerator != null) {
-      if (msg._numerator != null) {
-        if (!_numerator.equals (msg._numerator)) return false;
-      }
-      else return false;
+
+  /**
+   * Gets the the {@code multiplicationFactor} property.
+   * @return the property, not null
+   */
+  public final Property<Double> multiplicationFactor() {
+    return metaBean().multiplicationFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FXFutureSecurity}.
+   */
+  public static class Meta extends FutureSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code numerator} property.
+     */
+    private final MetaProperty<Currency> _numerator = DirectMetaProperty.ofReadWrite(
+        this, "numerator", FXFutureSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code denominator} property.
+     */
+    private final MetaProperty<Currency> _denominator = DirectMetaProperty.ofReadWrite(
+        this, "denominator", FXFutureSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code multiplicationFactor} property.
+     */
+    private final MetaProperty<Double> _multiplicationFactor = DirectMetaProperty.ofReadWrite(
+        this, "multiplicationFactor", FXFutureSecurity.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "numerator",
+        "denominator",
+        "multiplicationFactor");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
     }
-    else if (msg._numerator != null) return false;
-    if (_denominator != null) {
-      if (msg._denominator != null) {
-        if (!_denominator.equals (msg._denominator)) return false;
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1747334793:  // numerator
+          return _numerator;
+        case -1983274394:  // denominator
+          return _denominator;
+        case 866676853:  // multiplicationFactor
+          return _multiplicationFactor;
       }
-      else return false;
+      return super.metaPropertyGet(propertyName);
     }
-    else if (msg._denominator != null) return false;
-    if (_multiplicationFactor != msg._multiplicationFactor) return false;
-    return super.equals (msg);
+
+    @Override
+    public BeanBuilder<? extends FXFutureSecurity> builder() {
+      return new DirectBeanBuilder<FXFutureSecurity>(new FXFutureSecurity());
+    }
+
+    @Override
+    public Class<? extends FXFutureSecurity> beanType() {
+      return FXFutureSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code numerator} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> numerator() {
+      return _numerator;
+    }
+
+    /**
+     * The meta-property for the {@code denominator} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> denominator() {
+      return _denominator;
+    }
+
+    /**
+     * The meta-property for the {@code multiplicationFactor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> multiplicationFactor() {
+      return _multiplicationFactor;
+    }
+
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_numerator != null) hc += _numerator.hashCode ();
-    hc *= 31;
-    if (_denominator != null) hc += _denominator.hashCode ();
-    hc = (hc * 31) + (int)_multiplicationFactor;
-    return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

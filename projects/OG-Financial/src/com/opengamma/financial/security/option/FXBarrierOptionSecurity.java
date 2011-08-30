@@ -1,446 +1,847 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.option;
-public class FXBarrierOptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public <T> T accept (FXBarrierOptionSecurityVisitor<T> visitor) { return visitor.visitFXBarrierOptionSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXBarrierOptionSecurity(this); }
-  private static final long serialVersionUID = 2361078214451615862l;
-  private com.opengamma.util.money.Currency _putCurrency;
-  public static final String PUT_CURRENCY_KEY = "putCurrency";
-  private com.opengamma.util.money.Currency _callCurrency;
-  public static final String CALL_CURRENCY_KEY = "callCurrency";
-  private double _putAmount;
-  public static final String PUT_AMOUNT_KEY = "putAmount";
-  private double _callAmount;
-  public static final String CALL_AMOUNT_KEY = "callAmount";
-  private com.opengamma.util.time.Expiry _expiry;
-  public static final String EXPIRY_KEY = "expiry";
-  private javax.time.calendar.ZonedDateTime _settlementDate;
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private com.opengamma.financial.security.option.BarrierType _barrierType;
-  public static final String BARRIER_TYPE_KEY = "barrierType";
-  private com.opengamma.financial.security.option.BarrierDirection _barrierDirection;
-  public static final String BARRIER_DIRECTION_KEY = "barrierDirection";
-  private com.opengamma.financial.security.option.MonitoringType _monitoringType;
-  public static final String MONITORING_TYPE_KEY = "monitoringType";
-  private com.opengamma.financial.security.option.SamplingFrequency _samplingFrequency;
-  public static final String SAMPLING_FREQUENCY_KEY = "samplingFrequency";
-  private double _barrierLevel;
-  public static final String BARRIER_LEVEL_KEY = "barrierLevel";
-  private boolean _isLong;
-  public static final String IS_LONG_KEY = "isLong";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * A security for FX barrier options.
+ */
+@BeanDefinition
+public class FXBarrierOptionSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "FX_BARRIER_OPTION";
-  public FXBarrierOptionSecurity (com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.financial.security.option.BarrierType barrierType, com.opengamma.financial.security.option.BarrierDirection barrierDirection, com.opengamma.financial.security.option.MonitoringType monitoringType, com.opengamma.financial.security.option.SamplingFrequency samplingFrequency, double barrierLevel, boolean isLong) {
-    super (SECURITY_TYPE);
-    if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
-    _putCurrency = putCurrency;
-    if (callCurrency == null) throw new NullPointerException ("callCurrency' cannot be null");
-    _callCurrency = callCurrency;
-    _putAmount = putAmount;
-    _callAmount = callAmount;
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (barrierType == null) throw new NullPointerException ("barrierType' cannot be null");
-    _barrierType = barrierType;
-    if (barrierDirection == null) throw new NullPointerException ("barrierDirection' cannot be null");
-    _barrierDirection = barrierDirection;
-    if (monitoringType == null) throw new NullPointerException ("monitoringType' cannot be null");
-    _monitoringType = monitoringType;
-    if (samplingFrequency == null) throw new NullPointerException ("samplingFrequency' cannot be null");
-    _samplingFrequency = samplingFrequency;
-    _barrierLevel = barrierLevel;
-    _isLong = isLong;
+
+  /**
+   * The put currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _putCurrency;
+  /**
+   * The call currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _callCurrency;
+  /**
+   * The put amount.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _putAmount;
+  /**
+   * The call amount.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _callAmount;
+  /**
+   * The expiry.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Expiry _expiry;
+  /**
+   * The settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _settlementDate;
+  /**
+   * The barrier type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BarrierType _barrierType;
+  /**
+   * The barrier direction.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BarrierDirection _barrierDirection;
+  /**
+   * The monitoring type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private MonitoringType _monitoringType;
+  /**
+   * The sampling frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SamplingFrequency _samplingFrequency;
+  /**
+   * The barrier level.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _barrierLevel;
+  /**
+   * The expiry.
+   */
+  @PropertyDefinition(get = "get")
+  private boolean _isLong;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public FXBarrierOptionSecurity() {
   }
-  protected FXBarrierOptionSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (PUT_CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'putCurrency' is not present");
-    try {
-      _putCurrency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'putCurrency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (CALL_CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'callCurrency' is not present");
-    try {
-      _callCurrency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'callCurrency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (PUT_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'putAmount' is not present");
-    try {
-      _putAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'putAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (CALL_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'callAmount' is not present");
-    try {
-      _callAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'callAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'expiry' is not present");
-    try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'expiry' is not Expiry message", e);
-    }
-    fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'settlementDate' is not present");
-    try {
-      _settlementDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (BARRIER_TYPE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierType' is not present");
-    try {
-      _barrierType = fudgeMsg.getFieldValue (com.opengamma.financial.security.option.BarrierType.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierType' is not BarrierType enum", e);
-    }
-    fudgeField = fudgeMsg.getByName (BARRIER_DIRECTION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierDirection' is not present");
-    try {
-      _barrierDirection = fudgeMsg.getFieldValue (com.opengamma.financial.security.option.BarrierDirection.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierDirection' is not BarrierDirection enum", e);
-    }
-    fudgeField = fudgeMsg.getByName (MONITORING_TYPE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'monitoringType' is not present");
-    try {
-      _monitoringType = fudgeMsg.getFieldValue (com.opengamma.financial.security.option.MonitoringType.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'monitoringType' is not MonitoringType enum", e);
-    }
-    fudgeField = fudgeMsg.getByName (SAMPLING_FREQUENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'samplingFrequency' is not present");
-    try {
-      _samplingFrequency = fudgeMsg.getFieldValue (com.opengamma.financial.security.option.SamplingFrequency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'samplingFrequency' is not SamplingFrequency enum", e);
-    }
-    fudgeField = fudgeMsg.getByName (BARRIER_LEVEL_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierLevel' is not present");
-    try {
-      _barrierLevel = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'barrierLevel' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (IS_LONG_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'isLong' is not present");
-    try {
-      _isLong = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXBarrierOptionSecurity - field 'isLong' is not boolean", e);
-    }
+
+  public FXBarrierOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
+      ZonedDateTime settlementDate, BarrierType barrierType, BarrierDirection barrierDirection, MonitoringType monitoringType,
+      SamplingFrequency samplingFrequency, double barrierLevel, boolean isLong) {
+    super(SECURITY_TYPE);
+    setPutCurrency(putCurrency);
+    setCallCurrency(callCurrency);
+    setPutAmount(putAmount);
+    setCallAmount(callAmount);
+    setExpiry(expiry);
+    setSettlementDate(settlementDate);
+    setBarrierType(barrierType);
+    setBarrierDirection(barrierDirection);
+    setMonitoringType(monitoringType);
+    setSamplingFrequency(samplingFrequency);
+    setBarrierLevel(barrierLevel);
+    setIsLong(isLong);
   }
-  public FXBarrierOptionSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency putCurrency, com.opengamma.util.money.Currency callCurrency, double putAmount, double callAmount, com.opengamma.util.time.Expiry expiry, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.financial.security.option.BarrierType barrierType, com.opengamma.financial.security.option.BarrierDirection barrierDirection, com.opengamma.financial.security.option.MonitoringType monitoringType, com.opengamma.financial.security.option.SamplingFrequency samplingFrequency, double barrierLevel, boolean isLong) {
-    super (uniqueId, name, securityType, identifiers);
-    if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
-    _putCurrency = putCurrency;
-    if (callCurrency == null) throw new NullPointerException ("callCurrency' cannot be null");
-    _callCurrency = callCurrency;
-    _putAmount = putAmount;
-    _callAmount = callAmount;
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (barrierType == null) throw new NullPointerException ("barrierType' cannot be null");
-    _barrierType = barrierType;
-    if (barrierDirection == null) throw new NullPointerException ("barrierDirection' cannot be null");
-    _barrierDirection = barrierDirection;
-    if (monitoringType == null) throw new NullPointerException ("monitoringType' cannot be null");
-    _monitoringType = monitoringType;
-    if (samplingFrequency == null) throw new NullPointerException ("samplingFrequency' cannot be null");
-    _samplingFrequency = samplingFrequency;
-    _barrierLevel = barrierLevel;
-    _isLong = isLong;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitFXBarrierOptionSecurity(this);
   }
-  protected FXBarrierOptionSecurity (final FXBarrierOptionSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _putCurrency = source._putCurrency;
-    _callCurrency = source._callCurrency;
-    _putAmount = source._putAmount;
-    _callAmount = source._callAmount;
-    if (source._expiry == null) _expiry = null;
-    else {
-      _expiry = source._expiry;
-    }
-    if (source._settlementDate == null) _settlementDate = null;
-    else {
-      _settlementDate = source._settlementDate;
-    }
-    _barrierType = source._barrierType;
-    _barrierDirection = source._barrierDirection;
-    _monitoringType = source._monitoringType;
-    _samplingFrequency = source._samplingFrequency;
-    _barrierLevel = source._barrierLevel;
-    _isLong = source._isLong;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(FXBarrierOptionSecurityVisitor<T> visitor) {
+    return visitor.visitFXBarrierOptionSecurity(this);
+  };
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FXBarrierOptionSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static FXBarrierOptionSecurity.Meta meta() {
+    return FXBarrierOptionSecurity.Meta.INSTANCE;
   }
-  public FXBarrierOptionSecurity clone () {
-    return new FXBarrierOptionSecurity (this);
+  static {
+    JodaBeanUtils.registerMetaBean(FXBarrierOptionSecurity.Meta.INSTANCE);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public FXBarrierOptionSecurity.Meta metaBean() {
+    return FXBarrierOptionSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_putCurrency != null)  {
-      msg.add (PUT_CURRENCY_KEY, null, _putCurrency);
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 516393024:  // putCurrency
+        return getPutCurrency();
+      case 643534991:  // callCurrency
+        return getCallCurrency();
+      case -984864697:  // putAmount
+        return getPutAmount();
+      case 1066661974:  // callAmount
+        return getCallAmount();
+      case -1289159373:  // expiry
+        return getExpiry();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
+      case 1029043089:  // barrierType
+        return getBarrierType();
+      case 502579592:  // barrierDirection
+        return getBarrierDirection();
+      case -1483652190:  // monitoringType
+        return getMonitoringType();
+      case 1178782005:  // samplingFrequency
+        return getSamplingFrequency();
+      case 1827586573:  // barrierLevel
+        return getBarrierLevel();
+      case -1180327226:  // isLong
+        return getIsLong();
     }
-    if (_callCurrency != null)  {
-      msg.add (CALL_CURRENCY_KEY, null, _callCurrency);
-    }
-    msg.add (PUT_AMOUNT_KEY, null, _putAmount);
-    msg.add (CALL_AMOUNT_KEY, null, _callAmount);
-    if (_expiry != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
-      _expiry.toFudgeMsg (serializer, fudge1);
-      msg.add (EXPIRY_KEY, null, fudge1);
-    }
-    if (_settlementDate != null)  {
-      serializer.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
-    }
-    if (_barrierType != null)  {
-      msg.add (BARRIER_TYPE_KEY, null, _barrierType.name ());
-    }
-    if (_barrierDirection != null)  {
-      msg.add (BARRIER_DIRECTION_KEY, null, _barrierDirection.name ());
-    }
-    if (_monitoringType != null)  {
-      msg.add (MONITORING_TYPE_KEY, null, _monitoringType.name ());
-    }
-    if (_samplingFrequency != null)  {
-      msg.add (SAMPLING_FREQUENCY_KEY, null, _samplingFrequency.name ());
-    }
-    msg.add (BARRIER_LEVEL_KEY, null, _barrierLevel);
-    msg.add (IS_LONG_KEY, null, _isLong);
+    return super.propertyGet(propertyName, quiet);
   }
-  public static FXBarrierOptionSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.option.FXBarrierOptionSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.option.FXBarrierOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 516393024:  // putCurrency
+        setPutCurrency((Currency) newValue);
+        return;
+      case 643534991:  // callCurrency
+        setCallCurrency((Currency) newValue);
+        return;
+      case -984864697:  // putAmount
+        setPutAmount((Double) newValue);
+        return;
+      case 1066661974:  // callAmount
+        setCallAmount((Double) newValue);
+        return;
+      case -1289159373:  // expiry
+        setExpiry((Expiry) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTime) newValue);
+        return;
+      case 1029043089:  // barrierType
+        setBarrierType((BarrierType) newValue);
+        return;
+      case 502579592:  // barrierDirection
+        setBarrierDirection((BarrierDirection) newValue);
+        return;
+      case -1483652190:  // monitoringType
+        setMonitoringType((MonitoringType) newValue);
+        return;
+      case 1178782005:  // samplingFrequency
+        setSamplingFrequency((SamplingFrequency) newValue);
+        return;
+      case 1827586573:  // barrierLevel
+        setBarrierLevel((Double) newValue);
+        return;
+      case -1180327226:  // isLong
+        setIsLong((Boolean) newValue);
+        return;
     }
-    return new FXBarrierOptionSecurity (deserializer, fudgeMsg);
+    super.propertySet(propertyName, newValue, quiet);
   }
-  public com.opengamma.util.money.Currency getPutCurrency () {
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_putCurrency, "putCurrency");
+    JodaBeanUtils.notNull(_callCurrency, "callCurrency");
+    JodaBeanUtils.notNull(_putAmount, "putAmount");
+    JodaBeanUtils.notNull(_callAmount, "callAmount");
+    JodaBeanUtils.notNull(_expiry, "expiry");
+    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
+    JodaBeanUtils.notNull(_barrierType, "barrierType");
+    JodaBeanUtils.notNull(_barrierDirection, "barrierDirection");
+    JodaBeanUtils.notNull(_monitoringType, "monitoringType");
+    JodaBeanUtils.notNull(_samplingFrequency, "samplingFrequency");
+    JodaBeanUtils.notNull(_barrierLevel, "barrierLevel");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXBarrierOptionSecurity other = (FXBarrierOptionSecurity) obj;
+      return JodaBeanUtils.equal(getPutCurrency(), other.getPutCurrency()) &&
+          JodaBeanUtils.equal(getCallCurrency(), other.getCallCurrency()) &&
+          JodaBeanUtils.equal(getPutAmount(), other.getPutAmount()) &&
+          JodaBeanUtils.equal(getCallAmount(), other.getCallAmount()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getBarrierType(), other.getBarrierType()) &&
+          JodaBeanUtils.equal(getBarrierDirection(), other.getBarrierDirection()) &&
+          JodaBeanUtils.equal(getMonitoringType(), other.getMonitoringType()) &&
+          JodaBeanUtils.equal(getSamplingFrequency(), other.getSamplingFrequency()) &&
+          JodaBeanUtils.equal(getBarrierLevel(), other.getBarrierLevel()) &&
+          JodaBeanUtils.equal(getIsLong(), other.getIsLong()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierDirection());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSamplingFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierLevel());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIsLong());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the put currency.
+   * @return the value of the property, not null
+   */
+  public Currency getPutCurrency() {
     return _putCurrency;
   }
-  public void setPutCurrency (com.opengamma.util.money.Currency putCurrency) {
-    if (putCurrency == null) throw new NullPointerException ("putCurrency' cannot be null");
-    _putCurrency = putCurrency;
+
+  /**
+   * Sets the put currency.
+   * @param putCurrency  the new value of the property, not null
+   */
+  public void setPutCurrency(Currency putCurrency) {
+    JodaBeanUtils.notNull(putCurrency, "putCurrency");
+    this._putCurrency = putCurrency;
   }
-  public com.opengamma.util.money.Currency getCallCurrency () {
+
+  /**
+   * Gets the the {@code putCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> putCurrency() {
+    return metaBean().putCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the call currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCallCurrency() {
     return _callCurrency;
   }
-  public void setCallCurrency (com.opengamma.util.money.Currency callCurrency) {
-    if (callCurrency == null) throw new NullPointerException ("callCurrency' cannot be null");
-    _callCurrency = callCurrency;
+
+  /**
+   * Sets the call currency.
+   * @param callCurrency  the new value of the property, not null
+   */
+  public void setCallCurrency(Currency callCurrency) {
+    JodaBeanUtils.notNull(callCurrency, "callCurrency");
+    this._callCurrency = callCurrency;
   }
-  public double getPutAmount () {
+
+  /**
+   * Gets the the {@code callCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> callCurrency() {
+    return metaBean().callCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the put amount.
+   * @return the value of the property, not null
+   */
+  public double getPutAmount() {
     return _putAmount;
   }
-  public void setPutAmount (double putAmount) {
-    _putAmount = putAmount;
+
+  /**
+   * Sets the put amount.
+   * @param putAmount  the new value of the property, not null
+   */
+  public void setPutAmount(double putAmount) {
+    JodaBeanUtils.notNull(putAmount, "putAmount");
+    this._putAmount = putAmount;
   }
-  public double getCallAmount () {
+
+  /**
+   * Gets the the {@code putAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> putAmount() {
+    return metaBean().putAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the call amount.
+   * @return the value of the property, not null
+   */
+  public double getCallAmount() {
     return _callAmount;
   }
-  public void setCallAmount (double callAmount) {
-    _callAmount = callAmount;
+
+  /**
+   * Sets the call amount.
+   * @param callAmount  the new value of the property, not null
+   */
+  public void setCallAmount(double callAmount) {
+    JodaBeanUtils.notNull(callAmount, "callAmount");
+    this._callAmount = callAmount;
   }
-  public com.opengamma.util.time.Expiry getExpiry () {
+
+  /**
+   * Gets the the {@code callAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> callAmount() {
+    return metaBean().callAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the expiry.
+   * @return the value of the property, not null
+   */
+  public Expiry getExpiry() {
     return _expiry;
   }
-  public void setExpiry (com.opengamma.util.time.Expiry expiry) {
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
+
+  /**
+   * Sets the expiry.
+   * @param expiry  the new value of the property, not null
+   */
+  public void setExpiry(Expiry expiry) {
+    JodaBeanUtils.notNull(expiry, "expiry");
+    this._expiry = expiry;
   }
-  public javax.time.calendar.ZonedDateTime getSettlementDate () {
+
+  /**
+   * Gets the the {@code expiry} property.
+   * @return the property, not null
+   */
+  public final Property<Expiry> expiry() {
+    return metaBean().expiry().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
+
+  /**
+   * Sets the settlement date.
+   * @param settlementDate  the new value of the property, not null
+   */
+  public void setSettlementDate(ZonedDateTime settlementDate) {
+    JodaBeanUtils.notNull(settlementDate, "settlementDate");
+    this._settlementDate = settlementDate;
   }
-  public com.opengamma.financial.security.option.BarrierType getBarrierType () {
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the barrier type.
+   * @return the value of the property, not null
+   */
+  public BarrierType getBarrierType() {
     return _barrierType;
   }
-  public void setBarrierType (com.opengamma.financial.security.option.BarrierType barrierType) {
-    if (barrierType == null) throw new NullPointerException ("barrierType' cannot be null");
-    _barrierType = barrierType;
+
+  /**
+   * Sets the barrier type.
+   * @param barrierType  the new value of the property, not null
+   */
+  public void setBarrierType(BarrierType barrierType) {
+    JodaBeanUtils.notNull(barrierType, "barrierType");
+    this._barrierType = barrierType;
   }
-  public com.opengamma.financial.security.option.BarrierDirection getBarrierDirection () {
+
+  /**
+   * Gets the the {@code barrierType} property.
+   * @return the property, not null
+   */
+  public final Property<BarrierType> barrierType() {
+    return metaBean().barrierType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the barrier direction.
+   * @return the value of the property, not null
+   */
+  public BarrierDirection getBarrierDirection() {
     return _barrierDirection;
   }
-  public void setBarrierDirection (com.opengamma.financial.security.option.BarrierDirection barrierDirection) {
-    if (barrierDirection == null) throw new NullPointerException ("barrierDirection' cannot be null");
-    _barrierDirection = barrierDirection;
+
+  /**
+   * Sets the barrier direction.
+   * @param barrierDirection  the new value of the property, not null
+   */
+  public void setBarrierDirection(BarrierDirection barrierDirection) {
+    JodaBeanUtils.notNull(barrierDirection, "barrierDirection");
+    this._barrierDirection = barrierDirection;
   }
-  public com.opengamma.financial.security.option.MonitoringType getMonitoringType () {
+
+  /**
+   * Gets the the {@code barrierDirection} property.
+   * @return the property, not null
+   */
+  public final Property<BarrierDirection> barrierDirection() {
+    return metaBean().barrierDirection().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the monitoring type.
+   * @return the value of the property, not null
+   */
+  public MonitoringType getMonitoringType() {
     return _monitoringType;
   }
-  public void setMonitoringType (com.opengamma.financial.security.option.MonitoringType monitoringType) {
-    if (monitoringType == null) throw new NullPointerException ("monitoringType' cannot be null");
-    _monitoringType = monitoringType;
+
+  /**
+   * Sets the monitoring type.
+   * @param monitoringType  the new value of the property, not null
+   */
+  public void setMonitoringType(MonitoringType monitoringType) {
+    JodaBeanUtils.notNull(monitoringType, "monitoringType");
+    this._monitoringType = monitoringType;
   }
-  public com.opengamma.financial.security.option.SamplingFrequency getSamplingFrequency () {
+
+  /**
+   * Gets the the {@code monitoringType} property.
+   * @return the property, not null
+   */
+  public final Property<MonitoringType> monitoringType() {
+    return metaBean().monitoringType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the sampling frequency.
+   * @return the value of the property, not null
+   */
+  public SamplingFrequency getSamplingFrequency() {
     return _samplingFrequency;
   }
-  public void setSamplingFrequency (com.opengamma.financial.security.option.SamplingFrequency samplingFrequency) {
-    if (samplingFrequency == null) throw new NullPointerException ("samplingFrequency' cannot be null");
-    _samplingFrequency = samplingFrequency;
+
+  /**
+   * Sets the sampling frequency.
+   * @param samplingFrequency  the new value of the property, not null
+   */
+  public void setSamplingFrequency(SamplingFrequency samplingFrequency) {
+    JodaBeanUtils.notNull(samplingFrequency, "samplingFrequency");
+    this._samplingFrequency = samplingFrequency;
   }
-  public double getBarrierLevel () {
+
+  /**
+   * Gets the the {@code samplingFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<SamplingFrequency> samplingFrequency() {
+    return metaBean().samplingFrequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the barrier level.
+   * @return the value of the property, not null
+   */
+  public double getBarrierLevel() {
     return _barrierLevel;
   }
-  public void setBarrierLevel (double barrierLevel) {
-    _barrierLevel = barrierLevel;
+
+  /**
+   * Sets the barrier level.
+   * @param barrierLevel  the new value of the property, not null
+   */
+  public void setBarrierLevel(double barrierLevel) {
+    JodaBeanUtils.notNull(barrierLevel, "barrierLevel");
+    this._barrierLevel = barrierLevel;
   }
-  public boolean getIsLong () {
+
+  /**
+   * Gets the the {@code barrierLevel} property.
+   * @return the property, not null
+   */
+  public final Property<Double> barrierLevel() {
+    return metaBean().barrierLevel().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the expiry.
+   * @return the value of the property
+   */
+  public boolean getIsLong() {
     return _isLong;
   }
-  public void setIsLong (boolean isLong) {
-    _isLong = isLong;
+
+  /**
+   * Sets the expiry.
+   * @param isLong  the new value of the property
+   */
+  public void setIsLong(boolean isLong) {
+    this._isLong = isLong;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FXBarrierOptionSecurity)) return false;
-    FXBarrierOptionSecurity msg = (FXBarrierOptionSecurity)o;
-    if (_putCurrency != null) {
-      if (msg._putCurrency != null) {
-        if (!_putCurrency.equals (msg._putCurrency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._putCurrency != null) return false;
-    if (_callCurrency != null) {
-      if (msg._callCurrency != null) {
-        if (!_callCurrency.equals (msg._callCurrency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._callCurrency != null) return false;
-    if (_putAmount != msg._putAmount) return false;
-    if (_callAmount != msg._callAmount) return false;
-    if (_expiry != null) {
-      if (msg._expiry != null) {
-        if (!_expiry.equals (msg._expiry)) return false;
-      }
-      else return false;
-    }
-    else if (msg._expiry != null) return false;
-    if (_settlementDate != null) {
-      if (msg._settlementDate != null) {
-        if (!_settlementDate.equals (msg._settlementDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._settlementDate != null) return false;
-    if (_barrierType != null) {
-      if (msg._barrierType != null) {
-        if (!_barrierType.equals (msg._barrierType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._barrierType != null) return false;
-    if (_barrierDirection != null) {
-      if (msg._barrierDirection != null) {
-        if (!_barrierDirection.equals (msg._barrierDirection)) return false;
-      }
-      else return false;
-    }
-    else if (msg._barrierDirection != null) return false;
-    if (_monitoringType != null) {
-      if (msg._monitoringType != null) {
-        if (!_monitoringType.equals (msg._monitoringType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._monitoringType != null) return false;
-    if (_samplingFrequency != null) {
-      if (msg._samplingFrequency != null) {
-        if (!_samplingFrequency.equals (msg._samplingFrequency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._samplingFrequency != null) return false;
-    if (_barrierLevel != msg._barrierLevel) return false;
-    if (_isLong != msg._isLong) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code isLong} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> isLong() {
+    return metaBean().isLong().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_putCurrency != null) hc += _putCurrency.hashCode ();
-    hc *= 31;
-    if (_callCurrency != null) hc += _callCurrency.hashCode ();
-    hc = (hc * 31) + (int)_putAmount;
-    hc = (hc * 31) + (int)_callAmount;
-    hc *= 31;
-    if (_expiry != null) hc += _expiry.hashCode ();
-    hc *= 31;
-    if (_settlementDate != null) hc += _settlementDate.hashCode ();
-    hc *= 31;
-    if (_barrierType != null) hc += _barrierType.hashCode ();
-    hc *= 31;
-    if (_barrierDirection != null) hc += _barrierDirection.hashCode ();
-    hc *= 31;
-    if (_monitoringType != null) hc += _monitoringType.hashCode ();
-    hc *= 31;
-    if (_samplingFrequency != null) hc += _samplingFrequency.hashCode ();
-    hc = (hc * 31) + (int)_barrierLevel;
-    hc *= 31;
-    if (_isLong) hc++;
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FXBarrierOptionSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code putCurrency} property.
+     */
+    private final MetaProperty<Currency> _putCurrency = DirectMetaProperty.ofReadWrite(
+        this, "putCurrency", FXBarrierOptionSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code callCurrency} property.
+     */
+    private final MetaProperty<Currency> _callCurrency = DirectMetaProperty.ofReadWrite(
+        this, "callCurrency", FXBarrierOptionSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code putAmount} property.
+     */
+    private final MetaProperty<Double> _putAmount = DirectMetaProperty.ofReadWrite(
+        this, "putAmount", FXBarrierOptionSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code callAmount} property.
+     */
+    private final MetaProperty<Double> _callAmount = DirectMetaProperty.ofReadWrite(
+        this, "callAmount", FXBarrierOptionSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code expiry} property.
+     */
+    private final MetaProperty<Expiry> _expiry = DirectMetaProperty.ofReadWrite(
+        this, "expiry", FXBarrierOptionSecurity.class, Expiry.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", FXBarrierOptionSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code barrierType} property.
+     */
+    private final MetaProperty<BarrierType> _barrierType = DirectMetaProperty.ofReadWrite(
+        this, "barrierType", FXBarrierOptionSecurity.class, BarrierType.class);
+    /**
+     * The meta-property for the {@code barrierDirection} property.
+     */
+    private final MetaProperty<BarrierDirection> _barrierDirection = DirectMetaProperty.ofReadWrite(
+        this, "barrierDirection", FXBarrierOptionSecurity.class, BarrierDirection.class);
+    /**
+     * The meta-property for the {@code monitoringType} property.
+     */
+    private final MetaProperty<MonitoringType> _monitoringType = DirectMetaProperty.ofReadWrite(
+        this, "monitoringType", FXBarrierOptionSecurity.class, MonitoringType.class);
+    /**
+     * The meta-property for the {@code samplingFrequency} property.
+     */
+    private final MetaProperty<SamplingFrequency> _samplingFrequency = DirectMetaProperty.ofReadWrite(
+        this, "samplingFrequency", FXBarrierOptionSecurity.class, SamplingFrequency.class);
+    /**
+     * The meta-property for the {@code barrierLevel} property.
+     */
+    private final MetaProperty<Double> _barrierLevel = DirectMetaProperty.ofReadWrite(
+        this, "barrierLevel", FXBarrierOptionSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code isLong} property.
+     */
+    private final MetaProperty<Boolean> _isLong = DirectMetaProperty.ofReadWrite(
+        this, "isLong", FXBarrierOptionSecurity.class, Boolean.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "putCurrency",
+        "callCurrency",
+        "putAmount",
+        "callAmount",
+        "expiry",
+        "settlementDate",
+        "barrierType",
+        "barrierDirection",
+        "monitoringType",
+        "samplingFrequency",
+        "barrierLevel",
+        "isLong");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 516393024:  // putCurrency
+          return _putCurrency;
+        case 643534991:  // callCurrency
+          return _callCurrency;
+        case -984864697:  // putAmount
+          return _putAmount;
+        case 1066661974:  // callAmount
+          return _callAmount;
+        case -1289159373:  // expiry
+          return _expiry;
+        case -295948169:  // settlementDate
+          return _settlementDate;
+        case 1029043089:  // barrierType
+          return _barrierType;
+        case 502579592:  // barrierDirection
+          return _barrierDirection;
+        case -1483652190:  // monitoringType
+          return _monitoringType;
+        case 1178782005:  // samplingFrequency
+          return _samplingFrequency;
+        case 1827586573:  // barrierLevel
+          return _barrierLevel;
+        case -1180327226:  // isLong
+          return _isLong;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends FXBarrierOptionSecurity> builder() {
+      return new DirectBeanBuilder<FXBarrierOptionSecurity>(new FXBarrierOptionSecurity());
+    }
+
+    @Override
+    public Class<? extends FXBarrierOptionSecurity> beanType() {
+      return FXBarrierOptionSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code putCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> putCurrency() {
+      return _putCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code callCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> callCurrency() {
+      return _callCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code putAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> putAmount() {
+      return _putAmount;
+    }
+
+    /**
+     * The meta-property for the {@code callAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> callAmount() {
+      return _callAmount;
+    }
+
+    /**
+     * The meta-property for the {@code expiry} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Expiry> expiry() {
+      return _expiry;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> settlementDate() {
+      return _settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code barrierType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BarrierType> barrierType() {
+      return _barrierType;
+    }
+
+    /**
+     * The meta-property for the {@code barrierDirection} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BarrierDirection> barrierDirection() {
+      return _barrierDirection;
+    }
+
+    /**
+     * The meta-property for the {@code monitoringType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<MonitoringType> monitoringType() {
+      return _monitoringType;
+    }
+
+    /**
+     * The meta-property for the {@code samplingFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SamplingFrequency> samplingFrequency() {
+      return _samplingFrequency;
+    }
+
+    /**
+     * The meta-property for the {@code barrierLevel} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> barrierLevel() {
+      return _barrierLevel;
+    }
+
+    /**
+     * The meta-property for the {@code isLong} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> isLong() {
+      return _isLong;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File
