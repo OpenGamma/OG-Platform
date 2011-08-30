@@ -23,12 +23,22 @@ public final class BondFutureSecurityDiscountingMethod {
    */
   private static final BondSecurityDiscountingMethod BOND_METHOD = BondSecurityDiscountingMethod.getInstance();
 
+  /**
+   * Creates the method unique instance.
+   */
   private static final BondFutureSecurityDiscountingMethod INSTANCE = new BondFutureSecurityDiscountingMethod();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static BondFutureSecurityDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private BondFutureSecurityDiscountingMethod() {
   }
 
@@ -38,8 +48,8 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param curves The curves.
    * @return The future price.
    */
-  public double priceFromCurves(final BondFutureSecurity future, final YieldCurveBundle curves) {
-    return priceFromCurvesAndNetBasis(future, curves, 0.0);
+  public double price(final BondFutureSecurity future, final YieldCurveBundle curves) {
+    return priceNetBasis(future, curves, 0.0);
   }
 
   /**
@@ -49,7 +59,7 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param netBasis The net basis associated to the future.
    * @return The future price.
    */
-  public double priceFromCurvesAndNetBasis(final BondFutureSecurity future, final YieldCurveBundle curves, final double netBasis) {
+  public double priceNetBasis(final BondFutureSecurity future, final YieldCurveBundle curves, final double netBasis) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final double[] priceFromBond = new double[future.getDeliveryBasket().length];

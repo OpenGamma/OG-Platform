@@ -122,11 +122,13 @@ public final class ScheduleCalculator {
 
     // TODO what if there's no valid date between accrual date and maturity date?
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    int nbPeriod = 1; // M 26-Aug
     ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
     date = date.plus(period);
     while (isWithinSwapLifetime(date, maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
       dates.add(date);
-      date = date.plus(period);
+      nbPeriod++; // M 26-Aug
+      date = effectiveDate.plus(period.multipliedBy(nbPeriod)); // M 26-Aug date = date.plus(period);
     }
     return dates.toArray(EMPTY_ARRAY);
   }

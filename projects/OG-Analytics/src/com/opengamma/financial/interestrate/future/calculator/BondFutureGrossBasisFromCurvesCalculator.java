@@ -29,7 +29,7 @@ public final class BondFutureGrossBasisFromCurvesCalculator extends AbstractInte
   @Override
   public double[] visitBondFutureSecurity(final BondFutureSecurity bondFuture, final YieldCurveBundle curves) {
     Validate.notNull(bondFuture, "bond future");
-    final double futurePrice = CALCULATOR.priceFromCurves(bondFuture, curves);
+    final double futurePrice = CALCULATOR.price(bondFuture, curves);
     return CALCULATOR.grossBasisFromCurves(bondFuture, curves, futurePrice);
   }
 }

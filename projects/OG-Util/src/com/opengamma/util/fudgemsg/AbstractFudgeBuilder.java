@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.fudgemsg;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
@@ -16,7 +17,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
 public abstract class AbstractFudgeBuilder {
 
   /**
-   * Adds an object to the specified message if non-null
+   * Adds an object to the specified message if non-null.
    * 
    * @param msg  the msg to populate, not null
    * @param fieldName  the field name, may be null
@@ -35,7 +36,30 @@ public abstract class AbstractFudgeBuilder {
   }
 
   /**
-   * Adds an object to the specified message if non-null
+   * Adds an object to the specified message if non-null.
+   * This handles object hierarchies.
+   * 
+   * @param <T> the declared type
+   * @param serializer  the serializer, not null
+   * @param msg  the msg to populate, not null
+   * @param fieldName  the field name, may be null
+   * @param value  the value, null ignored
+   * @param declaredType  the declared Java type of the field, not null
+   */
+  protected static <T> void addToMessage(final FudgeSerializer serializer, final MutableFudgeMsg msg, final String fieldName, final T value, final Class<T> declaredType) {
+    if (value != null) {
+      MutableFudgeMsg subMsg = serializer.newMessage();
+      FudgeSerializer.addClassHeader(subMsg, value.getClass(), declaredType);
+      FudgeMsg builtMsg = serializer.objectToFudgeMsg(value);
+      for (FudgeField field : builtMsg) {
+        subMsg.add(field);
+      }
+      msg.add(fieldName, null, subMsg);
+    }
+  }
+
+  /**
+   * Adds an object to the specified message if non-null.
    * 
    * @param <T> the declared type
    * @param msg  the msg to populate, not null
