@@ -182,14 +182,14 @@ $.register_module({
                                         if (!data.instrument) return;
                                         var scheme_id = data[INST].split('~');
                                         $popup.find('.og-js-scheme').val(scheme_id[0]);
-                                        $popup.find('.og-js-identifier').val(scheme_id[1]).focus();
+                                        $popup.find('.og-js-identifier').val(scheme_id[1]).focus().select();
                                     },
                                     'future': function () {
                                         $popup.find('.og-js-prefix').val(data[PRFX]);
-                                        $popup.find('.og-js-market-sector').val(data[MKTS]).focus();
+                                        $popup.find('.og-js-market-sector').val(data[MKTS]).focus().select();
                                     },
                                     'synthetic': function () {
-                                        $popup.find('.og-js-currency').val(data[CURR]).focus();
+                                        $popup.find('.og-js-currency').val(data[CURR]).focus().select();
                                     }
                                 })[data_type]();
                             }}
