@@ -296,14 +296,15 @@ public class BLAS2 {
     for (int i = 0; i < rows; i++) {
       y[i] = 0;
       idx = i * cols;
+      alphaTmp = 0;
       for (int j = 0; j < ub; j += 4) {
         ptr = idx + j;
-        alphaTmp = ptrA[ptr]     * aVector[j]
+        alphaTmp += ptrA[ptr]     * aVector[j]
                  + ptrA[ptr + 1] * aVector[j + 1]
                  + ptrA[ptr + 2] * aVector[j + 2]
                  + ptrA[ptr + 3] * aVector[j + 3];
-        y[i] += alphaTmp * alpha;
       }
+      y[i] = alphaTmp * alpha;
       for (int j = extra; j < cols; j++) {
         y[i] += alpha * ptrA[idx + j] * aVector[j];
       }
@@ -318,14 +319,15 @@ public class BLAS2 {
     for (int i = 0; i < rows; i++) {
       idx = i * cols;
       y[i] = beta * y[i];
+      alphaTmp = 0.;
       for (int j = 0; j < ub; j += 4) {
         ptr = idx + j;
-        alphaTmp = ptrA[ptr]     * aVector[j]
+        alphaTmp += ptrA[ptr]     * aVector[j]
                  + ptrA[ptr + 1] * aVector[j + 1]
                  + ptrA[ptr + 2] * aVector[j + 2]
                  + ptrA[ptr + 3] * aVector[j + 3];
-        y[i] += alphaTmp * alpha;
       }
+      y[i] += alphaTmp * alpha;
       for (int j = extra; j < cols; j++) {
         y[i] += alpha * ptrA[idx + j] * aVector[j];
       }
