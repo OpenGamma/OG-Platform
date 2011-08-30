@@ -57,7 +57,7 @@ public final class PriceFromCurvesDiscountingCalculator extends AbstractInterest
   public Double visitBondFutureSecurity(final BondFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(future);
-    return METHOD_BOND_FUTURE.priceFromCurves(future, curves);
+    return METHOD_BOND_FUTURE.price(future, curves);
   }
 
 }
