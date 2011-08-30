@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.language.function;
+package com.opengamma.language.procedure;
 
 import java.util.List;
 
@@ -13,17 +13,17 @@ import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 
 /**
- * Invokes a function on behalf of a client.
+ * Invokes a procedure on behalf of a client.
  */
-public interface FunctionInvoker {
+public interface ProcedureInvoker {
 
   /**
-   * Invokes the function to produce a result message.
+   * Invokes the procedure.
    * 
    * @param sessionContext the client session context, not null
    * @param parameters parameters as received from the client, may be null or empty
    * @throws AsynchronousExecution if the operation is deferred
-   * @return the result message containing the function result, or containing any error information for the user 
+   * @return the result message containing any result produced by the procedure 
    */
   Result invoke(SessionContext sessionContext, List<Data> parameters) throws AsynchronousExecution;
 

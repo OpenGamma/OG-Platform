@@ -5,27 +5,46 @@
  */
 package com.opengamma.language.view;
 
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Uniquely identifies a {@link ViewClient} within the user's context. The key comprises the
  * view name, execution options and whether to use a shared or private process. These are
  * the connection parameters for attaching the identified client to the process.
  * <p>
+ * An optional name can be specified to allow different clients to be distinguished, e.g. so that
+ * different properties can be set on each.
+ * <p>
  * The view name and execution options are encoded as a {@link ViewClientDescriptor} string.
  */
 public final class ViewClientKey {
-  // TODO: this is only public while OG-Excel references it
+
+  private static final String DEFAULT_CLIENT_NAME = "Default";
 
   private final String _clientDescriptorString;
   private final boolean _useSharedProcess;
+  private final String _clientName;
   private volatile ViewClientDescriptor _clientDescriptor;
 
   public ViewClientKey(final String clientDescriptor, final boolean useSharedProcess) {
+    this(clientDescriptor, useSharedProcess, DEFAULT_CLIENT_NAME);
+  }
+
+  public ViewClientKey(final String clientDescriptor, final boolean useSharedProcess, final String clientName) {
+    ArgumentChecker.notNull(clientDescriptor, "clientDescriptor");
+    ArgumentChecker.notNull(clientName, "clientName");
     _clientDescriptorString = clientDescriptor;
     _useSharedProcess = useSharedProcess;
+    _clientName = clientName;
   }
 
   public ViewClientKey(final ViewClientDescriptor clientDescriptor, final boolean useSharedProcess) {
-    this(clientDescriptor.encode(), useSharedProcess);
+    this(clientDescriptor.encode(), useSharedProcess, DEFAULT_CLIENT_NAME);
+  }
+
+  public ViewClientKey(final ViewClientDescriptor clientDescriptor, final boolean useSharedProcess, final String clientName) {
+    this(clientDescriptor.encode(), useSharedProcess, clientName);
     _clientDescriptor = clientDescriptor;
   }
 
@@ -44,13 +63,17 @@ public final class ViewClientKey {
     return _clientDescriptor;
   }
 
+  public String getClientName() {
+    return _clientName;
+  }
+
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _clientDescriptor.hashCode();
-    result = prime * result + (_useSharedProcess ? 1231 : 1237);
-    return result;
+    int hc = 1;
+    hc += (hc << 4) + _clientDescriptorString.hashCode();
+    hc += (hc << 4) + (_useSharedProcess ? 1 : 0);
+    hc += (hc << 4) + _clientName.hashCode();
+    return hc;
   }
 
   @Override
@@ -71,7 +94,7 @@ public final class ViewClientKey {
     if (_useSharedProcess != other._useSharedProcess) {
       return false;
     }
-    return true;
+    return _clientName.equals(other._clientName);
   }
 
   @Override

@@ -6,6 +6,7 @@
 
 package com.opengamma.language.procedure;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Procedure;
 
 /**
@@ -27,17 +28,22 @@ public class ProcedureAdapter<T1, T2> implements ProcedureVisitor<T1, T2> {
   }
 
   @Override
-  public T1 visitCustom(final Custom message, final T2 data) {
+  public T1 visitCustom(final Custom message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitCustom(message, data);
   }
 
   @Override
-  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) {
+  public T1 visitInvoke(final Invoke message, final T2 data) throws AsynchronousExecution {
+    return getUnderlying().visitInvoke(message, data);
+  }
+
+  @Override
+  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitQueryAvailable(message, data);
   }
 
   @Override
-  public T1 visitUnexpected(final Procedure message, final T2 data) {
+  public T1 visitUnexpected(final Procedure message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitUnexpected(message, data);
   }
 

@@ -24,7 +24,6 @@ import com.opengamma.id.UniqueId;
  * Converts the view name and execution options to/from a string that describes them both.
  */
 public final class ViewClientDescriptor {
-  // TODO: this is only public because OG-Excel references it
 
   /**
    * Type of descriptor; which of the factory methods created it. 
