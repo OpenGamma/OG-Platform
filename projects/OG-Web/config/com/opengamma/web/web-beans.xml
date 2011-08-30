@@ -40,11 +40,8 @@
     <property name="executorService" ref="scheduler" />
   </bean>
   <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
+    <constructor-arg ref="demoAvailableOutputsProvider" />
     <constructor-arg ref="fudgeContext" />
-    <constructor-arg ref="demoFunctionCompilation" />
-    <constructor-arg ref="combinedPositionSource" />
-    <constructor-arg ref="combinedSecuritySource" />
-    <property name="wildcardIndicator" value="*" />
   </bean>
   
    <!-- Snapshotter  service -->

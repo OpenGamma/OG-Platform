@@ -11,37 +11,38 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value and its sensitivities for an bond future with discounting (using the cheapest-to-deliver). 
  * The delivery option is not taken into account.
  */
-public final class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+public final class BondFutureTransactionHullWhiteMethod extends BondFutureTransactionMethod {
 
   /**
    * Creates the method unique instance.
    */
-  private static final BondFutureTransactionDiscountingMethod INSTANCE = new BondFutureTransactionDiscountingMethod();
+  private static final BondFutureTransactionHullWhiteMethod INSTANCE = new BondFutureTransactionHullWhiteMethod();
 
   /**
    * Return the method unique instance.
    * @return The instance.
    */
-  public static BondFutureTransactionDiscountingMethod getInstance() {
+  public static BondFutureTransactionHullWhiteMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private BondFutureTransactionDiscountingMethod() {
+  private BondFutureTransactionHullWhiteMethod() {
   }
 
   /**
    * The bond future security method.
    */
-  private static final BondFutureSecurityDiscountingMethod METHOD_SECURITY = BondFutureSecurityDiscountingMethod.getInstance();
+  private static final BondFutureSecurityHullWhiteMethod METHOD_SECURITY = BondFutureSecurityHullWhiteMethod.getInstance();
 
   /**
    * Computes the present value of future from the curves using the cheapest-to-deliver and computing the value as a forward.
@@ -49,7 +50,7 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
    * @param curves The yield curves. Should contain the credit and repo curves associated to the instrument.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final BondFutureTransaction future, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final BondFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     final double futurePrice = METHOD_SECURITY.price(future.getUnderlyingFuture(), curves);
     final double pv = presentValueFromPrice(future, futurePrice);
@@ -59,7 +60,8 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
   @Override
   public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof BondFutureTransaction, "Bond future transaction");
-    return presentValue((BondFutureTransaction) instrument, curves);
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    return presentValue((BondFutureTransaction) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
   /**
@@ -68,7 +70,7 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
    * @param curves The yield curves. Should contain the credit and repo curves associated. 
    * @return The present value rate sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondFutureTransaction future, final YieldCurveBundle curves) {
+  public PresentValueSensitivity presentValueCurveSensitivity(final BondFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     final PresentValueSensitivity priceSensitivity = METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
     final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity() * future.getUnderlyingFuture().getNotional());
