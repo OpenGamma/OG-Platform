@@ -76,7 +76,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /**
    * The bundle hint cache.
    */
-  private Cache _bundleHintCache;
+  private final Cache _bundleHintCache;
   /**
    * Listens for changes in the underlying security source.
    */

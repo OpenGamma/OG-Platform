@@ -1,0 +1,37 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.util.fudgemsg;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryAccuracy;
+
+/**
+ * Test Fudge encoding.
+ */
+@Test
+public class ExpiryFudgeEncodingTest extends AbstractBuilderTestCase {
+
+  public void test_accuracyHour() {
+    Expiry object = new Expiry(ZonedDateTime.now(), ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
+    assertEncodeDecodeCycle(Expiry.class, object);
+  }
+
+  public void test_accuracyDay() {
+    Expiry object = new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR);
+    assertEncodeDecodeCycle(Expiry.class, object);
+  }
+
+  public void test_accuracyYear() {
+    Expiry object = new Expiry(ZonedDateTime.now(), ExpiryAccuracy.YEAR);
+    assertEncodeDecodeCycle(Expiry.class, object);
+  }
+
+}

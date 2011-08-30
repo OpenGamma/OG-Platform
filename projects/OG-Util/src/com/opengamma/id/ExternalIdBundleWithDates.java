@@ -16,14 +16,14 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.ExternalIdBundleWithDatesBuilder;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -47,10 +47,6 @@ public final class ExternalIdBundleWithDates
    * Singleton empty bundle.
    */
   public static final ExternalIdBundleWithDates EMPTY = new ExternalIdBundleWithDates();
-  /**
-   * Fudge message key for the identifier set.
-   */
-  public static final String ID_FUDGE_FIELD_NAME = "ID";
 
   /**
    * The set of identifiers.
@@ -70,6 +66,17 @@ public final class ExternalIdBundleWithDates
   public static ExternalIdBundleWithDates of(ExternalIdWithDates... externalIds) {
     ArgumentChecker.notNull(externalIds, "identifiers");
     return new ExternalIdBundleWithDates(externalIds);
+  }
+
+  /**
+   * Obtains an {@code ExternalIdBundleWithDates} from an iterable of identifiers.
+   * 
+   * @param externalIds the iterable of external identifiers, not null
+   * @return the identifier bundle with dates set to null, not null
+   */
+  public static ExternalIdBundleWithDates of(Iterable<ExternalIdWithDates> externalIds) {
+    ArgumentChecker.notNull(externalIds, "externalIds");
+    return create(externalIds);
   }
 
   /**
@@ -360,47 +367,30 @@ public final class ExternalIdBundleWithDates
 
   //-------------------------------------------------------------------------
   /**
-   * Serializes to a Fudge message.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @param msg  the message to serialize into, not null
-   * @return the serialized message
+   * @param serializer  the serializer, not null
+   * @param msg  the message to populate, not null
+   * @deprecated Use builder
    */
-  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
-    ArgumentChecker.notNull(factory, "factory");
-    ArgumentChecker.notNull(msg, "msg");
-    for (ExternalIdWithDates identifier : getExternalIds()) {
-      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(factory));
-    }
-    return msg;
+  @Deprecated
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
+    ExternalIdBundleWithDatesBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
-   * Serializes to a Fudge message.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @return the serialized Fudge message, not null
+   * @param deserializer  the deserializer, not null
+   * @param msg  the message to decode, not null
+   * @return the created object, not null
+   * @deprecated Use builder
    */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    return toFudgeMsg(factory, factory.newMessage());
-  }
-
-  /**
-   * Deserializes from a Fudge message.
-   * 
-   * @param fudgeContext  the Fudge context, not null
-   * @param msg  the Fudge message, not null
-   * @return the bundle, not null
-   */
-  public static ExternalIdBundleWithDates fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
-    Set<ExternalIdWithDates> ids = new HashSet<ExternalIdWithDates>();
-    for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
-      if (field.getValue() instanceof FudgeMsg == false) {
-        throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
-      }
-      ids.add(ExternalIdWithDates.fromFudgeMsg(fudgeContext, (FudgeMsg) field.getValue()));
-    }
-    return create(ids);
+  @Deprecated
+  public static ExternalIdBundleWithDates fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return ExternalIdBundleWithDatesBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

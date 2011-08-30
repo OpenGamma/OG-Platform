@@ -10,12 +10,13 @@ import java.io.Serializable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -50,15 +51,6 @@ public final class ExternalId
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Fudge message key for the scheme.
-   */
-  public static final String SCHEME_FUDGE_FIELD_NAME = "Scheme";
-  /**
-   * Fudge message key for the value.
-   */
-  public static final String VALUE_FUDGE_FIELD_NAME = "Value";
 
   /**
    * The scheme that categorizes the identifier value.
@@ -254,59 +246,30 @@ public final class ExternalId
 
   //-------------------------------------------------------------------------
   /**
-   * Serializes to a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * external identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @param msg  the message to serialize into, not null
-   * @return the serialized message
+   * @param serializer  the serializer, not null
+   * @param msg  the message to populate, not null
+   * @deprecated Use builder
    */
-  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
-    ArgumentChecker.notNull(factory, "factory");
-    ArgumentChecker.notNull(msg, "msg");
-    msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme.getName());
-    msg.add(VALUE_FUDGE_FIELD_NAME, _value);
-    return msg;
+  @Deprecated
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
+    ExternalIdBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
-   * Serializes to a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @return the serialized Fudge message, not null
+   * @param deserializer  the deserializer, not null
+   * @param msg  the message to decode, not null
+   * @return the created object, not null
+   * @deprecated Use builder
    */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    return toFudgeMsg(factory, factory.newMessage());
-  }
-
-  /**
-   * Deserializes from a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
-   * 
-   * @param msg  the Fudge message, not null
-   * @return the external identifier, not null
-   */
-  public static ExternalId fromFudgeMsg(FudgeMsg msg) {
-    String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
-    String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
-    return ExternalId.of(scheme, value);
-  }
-
-  /**
-   * Deserializes from a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
-   * 
-   * @param fudgeContext  the Fudge context, not null
-   * @param msg  the Fudge message, not null
-   * @return the external identifier, not null
-   */
-  public static ExternalId fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
-    return fromFudgeMsg(msg);
+  @Deprecated
+  public static ExternalId fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return ExternalIdBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }
