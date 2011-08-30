@@ -32,9 +32,11 @@ public class LiveResultsService implements ViewportFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
 
   private final Map<String, WebView> _clientViews = new HashMap<String, WebView>();
+  private final Map<String, String> _clientIdToViewportKey = new HashMap<String, String>();
   private final ViewProcessor _viewProcessor;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
+  private final Object _lock = new Object();
 
   public LiveResultsService(ViewProcessor viewProcessor, UserPrincipal user, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
@@ -48,9 +50,12 @@ public class LiveResultsService implements ViewportFactory {
   // TODO this needs to be called from the update manager when the client disconnects
   public void clientDisconnected(String clientId) {
     s_logger.debug("Client " + clientId + " disconnected");
-    WebView view;
-    synchronized (_clientViews) {
-      view = _clientViews.remove(clientId);
+    WebView view = null;
+    synchronized (_lock) {
+      String viewportKey = _clientIdToViewportKey.remove(clientId);
+      if (viewportKey != null) {
+        view = _clientViews.remove(clientId);
+      }
     }
     if (view != null) {
       view.shutdown();
@@ -60,7 +65,7 @@ public class LiveResultsService implements ViewportFactory {
   // used by the REST interface that gets analytics as CSV - will that be moved here?
   // TODO might be better to pass the call through rather than returning the WebView and calling that
   public WebView getClientView(String clientId) {
-    synchronized (_clientViews) {
+    synchronized (_lock) {
       return _clientViews.get(clientId);
     }
   }
@@ -69,8 +74,12 @@ public class LiveResultsService implements ViewportFactory {
   public Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
     UniqueId snapshotId = viewportDefinition.getSnapshotId();
     String viewDefinitionName = viewportDefinition.getViewDefinitionName();
-    synchronized (_clientViews) {
-      WebView webView = _clientViews.get(clientId);
+    synchronized (_lock) {
+      String currentKey = _clientIdToViewportKey.remove(clientId);
+      WebView webView = null;
+      if (currentKey != null) {
+        webView = _clientViews.get(currentKey);
+      }
       // TODO is this relevant any more?
       if (webView != null) {
         if (webView.matches(viewDefinitionName, snapshotId)) {
@@ -81,7 +90,7 @@ public class LiveResultsService implements ViewportFactory {
         }
         // Existing view is different - client is switching views
         webView.shutdown();
-        _clientViews.remove(clientId);
+        _clientViews.remove(viewportKey);
       }
       ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
@@ -91,19 +100,17 @@ public class LiveResultsService implements ViewportFactory {
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
       }
       _clientViews.put(clientId, webView);
+      _clientIdToViewportKey.put(clientId, viewportKey);
       return webView;
     }
   }
 
   @Override
-  public Viewport getViewport(String clientId, String viewportKey) {
-    synchronized (_clientViews) {
-      WebView view = _clientViews.get(clientId);
+  public Viewport getViewport(String viewportKey) {
+    synchronized (_lock) {
+      WebView view = _clientViews.get(viewportKey);
       if (view == null) {
-        throw new DataNotFoundException("Unable to find viewport for client ID: " + clientId);
-      }
-      if (!view.getViewportKey().equals(viewportKey)) {
-        throw new DataNotFoundException("Viewport key " + viewportKey + " doesn't match the key for the client " + clientId);
+        throw new DataNotFoundException("Unable to find viewport for key: " + viewportKey);
       }
       return view;
     }

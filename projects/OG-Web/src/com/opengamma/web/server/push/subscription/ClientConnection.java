@@ -53,6 +53,7 @@ public class ClientConnection implements ChangeListener {
 
   public void disconnect() {
     _entityUrls.clear();
+    _viewportFactory.clientDisconnected(_clientId);
   }
 
   public void subscribe(UniqueId uid, String url) {
@@ -69,7 +70,7 @@ public class ClientConnection implements ChangeListener {
   }
 
   public Viewport getViewport(String viewportUrl) {
-    return _viewportFactory.getViewport(_clientId, viewportUrl);
+    return _viewportFactory.getViewport(viewportUrl);
   }
 }
 

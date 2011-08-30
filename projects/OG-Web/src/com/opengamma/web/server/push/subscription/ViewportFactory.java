@@ -13,5 +13,8 @@ public interface ViewportFactory {
 
   Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener);
 
-  Viewport getViewport(String clientId, String viewportKey);
+  // TODO does this really belong here?
+  Viewport getViewport(String viewportKey);
+
+  void clientDisconnected(String clientId);
 }

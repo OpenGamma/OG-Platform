@@ -61,7 +61,6 @@ public class WebView implements Viewport {
   private Map<String,Object> _gridStructures;
   private boolean _initialized = false;
   private boolean _sendAnalyticsUpdates = false;
-  private String _viewportKey;
 
   public WebView(ViewClient viewClient,
                  String viewDefinitionName,
@@ -190,10 +189,6 @@ public class WebView implements Viewport {
     return null;
   }
 
-  public String getViewportKey() {
-    return _viewportKey;
-  }
-
   /**
    *
    */
@@ -201,7 +196,6 @@ public class WebView implements Viewport {
                                            AnalyticsListener listener,
                                            String viewportKey) {
     synchronized (_lock) {
-      _viewportKey = viewportKey;
       _viewportDefinition = viewportDefinition;
       _listener = listener;
       configureGridViewports();
