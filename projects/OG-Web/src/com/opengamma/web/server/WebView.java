@@ -60,6 +60,8 @@ public class WebView implements Viewport {
   private AnalyticsListener _listener;
   private Map<String,Object> _gridStructures;
   private boolean _initialized = false;
+  private boolean _sendAnalyticsUpdates = false;
+  private String _viewportKey;
 
   public WebView(ViewClient viewClient,
                  String viewDefinitionName,
@@ -157,11 +159,15 @@ public class WebView implements Viewport {
   }
   
   public String getViewDefinitionName() {
-    return _viewDefinitionName;
+    synchronized (_lock) {
+      return _viewDefinitionName;
+    }
   }
 
   /* package */ boolean matches(String viewDefinitionName, UniqueId snapshotId) {
-    return _viewDefinitionName.equals(viewDefinitionName) && ObjectUtils.equals(_snapshotId, snapshotId);
+    synchronized (_lock) {
+      return _viewDefinitionName.equals(viewDefinitionName) && ObjectUtils.equals(_snapshotId, snapshotId);
+    }
   }
 
   private WebViewGrid getGridByName(String name) {
@@ -184,11 +190,18 @@ public class WebView implements Viewport {
     return null;
   }
 
+  public String getViewportKey() {
+    return _viewportKey;
+  }
+
   /**
    *
    */
-  /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+  /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition,
+                                           AnalyticsListener listener,
+                                           String viewportKey) {
     synchronized (_lock) {
+      _viewportKey = viewportKey;
       _viewportDefinition = viewportDefinition;
       _listener = listener;
       configureGridViewports();
@@ -243,7 +256,10 @@ public class WebView implements Viewport {
       _latestResults.clear();
       _latestResults.put("portfolio", portfolioResult);
       _latestResults.put("primitive", primitiveResult);
-      _listener.dataChanged();
+      if (_sendAnalyticsUpdates) {
+        _sendAnalyticsUpdates = false;
+        _listener.dataChanged();
+      }
     }
   }
 
@@ -294,7 +310,7 @@ public class WebView implements Viewport {
   @Override
   public Map<String, Object> getLatestResults() {
     synchronized (_lock) {
-      _listener.activate();
+      _sendAnalyticsUpdates = true;
       return _latestResults;
     }
   }
@@ -307,10 +323,5 @@ public class WebView implements Viewport {
   @Override
   public void setConversionMode(ConversionMode mode) {
     throw new UnsupportedOperationException("setConversionMode not implemented");
-  }
-
-  @Override
-  public void close() {
-    throw new UnsupportedOperationException("close not implemented");
   }
 }

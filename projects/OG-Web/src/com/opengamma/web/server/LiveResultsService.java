@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -65,7 +66,7 @@ public class LiveResultsService implements ViewportFactory {
   }
 
   @Override
-  public Viewport createViewport(String clientId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+  public Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
     UniqueId snapshotId = viewportDefinition.getSnapshotId();
     String viewDefinitionName = viewportDefinition.getViewDefinitionName();
     synchronized (_clientViews) {
@@ -76,7 +77,7 @@ public class LiveResultsService implements ViewportFactory {
           // Already initialized
           // this used to deliver the grid structure to the client
           // TODO is there any possibility the WebView won't have a compiled view def at this point?
-          return webView.configureViewport(viewportDefinition, listener);
+          return webView.configureViewport(viewportDefinition, listener, viewportKey);
         }
         // Existing view is different - client is switching views
         webView.shutdown();
@@ -91,6 +92,20 @@ public class LiveResultsService implements ViewportFactory {
       }
       _clientViews.put(clientId, webView);
       return webView;
+    }
+  }
+
+  @Override
+  public Viewport getViewport(String clientId, String viewportKey) {
+    synchronized (_clientViews) {
+      WebView view = _clientViews.get(clientId);
+      if (view == null) {
+        throw new DataNotFoundException("Unable to find viewport for client ID: " + clientId);
+      }
+      if (!view.getViewportKey().equals(viewportKey)) {
+        throw new DataNotFoundException("Viewport key " + viewportKey + " doesn't match the key for the client " + clientId);
+      }
+      return view;
     }
   }
 

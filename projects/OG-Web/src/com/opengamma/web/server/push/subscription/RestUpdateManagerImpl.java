@@ -39,11 +39,12 @@ import java.util.concurrent.atomic.AtomicLong;
   private final long _timeoutCheckPeriod;
   private final Object _lock = new Object();
 
-  // TODO what map impl? concurrent? or handle concurrency somewhere else?
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connectionsByClientId = new HashMap<String, ClientConnection>();
   // TODO how can this be cleaned? this class has no idea when the viewport changes. hmm.
   private final Map<String, ClientConnection> _connectionsByViewportUrl = new HashMap<String, ClientConnection>();
+  // TODO what map impl? concurrent? or handle concurrency somewhere else?
+  private final Map<String, String> _clientIdsToViewportUrls = new HashMap<String, String>();
   // TODO concurrent?
   private final Map<String, ConnectionTimeoutTask> _timeoutTasks = new HashMap<String, ConnectionTimeoutTask>();
   private final Timer _timer = new Timer();
@@ -81,10 +82,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public void closeConnection(String userId, String clientId) {
+    ClientConnection connection;
     synchronized (_lock) {
-      ClientConnection connection = getConnectionByClientId(userId, clientId);
+      connection = getConnectionByClientId(userId, clientId);
       _connectionsByClientId.remove(clientId);
-      _connectionsByViewportUrl.remove(connection.getViewportUrl());
+      String viewportUrl = _clientIdsToViewportUrls.remove(clientId);
+      if (viewportUrl != null) {
+        _connectionsByViewportUrl.remove(viewportUrl);
+      }
       _timeoutTasks.remove(clientId);
       _changeManager.removeChangeListener(connection);
       connection.disconnect();
@@ -119,6 +124,7 @@ import java.util.concurrent.atomic.AtomicLong;
       // a view client which might be slow and is locking this class for all clients.
       connection.createViewport(viewportDefinition, viewportUrl, dataUrl, gridUrl);
       _connectionsByViewportUrl.put(viewportUrl, connection);
+      _clientIdsToViewportUrls.put(clientId, viewportUrl);
     }
   }
 

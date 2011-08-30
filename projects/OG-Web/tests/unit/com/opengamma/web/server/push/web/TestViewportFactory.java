@@ -22,9 +22,18 @@ public class TestViewportFactory implements ViewportFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(TestViewportFactory.class);
   private static final Object[][] s_dummyData = {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}};
 
+
   @Override
-  public Viewport createViewport(String clientId, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+  public Viewport createViewport(String clientId,
+                                 String viewportKey,
+                                 ViewportDefinition viewportDefinition,
+                                 AnalyticsListener listener) {
     return new TestViewport(viewportDefinition);
+  }
+
+  @Override
+  public Viewport getViewport(String clientId, String viewportKey) {
+    throw new UnsupportedOperationException("getViewport not implemented");
   }
 
   private static class TestViewport implements Viewport {
@@ -58,11 +67,6 @@ public class TestViewportFactory implements ViewportFactory {
     @Override
     public void setConversionMode(ConversionMode mode) {
       s_logger.info("setConversionMode(), mode: {}", mode);
-    }
-
-    @Override
-    public void close() {
-      throw new UnsupportedOperationException("close not implemented");
     }
   }
 }

@@ -24,6 +24,4 @@ public interface Viewport {
   void setRunning(boolean run);
 
   void setConversionMode(ConversionMode mode);
-
-  void close();
 }
