@@ -95,11 +95,14 @@ public class CoupledFokkerPlankExample {
         final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
 
-        FileOutputStream state_1_density_file = new FileOutputStream("artifacts/dexy--state-1-density.txt");
+        FileOutputStream state_1_density_file = new FileOutputStream("../dexy--state-1-density.txt");
         PrintStream out = new PrintStream(state_1_density_file, true);
         PDEUtilityTools.printSurface("State 1 density", res1, out);
         out.close();
 
-        PDEUtilityTools.printSurface("State 2 density", res2);
+        FileOutputStream state_2_density_file = new FileOutputStream("../dexy--state-2-density.txt");
+        PrintStream out2 = new PrintStream(state_2_density_file, true);
+        PDEUtilityTools.printSurface("State 2 density", res2, out2);
+        out2.close();
     }
 }
