@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -72,9 +72,9 @@ public class BondSecurityBuilder extends AbstractFudgeBuilder {
   /** Field name. */
   public static final String REDEMPTION_VALUE_KEY = "redemptionValue";
 
-  public static void buildMessage(FudgeSerializer serializer, BondSecurity object, final MutableFudgeMsg msg) {
-    FinancialSecurityBuilder.buildMessage(serializer, object, msg);
-    msg.add(ISSUER_NAME_KEY, object.getIssuerName());
+  public static void toFudgeMsg(FudgeSerializer serializer, BondSecurity object, final MutableFudgeMsg msg) {
+    FinancialSecurityBuilder.toFudgeMsg(serializer, object, msg);
+    addToMessage(msg, ISSUER_NAME_KEY, object.getIssuerName());
     addToMessage(msg, ISSUER_TYPE_KEY, object.getIssuerType());
     addToMessage(msg, ISSUER_DOMICILE_KEY, object.getIssuerDomicile());
     addToMessage(msg, MARKET_KEY, object.getMarket());
@@ -99,18 +99,18 @@ public class BondSecurityBuilder extends AbstractFudgeBuilder {
     addToMessage(msg, REDEMPTION_VALUE_KEY, object.getRedemptionValue());
   }
 
-  public static void buildObject(FudgeDeserializer deserializer, FudgeMsg msg, BondSecurity object) {
-    FinancialSecurityBuilder.buildObject(deserializer, msg, object);
-    object.setIssuerName(msg.getValue(String.class, ISSUER_NAME_KEY));
-    object.setIssuerType(msg.getValue(String.class, ISSUER_TYPE_KEY));
-    object.setIssuerDomicile(msg.getValue(String.class, ISSUER_DOMICILE_KEY));
-    object.setMarket(msg.getValue(String.class, MARKET_KEY));
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, BondSecurity object) {
+    FinancialSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
+    object.setIssuerName(msg.getString(ISSUER_NAME_KEY));
+    object.setIssuerType(msg.getString(ISSUER_TYPE_KEY));
+    object.setIssuerDomicile(msg.getString(ISSUER_DOMICILE_KEY));
+    object.setMarket(msg.getString(MARKET_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
     object.setYieldConvention(msg.getValue(YieldConvention.class, YIELD_CONVENTION_KEY));
-    object.setGuaranteeType(msg.getValue(String.class, GUARANTEE_TYPE_KEY));
+    object.setGuaranteeType(msg.getString(GUARANTEE_TYPE_KEY));
     object.setLastTradeDate(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_TRADE_DATE_KEY)));
-    object.setCouponType(msg.getValue(String.class, COUPON_TYPE_KEY));
-    object.setCouponRate(msg.getValue(Double.class, COUPON_RATE_KEY));
+    object.setCouponType(msg.getString(COUPON_TYPE_KEY));
+    object.setCouponRate(msg.getDouble(COUPON_RATE_KEY));
     object.setCouponFrequency(msg.getValue(Frequency.class, COUPON_FREQUENCY_KEY));
     object.setDayCountConvention(msg.getValue(DayCount.class, DAY_COUNT_CONVENTION_KEY));
     object.setBusinessDayConvention(msg.getValue(BusinessDayConvention.class, BUSINESS_DAY_CONVENTION_KEY));
@@ -118,12 +118,12 @@ public class BondSecurityBuilder extends AbstractFudgeBuilder {
     object.setInterestAccrualDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INTEREST_ACCRUAL_DATE_KEY)));
     object.setSettlementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
     object.setFirstCouponDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_COUPON_DATE_KEY)));
-    object.setIssuancePrice(msg.getValue(Double.class, ISSUANCE_PRICE_KEY));
-    object.setTotalAmountIssued(msg.getValue(Double.class, TOTAL_AMOUNT_ISSUED_KEY));
-    object.setMinimumAmount(msg.getValue(Double.class, MINIMUM_AMOUNT_KEY));
-    object.setMinimumIncrement(msg.getValue(Double.class, MINIMUM_INCREMENT_KEY));
-    object.setParAmount(msg.getValue(Double.class, PAR_AMOUNT_KEY));
-    object.setRedemptionValue(msg.getValue(Double.class, REDEMPTION_VALUE_KEY));
+    object.setIssuancePrice(msg.getDouble(ISSUANCE_PRICE_KEY));
+    object.setTotalAmountIssued(msg.getDouble(TOTAL_AMOUNT_ISSUED_KEY));
+    object.setMinimumAmount(msg.getDouble(MINIMUM_AMOUNT_KEY));
+    object.setMinimumIncrement(msg.getDouble(MINIMUM_INCREMENT_KEY));
+    object.setParAmount(msg.getDouble(PAR_AMOUNT_KEY));
+    object.setRedemptionValue(msg.getDouble(REDEMPTION_VALUE_KEY));
   }
 
 }
