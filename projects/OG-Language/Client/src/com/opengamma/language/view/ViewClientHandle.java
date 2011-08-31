@@ -101,6 +101,10 @@ public abstract class ViewClientHandle {
   protected UniqueId detachAndUnlock(final SessionContext target) {
     if (unlockAction() != null) {
       detach(target);
+      if (!getViewClient().decrementRefCount()) {
+        // This shouldn't happen (the detach operation should have incremented the count)
+        throw new IllegalStateException();
+      }
       return getViewClient().getUniqueId();
     } else {
       s_logger.error("Handle on {} already unlocked", getViewClient());

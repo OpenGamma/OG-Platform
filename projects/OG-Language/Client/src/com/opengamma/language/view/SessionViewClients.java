@@ -87,16 +87,15 @@ public class SessionViewClients extends ViewClients<UniqueId, SessionContext> {
       s_logger.debug("First detach {}", viewClient);
       detachCount = new AtomicInteger(1);
       _detachCount.put(viewClient.getUniqueId(), detachCount);
+      if (!viewClient.incrementRefCount()) {
+        // This shouldn't happen
+        throw new IllegalStateException();
+      }
       getClients().put(viewClient.getUniqueId(), viewClient);
     } else {
       s_logger.debug("Duplicate detach {} ({} previous times)", viewClient, detachCount);
       detachCount.incrementAndGet();
       assert getClients().get(viewClient.getUniqueId()) == viewClient;
-      // We already hold a single lock; unlock the extra lock held by the caller
-      if (!viewClient.decrementRefCount()) {
-        // This shouldn't happen
-        throw new IllegalStateException();
-      }
     }
   }
 
