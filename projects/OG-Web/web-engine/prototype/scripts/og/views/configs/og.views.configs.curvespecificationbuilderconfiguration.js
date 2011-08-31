@@ -217,7 +217,7 @@ $.register_module({
                     return '<div class="og-value og-js-cell" title="' + title + '">' + json + '<span>' + formatted +
                         '</span><span></span></div>';
                 }
-            })($('<input />').prop({type: 'hidden'}));
+            })($('<input type="hidden" />'));
             new_strip_item = function (val, idx) {
                 var key, extras = {tenor: val.tenor};
                 delete val.tenor;
