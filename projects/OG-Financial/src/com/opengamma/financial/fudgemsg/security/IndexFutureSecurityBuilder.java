@@ -39,7 +39,7 @@ public class IndexFutureSecurityBuilder extends AbstractFudgeBuilder implements 
 
   @Override
   public IndexFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    IndexFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(IndexFutureSecurity.class);
+    IndexFutureSecurity object = new IndexFutureSecurity();
     IndexFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

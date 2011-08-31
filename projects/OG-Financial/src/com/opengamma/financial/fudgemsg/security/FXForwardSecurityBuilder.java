@@ -46,7 +46,7 @@ public class FXForwardSecurityBuilder extends AbstractFudgeBuilder implements Fu
 
   @Override
   public FXForwardSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FXForwardSecurity object = FinancialSecurityBuilder.backdoorCreateClass(FXForwardSecurity.class);
+    FXForwardSecurity object = new FXForwardSecurity();
     FXForwardSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

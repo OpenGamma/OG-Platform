@@ -39,7 +39,7 @@ public class InterestRateFutureSecurityBuilder extends AbstractFudgeBuilder impl
 
   @Override
   public InterestRateFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    InterestRateFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(InterestRateFutureSecurity.class);
+    InterestRateFutureSecurity object = new InterestRateFutureSecurity();
     InterestRateFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

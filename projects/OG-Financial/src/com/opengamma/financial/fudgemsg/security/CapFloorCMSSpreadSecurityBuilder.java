@@ -73,7 +73,7 @@ public class CapFloorCMSSpreadSecurityBuilder extends AbstractFudgeBuilder imple
 
   @Override
   public CapFloorCMSSpreadSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    CapFloorCMSSpreadSecurity object = FinancialSecurityBuilder.backdoorCreateClass(CapFloorCMSSpreadSecurity.class);
+    CapFloorCMSSpreadSecurity object = new CapFloorCMSSpreadSecurity();
     CapFloorCMSSpreadSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

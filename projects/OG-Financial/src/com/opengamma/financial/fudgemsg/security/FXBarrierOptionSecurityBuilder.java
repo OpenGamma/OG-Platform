@@ -79,7 +79,7 @@ public class FXBarrierOptionSecurityBuilder extends AbstractFudgeBuilder impleme
 
   @Override
   public FXBarrierOptionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FXBarrierOptionSecurity object = FinancialSecurityBuilder.backdoorCreateClass(FXBarrierOptionSecurity.class);
+    FXBarrierOptionSecurity object = new FXBarrierOptionSecurity();
     FXBarrierOptionSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
