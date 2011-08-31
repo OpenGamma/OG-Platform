@@ -51,4 +51,16 @@ public interface MatrixPrimitiveInterface extends Matrix<Double> {
    */
   double[][] toArray();
 
+  /**
+   * Gets the number of rows in the matrix.
+   * @return the number of rows.
+   */
+  int getNumberOfRows();
+
+  /**
+   * Gets the number of rows in the matrix.
+   * @return the number of columns.
+   */
+  int getNumberOfColumns();
+
 }

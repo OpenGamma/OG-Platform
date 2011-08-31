@@ -32,6 +32,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   private int _els;
   private int _rows;
   private int _cols;
+  private int _maxEntriesInARow; // used to decide whether 16bit ints can be used as index later
 
   /* constructors */
 
@@ -48,19 +49,26 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     // tmp arrays, in case we get in a fully populated matrix, intelligent design upstream should ensure that this is overkill!
     double[] dataTmp = new double[_els];
     int[] colIndTmp = new int[_els];
-    int[] rowPtrTmp = new int[_els];
+    int[] rowPtrTmp = new int[_els + 1];
 
     // we need unwind the array m into coordinate form
+    int localmaxEntriesInARow;
+    _maxEntriesInARow = -1; // set max entries in a row negative, so that maximiser will work
     int ptr = 0;
     int i;
     for (i = 0; i < m.getNumberOfRows(); i++) {
       rowPtrTmp[i] = ptr;
+      localmaxEntriesInARow = 0;
       for (int j = 0; j < m.getNumberOfColumns(); j++) {
         if (Double.doubleToLongBits(m.getEntry(i, j)) != 0L) {
+          localmaxEntriesInARow++;
           colIndTmp[ptr] = j;
           dataTmp[ptr] = m.getEntry(i, j);
           ptr++;
         }
+      }
+      if (localmaxEntriesInARow > _maxEntriesInARow) { // is the number of entries on this row the largest?
+        _maxEntriesInARow = localmaxEntriesInARow;
       }
     }
     rowPtrTmp[i] = ptr;
@@ -80,15 +88,22 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   public CompressedSparseRowFormatMatrix(SparseCoordinateFormatMatrix m) {
     Validate.notNull(m);
     _els = m.getNumberOfElements();
-    int[] rowPtrTmp = new int[_els];
+    int[] rowPtrTmp = new int[_els > 1 ? _els : 2];
+    int localmaxEntriesInARow;
+    _maxEntriesInARow = -1; // set max entries in a row negative, so that maximiser will work
     int ptr = 0;
     int i;
     for (i = 0; i < m.getNumberOfRows(); i++) {
       rowPtrTmp[i] = ptr;
+      localmaxEntriesInARow = 0;
       for (int j = 0; j < m.getNumberOfColumns(); j++) {
         if (Double.doubleToLongBits(m.getEntry(i, j)) != 0L) {
+          localmaxEntriesInARow++;
           ptr++;
         }
+      }
+      if (localmaxEntriesInARow > _maxEntriesInARow) { // is the number of entries on this row the largest?
+        _maxEntriesInARow = localmaxEntriesInARow;
       }
     }
     rowPtrTmp[i] = ptr;
@@ -137,6 +152,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
    * Gets the number of rows in the matrix (is not equal to count(unique(rowPtr)) as matrix could be singular/have row of zeros))
    * @return _rows, the number of rows corresponding to a full matrix representation of the compressed matrix
    */
+  @Override
   public int getNumberOfRows() {
     return _rows;
   }
@@ -145,6 +161,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
    * Gets the number of columns in the matrix (is not equal to count(unique(colIdx)) as matrix could be singular/have column of zeros))
    * @return _cols, the number of columns corresponding to a full matrix representation of the compressed matrix
    */
+  @Override
   public int getNumberOfColumns() {
     return _cols;
   }
@@ -155,6 +172,14 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
   */
   public int getNumberOfNonzeroElements() {
     return _values.length;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getMaxNonZerosInSignificantDirection() {
+    return _maxEntriesInARow;
   }
 
 /**
@@ -300,6 +325,7 @@ public class CompressedSparseRowFormatMatrix extends SparseMatrixType {
     }
     return true;
   }
+
 
 }
 

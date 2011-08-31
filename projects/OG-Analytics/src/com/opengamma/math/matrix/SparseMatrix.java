@@ -241,6 +241,23 @@ public class SparseMatrix implements MatrixPrimitiveInterface {
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfRows() {
+    return _type.getNumberOfRows();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfColumns() {
+    return _type.getNumberOfColumns();
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public double[][] toArray() {
     return _type.toArray();
   }

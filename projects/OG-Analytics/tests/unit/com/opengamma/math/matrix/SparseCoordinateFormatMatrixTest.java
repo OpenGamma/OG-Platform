@@ -139,6 +139,12 @@ public class SparseCoordinateFormatMatrixTest {
    assertTrue(tmp.getNumberOfNonZeroElements() == 7);
  }
 
+ @Test
+ public void testGetMaxNonZerosInsignificantDirection() {
+   SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
+   assertEquals(2,tmp.getMaxNonZerosInSignificantDirection());
+ }
+
 
 //test sanity of equals and hashcode
  @Test

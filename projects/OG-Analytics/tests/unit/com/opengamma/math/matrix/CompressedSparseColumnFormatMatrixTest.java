@@ -146,10 +146,17 @@ public void testGetColumnElements() {
 }
 
 @Test
+public void testGetMaxNonZerosInsignificantDirection() {
+  CompressedSparseColumnFormatMatrix M = new CompressedSparseColumnFormatMatrix(data);
+  assertEquals(3,M.getMaxNonZerosInSignificantDirection());
+}
+
+@Test
 public void testToArray() {
   CompressedSparseColumnFormatMatrix M = new CompressedSparseColumnFormatMatrix(data);
   assertTrue(Arrays.deepEquals(data,M.toArray()));
 }
+
 
 @Test
 public void testToFullMatrix() {

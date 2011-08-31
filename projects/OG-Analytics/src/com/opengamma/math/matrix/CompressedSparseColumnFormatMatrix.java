@@ -31,6 +31,7 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
   private int _els;
   private int _rows;
   private int _cols;
+  private int _maxEntriesInAColumn;
 
   /* constructors */
 
@@ -46,20 +47,27 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
 
     // tmp arrays, in case we get in a fully populated matrix, intelligent design upstream should ensure that this is overkill!
     double[] dataTmp = new double[_els];
-    int[] colPtrTmp = new int[_els];
+    int[] colPtrTmp = new int[_els + 1];
     int[] rowIdxTmp = new int[_els];
 
     // we need unwind the array m into coordinate form
     int ptr = 0;
     int i;
+    int localMaxEntrisInACol;
+    _maxEntriesInAColumn = -1;
     for (i = 0; i < m.getNumberOfColumns(); i++) {
       colPtrTmp[i] = ptr;
+      localMaxEntrisInACol = 0;
       for (int j = 0; j < m.getNumberOfRows(); j++) {
         if (Double.doubleToLongBits(m.getEntry(j, i)) != 0L) {
           rowIdxTmp[ptr] = j;
           dataTmp[ptr] = m.getEntry(j, i);
           ptr++;
+          localMaxEntrisInACol++;
         }
+      }
+      if (localMaxEntrisInACol > _maxEntriesInAColumn) {
+        _maxEntriesInAColumn = localMaxEntrisInACol;
       }
     }
     colPtrTmp[i] = ptr;
@@ -84,15 +92,22 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
     double[] valuesTmp = new double[_els];
     double val;
     int ptr = 0, i;
+    int localMaxEntrisInACol;
+    _maxEntriesInAColumn = -1;
     for (i = 0; i < m.getNumberOfColumns(); i++) {
       colPtrTmp[i] = ptr;
+      localMaxEntrisInACol = 0;
       for (int j = 0; j < m.getNumberOfRows(); j++) {
         val = m.getEntry(j, i);
         if (Double.doubleToLongBits(val) != 0L) {
           valuesTmp[ptr] = val;
           rowIdxTmp[ptr] = j;
           ptr++;
+          localMaxEntrisInACol++;
         }
+      }
+      if (localMaxEntrisInACol > _maxEntriesInAColumn) {
+        _maxEntriesInAColumn = localMaxEntrisInACol;
       }
     }
     colPtrTmp[i] = ptr; // adds in last entry to close access fields
@@ -142,6 +157,7 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
    * Gets the number of rows in the matrix (is not equal to count(unique(rowPtr)) as matrix could be singular/have row of zeros))
    * @return _rows, the number of rows corresponding to a full matrix representation of the compressed matrix
    */
+  @Override
   public int getNumberOfRows() {
     return _rows;
   }
@@ -150,6 +166,7 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
    * Gets the number of columns in the matrix (is not equal to count(unique(colIdx)) as matrix could be singular/have column of zeros))
    * @return _cols, the number of columns corresponding to a full matrix representation of the compressed matrix
    */
+  @Override
   public int getNumberOfColumns() {
     return _cols;
   }
@@ -240,6 +257,14 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
   @Override
   public int getNumberOfNonZeroElements() {
     return _values.length;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getMaxNonZerosInSignificantDirection() {
+    return _maxEntriesInAColumn;
   }
 
 

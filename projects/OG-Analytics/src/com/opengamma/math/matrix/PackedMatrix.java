@@ -248,6 +248,22 @@ public class PackedMatrix implements MatrixPrimitiveInterface  {
    * {@inheritDoc}
    */
   @Override
+  public int getNumberOfRows() {
+    return _rows;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getNumberOfColumns() {
+    return _cols;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public double[][] toArray() {
     double[][] tmp = new double[_rows][_cols];
     for (int i = 0; i < _rows; i++) {

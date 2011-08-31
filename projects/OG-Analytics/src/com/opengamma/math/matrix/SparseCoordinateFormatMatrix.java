@@ -25,6 +25,7 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
   private int _els;
   private int _rows;
   private int _cols;
+  private int _maxEntriesInARow;
 
   // constructors
   /**
@@ -43,15 +44,22 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
     int[] yTmp = new int[_els];
 
     // we need unwind the array aMatrix into coordinate form
+    int localmaxEntriesInARow;
+    _maxEntriesInARow = -1; // set max entries in a column negative, so that maximiser will work
     int ptr = 0;
     for (int i = 0; i < aMatrix.getNumberOfRows(); i++) {
+      localmaxEntriesInARow = 0;
       for (int j = 0; j < aMatrix.getNumberOfColumns(); j++) {
         if (Double.doubleToLongBits(aMatrix.getEntry(i, j)) != 0L) {
           xTmp[ptr] = j;
           yTmp[ptr] = i;
           valuesTmp[ptr] = aMatrix.getEntry(i, j);
           ptr++;
+          localmaxEntriesInARow++;
         }
+      }
+      if (localmaxEntriesInARow > _maxEntriesInARow) {
+        _maxEntriesInARow = localmaxEntriesInARow;
       }
     }
 
@@ -104,6 +112,7 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
    * Returns the number of rows corresponding to the full matrix representation
    * @return _rows, the number of rows in the matrix
    */
+  @Override
   public int getNumberOfRows() {
     return _rows;
   }
@@ -112,6 +121,7 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
    * Returns the number of columns corresponding to the full matrix representation
    * @return _cols, the number of columns in the matrix
    */
+  @Override
   public int getNumberOfColumns() {
     return _cols;
   }
@@ -216,6 +226,16 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
   public int getNumberOfElements() {
     return _els;
   }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getMaxNonZerosInSignificantDirection() {
+    return _maxEntriesInARow;
+  }
+
 
   /**
    * {@inheritDoc}
