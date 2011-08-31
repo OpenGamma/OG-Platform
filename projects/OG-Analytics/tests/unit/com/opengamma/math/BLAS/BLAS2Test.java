@@ -104,20 +104,60 @@ public void testInputCatcherSizeWillNotCommuteInPlaceCatch2nd() {
  * DGEMV on FULL Matrices
  */
 // stateless manipulators
+
+//** group 1:: A*x OR A^T*x
 @Test
 public void testDGEMV_ans_eq_A_times_x() {
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,x),A_times_x));
 }
 
 @Test
+public void testDGEMV_ans_eq_AT_times_x() {
+  double[] tmp = {215,230,245,260,275};
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix,x),tmp));
+}
+
+@Test
+public void testDGEMV_ans_eq_A_times_x_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,x,BLAS2.orientation.normal),A_times_x));
+}
+
+@Test
+public void testDGEMV_ans_eq_A_times_x_interfaced_transposed() {
+  double[] tmp = {215,230,245,260,275};
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,x,BLAS2.orientation.transposed),tmp));
+}
+
+//** group 2:: alpha*A*x OR alpha*A^T*x
+@Test
 public void testDGEMV_ans_eq_alpha_times_A_times_x() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix,x),alpha_times_A_times_x));
 }
 
 @Test
+public void testDGEMV_ans_eq_alpha_times_AT_times_x() {
+  double[] tmp = {1505,1610,1715,1820,1925};
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix,x),tmp));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_A_times_x_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix,x,BLAS2.orientation.normal),alpha_times_A_times_x));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_A_times_x_interfaced_transposed() {
+  double[] tmp = {1505,1610,1715,1820,1925};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix,x,BLAS2.orientation.transposed),tmp));
+}
+
+
+//** group 3::
+@Test
 public void testDGEMV_ans_eq_A_times_x_plus_y() {
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,x,y),A_times_x_plus_y));
 }
+
 
 @Test
 public void testDGEMV_ans_eq_alpha_times_A_times_x_plus_y() {
