@@ -5,7 +5,13 @@
  */
 package com.opengamma.math.BLAS;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
+import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.FullMatrix;
+import com.opengamma.math.matrix.MatrixPrimitiveInterface;
 
 /**
  * Provides the BLAS level 2 behaviour for the OG matrix library.
@@ -27,6 +33,35 @@ public class BLAS2 {
   *
   */
 
+  /**
+   * Ensures that the inputs to DGEMV routines are sane.
+   * @param aMatrix is the matrix to be tested (A)
+   * @param aVector is the vector to be tested (x)
+   */
+  public static void dgemvInputSanityChecker(MatrixPrimitiveInterface aMatrix, double[] aVector) {
+    assertNotNull(aMatrix); // check not null
+    assertNotNull(aVector); // check not null
+    assertEquals(aMatrix.getNumberOfColumns(), aVector.length); // check commutable
+    assertTrue(aMatrix.getNumberOfRows() < (1 << 16)); // check row space in range of 32bit int
+    assertTrue(aMatrix.getNumberOfColumns() < (1 << 16)); // check col space in range of 32bit int
+  }
+
+  /**
+   * Ensures that the inputs to DGEMV routines are sane.
+   * @param aMatrix is the matrix to be tested (A)
+   * @param aVector is the vector to be tested (x)
+   * @param aYVector is the vector to be tested for back assignment (y)
+   */
+  public static void dgemvInputSanityChecker(double[] aYVector, MatrixPrimitiveInterface aMatrix, double[] aVector) {
+    assertNotNull(aMatrix); // check not null
+    assertNotNull(aVector); // check not null
+    assertNotNull(aYVector); // check not null
+    assertEquals(aMatrix.getNumberOfRows(), aVector.length); // check commutable
+    assertEquals(aMatrix.getNumberOfColumns(), aYVector.length); // check commutable on back assignment
+    assertTrue(aMatrix.getNumberOfRows() < (1 << 16)); // check row space in range of 32bit int
+    assertTrue(aMatrix.getNumberOfColumns() < (1 << 16)); // check col space in range of 32bit int
+  }
+
   /* Stateless manipulators on the FullMatrix type */
 
   /**
@@ -36,6 +71,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(FullMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -68,6 +104,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -78,14 +115,15 @@ public class BLAS2 {
     ub = ((cols / 4) * 4) - 1;
     for (int i = 0; i < rows; i++) {
       idx = i * cols;
+      alphaTmp = 0;
       for (int j = 0; j < ub; j += 4) {
         ptr = idx + j;
-        alphaTmp = ptrA[ptr]     * aVector[j]
+        alphaTmp += ptrA[ptr]     * aVector[j]
                  + ptrA[ptr + 1] * aVector[j + 1]
                  + ptrA[ptr + 2] * aVector[j + 2]
                  + ptrA[ptr + 3] * aVector[j + 3];
-        tmp[i] += alphaTmp * alpha;
       }
+      tmp[i] = alphaTmp * alpha;
       for (int j = extra; j < cols; j++) {
         tmp[i] += alpha * ptrA[idx + j] * aVector[j];
       }
@@ -137,6 +175,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, double [] y) {
+    dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -147,14 +186,15 @@ public class BLAS2 {
     ub = ((cols / 4) * 4) - 1;
     for (int i = 0; i < rows; i++) {
       idx = i * cols;
+      alphaTmp = 0;
       for (int j = 0; j < ub; j += 4) {
         ptr = idx + j;
-        alphaTmp = ptrA[ptr]     * aVector[j]
+        alphaTmp += ptrA[ptr]     * aVector[j]
                  + ptrA[ptr + 1] * aVector[j + 1]
                  + ptrA[ptr + 2] * aVector[j + 2]
                  + ptrA[ptr + 3] * aVector[j + 3];
-        tmp[i] += alphaTmp * alpha;
       }
+      tmp[i] = alphaTmp * alpha;
       for (int j = extra; j < cols; j++) {
         tmp[i] += alpha * ptrA[idx + j] * aVector[j];
       }
@@ -172,6 +212,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
+    dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -207,6 +248,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
+    dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -217,14 +259,15 @@ public class BLAS2 {
     ub = ((cols / 4) * 4) - 1;
     for (int i = 0; i < rows; i++) {
       idx = i * cols;
+      alphaTmp = 0;
       for (int j = 0; j < ub; j += 4) {
         ptr = idx + j;
-        alphaTmp = ptrA[ptr]     * aVector[j]
+        alphaTmp += ptrA[ptr]     * aVector[j]
                  + ptrA[ptr + 1] * aVector[j + 1]
                  + ptrA[ptr + 2] * aVector[j + 2]
                  + ptrA[ptr + 3] * aVector[j + 3];
-        tmp[i] += alphaTmp * alpha;
       }
+      tmp[i] = alphaTmp * alpha;
       for (int j = extra; j < cols; j++) {
         tmp[i] += alpha * ptrA[idx + j] * aVector[j];
       }
@@ -243,6 +286,7 @@ public class BLAS2 {
    * @param aVector a double[] vector
    */
   public static void dgemvInPlace(double[] y, FullMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     assert (y.length == rows);
@@ -277,6 +321,7 @@ public class BLAS2 {
    * @param aVector a double[] vector
    */
   public static void dgemvInPlace(double[] y, double alpha, FullMatrix aMatrix, double [] aVector, double beta) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] ptrA = aMatrix.getData();
@@ -332,6 +377,42 @@ public class BLAS2 {
         y[i] += alpha * ptrA[idx + j] * aVector[j];
       }
     }
+  }
+
+
+/**
+ * Sparse matrix types.
+ *
+ * Sparse DGEMV is notoriously horrible in terms of optimisation.
+ * Depending on the storage format, there are usually mixtures of stride 1 accesses in some data and essentially random lookups in others.
+ * To attempt to mitigate some of the cache miss horror this causes (without going down the route of ELLPACK or Z-tree compression or similar)
+ * the routines attempt to do extra fetches where possible to try and improve cache performance.
+ *
+ *   TODO: Sort out a more cunning method of performing these sorts of operations. The "optimised" versions I attempted only achieve ~10%
+ *   speed up over the naive version, which is not acceptable!
+ *
+ */
+  /**
+   * DGEMV simplified: returns:=A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityChecker(aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    double [] tmp = new double[rows];
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+    }
+    return tmp;
   }
 
 
