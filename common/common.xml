@@ -73,6 +73,7 @@
         fudgeContext="${fudge.proto.fudgeContext}"
         rebuildAll="${fudge.proto.rebuildAll}">
       <exclude name="*Security.proto" />
+      <exclude name="*FinancialSecurity.proto" />
       <fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON
