@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.joda.beans.impl.direct.DirectBean;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
@@ -84,7 +85,12 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
             final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
             final MutableFudgeMsg msg = serializer.objectToFudgeMsg(value);
             if (msg.getByOrdinal(FudgeSerializer.TYPES_HEADER_ORDINAL) == null) {
-              FudgeSerializer.addClassHeader(msg, valueClass);
+              // Stop the header encoding before we get to the "bean" classes that many of the financial objects inherit from
+              Class<?> classItr = valueClass;
+              while ((classItr != null) && (classItr != DirectBean.class) && (classItr != Object.class)) {
+                msg.add(FudgeSerializer.TYPES_HEADER_ORDINAL, classItr.getName());
+                classItr = classItr.getSuperclass();
+              }
             }
             conversionContext.setResult(msg);
           }
