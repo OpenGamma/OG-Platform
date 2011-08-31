@@ -8,7 +8,6 @@ package com.opengamma.master.security;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -50,12 +49,11 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   private UniqueId _uniqueId;
   /**
    * The name of the security intended for display purposes.
-   * This field will be automatically created if not set.
    */
-  @PropertyDefinition(get = "manual", validate = "notNull")
-  private String _name;
+  @PropertyDefinition(validate = "notNull")
+  private String _name = "";
   /**
-   * The security type, not null.
+   * The security type.
    */
   @PropertyDefinition(validate = "notNull")
   private String _securityType = "";
@@ -100,35 +98,6 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the display name of the security.
-   * 
-   * @return the display name, not null
-   */
-  public String getName() {
-    final String name = _name;  // assign for thread-safety
-    if (name == null) {
-      return buildDefaultDisplayName();
-    }
-    return name;
-  }
-
-  /**
-   * Dynamically determines a default display name if one hasn't been explicitly set.
-   * This implementation constructs one from the identity key or identifiers.
-   * 
-   * @return a default display name, not null
-   */
-  protected String buildDefaultDisplayName() {
-    final UniqueId identifier = getUniqueId();  // assign for thread-safety
-    if (identifier != null) {
-      return identifier.toString();
-    }
-    final ExternalIdBundle bundle = getIdentifiers();  // assign for thread-safety
-    final ExternalId first = (bundle.size() == 0 ? null : bundle.getExternalIds().iterator().next());
-    return ObjectUtils.toString(first);
-  }
-
   /**
    * Adds an external identifier to the bundle representing this security.
    * 
@@ -253,8 +222,15 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the name of the security intended for display purposes.
+   * @return the value of the property, not null
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
    * Sets the name of the security intended for display purposes.
-   * This field will be automatically created if not set.
    * @param name  the new value of the property, not null
    */
   public void setName(String name) {
@@ -264,7 +240,6 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   /**
    * Gets the the {@code name} property.
-   * This field will be automatically created if not set.
    * @return the property, not null
    */
   public final Property<String> name() {
@@ -273,7 +248,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security type, not null.
+   * Gets the security type.
    * @return the value of the property, not null
    */
   public String getSecurityType() {
@@ -281,7 +256,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   }
 
   /**
-   * Sets the security type, not null.
+   * Sets the security type.
    * @param securityType  the new value of the property, not null
    */
   public void setSecurityType(String securityType) {
