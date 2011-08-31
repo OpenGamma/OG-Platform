@@ -21,6 +21,11 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class ListConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final ListConverter INSTANCE = new ListConverter();
+
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[]> VALUES = JavaTypeInfo.builder(Value[].class).get();
   private static final JavaTypeInfo<Value[]> VALUES_ALLOW_NULL = JavaTypeInfo.builder(Value[].class).allowNull().get();
@@ -33,6 +38,9 @@ public class ListConverter extends AbstractTypeConverter {
   private static final TypeMap FROM_LIST = TypeMap.of(ZERO_LOSS, LIST);
   private static final TypeMap TO_LIST_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUES_ALLOW_NULL);
   private static final TypeMap FROM_LIST_ALLOW_NULL = TypeMap.of(ZERO_LOSS, LIST_ALLOW_NULL);
+
+  protected ListConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {

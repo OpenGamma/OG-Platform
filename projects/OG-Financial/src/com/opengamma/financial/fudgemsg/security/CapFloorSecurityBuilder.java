@@ -73,7 +73,7 @@ public class CapFloorSecurityBuilder extends AbstractFudgeBuilder implements Fud
 
   @Override
   public CapFloorSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    CapFloorSecurity object = FinancialSecurityBuilder.backdoorCreateClass(CapFloorSecurity.class);
+    CapFloorSecurity object = new CapFloorSecurity();
     CapFloorSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

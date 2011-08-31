@@ -7,10 +7,9 @@
 namespace com.opengamma.financial.security.bond {
 
   /**
-   * A {@code Security} used to model bonds.
+   * A bond security.
    */
   abstract message BondSecurity extends FinancialSecurity {
-  
     required string securityType [default="BOND"];
     
     required string issuerName;
@@ -36,17 +35,6 @@ namespace com.opengamma.financial.security.bond {
     required double minimumIncrement;
     required double parAmount;
     required double redemptionValue;
-    
-    binding Java {
-      body <<<JAVA
-        public abstract <T> T accept(BondSecurityVisitor<T> visitor);
-
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) {
-          return visitor.visitBondSecurity(this);
-        }
-JAVA;
-    }
-  
   }
 
 }

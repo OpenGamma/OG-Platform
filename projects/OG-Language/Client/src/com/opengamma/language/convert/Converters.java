@@ -32,18 +32,18 @@ public final class Converters extends AbstractTypeConverterProvider {
 
   @Override
   protected void loadTypeConverters(final Collection<TypeConverter> converters) {
-    converters.add(new ArrayDepthConverter());
-    converters.add(new ArrayTypeConverter());
-    converters.add(new BoxingConverter());
-    converters.add(new DataConverter());
-    converters.add(new EnumConverter());
+    converters.add(ArrayDepthConverter.INSTANCE);
+    converters.add(ArrayTypeConverter.INSTANCE);
+    converters.add(BoxingConverter.INSTANCE);
+    converters.add(DataConverter.INSTANCE);
+    converters.add(EnumConverter.INSTANCE);
     converters.add(new FudgeTypeConverter(getFudgeContext()));
-    converters.add(new ListConverter());
-    converters.add(new MapConverter());
-    converters.add(new PrimitiveArrayConverter());
-    converters.add(new PrimitiveConverter());
-    converters.add(new SetConverter());
-    converters.add(new ValueConverter());
+    converters.add(ListConverter.INSTANCE);
+    converters.add(MapConverter.INSTANCE);
+    converters.add(PrimitiveArrayConverter.INSTANCE);
+    converters.add(PrimitiveConverter.INSTANCE);
+    converters.add(SetConverter.INSTANCE);
+    converters.add(ValueConverter.INSTANCE);
   }
 
 }

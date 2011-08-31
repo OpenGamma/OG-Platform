@@ -1,61 +1,143 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.bond;
-public class MunicipalBondSecurity extends com.opengamma.financial.security.bond.BondSecurity implements java.io.Serializable {
-  public <T> T accept (BondSecurityVisitor<T> visitor) { return visitor.visitMunicipalBondSecurity (this); }
-  private static final long serialVersionUID = 1l;
-  public MunicipalBondSecurity (String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, javax.time.calendar.ZonedDateTime interestAccrualDate, javax.time.calendar.ZonedDateTime settlementDate, javax.time.calendar.ZonedDateTime firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
-    super (issuerName, issuerType, issuerDomicile, market, currency, yieldConvention, lastTradeDate, couponType, couponRate, couponFrequency, dayCountConvention, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice, totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * A security for municipal bonds.
+ */
+@BeanDefinition
+public class MunicipalBondSecurity extends BondSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public MunicipalBondSecurity() {
   }
-  protected MunicipalBondSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
+
+  public MunicipalBondSecurity(String issuerName, String issuerType, String issuerDomicile, String market, Currency currency,
+      YieldConvention yieldConvention, Expiry lastTradeDate, String couponType, double couponRate, Frequency couponFrequency,
+      DayCount dayCountConvention, ZonedDateTime interestAccrualDate, ZonedDateTime settlementDate, ZonedDateTime firstCouponDate,
+      double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
+    super(issuerName, issuerType, issuerDomicile, market, currency, yieldConvention, lastTradeDate, couponType, couponRate, couponFrequency,
+        dayCountConvention, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice, totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
   }
-  public MunicipalBondSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, String guaranteeType, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, javax.time.calendar.ZonedDateTime announcementDate, javax.time.calendar.ZonedDateTime interestAccrualDate, javax.time.calendar.ZonedDateTime settlementDate, javax.time.calendar.ZonedDateTime firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
-    super (uniqueId, name, securityType, identifiers, issuerName, issuerType, issuerDomicile, market, currency, yieldConvention, guaranteeType, lastTradeDate, couponType, couponRate, couponFrequency, dayCountConvention, businessDayConvention, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice, totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(BondSecurityVisitor<T> visitor) {
+    return visitor.visitMunicipalBondSecurity(this);
   }
-  protected MunicipalBondSecurity (final MunicipalBondSecurity source) {
-    super (source);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code MunicipalBondSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static MunicipalBondSecurity.Meta meta() {
+    return MunicipalBondSecurity.Meta.INSTANCE;
   }
-  public MunicipalBondSecurity clone () {
-    return new MunicipalBondSecurity (this);
+  static {
+    JodaBeanUtils.registerMetaBean(MunicipalBondSecurity.Meta.INSTANCE);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public MunicipalBondSecurity.Meta metaBean() {
+    return MunicipalBondSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    return super.propertyGet(propertyName, quiet);
   }
-  public static MunicipalBondSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.bond.MunicipalBondSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.bond.MunicipalBondSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
     }
-    return new MunicipalBondSecurity (deserializer, fudgeMsg);
+    if (obj != null && obj.getClass() == this.getClass()) {
+      return super.equals(obj);
+    }
+    return false;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof MunicipalBondSecurity)) return false;
-    MunicipalBondSecurity msg = (MunicipalBondSecurity)o;
-    return super.equals (msg);
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code MunicipalBondSecurity}.
+   */
+  public static class Meta extends BondSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    public BeanBuilder<? extends MunicipalBondSecurity> builder() {
+      return new DirectBeanBuilder<MunicipalBondSecurity>(new MunicipalBondSecurity());
+    }
+
+    @Override
+    public Class<? extends MunicipalBondSecurity> beanType() {
+      return MunicipalBondSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

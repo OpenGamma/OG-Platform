@@ -12,8 +12,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.fudgemsg.security.FinancialSecurityBuilder;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.fudgemsg.ExternalIdBundleBuilder;
 
@@ -28,6 +28,7 @@ public class BondFutureDeliverableBuilder extends AbstractFudgeBuilder implement
   /** Field name. */
   public static final String CONVERSION_FACTOR_KEY = "conversionFactor";
 
+  //-------------------------------------------------------------------------
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BondFutureDeliverable object) {
     final MutableFudgeMsg msg = serializer.newMessage();
@@ -40,16 +41,16 @@ public class BondFutureDeliverableBuilder extends AbstractFudgeBuilder implement
     addToMessage(msg, CONVERSION_FACTOR_KEY, object.getConversionFactor());
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public BondFutureDeliverable buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    BondFutureDeliverable object = FinancialSecurityBuilder.backdoorCreateClass(BondFutureDeliverable.class);
-    BondFutureDeliverableBuilder.fromFudgeMsg(deserializer, msg, object);
-    return object;
+    return fromFudgeMsg(deserializer, msg);
   }
 
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, BondFutureDeliverable object) {
-    object.setIdentifiers(ExternalIdBundleBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY)));
-    object.setConversionFactor(msg.getDouble(CONVERSION_FACTOR_KEY));
+  public static BondFutureDeliverable fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
+    ExternalIdBundle bundle = ExternalIdBundleBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY));
+    double conversionFactor = msg.getDouble(CONVERSION_FACTOR_KEY);
+    return new BondFutureDeliverable(bundle, conversionFactor);
   }
 
 }

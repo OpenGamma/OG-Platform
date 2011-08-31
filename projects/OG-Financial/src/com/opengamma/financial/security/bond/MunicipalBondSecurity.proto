@@ -7,14 +7,9 @@
 namespace com.opengamma.financial.security.bond {
 
   /**
-   * A {@code Security} used to model municipal bonds. NOT YET IMPLEMENTED.
+   * A municipal bond security.
    */
   message MunicipalBondSecurity extends BondSecurity {
-  
-    binding Java {
-      body "public <T> T accept (BondSecurityVisitor<T> visitor) { return visitor.visitMunicipalBondSecurity (this); }";
-    }
-  
   }
-  
+
 }

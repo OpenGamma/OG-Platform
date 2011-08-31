@@ -21,6 +21,11 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class PrimitiveConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final PrimitiveConverter INSTANCE = new PrimitiveConverter();
+
   private static final JavaTypeInfo<Boolean> BOOLEAN = JavaTypeInfo.builder(Boolean.class).get();
   private static final JavaTypeInfo<Byte> BYTE = JavaTypeInfo.builder(Byte.class).get();
   private static final JavaTypeInfo<Character> CHARACTER = JavaTypeInfo.builder(Character.class).get();
@@ -40,6 +45,9 @@ public class PrimitiveConverter extends AbstractTypeConverter {
   private static final TypeMap TO_LONG = TypeMap.of(ZERO_LOSS, BOOLEAN, BYTE, INTEGER, SHORT, STRING).with(MINOR_LOSS, FLOAT, DOUBLE);
   private static final TypeMap TO_SHORT = TypeMap.of(ZERO_LOSS, BOOLEAN, BYTE, INTEGER, LONG, STRING).with(MINOR_LOSS, FLOAT, DOUBLE);
   private static final TypeMap TO_STRING = TypeMap.of(ZERO_LOSS_NON_PREFERRED, BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT);
+
+  protected PrimitiveConverter() {
+  }
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {

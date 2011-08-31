@@ -59,7 +59,7 @@ public class FRASecurityBuilder extends AbstractFudgeBuilder implements FudgeBui
 
   @Override
   public FRASecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FRASecurity object = FinancialSecurityBuilder.backdoorCreateClass(FRASecurity.class);
+    FRASecurity object = new FRASecurity();
     FRASecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

@@ -56,7 +56,7 @@ public class SwaptionSecurityBuilder extends AbstractFudgeBuilder implements Fud
 
   @Override
   public SwaptionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    SwaptionSecurity object = FinancialSecurityBuilder.backdoorCreateClass(SwaptionSecurity.class);
+    SwaptionSecurity object = new SwaptionSecurity();
     SwaptionSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

@@ -6,8 +6,10 @@
 
 namespace com.opengamma.financial.security.fra {
 
+  /**
+   * A FRA security.
+   */
   message FRASecurity extends FinancialSecurity {
-
     required string securityType [default = "FRA"];
     
     required com.opengamma.util.money.Currency currency;
@@ -17,14 +19,6 @@ namespace com.opengamma.financial.security.fra {
     required double rate;
     required double amount;
     required id.ExternalId underlyingIdentifier;
-
-    binding Java {
-      body <<<JAVA
-        public <T> T accept(FRASecurityVisitor<T> visitor) { return visitor.visitFRASecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFRASecurity(this); }
-JAVA;
-    }
-    
   }
 
 }

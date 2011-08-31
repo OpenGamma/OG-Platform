@@ -7,10 +7,9 @@
 namespace com.opengamma.financial.security.equity {
 
   /**
-   * A {@code Security} used to model equities.
+   * An equity security.
    */
   message EquitySecurity extends FinancialSecurity {
-
     required string securityType [default = "EQUITY"];
     
     optional string shortName;
@@ -19,27 +18,6 @@ namespace com.opengamma.financial.security.equity {
     required string companyName;
     required com.opengamma.util.money.Currency currency;
     optional GICSCode gicsCode;
-
-    binding Java {
-      body <<<JAVA
-        /**
-         * Override to use the company name as the display name.
-         * @return the display name, not null
-         */
-        @Override
-        protected String buildDefaultDisplayName() {
-          if (getCompanyName() != null) {
-            return getCompanyName();
-          } else {
-            return super.buildDefaultDisplayName();
-          }
-        }
-        
-        public <T> T accept(EquitySecurityVisitor<T> visitor) { return visitor.visitEquitySecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquitySecurity(this); }
-JAVA;
-    }
-    
   }
 
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.comparison;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,9 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.master.security.ManageableSecurity;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
+import com.opengamma.master.fudgemsg.ManageableSecurityBuilder;
 
 /* package */final class SecurityInfo extends AbstractInfo<Security> {
 
@@ -39,7 +38,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
     final Iterator<FudgeField> itr = rawMsg.iterator();
     while (itr.hasNext()) {
       final FudgeField field = itr.next();
-      if (ManageableSecurity.UNIQUE_ID_KEY.equals(field.getName()) || ManageableSecurity.IDENTIFIERS_KEY.equals(field.getName())) {
+      if (ManageableSecurityBuilder.UNIQUE_ID_KEY.equals(field.getName()) || ManageableSecurityBuilder.IDENTIFIERS_KEY.equals(field.getName())) {
         continue;
       }
       addFieldToMap(field, _info);
@@ -47,7 +46,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
     s_logger.debug("Info = {}", _info);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private static void addValueToMap(final Object key, final Object value, final Map<Object, Object> info) {
     final Object existing = info.get(key);
     if (existing != null) {

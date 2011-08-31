@@ -43,7 +43,7 @@ public class EquityFutureSecurityBuilder extends AbstractFudgeBuilder implements
 
   @Override
   public EquityFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EquityFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EquityFutureSecurity.class);
+    EquityFutureSecurity object = new EquityFutureSecurity();
     EquityFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
