@@ -1,318 +1,509 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.swap;
-public class SwapSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public <T> T accept (SwapSecurityVisitor<T> visitor) { return visitor.visitSwapSecurity (this); }
-        public <T> T accept (com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitSwapSecurity (this); }
-  private static final long serialVersionUID = 4210989868692014018l;
-  private javax.time.calendar.ZonedDateTime _tradeDate;
-  public static final String TRADE_DATE_KEY = "tradeDate";
-  private javax.time.calendar.ZonedDateTime _effectiveDate;
-  public static final String EFFECTIVE_DATE_KEY = "effectiveDate";
-  private javax.time.calendar.ZonedDateTime _maturityDate;
-  public static final String MATURITY_DATE_KEY = "maturityDate";
-  private String _counterparty;
-  public static final String COUNTERPARTY_KEY = "counterparty";
-  private com.opengamma.financial.security.swap.SwapLeg _payLeg;
-  public static final String PAY_LEG_KEY = "payLeg";
-  private com.opengamma.financial.security.swap.SwapLeg _receiveLeg;
-  public static final String RECEIVE_LEG_KEY = "receiveLeg";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+
+/**
+ * A security for a swap.
+ */
+@BeanDefinition
+public class SwapSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "SWAP";
-  public SwapSecurity (javax.time.calendar.ZonedDateTime tradeDate, javax.time.calendar.ZonedDateTime effectiveDate, javax.time.calendar.ZonedDateTime maturityDate, String counterparty, com.opengamma.financial.security.swap.SwapLeg payLeg, com.opengamma.financial.security.swap.SwapLeg receiveLeg) {
-    super (SECURITY_TYPE);
-    if (tradeDate == null) throw new NullPointerException ("'tradeDate' cannot be null");
-    else {
-      _tradeDate = tradeDate;
-    }
-    if (effectiveDate == null) throw new NullPointerException ("'effectiveDate' cannot be null");
-    else {
-      _effectiveDate = effectiveDate;
-    }
-    if (maturityDate == null) throw new NullPointerException ("'maturityDate' cannot be null");
-    else {
-      _maturityDate = maturityDate;
-    }
-    if (counterparty == null) throw new NullPointerException ("counterparty' cannot be null");
-    _counterparty = counterparty;
-    if (payLeg == null) throw new NullPointerException ("'payLeg' cannot be null");
-    else {
-      _payLeg = payLeg;
-    }
-    if (receiveLeg == null) throw new NullPointerException ("'receiveLeg' cannot be null");
-    else {
-      _receiveLeg = receiveLeg;
-    }
+
+  /**
+   * The trade date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _tradeDate;
+  /**
+   * The effective date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _effectiveDate;
+  /**
+   * The maturity.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _maturityDate;
+  /**
+   * The counterparty.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _counterparty;
+  /**
+   * The pay leg.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SwapLeg _payLeg;
+  /**
+   * The receive leg.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SwapLeg _receiveLeg;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public SwapSecurity() {
   }
-  protected SwapSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (TRADE_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'tradeDate' is not present");
-    try {
-      _tradeDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'tradeDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (EFFECTIVE_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'effectiveDate' is not present");
-    try {
-      _effectiveDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'effectiveDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (MATURITY_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'maturityDate' is not present");
-    try {
-      _maturityDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'maturityDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (COUNTERPARTY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'counterparty' is not present");
-    try {
-      _counterparty = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'counterparty' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (PAY_LEG_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'payLeg' is not present");
-    try {
-      _payLeg = com.opengamma.financial.security.swap.SwapLeg.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'payLeg' is not SwapLeg message", e);
-    }
-    fudgeField = fudgeMsg.getByName (RECEIVE_LEG_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'receiveLeg' is not present");
-    try {
-      _receiveLeg = com.opengamma.financial.security.swap.SwapLeg.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'receiveLeg' is not SwapLeg message", e);
-    }
+
+  public SwapSecurity(ZonedDateTime tradeDate, ZonedDateTime effectiveDate, ZonedDateTime maturityDate, String counterparty, SwapLeg payLeg, SwapLeg receiveLeg) {
+    super(SECURITY_TYPE);
+    setTradeDate(tradeDate);
+    setEffectiveDate(effectiveDate);
+    setMaturityDate(maturityDate);
+    setCounterparty(counterparty);
+    setPayLeg(payLeg);
+    setReceiveLeg(receiveLeg);
   }
-  public SwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, javax.time.calendar.ZonedDateTime tradeDate, javax.time.calendar.ZonedDateTime effectiveDate, javax.time.calendar.ZonedDateTime maturityDate, String counterparty, com.opengamma.financial.security.swap.SwapLeg payLeg, com.opengamma.financial.security.swap.SwapLeg receiveLeg) {
-    super (uniqueId, name, securityType, identifiers);
-    if (tradeDate == null) throw new NullPointerException ("'tradeDate' cannot be null");
-    else {
-      _tradeDate = tradeDate;
-    }
-    if (effectiveDate == null) throw new NullPointerException ("'effectiveDate' cannot be null");
-    else {
-      _effectiveDate = effectiveDate;
-    }
-    if (maturityDate == null) throw new NullPointerException ("'maturityDate' cannot be null");
-    else {
-      _maturityDate = maturityDate;
-    }
-    if (counterparty == null) throw new NullPointerException ("counterparty' cannot be null");
-    _counterparty = counterparty;
-    if (payLeg == null) throw new NullPointerException ("'payLeg' cannot be null");
-    else {
-      _payLeg = payLeg;
-    }
-    if (receiveLeg == null) throw new NullPointerException ("'receiveLeg' cannot be null");
-    else {
-      _receiveLeg = receiveLeg;
-    }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitSwapSecurity(this);
   }
-  protected SwapSecurity (final SwapSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._tradeDate == null) _tradeDate = null;
-    else {
-      _tradeDate = source._tradeDate;
-    }
-    if (source._effectiveDate == null) _effectiveDate = null;
-    else {
-      _effectiveDate = source._effectiveDate;
-    }
-    if (source._maturityDate == null) _maturityDate = null;
-    else {
-      _maturityDate = source._maturityDate;
-    }
-    _counterparty = source._counterparty;
-    if (source._payLeg == null) _payLeg = null;
-    else {
-      _payLeg = source._payLeg;
-    }
-    if (source._receiveLeg == null) _receiveLeg = null;
-    else {
-      _receiveLeg = source._receiveLeg;
-    }
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(SwapSecurityVisitor<T> visitor) {
+    return visitor.visitSwapSecurity(this);
   }
-  public SwapSecurity clone () {
-    return new SwapSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code SwapSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static SwapSecurity.Meta meta() {
+    return SwapSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(SwapSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_tradeDate != null)  {
-      serializer.addToMessage (msg, TRADE_DATE_KEY, null, _tradeDate);
-    }
-    if (_effectiveDate != null)  {
-      serializer.addToMessage (msg, EFFECTIVE_DATE_KEY, null, _effectiveDate);
-    }
-    if (_maturityDate != null)  {
-      serializer.addToMessage (msg, MATURITY_DATE_KEY, null, _maturityDate);
-    }
-    if (_counterparty != null)  {
-      msg.add (COUNTERPARTY_KEY, null, _counterparty);
-    }
-    if (_payLeg != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _payLeg.getClass (), com.opengamma.financial.security.swap.SwapLeg.class);
-      _payLeg.toFudgeMsg (serializer, fudge1);
-      msg.add (PAY_LEG_KEY, null, fudge1);
-    }
-    if (_receiveLeg != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _receiveLeg.getClass (), com.opengamma.financial.security.swap.SwapLeg.class);
-      _receiveLeg.toFudgeMsg (serializer, fudge1);
-      msg.add (RECEIVE_LEG_KEY, null, fudge1);
-    }
+
+  @Override
+  public SwapSecurity.Meta metaBean() {
+    return SwapSecurity.Meta.INSTANCE;
   }
-  public static SwapSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.swap.SwapSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.swap.SwapSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 752419634:  // tradeDate
+        return getTradeDate();
+      case -930389515:  // effectiveDate
+        return getEffectiveDate();
+      case -414641441:  // maturityDate
+        return getMaturityDate();
+      case -1651301782:  // counterparty
+        return getCounterparty();
+      case -995239866:  // payLeg
+        return getPayLeg();
+      case 209233963:  // receiveLeg
+        return getReceiveLeg();
     }
-    return new SwapSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public javax.time.calendar.ZonedDateTime getTradeDate () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 752419634:  // tradeDate
+        setTradeDate((ZonedDateTime) newValue);
+        return;
+      case -930389515:  // effectiveDate
+        setEffectiveDate((ZonedDateTime) newValue);
+        return;
+      case -414641441:  // maturityDate
+        setMaturityDate((ZonedDateTime) newValue);
+        return;
+      case -1651301782:  // counterparty
+        setCounterparty((String) newValue);
+        return;
+      case -995239866:  // payLeg
+        setPayLeg((SwapLeg) newValue);
+        return;
+      case 209233963:  // receiveLeg
+        setReceiveLeg((SwapLeg) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_tradeDate, "tradeDate");
+    JodaBeanUtils.notNull(_effectiveDate, "effectiveDate");
+    JodaBeanUtils.notNull(_maturityDate, "maturityDate");
+    JodaBeanUtils.notNull(_counterparty, "counterparty");
+    JodaBeanUtils.notNull(_payLeg, "payLeg");
+    JodaBeanUtils.notNull(_receiveLeg, "receiveLeg");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwapSecurity other = (SwapSecurity) obj;
+      return JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
+          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
+          JodaBeanUtils.equal(getPayLeg(), other.getPayLeg()) &&
+          JodaBeanUtils.equal(getReceiveLeg(), other.getReceiveLeg()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayLeg());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLeg());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the trade date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getTradeDate() {
     return _tradeDate;
   }
-  public void setTradeDate (javax.time.calendar.ZonedDateTime tradeDate) {
-    if (tradeDate == null) throw new NullPointerException ("'tradeDate' cannot be null");
-    else {
-      _tradeDate = tradeDate;
-    }
+
+  /**
+   * Sets the trade date.
+   * @param tradeDate  the new value of the property, not null
+   */
+  public void setTradeDate(ZonedDateTime tradeDate) {
+    JodaBeanUtils.notNull(tradeDate, "tradeDate");
+    this._tradeDate = tradeDate;
   }
-  public javax.time.calendar.ZonedDateTime getEffectiveDate () {
+
+  /**
+   * Gets the the {@code tradeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> tradeDate() {
+    return metaBean().tradeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the effective date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getEffectiveDate() {
     return _effectiveDate;
   }
-  public void setEffectiveDate (javax.time.calendar.ZonedDateTime effectiveDate) {
-    if (effectiveDate == null) throw new NullPointerException ("'effectiveDate' cannot be null");
-    else {
-      _effectiveDate = effectiveDate;
-    }
+
+  /**
+   * Sets the effective date.
+   * @param effectiveDate  the new value of the property, not null
+   */
+  public void setEffectiveDate(ZonedDateTime effectiveDate) {
+    JodaBeanUtils.notNull(effectiveDate, "effectiveDate");
+    this._effectiveDate = effectiveDate;
   }
-  public javax.time.calendar.ZonedDateTime getMaturityDate () {
+
+  /**
+   * Gets the the {@code effectiveDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> effectiveDate() {
+    return metaBean().effectiveDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturity.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getMaturityDate() {
     return _maturityDate;
   }
-  public void setMaturityDate (javax.time.calendar.ZonedDateTime maturityDate) {
-    if (maturityDate == null) throw new NullPointerException ("'maturityDate' cannot be null");
-    else {
-      _maturityDate = maturityDate;
-    }
+
+  /**
+   * Sets the maturity.
+   * @param maturityDate  the new value of the property, not null
+   */
+  public void setMaturityDate(ZonedDateTime maturityDate) {
+    JodaBeanUtils.notNull(maturityDate, "maturityDate");
+    this._maturityDate = maturityDate;
   }
-  public String getCounterparty () {
+
+  /**
+   * Gets the the {@code maturityDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> maturityDate() {
+    return metaBean().maturityDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the counterparty.
+   * @return the value of the property, not null
+   */
+  public String getCounterparty() {
     return _counterparty;
   }
-  public void setCounterparty (String counterparty) {
-    if (counterparty == null) throw new NullPointerException ("counterparty' cannot be null");
-    _counterparty = counterparty;
+
+  /**
+   * Sets the counterparty.
+   * @param counterparty  the new value of the property, not null
+   */
+  public void setCounterparty(String counterparty) {
+    JodaBeanUtils.notNull(counterparty, "counterparty");
+    this._counterparty = counterparty;
   }
-  public com.opengamma.financial.security.swap.SwapLeg getPayLeg () {
+
+  /**
+   * Gets the the {@code counterparty} property.
+   * @return the property, not null
+   */
+  public final Property<String> counterparty() {
+    return metaBean().counterparty().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the pay leg.
+   * @return the value of the property, not null
+   */
+  public SwapLeg getPayLeg() {
     return _payLeg;
   }
-  public void setPayLeg (com.opengamma.financial.security.swap.SwapLeg payLeg) {
-    if (payLeg == null) throw new NullPointerException ("'payLeg' cannot be null");
-    else {
-      _payLeg = payLeg;
-    }
+
+  /**
+   * Sets the pay leg.
+   * @param payLeg  the new value of the property, not null
+   */
+  public void setPayLeg(SwapLeg payLeg) {
+    JodaBeanUtils.notNull(payLeg, "payLeg");
+    this._payLeg = payLeg;
   }
-  public com.opengamma.financial.security.swap.SwapLeg getReceiveLeg () {
+
+  /**
+   * Gets the the {@code payLeg} property.
+   * @return the property, not null
+   */
+  public final Property<SwapLeg> payLeg() {
+    return metaBean().payLeg().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receive leg.
+   * @return the value of the property, not null
+   */
+  public SwapLeg getReceiveLeg() {
     return _receiveLeg;
   }
-  public void setReceiveLeg (com.opengamma.financial.security.swap.SwapLeg receiveLeg) {
-    if (receiveLeg == null) throw new NullPointerException ("'receiveLeg' cannot be null");
-    else {
-      _receiveLeg = receiveLeg;
-    }
+
+  /**
+   * Sets the receive leg.
+   * @param receiveLeg  the new value of the property, not null
+   */
+  public void setReceiveLeg(SwapLeg receiveLeg) {
+    JodaBeanUtils.notNull(receiveLeg, "receiveLeg");
+    this._receiveLeg = receiveLeg;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof SwapSecurity)) return false;
-    SwapSecurity msg = (SwapSecurity)o;
-    if (_tradeDate != null) {
-      if (msg._tradeDate != null) {
-        if (!_tradeDate.equals (msg._tradeDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._tradeDate != null) return false;
-    if (_effectiveDate != null) {
-      if (msg._effectiveDate != null) {
-        if (!_effectiveDate.equals (msg._effectiveDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._effectiveDate != null) return false;
-    if (_maturityDate != null) {
-      if (msg._maturityDate != null) {
-        if (!_maturityDate.equals (msg._maturityDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._maturityDate != null) return false;
-    if (_counterparty != null) {
-      if (msg._counterparty != null) {
-        if (!_counterparty.equals (msg._counterparty)) return false;
-      }
-      else return false;
-    }
-    else if (msg._counterparty != null) return false;
-    if (_payLeg != null) {
-      if (msg._payLeg != null) {
-        if (!_payLeg.equals (msg._payLeg)) return false;
-      }
-      else return false;
-    }
-    else if (msg._payLeg != null) return false;
-    if (_receiveLeg != null) {
-      if (msg._receiveLeg != null) {
-        if (!_receiveLeg.equals (msg._receiveLeg)) return false;
-      }
-      else return false;
-    }
-    else if (msg._receiveLeg != null) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code receiveLeg} property.
+   * @return the property, not null
+   */
+  public final Property<SwapLeg> receiveLeg() {
+    return metaBean().receiveLeg().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_tradeDate != null) hc += _tradeDate.hashCode ();
-    hc *= 31;
-    if (_effectiveDate != null) hc += _effectiveDate.hashCode ();
-    hc *= 31;
-    if (_maturityDate != null) hc += _maturityDate.hashCode ();
-    hc *= 31;
-    if (_counterparty != null) hc += _counterparty.hashCode ();
-    hc *= 31;
-    if (_payLeg != null) hc += _payLeg.hashCode ();
-    hc *= 31;
-    if (_receiveLeg != null) hc += _receiveLeg.hashCode ();
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code SwapSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code tradeDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _tradeDate = DirectMetaProperty.ofReadWrite(
+        this, "tradeDate", SwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code effectiveDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _effectiveDate = DirectMetaProperty.ofReadWrite(
+        this, "effectiveDate", SwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code maturityDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _maturityDate = DirectMetaProperty.ofReadWrite(
+        this, "maturityDate", SwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code counterparty} property.
+     */
+    private final MetaProperty<String> _counterparty = DirectMetaProperty.ofReadWrite(
+        this, "counterparty", SwapSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code payLeg} property.
+     */
+    private final MetaProperty<SwapLeg> _payLeg = DirectMetaProperty.ofReadWrite(
+        this, "payLeg", SwapSecurity.class, SwapLeg.class);
+    /**
+     * The meta-property for the {@code receiveLeg} property.
+     */
+    private final MetaProperty<SwapLeg> _receiveLeg = DirectMetaProperty.ofReadWrite(
+        this, "receiveLeg", SwapSecurity.class, SwapLeg.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "tradeDate",
+        "effectiveDate",
+        "maturityDate",
+        "counterparty",
+        "payLeg",
+        "receiveLeg");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 752419634:  // tradeDate
+          return _tradeDate;
+        case -930389515:  // effectiveDate
+          return _effectiveDate;
+        case -414641441:  // maturityDate
+          return _maturityDate;
+        case -1651301782:  // counterparty
+          return _counterparty;
+        case -995239866:  // payLeg
+          return _payLeg;
+        case 209233963:  // receiveLeg
+          return _receiveLeg;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends SwapSecurity> builder() {
+      return new DirectBeanBuilder<SwapSecurity>(new SwapSecurity());
+    }
+
+    @Override
+    public Class<? extends SwapSecurity> beanType() {
+      return SwapSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code tradeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> tradeDate() {
+      return _tradeDate;
+    }
+
+    /**
+     * The meta-property for the {@code effectiveDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> effectiveDate() {
+      return _effectiveDate;
+    }
+
+    /**
+     * The meta-property for the {@code maturityDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> maturityDate() {
+      return _maturityDate;
+    }
+
+    /**
+     * The meta-property for the {@code counterparty} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> counterparty() {
+      return _counterparty;
+    }
+
+    /**
+     * The meta-property for the {@code payLeg} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SwapLeg> payLeg() {
+      return _payLeg;
+    }
+
+    /**
+     * The meta-property for the {@code receiveLeg} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SwapLeg> receiveLeg() {
+      return _receiveLeg;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

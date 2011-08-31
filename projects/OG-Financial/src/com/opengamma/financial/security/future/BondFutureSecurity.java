@@ -1,274 +1,389 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.future;
-public class BondFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
-  public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitBondFutureSecurity (this); }
-  private static final long serialVersionUID = -1295017479784556760l;
-  private java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> _basket;
-  public static final String BASKET_KEY = "basket";
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.ImmutableList;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * A security for bond futures.
+ */
+@BeanDefinition
+public class BondFutureSecurity extends FutureSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The deliverables.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<BondFutureDeliverable> _basket = new ArrayList<BondFutureDeliverable>();
+  /**
+   * The bond type.
+   */
+  @PropertyDefinition(validate = "notNull")
   private String _bondType;
-  public static final String BOND_TYPE_KEY = "bondType";
-  private javax.time.calendar.ZonedDateTime _firstDeliveryDate;
-  public static final String FIRST_DELIVERY_DATE_KEY = "firstDeliveryDate";
-  private javax.time.calendar.ZonedDateTime _lastDeliveryDate;
-  public static final String LAST_DELIVERY_DATE_KEY = "lastDeliveryDate";
-  public BondFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, javax.time.calendar.ZonedDateTime firstDeliveryDate, javax.time.calendar.ZonedDateTime lastDeliveryDate) {
-    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    if (basket == null) throw new NullPointerException ("'basket' cannot be null");
-    else {
-      final java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> fudge0 = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (basket);
-      if (basket.size () == 0) throw new IllegalArgumentException ("'basket' cannot be an empty list");
-      for (java.util.ListIterator<com.opengamma.financial.security.future.BondFutureDeliverable> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        com.opengamma.financial.security.future.BondFutureDeliverable fudge2 = fudge1.next ();
-        if (fudge2 == null) throw new NullPointerException ("List element of 'basket' cannot be null");
-        fudge1.set ((com.opengamma.financial.security.future.BondFutureDeliverable)fudge2.clone ());
-      }
-      _basket = fudge0;
-    }
-    if (bondType == null) throw new NullPointerException ("bondType' cannot be null");
-    _bondType = bondType;
-    if (firstDeliveryDate == null) throw new NullPointerException ("'firstDeliveryDate' cannot be null");
-    else {
-      _firstDeliveryDate = firstDeliveryDate;
-    }
-    if (lastDeliveryDate == null) throw new NullPointerException ("'lastDeliveryDate' cannot be null");
-    else {
-      _lastDeliveryDate = lastDeliveryDate;
-    }
+  /**
+   * The first delivery date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _firstDeliveryDate;
+  /**
+   * The last delivery date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _lastDeliveryDate;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public BondFutureSecurity() {
+    super();
   }
-  protected BondFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    java.util.List<org.fudgemsg.FudgeField> fudgeFields;
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeFields = fudgeMsg.getAllByName (BASKET_KEY);
-    if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'basket' is not present");
-    _basket = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (fudgeFields.size ());
-    for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
-      try {
-        final com.opengamma.financial.security.future.BondFutureDeliverable fudge2;
-        fudge2 = com.opengamma.financial.security.future.BondFutureDeliverable.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
-        _basket.add (fudge2);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'basket' is not BondFutureDeliverable message", e);
-      }
-    }
-    fudgeField = fudgeMsg.getByName (BOND_TYPE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'bondType' is not present");
-    try {
-      _bondType = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'bondType' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (FIRST_DELIVERY_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'firstDeliveryDate' is not present");
-    try {
-      _firstDeliveryDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'firstDeliveryDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (LAST_DELIVERY_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not present");
-    try {
-      _lastDeliveryDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondFutureSecurity - field 'lastDeliveryDate' is not ZonedDateTime typedef", e);
-    }
+
+  public BondFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
+      Collection<? extends BondFutureDeliverable> basket, String bondType, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
+    setBasket(ImmutableList.copyOf(basket));
+    setBondType(bondType);
+    setFirstDeliveryDate(firstDeliveryDate);
+    setLastDeliveryDate(lastDeliveryDate);
   }
-  public BondFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket, String bondType, javax.time.calendar.ZonedDateTime firstDeliveryDate, javax.time.calendar.ZonedDateTime lastDeliveryDate) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    if (basket == null) throw new NullPointerException ("'basket' cannot be null");
-    else {
-      final java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> fudge0 = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (basket);
-      if (basket.size () == 0) throw new IllegalArgumentException ("'basket' cannot be an empty list");
-      for (java.util.ListIterator<com.opengamma.financial.security.future.BondFutureDeliverable> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        com.opengamma.financial.security.future.BondFutureDeliverable fudge2 = fudge1.next ();
-        if (fudge2 == null) throw new NullPointerException ("List element of 'basket' cannot be null");
-        fudge1.set ((com.opengamma.financial.security.future.BondFutureDeliverable)fudge2.clone ());
-      }
-      _basket = fudge0;
-    }
-    if (bondType == null) throw new NullPointerException ("bondType' cannot be null");
-    _bondType = bondType;
-    if (firstDeliveryDate == null) throw new NullPointerException ("'firstDeliveryDate' cannot be null");
-    else {
-      _firstDeliveryDate = firstDeliveryDate;
-    }
-    if (lastDeliveryDate == null) throw new NullPointerException ("'lastDeliveryDate' cannot be null");
-    else {
-      _lastDeliveryDate = lastDeliveryDate;
-    }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+    return visitor.visitBondFutureSecurity(this);
   }
-  protected BondFutureSecurity (final BondFutureSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._basket == null) _basket = null;
-    else {
-      final java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> fudge0 = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (source._basket);
-      for (java.util.ListIterator<com.opengamma.financial.security.future.BondFutureDeliverable> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        com.opengamma.financial.security.future.BondFutureDeliverable fudge2 = fudge1.next ();
-        fudge1.set ((com.opengamma.financial.security.future.BondFutureDeliverable)fudge2.clone ());
-      }
-      _basket = fudge0;
-    }
-    _bondType = source._bondType;
-    if (source._firstDeliveryDate == null) _firstDeliveryDate = null;
-    else {
-      _firstDeliveryDate = source._firstDeliveryDate;
-    }
-    if (source._lastDeliveryDate == null) _lastDeliveryDate = null;
-    else {
-      _lastDeliveryDate = source._lastDeliveryDate;
-    }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code BondFutureSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static BondFutureSecurity.Meta meta() {
+    return BondFutureSecurity.Meta.INSTANCE;
   }
-  public BondFutureSecurity clone () {
-    return new BondFutureSecurity (this);
+  static {
+    JodaBeanUtils.registerMetaBean(BondFutureSecurity.Meta.INSTANCE);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public BondFutureSecurity.Meta metaBean() {
+    return BondFutureSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_basket != null)  {
-      for (com.opengamma.financial.security.future.BondFutureDeliverable fudge1 : _basket) {
-        final org.fudgemsg.MutableFudgeMsg fudge2 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), fudge1.getClass (), com.opengamma.financial.security.future.BondFutureDeliverable.class);
-        fudge1.toFudgeMsg (serializer, fudge2);
-        msg.add (BASKET_KEY, null, fudge2);
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1396196922:  // basket
+        return getBasket();
+      case 1969562781:  // bondType
+        return getBondType();
+      case 1755448466:  // firstDeliveryDate
+        return getFirstDeliveryDate();
+      case -233366664:  // lastDeliveryDate
+        return getLastDeliveryDate();
     }
-    if (_bondType != null)  {
-      msg.add (BOND_TYPE_KEY, null, _bondType);
-    }
-    if (_firstDeliveryDate != null)  {
-      serializer.addToMessage (msg, FIRST_DELIVERY_DATE_KEY, null, _firstDeliveryDate);
-    }
-    if (_lastDeliveryDate != null)  {
-      serializer.addToMessage (msg, LAST_DELIVERY_DATE_KEY, null, _lastDeliveryDate);
-    }
+    return super.propertyGet(propertyName, quiet);
   }
-  public static BondFutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.future.BondFutureSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.future.BondFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1396196922:  // basket
+        setBasket((List<BondFutureDeliverable>) newValue);
+        return;
+      case 1969562781:  // bondType
+        setBondType((String) newValue);
+        return;
+      case 1755448466:  // firstDeliveryDate
+        setFirstDeliveryDate((ZonedDateTime) newValue);
+        return;
+      case -233366664:  // lastDeliveryDate
+        setLastDeliveryDate((ZonedDateTime) newValue);
+        return;
     }
-    return new BondFutureSecurity (deserializer, fudgeMsg);
+    super.propertySet(propertyName, newValue, quiet);
   }
-  public java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> getBasket () {
-    return java.util.Collections.unmodifiableList (_basket);
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_basket, "basket");
+    JodaBeanUtils.notNull(_bondType, "bondType");
+    JodaBeanUtils.notNull(_firstDeliveryDate, "firstDeliveryDate");
+    JodaBeanUtils.notNull(_lastDeliveryDate, "lastDeliveryDate");
+    super.validate();
   }
-  public void setBasket (com.opengamma.financial.security.future.BondFutureDeliverable basket) {
-    if (basket == null) throw new NullPointerException ("'basket' cannot be null");
-    else {
-      _basket = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (1);
-      addBasket (basket);
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
     }
-  }
-  public void setBasket (java.util.Collection<? extends com.opengamma.financial.security.future.BondFutureDeliverable> basket) {
-    if (basket == null) throw new NullPointerException ("'basket' cannot be null");
-    else {
-      final java.util.List<com.opengamma.financial.security.future.BondFutureDeliverable> fudge0 = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> (basket);
-      if (basket.size () == 0) throw new IllegalArgumentException ("'basket' cannot be an empty list");
-      for (java.util.ListIterator<com.opengamma.financial.security.future.BondFutureDeliverable> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        com.opengamma.financial.security.future.BondFutureDeliverable fudge2 = fudge1.next ();
-        if (fudge2 == null) throw new NullPointerException ("List element of 'basket' cannot be null");
-        fudge1.set ((com.opengamma.financial.security.future.BondFutureDeliverable)fudge2.clone ());
-      }
-      _basket = fudge0;
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondFutureSecurity other = (BondFutureSecurity) obj;
+      return JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
+          JodaBeanUtils.equal(getBondType(), other.getBondType()) &&
+          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
+          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
+          super.equals(obj);
     }
+    return false;
   }
-  public void addBasket (com.opengamma.financial.security.future.BondFutureDeliverable basket) {
-    if (basket == null) throw new NullPointerException ("'basket' cannot be null");
-    if (_basket == null) _basket = new java.util.ArrayList<com.opengamma.financial.security.future.BondFutureDeliverable> ();
-    _basket.add ((com.opengamma.financial.security.future.BondFutureDeliverable)basket.clone ());
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBondType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    return hash ^ super.hashCode();
   }
-  public String getBondType () {
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the deliverables.
+   * @return the value of the property, not null
+   */
+  public List<BondFutureDeliverable> getBasket() {
+    return _basket;
+  }
+
+  /**
+   * Sets the deliverables.
+   * @param basket  the new value of the property
+   */
+  public void setBasket(List<BondFutureDeliverable> basket) {
+    this._basket.clear();
+    this._basket.addAll(basket);
+  }
+
+  /**
+   * Gets the the {@code basket} property.
+   * @return the property, not null
+   */
+  public final Property<List<BondFutureDeliverable>> basket() {
+    return metaBean().basket().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the bond type.
+   * @return the value of the property, not null
+   */
+  public String getBondType() {
     return _bondType;
   }
-  public void setBondType (String bondType) {
-    if (bondType == null) throw new NullPointerException ("bondType' cannot be null");
-    _bondType = bondType;
+
+  /**
+   * Sets the bond type.
+   * @param bondType  the new value of the property, not null
+   */
+  public void setBondType(String bondType) {
+    JodaBeanUtils.notNull(bondType, "bondType");
+    this._bondType = bondType;
   }
-  public javax.time.calendar.ZonedDateTime getFirstDeliveryDate () {
+
+  /**
+   * Gets the the {@code bondType} property.
+   * @return the property, not null
+   */
+  public final Property<String> bondType() {
+    return metaBean().bondType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the first delivery date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getFirstDeliveryDate() {
     return _firstDeliveryDate;
   }
-  public void setFirstDeliveryDate (javax.time.calendar.ZonedDateTime firstDeliveryDate) {
-    if (firstDeliveryDate == null) throw new NullPointerException ("'firstDeliveryDate' cannot be null");
-    else {
-      _firstDeliveryDate = firstDeliveryDate;
-    }
+
+  /**
+   * Sets the first delivery date.
+   * @param firstDeliveryDate  the new value of the property, not null
+   */
+  public void setFirstDeliveryDate(ZonedDateTime firstDeliveryDate) {
+    JodaBeanUtils.notNull(firstDeliveryDate, "firstDeliveryDate");
+    this._firstDeliveryDate = firstDeliveryDate;
   }
-  public javax.time.calendar.ZonedDateTime getLastDeliveryDate () {
+
+  /**
+   * Gets the the {@code firstDeliveryDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> firstDeliveryDate() {
+    return metaBean().firstDeliveryDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the last delivery date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getLastDeliveryDate() {
     return _lastDeliveryDate;
   }
-  public void setLastDeliveryDate (javax.time.calendar.ZonedDateTime lastDeliveryDate) {
-    if (lastDeliveryDate == null) throw new NullPointerException ("'lastDeliveryDate' cannot be null");
-    else {
-      _lastDeliveryDate = lastDeliveryDate;
-    }
+
+  /**
+   * Sets the last delivery date.
+   * @param lastDeliveryDate  the new value of the property, not null
+   */
+  public void setLastDeliveryDate(ZonedDateTime lastDeliveryDate) {
+    JodaBeanUtils.notNull(lastDeliveryDate, "lastDeliveryDate");
+    this._lastDeliveryDate = lastDeliveryDate;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof BondFutureSecurity)) return false;
-    BondFutureSecurity msg = (BondFutureSecurity)o;
-    if (_basket != null) {
-      if (msg._basket != null) {
-        if (!_basket.equals (msg._basket)) return false;
-      }
-      else return false;
-    }
-    else if (msg._basket != null) return false;
-    if (_bondType != null) {
-      if (msg._bondType != null) {
-        if (!_bondType.equals (msg._bondType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._bondType != null) return false;
-    if (_firstDeliveryDate != null) {
-      if (msg._firstDeliveryDate != null) {
-        if (!_firstDeliveryDate.equals (msg._firstDeliveryDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._firstDeliveryDate != null) return false;
-    if (_lastDeliveryDate != null) {
-      if (msg._lastDeliveryDate != null) {
-        if (!_lastDeliveryDate.equals (msg._lastDeliveryDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._lastDeliveryDate != null) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code lastDeliveryDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> lastDeliveryDate() {
+    return metaBean().lastDeliveryDate().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_basket != null) hc += _basket.hashCode ();
-    hc *= 31;
-    if (_bondType != null) hc += _bondType.hashCode ();
-    hc *= 31;
-    if (_firstDeliveryDate != null) hc += _firstDeliveryDate.hashCode ();
-    hc *= 31;
-    if (_lastDeliveryDate != null) hc += _lastDeliveryDate.hashCode ();
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code BondFutureSecurity}.
+   */
+  public static class Meta extends FutureSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code basket} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<BondFutureDeliverable>> _basket = DirectMetaProperty.ofReadWrite(
+        this, "basket", BondFutureSecurity.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code bondType} property.
+     */
+    private final MetaProperty<String> _bondType = DirectMetaProperty.ofReadWrite(
+        this, "bondType", BondFutureSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code firstDeliveryDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _firstDeliveryDate = DirectMetaProperty.ofReadWrite(
+        this, "firstDeliveryDate", BondFutureSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code lastDeliveryDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _lastDeliveryDate = DirectMetaProperty.ofReadWrite(
+        this, "lastDeliveryDate", BondFutureSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "basket",
+        "bondType",
+        "firstDeliveryDate",
+        "lastDeliveryDate");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1396196922:  // basket
+          return _basket;
+        case 1969562781:  // bondType
+          return _bondType;
+        case 1755448466:  // firstDeliveryDate
+          return _firstDeliveryDate;
+        case -233366664:  // lastDeliveryDate
+          return _lastDeliveryDate;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends BondFutureSecurity> builder() {
+      return new DirectBeanBuilder<BondFutureSecurity>(new BondFutureSecurity());
+    }
+
+    @Override
+    public Class<? extends BondFutureSecurity> beanType() {
+      return BondFutureSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code basket} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<BondFutureDeliverable>> basket() {
+      return _basket;
+    }
+
+    /**
+     * The meta-property for the {@code bondType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> bondType() {
+      return _bondType;
+    }
+
+    /**
+     * The meta-property for the {@code firstDeliveryDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> firstDeliveryDate() {
+      return _firstDeliveryDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastDeliveryDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> lastDeliveryDate() {
+      return _lastDeliveryDate;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

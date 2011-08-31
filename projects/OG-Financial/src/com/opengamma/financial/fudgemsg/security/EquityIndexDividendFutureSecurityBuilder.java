@@ -34,7 +34,7 @@ public class EquityIndexDividendFutureSecurityBuilder extends AbstractFudgeBuild
 
   @Override
   public EquityIndexDividendFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EquityIndexDividendFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EquityIndexDividendFutureSecurity.class);
+    EquityIndexDividendFutureSecurity object = new EquityIndexDividendFutureSecurity();
     EquityIndexDividendFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

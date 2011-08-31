@@ -1,433 +1,786 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.capfloor;
-public class CapFloorCMSSpreadSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public <T> T accept(CapFloorCMSSpreadSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); };
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); }
-  private static final long serialVersionUID = -5326972972901251765l;
-  private javax.time.calendar.ZonedDateTime _startDate;
-  public static final String START_DATE_KEY = "startDate";
-  private javax.time.calendar.ZonedDateTime _maturityDate;
-  public static final String MATURITY_DATE_KEY = "maturityDate";
-  private double _notional;
-  public static final String NOTIONAL_KEY = "notional";
-  private com.opengamma.id.ExternalId _longIdentifier;
-  public static final String LONG_IDENTIFIER_KEY = "longIdentifier";
-  private com.opengamma.id.ExternalId _shortIdentifier;
-  public static final String SHORT_IDENTIFIER_KEY = "shortIdentifier";
-  private double _strike;
-  public static final String STRIKE_KEY = "strike";
-  private com.opengamma.financial.convention.frequency.Frequency _frequency;
-  public static final String FREQUENCY_KEY = "frequency";
-  private com.opengamma.util.money.Currency _currency;
-  public static final String CURRENCY_KEY = "currency";
-  private com.opengamma.financial.convention.daycount.DayCount _dayCount;
-  public static final String DAY_COUNT_KEY = "dayCount";
-  private boolean _isPayer;
-  public static final String IS_PAYER_KEY = "isPayer";
-  private boolean _isCap;
-  public static final String IS_CAP_KEY = "isCap";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+
+/**
+ * A security for a cap/floor CMS spread.
+ */
+@BeanDefinition
+public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "CAP/FLOOR CMS SPREAD";
-  public CapFloorCMSSpreadSecurity (javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.ExternalId longIdentifier, com.opengamma.id.ExternalId shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
-    super (SECURITY_TYPE);
-    if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
-    else {
-      _startDate = startDate;
-    }
-    if (maturityDate == null) throw new NullPointerException ("'maturityDate' cannot be null");
-    else {
-      _maturityDate = maturityDate;
-    }
-    _notional = notional;
-    if (longIdentifier == null) throw new NullPointerException ("'longIdentifier' cannot be null");
-    else {
-      _longIdentifier = longIdentifier;
-    }
-    if (shortIdentifier == null) throw new NullPointerException ("'shortIdentifier' cannot be null");
-    else {
-      _shortIdentifier = shortIdentifier;
-    }
-    _strike = strike;
-    if (frequency == null) throw new NullPointerException ("frequency' cannot be null");
-    _frequency = frequency;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    if (dayCount == null) throw new NullPointerException ("dayCount' cannot be null");
-    _dayCount = dayCount;
-    _isPayer = isPayer;
-    _isCap = isCap;
+
+  /**
+   * The start date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _startDate;
+  /**
+   * The maturity date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _maturityDate;
+  /**
+   * The notional.
+   */
+  @PropertyDefinition
+  private double _notional;
+  /**
+   * The long identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _longIdentifier;
+  /**
+   * The short identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _shortIdentifier;
+  /**
+   * The strike.
+   */
+  @PropertyDefinition
+  private double _strike;
+  /**
+   * The frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _frequency;
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+  /**
+   * The day count.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _dayCount;
+  /**
+   * The payer flag.
+   */
+  @PropertyDefinition(get = "get")
+  private boolean _isPayer;
+  /**
+   * The cap flag.
+   */
+  @PropertyDefinition(get = "get")
+  private boolean _isCap;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public CapFloorCMSSpreadSecurity() {
   }
-  protected CapFloorCMSSpreadSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (START_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'startDate' is not present");
-    try {
-      _startDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'startDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (MATURITY_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'maturityDate' is not present");
-    try {
-      _maturityDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'maturityDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (NOTIONAL_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'notional' is not present");
-    try {
-      _notional = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'notional' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (LONG_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'longIdentifier' is not present");
-    try {
-      _longIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'longIdentifier' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (SHORT_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'shortIdentifier' is not present");
-    try {
-      _shortIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'shortIdentifier' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (STRIKE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'strike' is not present");
-    try {
-      _strike = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'strike' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (FREQUENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'frequency' is not present");
-    try {
-      _frequency = fudgeMsg.getFieldValue (com.opengamma.financial.convention.frequency.Frequency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'frequency' is not Frequency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'currency' is not present");
-    try {
-      _currency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'currency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (DAY_COUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'dayCount' is not present");
-    try {
-      _dayCount = fudgeMsg.getFieldValue (com.opengamma.financial.convention.daycount.DayCount.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'dayCount' is not DayCount typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (IS_PAYER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'isPayer' is not present");
-    try {
-      _isPayer = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'isPayer' is not boolean", e);
-    }
-    fudgeField = fudgeMsg.getByName (IS_CAP_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'isCap' is not present");
-    try {
-      _isCap = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CapFloorCMSSpreadSecurity - field 'isCap' is not boolean", e);
-    }
+
+  public CapFloorCMSSpreadSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId longIdentifier,
+      ExternalId shortIdentifier, double strike, Frequency frequency, Currency currency, DayCount dayCount, boolean isPayer, boolean isCap) {
+    super(SECURITY_TYPE);
+    setStartDate(startDate);
+    setMaturityDate(maturityDate);
+    setNotional(notional);
+    setLongIdentifier(longIdentifier);
+    setShortIdentifier(shortIdentifier);
+    setStrike(strike);
+    setFrequency(frequency);
+    setCurrency(currency);
+    setDayCount(dayCount);
+    setIsPayer(isPayer);
+    setIsCap(isCap);
   }
-  public CapFloorCMSSpreadSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, javax.time.calendar.ZonedDateTime startDate, javax.time.calendar.ZonedDateTime maturityDate, double notional, com.opengamma.id.ExternalId longIdentifier, com.opengamma.id.ExternalId shortIdentifier, double strike, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.daycount.DayCount dayCount, boolean isPayer, boolean isCap) {
-    super (uniqueId, name, securityType, identifiers);
-    if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
-    else {
-      _startDate = startDate;
-    }
-    if (maturityDate == null) throw new NullPointerException ("'maturityDate' cannot be null");
-    else {
-      _maturityDate = maturityDate;
-    }
-    _notional = notional;
-    if (longIdentifier == null) throw new NullPointerException ("'longIdentifier' cannot be null");
-    else {
-      _longIdentifier = longIdentifier;
-    }
-    if (shortIdentifier == null) throw new NullPointerException ("'shortIdentifier' cannot be null");
-    else {
-      _shortIdentifier = shortIdentifier;
-    }
-    _strike = strike;
-    if (frequency == null) throw new NullPointerException ("frequency' cannot be null");
-    _frequency = frequency;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    if (dayCount == null) throw new NullPointerException ("dayCount' cannot be null");
-    _dayCount = dayCount;
-    _isPayer = isPayer;
-    _isCap = isCap;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitCapFloorCMSSpreadSecurity(this);
   }
-  protected CapFloorCMSSpreadSecurity (final CapFloorCMSSpreadSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._startDate == null) _startDate = null;
-    else {
-      _startDate = source._startDate;
-    }
-    if (source._maturityDate == null) _maturityDate = null;
-    else {
-      _maturityDate = source._maturityDate;
-    }
-    _notional = source._notional;
-    if (source._longIdentifier == null) _longIdentifier = null;
-    else {
-      _longIdentifier = source._longIdentifier;
-    }
-    if (source._shortIdentifier == null) _shortIdentifier = null;
-    else {
-      _shortIdentifier = source._shortIdentifier;
-    }
-    _strike = source._strike;
-    _frequency = source._frequency;
-    _currency = source._currency;
-    _dayCount = source._dayCount;
-    _isPayer = source._isPayer;
-    _isCap = source._isCap;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(CapFloorCMSSpreadSecurityVisitor<T> visitor) {
+    return visitor.visitCapFloorCMSSpreadSecurity(this);
   }
-  public CapFloorCMSSpreadSecurity clone () {
-    return new CapFloorCMSSpreadSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CapFloorCMSSpreadSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static CapFloorCMSSpreadSecurity.Meta meta() {
+    return CapFloorCMSSpreadSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(CapFloorCMSSpreadSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_startDate != null)  {
-      serializer.addToMessage (msg, START_DATE_KEY, null, _startDate);
-    }
-    if (_maturityDate != null)  {
-      serializer.addToMessage (msg, MATURITY_DATE_KEY, null, _maturityDate);
-    }
-    msg.add (NOTIONAL_KEY, null, _notional);
-    if (_longIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _longIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _longIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (LONG_IDENTIFIER_KEY, null, fudge1);
-    }
-    if (_shortIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _shortIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _shortIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (SHORT_IDENTIFIER_KEY, null, fudge1);
-    }
-    msg.add (STRIKE_KEY, null, _strike);
-    if (_frequency != null)  {
-      msg.add (FREQUENCY_KEY, null, _frequency);
-    }
-    if (_currency != null)  {
-      msg.add (CURRENCY_KEY, null, _currency);
-    }
-    if (_dayCount != null)  {
-      msg.add (DAY_COUNT_KEY, null, _dayCount);
-    }
-    msg.add (IS_PAYER_KEY, null, _isPayer);
-    msg.add (IS_CAP_KEY, null, _isCap);
+
+  @Override
+  public CapFloorCMSSpreadSecurity.Meta metaBean() {
+    return CapFloorCMSSpreadSecurity.Meta.INSTANCE;
   }
-  public static CapFloorCMSSpreadSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -2129778896:  // startDate
+        return getStartDate();
+      case -414641441:  // maturityDate
+        return getMaturityDate();
+      case 1585636160:  // notional
+        return getNotional();
+      case 18113605:  // longIdentifier
+        return getLongIdentifier();
+      case -2054053307:  // shortIdentifier
+        return getShortIdentifier();
+      case -891985998:  // strike
+        return getStrike();
+      case -70023844:  // frequency
+        return getFrequency();
+      case 575402001:  // currency
+        return getCurrency();
+      case 1905311443:  // dayCount
+        return getDayCount();
+      case 2067849291:  // isPayer
+        return getIsPayer();
+      case 100463176:  // isCap
+        return getIsCap();
     }
-    return new CapFloorCMSSpreadSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public javax.time.calendar.ZonedDateTime getStartDate () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -2129778896:  // startDate
+        setStartDate((ZonedDateTime) newValue);
+        return;
+      case -414641441:  // maturityDate
+        setMaturityDate((ZonedDateTime) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Double) newValue);
+        return;
+      case 18113605:  // longIdentifier
+        setLongIdentifier((ExternalId) newValue);
+        return;
+      case -2054053307:  // shortIdentifier
+        setShortIdentifier((ExternalId) newValue);
+        return;
+      case -891985998:  // strike
+        setStrike((Double) newValue);
+        return;
+      case -70023844:  // frequency
+        setFrequency((Frequency) newValue);
+        return;
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
+        return;
+      case 1905311443:  // dayCount
+        setDayCount((DayCount) newValue);
+        return;
+      case 2067849291:  // isPayer
+        setIsPayer((Boolean) newValue);
+        return;
+      case 100463176:  // isCap
+        setIsCap((Boolean) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_startDate, "startDate");
+    JodaBeanUtils.notNull(_maturityDate, "maturityDate");
+    JodaBeanUtils.notNull(_longIdentifier, "longIdentifier");
+    JodaBeanUtils.notNull(_shortIdentifier, "shortIdentifier");
+    JodaBeanUtils.notNull(_frequency, "frequency");
+    JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_dayCount, "dayCount");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CapFloorCMSSpreadSecurity other = (CapFloorCMSSpreadSecurity) obj;
+      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getLongIdentifier(), other.getLongIdentifier()) &&
+          JodaBeanUtils.equal(getShortIdentifier(), other.getShortIdentifier()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getIsPayer(), other.getIsPayer()) &&
+          JodaBeanUtils.equal(getIsCap(), other.getIsCap()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLongIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getShortIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIsPayer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIsCap());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the start date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getStartDate() {
     return _startDate;
   }
-  public void setStartDate (javax.time.calendar.ZonedDateTime startDate) {
-    if (startDate == null) throw new NullPointerException ("'startDate' cannot be null");
-    else {
-      _startDate = startDate;
-    }
+
+  /**
+   * Sets the start date.
+   * @param startDate  the new value of the property, not null
+   */
+  public void setStartDate(ZonedDateTime startDate) {
+    JodaBeanUtils.notNull(startDate, "startDate");
+    this._startDate = startDate;
   }
-  public javax.time.calendar.ZonedDateTime getMaturityDate () {
+
+  /**
+   * Gets the the {@code startDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> startDate() {
+    return metaBean().startDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturity date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getMaturityDate() {
     return _maturityDate;
   }
-  public void setMaturityDate (javax.time.calendar.ZonedDateTime maturityDate) {
-    if (maturityDate == null) throw new NullPointerException ("'maturityDate' cannot be null");
-    else {
-      _maturityDate = maturityDate;
-    }
+
+  /**
+   * Sets the maturity date.
+   * @param maturityDate  the new value of the property, not null
+   */
+  public void setMaturityDate(ZonedDateTime maturityDate) {
+    JodaBeanUtils.notNull(maturityDate, "maturityDate");
+    this._maturityDate = maturityDate;
   }
-  public double getNotional () {
+
+  /**
+   * Gets the the {@code maturityDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> maturityDate() {
+    return metaBean().maturityDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional.
+   * @return the value of the property
+   */
+  public double getNotional() {
     return _notional;
   }
-  public void setNotional (double notional) {
-    _notional = notional;
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property
+   */
+  public void setNotional(double notional) {
+    this._notional = notional;
   }
-  public com.opengamma.id.ExternalId getLongIdentifier () {
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Double> notional() {
+    return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the long identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getLongIdentifier() {
     return _longIdentifier;
   }
-  public void setLongIdentifier (com.opengamma.id.ExternalId longIdentifier) {
-    if (longIdentifier == null) throw new NullPointerException ("'longIdentifier' cannot be null");
-    else {
-      _longIdentifier = longIdentifier;
-    }
+
+  /**
+   * Sets the long identifier.
+   * @param longIdentifier  the new value of the property, not null
+   */
+  public void setLongIdentifier(ExternalId longIdentifier) {
+    JodaBeanUtils.notNull(longIdentifier, "longIdentifier");
+    this._longIdentifier = longIdentifier;
   }
-  public com.opengamma.id.ExternalId getShortIdentifier () {
+
+  /**
+   * Gets the the {@code longIdentifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> longIdentifier() {
+    return metaBean().longIdentifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the short identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getShortIdentifier() {
     return _shortIdentifier;
   }
-  public void setShortIdentifier (com.opengamma.id.ExternalId shortIdentifier) {
-    if (shortIdentifier == null) throw new NullPointerException ("'shortIdentifier' cannot be null");
-    else {
-      _shortIdentifier = shortIdentifier;
-    }
+
+  /**
+   * Sets the short identifier.
+   * @param shortIdentifier  the new value of the property, not null
+   */
+  public void setShortIdentifier(ExternalId shortIdentifier) {
+    JodaBeanUtils.notNull(shortIdentifier, "shortIdentifier");
+    this._shortIdentifier = shortIdentifier;
   }
-  public double getStrike () {
+
+  /**
+   * Gets the the {@code shortIdentifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> shortIdentifier() {
+    return metaBean().shortIdentifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the strike.
+   * @return the value of the property
+   */
+  public double getStrike() {
     return _strike;
   }
-  public void setStrike (double strike) {
-    _strike = strike;
+
+  /**
+   * Sets the strike.
+   * @param strike  the new value of the property
+   */
+  public void setStrike(double strike) {
+    this._strike = strike;
   }
-  public com.opengamma.financial.convention.frequency.Frequency getFrequency () {
+
+  /**
+   * Gets the the {@code strike} property.
+   * @return the property, not null
+   */
+  public final Property<Double> strike() {
+    return metaBean().strike().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the frequency.
+   * @return the value of the property, not null
+   */
+  public Frequency getFrequency() {
     return _frequency;
   }
-  public void setFrequency (com.opengamma.financial.convention.frequency.Frequency frequency) {
-    if (frequency == null) throw new NullPointerException ("frequency' cannot be null");
-    _frequency = frequency;
+
+  /**
+   * Sets the frequency.
+   * @param frequency  the new value of the property, not null
+   */
+  public void setFrequency(Frequency frequency) {
+    JodaBeanUtils.notNull(frequency, "frequency");
+    this._frequency = frequency;
   }
-  public com.opengamma.util.money.Currency getCurrency () {
+
+  /**
+   * Gets the the {@code frequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> frequency() {
+    return metaBean().frequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  public void setCurrency (com.opengamma.util.money.Currency currency) {
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
   }
-  public com.opengamma.financial.convention.daycount.DayCount getDayCount () {
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the day count.
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCount() {
     return _dayCount;
   }
-  public void setDayCount (com.opengamma.financial.convention.daycount.DayCount dayCount) {
-    if (dayCount == null) throw new NullPointerException ("dayCount' cannot be null");
-    _dayCount = dayCount;
+
+  /**
+   * Sets the day count.
+   * @param dayCount  the new value of the property, not null
+   */
+  public void setDayCount(DayCount dayCount) {
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    this._dayCount = dayCount;
   }
-  public boolean getIsPayer () {
+
+  /**
+   * Gets the the {@code dayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> dayCount() {
+    return metaBean().dayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payer flag.
+   * @return the value of the property
+   */
+  public boolean getIsPayer() {
     return _isPayer;
   }
-  public void setIsPayer (boolean isPayer) {
-    _isPayer = isPayer;
+
+  /**
+   * Sets the payer flag.
+   * @param isPayer  the new value of the property
+   */
+  public void setIsPayer(boolean isPayer) {
+    this._isPayer = isPayer;
   }
-  public boolean getIsCap () {
+
+  /**
+   * Gets the the {@code isPayer} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> isPayer() {
+    return metaBean().isPayer().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cap flag.
+   * @return the value of the property
+   */
+  public boolean getIsCap() {
     return _isCap;
   }
-  public void setIsCap (boolean isCap) {
-    _isCap = isCap;
+
+  /**
+   * Sets the cap flag.
+   * @param isCap  the new value of the property
+   */
+  public void setIsCap(boolean isCap) {
+    this._isCap = isCap;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof CapFloorCMSSpreadSecurity)) return false;
-    CapFloorCMSSpreadSecurity msg = (CapFloorCMSSpreadSecurity)o;
-    if (_startDate != null) {
-      if (msg._startDate != null) {
-        if (!_startDate.equals (msg._startDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._startDate != null) return false;
-    if (_maturityDate != null) {
-      if (msg._maturityDate != null) {
-        if (!_maturityDate.equals (msg._maturityDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._maturityDate != null) return false;
-    if (_notional != msg._notional) return false;
-    if (_longIdentifier != null) {
-      if (msg._longIdentifier != null) {
-        if (!_longIdentifier.equals (msg._longIdentifier)) return false;
-      }
-      else return false;
-    }
-    else if (msg._longIdentifier != null) return false;
-    if (_shortIdentifier != null) {
-      if (msg._shortIdentifier != null) {
-        if (!_shortIdentifier.equals (msg._shortIdentifier)) return false;
-      }
-      else return false;
-    }
-    else if (msg._shortIdentifier != null) return false;
-    if (_strike != msg._strike) return false;
-    if (_frequency != null) {
-      if (msg._frequency != null) {
-        if (!_frequency.equals (msg._frequency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._frequency != null) return false;
-    if (_currency != null) {
-      if (msg._currency != null) {
-        if (!_currency.equals (msg._currency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._currency != null) return false;
-    if (_dayCount != null) {
-      if (msg._dayCount != null) {
-        if (!_dayCount.equals (msg._dayCount)) return false;
-      }
-      else return false;
-    }
-    else if (msg._dayCount != null) return false;
-    if (_isPayer != msg._isPayer) return false;
-    if (_isCap != msg._isCap) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code isCap} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> isCap() {
+    return metaBean().isCap().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_startDate != null) hc += _startDate.hashCode ();
-    hc *= 31;
-    if (_maturityDate != null) hc += _maturityDate.hashCode ();
-    hc = (hc * 31) + (int)_notional;
-    hc *= 31;
-    if (_longIdentifier != null) hc += _longIdentifier.hashCode ();
-    hc *= 31;
-    if (_shortIdentifier != null) hc += _shortIdentifier.hashCode ();
-    hc = (hc * 31) + (int)_strike;
-    hc *= 31;
-    if (_frequency != null) hc += _frequency.hashCode ();
-    hc *= 31;
-    if (_currency != null) hc += _currency.hashCode ();
-    hc *= 31;
-    if (_dayCount != null) hc += _dayCount.hashCode ();
-    hc *= 31;
-    if (_isPayer) hc++;
-    hc *= 31;
-    if (_isCap) hc++;
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code CapFloorCMSSpreadSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _startDate = DirectMetaProperty.ofReadWrite(
+        this, "startDate", CapFloorCMSSpreadSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code maturityDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _maturityDate = DirectMetaProperty.ofReadWrite(
+        this, "maturityDate", CapFloorCMSSpreadSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", CapFloorCMSSpreadSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code longIdentifier} property.
+     */
+    private final MetaProperty<ExternalId> _longIdentifier = DirectMetaProperty.ofReadWrite(
+        this, "longIdentifier", CapFloorCMSSpreadSecurity.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code shortIdentifier} property.
+     */
+    private final MetaProperty<ExternalId> _shortIdentifier = DirectMetaProperty.ofReadWrite(
+        this, "shortIdentifier", CapFloorCMSSpreadSecurity.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code strike} property.
+     */
+    private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
+        this, "strike", CapFloorCMSSpreadSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code frequency} property.
+     */
+    private final MetaProperty<Frequency> _frequency = DirectMetaProperty.ofReadWrite(
+        this, "frequency", CapFloorCMSSpreadSecurity.class, Frequency.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", CapFloorCMSSpreadSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", CapFloorCMSSpreadSecurity.class, DayCount.class);
+    /**
+     * The meta-property for the {@code isPayer} property.
+     */
+    private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
+        this, "isPayer", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code isCap} property.
+     */
+    private final MetaProperty<Boolean> _isCap = DirectMetaProperty.ofReadWrite(
+        this, "isCap", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "startDate",
+        "maturityDate",
+        "notional",
+        "longIdentifier",
+        "shortIdentifier",
+        "strike",
+        "frequency",
+        "currency",
+        "dayCount",
+        "isPayer",
+        "isCap");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          return _startDate;
+        case -414641441:  // maturityDate
+          return _maturityDate;
+        case 1585636160:  // notional
+          return _notional;
+        case 18113605:  // longIdentifier
+          return _longIdentifier;
+        case -2054053307:  // shortIdentifier
+          return _shortIdentifier;
+        case -891985998:  // strike
+          return _strike;
+        case -70023844:  // frequency
+          return _frequency;
+        case 575402001:  // currency
+          return _currency;
+        case 1905311443:  // dayCount
+          return _dayCount;
+        case 2067849291:  // isPayer
+          return _isPayer;
+        case 100463176:  // isCap
+          return _isCap;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends CapFloorCMSSpreadSecurity> builder() {
+      return new DirectBeanBuilder<CapFloorCMSSpreadSecurity>(new CapFloorCMSSpreadSecurity());
+    }
+
+    @Override
+    public Class<? extends CapFloorCMSSpreadSecurity> beanType() {
+      return CapFloorCMSSpreadSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> startDate() {
+      return _startDate;
+    }
+
+    /**
+     * The meta-property for the {@code maturityDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> maturityDate() {
+      return _maturityDate;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code longIdentifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> longIdentifier() {
+      return _longIdentifier;
+    }
+
+    /**
+     * The meta-property for the {@code shortIdentifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> shortIdentifier() {
+      return _shortIdentifier;
+    }
+
+    /**
+     * The meta-property for the {@code strike} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> strike() {
+      return _strike;
+    }
+
+    /**
+     * The meta-property for the {@code frequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> frequency() {
+      return _frequency;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> dayCount() {
+      return _dayCount;
+    }
+
+    /**
+     * The meta-property for the {@code isPayer} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> isPayer() {
+      return _isPayer;
+    }
+
+    /**
+     * The meta-property for the {@code isCap} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> isCap() {
+      return _isCap;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

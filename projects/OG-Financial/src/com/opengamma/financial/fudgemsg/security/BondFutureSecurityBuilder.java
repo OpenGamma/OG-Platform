@@ -57,7 +57,7 @@ public class BondFutureSecurityBuilder extends AbstractFudgeBuilder implements F
 
   @Override
   public BondFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    BondFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(BondFutureSecurity.class);
+    BondFutureSecurity object = new BondFutureSecurity();
     BondFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

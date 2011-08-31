@@ -59,7 +59,7 @@ public class FXOptionSecurityBuilder extends AbstractFudgeBuilder implements Fud
 
   @Override
   public FXOptionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FXOptionSecurity object = FinancialSecurityBuilder.backdoorCreateClass(FXOptionSecurity.class);
+    FXOptionSecurity object = new FXOptionSecurity();
     FXOptionSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

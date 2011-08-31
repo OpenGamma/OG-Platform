@@ -67,7 +67,7 @@ public class IRFutureOptionSecurityBuilder extends AbstractFudgeBuilder implemen
 
   @Override
   public IRFutureOptionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    IRFutureOptionSecurity object = FinancialSecurityBuilder.backdoorCreateClass(IRFutureOptionSecurity.class);
+    IRFutureOptionSecurity object = new IRFutureOptionSecurity();
     IRFutureOptionSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

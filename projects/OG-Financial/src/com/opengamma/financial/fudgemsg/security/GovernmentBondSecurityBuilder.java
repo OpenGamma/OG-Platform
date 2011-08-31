@@ -34,7 +34,7 @@ public class GovernmentBondSecurityBuilder extends AbstractFudgeBuilder implemen
 
   @Override
   public GovernmentBondSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    GovernmentBondSecurity object = FinancialSecurityBuilder.backdoorCreateClass(GovernmentBondSecurity.class);
+    GovernmentBondSecurity object = new GovernmentBondSecurity();
     GovernmentBondSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

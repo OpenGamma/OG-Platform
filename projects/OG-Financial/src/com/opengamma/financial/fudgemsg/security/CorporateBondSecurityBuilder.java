@@ -34,7 +34,7 @@ public class CorporateBondSecurityBuilder extends AbstractFudgeBuilder implement
 
   @Override
   public CorporateBondSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    CorporateBondSecurity object = FinancialSecurityBuilder.backdoorCreateClass(CorporateBondSecurity.class);
+    CorporateBondSecurity object = new CorporateBondSecurity();
     CorporateBondSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

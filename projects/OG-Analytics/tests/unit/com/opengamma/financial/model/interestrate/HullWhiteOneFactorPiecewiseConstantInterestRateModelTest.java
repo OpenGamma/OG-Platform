@@ -223,8 +223,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " alpha Hull-White adjoint (value+" + nbVolatility + " derivatives): " + (endTime - startTime) + " ms");
-    // Performance note: value: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000000 swaptions.
-    // Performance note: value+derivatives: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 335 ms for 1000000 swaptions.
+    // Performance note: value: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 1000000 swaptions.
+    // Performance note: value+derivatives: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 100 ms for 1000000 swaptions.
     System.out.println("Alpha: " + alpha);
   }
 

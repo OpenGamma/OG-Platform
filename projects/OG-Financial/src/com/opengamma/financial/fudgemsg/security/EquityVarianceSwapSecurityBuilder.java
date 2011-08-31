@@ -72,7 +72,7 @@ public class EquityVarianceSwapSecurityBuilder extends AbstractFudgeBuilder impl
 
   @Override
   public EquityVarianceSwapSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EquityVarianceSwapSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EquityVarianceSwapSecurity.class);
+    EquityVarianceSwapSecurity object = new EquityVarianceSwapSecurity();
     EquityVarianceSwapSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
