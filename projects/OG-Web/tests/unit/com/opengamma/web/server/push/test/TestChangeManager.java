@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * TODO delete this class, it doesn't belong in the non-test source
+ *
  */
 public class TestChangeManager implements ChangeManager {
 

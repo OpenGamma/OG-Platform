@@ -26,27 +26,30 @@ public class LongPollingServlet extends SpringConfiguredServlet {
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    Continuation continuation = ContinuationSupport.getContinuation(request);
+    if (continuation.isExpired()) {
+      // timeout - just send a blank reponse and tell the connection that its continuation has timed out
+      String clientId = (String) continuation.getAttribute(CLIENT_ID);
+      if (clientId != null) {
+        _connectionManager.timeout(clientId);
+      }
+      return;
+    }
+    String results = (String) request.getAttribute(RESULTS);
     // if this is the first time the request has been dispatched the results will be null. if the request has been
     // dispatched before and is being dispatched again after its continuation was resumed the results will be populated
-    String results = (String) request.getAttribute(RESULTS);
     if (results == null) {
-      setUpConnection(request, response);
+      setUpConnection(continuation, request, response);
     } else {
       // Send the results
       response.getWriter().write(results);
     }
   }
 
-  private void setUpConnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    Continuation continuation = ContinuationSupport.getContinuation(request);
-    if (continuation.isExpired()) {
-      // timeout - just send a blank reponse
-      return;
-    }
+  private void setUpConnection(Continuation continuation, HttpServletRequest request, HttpServletResponse response) throws IOException {
     // suspend the request
     continuation.suspend(); // always suspend before registration
     String userId = request.getRemoteUser(); // TODO is this right?
-    // TODO reactivate the viewport? how will we know?
     // get the client ID from the URL and pass the continuation to the connection manager for the next updates
     String clientId = getClientId(request);
     boolean connected = (clientId != null) && _connectionManager.connect(userId, clientId, continuation);
@@ -55,6 +58,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
       response.sendError(404);
       continuation.complete();
     }
+    continuation.setAttribute(CLIENT_ID, clientId);
   }
 
   /**

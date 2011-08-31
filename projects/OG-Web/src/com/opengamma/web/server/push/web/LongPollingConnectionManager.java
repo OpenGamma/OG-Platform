@@ -6,11 +6,10 @@
 package com.opengamma.web.server.push.web;
 
 import com.google.common.base.Objects;
-import com.opengamma.web.server.push.subscription.TimeoutListener;
 import com.opengamma.web.server.push.subscription.RestUpdateManager;
+import com.opengamma.web.server.push.subscription.TimeoutListener;
 import org.eclipse.jetty.continuation.Continuation;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,6 +58,14 @@ import java.util.concurrent.ConcurrentHashMap;
   boolean isClientConnected(String clientId) {
     LongPollingUpdateListener listener = _connections.get(clientId);
     return listener != null && listener.isConnected();
+  }
+
+  public void timeout(String clientId) {
+    // TODO implement LongPollingConnectionManager.timeout()
+    LongPollingUpdateListener listener = _connections.get(clientId);
+    if (listener != null) {
+      listener.timeout();
+    }
   }
 
   private class DisconnectionListener implements TimeoutListener {

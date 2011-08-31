@@ -15,15 +15,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.opengamma.web.server.push.web.WebPushTestUtils.checkJsonResults;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.handshake;
 import static com.opengamma.web.server.push.web.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Tests pushing results to a long polling HTTP connection.
@@ -135,6 +132,17 @@ public class LongPollingTest {
     checkJsonResults(readFromPath(path), RESULT2);
     checkJsonResults(readFromPath(path), RESULT3);
     checkJsonResults(readFromPath(path), RESULT2);
+    checkJsonResults(readFromPath(path), RESULT1);
+  }
+
+  @Test
+  public void longPollTimeout() throws IOException, JSONException {
+    String clientId = handshake();
+    String path = "/updates/" + clientId;
+    String timeoutResult = readFromPath(path);
+    // TODO empty or null?
+    assertEquals("", timeoutResult);
+    _updateManager.sendUpdate(RESULT1);
     checkJsonResults(readFromPath(path), RESULT1);
   }
 

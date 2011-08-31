@@ -58,10 +58,6 @@ import java.util.Set;
 
   /* package */ void connect(Continuation continuation) {
     synchronized (_lock) {
-      // what if _continuation isn't null? shouldn't happen but is possible. is it an error?
-      if (_continuation != null) {
-        continuation.complete();
-      }
       _continuation = continuation;
       // if there are updates queued sent them immediately otherwise save the continuation until an update
       if (!_updates.isEmpty()) {
@@ -102,11 +98,18 @@ import java.util.Set;
     synchronized (_lock) {
       if (_continuation != null) {
         _continuation.complete();
+        _continuation = null;
       }
     }
   }
 
   public String getUserId() {
     return _userId;
+  }
+
+  public void timeout() {
+    synchronized (_lock) {
+      _continuation = null;
+    }
   }
 }
