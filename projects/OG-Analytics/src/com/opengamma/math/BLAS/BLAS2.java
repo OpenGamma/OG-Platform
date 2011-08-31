@@ -7,7 +7,6 @@ package com.opengamma.math.BLAS;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.FullMatrix;
@@ -42,8 +41,6 @@ public class BLAS2 {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertEquals(aMatrix.getNumberOfColumns(), aVector.length); // check commutable
-    assertTrue(aMatrix.getNumberOfRows() < (1 << 16)); // check row space in range of 32bit int
-    assertTrue(aMatrix.getNumberOfColumns() < (1 << 16)); // check col space in range of 32bit int
   }
 
   /**
@@ -56,10 +53,8 @@ public class BLAS2 {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertNotNull(aYVector); // check not null
-    assertEquals(aMatrix.getNumberOfRows(), aVector.length); // check commutable
-    assertEquals(aMatrix.getNumberOfColumns(), aYVector.length); // check commutable on back assignment
-    assertTrue(aMatrix.getNumberOfRows() < (1 << 16)); // check row space in range of 32bit int
-    assertTrue(aMatrix.getNumberOfColumns() < (1 << 16)); // check col space in range of 32bit int
+    assertEquals(aMatrix.getNumberOfColumns(), aVector.length); // check commutable
+    assertEquals(aMatrix.getNumberOfRows(), aYVector.length); // check commutable on back assignment
   }
 
   /* Stateless manipulators on the FullMatrix type */
@@ -385,8 +380,10 @@ public class BLAS2 {
  *
  * Sparse DGEMV is notoriously horrible in terms of optimisation.
  * Depending on the storage format, there are usually mixtures of stride 1 accesses in some data and essentially random lookups in others.
- * To attempt to mitigate some of the cache miss horror this causes (without going down the route of ELLPACK or Z-tree compression or similar)
- * the routines attempt to do extra fetches where possible to try and improve cache performance.
+ *
+ *  TODO: To attempt to mitigate some of the cache miss horror this causes (without going down the route of ELLPACK or Z-tree compression or similar)
+ * the routines attempt to do extra fetches where possible to try and improve cache performance. Protocode exists for this, but causes major headaches,
+ * need to fix and implement cleanly.
  *
  *   TODO: Sort out a more cunning method of performing these sorts of operations. The "optimised" versions I attempted only achieve ~10%
  *   speed up over the naive version, which is not acceptable!
@@ -394,7 +391,7 @@ public class BLAS2 {
  */
   /**
    * DGEMV simplified: returns:=A*x
-   * @param aMatrix a FullMatrix
+   * @param aMatrix a CompressedSparseRowFormatMatrix
    * @param aVector a double[] vector
    * @return tmp a double[] vector
    */
@@ -415,5 +412,187 @@ public class BLAS2 {
     return tmp;
   }
 
+  /**
+   * DGEMV simplified: returns:=alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityChecker(aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    double [] tmp = new double[rows];
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+      tmp[i] *= alpha;
+    }
+    return tmp;
+  }
+
+
+  /**
+   * DGEMV simplified: returns:=A*x + y
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double [] y) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    double [] tmp = new double[rows];
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+      tmp[i] += y[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=alpha*A*x + y
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double [] y) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    double [] tmp = new double[rows];
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+
+      tmp[i] = alpha * tmp[i] + y[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV FULL: returns:=alpha*A*x + beta*y
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param beta a double indicating the scaling of y
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix  aMatrix, double [] aVector, double beta, double [] y) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    double [] tmp = new double[rows];
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+
+      tmp[i] = alpha * tmp[i] + beta * y[i];
+    }
+    return tmp;
+  }
+
+  /* Statefull manipulators on the CompressedSparseRowFormatMatrix type */
+
+  /**
+   * DGEMV simplified: y:=A*x
+   * @param y a double vector that will be altered to contain A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   */
+  public static void dgemvInPlace(double[] y, CompressedSparseRowFormatMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      y[i] = 0;
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        y[i] += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+    }
+  }
+
+  /**
+   * DGEMV simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
+   * NOTE: This method uses a short cut if beta is set to 0
+   * @param y a double vector that will be altered to contain alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param beta a double indicating the scaling of y
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   */
+  public static void dgemvInPlace(double[] y, double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double beta) {
+    dgemvInputSanityChecker(y, aMatrix, aVector);
+    if (beta == 0) {
+      csralphaAx(y, alpha, aMatrix, aVector);
+    } else {
+      csralphaAxplusbetay(y, alpha, aMatrix, beta, aVector);
+    }
+  }
+
+  /** 2 helper functions for alpha*A*x ?+ beta*y */
+  private static void csralphaAx(double[] y, double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector) {
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    int ptr = 0;
+    double alphaTmp;
+    for (int i = 0; i < rows; i++) {
+      alphaTmp = 0;
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        alphaTmp  += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+      y[i] = alpha * alphaTmp;
+    }
+  }
+
+  private static void csralphaAxplusbetay(double[] y, double alpha, CompressedSparseRowFormatMatrix aMatrix, double beta, double [] aVector) {
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int rows = aMatrix.getNumberOfRows();
+    int ptr = 0;
+    double alphaTmp;
+    for (int i = 0; i < rows; i++) {
+      alphaTmp = 0;
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        alphaTmp += values[ptr] * aVector[colIdx[ptr]];
+        ptr++;
+      }
+      y[i] = alpha * alphaTmp + beta * y[i];
+    }
+  }
 
 } // class end

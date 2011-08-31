@@ -61,6 +61,46 @@ public class BLAS2Test {
   double [] alpha_times_singleA_times_singlex_plus_beta_times_singley = {2};
 
 /**
+ * Test input catchers
+ */
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherMatrix() {
+  FullMatrix NullMat = null;
+  BLAS2.dgemv(NullMat, x);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherVector() {
+  double[] aVector = null;
+  BLAS2.dgemv(aMatrix, aVector);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherReturnVector() {
+  double[] aVector = null;
+  BLAS2.dgemvInPlace(aVector, aMatrix, x);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherSizeWillNotCommute() {
+  BLAS2.dgemv(aMatrix,oddx);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherSizeWillNotCommuteInPlaceCatch1st() {
+  double[] tmp = new double[5];
+  BLAS2.dgemvInPlace(tmp,aMatrix,oddx);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherSizeWillNotCommuteInPlaceCatch2nd() {
+  double[] tmp = new double[2];
+  BLAS2.dgemvInPlace(tmp,aMatrix,x);
+}
+
+
+/**
  * DGEMV on FULL Matrices
  */
 // stateless manipulators
@@ -133,6 +173,15 @@ public void testDGEMV_y_eq_alpha_times_A_times_x_plus_beta_times_y() {
  */
 //stateless manipulators
 @Test
+public void testCSRDGEMV_ans_eq_A_times_x_single() {
+  double [] tmp = {5};
+  double [][] m1 = {{5}};
+  double [] v2 = {1};
+  CompressedSparseRowFormatMatrix csr = new CompressedSparseRowFormatMatrix(m1);
+  assertTrue(Arrays.equals(BLAS2.dgemv(csr,v2),tmp));
+}
+
+@Test
 public void testCSRDGEMV_ans_eq_A_times_x_small() {
   double [] tmp = {5,15,28,21};
   assertTrue(Arrays.equals(BLAS2.dgemv(csraMatrix,oddx),tmp));
@@ -142,6 +191,60 @@ public void testCSRDGEMV_ans_eq_A_times_x_small() {
 public void testCSRDGEMV_ans_eq_A_times_x_large() {
   double [] tmp = {5,15,28,21,156,173,70};
   assertTrue(Arrays.equals(BLAS2.dgemv(csrLargeaMatrix,largeX),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_small() {
+  double [] tmp = {35,105,196,147};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csraMatrix,oddx),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_A_times_x_plus_y() {
+  double[] tmp = {15,35,58,61};
+  double[] ytmp={10,20,30,40};
+  assertTrue(Arrays.equals(BLAS2.dgemv(csraMatrix,oddx,ytmp),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_plus_y() {
+  double[] tmp = {45,125,226,187};
+  double[] ytmp={10,20,30,40};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csraMatrix,oddx,ytmp),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_plus_beta_times_y() {
+  double[] tmp = {5,45,106,27};
+  double[] ytmp={10,20,30,40};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csraMatrix,oddx,beta,ytmp),tmp));
+}
+
+//test the inplaces
+@Test
+public void testCSRDGEMV_y_eq_A_times_x() {
+  double[] y={5,15,28,21};
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  BLAS2.dgemvInPlace(ycp,csraMatrix,oddx);
+  assertTrue(Arrays.equals(ycp,y));
+}
+
+@Test
+public void testCSRDGEMV_y_eq_alpha_times_A_times_x() {
+  double[] y={35,105,196,147};
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  BLAS2.dgemvInPlace(ycp,alpha,csraMatrix,oddx,0);
+  assertTrue(Arrays.equals(ycp,y));
+}
+
+@Test
+public void testCSRDGEMV_y_eq_alpha_times_A_times_x_plus_beta_times_y() {
+  double[] y={5,45,106,27};
+  double[] ytmp={10,20,30,40};
+  BLAS2.dgemvInPlace(ytmp,alpha,csraMatrix,oddx,beta);
+  assertTrue(Arrays.equals(ytmp,y));
 }
 
 }
