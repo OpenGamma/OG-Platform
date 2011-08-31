@@ -3,12 +3,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="marketDataSnapshotListResource" class="com.opengamma.web.server.push.web.MarketDataSnapshotListResource">
+  <bean id="marketDataSnapshotListResource" class="com.opengamma.web.server.push.MarketDataSnapshotListResource">
     <constructor-arg ref="snapshotMaster"/>
   </bean>
 
   <bean id="snapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster"/>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.TestRestUpdateManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.TestRestUpdateManager"/>
 
 </beans>

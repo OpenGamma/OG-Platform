@@ -3,11 +3,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="viewDefinitionNamesResource" class="com.opengamma.web.server.push.web.ViewDefinitionNamesResource">
+  <bean id="viewDefinitionNamesResource" class="com.opengamma.web.server.push.ViewDefinitionNamesResource">
     <constructor-arg ref="viewDefinitionRespository"/>
   </bean>
 
-  <bean id="viewDefinitionRespository" class="com.opengamma.web.server.push.web.TestViewDefinitionRepository">
+  <bean id="viewDefinitionRespository" class="com.opengamma.web.server.push.TestViewDefinitionRepository">
     <constructor-arg>
       <array>
         <value>viewDef1</value>
@@ -16,6 +16,6 @@
     </constructor-arg>
   </bean>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.TestRestUpdateManager"/>
+  <bean id="updateManager" class="com.opengamma.web.server.push.TestRestUpdateManager"/>
 
 </beans>

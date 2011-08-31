@@ -3,21 +3,21 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.web.LongPollingConnectionManager">
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">
     <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
+  <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1" ref="viewportFactory"/>
   </bean>
 
-  <bean id="viewportFactory" class="com.opengamma.web.server.push.web.TestViewportFactory"/>
+  <bean id="viewportFactory" class="com.opengamma.web.server.push.TestViewportFactory"/>
 
-  <bean id="viewportsResource" class="com.opengamma.web.server.push.web.ViewportsResource">
+  <bean id="viewportsResource" class="com.opengamma.web.server.push.ViewportsResource">
     <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="changeManager" class="com.opengamma.web.server.push.test.TestChangeManager"/>
+  <bean id="changeManager" class="com.opengamma.web.server.push.TestChangeManager"/>
 
 </beans>

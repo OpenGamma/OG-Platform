@@ -137,7 +137,6 @@ public class LongPollingTest {
     String clientId = WebPushTestUtils.handshake();
     String path = "/updates/" + clientId;
     String timeoutResult = WebPushTestUtils.readFromPath(path);
-    // TODO empty or null?
     assertEquals("", timeoutResult);
     _updateManager.sendUpdate(RESULT1);
     WebPushTestUtils.checkJsonResults(WebPushTestUtils.readFromPath(path), RESULT1);

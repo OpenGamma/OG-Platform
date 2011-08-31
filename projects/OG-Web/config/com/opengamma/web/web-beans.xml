@@ -406,16 +406,16 @@
     <constructor-arg ref="fudgeContext" />
   </bean>
 
-  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.web.LongPollingConnectionManager">
+  <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager">
     <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="updateManager" class="com.opengamma.web.server.push.subscription.RestUpdateManagerImpl">
+  <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1" ref="liveResultsService"/>
   </bean>
 
-  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.web.ViewportsResource">
+  <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.ViewportsResource">
     <constructor-arg ref="updateManager"/>
   </bean>
 
@@ -429,7 +429,7 @@
   </bean>
 
   <!--TODO make sure this still works-->
-  <bean id="jsonToViewport" class="com.opengamma.web.server.push.subscription.ViewportDefinitionReader" scope="singleton"/>
+  <bean id="jsonToViewport" class="com.opengamma.web.server.push.ViewportDefinitionReader" scope="singleton"/>
 
   <!-- MarketDataSnapshot master service -->
   <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
