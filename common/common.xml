@@ -62,7 +62,7 @@
 
   <target name="fudge-proto-compile" if="fudge.proto.present" depends="fudge-proto-present">
     <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-    <fudgeproto
+    <!--fudgeproto
       srcdir="${src.dir}"
       destdir="${src.dir}"
       searchdir="${toString:lib.path.id}"
@@ -76,7 +76,7 @@
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON
 // CSON: Generated File</fileFooter>
-    </fudgeproto>
+    </fudgeproto-->
     <fixcrlf preservelastmodified="true" srcdir="${src.dir}">
       <include name="**/*.java"/>
     </fixcrlf>
