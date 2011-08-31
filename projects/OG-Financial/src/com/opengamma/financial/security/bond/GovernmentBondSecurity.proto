@@ -7,14 +7,9 @@
 namespace com.opengamma.financial.security.bond {
 
   /**
-   * A {@code Security} used to model government bonds.
+   * A government bond security.
    */
   message GovernmentBondSecurity extends BondSecurity {
-  
-    binding Java {
-      body "public <T> T accept (BondSecurityVisitor<T> visitor) { return visitor.visitGovernmentBondSecurity (this); }";
-    }
-  
   }
-  
+
 }

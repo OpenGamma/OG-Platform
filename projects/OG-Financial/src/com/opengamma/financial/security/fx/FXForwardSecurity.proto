@@ -6,21 +6,15 @@
  
  namespace com.opengamma.financial.security.fx {
  
-  /** 
-   * A security modelling a FX forward
-   */ 
+  /**
+   * An FX forward security.
+   */
   message FXForwardSecurity extends FinancialSecurity {
-  
   	required string securityType [default = "FX_FORWARD"];
+  	
   	required id.ExternalId underlyingIdentifier;
   	required javax.time.calendar.ZonedDateTime forwardDate;
     required id.ExternalId region;
-  	
-  	binding Java {
-  	  body <<<JAVA
-  	    public <T> T accept(FXForwardSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
-  	    public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
-JAVA;
-    }
   }
+
 }

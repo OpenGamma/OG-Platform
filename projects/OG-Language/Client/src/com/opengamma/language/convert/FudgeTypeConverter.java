@@ -85,12 +85,7 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
             final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
             final MutableFudgeMsg msg = serializer.objectToFudgeMsg(value);
             if (msg.getByOrdinal(FudgeSerializer.TYPES_HEADER_ORDINAL) == null) {
-              // Stop the header encoding before we get to the "bean" classes that many of the financial objects inherit from
-              Class<?> classItr = valueClass;
-              while ((classItr != null) && (classItr != DirectBean.class) && (classItr != Object.class)) {
-                msg.add(FudgeSerializer.TYPES_HEADER_ORDINAL, classItr.getName());
-                classItr = classItr.getSuperclass();
-              }
+              FudgeSerializer.addClassHeader(msg, valueClass, baseClass(valueClass));
             }
             conversionContext.setResult(msg);
           }
@@ -116,7 +111,14 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  private Class<?> baseClass(Class<?> cls) {
+    while (cls.getSuperclass() != Object.class && cls.getSuperclass() != DirectBean.class) {
+      cls = cls.getSuperclass();
+    }
+    return cls.getSuperclass();
+  }
+
+  @SuppressWarnings("rawtypes")
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     final FudgeFieldType fieldType = getFudgeContext().getTypeDictionary().getByJavaType(targetType.getRawClass());
