@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * Creates {@link EntitySubscriptionFilter}s which create subscriptions for push notifications for changes to entities
- * requested via the REST interface.  If a REST method parameters is annotated with {@link Subscribe} it will be
+ * requested via the REST interface.  If a REST method parameter is annotated with {@link Subscribe} it will be
  * interpreted as a {@link UniqueId} and any changes to the entity will cause an update to be pushed over
  * the long-polling HTTP interface.  The annotated parameter must be a string that can be parsed by
  * {@link UniqueId#parse(String)} and must also have a {@link PathParam} annotation.

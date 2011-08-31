@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
   private static final long DEFAULT_TIMEOUT = 300000;
 
   // TODO a better way to generate client IDs
-  // TODO might not need an atomic var if all accesses end up being guarded by sync blocks
   private final AtomicLong _clientConnectionId = new AtomicLong();
   private final ChangeManager _changeManager;
   private final ViewportFactory _viewportFactory;
@@ -40,18 +39,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connectionsByClientId = new HashMap<String, ClientConnection>();
-  // TODO how can this be cleaned? this class has no idea when the viewport changes. hmm.
   private final Map<String, ClientConnection> _connectionsByViewportUrl = new HashMap<String, ClientConnection>();
-  // TODO what map impl? concurrent? or handle concurrency somewhere else?
   private final Map<String, String> _clientIdsToViewportUrls = new HashMap<String, String>();
-  // TODO concurrent?
   private final Map<String, ConnectionTimeoutTask> _timeoutTasks = new HashMap<String, ConnectionTimeoutTask>();
   private final Timer _timer = new Timer();
 
-  // TODO this isn't right, there's a ChangeManager for each master / source / repo
-  // TODO aggregate change manager?
-  // TODO or a similar interface that also includes MasterType in the event
-  // TODO map of ChangeManagers keyed on MasterType? or a class that encapsulates that logic?
+  // TODO map of ChangeManagers keyed on MasterType? or a class that encapsulates that logic? for query updates
   /* package */ RestUpdateManagerImpl(ChangeManager changeManager, ViewportFactory viewportFactory) {
     this(changeManager, viewportFactory, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
   }
@@ -99,6 +92,13 @@ import java.util.concurrent.atomic.AtomicLong;
   public void subscribe(String userId, String clientId, UniqueId uid, String url) {
     synchronized (_lock) {
       getConnectionByClientId(userId, clientId).subscribe(uid, url);
+    }
+  }
+
+  @Override
+  public void subscribe(String userId, String clientId, MasterType masterType, String url) {
+    synchronized (_lock) {
+      getConnectionByClientId(userId, clientId).subscribe(masterType, url);
     }
   }
 
@@ -160,7 +160,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   /* TODO there is a potential problem with the timeout mechanism
   a client's timeout timer is reset whenever the server hears from the client.  this includes requests for data.
-  so if the view is producing regular udpates the client will never time out.
+  so if the view is producing regular udpates and the client is fetching the new data then the client will never time out.
   however if a user is looking at a view that doesn't update very often it's possible that the connection.
   would time out even though the client was still interested in the view.
   this would also be true for clients that don't listen for updates and just make occassional requests to get data.

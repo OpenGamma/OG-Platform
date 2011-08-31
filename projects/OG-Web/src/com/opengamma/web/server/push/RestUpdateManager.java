@@ -36,6 +36,8 @@ import com.opengamma.id.UniqueId;
    */
   void subscribe(String userId, String clientId, UniqueId uid, String url);
 
+  void subscribe(String userId, String clientId, MasterType masterType, String url);
+
   // TODO UID or string for viewport ID?
   Viewport getViewport(String userId, String clientId, String viewportUrl);
 

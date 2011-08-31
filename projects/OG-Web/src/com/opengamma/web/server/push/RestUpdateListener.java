@@ -5,10 +5,14 @@
  */
 package com.opengamma.web.server.push;
 
+import java.util.Collection;
+
 /**
  *
  */
 /* package */ interface RestUpdateListener {
 
   void itemUpdated(String url);
+
+  void itemsUpdated(Collection<String> url);
 }

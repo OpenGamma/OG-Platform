@@ -9,5 +9,5 @@ package com.opengamma.web.server.push;
  *
  */
 public enum MasterType {
-  PORTFOLIO, POSITION, HOLIDAY // TODO and the rest
+  PORTFOLIO, POSITION, HOLIDAY, SECURITY // TODO and the rest
 }

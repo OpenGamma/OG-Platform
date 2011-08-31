@@ -46,11 +46,27 @@ import java.util.Set;
         try {
           sendUpdate(formatUpdate(url));
         } catch (JSONException e) {
-          // this shouldn't ever happen, the updates are all URLs
-          s_logger.warn("Unable to format updates as JSON. updates: " + _updates, e);
+          // this shouldn't ever happen
+          s_logger.warn("Unable to format URL as JSON: " + url, e);
         }
       } else {
         _updates.add(url);
+      }
+    }
+  }
+
+  @Override
+  public void itemsUpdated(Collection<String> urls) {
+    synchronized (_lock) {
+      if (_continuation != null) {
+        try {
+          sendUpdate(formatUpdate(urls));
+        } catch (JSONException e) {
+          // this shouldn't ever happen, the updates are all URLs
+          s_logger.warn("Unable to format URLs as JSON. URLs: " + urls, e);
+        }
+      } else {
+        _updates.addAll(urls);
       }
     }
   }
