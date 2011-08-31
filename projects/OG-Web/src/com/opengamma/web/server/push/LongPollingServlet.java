@@ -31,7 +31,8 @@ public class LongPollingServlet extends SpringConfiguredServlet {
       // timeout - just send a blank reponse and tell the connection that its continuation has timed out
       String clientId = (String) continuation.getAttribute(CLIENT_ID);
       if (clientId != null) {
-        _connectionManager.timeout(clientId);
+        // TODO will this always get the correct continuation?
+        _connectionManager.timeout(clientId, continuation);
       }
       return;
     }

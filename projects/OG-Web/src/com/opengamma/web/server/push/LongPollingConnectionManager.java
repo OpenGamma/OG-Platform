@@ -58,10 +58,10 @@ import java.util.concurrent.ConcurrentHashMap;
     return listener != null && listener.isConnected();
   }
 
-  /* package */ void timeout(String clientId) {
+  /* package */ void timeout(String clientId, Continuation continuation) {
     LongPollingUpdateListener listener = _connections.get(clientId);
     if (listener != null) {
-      listener.timeout();
+      listener.timeout(continuation);
     }
   }
 

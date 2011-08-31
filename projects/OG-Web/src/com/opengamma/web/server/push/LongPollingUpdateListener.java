@@ -106,9 +106,11 @@ import java.util.Set;
     return _userId;
   }
 
-  /* package */ void timeout() {
+  /* package */ void timeout(Continuation continuation) {
     synchronized (_lock) {
-      _continuation = null;
+      if (continuation == _continuation) {
+        _continuation = null;
+      }
     }
   }
 }
