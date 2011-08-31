@@ -29,6 +29,10 @@ public abstract class ViewClientHandle {
     _viewClient = viewClient;
   }
 
+  protected ViewClients<?, ?> getViewClients() {
+    return _viewClients;
+  }
+
   protected ViewClients<?, ?> unlockAction() {
     final ViewClients<?, ?> viewClients = _viewClients;
     _viewClients = null;
@@ -95,18 +99,19 @@ public abstract class ViewClientHandle {
    * @return the unique id to reference the detached object by
    */
   protected UniqueId detachAndUnlock(final SessionContext target) {
-    final ViewClients<?, ?> viewClients = unlockAction();
-    if (viewClients != null) {
-      final UserViewClient viewClient = getViewClient();
-      s_logger.debug("Detaching {}", viewClient);
-      if (!viewClient.incrementDetachCount()) {
-        target.getViewClients().addViewClient(viewClient);
-      }
-      return viewClient.getUniqueId();
+    if (unlockAction() != null) {
+      detach(target);
+      return getViewClient().getUniqueId();
     } else {
       s_logger.error("Handle on {} already unlocked", getViewClient());
       throw new IllegalStateException();
     }
+  }
+
+  protected void detach(final SessionContext target) {
+    final UserViewClient viewClient = getViewClient();
+    s_logger.debug("Detaching {}", viewClient);
+    target.getViewClients().beginDetach(viewClient);
   }
 
 }

@@ -7,6 +7,12 @@ package com.opengamma.language.view;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
@@ -20,6 +26,10 @@ import com.opengamma.language.context.UserContext;
  * session reference is destroyed and the original user level lock released, possibly allowing the client to be destroyed.
  */
 public class SessionViewClients extends ViewClients<UniqueId, SessionContext> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SessionViewClients.class);
+
+  private final Map<UniqueId, AtomicInteger> _detachCount = new HashMap<UniqueId, AtomicInteger>();
 
   public SessionViewClients(final SessionContext context) {
     super(context);
@@ -52,23 +62,62 @@ public class SessionViewClients extends ViewClients<UniqueId, SessionContext> {
    */
   @Override
   protected void releaseViewClient(final UserViewClient viewClient) {
-    if (getClients().remove(viewClient.getUniqueId()) != null) {
-      if (!viewClient.decrementRefCount()) {
-        getContext().getUserContext().getViewClients().releaseViewClient(viewClient);
+    s_logger.debug("Releasing view client {}", viewClient);
+    synchronized (this) {
+      if ((_detachCount.remove(viewClient.getUniqueId()) == null) || (getClients().remove(viewClient.getUniqueId()) == null)) {
+        // This shouldn't happen
+        throw new IllegalStateException();
       }
+    }
+    releaseViewClientImpl(viewClient);
+  }
+
+  private void releaseViewClientImpl(final UserViewClient viewClient) {
+    if (!viewClient.decrementRefCount()) {
+      s_logger.debug("Last reference on {} released", viewClient);
+      getContext().getUserContext().getViewClients().releaseViewClient(viewClient);
     } else {
-      // This shouldn't happen
-      throw new IllegalStateException();
+      s_logger.debug("Outstanding references on {}", viewClient);
     }
   }
 
-  protected void addViewClient(final UserViewClient viewClient) {
-    if (getClients().putIfAbsent(viewClient.getUniqueId(), viewClient) != null) {
+  protected synchronized void beginDetach(final UserViewClient viewClient) {
+    AtomicInteger detachCount = _detachCount.get(viewClient.getUniqueId());
+    if (detachCount == null) {
+      s_logger.debug("First detach {}", viewClient);
+      detachCount = new AtomicInteger(1);
+      _detachCount.put(viewClient.getUniqueId(), detachCount);
+      getClients().put(viewClient.getUniqueId(), viewClient);
+    } else {
+      s_logger.debug("Duplicate detach {} ({} previous times)", viewClient, detachCount);
+      detachCount.incrementAndGet();
+      assert getClients().get(viewClient.getUniqueId()) == viewClient;
+      // We already hold a single lock; unlock the extra lock held by the caller
       if (!viewClient.decrementRefCount()) {
         // This shouldn't happen
         throw new IllegalStateException();
       }
     }
+  }
+
+  protected void endDetach(final UserViewClient viewClient) {
+    s_logger.debug("End detach {}", viewClient);
+    synchronized (this) {
+      AtomicInteger detachCount = _detachCount.get(viewClient.getUniqueId());
+      if (detachCount == null) {
+        // This shouldn't happen
+        throw new IllegalStateException();
+      }
+      if (detachCount.decrementAndGet() > 0) {
+        // Still detached
+        s_logger.debug("{} outstanding detaches on {}", detachCount, viewClient);
+        return;
+      }
+      // Last detach has happened; release it
+      _detachCount.remove(viewClient.getUniqueId());
+      getClients().remove(viewClient.getUniqueId());
+    }
+    releaseViewClientImpl(viewClient);
   }
 
   /**

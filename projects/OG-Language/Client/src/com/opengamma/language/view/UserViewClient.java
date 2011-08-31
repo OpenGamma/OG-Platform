@@ -32,7 +32,6 @@ public final class UserViewClient implements UniqueIdentifiable {
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
   private final AtomicInteger _refCount = new AtomicInteger(1);
-  private final AtomicInteger _detachCount = new AtomicInteger(0);
   private final UserContext _userContext;
   private final ViewClient _viewClient;
   private final ViewClientKey _viewClientKey;
@@ -117,15 +116,6 @@ public final class UserViewClient implements UniqueIdentifiable {
   }
 
   /**
-   * Increments the detachment count.
-   * 
-   * @return true if the count was non-zero, false if this was the first detachment
-   */
-  protected boolean incrementDetachCount() {
-    return _detachCount.getAndIncrement() > 0;
-  }
-
-  /**
    * Decrements the reference/lock count.
    * 
    * @return false when the count reaches zero, true otherwise 
@@ -133,16 +123,6 @@ public final class UserViewClient implements UniqueIdentifiable {
   protected boolean decrementRefCount() {
     assert _refCount.get() > 0;
     return _refCount.decrementAndGet() > 0;
-  }
-
-  /**
-   * Decrements the detachment count.
-   * 
-   * @return false when the count reaches zero, true otherwise
-   */
-  protected boolean decrementDetachCount() {
-    assert _detachCount.get() > 0;
-    return _detachCount.decrementAndGet() > 0;
   }
 
   protected boolean isLocked() {

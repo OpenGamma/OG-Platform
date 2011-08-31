@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.language.context.SessionContext;
 
 /**
  * A locked handle encapsulating a view client instance that is detached from the current context. To be a candidate for
@@ -30,7 +29,7 @@ public final class DetachedViewClientHandle extends ViewClientHandle {
    * on the client, it may then be destroyed.
    */
   public void attachAndUnlock() {
-    final ViewClients<?, ?> viewClients = unlockAction();
+    final SessionViewClients viewClients = (SessionViewClients) unlockAction();
     if (viewClients != null) {
       final UserViewClient viewClient = getViewClient();
       s_logger.debug("Attaching and unlocking {}", viewClient);
@@ -38,18 +37,19 @@ public final class DetachedViewClientHandle extends ViewClientHandle {
         // Shouldn't happen
         throw new IllegalStateException();
       }
-      if (!viewClient.decrementDetachCount()) {
-        viewClients.releaseViewClient(viewClient);
-      }
+      viewClients.endDetach(viewClient);
     } else {
       s_logger.error("Handle on {} already unlocked", getViewClient());
       throw new IllegalStateException();
     }
   }
 
-  @Override
-  public UniqueId detachAndUnlock(final SessionContext target) {
-    return super.detachAndUnlock(target);
+  public UniqueId detachAndUnlock() {
+    return super.detachAndUnlock(((SessionViewClients) getViewClients()).getContext());
+  }
+
+  public void detach() {
+    super.detach(((SessionViewClients) getViewClients()).getContext());
   }
 
 }
