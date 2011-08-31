@@ -38,11 +38,12 @@ public abstract class UserViewClientBinding<T extends UserViewClientData> {
    * @param viewClient view client object to fetch data for
    * @return the user data, not null
    */
+  @SuppressWarnings("unchecked")
   public final T get(final UserViewClient viewClient) {
-    T data = viewClient.getData(getBindingObject());
+    T data = (T) viewClient.getData(getBindingObject());
     if (data == null) {
       synchronized (this) {
-        data = viewClient.getData(getBindingObject());
+        data = (T) viewClient.getData(getBindingObject());
         if (data != null) {
           return data;
         }

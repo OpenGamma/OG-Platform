@@ -197,15 +197,13 @@ public final class UserViewClient implements UniqueIdentifiable {
    * Returns a value from the data map. This is used by {@link UserViewClientBinding} to apply type-safety and a data
    * construction service.
    * 
-   * @param <T> requested value type
    * @param key key the value was stored against
    * @return the value, or null if none
    */
-  @SuppressWarnings("unchecked")
-  protected <T extends UserViewClientData> T getData(final Object key) {
+  protected UserViewClientData getData(final Object key) {
     final Map<Object, UserViewClientData> data = _data;
     if (data != null) {
-      return (T) data.get(key);
+      return data.get(key);
     } else {
       return null;
     }
