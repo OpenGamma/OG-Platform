@@ -5,14 +5,13 @@ import com.opengamma.web.server.push.subscription.AnalyticsListener;
 import com.opengamma.web.server.push.subscription.Viewport;
 import com.opengamma.web.server.push.subscription.ViewportDefinition;
 import com.opengamma.web.server.push.subscription.ViewportFactory;
-import com.opengamma.web.server.push.subscription.ViewportRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -22,18 +21,25 @@ public class TestViewportFactory implements ViewportFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(TestViewportFactory.class);
   private static final Object[][] s_dummyData = {{1, 2, 3}, {2, 4, 6}, {3, 6, 9}, {4, 8, 12}};
 
+  private final AtomicReference<Viewport> _viewport = new AtomicReference<Viewport>();
 
   @Override
   public Viewport createViewport(String clientId,
                                  String viewportKey,
                                  ViewportDefinition viewportDefinition,
                                  AnalyticsListener listener) {
-    return new TestViewport(viewportDefinition);
+    _viewport.set(new TestViewport(viewportDefinition));
+    return _viewport.get();
   }
 
   @Override
-  public Viewport getViewport(String clientId, String viewportKey) {
-    throw new UnsupportedOperationException("getViewport not implemented");
+  public Viewport getViewport(String viewportKey) {
+    return _viewport.get();
+  }
+
+  @Override
+  public void clientDisconnected(String clientId) {
+    throw new UnsupportedOperationException("clientDisconnected not implemented");
   }
 
   private static class TestViewport implements Viewport {

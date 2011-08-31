@@ -19,6 +19,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.opengamma.web.server.push.web.Subscribe;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -144,7 +145,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
 
   //-------------------------------------------------------------------------
   @Path("{portfolioId}")
-  public WebPortfolioResource findPortfolio(@PathParam("portfolioId") String idStr) {
+  public WebPortfolioResource findPortfolio(@Subscribe @PathParam("portfolioId") String idStr) {
     data().setUriPortfolioId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

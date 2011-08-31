@@ -50,7 +50,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   @Override
   public List<ResourceFilter> create(AbstractMethod abstractMethod) {
-    RestUpdateManager restUpdateManager = getSubscriptionManager();
+    RestUpdateManager restUpdateManager = getUpdateManager();
     List<ResourceFilter> filters = new ArrayList<ResourceFilter>();
     ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, restUpdateManager, _servletRequest);
     if (entityFilter != null) {
@@ -63,8 +63,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     return filters;
   }
 
-  // TODO can the subscription manager go in a field that's automatically populated from the Spring context?
-  private RestUpdateManager getSubscriptionManager() {
+  private RestUpdateManager getUpdateManager() {
     ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(_servletContext);
     return context.getBean(RestUpdateManager.class);
   }

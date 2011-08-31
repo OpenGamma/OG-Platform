@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TODO what's the policy on arg checking? public API only?
- * TODO CONCURRENCY - completely ignored at the moment
  */
 /* package */ class RestUpdateManagerImpl implements RestUpdateManager {
 

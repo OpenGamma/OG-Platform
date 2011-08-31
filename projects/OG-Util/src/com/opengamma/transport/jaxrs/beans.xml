@@ -8,9 +8,6 @@ http://www.springframework.org/schema/beans/spring-beans.xsd
 http://cxf.apache.org/jaxrs
 http://cxf.apache.org/schemas/jaxrs.xsd">
 
-  <!--TODO confirm where this file is used-->
-  <bean id="jsonToViewport" class="com.opengamma.web.server.push.subscription.ViewportDefinitionReader" scope="singleton">
-  </bean>
   <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeJSONConsumer" scope="singleton">
   </bean>
   <bean id="fudgeToJson" class="com.opengamma.transport.jaxrs.FudgeJSONProducer" scope="singleton">

@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.opengamma.web.server.push.web.Subscribe;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
@@ -207,7 +208,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   //-------------------------------------------------------------------------
   @Path("{positionId}")
-  public WebPositionResource findPosition(@PathParam("positionId") String idStr) {
+  public WebPositionResource findPosition(@Subscribe @PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

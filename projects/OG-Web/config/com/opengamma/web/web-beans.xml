@@ -422,13 +422,18 @@
     <constructor-arg ref="updateManager"/>
   </bean>
 
-  <bean id="changeManager" class="com.opengamma.web.server.push.test.TestChangeManager"/>
+  <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">
+    <constructor-arg>
+      <list>
+        <ref bean="sharedPositionSource"/>
+        <!--TODO what other data are we interested in?-->
+      </list>
+    </constructor-arg>
+  </bean>
 
-  <!--TODO refactor this for the post-Cometd world-->
-  <!--<bean class="com.opengamma.web.analytics.WebAnalyticsResource">
-    <constructor-arg ref="webInterfaceBean" />
-  </bean>-->
-  
+  <!--TODO make sure this still works-->
+  <bean id="jsonToViewport" class="com.opengamma.web.server.push.subscription.ViewportDefinitionReader" scope="singleton"/>
+
   <!-- MarketDataSnapshot master service -->
   <bean id="testSnapshotMaster" class="com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster" />
   <bean id="snapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterService">

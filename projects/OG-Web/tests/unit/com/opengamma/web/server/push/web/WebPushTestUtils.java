@@ -134,8 +134,8 @@ public class WebPushTestUtils {
   /**
    * @return The URL of the viewport relative to the root
    */
-  static String createViewport(String clientId, String viewportDefJson) throws IOException {
-    String viewportUrl;
+  static String createViewport(String clientId, String viewportDefJson) throws IOException, JSONException {
+    String viewportJson;
     BufferedReader reader = null;
     BufferedWriter writer = null;
     try {
@@ -149,7 +149,7 @@ public class WebPushTestUtils {
       writer.write(viewportDefJson);
       writer.flush();
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-      viewportUrl = reader.readLine();
+      viewportJson = reader.readLine();
     } finally {
       if (reader != null) {
         reader.close();
@@ -158,6 +158,6 @@ public class WebPushTestUtils {
         writer.close();
       }
     }
-    return viewportUrl;
+    return new JSONObject(viewportJson).getString("viewportUrl");
   }
 }
