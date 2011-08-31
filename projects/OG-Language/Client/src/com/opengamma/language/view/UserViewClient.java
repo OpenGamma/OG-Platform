@@ -32,12 +32,14 @@ public final class UserViewClient implements UniqueIdentifiable {
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
   private final AtomicInteger _refCount = new AtomicInteger(1);
+  private final AtomicInteger _detachCount = new AtomicInteger(0);
   private final UserContext _userContext;
   private final ViewClient _viewClient;
   private final ViewClientKey _viewClientKey;
   private final UniqueId _uniqueId;
   private volatile Map<Object, UserViewClientData> _data;
   private volatile ViewResultListener[] _listeners = EMPTY;
+  private volatile boolean _attached;
 
   private final ViewResultListener _listener = new ViewResultListener() {
 
@@ -115,6 +117,15 @@ public final class UserViewClient implements UniqueIdentifiable {
   }
 
   /**
+   * Increments the detachment count.
+   * 
+   * @return true if the count was non-zero, false if this was the first detachment
+   */
+  protected boolean incrementDetachCount() {
+    return _detachCount.getAndIncrement() > 0;
+  }
+
+  /**
    * Decrements the reference/lock count.
    * 
    * @return false when the count reaches zero, true otherwise 
@@ -124,14 +135,30 @@ public final class UserViewClient implements UniqueIdentifiable {
     return _refCount.decrementAndGet() > 0;
   }
 
+  /**
+   * Decrements the detachment count.
+   * 
+   * @return false when the count reaches zero, true otherwise
+   */
+  protected boolean decrementDetachCount() {
+    assert _detachCount.get() > 0;
+    return _detachCount.decrementAndGet() > 0;
+  }
+
+  protected boolean isLocked() {
+    return _refCount.get() > 0;
+  }
+
   @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
   protected void destroy() {
-    for (UserViewClientData data : _data.values()) {
-      data.destroy();
+    if (_data != null) {
+      for (UserViewClientData data : _data.values()) {
+        data.destroy();
+      }
     }
     getViewClient().shutdown();
   }
@@ -140,7 +167,21 @@ public final class UserViewClient implements UniqueIdentifiable {
     return _userContext;
   }
 
+  /**
+   * Returns the view client, attached to the remote process.
+   * 
+   * @return the attached view client
+   */
   public ViewClient getViewClient() {
+    if (!_attached) {
+      synchronized (this) {
+        if (!_attached) {
+          final ViewClientDescriptor vcd = getViewClientKey().getClientDescriptor();
+          _viewClient.attachToViewProcess(vcd.getViewName(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
+          _attached = true;
+        }
+      }
+    }
     return _viewClient;
   }
 

@@ -5,6 +5,11 @@
  */
 package com.opengamma.language.view;
 
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.types.IndicatorType;
+
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.ArgumentChecker;
 
@@ -88,7 +93,7 @@ public final class ViewClientKey {
       return false;
     }
     ViewClientKey other = (ViewClientKey) obj;
-    if (!_clientDescriptor.equals(other._clientDescriptor)) {
+    if (!_clientDescriptorString.equals(other._clientDescriptorString)) {
       return false;
     }
     if (_useSharedProcess != other._useSharedProcess) {
@@ -99,7 +104,34 @@ public final class ViewClientKey {
 
   @Override
   public String toString() {
-    return "ViewClientKey[objectDescriptor=" + _clientDescriptor + ", useSharedProcess=" + _useSharedProcess + "]";
+    return "ViewClientKey[objectDescriptor=" + _clientDescriptorString + ", useSharedProcess=" + _useSharedProcess + "]";
+  }
+
+  private static final String DESCRIPTOR_FIELD = "descriptor";
+  private static final String USE_SHARED_PROCESS_FIELD = "useSharedProcess";
+  private static final String CLIENT_NAME_FIELD = "clientName";
+
+  public FudgeMsg toFudgeMsg(final FudgeMsgFactory factory) {
+    final MutableFudgeMsg msg = factory.newMessage();
+    msg.add(DESCRIPTOR_FIELD, _clientDescriptorString);
+    if (_useSharedProcess) {
+      msg.add(USE_SHARED_PROCESS_FIELD, IndicatorType.INSTANCE);
+    }
+    if (!DEFAULT_CLIENT_NAME.equals(_clientName)) {
+      msg.add(CLIENT_NAME_FIELD, _clientName);
+    }
+    return msg;
+  }
+
+  public static ViewClientKey fromFudgeMsg(final FudgeMsg msg) {
+    final String descriptor = msg.getString(DESCRIPTOR_FIELD);
+    final boolean useSharedProcess = msg.hasField(USE_SHARED_PROCESS_FIELD);
+    final String clientName = msg.getString(CLIENT_NAME_FIELD);
+    if (clientName != null) {
+      return new ViewClientKey(descriptor, useSharedProcess, clientName);
+    } else {
+      return new ViewClientKey(descriptor, useSharedProcess);
+    }
   }
 
 }

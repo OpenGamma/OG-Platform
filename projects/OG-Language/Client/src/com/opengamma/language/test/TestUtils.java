@@ -6,6 +6,7 @@
 package com.opengamma.language.test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.context.DefaultSessionContextEventHandler;
 import com.opengamma.language.context.DefaultUserContextEventHandler;
 import com.opengamma.language.context.GlobalContextEventHandler;
@@ -51,6 +52,7 @@ public class TestUtils {
 
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private TypeConverterProvider _typeConverters;
+  private ViewProcessor _viewProcessor;
 
   public TestUtils() {
   }
@@ -71,6 +73,14 @@ public class TestUtils {
     return _typeConverters;
   }
 
+  public void setViewProcessor(final ViewProcessor viewProcessor) {
+    _viewProcessor = viewProcessor;
+  }
+
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
+  }
+
   protected GlobalContextEventHandler createGlobalContextEventHandler() {
     return new GlobalContextEventHandler() {
       @Override
@@ -80,6 +90,9 @@ public class TestUtils {
         }
         if (getTypeConverters() != null) {
           globalContext.getTypeConverterProvider().addTypeConverterProvider(getTypeConverters());
+        }
+        if (getViewProcessor() != null) {
+          globalContext.setViewProcessor(getViewProcessor());
         }
       }
     };

@@ -12,8 +12,7 @@ import com.opengamma.language.connector.Conditional;
 
 /**
  * Attaches a context initialization hook based on a conditional. The class can be used for any of
- * {@link SessionContext}, {@link UserContext} or {@link GlobalContext} but any given bean instance
- * can only be used for one.
+ * {@link SessionContext}, {@link UserContext} or {@link GlobalContext}.
  */
 public class ContextInitializationBean implements InitializingBean {
 
@@ -110,36 +109,20 @@ public class ContextInitializationBean implements InitializingBean {
   @Override
   public final void afterPropertiesSet() {
     assertPropertiesSet();
-    if (getSessionContextFactory() != null) {
-      if ((getUserContextFactory() != null) || (getGlobalContextFactory() != null)) {
-        throw new IllegalStateException();
-      }
-      getSessionContextFactory().setSessionContextEventHandler(
-          new AbstractSessionContextEventHandler(getSessionContextFactory().getSessionContextEventHandler()) {
-
-            private boolean _initialised;
-
+    boolean validFactory = false;
+    if (getGlobalContextFactory() != null) {
+      getGlobalContextFactory().setGlobalContextEventHandler(
+          new AbstractGlobalContextEventHandler(getGlobalContextFactory().getGlobalContextEventHandler()) {
             @Override
-            protected void initContextImpl(final MutableSessionContext context) {
+            protected void initContextImpl(final MutableGlobalContext context) {
               if (Conditional.holds(getCondition(), context)) {
                 ContextInitializationBean.this.initContext(context);
-                _initialised = true;
               }
             }
-
-            @Override
-            protected void doneContextImpl(final MutableSessionContext context) {
-              if (_initialised) {
-                ContextInitializationBean.this.doneContext(context);
-                _initialised = false;
-              }
-            }
-
           });
-    } else if (getUserContextFactory() != null) {
-      if ((getSessionContextFactory() != null) || (getGlobalContextFactory() != null)) {
-        throw new IllegalStateException();
-      }
+      validFactory = true;
+    }
+    if (getUserContextFactory() != null) {
       getUserContextFactory().setUserContextEventHandler(
           new AbstractUserContextEventHandler(getUserContextFactory().getUserContextEventHandler()) {
 
@@ -162,20 +145,34 @@ public class ContextInitializationBean implements InitializingBean {
             }
 
           });
-    } else if (getGlobalContextFactory() != null) {
-      if ((getSessionContextFactory() != null) || (getUserContextFactory() != null)) {
-        throw new IllegalStateException();
-      }
-      getGlobalContextFactory().setGlobalContextEventHandler(
-          new AbstractGlobalContextEventHandler(getGlobalContextFactory().getGlobalContextEventHandler()) {
+      validFactory = true;
+    }
+    if (getSessionContextFactory() != null) {
+      getSessionContextFactory().setSessionContextEventHandler(
+          new AbstractSessionContextEventHandler(getSessionContextFactory().getSessionContextEventHandler()) {
+
+            private boolean _initialised;
+
             @Override
-            protected void initContextImpl(final MutableGlobalContext context) {
+            protected void initContextImpl(final MutableSessionContext context) {
               if (Conditional.holds(getCondition(), context)) {
                 ContextInitializationBean.this.initContext(context);
+                _initialised = true;
               }
             }
+
+            @Override
+            protected void doneContextImpl(final MutableSessionContext context) {
+              if (_initialised) {
+                ContextInitializationBean.this.doneContext(context);
+                _initialised = false;
+              }
+            }
+
           });
-    } else {
+      validFactory = true;
+    }
+    if (!validFactory) {
       throw new IllegalStateException();
     }
   }

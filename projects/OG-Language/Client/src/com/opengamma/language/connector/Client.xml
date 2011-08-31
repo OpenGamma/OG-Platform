@@ -187,16 +187,15 @@
   </bean>
   
   <!-- View processor -->
-  <bean id="viewProcessorG" class="com.opengamma.language.view.GlobalLoader">
+  <bean id="viewProcessorLoader" class="com.opengamma.language.view.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
     <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
     <property name="scheduler">
       <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
     </property>
-  </bean>
-  <bean id="viewProcessorU" class="com.opengamma.language.view.UserLoader">
-    <property name="userContextFactory" ref="userContextFactory" />
   </bean>
   
 </beans>

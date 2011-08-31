@@ -7,10 +7,12 @@
 package com.opengamma.language.view;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.jms.ConnectionFactory;
 
+import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +20,26 @@ import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
+import com.opengamma.language.context.MutableSessionContext;
+import com.opengamma.language.context.MutableUserContext;
+import com.opengamma.language.function.AbstractFunctionProvider;
+import com.opengamma.language.function.MetaFunction;
+import com.opengamma.language.invoke.AbstractTypeConverterProvider;
+import com.opengamma.language.invoke.TypeConverter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Extends the global context with view processor support (if available).
  */
-public class GlobalLoader extends ContextInitializationBean {
+public class Loader extends ContextInitializationBean {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(GlobalLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(Loader.class);
 
   private String _configurationEntry = "viewProcessor";
   private Configuration _configuration;
   private ConnectionFactory _connectionFactory;
   private ScheduledExecutorService _scheduler;
+  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
 
   public void setConfiguration(final Configuration configuration) {
     ArgumentChecker.notNull(configuration, "configuration");
@@ -67,6 +76,15 @@ public class GlobalLoader extends ContextInitializationBean {
     return _scheduler;
   }
 
+  public void setFudgeContext(final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    _fudgeContext = fudgeContext;
+  }
+
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
   // ContextInitializationBean
 
   @Override
@@ -74,6 +92,9 @@ public class GlobalLoader extends ContextInitializationBean {
     ArgumentChecker.notNull(getConfiguration(), "configuration");
     ArgumentChecker.notNull(getConnectionFactory(), "connectionFactory");
     ArgumentChecker.notNull(getScheduler(), "scheduler");
+    ArgumentChecker.notNull(getGlobalContextFactory(), "globalContextFactory");
+    ArgumentChecker.notNull(getUserContextFactory(), "userContextFactory");
+    ArgumentChecker.notNull(getSessionContextFactory(), "sessionContextFactory");
   }
 
   @Override
@@ -85,8 +106,38 @@ public class GlobalLoader extends ContextInitializationBean {
     }
     s_logger.info("Configuring view processor support");
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getScheduler()));
-    // TODO: add function provider
-    // TODO: add type converter provider
+    globalContext.getFunctionProvider().addProvider(new AbstractFunctionProvider() {
+      @Override
+      protected void loadDefinitions(final Collection<MetaFunction> definitions) {
+        definitions.add(ViewClientFunction.INSTANCE.getMetaFunction());
+      }
+    });
+    globalContext.getTypeConverterProvider().addTypeConverterProvider(new AbstractTypeConverterProvider() {
+      @Override
+      protected void loadTypeConverters(final Collection<TypeConverter> converters) {
+        converters.add(UserViewClientConverter.INSTANCE);
+      }
+    });
+  }
+
+  @Override
+  protected void initContext(final MutableUserContext userContext) {
+    userContext.setViewClients(new UserViewClients(userContext));
+  }
+
+  @Override
+  protected void doneContext(final MutableUserContext userContext) {
+    userContext.getViewClients().destroyAll();
+  }
+
+  @Override
+  protected void initContext(final MutableSessionContext sessionContext) {
+    sessionContext.setViewClients(new SessionViewClients(sessionContext));
+  }
+
+  @Override
+  protected void doneContext(final MutableSessionContext sessionContext) {
+    sessionContext.getViewClients().destroyAll();
   }
 
 }

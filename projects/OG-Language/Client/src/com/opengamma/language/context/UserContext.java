@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
-import com.opengamma.language.view.ViewClients;
+import com.opengamma.language.view.UserViewClients;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -61,7 +61,7 @@ public abstract class UserContext extends AbstractContext<GlobalContext> {
     return getValue(LIVEDATA_USER);
   }
 
-  public ViewClients getViewClients() {
+  public UserViewClients getViewClients() {
     return getValue(VIEW_CLIENTS);
   }
 

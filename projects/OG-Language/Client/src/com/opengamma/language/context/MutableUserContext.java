@@ -8,7 +8,7 @@ package com.opengamma.language.context;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
-import com.opengamma.language.view.ViewClients;
+import com.opengamma.language.view.UserViewClients;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -59,7 +59,7 @@ public class MutableUserContext extends UserContext {
     setValue(LIVEDATA_USER, liveDataUser);
   }
 
-  public void setViewClients(final ViewClients viewClients) {
+  public void setViewClients(final UserViewClients viewClients) {
     setValue(VIEW_CLIENTS, viewClients);
   }
 

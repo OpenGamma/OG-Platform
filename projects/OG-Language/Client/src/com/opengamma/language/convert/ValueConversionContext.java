@@ -8,6 +8,7 @@ package com.opengamma.language.convert;
 
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.context.UserContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,6 +33,10 @@ public final class ValueConversionContext {
 
   public SessionContext getSessionContext() {
     return _sessionContext;
+  }
+
+  public UserContext getUserContext() {
+    return getSessionContext().getUserContext();
   }
 
   public GlobalContext getGlobalContext() {

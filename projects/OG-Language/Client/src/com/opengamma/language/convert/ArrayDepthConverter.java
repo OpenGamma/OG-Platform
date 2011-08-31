@@ -19,6 +19,14 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class ArrayDepthConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final ArrayDepthConverter INSTANCE = new ArrayDepthConverter();
+
+  protected ArrayDepthConverter() {
+  }
+
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {
     return true;
