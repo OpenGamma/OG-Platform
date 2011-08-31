@@ -7,10 +7,9 @@
 namespace com.opengamma.financial.security.future {
 
   /**
-   * A {@code Security} used to model futures.
+   * A future security.
    */
   abstract message FutureSecurity extends FinancialSecurity {
-  
     required string securityType [default = "FUTURE"];
     
     required com.opengamma.util.time.Expiry expiry;
@@ -19,14 +18,6 @@ namespace com.opengamma.financial.security.future {
     required com.opengamma.util.money.Currency currency;
     // required string settlementType [default = "CASH"];
     required double unitAmount;
-      
-    binding Java {
-      body <<<JAVA
-        public abstract <T> T accept(FutureSecurityVisitor<T> visitor);
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFutureSecurity(this); }
-JAVA;
-    }
-    
   }
 
 }

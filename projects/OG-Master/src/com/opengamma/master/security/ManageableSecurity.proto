@@ -7,45 +7,13 @@
 namespace com.opengamma.master.security {
 
   /**
-   * A simple mutable implementation of {@code Security}.
+   * An abstract base security.
    */
   message ManageableSecurity {
-  
     optional com.opengamma.id.UniqueId uniqueId;
     required string name [default=""];
     required string securityType;
     required com.opengamma.id.ExternalIdBundle identifiers [default=()];
-    
-    // TODO: getName - used to call buildDefaultDisplayName if no name was given
-
-    binding Java {
-      implements "com.opengamma.core.security.Security, com.opengamma.id.MutableUniqueIdentifiable";
-      methods "equals,hashCode";
-      body <<<JAVA
-        /**
-         * Dynamically determines a 'default' display name if one hasn't been explicitly set.
-         * This implementation constructs one from the identity key or identifiers.
-         * 
-         * @return a default display name
-         */
-        protected String buildDefaultDisplayName() {
-          final com.opengamma.id.UniqueId identifier = getUniqueId(); // assign for thread-safety
-          if (identifier != null) {
-            return identifier.toString();
-          }
-          final com.opengamma.id.ExternalIdBundle bundle = getIdentifiers(); // assign for thread-safety
-          final com.opengamma.id.ExternalId first = (bundle.size() == 0 ? null : bundle.getExternalIds().iterator().next());
-          return org.apache.commons.lang.ObjectUtils.toString(first);
-        }
-        
-        /**
-         * Add an identifier to the bundle.
-         */
-        public void addIdentifier (final com.opengamma.id.ExternalId externalId) {
-          setIdentifiers (getIdentifiers ().withExternalId (externalId));
-        }
-JAVA;
-    }
   }
 
 }
