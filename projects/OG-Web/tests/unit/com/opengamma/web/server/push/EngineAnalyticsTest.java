@@ -7,8 +7,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import static com.opengamma.web.server.push.WebPushTestUtils.readFromPath;
-
 /**
  * Tests live updating of analytics from a real engine.
  */
@@ -31,6 +29,7 @@ public class EngineAnalyticsTest {
     // need to request data to activate the subscription
     String firstResults = WebPushTestUtils.readFromPath(viewportUrl + "/data", clientId);
     System.out.println("first results: " + firstResults);
+    //noinspection InfiniteLoopStatement
     while (true) {
       String urlJson = WebPushTestUtils.readFromPath("/updates/" + clientId);
       System.out.println("updates: " + urlJson);

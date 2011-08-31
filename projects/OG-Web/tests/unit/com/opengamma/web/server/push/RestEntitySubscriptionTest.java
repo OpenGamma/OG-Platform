@@ -19,7 +19,6 @@ import javax.time.Instant;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import static com.opengamma.web.server.push.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**

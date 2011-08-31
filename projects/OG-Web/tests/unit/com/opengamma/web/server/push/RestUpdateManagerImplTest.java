@@ -3,10 +3,6 @@ package com.opengamma.web.server.push;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.RestUpdateListener;
-import com.opengamma.web.server.push.RestUpdateManagerImpl;
-import com.opengamma.web.server.push.TimeoutListener;
-import com.opengamma.web.server.push.ViewportFactory;
 import org.testng.annotations.Test;
 
 import static org.mockito.Mockito.mock;

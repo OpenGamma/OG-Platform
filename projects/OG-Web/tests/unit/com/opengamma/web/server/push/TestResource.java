@@ -5,8 +5,6 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.web.server.push.Subscribe;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;

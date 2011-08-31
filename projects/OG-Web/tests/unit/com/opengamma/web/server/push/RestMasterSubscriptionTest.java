@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.server.push;
 
-import org.testng.annotations.Test;
-import org.testng.AssertJUnit;
-
 /**
  *
  */

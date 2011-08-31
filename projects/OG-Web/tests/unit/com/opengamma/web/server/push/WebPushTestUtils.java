@@ -7,7 +7,6 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.push.LongPollingUpdateListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.webapp.WebAppContext;

@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import static com.opengamma.web.server.push.WebPushTestUtils.readFromPath;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**

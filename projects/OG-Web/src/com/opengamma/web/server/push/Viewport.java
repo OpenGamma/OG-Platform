@@ -7,7 +7,6 @@ package com.opengamma.web.server.push;
 
 import com.opengamma.web.server.conversion.ConversionMode;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**

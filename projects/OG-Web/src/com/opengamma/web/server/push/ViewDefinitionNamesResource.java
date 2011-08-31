@@ -1,8 +1,6 @@
 package com.opengamma.web.server.push;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewDefinitionRepository;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.ws.rs.GET;

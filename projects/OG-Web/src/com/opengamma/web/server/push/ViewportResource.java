@@ -1,7 +1,6 @@
 package com.opengamma.web.server.push;
 
 import com.opengamma.web.server.conversion.ConversionMode;
-import com.opengamma.web.server.push.Viewport;
 import org.json.JSONObject;
 
 import javax.ws.rs.GET;

@@ -3,7 +3,6 @@ package com.opengamma.web.server.push;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.web.server.push.ViewDefinitionNamesResource;
 
 import java.util.Arrays;
 import java.util.HashSet;
