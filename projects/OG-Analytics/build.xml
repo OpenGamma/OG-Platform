@@ -46,4 +46,10 @@
             >
         </javadoc>
     </target>
+    <target name="dexydocs" depends="jsondoc"
+        description="Create dexy docs">
+        <exec executable="dexy" dir="docs" searchpath="true">
+           <arg line="--global OG_VERSION=0.9 --setup"/>
+        </exec>
+    </target>
 </project>
