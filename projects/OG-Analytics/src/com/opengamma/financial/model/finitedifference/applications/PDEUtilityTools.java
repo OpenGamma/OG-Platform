@@ -7,6 +7,7 @@ package com.opengamma.financial.model.finitedifference.applications;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.PrintStream;
 
 import org.apache.commons.lang.Validate;
 
@@ -100,25 +101,30 @@ public class PDEUtilityTools {
   }
 
   public static void printSurface(final String name, final PDEFullResults1D res) {
+      PrintStream out = System.out;
+      printSurface(name, res, out);
+  }
+
+  public static void printSurface(final String name, final PDEFullResults1D res, final PrintStream out) {
     final int tNodes = res.getNumberTimeNodes();
     final int xNodes = res.getNumberSpaceNodes();
 
-    System.out.println(name);
+    out.println(name);
     for (int i = 0; i < xNodes; i++) {
       final double k = res.getSpaceValue(i);
-      System.out.print("\t" + k);
+      out.print("\t" + k);
     }
-    System.out.print("\n");
+    out.print("\n");
 
     for (int j = 0; j < tNodes; j++) {
       final double t = res.getTimeValue(j);
-      System.out.print(t);
+      out.print(t);
       for (int i = 0; i < xNodes; i++) {
-        System.out.print("\t" + res.getFunctionValue(i, j));
+        out.print("\t" + res.getFunctionValue(i, j));
       }
-      System.out.print("\n");
+      out.print("\n");
     }
-    System.out.print("\n");
+    out.print("\n");
   }
 
   public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double xMin, final double xMax, final double yMin, final double yMax) {

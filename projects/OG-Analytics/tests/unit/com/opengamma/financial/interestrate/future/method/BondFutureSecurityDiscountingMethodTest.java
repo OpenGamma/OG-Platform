@@ -42,7 +42,7 @@ public class BondFutureSecurityDiscountingMethodTest {
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
@@ -96,7 +96,7 @@ public class BondFutureSecurityDiscountingMethodTest {
 
   @Test
   public void price() {
-    final double priceComputed = METHOD.priceFromCurves(BOND_FUTURE_SECURITY, CURVES);
+    final double priceComputed = METHOD.price(BOND_FUTURE_SECURITY, CURVES);
     final double[] bondForwardPrice = new double[NB_BOND];
     final double[] bondForwardPriceAdjusted = new double[NB_BOND];
     double priceExpected = 2.0;
@@ -131,8 +131,8 @@ public class BondFutureSecurityDiscountingMethodTest {
     sensiFuture = sensiFuture.clean();
     sensiBond = sensiBond.clean();
     for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
-      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first,
-          sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
+      assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first, sensiFuture.getSensitivities()
+          .get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);
       assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).second, sensiFuture.getSensitivities()
           .get(CREDIT_CURVE_NAME).get(loopsensi).second, 1.0E-10);
     }
@@ -153,7 +153,7 @@ public class BondFutureSecurityDiscountingMethodTest {
    * Tests the method versus the calculator for the price.
    */
   public void priceMethodVsCalculator() {
-    final double priceMethod = METHOD.priceFromCurves(BOND_FUTURE_SECURITY, CURVES);
+    final double priceMethod = METHOD.price(BOND_FUTURE_SECURITY, CURVES);
     final double priceCalculator = PRICE_CALCULATOR.visit(BOND_FUTURE_SECURITY, CURVES);
     assertEquals("Bond future security Discounting: Method vs calculator", priceMethod, priceCalculator, 1.0E-10);
   }
@@ -164,7 +164,7 @@ public class BondFutureSecurityDiscountingMethodTest {
    */
   public void netBasis() {
     //final double priceFuture = 1.0320;
-    final double priceFuture = METHOD.priceFromCurves(BOND_FUTURE_SECURITY, CURVES);
+    final double priceFuture = METHOD.price(BOND_FUTURE_SECURITY, CURVES);
     final double[] netBasisComputed = METHOD.netBasisFromCurves(BOND_FUTURE_SECURITY, CURVES, priceFuture);
     final double[] netBasisExpected = new double[NB_BOND];
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
@@ -174,7 +174,7 @@ public class BondFutureSecurityDiscountingMethodTest {
     }
     final Min minFunction = new Min();
     final double netBasisMin = minFunction.evaluate(netBasisComputed);
-    final double priceFutureFromNetBasis = METHOD.priceFromCurvesAndNetBasis(BOND_FUTURE_SECURITY, CURVES, netBasisMin);
+    final double priceFutureFromNetBasis = METHOD.priceNetBasis(BOND_FUTURE_SECURITY, CURVES, netBasisMin);
     assertEquals("Bond future security Discounting Method: netBasis", priceFuture, priceFutureFromNetBasis, 1.0E-10);
   }
 

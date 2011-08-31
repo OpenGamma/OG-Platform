@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -201,8 +203,15 @@ public final class FutureSecurityBeanOperation extends
 
           @Override
           public FutureSecurity visitEquityFutureType() {
-            // TODO Auto-generated method stub
-            return null;
+            final EquityFutureSecurity security = new EquityFutureSecurity(
+                expiryBeanToExpiry(bean.getExpiry()),
+                bean.getTradingExchange().getName(),
+                bean.getSettlementExchange().getName(),
+                currencyBeanToCurrency(bean.getCurrency1()),
+                bean.getUnitAmount(),
+                ZonedDateTime.now(),  // TODO: this is a temporary hack as this isn't being stored in database
+                externalIdBeanToExternalId(bean.getUnderlying()));
+            return security;
           }
 
           @Override

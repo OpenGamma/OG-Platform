@@ -23,10 +23,8 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -104,11 +102,11 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
    * {@inheritDoc}
    * Future transaction pricing without convexity adjustment.
    */
-  @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
-  }
+  //  @Override
+  //  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  //    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  //    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
+  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {

@@ -43,14 +43,16 @@ public class UserContextFactoryBean implements UserContextFactory {
     // Prepend the event handlers of the factory we're extending from
     setUserContextEventHandler(new AbstractUserContextEventHandler(extendedFrom.getUserContextEventHandler()) {
 
+      private final UserContextEventHandler _chain = getUserContextEventHandler();
+
       @Override
       protected void doneContextImpl(MutableUserContext context) {
-        getUserContextEventHandler().doneContext(context);
+        _chain.doneContext(context);
       }
 
       @Override
       protected void initContextImpl(MutableUserContext context) {
-        getUserContextEventHandler().initContext(context);
+        _chain.initContext(context);
       }
 
     });

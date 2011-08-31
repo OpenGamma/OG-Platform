@@ -13,6 +13,8 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.language.object.ObjectFunctionProvider;
+
 /**
  * Tests the {@link ObjectFunctionProvider} class to check it can load its definitions.
  */

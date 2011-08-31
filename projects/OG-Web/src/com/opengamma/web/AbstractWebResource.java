@@ -89,9 +89,9 @@ public abstract class AbstractWebResource {
     if (pgIdx != null) {
       return PagingRequest.ofIndex(pgIdx, size);
     } else if (pgNum != null) {
-      return PagingRequest.ofIndex(pgNum, size);
+      return PagingRequest.ofPage(pgNum, size);
     } else {
-      return PagingRequest.FIRST_PAGE;
+      return PagingRequest.ofPage(1, size);
     }
   }
 

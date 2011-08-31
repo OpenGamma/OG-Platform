@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Runtime configuration options
-
 #include "Settings.h"
 #include <Util/File.h>
 #include <Util/Process.h>
@@ -56,17 +53,27 @@ LOGGING(com.opengamma.language.service.Settings);
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_CONNECTION_PIPE */
 
+/// Returns the default name of the pipe for incoming client connections.
+///
+/// @return the pipe name
 const TCHAR *ServiceDefaultConnectionPipe () {
 	return DEFAULT_CONNECTION_PIPE;
 }
 
+/// Returns the default name of the service.
+///
+/// @return the service name
 const TCHAR *ServiceDefaultServiceName () {
 	return DEFAULT_SERVICE_NAME;
 }
 
+/// Locates the JVM library by inspecting JAVA_HOME, or hunting for a JRE from the PATH environment variables.
 class CJvmLibraryDefault : public CAbstractSettingProvider {
 private:
+
 #ifdef _WIN32
+	/// Tests if a DLL is valid; i.e. can be loaded into the process. To be valid, any dependencies must be in the
+	/// path (or already loaded) and it must match the architecture.
 	static BOOL IsValidLibrary (PCTSTR pszLibrary) {
 		DWORD dwAttrib = GetFileAttributes (pszLibrary);
 		if (dwAttrib == INVALID_FILE_ATTRIBUTES) return FALSE;
@@ -94,6 +101,10 @@ private:
 #endif
 
 #define MAX_ENV_LEN 32767
+	/// Checks for a JVM library under JAVA_HOME, and then in any candidate JRE/JDK folders based on finding
+	/// a java.exe in the system path.
+	///
+	/// @return the path to the JVM DLL, a default best guess, or NULL if there is a problem
 	TCHAR *CalculateString () const {
 		TCHAR *pszLibrary = NULL;
 #ifdef _WIN32
@@ -190,24 +201,39 @@ private:
 	}
 };
 
+/// Instance of the provider to retrieve the JVM library path.
 static CJvmLibraryDefault g_oJvmLibraryDefault;
 
+/// Returns the path to the JVM library.
+///
+/// @return the path
 const TCHAR *CSettings::GetJvmLibrary () const {
 	return GetJvmLibrary (&g_oJvmLibraryDefault);
 }
 
+/// Returns the name of the pipe for incoming client connections
+///
+/// @return the pipe name
 const TCHAR *CSettings::GetConnectionPipe () const {
 	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
 
+/// Returns the timeout for reading connection messages from incoming client connections
+///
+/// @return the timeout in milliseconds
 unsigned long CSettings::GetConnectionTimeout () const {
 	return GetConnectionTimeout (DEFAULT_CONNECTION_TIMEOUT);
 }
 
+/// Locates the path containing all of the Java stack resources by working backwards from the folder
+/// containing the service executable until client.jar is found.
 class CJarPathDefault : public CAbstractSettingProvider {
 protected:
 #define CLIENT_JAR_NAME		TEXT ("client.jar")
 #define CLIENT_JAR_LEN		10
+	/// Scans backwards from the service executable's folder until it finds one containing client.jar
+	///
+	/// @return the path, or a default best guess if none is found
 	TCHAR *CalculateString () const {
 		TCHAR *pszJarPath = NULL;
 		// Scan backwards from the module to find a path which has Client.jar in. This works if all of the
@@ -261,33 +287,58 @@ protected:
 	}
 };
 
+/// Instance of the provider to get the default path for the Java resources.
 static CJarPathDefault g_oJarPathDefault;
 
+/// Returns the path containing the Java stack resources.
+///
+/// @return the path
 const TCHAR *CSettings::GetJarPath () const {
 	return GetJarPath (&g_oJarPathDefault);
 }
 
+/// Returns the path where Fudge annotation cache files should be written. The default is the JAR path, but this
+/// may not be writable in some installations.
+///
+/// @return the annotation cache path
 const TCHAR *CSettings::GetAnnotationCache () const {
 	return GetAnnotationCache (GetJarPath ());
 }
 
+/// Returns the timeout for polling the JVM's busy status; i.e. how often feedback from the service will get reported
+/// during service start/stop handling.
+///
+/// @return the timeout in milliseconds
 unsigned long CSettings::GetBusyTimeout () const {
 	return GetBusyTimeout (DEFAULT_BUSY_TIMEOUT);
 }
 
+/// Returns the path to the log configuration file.
+///
+/// @return the log configuration file path
 const TCHAR *CSettings::GetLogConfiguration () const {
 	return GetLogConfiguration (DEFAULT_LOG_CONFIGURATION);
 }
 
+/// Returns the idle timeout - if no connections are received for this time the service will shutdown.
+///
+/// @return the timeout in milliseconds
 unsigned long CSettings::GetIdleTimeout () const {
 	return GetIdleTimeout (DEFAULT_IDLE_TIMEOUT);
 }
 
+/// Returns the service name.
+///
+/// @return the service name
 const TCHAR *CSettings::GetServiceName () const {
 	return GetServiceName (ServiceDefaultServiceName ());
 }
 
 #ifdef _WIN32
+/// Returns the SDDL that should be applied to the process; this is to relax security rights to allow clients to
+/// restart a rogue process (if required).
+///
+/// @return the SDDL string, or NULL to use the system defaults
 const TCHAR *CSettings::GetServiceSDDL () const {
 	return GetServiceSDDL (DEFAULT_SDDL);
 }

@@ -12,9 +12,9 @@ import javax.time.InstantProvider;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.ExpiryBuilder;
@@ -140,30 +140,30 @@ public class Expiry implements InstantProvider, Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * This is for more efficient code within the .proto representations of securities, allowing Expiry to be
-   * used directly as a message type instead of through the serialization framework.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  the Fudge message factory
-   * @param message  the message to populate
+   * @param serializer  the serializer, not null
+   * @param msg  the message to populate, not null
    * @deprecated Use builder
    */
   @Deprecated
-  public void toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
-    ExpiryBuilder.toFudgeMsg(this, message);
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
+    ExpiryBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
-   * This is for more efficient code within the .proto representations of securities, allowing Expiry to be
-   * used directly as a message type instead of through the serialization framework.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param fudgeContext  the Fudge context
-   * @param message the message to decode
-   * @return the expiry object
+   * @param deserializer  the deserializer, not null
+   * @param msg  the message to decode, not null
+   * @return the created object, not null
    * @deprecated Use builder
    */
   @Deprecated
-  public static Expiry fromFudgeMsg(final FudgeDeserializer fudgeContext, final FudgeMsg message) {
-    return ExpiryBuilder.fromFudgeMsg(message);
+  public static Expiry fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return ExpiryBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

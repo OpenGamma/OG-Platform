@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.language.convert;
+package com.opengamma.language.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -16,36 +16,60 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.language.context.AbstractGlobalContextEventHandler;
-import com.opengamma.language.context.GlobalContextFactoryBean;
-import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.SessionContext;
-import com.opengamma.language.context.SessionContextFactoryBean;
-import com.opengamma.language.context.UserContextFactoryBean;
+import com.opengamma.language.convert.Converters;
+import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
 import com.opengamma.language.invoke.DefaultValueConverter;
 import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.TypeConverterProvider;
+import com.opengamma.language.invoke.TypeConverterProviderBean;
 
 public class AbstractConverterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractConverterTest.class);
 
-  public static SessionContext createTestSessionContext() {
-    final GlobalContextFactoryBean globalContextFactory = new GlobalContextFactoryBean();
-    globalContextFactory.setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(globalContextFactory.getGlobalContextEventHandler()) {
+  private final SessionContext _sessionContext;
 
-      @Override
-      protected void initContextImpl(final MutableGlobalContext context) {
-        context.getTypeConverterProvider().addTypeConverterProvider(new Converters());
-      }
-
-    });
-    final UserContextFactoryBean userContextFactory = new UserContextFactoryBean(globalContextFactory);
-    final SessionContextFactoryBean sessionContextFactory = new SessionContextFactoryBean(userContextFactory);
-    return sessionContextFactory.createSessionContext("test", false);
+  protected AbstractConverterTest() {
+    final TestUtils testUtils = new TestUtils();
+    testUtils.setTypeConverters(getTypeConverters());
+    _sessionContext = testUtils.createSessionContext();
   }
 
-  private final SessionContext _sessionContext = createTestSessionContext();
+  /**
+   * Override this if {@link #useBean} is called from {@link #getTypeConverters}.
+   * 
+   * @param bean the bean to populate with individual type converters to test
+   */
+  protected void addTypeConvertersToBean(final TypeConverterProviderBean bean) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Creates a {@link TypeConverterProviderBean} and passes it to {@link #addTypeConvertersToBean} to be populated.
+   * 
+   * @return the populated type converter provider, not {@code null}
+   */
+  protected final TypeConverterProvider useBean() {
+    final AggregatingTypeConverterProvider agg = new AggregatingTypeConverterProvider();
+    final TypeConverterProviderBean bean = new TypeConverterProviderBean();
+    addTypeConvertersToBean(bean);
+    agg.addTypeConverterProvider(new Converters());
+    agg.addTypeConverterProvider(bean);
+    return agg;
+  }
+
+  /**
+   * Returns the type converters to configure the context with. By default uses the OG-Language default converters. Override
+   * this to use specific converters to test. A simple implementation calls {@link #useBean} and implements {@link #addTypeConvertersToBean}.
+   * 
+   * @return the type converter provider, not {@code null}
+   */
+  protected TypeConverterProvider getTypeConverters() {
+    return new Converters();
+  }
 
   protected SessionContext getSessionContext() {
     return _sessionContext;

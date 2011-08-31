@@ -15,6 +15,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.MockDistributionSpecificationResolver;
 import com.opengamma.livedata.server.MockLiveDataServer;
 
@@ -94,5 +95,13 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       assertEquals(1, _serverB.getSubscriptions().size());
       assertEquals(0, _serverC.getSubscriptions().size());
       
+    }
+    
+    @Test
+    public void matchingResolution() {
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
+      DistributionSpecification combined = _combiningServer.getDefaultDistributionSpecificationResolver().resolve(spec);
+      DistributionSpecification direct = _serverC.getDistributionSpecificationResolver().resolve(spec);
+      assertEquals(direct, combined);
     }
 }

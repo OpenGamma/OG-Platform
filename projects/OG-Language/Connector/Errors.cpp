@@ -21,7 +21,7 @@ LOGGING (com.opengamma.language.connector.Errors);
 /// @return the full error message
 static TCHAR *_ParameterConversionError (int nIndex, const TCHAR *pszMessage) {
 	TCHAR sz[MESSAGE_BUFFER_SIZE];
-	StringCbPrintf (sz, sizeof (sz), TEXT ("Invalid parameter %d - %s"), nIndex + 1, pszMessage);
+	StringCbPrintf (sz, sizeof (sz), TEXT ("Invalid parameter %d type - %s"), nIndex + 1, pszMessage);
 	return _tcsdup (sz);
 }
 
@@ -33,6 +33,17 @@ static TCHAR *_ParameterConversionError (int nIndex, const TCHAR *pszMessage) {
 static TCHAR *_ResultConversionError (int nIndex, const TCHAR *pszMessage) {
 	TCHAR sz[MESSAGE_BUFFER_SIZE];
 	StringCbPrintf (sz, sizeof (sz), TEXT ("Invalid function result - %s"), pszMessage);
+	return _tcsdup (sz);
+}
+
+/// Processes the ERROR_INVALID_ARGUMENT error.
+///
+/// @param[in] nIndex parameter index, zero based
+/// @param[in] pszMessage reason for failed conversion, never NULL
+/// @return the full error message
+static TCHAR *_InvalidArgumentError (int nIndex, const TCHAR *pszMessage) {
+	TCHAR sz[MESSAGE_BUFFER_SIZE];
+	StringCbPrintf (sz, sizeof (sz), TEXT ("Invalid parameter %d value - %s"), nIndex + 1, pszMessage);
 	return _tcsdup (sz);
 }
 
@@ -62,6 +73,8 @@ TCHAR *CError::ToString (const com_opengamma_language_Value *pValue) {
 			return _ParameterConversionError (SAFE_INT (pValue->_intValue), SAFE_STRING (pValue->_stringValue));
 		case ERROR_RESULT_CONVERSION :
 			return _ResultConversionError (SAFE_INT (pValue->_intValue), SAFE_STRING (pValue->_stringValue));
+		case ERROR_INVALID_ARGUMENT :
+			return _InvalidArgumentError (SAFE_INT (pValue->_intValue), SAFE_STRING (pValue->_stringValue));
 		default :
 			return _DefaultError (*pValue->_errorValue);
 	}
