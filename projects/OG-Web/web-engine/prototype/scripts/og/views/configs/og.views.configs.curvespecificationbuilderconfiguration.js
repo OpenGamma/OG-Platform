@@ -23,7 +23,7 @@ $.register_module({
                 class_name = 'com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration',
                 transposed = {}, has = 'hasOwnProperty', format,
                 strip_types = ['LIBOR', 'CASH', 'SWAP', 'FUTURE', 'OIS_SWAP', 'FRA', 'TENOR_SWAP', 'BASIS_SWAP'],
-                field_names = ['BAS', 'CAS', 'FRA', 'FUT', 'OIS', 'RAT', 'SWA', 'TSW'],
+                field_names = ['RAT', 'CAS', 'SWA', 'FUT', 'OIS', 'FRA', 'TSW', 'BAS'],
                 fields = {
                     BAS: 'basisSwapInstrumentProviders',
                     CAS: 'cashInstrumentProviders',
@@ -64,7 +64,8 @@ $.register_module({
                 form_id = '#' + form.id,
                 save_resource = function (data, as_new) {
                     var name = data.name;
-                    if (as_new && (orig_name === name)) return window.alert('Please select a new name.');
+                    if (!deleted && !is_new && as_new && (orig_name === name))
+                        return window.alert('Please select a new name.');
                     delete data.name;
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
@@ -85,7 +86,13 @@ $.register_module({
                         </header>\
                     ';
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
+                    if (deleted || is_new)
+                        $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
                     load_handler();
+                }},
+                {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
+                    submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
                     save_resource(result.data, submit_type === 'save_as_new');
@@ -222,10 +229,7 @@ $.register_module({
                 var key, extras = {tenor: val.tenor};
                 delete val.tenor;
                 for (key in val) if (!val[has](key)) continue; else extras[key] = format(val[key]);
-                return new form.Block({
-                    module: 'og.views.forms.curve-specification-builder-strip',
-                    extras: extras
-                });
+                return new form.Block({module: 'og.views.forms.curve-specification-builder-strip', extras: extras});
             };
             transposed = field_names.reduce(function (acc, val) {
                 acc[val] = (master[fields[val]] || []).reduce(function (acc, val) {
