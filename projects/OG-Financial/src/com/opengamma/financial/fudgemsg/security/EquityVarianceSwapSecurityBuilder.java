@@ -14,7 +14,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
@@ -73,7 +72,7 @@ public class EquityVarianceSwapSecurityBuilder extends AbstractFudgeBuilder impl
 
   @Override
   public EquityVarianceSwapSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EquityVarianceSwapSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EquityVarianceSwapSecurity.class);
+    EquityVarianceSwapSecurity object = new EquityVarianceSwapSecurity();
     EquityVarianceSwapSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

@@ -1,222 +1,449 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.fx;
-public class FXSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-           public <T> T accept (FXSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
-         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
-  private static final long serialVersionUID = -8963298799861909741l;
-  private com.opengamma.util.money.Currency _payCurrency;
-  public static final String PAY_CURRENCY_KEY = "payCurrency";
-  private com.opengamma.util.money.Currency _receiveCurrency;
-  public static final String RECEIVE_CURRENCY_KEY = "receiveCurrency";
-  private double _payAmount;
-  public static final String PAY_AMOUNT_KEY = "payAmount";
-  private double _receiveAmount;
-  public static final String RECEIVE_AMOUNT_KEY = "receiveAmount";
-  private com.opengamma.id.ExternalId _region;
-  public static final String REGION_KEY = "region";
+
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+
+/**
+ * A security for FX.
+ */
+@BeanDefinition
+public class FXSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "FX";
-  public FXSecurity (com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.ExternalId region) {
-    super (SECURITY_TYPE);
-    if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
-    _payCurrency = payCurrency;
-    if (receiveCurrency == null) throw new NullPointerException ("receiveCurrency' cannot be null");
-    _receiveCurrency = receiveCurrency;
-    _payAmount = payAmount;
-    _receiveAmount = receiveAmount;
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  /**
+   * The pay currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _payCurrency;
+  /**
+   * The receive currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _receiveCurrency;
+  /**
+   * The pay amount.
+   */
+  @PropertyDefinition
+  private double _payAmount;
+  /**
+   * The receive amount.
+   */
+  @PropertyDefinition
+  private double _receiveAmount;
+  /**
+   * The region.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _region;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public FXSecurity() {
   }
-  protected FXSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (PAY_CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'payCurrency' is not present");
-    try {
-      _payCurrency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'payCurrency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (RECEIVE_CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'receiveCurrency' is not present");
-    try {
-      _receiveCurrency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'receiveCurrency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (PAY_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'payAmount' is not present");
-    try {
-      _payAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'payAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (RECEIVE_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'receiveAmount' is not present");
-    try {
-      _receiveAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'receiveAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (REGION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'region' is not present");
-    try {
-      _region = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXSecurity - field 'region' is not ExternalId message", e);
-    }
+
+  public FXSecurity(Currency payCurrency, Currency receiveCurrency, double payAmount, double receiveAmount, ExternalId region) {
+    super(SECURITY_TYPE);
+    setPayCurrency(payCurrency);
+    setReceiveCurrency(receiveCurrency);
+    setPayAmount(payAmount);
+    setReceiveAmount(receiveAmount);
+    setRegion(region);
   }
-  public FXSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency payCurrency, com.opengamma.util.money.Currency receiveCurrency, double payAmount, double receiveAmount, com.opengamma.id.ExternalId region) {
-    super (uniqueId, name, securityType, identifiers);
-    if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
-    _payCurrency = payCurrency;
-    if (receiveCurrency == null) throw new NullPointerException ("receiveCurrency' cannot be null");
-    _receiveCurrency = receiveCurrency;
-    _payAmount = payAmount;
-    _receiveAmount = receiveAmount;
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitFXSecurity(this);
   }
-  protected FXSecurity (final FXSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _payCurrency = source._payCurrency;
-    _receiveCurrency = source._receiveCurrency;
-    _payAmount = source._payAmount;
-    _receiveAmount = source._receiveAmount;
-    if (source._region == null) _region = null;
-    else {
-      _region = source._region;
-    }
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(FXSecurityVisitor<T> visitor) {
+    return visitor.visitFXSecurity(this);
   }
-  public FXSecurity clone () {
-    return new FXSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FXSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static FXSecurity.Meta meta() {
+    return FXSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(FXSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_payCurrency != null)  {
-      msg.add (PAY_CURRENCY_KEY, null, _payCurrency);
-    }
-    if (_receiveCurrency != null)  {
-      msg.add (RECEIVE_CURRENCY_KEY, null, _receiveCurrency);
-    }
-    msg.add (PAY_AMOUNT_KEY, null, _payAmount);
-    msg.add (RECEIVE_AMOUNT_KEY, null, _receiveAmount);
-    if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
-      _region.toFudgeMsg (serializer, fudge1);
-      msg.add (REGION_KEY, null, fudge1);
-    }
+
+  @Override
+  public FXSecurity.Meta metaBean() {
+    return FXSecurity.Meta.INSTANCE;
   }
-  public static FXSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.fx.FXSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.fx.FXSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -295641895:  // payCurrency
+        return getPayCurrency();
+      case -1228590060:  // receiveCurrency
+        return getReceiveCurrency();
+      case -1338781920:  // payAmount
+        return getPayAmount();
+      case 984267035:  // receiveAmount
+        return getReceiveAmount();
+      case -934795532:  // region
+        return getRegion();
     }
-    return new FXSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public com.opengamma.util.money.Currency getPayCurrency () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -295641895:  // payCurrency
+        setPayCurrency((Currency) newValue);
+        return;
+      case -1228590060:  // receiveCurrency
+        setReceiveCurrency((Currency) newValue);
+        return;
+      case -1338781920:  // payAmount
+        setPayAmount((Double) newValue);
+        return;
+      case 984267035:  // receiveAmount
+        setReceiveAmount((Double) newValue);
+        return;
+      case -934795532:  // region
+        setRegion((ExternalId) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_payCurrency, "payCurrency");
+    JodaBeanUtils.notNull(_receiveCurrency, "receiveCurrency");
+    JodaBeanUtils.notNull(_region, "region");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXSecurity other = (FXSecurity) obj;
+      return JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
+          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
+          JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
+          JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the pay currency.
+   * @return the value of the property, not null
+   */
+  public Currency getPayCurrency() {
     return _payCurrency;
   }
-  public void setPayCurrency (com.opengamma.util.money.Currency payCurrency) {
-    if (payCurrency == null) throw new NullPointerException ("payCurrency' cannot be null");
-    _payCurrency = payCurrency;
+
+  /**
+   * Sets the pay currency.
+   * @param payCurrency  the new value of the property, not null
+   */
+  public void setPayCurrency(Currency payCurrency) {
+    JodaBeanUtils.notNull(payCurrency, "payCurrency");
+    this._payCurrency = payCurrency;
   }
-  public com.opengamma.util.money.Currency getReceiveCurrency () {
+
+  /**
+   * Gets the the {@code payCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> payCurrency() {
+    return metaBean().payCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receive currency.
+   * @return the value of the property, not null
+   */
+  public Currency getReceiveCurrency() {
     return _receiveCurrency;
   }
-  public void setReceiveCurrency (com.opengamma.util.money.Currency receiveCurrency) {
-    if (receiveCurrency == null) throw new NullPointerException ("receiveCurrency' cannot be null");
-    _receiveCurrency = receiveCurrency;
+
+  /**
+   * Sets the receive currency.
+   * @param receiveCurrency  the new value of the property, not null
+   */
+  public void setReceiveCurrency(Currency receiveCurrency) {
+    JodaBeanUtils.notNull(receiveCurrency, "receiveCurrency");
+    this._receiveCurrency = receiveCurrency;
   }
-  public double getPayAmount () {
+
+  /**
+   * Gets the the {@code receiveCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> receiveCurrency() {
+    return metaBean().receiveCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the pay amount.
+   * @return the value of the property
+   */
+  public double getPayAmount() {
     return _payAmount;
   }
-  public void setPayAmount (double payAmount) {
-    _payAmount = payAmount;
+
+  /**
+   * Sets the pay amount.
+   * @param payAmount  the new value of the property
+   */
+  public void setPayAmount(double payAmount) {
+    this._payAmount = payAmount;
   }
-  public double getReceiveAmount () {
+
+  /**
+   * Gets the the {@code payAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> payAmount() {
+    return metaBean().payAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receive amount.
+   * @return the value of the property
+   */
+  public double getReceiveAmount() {
     return _receiveAmount;
   }
-  public void setReceiveAmount (double receiveAmount) {
-    _receiveAmount = receiveAmount;
+
+  /**
+   * Sets the receive amount.
+   * @param receiveAmount  the new value of the property
+   */
+  public void setReceiveAmount(double receiveAmount) {
+    this._receiveAmount = receiveAmount;
   }
-  public com.opengamma.id.ExternalId getRegion () {
+
+  /**
+   * Gets the the {@code receiveAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> receiveAmount() {
+    return metaBean().receiveAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region.
+   * @return the value of the property, not null
+   */
+  public ExternalId getRegion() {
     return _region;
   }
-  public void setRegion (com.opengamma.id.ExternalId region) {
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  /**
+   * Sets the region.
+   * @param region  the new value of the property, not null
+   */
+  public void setRegion(ExternalId region) {
+    JodaBeanUtils.notNull(region, "region");
+    this._region = region;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FXSecurity)) return false;
-    FXSecurity msg = (FXSecurity)o;
-    if (_payCurrency != null) {
-      if (msg._payCurrency != null) {
-        if (!_payCurrency.equals (msg._payCurrency)) return false;
+
+  /**
+   * Gets the the {@code region} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> region() {
+    return metaBean().region().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FXSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code payCurrency} property.
+     */
+    private final MetaProperty<Currency> _payCurrency = DirectMetaProperty.ofReadWrite(
+        this, "payCurrency", FXSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     */
+    private final MetaProperty<Currency> _receiveCurrency = DirectMetaProperty.ofReadWrite(
+        this, "receiveCurrency", FXSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code payAmount} property.
+     */
+    private final MetaProperty<Double> _payAmount = DirectMetaProperty.ofReadWrite(
+        this, "payAmount", FXSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code receiveAmount} property.
+     */
+    private final MetaProperty<Double> _receiveAmount = DirectMetaProperty.ofReadWrite(
+        this, "receiveAmount", FXSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code region} property.
+     */
+    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", FXSecurity.class, ExternalId.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "payCurrency",
+        "receiveCurrency",
+        "payAmount",
+        "receiveAmount",
+        "region");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -295641895:  // payCurrency
+          return _payCurrency;
+        case -1228590060:  // receiveCurrency
+          return _receiveCurrency;
+        case -1338781920:  // payAmount
+          return _payAmount;
+        case 984267035:  // receiveAmount
+          return _receiveAmount;
+        case -934795532:  // region
+          return _region;
       }
-      else return false;
+      return super.metaPropertyGet(propertyName);
     }
-    else if (msg._payCurrency != null) return false;
-    if (_receiveCurrency != null) {
-      if (msg._receiveCurrency != null) {
-        if (!_receiveCurrency.equals (msg._receiveCurrency)) return false;
-      }
-      else return false;
+
+    @Override
+    public BeanBuilder<? extends FXSecurity> builder() {
+      return new DirectBeanBuilder<FXSecurity>(new FXSecurity());
     }
-    else if (msg._receiveCurrency != null) return false;
-    if (_payAmount != msg._payAmount) return false;
-    if (_receiveAmount != msg._receiveAmount) return false;
-    if (_region != null) {
-      if (msg._region != null) {
-        if (!_region.equals (msg._region)) return false;
-      }
-      else return false;
+
+    @Override
+    public Class<? extends FXSecurity> beanType() {
+      return FXSecurity.class;
     }
-    else if (msg._region != null) return false;
-    return super.equals (msg);
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code payCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> payCurrency() {
+      return _payCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> receiveCurrency() {
+      return _receiveCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code payAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> payAmount() {
+      return _payAmount;
+    }
+
+    /**
+     * The meta-property for the {@code receiveAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> receiveAmount() {
+      return _receiveAmount;
+    }
+
+    /**
+     * The meta-property for the {@code region} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> region() {
+      return _region;
+    }
+
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_payCurrency != null) hc += _payCurrency.hashCode ();
-    hc *= 31;
-    if (_receiveCurrency != null) hc += _receiveCurrency.hashCode ();
-    hc = (hc * 31) + (int)_payAmount;
-    hc = (hc * 31) + (int)_receiveAmount;
-    hc *= 31;
-    if (_region != null) hc += _region.hashCode ();
-    return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File
