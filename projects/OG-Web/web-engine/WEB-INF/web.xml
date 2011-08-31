@@ -56,7 +56,7 @@
     <!--for creating subscriptions to entity updates-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
-      <param-value>com.opengamma.web.server.push.web.SubscribingFilterFactory</param-value>
+      <param-value>com.opengamma.web.server.push.SubscribingFilterFactory</param-value>
     </init-param>
     <!--TODO this is only here for testing. REMOVE-->
     <!--<init-param>
@@ -73,7 +73,7 @@
   <!--HTTP push support-->
   <servlet>
     <servlet-name>handshake</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.web.HandshakeServlet</servlet-class>
+    <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -83,7 +83,7 @@
 
   <servlet>
     <servlet-name>updates</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.web.LongPollingServlet</servlet-class>
+    <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
