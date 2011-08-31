@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.FullMatrix;
 import com.opengamma.math.matrix.MatrixPrimitiveInterface;
 
@@ -74,7 +75,7 @@ public class BLAS2 {
     assertEquals(aMatrix.getNumberOfRows(), aYVector.length); // check commutable on back assignment
   }
 
-  /* Stateless manipulators on the FullMatrix type */
+/* Stateless manipulators on the FullMatrix type */
 
 /* GROUP1:: A*x OR A^T*x */
   /**
@@ -97,6 +98,18 @@ public class BLAS2 {
       default:
         throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
     }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
+    double[] tmp = dgemv(aMatrix, aVector.toArray(), o);
     return tmp;
   }
 
@@ -132,6 +145,17 @@ public class BLAS2 {
     return tmp;
   }
 
+  /**
+   * DGEMV simplified: returns:=A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    double[] tmp = dgemv(aMatrix, aVector.toArray());
+    return tmp;
+  }
+
 
   /**
    * DGEMV simplified: returns:=A^T*x
@@ -154,6 +178,18 @@ public class BLAS2 {
     return tmp;
   }
 
+  /**
+   * DGEMV simplified: returns:=A^T*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   * TODO: work out which unwinds/optimisations perform best for transposed matrices
+   */
+  public static double[] dgemvTransposed(FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    double[] tmp = dgemvTransposed(aMatrix, aVector.toArray());
+    return tmp;
+  }
+
 
 /* GROUP2:: alpha*A*x OR alpha*A^T*x */
   /**
@@ -164,8 +200,7 @@ public class BLAS2 {
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
    * @return tmp a double[] vector
    */
-  public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, BLAS2.orientation o)
-  {
+  public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, BLAS2.orientation o) {
     double [] tmp = null;
     switch (o) {
       case normal:
@@ -177,6 +212,19 @@ public class BLAS2 {
       default:
         throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
     }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=alpha*A*x OR returns:=alpha*A^T*x depending on the enum orientation.
+   * @param alpha a double indicating the scaling of A*x OR A^T*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, FullMatrix aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o) {
+    double[] tmp = dgemv(alpha, aMatrix, aVector.toArray(), o);
     return tmp;
   }
 
@@ -216,6 +264,18 @@ public class BLAS2 {
   }
 
   /**
+   * DGEMV simplified: returns:=alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    double[] tmp = dgemv(alpha, aMatrix, aVector.toArray());
+    return tmp;
+  }
+
+  /**
    * DGEMV simplified: returns:=alpha*A^T*x
    * @param alpha a double indicating the scaling of A^T*x
    * @param aMatrix a FullMatrix
@@ -237,7 +297,70 @@ public class BLAS2 {
     return tmp;
   }
 
+  /**
+   * DGEMV simplified: returns:=alpha*A^T*x
+   * @param alpha a double indicating the scaling of A^T*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(double alpha, FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    double[] tmp = dgemvTransposed(alpha, aMatrix, aVector.toArray());
+    return tmp;
+  }
+
   /* GROUP3:: A*x + y OR A^T*x + y */
+  /**
+   * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, double [] aVector, double [] y, BLAS2.orientation o)
+  {
+    double [] tmp = null;
+    switch (o) {
+      case normal:
+        tmp = dgemv(aMatrix, aVector, y);
+        break;
+      case transposed:
+        tmp = dgemvTransposed(aMatrix, aVector, y);
+        break;
+      default:
+        throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, DoubleMatrix1D aVector, double [] y, BLAS2.orientation o)
+  {
+    double[] tmp = dgemv(aMatrix, aVector.toArray(), y , o);
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x+y OR returns:=A^T*x+y depending on the enum orientation.
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y, BLAS2.orientation o)
+  {
+    double[] tmp = dgemv(aMatrix, aVector.toArray(), y.toArray(), o);
+    return tmp;
+  }
 
   /**
    * DGEMV simplified: returns:=A*x + y
@@ -272,6 +395,78 @@ public class BLAS2 {
     return tmp;
   }
 
+  /**
+   * DGEMV simplified: returns:=A*x + y
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, DoubleMatrix1D aVector, double [] y) {
+    double[] tmp = dgemv(aMatrix, aVector.toArray(), y);
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x + y
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(FullMatrix aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+    double[] tmp = dgemv(aMatrix, aVector.toArray(), y.toArray());
+    return tmp;
+  }
+
+
+  /**
+   * DGEMV simplified: returns:=A^T*x + y
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(FullMatrix aMatrix, double [] aVector, double [] y) {
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector);
+    final int rows = aMatrix.getNumberOfRows();
+    final int cols = aMatrix.getNumberOfColumns();
+    double[] tmp = new double[rows];
+    double[] ptrA = aMatrix.getData();
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        tmp[i] += ptrA[i + j * cols] * aVector[j];
+      }
+      tmp[i] += y[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A^T*x + y
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(FullMatrix aMatrix, DoubleMatrix1D aVector, double [] y) {
+    double[] tmp = dgemvTransposed(aMatrix, aVector.toArray(), y);
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A^T*x + y
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(FullMatrix aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+    double[] tmp = dgemvTransposed(aMatrix, aVector.toArray(), y.toArray());
+    return tmp;
+  }
+
+  /* GROUP4:: alpha*A*x + y OR alpha*A^T*x + y */
 
   /**
    * DGEMV simplified: returns:=alpha*A*x + y
