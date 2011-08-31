@@ -26,7 +26,7 @@ public class ViewportDefinitionTest {
     ViewportDefinitionReader reader = new ViewportDefinitionReader();
     assertTrue(reader.isReadable(ViewportDefinition.class, null, null, null));
     // a random other class that shouldn't be readable
-    assertFalse(reader.isReadable(ViewportRow.class, null, null, null));
+    assertFalse(reader.isReadable(ViewportDefinition.class, null, null, null));
   }
 
   @Test
