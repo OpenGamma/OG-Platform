@@ -33,6 +33,11 @@ public class TestRestUpdateManager implements RestUpdateManager {
   }
 
   @Override
+  public void subscribe(String userId, String clientId, MasterType masterType, String url) {
+    throw new UnsupportedOperationException("subscribe not implemented");
+  }
+
+  @Override
   public Viewport getViewport(String userId, String clientId, String viewportUrl) {
     throw new UnsupportedOperationException("getViewport not implemented");
   }

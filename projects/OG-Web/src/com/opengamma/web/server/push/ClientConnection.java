@@ -6,19 +6,22 @@
 package com.opengamma.web.server.push;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 /**
  * Associated with one client connection (i.e. one browser window / tab / client app instance).
- * TODO current scheme is no good, need to remove entity and master subscriptions for a URL if either of them fire
  */
 /* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
 
@@ -29,9 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
   private final Object _lock = new Object();
 
   /** REST URLs for entities keyed on the entity's {@link ObjectId} */
-  private final Map<ObjectId, String> _entityUrls = new ConcurrentHashMap<ObjectId, String>();
+  //private final Map<ObjectId, String> _entityUrls = new ConcurrentHashMap<ObjectId, String>();
 
   private final Multimap<MasterType, String> _masterUrls = HashMultimap.create();
+  private final Multimap<ObjectId, String> _entityUrls = HashMultimap.create();
+  private final Map<String, UrlMapping> _urlMappings = new HashMap<String, UrlMapping>();
 
   /* package */ ClientConnection(String userId, String clientId, RestUpdateListener listener, ViewportFactory viewportFactory) {
     // TODO check args
@@ -58,40 +63,103 @@ import java.util.concurrent.ConcurrentHashMap;
     _viewportFactory.createViewport(_clientId, viewportUrl, viewportDefinition, listener);
   }
 
+  /* package */ Viewport getViewport(String viewportUrl) {
+    return _viewportFactory.getViewport(viewportUrl);
+  }
+
   /* package */ void disconnect() {
-    _entityUrls.clear();
+    // TODO do the maps need to be cleared here?
     _viewportFactory.clientDisconnected(_clientId);
   }
 
   /* package */ void subscribe(UniqueId uid, String url) {
-    // TODO check args?
-    _entityUrls.put(uid.getObjectId(), url);
+    synchronized (_lock) {
+      ObjectId objectId = uid.getObjectId();
+      _entityUrls.put(objectId, url);
+      _urlMappings.put(url, UrlMapping.create(_urlMappings.get(url), objectId));
+    }
+  }
+
+  @Override
+  public void entityChanged(ChangeEvent event) {
+    synchronized (_lock) {
+      Collection<String> urls = _entityUrls.removeAll(event.getAfterId().getObjectId());
+      removeUrlMappings(urls);
+      if (!urls.isEmpty()) {
+        _listener.itemsUpdated(urls);
+      }
+    }
   }
 
   /* package */ void subscribe(MasterType masterType, String url) {
     synchronized (_lock) {
       _masterUrls.put(masterType, url);
-    }
-  }
-
-  /* package */ Viewport getViewport(String viewportUrl) {
-    return _viewportFactory.getViewport(viewportUrl);
-  }
-
-  @Override
-  public void entityChanged(ChangeEvent event) {
-    String url = _entityUrls.remove(event.getAfterId().getObjectId());
-    if (url != null) {
-      _listener.itemUpdated(url);
+      _urlMappings.put(url, UrlMapping.create(_urlMappings.get(url), masterType));
     }
   }
 
   @Override
   public void masterChanged(MasterType masterType) {
     synchronized (_lock) {
-      Collection<String> urls = _masterUrls.get(masterType);
+      Collection<String> urls = _masterUrls.removeAll(masterType);
+      removeUrlMappings(urls);
       if (!urls.isEmpty()) {
         _listener.itemsUpdated(urls);
+      }
+    }
+  }
+
+  // TODO a better name
+  private void removeUrlMappings(Collection<String> urls) {
+    for (String url : urls) {
+      UrlMapping urlMapping = _urlMappings.get(url);
+      // remove mappings for this url for master type
+      for (MasterType type : urlMapping.getMasterTypes()) {
+        _masterUrls.remove(type, url);
+      }
+      // remove mappings for this url for all entities
+      for (ObjectId entityId : urlMapping.getEntityIds()) {
+        _entityUrls.remove(entityId, url);
+      }
+    }
+  }
+
+  // TODO this is a rubbish name
+  private static class UrlMapping {
+
+    private final Set<MasterType> _masterTypes;
+    private final Set<ObjectId> _entityIds;
+
+    private UrlMapping(Set<MasterType> masterTypes, Set<ObjectId> entityIds) {
+      _masterTypes = masterTypes;
+      _entityIds = entityIds;
+    }
+
+    private Set<MasterType> getMasterTypes() {
+      return _masterTypes;
+    }
+
+    private Set<ObjectId> getEntityIds() {
+      return _entityIds;
+    }
+
+    private static UrlMapping create(UrlMapping urlMapping, MasterType masterType) {
+      if (urlMapping == null) {
+        return new UrlMapping(ImmutableSet.of(masterType), Collections.<ObjectId>emptySet());
+      } else {
+        ImmutableSet<MasterType> masterTypes =
+            ImmutableSet.<MasterType>builder().addAll(urlMapping.getMasterTypes()).add(masterType).build();
+        return new UrlMapping(masterTypes, urlMapping.getEntityIds());
+      }
+    }
+
+    private static UrlMapping create(UrlMapping urlMapping, ObjectId entityId) {
+      if (urlMapping == null) {
+        return new UrlMapping(Collections.<MasterType>emptySet(), ImmutableSet.of(entityId));
+      } else {
+        ImmutableSet<ObjectId> entityIds =
+            ImmutableSet.<ObjectId>builder().addAll(urlMapping.getEntityIds()).add(entityId).build();
+        return new UrlMapping(urlMapping.getMasterTypes(), entityIds);
       }
     }
   }
