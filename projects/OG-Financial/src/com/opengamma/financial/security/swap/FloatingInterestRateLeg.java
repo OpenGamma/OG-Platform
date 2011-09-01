@@ -35,7 +35,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
    * The reference rate external identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _floatingReferenceRateIdentifier;
+  private ExternalId _floatingReferenceRateId;
   /**
    * The initial floating rate.
    */
@@ -66,14 +66,14 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
    * @param regionIdentifier  the region, not null
    * @param businessDayConvention  the business day convention, not null
    * @param notional  the notional, not null
-   * @param floatingReferenceRateIdentifier  the reference rate, not null
+   * @param floatingReferenceRateId  the reference rate, not null
    * @param spread  the spread
    * @param ibor  whether this is IBOR
    */
   public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
-      Notional notional, ExternalId floatingReferenceRateIdentifier, double spread, boolean ibor) {
+      Notional notional, ExternalId floatingReferenceRateId, double spread, boolean ibor) {
     super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
-    setFloatingReferenceRateIdentifier(floatingReferenceRateIdentifier);
+    setFloatingReferenceRateId(floatingReferenceRateId);
     setSpread(spread);
     setIbor(ibor);
   }
@@ -94,7 +94,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
       Notional notional, ExternalId floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
     super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
-    setFloatingReferenceRateIdentifier(floatingReferenceRateIdentifier);
+    setFloatingReferenceRateId(floatingReferenceRateIdentifier);
     setInitialFloatingRate(initialFloatingRate);
     setSpread(spread);
     setIbor(isIBOR);
@@ -127,8 +127,8 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1984582382:  // floatingReferenceRateIdentifier
-        return getFloatingReferenceRateIdentifier();
+      case -1120221088:  // floatingReferenceRateId
+        return getFloatingReferenceRateId();
       case -1216922774:  // initialFloatingRate
         return getInitialFloatingRate();
       case -895684237:  // spread
@@ -142,8 +142,8 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1984582382:  // floatingReferenceRateIdentifier
-        setFloatingReferenceRateIdentifier((ExternalId) newValue);
+      case -1120221088:  // floatingReferenceRateId
+        setFloatingReferenceRateId((ExternalId) newValue);
         return;
       case -1216922774:  // initialFloatingRate
         setInitialFloatingRate((Double) newValue);
@@ -160,7 +160,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_floatingReferenceRateIdentifier, "floatingReferenceRateIdentifier");
+    JodaBeanUtils.notNull(_floatingReferenceRateId, "floatingReferenceRateId");
     super.validate();
   }
 
@@ -171,7 +171,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FloatingInterestRateLeg other = (FloatingInterestRateLeg) obj;
-      return JodaBeanUtils.equal(getFloatingReferenceRateIdentifier(), other.getFloatingReferenceRateIdentifier()) &&
+      return JodaBeanUtils.equal(getFloatingReferenceRateId(), other.getFloatingReferenceRateId()) &&
           JodaBeanUtils.equal(getInitialFloatingRate(), other.getInitialFloatingRate()) &&
           JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
           JodaBeanUtils.equal(isIbor(), other.isIbor()) &&
@@ -183,7 +183,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIbor());
@@ -195,25 +195,25 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
    * Gets the reference rate external identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getFloatingReferenceRateIdentifier() {
-    return _floatingReferenceRateIdentifier;
+  public ExternalId getFloatingReferenceRateId() {
+    return _floatingReferenceRateId;
   }
 
   /**
    * Sets the reference rate external identifier.
-   * @param floatingReferenceRateIdentifier  the new value of the property, not null
+   * @param floatingReferenceRateId  the new value of the property, not null
    */
-  public void setFloatingReferenceRateIdentifier(ExternalId floatingReferenceRateIdentifier) {
-    JodaBeanUtils.notNull(floatingReferenceRateIdentifier, "floatingReferenceRateIdentifier");
-    this._floatingReferenceRateIdentifier = floatingReferenceRateIdentifier;
+  public void setFloatingReferenceRateId(ExternalId floatingReferenceRateId) {
+    JodaBeanUtils.notNull(floatingReferenceRateId, "floatingReferenceRateId");
+    this._floatingReferenceRateId = floatingReferenceRateId;
   }
 
   /**
-   * Gets the the {@code floatingReferenceRateIdentifier} property.
+   * Gets the the {@code floatingReferenceRateId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> floatingReferenceRateIdentifier() {
-    return metaBean().floatingReferenceRateIdentifier().createProperty(this);
+  public final Property<ExternalId> floatingReferenceRateId() {
+    return metaBean().floatingReferenceRateId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -302,10 +302,10 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code floatingReferenceRateIdentifier} property.
+     * The meta-property for the {@code floatingReferenceRateId} property.
      */
-    private final MetaProperty<ExternalId> _floatingReferenceRateIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "floatingReferenceRateIdentifier", FloatingInterestRateLeg.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _floatingReferenceRateId = DirectMetaProperty.ofReadWrite(
+        this, "floatingReferenceRateId", FloatingInterestRateLeg.class, ExternalId.class);
     /**
      * The meta-property for the {@code initialFloatingRate} property.
      */
@@ -326,7 +326,7 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "floatingReferenceRateIdentifier",
+        "floatingReferenceRateId",
         "initialFloatingRate",
         "spread",
         "ibor");
@@ -340,8 +340,8 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1984582382:  // floatingReferenceRateIdentifier
-          return _floatingReferenceRateIdentifier;
+        case -1120221088:  // floatingReferenceRateId
+          return _floatingReferenceRateId;
         case -1216922774:  // initialFloatingRate
           return _initialFloatingRate;
         case -895684237:  // spread
@@ -369,11 +369,11 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code floatingReferenceRateIdentifier} property.
+     * The meta-property for the {@code floatingReferenceRateId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> floatingReferenceRateIdentifier() {
-      return _floatingReferenceRateIdentifier;
+    public final MetaProperty<ExternalId> floatingReferenceRateId() {
+      return _floatingReferenceRateId;
     }
 
     /**

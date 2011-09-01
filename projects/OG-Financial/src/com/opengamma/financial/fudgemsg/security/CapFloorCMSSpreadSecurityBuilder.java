@@ -61,8 +61,8 @@ public class CapFloorCMSSpreadSecurityBuilder extends AbstractFudgeBuilder imple
     addToMessage(msg, START_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getStartDate()));
     addToMessage(msg, MATURITY_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getMaturityDate()));
     addToMessage(msg, NOTIONAL_KEY, object.getNotional());
-    addToMessage(msg, LONG_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getLongIdentifier()));
-    addToMessage(msg, SHORT_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getShortIdentifier()));
+    addToMessage(msg, LONG_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getLongId()));
+    addToMessage(msg, SHORT_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getShortId()));
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, FREQUENCY_KEY, object.getFrequency());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
@@ -83,8 +83,8 @@ public class CapFloorCMSSpreadSecurityBuilder extends AbstractFudgeBuilder imple
     object.setStartDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(START_DATE_KEY)));
     object.setMaturityDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_KEY)));
     object.setNotional(msg.getDouble(NOTIONAL_KEY));
-    object.setLongIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(LONG_IDENTIFIER_KEY)));
-    object.setShortIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(SHORT_IDENTIFIER_KEY)));
+    object.setLongId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(LONG_IDENTIFIER_KEY)));
+    object.setShortId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(SHORT_IDENTIFIER_KEY)));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setFrequency(msg.getValue(Frequency.class, FREQUENCY_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));

@@ -21,7 +21,7 @@ public class SwapSecurityUtils {
   public static InterestRateInstrumentType getSwapType(final SwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
-    if (!payLeg.getRegionIdentifier().equals(receiveLeg.getRegionIdentifier())) {
+    if (!payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
       throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
     }
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {

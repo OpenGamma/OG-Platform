@@ -46,7 +46,7 @@ public class SwaptionSecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
   /**
    * The long flag.
    */
@@ -79,7 +79,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
     super(SECURITY_TYPE);
     setPayer(payer);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
     setIsLong(isLong);
     setExpiry(expiry);
     setCashSettled(cashSettled);
@@ -126,8 +126,8 @@ public class SwaptionSecurity extends FinancialSecurity {
     switch (propertyName.hashCode()) {
       case 106443605:  // payer
         return isPayer();
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
       case -1180327226:  // isLong
         return getIsLong();
       case -1289159373:  // expiry
@@ -146,8 +146,8 @@ public class SwaptionSecurity extends FinancialSecurity {
       case 106443605:  // payer
         setPayer((Boolean) newValue);
         return;
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
       case -1180327226:  // isLong
         setIsLong((Boolean) newValue);
@@ -167,7 +167,7 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_currency, "currency");
     super.validate();
@@ -181,7 +181,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionSecurity other = (SwaptionSecurity) obj;
       return JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
-          JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getIsLong(), other.getIsLong()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(isCashSettled(), other.isCashSettled()) &&
@@ -195,7 +195,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIsLong());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
     hash += hash * 31 + JodaBeanUtils.hashCode(isCashSettled());
@@ -233,25 +233,25 @@ public class SwaptionSecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -372,10 +372,10 @@ public class SwaptionSecurity extends FinancialSecurity {
     private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
         this, "payer", SwaptionSecurity.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", SwaptionSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", SwaptionSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code isLong} property.
      */
@@ -402,7 +402,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "payer",
-        "underlyingIdentifier",
+        "underlyingId",
         "isLong",
         "expiry",
         "cashSettled",
@@ -419,8 +419,8 @@ public class SwaptionSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 106443605:  // payer
           return _payer;
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
         case -1180327226:  // isLong
           return _isLong;
         case -1289159373:  // expiry
@@ -458,11 +458,11 @@ public class SwaptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
     /**

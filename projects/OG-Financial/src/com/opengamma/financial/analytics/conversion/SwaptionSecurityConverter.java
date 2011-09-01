@@ -42,7 +42,7 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
   @Override
   public FixedIncomeInstrumentConverter<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
     Validate.notNull(swaptionSecurity, "swaption security");
-    final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingIdentifier();
+    final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
     final FixedIncomeInstrumentConverter<?> underlyingSwap = ((SwapSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {

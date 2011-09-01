@@ -50,8 +50,8 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final double accrualFactor = capFloorCMSSpreadSecurity.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
     final double strike = capFloorCMSSpreadSecurity.getStrike();
     final boolean isCap = capFloorCMSSpreadSecurity.isCap();
-    final ExternalId longId = capFloorCMSSpreadSecurity.getLongIdentifier();
-    final ExternalId shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
+    final ExternalId longId = capFloorCMSSpreadSecurity.getLongId();
+    final ExternalId shortId = capFloorCMSSpreadSecurity.getShortId();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);

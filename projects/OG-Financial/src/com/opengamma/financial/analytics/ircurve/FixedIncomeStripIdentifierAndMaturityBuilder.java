@@ -68,7 +68,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (cashSecurity == null) {
             throw new OpenGammaRuntimeException("Could not resolve cash curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
-          final Region region = _regionSource.getHighestLevelRegion(cashSecurity.getRegion());
+          final Region region = _regionSource.getHighestLevelRegion(cashSecurity.getRegionId());
           TimeZone timeZone = region.getTimeZone();
           timeZone = ensureZone(timeZone);
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone);
@@ -96,7 +96,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (rateSecurity == null) {
             throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegion());
+          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
           TimeZone timeZone2 = region2.getTimeZone();
           timeZone2 = ensureZone(timeZone2);
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);

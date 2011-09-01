@@ -96,7 +96,7 @@ public class SwaptionSABRPresentValueSABRFunction extends SwaptionSABRFunction {
   private DoubleLabelledMatrix2D getMatrix(final Map<DoublesPair, Double> map, final SwaptionSecurity security, final ZonedDateTime now) {
     final Map.Entry<DoublesPair, Double> entry = map.entrySet().iterator().next();
     final ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
-    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
+    final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
     final ZonedDateTime swapMaturity = underlying.getMaturityDate();
     final double swaptionExpiryYears = DateUtils.getDifferenceInYears(now, swaptionExpiry);
     final double swapMaturityYears = DateUtils.getDifferenceInYears(now, swapMaturity);

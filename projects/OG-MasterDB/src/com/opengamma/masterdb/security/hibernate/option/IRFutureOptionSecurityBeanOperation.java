@@ -43,7 +43,7 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
     bean.setOptionType(security.getOptionType());
     bean.setStrike(security.getStrike());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
-    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setExchange(secMasterSession.getOrCreateExchangeBean(security.getExchange(), ""));
     bean.setPointValue(security.getPointValue());

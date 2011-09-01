@@ -168,7 +168,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     }
     if (security.getSecurityType().equals(EquityOptionSecurity.SECURITY_TYPE)) {
       EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
-      out.put("underlyingSecurity", getSecurity(equityOption.getUnderlyingIdentifier()));
+      out.put("underlyingSecurity", getSecurity(equityOption.getUnderlyingId()));
     }
   }
   

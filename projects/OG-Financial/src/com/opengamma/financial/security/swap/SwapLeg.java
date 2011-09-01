@@ -47,7 +47,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
    * The region external identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _regionIdentifier;
+  private ExternalId _regionId;
   /**
    * The business day convention.
    */
@@ -70,14 +70,14 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
    * 
    * @param dayCount  the day count, not null
    * @param frequency  the frequency, not null
-   * @param regionIdentifier  the region, not null
+   * @param regionId  the region, not null
    * @param businessDayConvention  the business day convention, not null
    * @param notional  the notional, not null
    */
-  protected SwapLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention, Notional notional) {
+  protected SwapLeg(DayCount dayCount, Frequency frequency, ExternalId regionId, BusinessDayConvention businessDayConvention, Notional notional) {
     setDayCount(dayCount);
     setFrequency(frequency);
-    setRegionIdentifier(regionIdentifier);
+    setRegionId(regionId);
     setBusinessDayConvention(businessDayConvention);
     setNotional(notional);
   }
@@ -117,8 +117,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
         return getDayCount();
       case -70023844:  // frequency
         return getFrequency();
-      case 19238589:  // regionIdentifier
-        return getRegionIdentifier();
+      case -690339025:  // regionId
+        return getRegionId();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
       case 1585636160:  // notional
@@ -136,8 +136,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
       case -70023844:  // frequency
         setFrequency((Frequency) newValue);
         return;
-      case 19238589:  // regionIdentifier
-        setRegionIdentifier((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
@@ -153,7 +153,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
   protected void validate() {
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_frequency, "frequency");
-    JodaBeanUtils.notNull(_regionIdentifier, "regionIdentifier");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     JodaBeanUtils.notNull(_notional, "notional");
     super.validate();
@@ -168,7 +168,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
       SwapLeg other = (SwapLeg) obj;
       return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getRegionIdentifier(), other.getRegionIdentifier()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional());
     }
@@ -180,7 +180,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     return hash;
@@ -243,25 +243,25 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
    * Gets the region external identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getRegionIdentifier() {
-    return _regionIdentifier;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
    * Sets the region external identifier.
-   * @param regionIdentifier  the new value of the property, not null
+   * @param regionId  the new value of the property, not null
    */
-  public void setRegionIdentifier(ExternalId regionIdentifier) {
-    JodaBeanUtils.notNull(regionIdentifier, "regionIdentifier");
-    this._regionIdentifier = regionIdentifier;
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code regionIdentifier} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> regionIdentifier() {
-    return metaBean().regionIdentifier().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -337,10 +337,10 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
     private final MetaProperty<Frequency> _frequency = DirectMetaProperty.ofReadWrite(
         this, "frequency", SwapLeg.class, Frequency.class);
     /**
-     * The meta-property for the {@code regionIdentifier} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _regionIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "regionIdentifier", SwapLeg.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", SwapLeg.class, ExternalId.class);
     /**
      * The meta-property for the {@code businessDayConvention} property.
      */
@@ -358,7 +358,7 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
         this, null,
         "dayCount",
         "frequency",
-        "regionIdentifier",
+        "regionId",
         "businessDayConvention",
         "notional");
 
@@ -375,8 +375,8 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
           return _dayCount;
         case -70023844:  // frequency
           return _frequency;
-        case 19238589:  // regionIdentifier
-          return _regionIdentifier;
+        case -690339025:  // regionId
+          return _regionId;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
         case 1585636160:  // notional
@@ -418,11 +418,11 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
     }
 
     /**
-     * The meta-property for the {@code regionIdentifier} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> regionIdentifier() {
-      return _regionIdentifier;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**

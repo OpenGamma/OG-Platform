@@ -53,7 +53,7 @@ public final class CapFloorSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setPayer(security.isPayer());
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setStrike(security.getStrike());
-    bean.setUnderlyingIdentifier(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlyingIdentifier(externalIdToExternalIdBean(security.getUnderlyingId()));
     return bean;
   }
 

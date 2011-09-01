@@ -36,7 +36,7 @@ public final class SwaptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setCashSettled(security.isCashSettled());
     bean.setLong(security.getIsLong());
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
-    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
     bean.setPayer(security.isPayer());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     return bean;

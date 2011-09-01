@@ -59,7 +59,7 @@ public class CapFloorSecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
   /**
    * The strike.
    */
@@ -110,7 +110,7 @@ public class CapFloorSecurity extends FinancialSecurity {
     setStartDate(startDate);
     setMaturityDate(maturityDate);
     setNotional(notional);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
     setStrike(strike);
     setFrequency(frequency);
     setCurrency(currency);
@@ -164,8 +164,8 @@ public class CapFloorSecurity extends FinancialSecurity {
         return getMaturityDate();
       case 1585636160:  // notional
         return getNotional();
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
       case -891985998:  // strike
         return getStrike();
       case -70023844:  // frequency
@@ -196,8 +196,8 @@ public class CapFloorSecurity extends FinancialSecurity {
       case 1585636160:  // notional
         setNotional((Double) newValue);
         return;
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
       case -891985998:  // strike
         setStrike((Double) newValue);
@@ -228,7 +228,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   protected void validate() {
     JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_maturityDate, "maturityDate");
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     JodaBeanUtils.notNull(_frequency, "frequency");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
@@ -245,7 +245,7 @@ public class CapFloorSecurity extends FinancialSecurity {
       return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
@@ -264,7 +264,7 @@ public class CapFloorSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
@@ -357,25 +357,25 @@ public class CapFloorSecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -582,10 +582,10 @@ public class CapFloorSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", CapFloorSecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", CapFloorSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", CapFloorSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code strike} property.
      */
@@ -629,7 +629,7 @@ public class CapFloorSecurity extends FinancialSecurity {
         "startDate",
         "maturityDate",
         "notional",
-        "underlyingIdentifier",
+        "underlyingId",
         "strike",
         "frequency",
         "currency",
@@ -653,8 +653,8 @@ public class CapFloorSecurity extends FinancialSecurity {
           return _maturityDate;
         case 1585636160:  // notional
           return _notional;
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
         case -891985998:  // strike
           return _strike;
         case -70023844:  // frequency
@@ -714,11 +714,11 @@ public class CapFloorSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
     /**

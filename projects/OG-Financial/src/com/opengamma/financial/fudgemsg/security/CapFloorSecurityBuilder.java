@@ -61,7 +61,7 @@ public class CapFloorSecurityBuilder extends AbstractFudgeBuilder implements Fud
     addToMessage(msg, START_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getStartDate()));
     addToMessage(msg, MATURITY_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getMaturityDate()));
     addToMessage(msg, NOTIONAL_KEY, object.getNotional());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, FREQUENCY_KEY, object.getFrequency());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
@@ -83,7 +83,7 @@ public class CapFloorSecurityBuilder extends AbstractFudgeBuilder implements Fud
     object.setStartDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(START_DATE_KEY)));
     object.setMaturityDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_KEY)));
     object.setNotional(msg.getDouble(NOTIONAL_KEY));
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setFrequency(msg.getValue(Frequency.class, FREQUENCY_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));

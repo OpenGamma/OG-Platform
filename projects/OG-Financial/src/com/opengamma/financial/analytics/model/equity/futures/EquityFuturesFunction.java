@@ -203,7 +203,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getDividendYieldRequirement(EquityFutureSecurity security) {
-    ExternalId id = security.getUnderlyingIdentifier();
+    ExternalId id = security.getUnderlyingId();
     return new ValueRequirement(ValueRequirementNames.DIVIDEND_YIELD, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
@@ -217,7 +217,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
-    ExternalId id = security.getUnderlyingIdentifier();
+    ExternalId id = security.getUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
 
   }
@@ -232,7 +232,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   private ValueRequirement getCostOfCarryRequirement(EquityFutureSecurity security) {
-    ExternalId id = security.getUnderlyingIdentifier();
+    ExternalId id = security.getUnderlyingId();
     //ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod).get();
     return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue())); //, properties);
   }

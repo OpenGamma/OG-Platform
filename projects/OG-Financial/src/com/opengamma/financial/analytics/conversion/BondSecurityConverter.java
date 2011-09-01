@@ -74,7 +74,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();
     final double rate = security.getCouponRate() / 100;
-    final DayCount dayCount = security.getDayCountConvention();
+    final DayCount dayCount = security.getDayCount();
     final boolean isEOM = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
     final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");

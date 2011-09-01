@@ -39,7 +39,7 @@ public class InterestRateFutureOptionSecurityConverter {
 
   public Object convert(final IRFutureOptionSecurity security) {
     Validate.notNull(security, "security");
-    final ExternalId underlyingIdentifier = security.getUnderlyingIdentifier();
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
     final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier)));
     final InterestRateFutureSecurityDefinition underlyingFuture = (InterestRateFutureSecurityDefinition) _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();

@@ -47,7 +47,7 @@ public class SwaptionSecurityBuilder extends AbstractFudgeBuilder implements Fud
   public static void toFudgeMsg(FudgeSerializer serializer, SwaptionSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, IS_PAYER_KEY, object.isPayer());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, IS_LONG_KEY, object.getIsLong());
     addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, IS_CASH_SETTLED_KEY, object.isCashSettled());
@@ -64,7 +64,7 @@ public class SwaptionSecurityBuilder extends AbstractFudgeBuilder implements Fud
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, SwaptionSecurity object) {
     FinancialSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setPayer(msg.getBoolean(IS_PAYER_KEY));
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setIsLong(msg.getBoolean(IS_LONG_KEY));
     object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
     object.setCashSettled(msg.getBoolean(IS_CASH_SETTLED_KEY));

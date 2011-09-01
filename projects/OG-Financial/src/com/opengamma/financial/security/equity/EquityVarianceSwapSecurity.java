@@ -43,7 +43,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _spotUnderlyingIdentifier;
+  private ExternalId _spotUnderlyingId;
   /**
    * The currency.
    */
@@ -88,7 +88,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
    * The region.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _region;
+  private ExternalId _regionId;
   /**
    * The observation frequency.
    */
@@ -107,7 +107,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
       boolean parameterizedAsVariance, double annualizationFactor, ZonedDateTime firstObservationDate, ZonedDateTime lastObservationDate,
       ZonedDateTime settlementDate, ExternalId region, Frequency observationFrequency) {
     super(SECURITY_TYPE);
-    setSpotUnderlyingIdentifier(spotUnderlyingIdentifier);
+    setSpotUnderlyingId(spotUnderlyingIdentifier);
     setCurrency(currency);
     setStrike(strike);
     setNotional(notional);
@@ -116,7 +116,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     setFirstObservationDate(firstObservationDate);
     setLastObservationDate(lastObservationDate);
     setSettlementDate(settlementDate);
-    setRegion(region);
+    setRegionId(region);
     setObservationFrequency(observationFrequency);
   }
 
@@ -158,8 +158,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -714106872:  // spotUnderlyingIdentifier
-        return getSpotUnderlyingIdentifier();
+      case -2099525766:  // spotUnderlyingId
+        return getSpotUnderlyingId();
       case 575402001:  // currency
         return getCurrency();
       case -891985998:  // strike
@@ -176,8 +176,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
         return getLastObservationDate();
       case -295948169:  // settlementDate
         return getSettlementDate();
-      case -934795532:  // region
-        return getRegion();
+      case -690339025:  // regionId
+        return getRegionId();
       case -213041520:  // observationFrequency
         return getObservationFrequency();
     }
@@ -187,8 +187,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -714106872:  // spotUnderlyingIdentifier
-        setSpotUnderlyingIdentifier((ExternalId) newValue);
+      case -2099525766:  // spotUnderlyingId
+        setSpotUnderlyingId((ExternalId) newValue);
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -214,8 +214,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
       case -295948169:  // settlementDate
         setSettlementDate((ZonedDateTime) newValue);
         return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
       case -213041520:  // observationFrequency
         setObservationFrequency((Frequency) newValue);
@@ -226,12 +226,12 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_spotUnderlyingIdentifier, "spotUnderlyingIdentifier");
+    JodaBeanUtils.notNull(_spotUnderlyingId, "spotUnderlyingId");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_firstObservationDate, "firstObservationDate");
     JodaBeanUtils.notNull(_lastObservationDate, "lastObservationDate");
     JodaBeanUtils.notNull(_settlementDate, "settlementDate");
-    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     JodaBeanUtils.notNull(_observationFrequency, "observationFrequency");
     super.validate();
   }
@@ -243,7 +243,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       EquityVarianceSwapSecurity other = (EquityVarianceSwapSecurity) obj;
-      return JodaBeanUtils.equal(getSpotUnderlyingIdentifier(), other.getSpotUnderlyingIdentifier()) &&
+      return JodaBeanUtils.equal(getSpotUnderlyingId(), other.getSpotUnderlyingId()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
@@ -252,7 +252,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getFirstObservationDate(), other.getFirstObservationDate()) &&
           JodaBeanUtils.equal(getLastObservationDate(), other.getLastObservationDate()) &&
           JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getObservationFrequency(), other.getObservationFrequency()) &&
           super.equals(obj);
     }
@@ -262,7 +262,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
@@ -271,7 +271,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
     return hash ^ super.hashCode();
   }
@@ -281,25 +281,25 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getSpotUnderlyingIdentifier() {
-    return _spotUnderlyingIdentifier;
+  public ExternalId getSpotUnderlyingId() {
+    return _spotUnderlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param spotUnderlyingIdentifier  the new value of the property, not null
+   * @param spotUnderlyingId  the new value of the property, not null
    */
-  public void setSpotUnderlyingIdentifier(ExternalId spotUnderlyingIdentifier) {
-    JodaBeanUtils.notNull(spotUnderlyingIdentifier, "spotUnderlyingIdentifier");
-    this._spotUnderlyingIdentifier = spotUnderlyingIdentifier;
+  public void setSpotUnderlyingId(ExternalId spotUnderlyingId) {
+    JodaBeanUtils.notNull(spotUnderlyingId, "spotUnderlyingId");
+    this._spotUnderlyingId = spotUnderlyingId;
   }
 
   /**
-   * Gets the the {@code spotUnderlyingIdentifier} property.
+   * Gets the the {@code spotUnderlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> spotUnderlyingIdentifier() {
-    return metaBean().spotUnderlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> spotUnderlyingId() {
+    return metaBean().spotUnderlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -511,25 +511,25 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
    * Gets the region.
    * @return the value of the property, not null
    */
-  public ExternalId getRegion() {
-    return _region;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
    * Sets the region.
-   * @param region  the new value of the property, not null
+   * @param regionId  the new value of the property, not null
    */
-  public void setRegion(ExternalId region) {
-    JodaBeanUtils.notNull(region, "region");
-    this._region = region;
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code region} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> region() {
-    return metaBean().region().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -569,10 +569,10 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code spotUnderlyingIdentifier} property.
+     * The meta-property for the {@code spotUnderlyingId} property.
      */
-    private final MetaProperty<ExternalId> _spotUnderlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "spotUnderlyingIdentifier", EquityVarianceSwapSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _spotUnderlyingId = DirectMetaProperty.ofReadWrite(
+        this, "spotUnderlyingId", EquityVarianceSwapSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -614,10 +614,10 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
         this, "settlementDate", EquityVarianceSwapSecurity.class, ZonedDateTime.class);
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", EquityVarianceSwapSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", EquityVarianceSwapSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code observationFrequency} property.
      */
@@ -628,7 +628,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "spotUnderlyingIdentifier",
+        "spotUnderlyingId",
         "currency",
         "strike",
         "notional",
@@ -637,7 +637,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
         "firstObservationDate",
         "lastObservationDate",
         "settlementDate",
-        "region",
+        "regionId",
         "observationFrequency");
 
     /**
@@ -649,8 +649,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -714106872:  // spotUnderlyingIdentifier
-          return _spotUnderlyingIdentifier;
+        case -2099525766:  // spotUnderlyingId
+          return _spotUnderlyingId;
         case 575402001:  // currency
           return _currency;
         case -891985998:  // strike
@@ -667,8 +667,8 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
           return _lastObservationDate;
         case -295948169:  // settlementDate
           return _settlementDate;
-        case -934795532:  // region
-          return _region;
+        case -690339025:  // regionId
+          return _regionId;
         case -213041520:  // observationFrequency
           return _observationFrequency;
       }
@@ -692,11 +692,11 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code spotUnderlyingIdentifier} property.
+     * The meta-property for the {@code spotUnderlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> spotUnderlyingIdentifier() {
-      return _spotUnderlyingIdentifier;
+    public final MetaProperty<ExternalId> spotUnderlyingId() {
+      return _spotUnderlyingId;
     }
 
     /**
@@ -764,11 +764,11 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> region() {
-      return _region;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**

@@ -31,7 +31,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          final Security underlyingSecurity = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
+          final Security underlyingSecurity = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
           final HistoricalTimeSeries hts = source.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, underlyingSecurity.getIdentifiers(), resolutionKey);
           if (hts == null) {
             throw new NullPointerException("Could not get time series pair for " + underlying + " for security " + security + "for " + resolutionKey + "/" + HistoricalTimeSeriesFields.LAST_PRICE);
