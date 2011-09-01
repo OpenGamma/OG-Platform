@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.interestrate;
 
+import java.util.Arrays;
+
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
@@ -60,23 +62,22 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   public double alpha(final double startExpiry, final double endExpiry, final double numeraireTime, final double bondMaturity, final HullWhiteOneFactorPiecewiseConstantParameters data) {
     double factor1 = Math.exp(-data.getMeanReversion() * numeraireTime) - Math.exp(-data.getMeanReversion() * bondMaturity);
     double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
-    int indexStart = 1; // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
-    while (startExpiry > data.getVolatilityTime()[indexStart]) {
-      indexStart++;
-    }
-    int indexEnd = indexStart; // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
-    while (endExpiry > data.getVolatilityTime()[indexEnd]) {
-      indexEnd++;
-    }
+    int indexStart = Math.abs(Arrays.binarySearch(data.getVolatilityTime(), startExpiry) + 1);
+    // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    int indexEnd = Math.abs(Arrays.binarySearch(data.getVolatilityTime(), endExpiry) + 1);
+    // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
     int sLen = indexEnd - indexStart + 1;
     double[] s = new double[sLen + 1];
     s[0] = startExpiry;
     System.arraycopy(data.getVolatilityTime(), indexStart, s, 1, sLen - 1);
     s[sLen] = endExpiry;
     double factor2 = 0.0;
+    double[] exp2as = new double[sLen + 1];
+    for (int loopperiod = 0; loopperiod < sLen + 1; loopperiod++) {
+      exp2as[loopperiod] = Math.exp(2 * data.getMeanReversion() * s[loopperiod]);
+    }
     for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
-      factor2 += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1]
-          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
+      factor2 += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1] * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
     }
     return factor1 * Math.sqrt(factor2 / numerator);
   }
@@ -94,38 +95,37 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    */
   public double alpha(final double startExpiry, final double endExpiry, final double numeraireTime, final double bondMaturity, final HullWhiteOneFactorPiecewiseConstantParameters data,
       double[] derivatives) {
+    int nbSigma = data.getVolatility().length;
+    for (int loopperiod = 0; loopperiod < nbSigma; loopperiod++) { // To clean derivatives
+      derivatives[loopperiod] = 0.0;
+    }
     // Forward sweep
     double factor1 = Math.exp(-data.getMeanReversion() * numeraireTime) - Math.exp(-data.getMeanReversion() * bondMaturity);
     double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
-    int indexStart = 1; // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
-    while (startExpiry > data.getVolatilityTime()[indexStart]) {
-      indexStart++;
-    }
-    int indexEnd = indexStart; // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
-    while (endExpiry > data.getVolatilityTime()[indexEnd]) {
-      indexEnd++;
-    }
+    int indexStart = Math.abs(Arrays.binarySearch(data.getVolatilityTime(), startExpiry) + 1);
+    // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    int indexEnd = Math.abs(Arrays.binarySearch(data.getVolatilityTime(), endExpiry) + 1);
+    // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
     int sLen = indexEnd - indexStart + 1;
     double[] s = new double[sLen + 1];
     s[0] = startExpiry;
     System.arraycopy(data.getVolatilityTime(), indexStart, s, 1, sLen - 1);
     s[sLen] = endExpiry;
     double factor2 = 0.0;
-    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
-      factor2 += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1]
-          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod]));
+    double[] exp2as = new double[sLen + 1];
+    for (int loopperiod = 0; loopperiod < sLen + 1; loopperiod++) {
+      exp2as[loopperiod] = Math.exp(2 * data.getMeanReversion() * s[loopperiod]);
     }
-    double alpha = factor1 * Math.sqrt(factor2 / numerator);
+    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
+      factor2 += data.getVolatility()[loopperiod + indexStart - 1] * data.getVolatility()[loopperiod + indexStart - 1] * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
+    }
+    double sqrtFactor2Num = Math.sqrt(factor2 / numerator);
+    double alpha = factor1 * sqrtFactor2Num;
     // Backward sweep 
     double alphaBar = 1.0;
-    double factor2Bar = factor1 / Math.sqrt(factor2 / numerator) / 2.0 / numerator * alphaBar;
-    int nbSigma = data.getVolatility().length;
-    for (int loopperiod = 0; loopperiod < nbSigma; loopperiod++) { // To clean derivatives
-      derivatives[loopperiod] = 0.0;
-    }
+    double factor2Bar = factor1 / sqrtFactor2Num / 2.0 / numerator * alphaBar;
     for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
-      derivatives[loopperiod + indexStart - 1] = 2 * data.getVolatility()[loopperiod + indexStart - 1]
-          * (Math.exp(2 * data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(2 * data.getMeanReversion() * s[loopperiod])) * factor2Bar;
+      derivatives[loopperiod + indexStart - 1] = 2 * data.getVolatility()[loopperiod + indexStart - 1] * (exp2as[loopperiod + 1] - exp2as[loopperiod]) * factor2Bar;
     }
     return alpha;
   }

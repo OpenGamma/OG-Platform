@@ -322,15 +322,15 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-          <entry key="viewProcessor">
-            <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-              <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
+            <entry key="viewProcessor">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
                 <property name="port" value="${jetty.port}" />
-            </bean>
-          </entry>
-          <entry key="activeMQ">
-            <value>${activeMQ.brokerURL}</value>
-          </entry>
+              </bean>
+            </entry>
+            <entry key="activeMQ">
+              <value>${activeMQ.brokerURL}</value>
+            </entry>
           </map>
         </entry>
         <!-- THESE ARE FOR CONVENIENT DEBUGGING ONLY; REMOVE WHEN JMX WORK IS DONE -->

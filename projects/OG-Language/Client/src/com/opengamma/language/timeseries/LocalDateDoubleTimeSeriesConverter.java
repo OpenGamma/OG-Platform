@@ -27,6 +27,11 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  */
 public class LocalDateDoubleTimeSeriesConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final LocalDateDoubleTimeSeriesConverter INSTANCE = new LocalDateDoubleTimeSeriesConverter();
+
   // TODO: handle nulls
 
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
@@ -37,6 +42,9 @@ public class LocalDateDoubleTimeSeriesConverter extends AbstractTypeConverter {
 
   private static final TypeMap TO_LOCAL_DATE_DOUBLE_TIME_SERIES = TypeMap.of(ZERO_LOSS, VALUES);
   private static final TypeMap FROM_LOCAL_DATE_DOUBLE_TIME_SERIES = TypeMap.of(ZERO_LOSS, LOCAL_DATE_DOUBLE_TIME_SERIES);
+
+  protected LocalDateDoubleTimeSeriesConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {

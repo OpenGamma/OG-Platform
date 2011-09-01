@@ -92,7 +92,7 @@ public final class Configuration {
    * Returns a sub-configuration document.
    * 
    * @param entry configuration item name
-   * @return the configuration document, or {@code null} if there is none (and passive failure is allowed)
+   * @return the configuration document, or null if there is none (and passive failure is allowed)
    */
   public Configuration getSubConfiguration(final String entry) {
     final FudgeMsg submsg = getConfiguration().getMessage(entry);
@@ -107,7 +107,7 @@ public final class Configuration {
    * Returns a REST end point as a {@link URI}
    * 
    * @param entry configuration item name
-   * @return the URI, or {@code null} if there is none or it is inaccessible (and passive failure is allowed)
+   * @return the URI, or null if there is none or it is inaccessible (and passive failure is allowed)
    */
   public URI getURIConfiguration(final String entry) {
     final FudgeMsg submsg = getConfiguration().getMessage(entry);
@@ -128,7 +128,7 @@ public final class Configuration {
    * Returns a REST end point as a {@link RestTarget}
    * 
    * @param entry configuration item name
-   * @return the RestTarget, or {@code null} if there is none or it is inaccessible (and passive failure is allowed)
+   * @return the RestTarget, or null if there is none or it is inaccessible (and passive failure is allowed)
    */
   public RestTarget getRestTargetConfiguration(final String entry) {
     final URI uri = getURIConfiguration(entry);
@@ -140,6 +140,19 @@ public final class Configuration {
 
   // TODO: JMS configuration
 
-  // TODO: arbitrary strings
+  /**
+   * Returns an arbitrary string value.
+   * 
+   * @param entry configuration item name
+   * @return the string value
+   */
+  public String getStringConfiguration(final String entry) {
+    final String value = getConfiguration().getString(entry);
+    if (value == null) {
+      s_logger.warn("No string for {}", entry);
+      return missingConfiguration(entry);
+    }
+    return value;
+  }
 
 }

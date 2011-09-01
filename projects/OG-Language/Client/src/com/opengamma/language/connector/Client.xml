@@ -186,4 +186,16 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
+  <!-- View processor -->
+  <bean id="viewProcessorLoader" class="com.opengamma.language.view.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="userContextFactory" ref="userContextFactory" />
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+    <property name="connectionFactory" ref="defaultJMSConnectionFactory" />
+    <property name="scheduler">
+      <bean factory-bean="clientContextFactory" factory-method="getScheduler" />
+    </property>
+  </bean>
+  
 </beans>

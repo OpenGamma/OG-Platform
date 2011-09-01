@@ -1,0 +1,11 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * Supports a slickgrid module
+ */
+
+.OG-mod-1.og-style-2 tbody,
+.OG-mod-1.og-style-2 tbody td {
+  background-color: #fff;
+}

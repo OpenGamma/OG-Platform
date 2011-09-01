@@ -7,12 +7,11 @@
 namespace com.opengamma.financial.security.capfloor {
 
   /** 
-   * A security modelling a cap/floor CMS spread security
+   * A cap/floor CMS spread security.
    */
-   
   message CapFloorCMSSpreadSecurity extends FinancialSecurity {
-    
     required string securityType [default = "CAP/FLOOR CMS SPREAD"];
+    
     required javax.time.calendar.ZonedDateTime startDate;
     required javax.time.calendar.ZonedDateTime maturityDate;
     required double notional;
@@ -24,14 +23,6 @@ namespace com.opengamma.financial.security.capfloor {
     required com.opengamma.financial.convention.daycount.DayCount dayCount;
     required boolean isPayer;
     required boolean isCap;
-    
-    binding Java {
-      body <<<JAVA
-        public <T> T accept(CapFloorCMSSpreadSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); };
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCapFloorCMSSpreadSecurity(this); }
-JAVA;
-    }
   }
-}
-  }
+
 }

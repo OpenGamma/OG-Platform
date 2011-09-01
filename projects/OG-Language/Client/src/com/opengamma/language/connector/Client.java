@@ -36,6 +36,9 @@ import org.fudgemsg.wire.FudgeStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.language.async.AsynchronousExecution;
+import com.opengamma.language.async.AsynchronousResult;
+import com.opengamma.language.async.ResultListener;
 import com.opengamma.language.connector.ConnectorMessage.Operation;
 import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.SessionContext;
@@ -377,25 +380,47 @@ public class Client implements Runnable {
     };
   }
   
+  private void sendUserMessageResponse(final UserMessage userMessage, UserMessagePayload response) {
+    if (response == null) {
+      s_logger.error("User message handler returned null for synchronous message call {}", userMessage);
+      response = UserMessagePayload.EMPTY_PAYLOAD;
+    }
+    s_logger.debug("Response {}", response);
+    userMessage.setPayload(response);
+    sendUserMessage(userMessage);
+  }
+
   protected void doDispatchUserMessage(final FudgeMsg msg) {
     final FudgeDeserializer deserializer = new FudgeDeserializer(getClientContext().getFudgeContext());
-    UserMessage userMessage = new UserMessage(deserializer, msg);
+    final UserMessage userMessage = new UserMessage(deserializer, msg);
     UserMessagePayload response = null;
     try {
       s_logger.debug("Dispatching user message {}", msg);
       response = userMessage.getPayload().accept(getClientContext().getMessageHandler(), getSessionContext());
+    } catch (AsynchronousExecution e) {
+      // Only bother with the result if we're going to use it
+      if (userMessage.getHandle() != null) {
+        e.setResultListener(new ResultListener<UserMessagePayload>() {
+          @Override
+          public void operationComplete(final AsynchronousResult<UserMessagePayload> result) {
+            UserMessagePayload response = null;
+            try {
+              response = result.getResult();
+            } catch (Throwable t) {
+              s_logger.error("Error in user message handler", t);
+              response = UserMessagePayload.EMPTY_PAYLOAD;
+            }
+            sendUserMessageResponse(userMessage, response);
+          }
+        });
+      }
+      return;
     } catch (Throwable t) {
       s_logger.error("Error in user message handler", t);
       response = UserMessagePayload.EMPTY_PAYLOAD;
     }
     if (userMessage.getHandle() != null) {
-      if (response == null) {
-        s_logger.error("User message handler returned null for synchronous message call {}", msg);
-        response = UserMessagePayload.EMPTY_PAYLOAD;
-      }
-      s_logger.debug("Response {}", response);
-      userMessage.setPayload(response);
-      sendUserMessage(userMessage);
+      sendUserMessageResponse(userMessage, response);
     }
   }
 

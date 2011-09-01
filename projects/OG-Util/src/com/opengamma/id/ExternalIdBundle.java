@@ -132,11 +132,8 @@ public final class ExternalIdBundle
 
   /**
    * Creates an empty bundle.
-   * @deprecated use EMPTY constant
    */
-  @Deprecated
-  public ExternalIdBundle() {
-    // public for Fudge proto
+  private ExternalIdBundle() {
     _externalIds = ImmutableSortedSet.of();
   }
 

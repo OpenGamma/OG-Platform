@@ -8,6 +8,8 @@ package com.opengamma.language.context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.UserPrincipal;
+
 /**
  * The default user context event handler.  
  */
@@ -18,18 +20,19 @@ public final class DefaultUserContextEventHandler implements UserContextEventHan
   // UserContextEventHandler
 
   @Override
-  public void doneContext(MutableUserContext context) {
+  public void doneContext(final MutableUserContext context) {
     s_logger.info("Destroying user context {}", context);
     // No-op
   }
 
   @Override
-  public void initContext(MutableUserContext context) {
+  public void initContext(final MutableUserContext context) {
     s_logger.info("Initialising user context {}", context);
     final GlobalContext parent = context.getGlobalContext();
     context.getFunctionProvider().addProvider(parent.getFunctionProvider());
     context.getLiveDataProvider().addProvider(parent.getLiveDataProvider());
     context.getProcedureProvider().addProvider(parent.getProcedureProvider());
+    context.setLiveDataUser(UserPrincipal.getLocalUser(context.getUserName()));
   }
 
 }

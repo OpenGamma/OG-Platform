@@ -15,7 +15,6 @@ $.register_module({
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type, resource_id = json.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler;
-            og.dev.log('json!', json);
             api.text({module: module.name, handler: function (template, error) {
                 var header, content;
                 header = '\
@@ -32,7 +31,7 @@ $.register_module({
                 $(selector).html(content);
                 if (deleted || is_new)
                     $(selector + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                if (is_new) $(selector + ' .og-js-submit[value=save_as_new]').html('Save');
+                if (is_new) $(selector + ' .og-js-submit[value=save_as_new]').text('Save');
                 $(selector + ' [name=name]').bind('keyup', function (e) {
                     $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
                 });

@@ -29,6 +29,10 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -155,6 +159,43 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
     public static <T, C extends Collection<T>> DefaultCollection<T, C> of(final Class<C> collection, final Class<T> clazz) {
       return new DefaultCollection<T, C>(collection, clazz);
+    }
+
+    @Override
+    public void getValues(final Collection<C> values) {
+      try {
+        final C collection = _collection.newInstance();
+        collection.addAll(permuteTestObjects(_clazz));
+        if (collection.size() > 0) {
+          values.add(_collection.newInstance());
+          if (collection.size() > 1) {
+            final C value = _collection.newInstance();
+            value.add(collection.iterator().next());
+            values.add(value);
+          }
+        }
+        values.add(collection);
+      } catch (final InstantiationException ex) {
+        // TODO Auto-generated catch block
+        ex.printStackTrace();
+      } catch (final IllegalAccessException ex) {
+        // TODO Auto-generated catch block
+        ex.printStackTrace();
+      }
+    }
+  }
+
+  private static class DefaultList<T, C extends List<T>> implements TestDataProvider<C> {
+    private final Class<C> _collection;
+    private final Class<T> _clazz;
+
+    private DefaultList(final Class<C> collection, final Class<T> clazz) {
+      _collection = collection;
+      _clazz = clazz;
+    }
+
+    public static <T, C extends List<T>> DefaultList<T, C> of(final Class<C> collection, final Class<T> clazz) {
+      return new DefaultList<T, C>(collection, clazz);
     }
 
     @Override
@@ -329,6 +370,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       }
     });
     s_dataProviders.put(Pair.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pair.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
@@ -413,6 +455,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       final Object key;
       if (Collection.class.equals(clazz)) {
         key = Pair.of(parent, clazz);
+      } else if (List.class.equals(clazz)) {
+        key = Pair.of(parent, clazz);
       } else {
         key = clazz;
       }
@@ -479,8 +523,61 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     return objects;
   }
 
+  @SuppressWarnings("rawtypes")
   private static <T> Collection<T> permuteTestObjects(final Class<T> clazz) {
+    if (ManageableSecurity.class.isAssignableFrom(clazz)) {
+      return permuteTestSecurities((Class) clazz);
+    }
     return permuteTestObjects(clazz, getBiggestConstructor(clazz));
+  }
+
+  private static <T extends ManageableSecurity> Collection<T> permuteTestSecurities(final Class<T> clazz) {
+    try {
+      clazz.newInstance();
+    } catch (Exception ex) {
+    }
+    MetaBean mb = JodaBeanUtils.metaBean(clazz);
+    List<MetaProperty<Object>> mps = new ArrayList<MetaProperty<Object>>(mb.metaPropertyMap().values());
+    
+    // find the longest set of available data
+    final List<?>[] parameterValues = new List<?>[mps.size()];
+    int longest = 0;
+    for (int i = 0; i < mps.size(); i++) {
+      // System.out.println(clazz + ", " + i + ", " + parameters[i]);
+      parameterValues[i] = getTestObjects(mps.get(i).propertyType(), clazz);
+      if (parameterValues[i].size() > longest) {
+        longest = parameterValues[i].size();
+      }
+    }
+    
+    // prepare
+    final List<Throwable> exceptions = new ArrayList<Throwable>();
+    final Collection<T> objects = new ArrayList<T>();
+    final int[] parameterIndex = new int[mps.size()];
+    for (int i = 0; i < longest; i++) {
+      try {
+        BeanBuilder<?> builder = mb.builder();
+        for (int j = 0; j < mps.size(); j++) {
+          Object value = parameterValues[j].get(parameterIndex[j]);
+          parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
+          builder.set(mps.get(j).name(), value);
+        }
+        objects.add((T) builder.build());
+      } catch (final Throwable t) {
+        exceptions.add(t);
+      }
+    }
+    if (objects.size() == 0) {
+      for (final Throwable t : exceptions) {
+        t.printStackTrace();
+      }
+      throw new IllegalArgumentException("couldn't create test objects");
+    }
+    s_logger.info("{} objects created for {}", objects.size(), clazz);
+    for (final Object o : objects) {
+      s_logger.debug("{}", o);
+    }
+    return objects;
   }
 
   protected abstract <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security);
@@ -510,7 +607,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   protected <T extends ManageableSecurity> void assertSecurities(final Class<T> securityClass) {
     if (isInitialized()) {
-      assertSecurities(securityClass, permuteTestObjects(securityClass));
+      assertSecurities(securityClass, permuteTestSecurities(securityClass));
     }
   }
 

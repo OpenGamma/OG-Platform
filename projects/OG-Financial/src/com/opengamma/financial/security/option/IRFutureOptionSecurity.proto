@@ -5,9 +5,11 @@
  */
 
 namespace com.opengamma.financial.security.option {
- 
+
+  /**
+   * An IR future option security.
+   */
   message IRFutureOptionSecurity extends FinancialSecurity {
-   
     required string securityType [default = "IRFUTURE_OPTION"];
     
     required string exchange;
@@ -19,12 +21,6 @@ namespace com.opengamma.financial.security.option {
     required com.opengamma.util.money.Currency currency;
     required double strike; 
     required OptionType optionType;
-   
-    binding Java {
-      body <<<JAVA
-        public <T> T accept (IRFutureOptionSecurityVisitor<T> visitor) { return visitor.visitIRFutureOptionSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitIRFutureOptionSecurity(this); }
-JAVA;
-    }
   }
+
 }

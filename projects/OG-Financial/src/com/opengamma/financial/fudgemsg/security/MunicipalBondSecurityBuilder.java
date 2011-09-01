@@ -34,7 +34,7 @@ public class MunicipalBondSecurityBuilder extends AbstractFudgeBuilder implement
 
   @Override
   public MunicipalBondSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    MunicipalBondSecurity object = FinancialSecurityBuilder.backdoorCreateClass(MunicipalBondSecurity.class);
+    MunicipalBondSecurity object = new MunicipalBondSecurity();
     MunicipalBondSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

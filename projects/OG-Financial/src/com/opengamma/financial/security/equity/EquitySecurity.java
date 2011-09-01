@@ -1,276 +1,502 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.equity;
-public class EquitySecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          /**
-         * Override to use the company name as the display name.
-         * @return the display name, not null
-         */
-        @Override
-        protected String buildDefaultDisplayName() {
-          if (getCompanyName() != null) {
-            return getCompanyName();
-          } else {
-            return super.buildDefaultDisplayName();
-          }
-        }
-        
-        public <T> T accept(EquitySecurityVisitor<T> visitor) { return visitor.visitEquitySecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquitySecurity(this); }
-  private static final long serialVersionUID = 6816777187225274132l;
-  private String _shortName;
-  public static final String SHORT_NAME_KEY = "shortName";
-  private String _exchange;
-  public static final String EXCHANGE_KEY = "exchange";
-  private String _exchangeCode;
-  public static final String EXCHANGE_CODE_KEY = "exchangeCode";
-  private String _companyName;
-  public static final String COMPANY_NAME_KEY = "companyName";
-  private com.opengamma.util.money.Currency _currency;
-  public static final String CURRENCY_KEY = "currency";
-  private com.opengamma.financial.security.equity.GICSCode _gicsCode;
-  public static final String GICS_CODE_KEY = "gicsCode";
+
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.util.money.Currency;
+
+/**
+ * A security for equities.
+ */
+@BeanDefinition
+public class EquitySecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "EQUITY";
-  public EquitySecurity (String exchange, String exchangeCode, String companyName, com.opengamma.util.money.Currency currency) {
-    super (SECURITY_TYPE);
-    if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
-    _exchange = exchange;
-    if (exchangeCode == null) throw new NullPointerException ("exchangeCode' cannot be null");
-    _exchangeCode = exchangeCode;
-    if (companyName == null) throw new NullPointerException ("companyName' cannot be null");
-    _companyName = companyName;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * The short name.
+   */
+  @PropertyDefinition
+  private String _shortName;
+  /**
+   * The exchange.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _exchange;
+  /**
+   * The exchange code.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _exchangeCode;
+  /**
+   * The company name.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _companyName;
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+  /**
+   * The GICS code.
+   */
+  @PropertyDefinition
+  private GICSCode _gicsCode;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public EquitySecurity() {
   }
-  protected EquitySecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (EXCHANGE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'exchange' is not present");
-    try {
-      _exchange = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'exchange' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (EXCHANGE_CODE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'exchangeCode' is not present");
-    try {
-      _exchangeCode = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'exchangeCode' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (COMPANY_NAME_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'companyName' is not present");
-    try {
-      _companyName = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'companyName' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'currency' is not present");
-    try {
-      _currency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'currency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (SHORT_NAME_KEY);
-    if (fudgeField != null)  {
-      try {
-        setShortName ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'shortName' is not string", e);
-      }
-    }
-    fudgeField = fudgeMsg.getByName (GICS_CODE_KEY);
-    if (fudgeField != null)  {
-      try {
-        setGicsCode (fudgeMsg.getFieldValue (com.opengamma.financial.security.equity.GICSCode.class, fudgeField));
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a EquitySecurity - field 'gicsCode' is not GICSCode typedef", e);
-      }
-    }
+
+  public EquitySecurity(String exchange, String exchangeCode, String companyName, Currency currency) {
+    super(SECURITY_TYPE);
+    setExchange(exchange);
+    setExchangeCode(exchangeCode);
+    setCompanyName(companyName);
+    setCurrency(currency);
   }
-  public EquitySecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, String shortName, String exchange, String exchangeCode, String companyName, com.opengamma.util.money.Currency currency, com.opengamma.financial.security.equity.GICSCode gicsCode) {
-    super (uniqueId, name, securityType, identifiers);
-    _shortName = shortName;
-    if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
-    _exchange = exchange;
-    if (exchangeCode == null) throw new NullPointerException ("exchangeCode' cannot be null");
-    _exchangeCode = exchangeCode;
-    if (companyName == null) throw new NullPointerException ("companyName' cannot be null");
-    _companyName = companyName;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    _gicsCode = gicsCode;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitEquitySecurity(this);
   }
-  protected EquitySecurity (final EquitySecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _shortName = source._shortName;
-    _exchange = source._exchange;
-    _exchangeCode = source._exchangeCode;
-    _companyName = source._companyName;
-    _currency = source._currency;
-    _gicsCode = source._gicsCode;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(EquitySecurityVisitor<T> visitor) {
+    return visitor.visitEquitySecurity(this);
   }
-  public EquitySecurity clone () {
-    return new EquitySecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code EquitySecurity}.
+   * @return the meta-bean, not null
+   */
+  public static EquitySecurity.Meta meta() {
+    return EquitySecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(EquitySecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_shortName != null)  {
-      msg.add (SHORT_NAME_KEY, null, _shortName);
-    }
-    if (_exchange != null)  {
-      msg.add (EXCHANGE_KEY, null, _exchange);
-    }
-    if (_exchangeCode != null)  {
-      msg.add (EXCHANGE_CODE_KEY, null, _exchangeCode);
-    }
-    if (_companyName != null)  {
-      msg.add (COMPANY_NAME_KEY, null, _companyName);
-    }
-    if (_currency != null)  {
-      msg.add (CURRENCY_KEY, null, _currency);
-    }
-    if (_gicsCode != null)  {
-      msg.add (GICS_CODE_KEY, null, _gicsCode);
-    }
+
+  @Override
+  public EquitySecurity.Meta metaBean() {
+    return EquitySecurity.Meta.INSTANCE;
   }
-  public static EquitySecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.equity.EquitySecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.equity.EquitySecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -2028219097:  // shortName
+        return getShortName();
+      case 1989774883:  // exchange
+        return getExchange();
+      case 1429202608:  // exchangeCode
+        return getExchangeCode();
+      case -508582744:  // companyName
+        return getCompanyName();
+      case 575402001:  // currency
+        return getCurrency();
+      case 762040799:  // gicsCode
+        return getGicsCode();
     }
-    return new EquitySecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public String getShortName () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -2028219097:  // shortName
+        setShortName((String) newValue);
+        return;
+      case 1989774883:  // exchange
+        setExchange((String) newValue);
+        return;
+      case 1429202608:  // exchangeCode
+        setExchangeCode((String) newValue);
+        return;
+      case -508582744:  // companyName
+        setCompanyName((String) newValue);
+        return;
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
+        return;
+      case 762040799:  // gicsCode
+        setGicsCode((GICSCode) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_exchange, "exchange");
+    JodaBeanUtils.notNull(_exchangeCode, "exchangeCode");
+    JodaBeanUtils.notNull(_companyName, "companyName");
+    JodaBeanUtils.notNull(_currency, "currency");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquitySecurity other = (EquitySecurity) obj;
+      return JodaBeanUtils.equal(getShortName(), other.getShortName()) &&
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getExchangeCode(), other.getExchangeCode()) &&
+          JodaBeanUtils.equal(getCompanyName(), other.getCompanyName()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getGicsCode(), other.getGicsCode()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getShortName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGicsCode());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the short name.
+   * @return the value of the property
+   */
+  public String getShortName() {
     return _shortName;
   }
-  public void setShortName (String shortName) {
-    _shortName = shortName;
+
+  /**
+   * Sets the short name.
+   * @param shortName  the new value of the property
+   */
+  public void setShortName(String shortName) {
+    this._shortName = shortName;
   }
-  public String getExchange () {
+
+  /**
+   * Gets the the {@code shortName} property.
+   * @return the property, not null
+   */
+  public final Property<String> shortName() {
+    return metaBean().shortName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exchange.
+   * @return the value of the property, not null
+   */
+  public String getExchange() {
     return _exchange;
   }
-  public void setExchange (String exchange) {
-    if (exchange == null) throw new NullPointerException ("exchange' cannot be null");
-    _exchange = exchange;
+
+  /**
+   * Sets the exchange.
+   * @param exchange  the new value of the property, not null
+   */
+  public void setExchange(String exchange) {
+    JodaBeanUtils.notNull(exchange, "exchange");
+    this._exchange = exchange;
   }
-  public String getExchangeCode () {
+
+  /**
+   * Gets the the {@code exchange} property.
+   * @return the property, not null
+   */
+  public final Property<String> exchange() {
+    return metaBean().exchange().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exchange code.
+   * @return the value of the property, not null
+   */
+  public String getExchangeCode() {
     return _exchangeCode;
   }
-  public void setExchangeCode (String exchangeCode) {
-    if (exchangeCode == null) throw new NullPointerException ("exchangeCode' cannot be null");
-    _exchangeCode = exchangeCode;
+
+  /**
+   * Sets the exchange code.
+   * @param exchangeCode  the new value of the property, not null
+   */
+  public void setExchangeCode(String exchangeCode) {
+    JodaBeanUtils.notNull(exchangeCode, "exchangeCode");
+    this._exchangeCode = exchangeCode;
   }
-  public String getCompanyName () {
+
+  /**
+   * Gets the the {@code exchangeCode} property.
+   * @return the property, not null
+   */
+  public final Property<String> exchangeCode() {
+    return metaBean().exchangeCode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the company name.
+   * @return the value of the property, not null
+   */
+  public String getCompanyName() {
     return _companyName;
   }
-  public void setCompanyName (String companyName) {
-    if (companyName == null) throw new NullPointerException ("companyName' cannot be null");
-    _companyName = companyName;
+
+  /**
+   * Sets the company name.
+   * @param companyName  the new value of the property, not null
+   */
+  public void setCompanyName(String companyName) {
+    JodaBeanUtils.notNull(companyName, "companyName");
+    this._companyName = companyName;
   }
-  public com.opengamma.util.money.Currency getCurrency () {
+
+  /**
+   * Gets the the {@code companyName} property.
+   * @return the property, not null
+   */
+  public final Property<String> companyName() {
+    return metaBean().companyName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  public void setCurrency (com.opengamma.util.money.Currency currency) {
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
   }
-  public com.opengamma.financial.security.equity.GICSCode getGicsCode () {
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the GICS code.
+   * @return the value of the property
+   */
+  public GICSCode getGicsCode() {
     return _gicsCode;
   }
-  public void setGicsCode (com.opengamma.financial.security.equity.GICSCode gicsCode) {
-    _gicsCode = gicsCode;
+
+  /**
+   * Sets the GICS code.
+   * @param gicsCode  the new value of the property
+   */
+  public void setGicsCode(GICSCode gicsCode) {
+    this._gicsCode = gicsCode;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof EquitySecurity)) return false;
-    EquitySecurity msg = (EquitySecurity)o;
-    if (_shortName != null) {
-      if (msg._shortName != null) {
-        if (!_shortName.equals (msg._shortName)) return false;
-      }
-      else return false;
-    }
-    else if (msg._shortName != null) return false;
-    if (_exchange != null) {
-      if (msg._exchange != null) {
-        if (!_exchange.equals (msg._exchange)) return false;
-      }
-      else return false;
-    }
-    else if (msg._exchange != null) return false;
-    if (_exchangeCode != null) {
-      if (msg._exchangeCode != null) {
-        if (!_exchangeCode.equals (msg._exchangeCode)) return false;
-      }
-      else return false;
-    }
-    else if (msg._exchangeCode != null) return false;
-    if (_companyName != null) {
-      if (msg._companyName != null) {
-        if (!_companyName.equals (msg._companyName)) return false;
-      }
-      else return false;
-    }
-    else if (msg._companyName != null) return false;
-    if (_currency != null) {
-      if (msg._currency != null) {
-        if (!_currency.equals (msg._currency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._currency != null) return false;
-    if (_gicsCode != null) {
-      if (msg._gicsCode != null) {
-        if (!_gicsCode.equals (msg._gicsCode)) return false;
-      }
-      else return false;
-    }
-    else if (msg._gicsCode != null) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code gicsCode} property.
+   * @return the property, not null
+   */
+  public final Property<GICSCode> gicsCode() {
+    return metaBean().gicsCode().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_shortName != null) hc += _shortName.hashCode ();
-    hc *= 31;
-    if (_exchange != null) hc += _exchange.hashCode ();
-    hc *= 31;
-    if (_exchangeCode != null) hc += _exchangeCode.hashCode ();
-    hc *= 31;
-    if (_companyName != null) hc += _companyName.hashCode ();
-    hc *= 31;
-    if (_currency != null) hc += _currency.hashCode ();
-    hc *= 31;
-    if (_gicsCode != null) hc += _gicsCode.hashCode ();
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code EquitySecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code shortName} property.
+     */
+    private final MetaProperty<String> _shortName = DirectMetaProperty.ofReadWrite(
+        this, "shortName", EquitySecurity.class, String.class);
+    /**
+     * The meta-property for the {@code exchange} property.
+     */
+    private final MetaProperty<String> _exchange = DirectMetaProperty.ofReadWrite(
+        this, "exchange", EquitySecurity.class, String.class);
+    /**
+     * The meta-property for the {@code exchangeCode} property.
+     */
+    private final MetaProperty<String> _exchangeCode = DirectMetaProperty.ofReadWrite(
+        this, "exchangeCode", EquitySecurity.class, String.class);
+    /**
+     * The meta-property for the {@code companyName} property.
+     */
+    private final MetaProperty<String> _companyName = DirectMetaProperty.ofReadWrite(
+        this, "companyName", EquitySecurity.class, String.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", EquitySecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code gicsCode} property.
+     */
+    private final MetaProperty<GICSCode> _gicsCode = DirectMetaProperty.ofReadWrite(
+        this, "gicsCode", EquitySecurity.class, GICSCode.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "shortName",
+        "exchange",
+        "exchangeCode",
+        "companyName",
+        "currency",
+        "gicsCode");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2028219097:  // shortName
+          return _shortName;
+        case 1989774883:  // exchange
+          return _exchange;
+        case 1429202608:  // exchangeCode
+          return _exchangeCode;
+        case -508582744:  // companyName
+          return _companyName;
+        case 575402001:  // currency
+          return _currency;
+        case 762040799:  // gicsCode
+          return _gicsCode;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends EquitySecurity> builder() {
+      return new DirectBeanBuilder<EquitySecurity>(new EquitySecurity());
+    }
+
+    @Override
+    public Class<? extends EquitySecurity> beanType() {
+      return EquitySecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code shortName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> shortName() {
+      return _shortName;
+    }
+
+    /**
+     * The meta-property for the {@code exchange} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> exchange() {
+      return _exchange;
+    }
+
+    /**
+     * The meta-property for the {@code exchangeCode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> exchangeCode() {
+      return _exchangeCode;
+    }
+
+    /**
+     * The meta-property for the {@code companyName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> companyName() {
+      return _companyName;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code gicsCode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<GICSCode> gicsCode() {
+      return _gicsCode;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

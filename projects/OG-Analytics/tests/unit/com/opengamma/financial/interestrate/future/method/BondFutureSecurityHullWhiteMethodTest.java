@@ -87,16 +87,16 @@ public class BondFutureSecurityHullWhiteMethodTest {
   }
   private static final BondFutureSecurity BOND_FUTURE_SECURITY = new BondFutureSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
       BASKET, CONVERSION_FACTOR);
-  private static final BondFutureSecurityHullWhiteMethod METHOD_HW = new BondFutureSecurityHullWhiteMethod();
+  private static final BondFutureSecurityHullWhiteMethod METHOD_HW = BondFutureSecurityHullWhiteMethod.getInstance();
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteTestsDataSet.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
 
   @Test
   public void price() {
-    final double priceComputed = METHOD_HW.priceFromCurves(BOND_FUTURE_SECURITY, BUNDLE_HW);
+    final double priceComputed = METHOD_HW.price(BOND_FUTURE_SECURITY, BUNDLE_HW);
     double priceExpected = 1.00; // Rates are at 6%
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceComputed, 5.0E-3);
-    double pricePrevious = 0.9962881891246175; // Price from previous run
+    double pricePrevious = 0.9963152545; // Price from previous run
     assertEquals("Bond future security Discounting Method: price from curves", pricePrevious, priceComputed, 1.0E-8);
   }
 
@@ -110,7 +110,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
     double priceFuture = 0.0;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      priceFuture = METHOD_HW.priceFromCurves(BOND_FUTURE_SECURITY, BUNDLE_HW);
+      priceFuture = METHOD_HW.price(BOND_FUTURE_SECURITY, BUNDLE_HW);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " price Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
@@ -122,7 +122,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
     for (int looprange = 0; looprange < nbRange; looprange++) {
       startTime = System.currentTimeMillis();
       for (int looptest = 0; looptest < nbTest; looptest++) {
-        priceRange[looprange] = METHOD_HW.priceFromCurves(BOND_FUTURE_SECURITY, BUNDLE_HW, nbPoint[looprange]);
+        priceRange[looprange] = METHOD_HW.price(BOND_FUTURE_SECURITY, BUNDLE_HW, nbPoint[looprange]);
       }
       endTime = System.currentTimeMillis();
       System.out.println(nbTest + " price Bond Future Hull-White: with " + nbPoint[looprange] + " points: " + (endTime - startTime) + " ms - price: " + priceRange[looprange]);

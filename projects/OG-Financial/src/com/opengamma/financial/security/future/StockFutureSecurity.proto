@@ -7,16 +7,10 @@
 namespace com.opengamma.financial.security.future {
 
   /**
-   * A stock future.
+   * A stock future security.
    */
   message StockFutureSecurity extends FutureSecurity {
-  
     optional id.ExternalId underlyingIdentifier;
-   
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitStockFutureSecurity (this); }";
-    }
-     
   }
-  
+
 }

@@ -1,231 +1,451 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.cash;
-public class CashSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public <T> T accept(CashSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }
-  private static final long serialVersionUID = 8694314993975813600l;
-  private com.opengamma.util.money.Currency _currency;
-  public static final String CURRENCY_KEY = "currency";
-  private com.opengamma.id.ExternalId _region;
-  public static final String REGION_KEY = "region";
-  private javax.time.calendar.ZonedDateTime _maturity;
-  public static final String MATURITY_KEY = "maturity";
-  private double _rate;
-  public static final String RATE_KEY = "rate";
-  private double _amount;
-  public static final String AMOUNT_KEY = "amount";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+
+/**
+ * A security for cash.
+ */
+@BeanDefinition
+public class CashSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "CASH";
-  public CashSecurity (com.opengamma.util.money.Currency currency, com.opengamma.id.ExternalId region, javax.time.calendar.ZonedDateTime maturity, double rate, double amount) {
-    super (SECURITY_TYPE);
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
-    if (maturity == null) throw new NullPointerException ("'maturity' cannot be null");
-    else {
-      _maturity = maturity;
-    }
-    _rate = rate;
-    _amount = amount;
+
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+  /**
+   * The region.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _region;
+  /**
+   * The maturity.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _maturity;
+  /**
+   * The rate.
+   */
+  @PropertyDefinition
+  private double _rate;
+  /**
+   * The amount.
+   */
+  @PropertyDefinition
+  private double _amount;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public CashSecurity() {
   }
-  protected CashSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'currency' is not present");
-    try {
-      _currency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'currency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (REGION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'region' is not present");
-    try {
-      _region = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'region' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (MATURITY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'maturity' is not present");
-    try {
-      _maturity = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'maturity' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (RATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'rate' is not present");
-    try {
-      _rate = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'rate' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'amount' is not present");
-    try {
-      _amount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CashSecurity - field 'amount' is not double", e);
-    }
+
+  public CashSecurity(Currency currency, ExternalId region, ZonedDateTime maturity, double rate, double amount) {
+    super(SECURITY_TYPE);
+    setCurrency(currency);
+    setRegion(region);
+    setMaturity(maturity);
+    setRate(rate);
+    setAmount(amount);
   }
-  public CashSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.money.Currency currency, com.opengamma.id.ExternalId region, javax.time.calendar.ZonedDateTime maturity, double rate, double amount) {
-    super (uniqueId, name, securityType, identifiers);
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
-    if (maturity == null) throw new NullPointerException ("'maturity' cannot be null");
-    else {
-      _maturity = maturity;
-    }
-    _rate = rate;
-    _amount = amount;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitCashSecurity(this);
   }
-  protected CashSecurity (final CashSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _currency = source._currency;
-    if (source._region == null) _region = null;
-    else {
-      _region = source._region;
-    }
-    if (source._maturity == null) _maturity = null;
-    else {
-      _maturity = source._maturity;
-    }
-    _rate = source._rate;
-    _amount = source._amount;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(CashSecurityVisitor<T> visitor) {
+    return visitor.visitCashSecurity(this);
   }
-  public CashSecurity clone () {
-    return new CashSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CashSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static CashSecurity.Meta meta() {
+    return CashSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(CashSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_currency != null)  {
-      msg.add (CURRENCY_KEY, null, _currency);
-    }
-    if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
-      _region.toFudgeMsg (serializer, fudge1);
-      msg.add (REGION_KEY, null, fudge1);
-    }
-    if (_maturity != null)  {
-      serializer.addToMessage (msg, MATURITY_KEY, null, _maturity);
-    }
-    msg.add (RATE_KEY, null, _rate);
-    msg.add (AMOUNT_KEY, null, _amount);
+
+  @Override
+  public CashSecurity.Meta metaBean() {
+    return CashSecurity.Meta.INSTANCE;
   }
-  public static CashSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.cash.CashSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.cash.CashSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 575402001:  // currency
+        return getCurrency();
+      case -934795532:  // region
+        return getRegion();
+      case 313843601:  // maturity
+        return getMaturity();
+      case 3493088:  // rate
+        return getRate();
+      case -1413853096:  // amount
+        return getAmount();
     }
-    return new CashSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public com.opengamma.util.money.Currency getCurrency () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
+        return;
+      case -934795532:  // region
+        setRegion((ExternalId) newValue);
+        return;
+      case 313843601:  // maturity
+        setMaturity((ZonedDateTime) newValue);
+        return;
+      case 3493088:  // rate
+        setRate((Double) newValue);
+        return;
+      case -1413853096:  // amount
+        setAmount((Double) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_maturity, "maturity");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CashSecurity other = (CashSecurity) obj;
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
+          JodaBeanUtils.equal(getRate(), other.getRate()) &&
+          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  public void setCurrency (com.opengamma.util.money.Currency currency) {
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
   }
-  public com.opengamma.id.ExternalId getRegion () {
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region.
+   * @return the value of the property, not null
+   */
+  public ExternalId getRegion() {
     return _region;
   }
-  public void setRegion (com.opengamma.id.ExternalId region) {
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  /**
+   * Sets the region.
+   * @param region  the new value of the property, not null
+   */
+  public void setRegion(ExternalId region) {
+    JodaBeanUtils.notNull(region, "region");
+    this._region = region;
   }
-  public javax.time.calendar.ZonedDateTime getMaturity () {
+
+  /**
+   * Gets the the {@code region} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> region() {
+    return metaBean().region().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturity.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getMaturity() {
     return _maturity;
   }
-  public void setMaturity (javax.time.calendar.ZonedDateTime maturity) {
-    if (maturity == null) throw new NullPointerException ("'maturity' cannot be null");
-    else {
-      _maturity = maturity;
-    }
+
+  /**
+   * Sets the maturity.
+   * @param maturity  the new value of the property, not null
+   */
+  public void setMaturity(ZonedDateTime maturity) {
+    JodaBeanUtils.notNull(maturity, "maturity");
+    this._maturity = maturity;
   }
-  public double getRate () {
+
+  /**
+   * Gets the the {@code maturity} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> maturity() {
+    return metaBean().maturity().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the rate.
+   * @return the value of the property
+   */
+  public double getRate() {
     return _rate;
   }
-  public void setRate (double rate) {
-    _rate = rate;
+
+  /**
+   * Sets the rate.
+   * @param rate  the new value of the property
+   */
+  public void setRate(double rate) {
+    this._rate = rate;
   }
-  public double getAmount () {
+
+  /**
+   * Gets the the {@code rate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> rate() {
+    return metaBean().rate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the amount.
+   * @return the value of the property
+   */
+  public double getAmount() {
     return _amount;
   }
-  public void setAmount (double amount) {
-    _amount = amount;
+
+  /**
+   * Sets the amount.
+   * @param amount  the new value of the property
+   */
+  public void setAmount(double amount) {
+    this._amount = amount;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof CashSecurity)) return false;
-    CashSecurity msg = (CashSecurity)o;
-    if (_currency != null) {
-      if (msg._currency != null) {
-        if (!_currency.equals (msg._currency)) return false;
-      }
-      else return false;
+
+  /**
+   * Gets the the {@code amount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> amount() {
+    return metaBean().amount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code CashSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", CashSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code region} property.
+     */
+    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", CashSecurity.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code maturity} property.
+     */
+    private final MetaProperty<ZonedDateTime> _maturity = DirectMetaProperty.ofReadWrite(
+        this, "maturity", CashSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code rate} property.
+     */
+    private final MetaProperty<Double> _rate = DirectMetaProperty.ofReadWrite(
+        this, "rate", CashSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code amount} property.
+     */
+    private final MetaProperty<Double> _amount = DirectMetaProperty.ofReadWrite(
+        this, "amount", CashSecurity.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "currency",
+        "region",
+        "maturity",
+        "rate",
+        "amount");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
     }
-    else if (msg._currency != null) return false;
-    if (_region != null) {
-      if (msg._region != null) {
-        if (!_region.equals (msg._region)) return false;
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return _currency;
+        case -934795532:  // region
+          return _region;
+        case 313843601:  // maturity
+          return _maturity;
+        case 3493088:  // rate
+          return _rate;
+        case -1413853096:  // amount
+          return _amount;
       }
-      else return false;
+      return super.metaPropertyGet(propertyName);
     }
-    else if (msg._region != null) return false;
-    if (_maturity != null) {
-      if (msg._maturity != null) {
-        if (!_maturity.equals (msg._maturity)) return false;
-      }
-      else return false;
+
+    @Override
+    public BeanBuilder<? extends CashSecurity> builder() {
+      return new DirectBeanBuilder<CashSecurity>(new CashSecurity());
     }
-    else if (msg._maturity != null) return false;
-    if (_rate != msg._rate) return false;
-    if (_amount != msg._amount) return false;
-    return super.equals (msg);
+
+    @Override
+    public Class<? extends CashSecurity> beanType() {
+      return CashSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code region} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> region() {
+      return _region;
+    }
+
+    /**
+     * The meta-property for the {@code maturity} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> maturity() {
+      return _maturity;
+    }
+
+    /**
+     * The meta-property for the {@code rate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> rate() {
+      return _rate;
+    }
+
+    /**
+     * The meta-property for the {@code amount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> amount() {
+      return _amount;
+    }
+
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_currency != null) hc += _currency.hashCode ();
-    hc *= 31;
-    if (_region != null) hc += _region.hashCode ();
-    hc *= 31;
-    if (_maturity != null) hc += _maturity.hashCode ();
-    hc = (hc * 31) + (int)_rate;
-    hc = (hc * 31) + (int)_amount;
-    return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File
