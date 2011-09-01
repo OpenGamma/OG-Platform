@@ -13,8 +13,9 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 /**
  * Creates Live MarketDataProvider based on the dataSource
  */
-public class LiveMarketDataProviderFactory implements MarketDataProviderFactory {
-
+public class LiveMarketDataProviderFactory implements MarketDataProviderFactory, LiveMarketDataSourceRegistry {
+  //TODO PLAT-1080 - configure this from the live data service  
+  
   private final Map<String, MarketDataProvider> _providersByDataSource;
 
   
@@ -34,5 +35,10 @@ public class LiveMarketDataProviderFactory implements MarketDataProviderFactory 
       throw new IllegalArgumentException("No provider available for " + liveSpec.getDataSource());
     }
     return provider;
+  }
+
+  @Override
+  public Iterable<String> getDataSources() {
+    return _providersByDataSource.keySet();
   }
 }
