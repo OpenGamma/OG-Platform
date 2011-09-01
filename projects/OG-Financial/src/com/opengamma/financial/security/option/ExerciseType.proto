@@ -7,38 +7,18 @@
 namespace com.opengamma.financial.security.option {
 
   abstract message ExerciseType {
-    binding Java {
-      method equals;
-      body "public abstract <T> T accept (ExerciseTypeVisitor<T> visitor);";
-    }
   }
-  
+
   message AmericanExerciseType extends ExerciseType {
-    binding Java {
-      method equals;
-      body "public <T> T accept (ExerciseTypeVisitor<T> visitor) { return visitor.visitAmericanExerciseType (this); }";
-    }
   }
-  
+
   message AsianExerciseType extends ExerciseType {
-    binding Java {
-      method equals;
-      body "public <T> T accept (ExerciseTypeVisitor<T> visitor) { return visitor.visitAsianExerciseType (this); }";
-    }
   }
-  
+
   message BermudanExerciseType extends ExerciseType {
-    binding Java {
-      method equals;
-      body "public <T> T accept (ExerciseTypeVisitor<T> visitor) { return visitor.visitBermudanExerciseType (this); }";
-    }
   }
-  
+
   message EuropeanExerciseType extends ExerciseType {
-    binding Java {
-      method equals;
-      body "public <T> T accept (ExerciseTypeVisitor<T> visitor) { return visitor.visitEuropeanExerciseType (this); }";
-    }
   }
-  
+
 }
