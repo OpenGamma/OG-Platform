@@ -238,27 +238,9 @@ public class BLAS2 {
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector) {
     dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
-    final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    double alphaTmp;
-    int idx, ptr, extra, ub;
-    extra = cols - cols % 4;
-    ub = ((cols / 4) * 4) - 1;
+    double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      idx = i * cols;
-      alphaTmp = 0;
-      for (int j = 0; j < ub; j += 4) {
-        ptr = idx + j;
-        alphaTmp += ptrA[ptr]     * aVector[j]
-                 + ptrA[ptr + 1] * aVector[j + 1]
-                 + ptrA[ptr + 2] * aVector[j + 2]
-                 + ptrA[ptr + 3] * aVector[j + 3];
-      }
-      tmp[i] = alphaTmp * alpha;
-      for (int j = extra; j < cols; j++) {
-        tmp[i] += alpha * ptrA[idx + j] * aVector[j];
-      }
+      tmp[i] *= alpha; // slight cache thrash but should help force A*x to be JITed
     }
     return tmp;
   }
@@ -370,27 +352,11 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(FullMatrix aMatrix, double [] aVector, double [] y) {
+    dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
-    final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    int idx, ptr, extra, ub;
-    extra = cols - cols % 4;
-    ub = ((cols / 4) * 4) - 1;
+    double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      idx = i * cols;
-      for (int j = 0; j < ub; j += 4) {
-        ptr = idx + j;
-        tmp[i] = ptrA[ptr] * aVector[j]
-           + ptrA[ptr + 1] * aVector[j + 1]
-           + ptrA[ptr + 2] * aVector[j + 2]
-           + ptrA[ptr + 3] * aVector[j + 3]
-           + tmp[i];
-      }
-      for (int j = extra; j < cols; j++) {
-        tmp[i] += ptrA[idx + j] * aVector[j];
-      }
-      tmp[i] += y[i];
+      tmp[i] += y[i]; // slight cache thrash but should help force A*x to be JITed
     }
     return tmp;
   }
@@ -534,28 +500,9 @@ public class BLAS2 {
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, double [] y) {
     dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
-    final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    double alphaTmp;
-    int idx, ptr, extra, ub;
-    extra = cols - cols % 4;
-    ub = ((cols / 4) * 4) - 1;
+    double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      idx = i * cols;
-      alphaTmp = 0;
-      for (int j = 0; j < ub; j += 4) {
-        ptr = idx + j;
-        alphaTmp += ptrA[ptr]     * aVector[j]
-                 + ptrA[ptr + 1] * aVector[j + 1]
-                 + ptrA[ptr + 2] * aVector[j + 2]
-                 + ptrA[ptr + 3] * aVector[j + 3];
-      }
-      tmp[i] = alphaTmp * alpha;
-      for (int j = extra; j < cols; j++) {
-        tmp[i] += alpha * ptrA[idx + j] * aVector[j];
-      }
-      tmp[i] += y[i];
+      tmp[i] = alpha * tmp[i] + y[i]; // slight cache thrash but should help force A*x to be JITed
     }
     return tmp;
   }
@@ -704,26 +651,9 @@ public class BLAS2 {
   public static double[] dgemv(FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
     dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
-    final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    int idx, ptr, extra, ub;
-    extra = cols - cols % 4;
-    ub = ((cols / 4) * 4) - 1;
+    double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      idx = i * cols;
-      for (int j = 0; j < ub; j += 4) {
-        ptr = idx + j;
-        tmp[i] = ptrA[ptr] * aVector[j]
-           + ptrA[ptr + 1] * aVector[j + 1]
-           + ptrA[ptr + 2] * aVector[j + 2]
-           + ptrA[ptr + 3] * aVector[j + 3]
-           + tmp[i];
-      }
-      for (int j = extra; j < cols; j++) {
-        tmp[i] += ptrA[idx + j] * aVector[j];
-      }
-      tmp[i] += beta * y[i];
+      tmp[i] += beta * y[i]; // slight cache thrash but should help force A*x to be JITed
     }
     return tmp;
   }
@@ -875,28 +805,9 @@ public class BLAS2 {
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
     dgemvInputSanityChecker(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
-    final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    double alphaTmp;
-    int idx, ptr, extra, ub;
-    extra = cols - cols % 4;
-    ub = ((cols / 4) * 4) - 1;
+    double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      idx = i * cols;
-      alphaTmp = 0;
-      for (int j = 0; j < ub; j += 4) {
-        ptr = idx + j;
-        alphaTmp += ptrA[ptr]     * aVector[j]
-                 + ptrA[ptr + 1] * aVector[j + 1]
-                 + ptrA[ptr + 2] * aVector[j + 2]
-                 + ptrA[ptr + 3] * aVector[j + 3];
-      }
-      tmp[i] = alphaTmp * alpha;
-      for (int j = extra; j < cols; j++) {
-        tmp[i] += alpha * ptrA[idx + j] * aVector[j];
-      }
-      tmp[i] += beta * y[i];
+      tmp[i] = alpha * tmp[i] + beta * y[i]; // slight cache thrash but should help force A*x to be JITed
     }
     return tmp;
   }
