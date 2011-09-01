@@ -75,6 +75,7 @@
       <exclude name="*Security.proto" />
       <exclude name="*FinancialSecurity.proto" />
       <exclude name="*ExerciseType.proto" />
+      <exclude name="*OptionType.proto" />
       <fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON
