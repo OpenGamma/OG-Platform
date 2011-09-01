@@ -171,8 +171,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
     final FloatingInterestRateLeg floatReceiveLeg = (FloatingInterestRateLeg) receiveLeg;
-    final boolean payIbor = floatPayLeg.getIsIBOR();
-    if (floatReceiveLeg.getIsIBOR() == payIbor) {
+    final boolean payIbor = floatPayLeg.isIbor();
+    if (floatReceiveLeg.isIbor() == payIbor) {
       throw new OpenGammaRuntimeException("This should never happen");
     }
     final FloatingInterestRateLeg iborLeg = payIbor ? floatPayLeg : floatReceiveLeg;

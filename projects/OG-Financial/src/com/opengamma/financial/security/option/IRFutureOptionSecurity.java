@@ -65,8 +65,8 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   /**
    * The margined flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isMargined;
+  @PropertyDefinition
+  private boolean _margined;
   /**
    * The currency.
    */
@@ -92,14 +92,14 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   }
 
   public IRFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,
-      double pointValue, boolean isMargined, Currency currency, double strike, OptionType optionType) {
+      double pointValue, boolean margined, Currency currency, double strike, OptionType optionType) {
     super(SECURITY_TYPE);
     setExchange(exchange);
     setExpiry(expiry);
     setExerciseType(exerciseType);
     setUnderlyingIdentifier(underlyingIdentifier);
     setPointValue(pointValue);
-    setIsMargined(isMargined);
+    setMargined(margined);
     setCurrency(currency);
     setStrike(strike);
     setOptionType(optionType);
@@ -153,8 +153,8 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
         return getUnderlyingIdentifier();
       case 1257391553:  // pointValue
         return getPointValue();
-      case -549878249:  // isMargined
-        return getIsMargined();
+      case 243392205:  // margined
+        return isMargined();
       case 575402001:  // currency
         return getCurrency();
       case -891985998:  // strike
@@ -183,8 +183,8 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
       case 1257391553:  // pointValue
         setPointValue((Double) newValue);
         return;
-      case -549878249:  // isMargined
-        setIsMargined((Boolean) newValue);
+      case 243392205:  // margined
+        setMargined((Boolean) newValue);
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -222,7 +222,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
           JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
-          JodaBeanUtils.equal(getIsMargined(), other.getIsMargined()) &&
+          JodaBeanUtils.equal(isMargined(), other.isMargined()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
@@ -239,7 +239,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsMargined());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isMargined());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
@@ -380,24 +380,24 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
    * Gets the margined flag.
    * @return the value of the property
    */
-  public boolean getIsMargined() {
-    return _isMargined;
+  public boolean isMargined() {
+    return _margined;
   }
 
   /**
    * Sets the margined flag.
-   * @param isMargined  the new value of the property
+   * @param margined  the new value of the property
    */
-  public void setIsMargined(boolean isMargined) {
-    this._isMargined = isMargined;
+  public void setMargined(boolean margined) {
+    this._margined = margined;
   }
 
   /**
-   * Gets the the {@code isMargined} property.
+   * Gets the the {@code margined} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isMargined() {
-    return metaBean().isMargined().createProperty(this);
+  public final Property<Boolean> margined() {
+    return metaBean().margined().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -513,10 +513,10 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _pointValue = DirectMetaProperty.ofReadWrite(
         this, "pointValue", IRFutureOptionSecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code isMargined} property.
+     * The meta-property for the {@code margined} property.
      */
-    private final MetaProperty<Boolean> _isMargined = DirectMetaProperty.ofReadWrite(
-        this, "isMargined", IRFutureOptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _margined = DirectMetaProperty.ofReadWrite(
+        this, "margined", IRFutureOptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -542,7 +542,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
         "exerciseType",
         "underlyingIdentifier",
         "pointValue",
-        "isMargined",
+        "margined",
         "currency",
         "strike",
         "optionType");
@@ -566,8 +566,8 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
           return _underlyingIdentifier;
         case 1257391553:  // pointValue
           return _pointValue;
-        case -549878249:  // isMargined
-          return _isMargined;
+        case 243392205:  // margined
+          return _margined;
         case 575402001:  // currency
           return _currency;
         case -891985998:  // strike
@@ -635,11 +635,11 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isMargined} property.
+     * The meta-property for the {@code margined} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isMargined() {
-      return _isMargined;
+    public final MetaProperty<Boolean> margined() {
+      return _margined;
     }
 
     /**

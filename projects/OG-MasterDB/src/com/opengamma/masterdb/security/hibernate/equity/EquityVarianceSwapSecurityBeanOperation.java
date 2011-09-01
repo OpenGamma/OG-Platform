@@ -45,7 +45,7 @@ public final class EquityVarianceSwapSecurityBeanOperation extends AbstractSecur
     securityBean.setLastObservationDate(dateTimeWithZoneToZonedDateTimeBean(security.getLastObservationDate()));
     securityBean.setNotional(security.getNotional());
     securityBean.setObservationFrequency(secMasterSession.getOrCreateFrequencyBean(security.getObservationFrequency().getConventionName()));
-    securityBean.setParameterisedAsVariance(security.getParameterizedAsVariance());
+    securityBean.setParameterisedAsVariance(security.isParameterizedAsVariance());
     securityBean.setRegion(externalIdToExternalIdBean(security.getRegion()));
     securityBean.setSettlementDate(dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     securityBean.setSpotUnderlyingIdentifier(externalIdToExternalIdBean(security.getSpotUnderlyingIdentifier()));

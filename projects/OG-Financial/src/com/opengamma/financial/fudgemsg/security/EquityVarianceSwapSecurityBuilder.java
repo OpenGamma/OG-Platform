@@ -61,7 +61,7 @@ public class EquityVarianceSwapSecurityBuilder extends AbstractFudgeBuilder impl
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, NOTIONAL_KEY, object.getNotional());
-    addToMessage(msg, PARAMETERIZED_AS_VARIANCE_KEY, object.getParameterizedAsVariance());
+    addToMessage(msg, PARAMETERIZED_AS_VARIANCE_KEY, object.isParameterizedAsVariance());
     addToMessage(msg, ANNUALIZATION_FACTOR_KEY, object.getAnnualizationFactor());
     addToMessage(msg, FIRST_OBSERVATION_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getFirstObservationDate()));
     addToMessage(msg, LAST_OBSERVATION_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getLastObservationDate()));

@@ -62,7 +62,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   /**
    * The parameterized as variance flag.
    */
-  @PropertyDefinition(get = "get")
+  @PropertyDefinition
   private boolean _parameterizedAsVariance;
   /**
    * The annualization factor.
@@ -167,7 +167,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
       case 1585636160:  // notional
         return getNotional();
       case 1488612956:  // parameterizedAsVariance
-        return getParameterizedAsVariance();
+        return isParameterizedAsVariance();
       case 663363412:  // annualizationFactor
         return getAnnualizationFactor();
       case -1644595926:  // firstObservationDate
@@ -247,7 +247,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getParameterizedAsVariance(), other.getParameterizedAsVariance()) &&
+          JodaBeanUtils.equal(isParameterizedAsVariance(), other.isParameterizedAsVariance()) &&
           JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
           JodaBeanUtils.equal(getFirstObservationDate(), other.getFirstObservationDate()) &&
           JodaBeanUtils.equal(getLastObservationDate(), other.getLastObservationDate()) &&
@@ -266,7 +266,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParameterizedAsVariance());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isParameterizedAsVariance());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
@@ -383,7 +383,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
    * Gets the parameterized as variance flag.
    * @return the value of the property
    */
-  public boolean getParameterizedAsVariance() {
+  public boolean isParameterizedAsVariance() {
     return _parameterizedAsVariance;
   }
 

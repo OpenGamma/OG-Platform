@@ -44,7 +44,7 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
     final double notional = capFloorSecurity.getNotional();
     final ZonedDateTime fixingDate = capFloorSecurity.getStartDate(); //TODO is this right?
     final double strike = capFloorSecurity.getStrike();
-    final boolean isCap = capFloorSecurity.getIsCap();
+    final boolean isCap = capFloorSecurity.isCap();
     final ExternalId underlyingId = capFloorSecurity.getUnderlyingIdentifier();
     final Currency currency = capFloorSecurity.getCurrency();
     final Frequency tenor = capFloorSecurity.getFrequency();

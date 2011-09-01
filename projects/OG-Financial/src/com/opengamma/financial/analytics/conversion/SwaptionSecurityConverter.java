@@ -49,7 +49,7 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
       throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
     }
     final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) underlyingSwap;
-    final boolean isCashSettled = swaptionSecurity.getIsCashSettled();
+    final boolean isCashSettled = swaptionSecurity.isCashSettled();
     final boolean isLong = swaptionSecurity.getIsLong();
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedFloat, isLong)
         : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedFloat, isLong);

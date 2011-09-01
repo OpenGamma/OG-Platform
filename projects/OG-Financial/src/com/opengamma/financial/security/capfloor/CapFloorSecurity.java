@@ -83,18 +83,18 @@ public class CapFloorSecurity extends FinancialSecurity {
   /**
    * The payer flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isPayer;
+  @PropertyDefinition
+  private boolean _payer;
   /**
    * The cap flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isCap;
+  @PropertyDefinition
+  private boolean _cap;
   /**
    * The IBOR flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isIbor;
+  @PropertyDefinition
+  private boolean _ibor;
 
   /**
    * Creates an empty instance.
@@ -105,7 +105,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   }
 
   public CapFloorSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId underlyingIdentifier, double strike,
-      Frequency frequency, Currency currency, DayCount dayCount, boolean isPayer, boolean isCap, boolean isIbor) {
+      Frequency frequency, Currency currency, DayCount dayCount, boolean payer, boolean cap, boolean ibor) {
     super(SECURITY_TYPE);
     setStartDate(startDate);
     setMaturityDate(maturityDate);
@@ -115,9 +115,9 @@ public class CapFloorSecurity extends FinancialSecurity {
     setFrequency(frequency);
     setCurrency(currency);
     setDayCount(dayCount);
-    setIsPayer(isPayer);
-    setIsCap(isCap);
-    setIsIbor(isIbor);
+    setPayer(payer);
+    setCap(cap);
+    setIbor(ibor);
   }
 
   //-------------------------------------------------------------------------
@@ -174,12 +174,12 @@ public class CapFloorSecurity extends FinancialSecurity {
         return getCurrency();
       case 1905311443:  // dayCount
         return getDayCount();
-      case 2067849291:  // isPayer
-        return getIsPayer();
-      case 100463176:  // isCap
-        return getIsCap();
-      case -1180429050:  // isIbor
-        return getIsIbor();
+      case 106443605:  // payer
+        return isPayer();
+      case 98258:  // cap
+        return isCap();
+      case 3225788:  // ibor
+        return isIbor();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -211,14 +211,14 @@ public class CapFloorSecurity extends FinancialSecurity {
       case 1905311443:  // dayCount
         setDayCount((DayCount) newValue);
         return;
-      case 2067849291:  // isPayer
-        setIsPayer((Boolean) newValue);
+      case 106443605:  // payer
+        setPayer((Boolean) newValue);
         return;
-      case 100463176:  // isCap
-        setIsCap((Boolean) newValue);
+      case 98258:  // cap
+        setCap((Boolean) newValue);
         return;
-      case -1180429050:  // isIbor
-        setIsIbor((Boolean) newValue);
+      case 3225788:  // ibor
+        setIbor((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -250,9 +250,9 @@ public class CapFloorSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getIsPayer(), other.getIsPayer()) &&
-          JodaBeanUtils.equal(getIsCap(), other.getIsCap()) &&
-          JodaBeanUtils.equal(getIsIbor(), other.getIsIbor()) &&
+          JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
+          JodaBeanUtils.equal(isCap(), other.isCap()) &&
+          JodaBeanUtils.equal(isIbor(), other.isIbor()) &&
           super.equals(obj);
     }
     return false;
@@ -269,9 +269,9 @@ public class CapFloorSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsCap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsIbor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCap());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIbor());
     return hash ^ super.hashCode();
   }
 
@@ -486,24 +486,24 @@ public class CapFloorSecurity extends FinancialSecurity {
    * Gets the payer flag.
    * @return the value of the property
    */
-  public boolean getIsPayer() {
-    return _isPayer;
+  public boolean isPayer() {
+    return _payer;
   }
 
   /**
    * Sets the payer flag.
-   * @param isPayer  the new value of the property
+   * @param payer  the new value of the property
    */
-  public void setIsPayer(boolean isPayer) {
-    this._isPayer = isPayer;
+  public void setPayer(boolean payer) {
+    this._payer = payer;
   }
 
   /**
-   * Gets the the {@code isPayer} property.
+   * Gets the the {@code payer} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isPayer() {
-    return metaBean().isPayer().createProperty(this);
+  public final Property<Boolean> payer() {
+    return metaBean().payer().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -511,24 +511,24 @@ public class CapFloorSecurity extends FinancialSecurity {
    * Gets the cap flag.
    * @return the value of the property
    */
-  public boolean getIsCap() {
-    return _isCap;
+  public boolean isCap() {
+    return _cap;
   }
 
   /**
    * Sets the cap flag.
-   * @param isCap  the new value of the property
+   * @param cap  the new value of the property
    */
-  public void setIsCap(boolean isCap) {
-    this._isCap = isCap;
+  public void setCap(boolean cap) {
+    this._cap = cap;
   }
 
   /**
-   * Gets the the {@code isCap} property.
+   * Gets the the {@code cap} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isCap() {
-    return metaBean().isCap().createProperty(this);
+  public final Property<Boolean> cap() {
+    return metaBean().cap().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -536,24 +536,24 @@ public class CapFloorSecurity extends FinancialSecurity {
    * Gets the IBOR flag.
    * @return the value of the property
    */
-  public boolean getIsIbor() {
-    return _isIbor;
+  public boolean isIbor() {
+    return _ibor;
   }
 
   /**
    * Sets the IBOR flag.
-   * @param isIbor  the new value of the property
+   * @param ibor  the new value of the property
    */
-  public void setIsIbor(boolean isIbor) {
-    this._isIbor = isIbor;
+  public void setIbor(boolean ibor) {
+    this._ibor = ibor;
   }
 
   /**
-   * Gets the the {@code isIbor} property.
+   * Gets the the {@code ibor} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isIbor() {
-    return metaBean().isIbor().createProperty(this);
+  public final Property<Boolean> ibor() {
+    return metaBean().ibor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -607,20 +607,20 @@ public class CapFloorSecurity extends FinancialSecurity {
     private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
         this, "dayCount", CapFloorSecurity.class, DayCount.class);
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      */
-    private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
-        this, "isPayer", CapFloorSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
+        this, "payer", CapFloorSecurity.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code isCap} property.
+     * The meta-property for the {@code cap} property.
      */
-    private final MetaProperty<Boolean> _isCap = DirectMetaProperty.ofReadWrite(
-        this, "isCap", CapFloorSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _cap = DirectMetaProperty.ofReadWrite(
+        this, "cap", CapFloorSecurity.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code isIbor} property.
+     * The meta-property for the {@code ibor} property.
      */
-    private final MetaProperty<Boolean> _isIbor = DirectMetaProperty.ofReadWrite(
-        this, "isIbor", CapFloorSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _ibor = DirectMetaProperty.ofReadWrite(
+        this, "ibor", CapFloorSecurity.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -634,9 +634,9 @@ public class CapFloorSecurity extends FinancialSecurity {
         "frequency",
         "currency",
         "dayCount",
-        "isPayer",
-        "isCap",
-        "isIbor");
+        "payer",
+        "cap",
+        "ibor");
 
     /**
      * Restricted constructor.
@@ -663,12 +663,12 @@ public class CapFloorSecurity extends FinancialSecurity {
           return _currency;
         case 1905311443:  // dayCount
           return _dayCount;
-        case 2067849291:  // isPayer
-          return _isPayer;
-        case 100463176:  // isCap
-          return _isCap;
-        case -1180429050:  // isIbor
-          return _isIbor;
+        case 106443605:  // payer
+          return _payer;
+        case 98258:  // cap
+          return _cap;
+        case 3225788:  // ibor
+          return _ibor;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -754,27 +754,27 @@ public class CapFloorSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isPayer() {
-      return _isPayer;
+    public final MetaProperty<Boolean> payer() {
+      return _payer;
     }
 
     /**
-     * The meta-property for the {@code isCap} property.
+     * The meta-property for the {@code cap} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isCap() {
-      return _isCap;
+    public final MetaProperty<Boolean> cap() {
+      return _cap;
     }
 
     /**
-     * The meta-property for the {@code isIbor} property.
+     * The meta-property for the {@code ibor} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isIbor() {
-      return _isIbor;
+    public final MetaProperty<Boolean> ibor() {
+      return _ibor;
     }
 
   }

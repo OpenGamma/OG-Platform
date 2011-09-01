@@ -59,7 +59,7 @@ public class IRFutureOptionSecurityBuilder extends AbstractFudgeBuilder implemen
     addToMessage(msg, EXERCISE_TYPE_KEY, ExerciseTypeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
     addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
     addToMessage(msg, POINT_VALUE_KEY, object.getPointValue());
-    addToMessage(msg, IS_MARGINED_KEY, object.getIsMargined());
+    addToMessage(msg, IS_MARGINED_KEY, object.isMargined());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, OPTION_TYPE_KEY, object.getOptionType());
@@ -79,7 +79,7 @@ public class IRFutureOptionSecurityBuilder extends AbstractFudgeBuilder implemen
     object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setExerciseType(ExerciseTypeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_KEY)));
     object.setPointValue(msg.getDouble(POINT_VALUE_KEY));
-    object.setIsMargined(msg.getBoolean(IS_MARGINED_KEY));
+    object.setMargined(msg.getBoolean(IS_MARGINED_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setOptionType(msg.getFieldValue(OptionType.class, msg.getByName(OPTION_TYPE_KEY)));

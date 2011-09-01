@@ -49,7 +49,7 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final ZonedDateTime accrualEndDate = capFloorCMSSpreadSecurity.getMaturityDate(); //TODO check this
     final double accrualFactor = capFloorCMSSpreadSecurity.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
     final double strike = capFloorCMSSpreadSecurity.getStrike();
-    final boolean isCap = capFloorCMSSpreadSecurity.getIsCap();
+    final boolean isCap = capFloorCMSSpreadSecurity.isCap();
     final ExternalId longId = capFloorCMSSpreadSecurity.getLongIdentifier();
     final ExternalId shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();

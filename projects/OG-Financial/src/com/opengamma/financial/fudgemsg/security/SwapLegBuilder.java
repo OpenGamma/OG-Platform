@@ -103,7 +103,7 @@ public class SwapLegBuilder extends AbstractFudgeBuilder {
       addToMessage(msg, FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getFloatingReferenceRateIdentifier()));
       addToMessage(msg, INITIAL_FLOATING_RATE_KEY, object.getInitialFloatingRate());
       addToMessage(msg, SPREAD_KEY, object.getSpread());
-      addToMessage(msg, IS_IBOR_KEY, object.getIsIBOR());
+      addToMessage(msg, IS_IBOR_KEY, object.isIbor());
       return msg;
     }
 
@@ -114,7 +114,7 @@ public class SwapLegBuilder extends AbstractFudgeBuilder {
       builder.set(FloatingInterestRateLeg.meta().floatingReferenceRateIdentifier().name(), ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(FLOATING_REFERENCE_RATE_IDENTIFIER_KEY)));
       builder.set(FloatingInterestRateLeg.meta().initialFloatingRate().name(), msg.getDouble(INITIAL_FLOATING_RATE_KEY));
       builder.set(FloatingInterestRateLeg.meta().spread().name(), msg.getDouble(SPREAD_KEY));
-      builder.set(FloatingInterestRateLeg.meta().isIBOR().name(), msg.getBoolean(IS_IBOR_KEY));
+      builder.set(FloatingInterestRateLeg.meta().ibor().name(), msg.getBoolean(IS_IBOR_KEY));
       return builder.build();
     }
   }

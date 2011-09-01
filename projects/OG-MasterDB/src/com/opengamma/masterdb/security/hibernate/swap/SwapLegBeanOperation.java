@@ -59,7 +59,7 @@ public final class SwapLegBeanOperation {
         bean.setRate(swapLeg.getInitialFloatingRate());
         bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateIdentifier()));
         bean.setSpread(swapLeg.getSpread());
-        bean.setIBOR(swapLeg.getIsIBOR());
+        bean.setIBOR(swapLeg.isIbor());
         return bean;
       }
     });

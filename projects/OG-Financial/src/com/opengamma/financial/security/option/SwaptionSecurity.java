@@ -40,8 +40,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   /**
    * The payer flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isPayer;
+  @PropertyDefinition
+  private boolean _payer;
   /**
    * The underlying identifier.
    */
@@ -60,8 +60,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   /**
    * The cash settled flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isCashSettled;
+  @PropertyDefinition
+  private boolean _cashSettled;
   /**
    * The currency.
    */
@@ -76,13 +76,13 @@ public class SwaptionSecurity extends FinancialSecurity {
   public SwaptionSecurity() {
   }
 
-  public SwaptionSecurity(boolean isPayer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean isCashSettled, Currency currency) {
+  public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
     super(SECURITY_TYPE);
-    setIsPayer(isPayer);
+    setPayer(payer);
     setUnderlyingIdentifier(underlyingIdentifier);
     setIsLong(isLong);
     setExpiry(expiry);
-    setIsCashSettled(isCashSettled);
+    setCashSettled(cashSettled);
     setCurrency(currency);
   }
 
@@ -124,16 +124,16 @@ public class SwaptionSecurity extends FinancialSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 2067849291:  // isPayer
-        return getIsPayer();
+      case 106443605:  // payer
+        return isPayer();
       case 368639974:  // underlyingIdentifier
         return getUnderlyingIdentifier();
       case -1180327226:  // isLong
         return getIsLong();
       case -1289159373:  // expiry
         return getExpiry();
-      case 2013880892:  // isCashSettled
-        return getIsCashSettled();
+      case -871053882:  // cashSettled
+        return isCashSettled();
       case 575402001:  // currency
         return getCurrency();
     }
@@ -143,8 +143,8 @@ public class SwaptionSecurity extends FinancialSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 2067849291:  // isPayer
-        setIsPayer((Boolean) newValue);
+      case 106443605:  // payer
+        setPayer((Boolean) newValue);
         return;
       case 368639974:  // underlyingIdentifier
         setUnderlyingIdentifier((ExternalId) newValue);
@@ -155,8 +155,8 @@ public class SwaptionSecurity extends FinancialSecurity {
       case -1289159373:  // expiry
         setExpiry((Expiry) newValue);
         return;
-      case 2013880892:  // isCashSettled
-        setIsCashSettled((Boolean) newValue);
+      case -871053882:  // cashSettled
+        setCashSettled((Boolean) newValue);
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -180,11 +180,11 @@ public class SwaptionSecurity extends FinancialSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SwaptionSecurity other = (SwaptionSecurity) obj;
-      return JodaBeanUtils.equal(getIsPayer(), other.getIsPayer()) &&
+      return JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
           JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
           JodaBeanUtils.equal(getIsLong(), other.getIsLong()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getIsCashSettled(), other.getIsCashSettled()) &&
+          JodaBeanUtils.equal(isCashSettled(), other.isCashSettled()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           super.equals(obj);
     }
@@ -194,11 +194,11 @@ public class SwaptionSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsPayer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIsLong());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsCashSettled());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCashSettled());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     return hash ^ super.hashCode();
   }
@@ -208,24 +208,24 @@ public class SwaptionSecurity extends FinancialSecurity {
    * Gets the payer flag.
    * @return the value of the property
    */
-  public boolean getIsPayer() {
-    return _isPayer;
+  public boolean isPayer() {
+    return _payer;
   }
 
   /**
    * Sets the payer flag.
-   * @param isPayer  the new value of the property
+   * @param payer  the new value of the property
    */
-  public void setIsPayer(boolean isPayer) {
-    this._isPayer = isPayer;
+  public void setPayer(boolean payer) {
+    this._payer = payer;
   }
 
   /**
-   * Gets the the {@code isPayer} property.
+   * Gets the the {@code payer} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isPayer() {
-    return metaBean().isPayer().createProperty(this);
+  public final Property<Boolean> payer() {
+    return metaBean().payer().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -310,24 +310,24 @@ public class SwaptionSecurity extends FinancialSecurity {
    * Gets the cash settled flag.
    * @return the value of the property
    */
-  public boolean getIsCashSettled() {
-    return _isCashSettled;
+  public boolean isCashSettled() {
+    return _cashSettled;
   }
 
   /**
    * Sets the cash settled flag.
-   * @param isCashSettled  the new value of the property
+   * @param cashSettled  the new value of the property
    */
-  public void setIsCashSettled(boolean isCashSettled) {
-    this._isCashSettled = isCashSettled;
+  public void setCashSettled(boolean cashSettled) {
+    this._cashSettled = cashSettled;
   }
 
   /**
-   * Gets the the {@code isCashSettled} property.
+   * Gets the the {@code cashSettled} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isCashSettled() {
-    return metaBean().isCashSettled().createProperty(this);
+  public final Property<Boolean> cashSettled() {
+    return metaBean().cashSettled().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -367,10 +367,10 @@ public class SwaptionSecurity extends FinancialSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      */
-    private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
-        this, "isPayer", SwaptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
+        this, "payer", SwaptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code underlyingIdentifier} property.
      */
@@ -387,10 +387,10 @@ public class SwaptionSecurity extends FinancialSecurity {
     private final MetaProperty<Expiry> _expiry = DirectMetaProperty.ofReadWrite(
         this, "expiry", SwaptionSecurity.class, Expiry.class);
     /**
-     * The meta-property for the {@code isCashSettled} property.
+     * The meta-property for the {@code cashSettled} property.
      */
-    private final MetaProperty<Boolean> _isCashSettled = DirectMetaProperty.ofReadWrite(
-        this, "isCashSettled", SwaptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _cashSettled = DirectMetaProperty.ofReadWrite(
+        this, "cashSettled", SwaptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -401,11 +401,11 @@ public class SwaptionSecurity extends FinancialSecurity {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "isPayer",
+        "payer",
         "underlyingIdentifier",
         "isLong",
         "expiry",
-        "isCashSettled",
+        "cashSettled",
         "currency");
 
     /**
@@ -417,16 +417,16 @@ public class SwaptionSecurity extends FinancialSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 2067849291:  // isPayer
-          return _isPayer;
+        case 106443605:  // payer
+          return _payer;
         case 368639974:  // underlyingIdentifier
           return _underlyingIdentifier;
         case -1180327226:  // isLong
           return _isLong;
         case -1289159373:  // expiry
           return _expiry;
-        case 2013880892:  // isCashSettled
-          return _isCashSettled;
+        case -871053882:  // cashSettled
+          return _cashSettled;
         case 575402001:  // currency
           return _currency;
       }
@@ -450,11 +450,11 @@ public class SwaptionSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isPayer() {
-      return _isPayer;
+    public final MetaProperty<Boolean> payer() {
+      return _payer;
     }
 
     /**
@@ -482,11 +482,11 @@ public class SwaptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isCashSettled} property.
+     * The meta-property for the {@code cashSettled} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isCashSettled() {
-      return _isCashSettled;
+    public final MetaProperty<Boolean> cashSettled() {
+      return _cashSettled;
     }
 
     /**

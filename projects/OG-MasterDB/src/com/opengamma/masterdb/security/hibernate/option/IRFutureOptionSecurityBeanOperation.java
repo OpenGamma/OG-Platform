@@ -47,7 +47,7 @@ public final class IRFutureOptionSecurityBeanOperation  extends AbstractSecurity
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setExchange(secMasterSession.getOrCreateExchangeBean(security.getExchange(), ""));
     bean.setPointValue(security.getPointValue());
-    bean.setMargined(security.getIsMargined());
+    bean.setMargined(security.isMargined());
     return bean;
   }
 

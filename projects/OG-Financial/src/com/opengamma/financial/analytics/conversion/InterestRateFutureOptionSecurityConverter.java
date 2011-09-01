@@ -45,7 +45,7 @@ public class InterestRateFutureOptionSecurityConverter {
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
     final double strike = security.getStrike() / 100;
     final boolean isCall = security.getOptionType() == OptionType.CALL ? true : false;
-    final boolean isMargined = security.getIsMargined();
+    final boolean isMargined = security.isMargined();
     if (isMargined) {
       return new InterestRateFutureOptionMarginSecurityDefinition(underlyingFuture, expirationDate, strike, isCall);
     }

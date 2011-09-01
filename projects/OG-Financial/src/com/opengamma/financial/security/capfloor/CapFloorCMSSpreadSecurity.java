@@ -88,13 +88,13 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   /**
    * The payer flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isPayer;
+  @PropertyDefinition
+  private boolean _payer;
   /**
    * The cap flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isCap;
+  @PropertyDefinition
+  private boolean _cap;
 
   /**
    * Creates an empty instance.
@@ -105,7 +105,7 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   }
 
   public CapFloorCMSSpreadSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId longIdentifier,
-      ExternalId shortIdentifier, double strike, Frequency frequency, Currency currency, DayCount dayCount, boolean isPayer, boolean isCap) {
+      ExternalId shortIdentifier, double strike, Frequency frequency, Currency currency, DayCount dayCount, boolean payer, boolean cap) {
     super(SECURITY_TYPE);
     setStartDate(startDate);
     setMaturityDate(maturityDate);
@@ -116,8 +116,8 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     setFrequency(frequency);
     setCurrency(currency);
     setDayCount(dayCount);
-    setIsPayer(isPayer);
-    setIsCap(isCap);
+    setPayer(payer);
+    setCap(cap);
   }
 
   //-------------------------------------------------------------------------
@@ -176,10 +176,10 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
         return getCurrency();
       case 1905311443:  // dayCount
         return getDayCount();
-      case 2067849291:  // isPayer
-        return getIsPayer();
-      case 100463176:  // isCap
-        return getIsCap();
+      case 106443605:  // payer
+        return isPayer();
+      case 98258:  // cap
+        return isCap();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -214,11 +214,11 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
       case 1905311443:  // dayCount
         setDayCount((DayCount) newValue);
         return;
-      case 2067849291:  // isPayer
-        setIsPayer((Boolean) newValue);
+      case 106443605:  // payer
+        setPayer((Boolean) newValue);
         return;
-      case 100463176:  // isCap
-        setIsCap((Boolean) newValue);
+      case 98258:  // cap
+        setCap((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -252,8 +252,8 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getIsPayer(), other.getIsPayer()) &&
-          JodaBeanUtils.equal(getIsCap(), other.getIsCap()) &&
+          JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
+          JodaBeanUtils.equal(isCap(), other.isCap()) &&
           super.equals(obj);
     }
     return false;
@@ -271,8 +271,8 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsCap());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCap());
     return hash ^ super.hashCode();
   }
 
@@ -513,24 +513,24 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * Gets the payer flag.
    * @return the value of the property
    */
-  public boolean getIsPayer() {
-    return _isPayer;
+  public boolean isPayer() {
+    return _payer;
   }
 
   /**
    * Sets the payer flag.
-   * @param isPayer  the new value of the property
+   * @param payer  the new value of the property
    */
-  public void setIsPayer(boolean isPayer) {
-    this._isPayer = isPayer;
+  public void setPayer(boolean payer) {
+    this._payer = payer;
   }
 
   /**
-   * Gets the the {@code isPayer} property.
+   * Gets the the {@code payer} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isPayer() {
-    return metaBean().isPayer().createProperty(this);
+  public final Property<Boolean> payer() {
+    return metaBean().payer().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -538,24 +538,24 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * Gets the cap flag.
    * @return the value of the property
    */
-  public boolean getIsCap() {
-    return _isCap;
+  public boolean isCap() {
+    return _cap;
   }
 
   /**
    * Sets the cap flag.
-   * @param isCap  the new value of the property
+   * @param cap  the new value of the property
    */
-  public void setIsCap(boolean isCap) {
-    this._isCap = isCap;
+  public void setCap(boolean cap) {
+    this._cap = cap;
   }
 
   /**
-   * Gets the the {@code isCap} property.
+   * Gets the the {@code cap} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isCap() {
-    return metaBean().isCap().createProperty(this);
+  public final Property<Boolean> cap() {
+    return metaBean().cap().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -614,15 +614,15 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
         this, "dayCount", CapFloorCMSSpreadSecurity.class, DayCount.class);
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      */
-    private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
-        this, "isPayer", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
+        this, "payer", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code isCap} property.
+     * The meta-property for the {@code cap} property.
      */
-    private final MetaProperty<Boolean> _isCap = DirectMetaProperty.ofReadWrite(
-        this, "isCap", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _cap = DirectMetaProperty.ofReadWrite(
+        this, "cap", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -637,8 +637,8 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
         "frequency",
         "currency",
         "dayCount",
-        "isPayer",
-        "isCap");
+        "payer",
+        "cap");
 
     /**
      * Restricted constructor.
@@ -667,10 +667,10 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
           return _currency;
         case 1905311443:  // dayCount
           return _dayCount;
-        case 2067849291:  // isPayer
-          return _isPayer;
-        case 100463176:  // isCap
-          return _isCap;
+        case 106443605:  // payer
+          return _payer;
+        case 98258:  // cap
+          return _cap;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -764,19 +764,19 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isPayer() {
-      return _isPayer;
+    public final MetaProperty<Boolean> payer() {
+      return _payer;
     }
 
     /**
-     * The meta-property for the {@code isCap} property.
+     * The meta-property for the {@code cap} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isCap() {
-      return _isCap;
+    public final MetaProperty<Boolean> cap() {
+      return _cap;
     }
 
   }

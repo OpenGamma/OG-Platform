@@ -46,8 +46,8 @@ public final class CapFloorCMSSpreadSecurityBeanOperation extends AbstractSecuri
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
     bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getConventionName()));
-    bean.setCap(security.getIsCap());
-    bean.setPayer(security.getIsPayer());
+    bean.setCap(security.isCap());
+    bean.setPayer(security.isPayer());
     bean.setLongIdentifier(externalIdToExternalIdBean(security.getLongIdentifier()));
     bean.setMaturityDate(dateTimeWithZoneToZonedDateTimeBean(security.getMaturityDate()));
     bean.setNotional(security.getNotional());
