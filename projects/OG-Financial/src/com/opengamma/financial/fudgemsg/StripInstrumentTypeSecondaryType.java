@@ -16,6 +16,9 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
  */
 public final class StripInstrumentTypeSecondaryType extends SecondaryFieldType<StripInstrumentType, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

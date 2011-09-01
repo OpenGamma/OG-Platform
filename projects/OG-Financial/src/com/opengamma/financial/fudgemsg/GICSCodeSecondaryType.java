@@ -16,6 +16,9 @@ import com.opengamma.financial.security.equity.GICSCode;
  */
 public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, Integer> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

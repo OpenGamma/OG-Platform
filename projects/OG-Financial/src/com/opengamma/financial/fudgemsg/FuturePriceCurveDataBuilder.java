@@ -81,7 +81,7 @@ public class FuturePriceCurveDataBuilder implements FudgeBuilder<FuturePriceCurv
       }
       return new FuturePriceCurveData<Object>(definitionName, specificationName, target, xs.toArray(xsArray), values);
     } else {
-      return new FuturePriceCurveData<Object>(definitionName, specificationName, target, xs.toArray(), Collections.<Object, Double> emptyMap());
+      return new FuturePriceCurveData<Object>(definitionName, specificationName, target, xs.toArray(), Collections.<Object, Double>emptyMap());
     }
   }
 
