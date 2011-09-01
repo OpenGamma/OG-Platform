@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.availability;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import com.opengamma.engine.value.ValueRequirement;
@@ -17,6 +18,12 @@ public class UnionMarketDataAvailabilityProvider implements MarketDataAvailabili
   private final Collection<? extends MarketDataAvailabilityProvider> _underlyings;
   
   
+  /**
+   * @param underlyings The availability providers to union
+   */
+  public UnionMarketDataAvailabilityProvider(MarketDataAvailabilityProvider... underlyings) {
+    _underlyings = Arrays.asList(underlyings);
+  }
   /**
    * @param underlyings The availability providers to union
    */

@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -125,21 +126,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
     final MarketDataAvailabilityProvider prefProvider = _preffered.getAvailabilityProvider();
     final MarketDataAvailabilityProvider fallbackProvider = _fallBack.getAvailabilityProvider();
-    return new MarketDataAvailabilityProvider() {
-
-      @Override
-      public boolean isAvailable(ValueRequirement requirement) {
-        if (prefProvider.isAvailable(requirement)) {
-          _providerByRequirement.put(requirement, _preffered);
-          return true;
-        } else if (fallbackProvider.isAvailable(requirement)) {
-          _providerByRequirement.put(requirement, _fallBack);
-          return true;
-        } else {
-          return false;
-        }
-      }
-    };
+    return new UnionMarketDataAvailabilityProvider(prefProvider, fallbackProvider);
   }
 
   @Override
