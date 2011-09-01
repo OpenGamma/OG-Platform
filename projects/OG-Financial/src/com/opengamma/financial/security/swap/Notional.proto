@@ -10,45 +10,29 @@ namespace com.opengamma.financial.security.swap {
    * Abstract base class representing the notional in a swap leg.
    */
   abstract message Notional {
-  
-    binding Java {
-      body "public abstract <T> T accept (NotionalVisitor<T> visitor);";
-    }
   }
- 
+
   /**
    * A commodity notional of a swap leg. E.g. 2000 bushels of corn.
    */
   message CommodityNotional extends Notional {
     // TODO
-
-    binding Java {
-      body "public <T> T accept (NotionalVisitor<T> visitor) { return visitor.visitCommodityNotional (this); }";
-    }
   }
-  
+
   /**
-   * Represents the notional value of an interest rate leg of a swap
+   * Represents the notional value of an interest rate leg of a swap.
    */
   message InterestRateNotional extends Notional {
     required readonly com.opengamma.util.money.Currency currency;
     required readonly double amount;
-
-    binding Java {
-      body "public <T> T accept (NotionalVisitor<T> visitor) { return visitor.visitInterestRateNotional (this); }";
-    }
   }
-  
+
   /**
    * A notional that holds a unique id to identify a security to use as a notional.
    *  e.g. an Index or an Equity.
    */
   message SecurityNotional extends Notional {
     required readonly id.UniqueId notionalIdentifier;
-
-    binding Java {
-      body "public <T> T accept (NotionalVisitor<T> visitor) { return visitor.visitSecurityNotional (this); }";
-    }
   }
 
 }

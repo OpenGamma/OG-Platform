@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.joda.beans.impl.direct.DirectBean;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
@@ -84,7 +85,7 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
             final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
             final MutableFudgeMsg msg = serializer.objectToFudgeMsg(value);
             if (msg.getByOrdinal(FudgeSerializer.TYPES_HEADER_ORDINAL) == null) {
-              FudgeSerializer.addClassHeader(msg, valueClass);
+              FudgeSerializer.addClassHeader(msg, valueClass, baseClass(valueClass));
             }
             conversionContext.setResult(msg);
           }
@@ -110,7 +111,14 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  private Class<?> baseClass(Class<?> cls) {
+    while (cls.getSuperclass() != Object.class && cls.getSuperclass() != DirectBean.class) {
+      cls = cls.getSuperclass();
+    }
+    return cls.getSuperclass();
+  }
+
+  @SuppressWarnings("rawtypes")
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     final FudgeFieldType fieldType = getFudgeContext().getTypeDictionary().getByJavaType(targetType.getRawClass());

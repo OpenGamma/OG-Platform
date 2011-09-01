@@ -39,7 +39,7 @@ public class MetalFutureSecurityBuilder extends AbstractFudgeBuilder implements 
 
   @Override
   public MetalFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    MetalFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(MetalFutureSecurity.class);
+    MetalFutureSecurity object = new MetalFutureSecurity();
     MetalFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

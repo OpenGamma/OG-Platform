@@ -7,26 +7,15 @@
 namespace com.opengamma.financial.security.future {
 
   /**
-   * An Equity future.
+   * An equity future security.
    */
   message EquityFutureSecurity extends FutureSecurity {
-     
     required javax.time.calendar.ZonedDateTime settlementDate;  
     required id.ExternalId underlyingIdentifier; 
-    
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityFutureSecurity (this); }";
-    }
-     
   }
-  
-  message EquityIndexDividendFutureSecurity extends EquityFutureSecurity {
 
+  message EquityIndexDividendFutureSecurity extends EquityFutureSecurity {
     // No additional fields
-    
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityIndexDividendFutureSecurity (this); }";
-    }
   }
-  
+
 }

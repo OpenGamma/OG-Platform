@@ -21,16 +21,11 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
-import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
@@ -38,7 +33,6 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the calibration engine for Hull-White one factor calibration to European swaptions.
@@ -116,7 +110,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
@@ -136,155 +130,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Hull-White calibration to swaption: " + (endTime - startTime) + " ms");
-    // Performance note: calibration: 15-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 260 ms for 100 calibration with 5 swaptions.
-  }
-
-  @Test(enabled = false)
-  /**
-   * Tests the price sensitivity with calibration for cash-settled swaptions in Hull-White one factor model. In normal testing, "enabled = false".
-   */
-  public void cashWithPhysicalCalibrationHWParameters() {
-    final int nbTest = 1000;
-    long startTime, endTime;
-    // Cash swaption
-    SwapFixedIborDefinition[] swapDefinition = new SwapFixedIborDefinition[nbTest];
-    SwaptionCashFixedIborDefinition[] swaptionCashDefinition = new SwaptionCashFixedIborDefinition[nbTest];
-    SwaptionCashFixedIbor[] swaptionCash = new SwaptionCashFixedIbor[nbTest];
-    SwaptionPhysicalFixedIborDefinition[] swaptionPhysDefinition = new SwaptionPhysicalFixedIborDefinition[nbTest];
-    SwaptionPhysicalFixedIbor[] swaptionPhys = new SwaptionPhysicalFixedIbor[nbTest];
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      swapDefinition[looptest] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[0], CMS_INDEX, NOTIONAL, RATE + looptest / nbTest * 0.01, FIXED_IS_PAYER);
-      swaptionCashDefinition[looptest] = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE[0], swapDefinition[looptest], IS_LONG);
-      swaptionCash[looptest] = swaptionCashDefinition[looptest].toDerivative(REFERENCE_DATE, CURVES_NAME);
-      swaptionPhysDefinition[looptest] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[0], swapDefinition[looptest], IS_LONG);
-      swaptionPhys[looptest] = swaptionPhysDefinition[looptest].toDerivative(REFERENCE_DATE, CURVES_NAME);
-    }
-    double meanReversion = 0.01;
-    // Calibration and price
-    SwaptionCashFixedIborHullWhiteApproximationMethod methodHWCash = new SwaptionCashFixedIborHullWhiteApproximationMethod();
-    CurrencyAmount pvCashHW = CurrencyAmount.of(CUR, 0.0);
-    HullWhiteOneFactorPiecewiseConstantDataBundle[] hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle[nbTest];
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-      SwaptionPhysicalHullWhiteCalibrationObjective objective = new SwaptionPhysicalHullWhiteCalibrationObjective(hwParameters);
-      SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-      calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[0], METHOD_SABR);
-      calibrationEngine.calibrate(SABR_BUNDLE);
-      hwBundle[looptest] = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, CURVES);
-      hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-      objective = new SwaptionPhysicalHullWhiteCalibrationObjective(hwParameters);
-      calibrationEngine = new SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-      calibrationEngine.addInstrument(swaptionPhys[looptest], METHOD_SABR);
-      calibrationEngine.calibrate(SABR_BUNDLE);
-      hwBundle[looptest] = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, CURVES);
-      pvCashHW = methodHWCash.presentValue(swaptionCash[looptest], hwBundle[looptest]);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Hull-White calibration and cash swaption price: " + (endTime - startTime) + " ms (price=" + pvCashHW + ")");
-    // Performance note: calibration: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1625 ms for 1000 price with calibration.
-
-    // Risks
-    PresentValueSensitivity pvcsCash;
-    PresentValueSensitivity pvcsPhys;
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      PresentValueSensitivity result = new PresentValueSensitivity();
-      double[] pvhwsCash = methodHWCash.presentValueHullWhiteSensitivity(swaptionCash[looptest], hwBundle[looptest]);
-      double[] pvhwsPhys = METHOD_HW.presentValueHullWhiteSensitivity(swaptionPhys[looptest], hwBundle[looptest]);
-      pvcsCash = methodHWCash.presentValueCurveSensitivity(swaptionCash[looptest], hwBundle[looptest]);
-      pvcsPhys = METHOD_HW.presentValueCurveSensitivity(swaptionPhys[looptest], hwBundle[looptest]);
-      result = pvcsPhys.add(pvcsCash.multiply(-1));
-      result = result.multiply(pvhwsCash[0] / pvhwsPhys[0]);
-      result = result.add(pvcsCash);
-    }
-    // Risks
-    double[] sigmaBar;
-    double[] pvPhysHwSigma;
-    double alphaBar = 0.0;
-    double rhoBar = 0.0;
-    double nuBar = 0.0;
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      sigmaBar = methodHWCash.presentValueHullWhiteSensitivity(swaptionCash[looptest], hwBundle[looptest]);
-      pvPhysHwSigma = METHOD_HW.presentValueHullWhiteSensitivity(swaptionPhys[looptest], hwBundle[looptest]);
-      PresentValueSABRSensitivityDataBundle pvPhysSabrParam = METHOD_SABR.presentValueSABRSensitivity(swaptionPhys[looptest], SABR_BUNDLE);
-      double maturity = SWAPTION_LONG_PAYER[0].getUnderlyingSwap().getFixedLeg().getNthPayment(SWAPTION_LONG_PAYER[0].getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
-          - SWAPTION_LONG_PAYER[0].getSettlementTime();
-      DoublesPair point = new DoublesPair(swaptionCash[looptest].getTimeToExpiry(), maturity);
-      pvPhysSabrParam = METHOD_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER[0], SABR_BUNDLE);
-      maturity = SWAPTION_LONG_PAYER[0].getUnderlyingSwap().getFixedLeg().getNthPayment(SWAPTION_LONG_PAYER[0].getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
-          - SWAPTION_LONG_PAYER[0].getSettlementTime();
-      alphaBar = pvPhysSabrParam.getAlpha().get(point) / pvPhysHwSigma[0] * sigmaBar[0];
-      rhoBar = pvPhysSabrParam.getRho().get(point) / pvPhysHwSigma[0] * sigmaBar[0];
-      nuBar = pvPhysSabrParam.getNu().get(point) / pvPhysHwSigma[0] * sigmaBar[0];
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Hull-White SABR risks: " + (endTime - startTime) + " ms (risk=" + alphaBar + " ," + rhoBar + " ," + nuBar + ")");
-    // Performance note: calibration: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 225 ms for 1000 SABR risk.
-  }
-
-  @Test(enabled = false)
-  /**
-   * Tests the price sensitivity with calibration for cash-settled swaptions in Hull-White one factor model. In normal testing, "enabled = false".
-   */
-  public void cashWithPhysicalCalibrationCurve() {
-    final int nbTest = 1000;
-    long startTime, endTime;
-    // Cash swaption
-    SwapFixedIborDefinition[] swapDefinition = new SwapFixedIborDefinition[nbTest];
-    SwaptionCashFixedIborDefinition[] swaptionCashDefinition = new SwaptionCashFixedIborDefinition[nbTest];
-    SwaptionCashFixedIbor[] swaptionCash = new SwaptionCashFixedIbor[nbTest];
-    SwaptionPhysicalFixedIborDefinition[] swaptionPhysDefinition = new SwaptionPhysicalFixedIborDefinition[nbTest];
-    SwaptionPhysicalFixedIbor[] swaptionPhys = new SwaptionPhysicalFixedIbor[nbTest];
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      swapDefinition[looptest] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[0], CMS_INDEX, NOTIONAL, RATE + looptest / nbTest * 0.01, FIXED_IS_PAYER);
-      swaptionCashDefinition[looptest] = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE[0], swapDefinition[looptest], IS_LONG);
-      swaptionCash[looptest] = swaptionCashDefinition[looptest].toDerivative(REFERENCE_DATE, CURVES_NAME);
-      swaptionPhysDefinition[looptest] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[0], swapDefinition[looptest], IS_LONG);
-      swaptionPhys[looptest] = swaptionPhysDefinition[looptest].toDerivative(REFERENCE_DATE, CURVES_NAME);
-    }
-    double meanReversion = 0.01;
-    // Calibration and price
-    SwaptionCashFixedIborHullWhiteApproximationMethod methodHWCash = new SwaptionCashFixedIborHullWhiteApproximationMethod();
-    CurrencyAmount pvCashHW = CurrencyAmount.of(CUR, 0.0);
-    HullWhiteOneFactorPiecewiseConstantDataBundle[] hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle[nbTest];
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-      SwaptionPhysicalHullWhiteCalibrationObjective objective = new SwaptionPhysicalHullWhiteCalibrationObjective(hwParameters);
-      SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-      calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[0], METHOD_SABR);
-      calibrationEngine.calibrate(SABR_BUNDLE);
-      hwBundle[looptest] = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, CURVES);
-      hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-      objective = new SwaptionPhysicalHullWhiteCalibrationObjective(hwParameters);
-      calibrationEngine = new SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-      calibrationEngine.addInstrument(swaptionPhys[looptest], METHOD_SABR);
-      calibrationEngine.calibrate(SABR_BUNDLE);
-      hwBundle[looptest] = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, CURVES);
-      pvCashHW = methodHWCash.presentValue(swaptionCash[looptest], hwBundle[looptest]);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Hull-White calibration and cash swaption price: " + (endTime - startTime) + " ms (price=" + pvCashHW + ")");
-    // Performance note: calibration: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1625 ms for 1000 price with calibration.
-    // Risks
-    PresentValueSensitivity pvcsCash;
-    PresentValueSensitivity pvcsPhys;
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      PresentValueSensitivity result = new PresentValueSensitivity();
-      double[] pvhwsCash = methodHWCash.presentValueHullWhiteSensitivity(swaptionCash[looptest], hwBundle[looptest]);
-      double[] pvhwsPhys = METHOD_HW.presentValueHullWhiteSensitivity(swaptionPhys[looptest], hwBundle[looptest]);
-      pvcsCash = methodHWCash.presentValueCurveSensitivity(swaptionCash[looptest], hwBundle[looptest]);
-      pvcsPhys = METHOD_HW.presentValueCurveSensitivity(swaptionPhys[looptest], hwBundle[looptest]);
-      result = pvcsPhys.add(pvcsCash.multiply(-1));
-      result = result.multiply(pvhwsCash[0] / pvhwsPhys[0]);
-      result = result.add(pvcsCash);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Hull-White curve risks: " + (endTime - startTime) + " ms");
-    // Performance note: calibration: 19-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 780 ms for 1000 SABR risk.
+    // Performance note: calibration: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 100 calibration with 5 swaptions.
   }
 
 }

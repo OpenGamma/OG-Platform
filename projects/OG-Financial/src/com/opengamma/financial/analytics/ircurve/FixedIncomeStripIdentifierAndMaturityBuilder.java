@@ -144,8 +144,12 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
+    Double rate = marketValues.get(strip.getSecurity());
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("No market data for " + strip.getSecurity());
+    }
     final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC),
-        marketValues.get(strip.getSecurity()), 1.0d);
+        rate, 1.0d);
     sec.setIdentifiers(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }

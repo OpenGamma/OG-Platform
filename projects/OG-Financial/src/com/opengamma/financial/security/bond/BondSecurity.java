@@ -1,795 +1,1444 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.bond;
-public abstract class BondSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public abstract <T> T accept(BondSecurityVisitor<T> visitor);
 
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) {
-          return visitor.visitBondSecurity(this);
-        }
-  private static final long serialVersionUID = 8836932213967444406l;
-  private String _issuerName;
-  public static final String ISSUER_NAME_KEY = "issuerName";
-  private String _issuerType;
-  public static final String ISSUER_TYPE_KEY = "issuerType";
-  private String _issuerDomicile;
-  public static final String ISSUER_DOMICILE_KEY = "issuerDomicile";
-  private String _market;
-  public static final String MARKET_KEY = "market";
-  private com.opengamma.util.money.Currency _currency;
-  public static final String CURRENCY_KEY = "currency";
-  private com.opengamma.financial.convention.yield.YieldConvention _yieldConvention;
-  public static final String YIELD_CONVENTION_KEY = "yieldConvention";
-  private String _guaranteeType;
-  public static final String GUARANTEE_TYPE_KEY = "guaranteeType";
-  private com.opengamma.util.time.Expiry _lastTradeDate;
-  public static final String LAST_TRADE_DATE_KEY = "lastTradeDate";
-  private String _couponType;
-  public static final String COUPON_TYPE_KEY = "couponType";
-  private double _couponRate;
-  public static final String COUPON_RATE_KEY = "couponRate";
-  private com.opengamma.financial.convention.frequency.Frequency _couponFrequency;
-  public static final String COUPON_FREQUENCY_KEY = "couponFrequency";
-  private com.opengamma.financial.convention.daycount.DayCount _dayCountConvention;
-  public static final String DAY_COUNT_CONVENTION_KEY = "dayCountConvention";
-  private com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
-  public static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
-  private javax.time.calendar.ZonedDateTime _announcementDate;
-  public static final String ANNOUNCEMENT_DATE_KEY = "announcementDate";
-  private javax.time.calendar.ZonedDateTime _interestAccrualDate;
-  public static final String INTEREST_ACCRUAL_DATE_KEY = "interestAccrualDate";
-  private javax.time.calendar.ZonedDateTime _settlementDate;
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private javax.time.calendar.ZonedDateTime _firstCouponDate;
-  public static final String FIRST_COUPON_DATE_KEY = "firstCouponDate";
-  private double _issuancePrice;
-  public static final String ISSUANCE_PRICE_KEY = "issuancePrice";
-  private double _totalAmountIssued;
-  public static final String TOTAL_AMOUNT_ISSUED_KEY = "totalAmountIssued";
-  private double _minimumAmount;
-  public static final String MINIMUM_AMOUNT_KEY = "minimumAmount";
-  private double _minimumIncrement;
-  public static final String MINIMUM_INCREMENT_KEY = "minimumIncrement";
-  private double _parAmount;
-  public static final String PAR_AMOUNT_KEY = "parAmount";
-  private double _redemptionValue;
-  public static final String REDEMPTION_VALUE_KEY = "redemptionValue";
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * An abstract base class for bond securities.
+ */
+@BeanDefinition
+public abstract class BondSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type for bonds.
+   */
   public static final String SECURITY_TYPE = "BOND";
-  public BondSecurity (String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, javax.time.calendar.ZonedDateTime interestAccrualDate, javax.time.calendar.ZonedDateTime settlementDate, javax.time.calendar.ZonedDateTime firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
-    super (SECURITY_TYPE);
-    if (issuerName == null) throw new NullPointerException ("issuerName' cannot be null");
-    _issuerName = issuerName;
-    if (issuerType == null) throw new NullPointerException ("issuerType' cannot be null");
-    _issuerType = issuerType;
-    if (issuerDomicile == null) throw new NullPointerException ("issuerDomicile' cannot be null");
-    _issuerDomicile = issuerDomicile;
-    if (market == null) throw new NullPointerException ("market' cannot be null");
-    _market = market;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    if (yieldConvention == null) throw new NullPointerException ("yieldConvention' cannot be null");
-    _yieldConvention = yieldConvention;
-    if (lastTradeDate == null) throw new NullPointerException ("'lastTradeDate' cannot be null");
-    else {
-      _lastTradeDate = lastTradeDate;
-    }
-    if (couponType == null) throw new NullPointerException ("couponType' cannot be null");
-    _couponType = couponType;
-    _couponRate = couponRate;
-    if (couponFrequency == null) throw new NullPointerException ("couponFrequency' cannot be null");
-    _couponFrequency = couponFrequency;
-    if (dayCountConvention == null) throw new NullPointerException ("dayCountConvention' cannot be null");
-    _dayCountConvention = dayCountConvention;
-    if (interestAccrualDate == null) throw new NullPointerException ("'interestAccrualDate' cannot be null");
-    else {
-      _interestAccrualDate = interestAccrualDate;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (firstCouponDate == null) throw new NullPointerException ("'firstCouponDate' cannot be null");
-    else {
-      _firstCouponDate = firstCouponDate;
-    }
-    _issuancePrice = issuancePrice;
-    _totalAmountIssued = totalAmountIssued;
-    _minimumAmount = minimumAmount;
-    _minimumIncrement = minimumIncrement;
-    _parAmount = parAmount;
-    _redemptionValue = redemptionValue;
+
+  /**
+   * The issuer name.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _issuerName;
+  /**
+   * The issuer type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _issuerType;
+  /**
+   * The issuer domicile.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _issuerDomicile;
+  /**
+   * The market.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _market;
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+  /**
+   * The yield convention.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private YieldConvention _yieldConvention;
+  /**
+   * The guarantee type.
+   */
+  @PropertyDefinition
+  private String _guaranteeType;
+  /**
+   * The last trade date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Expiry _lastTradeDate;
+  /**
+   * The coupon type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _couponType;
+  /**
+   * The coupon rate.
+   */
+  @PropertyDefinition
+  private double _couponRate;
+  /**
+   * The coupon frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _couponFrequency;
+  /**
+   * The day count convention.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _dayCountConvention;
+  /**
+   * The business day convention.
+   */
+  @PropertyDefinition
+  private BusinessDayConvention _businessDayConvention;
+  /**
+   * The announcement date.
+   */
+  @PropertyDefinition
+  private ZonedDateTime _announcementDate;
+  /**
+   * The interest accrual date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _interestAccrualDate;
+  /**
+   * The settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _settlementDate;
+  /**
+   * The first coupon date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _firstCouponDate;
+  /**
+   * The issuance price.
+   */
+  @PropertyDefinition
+  private double _issuancePrice;
+  /**
+   * The total amount issued.
+   */
+  @PropertyDefinition
+  private double _totalAmountIssued;
+  /**
+   * The minimum amount.
+   */
+  @PropertyDefinition
+  private double _minimumAmount;
+  /**
+   * The minimum increment.
+   */
+  @PropertyDefinition
+  private double _minimumIncrement;
+  /**
+   * The par amount.
+   */
+  @PropertyDefinition
+  private double _parAmount;
+  /**
+   * The redemption value.
+   */
+  @PropertyDefinition
+  private double _redemptionValue;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  protected BondSecurity() {
   }
-  protected BondSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (ISSUER_NAME_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerName' is not present");
-    try {
-      _issuerName = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerName' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (ISSUER_TYPE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerType' is not present");
-    try {
-      _issuerType = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerType' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (ISSUER_DOMICILE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerDomicile' is not present");
-    try {
-      _issuerDomicile = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuerDomicile' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (MARKET_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'market' is not present");
-    try {
-      _market = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'market' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'currency' is not present");
-    try {
-      _currency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'currency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (YIELD_CONVENTION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'yieldConvention' is not present");
-    try {
-      _yieldConvention = fudgeMsg.getFieldValue (com.opengamma.financial.convention.yield.YieldConvention.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'yieldConvention' is not YieldConvention typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (LAST_TRADE_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'lastTradeDate' is not present");
-    try {
-      _lastTradeDate = com.opengamma.util.time.Expiry.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'lastTradeDate' is not Expiry message", e);
-    }
-    fudgeField = fudgeMsg.getByName (COUPON_TYPE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'couponType' is not present");
-    try {
-      _couponType = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'couponType' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (COUPON_RATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'couponRate' is not present");
-    try {
-      _couponRate = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'couponRate' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (COUPON_FREQUENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'couponFrequency' is not present");
-    try {
-      _couponFrequency = fudgeMsg.getFieldValue (com.opengamma.financial.convention.frequency.Frequency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'couponFrequency' is not Frequency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (DAY_COUNT_CONVENTION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'dayCountConvention' is not present");
-    try {
-      _dayCountConvention = fudgeMsg.getFieldValue (com.opengamma.financial.convention.daycount.DayCount.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'dayCountConvention' is not DayCount typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (INTEREST_ACCRUAL_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not present");
-    try {
-      _interestAccrualDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'interestAccrualDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not present");
-    try {
-      _settlementDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (FIRST_COUPON_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not present");
-    try {
-      _firstCouponDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'firstCouponDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (ISSUANCE_PRICE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuancePrice' is not present");
-    try {
-      _issuancePrice = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'issuancePrice' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (TOTAL_AMOUNT_ISSUED_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'totalAmountIssued' is not present");
-    try {
-      _totalAmountIssued = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'totalAmountIssued' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (MINIMUM_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'minimumAmount' is not present");
-    try {
-      _minimumAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'minimumAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (MINIMUM_INCREMENT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'minimumIncrement' is not present");
-    try {
-      _minimumIncrement = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'minimumIncrement' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (PAR_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'parAmount' is not present");
-    try {
-      _parAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'parAmount' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (REDEMPTION_VALUE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'redemptionValue' is not present");
-    try {
-      _redemptionValue = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'redemptionValue' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (GUARANTEE_TYPE_KEY);
-    if (fudgeField != null)  {
-      try {
-        setGuaranteeType ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'guaranteeType' is not string", e);
-      }
-    }
-    fudgeField = fudgeMsg.getByName (BUSINESS_DAY_CONVENTION_KEY);
-    if (fudgeField != null)  {
-      try {
-        setBusinessDayConvention (fudgeMsg.getFieldValue (com.opengamma.financial.convention.businessday.BusinessDayConvention.class, fudgeField));
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'businessDayConvention' is not BusinessDayConvention typedef", e);
-      }
-    }
-    fudgeField = fudgeMsg.getByName (ANNOUNCEMENT_DATE_KEY);
-    if (fudgeField != null)  {
-      try {
-        setAnnouncementDate (deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField));
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a BondSecurity - field 'announcementDate' is not ZonedDateTime typedef", e);
-      }
-    }
+
+  protected BondSecurity(String issuerName, String issuerType, String issuerDomicile, String market, Currency currency,
+      YieldConvention yieldConvention, Expiry lastTradeDate, String couponType, double couponRate, Frequency couponFrequency,
+      DayCount dayCountConvention, ZonedDateTime interestAccrualDate, ZonedDateTime settlementDate, ZonedDateTime firstCouponDate,
+      double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
+    super(SECURITY_TYPE);
+    setIssuerName(issuerName);
+    setIssuerType(issuerType);
+    setIssuerDomicile(issuerDomicile);
+    setMarket(market);
+    setCurrency(currency);
+    setYieldConvention(yieldConvention);
+    setLastTradeDate(lastTradeDate);
+    setCouponType(couponType);
+    setCouponRate(couponRate);
+    setCouponFrequency(couponFrequency);
+    setDayCountConvention(dayCountConvention);
+    setInterestAccrualDate(interestAccrualDate);
+    setSettlementDate(settlementDate);
+    setFirstCouponDate(firstCouponDate);
+    setIssuancePrice(issuancePrice);
+    setTotalAmountIssued(totalAmountIssued);
+    setMinimumAmount(minimumAmount);
+    setMinimumIncrement(minimumIncrement);
+    setParAmount(parAmount);
+    setRedemptionValue(redemptionValue);
   }
-  public BondSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, String issuerName, String issuerType, String issuerDomicile, String market, com.opengamma.util.money.Currency currency, com.opengamma.financial.convention.yield.YieldConvention yieldConvention, String guaranteeType, com.opengamma.util.time.Expiry lastTradeDate, String couponType, double couponRate, com.opengamma.financial.convention.frequency.Frequency couponFrequency, com.opengamma.financial.convention.daycount.DayCount dayCountConvention, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, javax.time.calendar.ZonedDateTime announcementDate, javax.time.calendar.ZonedDateTime interestAccrualDate, javax.time.calendar.ZonedDateTime settlementDate, javax.time.calendar.ZonedDateTime firstCouponDate, double issuancePrice, double totalAmountIssued, double minimumAmount, double minimumIncrement, double parAmount, double redemptionValue) {
-    super (uniqueId, name, securityType, identifiers);
-    if (issuerName == null) throw new NullPointerException ("issuerName' cannot be null");
-    _issuerName = issuerName;
-    if (issuerType == null) throw new NullPointerException ("issuerType' cannot be null");
-    _issuerType = issuerType;
-    if (issuerDomicile == null) throw new NullPointerException ("issuerDomicile' cannot be null");
-    _issuerDomicile = issuerDomicile;
-    if (market == null) throw new NullPointerException ("market' cannot be null");
-    _market = market;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    if (yieldConvention == null) throw new NullPointerException ("yieldConvention' cannot be null");
-    _yieldConvention = yieldConvention;
-    _guaranteeType = guaranteeType;
-    if (lastTradeDate == null) throw new NullPointerException ("'lastTradeDate' cannot be null");
-    else {
-      _lastTradeDate = lastTradeDate;
-    }
-    if (couponType == null) throw new NullPointerException ("couponType' cannot be null");
-    _couponType = couponType;
-    _couponRate = couponRate;
-    if (couponFrequency == null) throw new NullPointerException ("couponFrequency' cannot be null");
-    _couponFrequency = couponFrequency;
-    if (dayCountConvention == null) throw new NullPointerException ("dayCountConvention' cannot be null");
-    _dayCountConvention = dayCountConvention;
-    _businessDayConvention = businessDayConvention;
-    if (announcementDate == null) _announcementDate = null;
-    else {
-      _announcementDate = announcementDate;
-    }
-    if (interestAccrualDate == null) throw new NullPointerException ("'interestAccrualDate' cannot be null");
-    else {
-      _interestAccrualDate = interestAccrualDate;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (firstCouponDate == null) throw new NullPointerException ("'firstCouponDate' cannot be null");
-    else {
-      _firstCouponDate = firstCouponDate;
-    }
-    _issuancePrice = issuancePrice;
-    _totalAmountIssued = totalAmountIssued;
-    _minimumAmount = minimumAmount;
-    _minimumIncrement = minimumIncrement;
-    _parAmount = parAmount;
-    _redemptionValue = redemptionValue;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitBondSecurity(this);
   }
-  protected BondSecurity (final BondSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _issuerName = source._issuerName;
-    _issuerType = source._issuerType;
-    _issuerDomicile = source._issuerDomicile;
-    _market = source._market;
-    _currency = source._currency;
-    _yieldConvention = source._yieldConvention;
-    _guaranteeType = source._guaranteeType;
-    if (source._lastTradeDate == null) _lastTradeDate = null;
-    else {
-      _lastTradeDate = source._lastTradeDate;
-    }
-    _couponType = source._couponType;
-    _couponRate = source._couponRate;
-    _couponFrequency = source._couponFrequency;
-    _dayCountConvention = source._dayCountConvention;
-    _businessDayConvention = source._businessDayConvention;
-    if (source._announcementDate == null) _announcementDate = null;
-    else {
-      _announcementDate = source._announcementDate;
-    }
-    if (source._interestAccrualDate == null) _interestAccrualDate = null;
-    else {
-      _interestAccrualDate = source._interestAccrualDate;
-    }
-    if (source._settlementDate == null) _settlementDate = null;
-    else {
-      _settlementDate = source._settlementDate;
-    }
-    if (source._firstCouponDate == null) _firstCouponDate = null;
-    else {
-      _firstCouponDate = source._firstCouponDate;
-    }
-    _issuancePrice = source._issuancePrice;
-    _totalAmountIssued = source._totalAmountIssued;
-    _minimumAmount = source._minimumAmount;
-    _minimumIncrement = source._minimumIncrement;
-    _parAmount = source._parAmount;
-    _redemptionValue = source._redemptionValue;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public abstract <T> T accept(BondSecurityVisitor<T> visitor);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code BondSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static BondSecurity.Meta meta() {
+    return BondSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_issuerName != null)  {
-      msg.add (ISSUER_NAME_KEY, null, _issuerName);
-    }
-    if (_issuerType != null)  {
-      msg.add (ISSUER_TYPE_KEY, null, _issuerType);
-    }
-    if (_issuerDomicile != null)  {
-      msg.add (ISSUER_DOMICILE_KEY, null, _issuerDomicile);
-    }
-    if (_market != null)  {
-      msg.add (MARKET_KEY, null, _market);
-    }
-    if (_currency != null)  {
-      msg.add (CURRENCY_KEY, null, _currency);
-    }
-    if (_yieldConvention != null)  {
-      msg.add (YIELD_CONVENTION_KEY, null, _yieldConvention);
-    }
-    if (_guaranteeType != null)  {
-      msg.add (GUARANTEE_TYPE_KEY, null, _guaranteeType);
-    }
-    if (_lastTradeDate != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _lastTradeDate.getClass (), com.opengamma.util.time.Expiry.class);
-      _lastTradeDate.toFudgeMsg (serializer, fudge1);
-      msg.add (LAST_TRADE_DATE_KEY, null, fudge1);
-    }
-    if (_couponType != null)  {
-      msg.add (COUPON_TYPE_KEY, null, _couponType);
-    }
-    msg.add (COUPON_RATE_KEY, null, _couponRate);
-    if (_couponFrequency != null)  {
-      msg.add (COUPON_FREQUENCY_KEY, null, _couponFrequency);
-    }
-    if (_dayCountConvention != null)  {
-      msg.add (DAY_COUNT_CONVENTION_KEY, null, _dayCountConvention);
-    }
-    if (_businessDayConvention != null)  {
-      msg.add (BUSINESS_DAY_CONVENTION_KEY, null, _businessDayConvention);
-    }
-    if (_announcementDate != null)  {
-      serializer.addToMessage (msg, ANNOUNCEMENT_DATE_KEY, null, _announcementDate);
-    }
-    if (_interestAccrualDate != null)  {
-      serializer.addToMessage (msg, INTEREST_ACCRUAL_DATE_KEY, null, _interestAccrualDate);
-    }
-    if (_settlementDate != null)  {
-      serializer.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
-    }
-    if (_firstCouponDate != null)  {
-      serializer.addToMessage (msg, FIRST_COUPON_DATE_KEY, null, _firstCouponDate);
-    }
-    msg.add (ISSUANCE_PRICE_KEY, null, _issuancePrice);
-    msg.add (TOTAL_AMOUNT_ISSUED_KEY, null, _totalAmountIssued);
-    msg.add (MINIMUM_AMOUNT_KEY, null, _minimumAmount);
-    msg.add (MINIMUM_INCREMENT_KEY, null, _minimumIncrement);
-    msg.add (PAR_AMOUNT_KEY, null, _parAmount);
-    msg.add (REDEMPTION_VALUE_KEY, null, _redemptionValue);
+  static {
+    JodaBeanUtils.registerMetaBean(BondSecurity.Meta.INSTANCE);
   }
-  public static BondSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.bond.BondSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.bond.BondSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
-    }
-    throw new UnsupportedOperationException ("BondSecurity is an abstract message");
+
+  @Override
+  public BondSecurity.Meta metaBean() {
+    return BondSecurity.Meta.INSTANCE;
   }
-  public String getIssuerName () {
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1459772644:  // issuerName
+        return getIssuerName();
+      case 1459974547:  // issuerType
+        return getIssuerType();
+      case -114049505:  // issuerDomicile
+        return getIssuerDomicile();
+      case -1081306052:  // market
+        return getMarket();
+      case 575402001:  // currency
+        return getCurrency();
+      case -1895216418:  // yieldConvention
+        return getYieldConvention();
+      case 693583330:  // guaranteeType
+        return getGuaranteeType();
+      case -1041950404:  // lastTradeDate
+        return getLastTradeDate();
+      case 609638528:  // couponType
+        return getCouponType();
+      case 609556006:  // couponRate
+        return getCouponRate();
+      case 144480214:  // couponFrequency
+        return getCouponFrequency();
+      case 589154980:  // dayCountConvention
+        return getDayCountConvention();
+      case -1002835891:  // businessDayConvention
+        return getBusinessDayConvention();
+      case -562907755:  // announcementDate
+        return getAnnouncementDate();
+      case -693265293:  // interestAccrualDate
+        return getInterestAccrualDate();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
+      case 793496516:  // firstCouponDate
+        return getFirstCouponDate();
+      case -947491410:  // issuancePrice
+        return getIssuancePrice();
+      case 1841198727:  // totalAmountIssued
+        return getTotalAmountIssued();
+      case 2017331718:  // minimumAmount
+        return getMinimumAmount();
+      case 1160465153:  // minimumIncrement
+        return getMinimumIncrement();
+      case 1038626905:  // parAmount
+        return getParAmount();
+      case 348936710:  // redemptionValue
+        return getRedemptionValue();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1459772644:  // issuerName
+        setIssuerName((String) newValue);
+        return;
+      case 1459974547:  // issuerType
+        setIssuerType((String) newValue);
+        return;
+      case -114049505:  // issuerDomicile
+        setIssuerDomicile((String) newValue);
+        return;
+      case -1081306052:  // market
+        setMarket((String) newValue);
+        return;
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
+        return;
+      case -1895216418:  // yieldConvention
+        setYieldConvention((YieldConvention) newValue);
+        return;
+      case 693583330:  // guaranteeType
+        setGuaranteeType((String) newValue);
+        return;
+      case -1041950404:  // lastTradeDate
+        setLastTradeDate((Expiry) newValue);
+        return;
+      case 609638528:  // couponType
+        setCouponType((String) newValue);
+        return;
+      case 609556006:  // couponRate
+        setCouponRate((Double) newValue);
+        return;
+      case 144480214:  // couponFrequency
+        setCouponFrequency((Frequency) newValue);
+        return;
+      case 589154980:  // dayCountConvention
+        setDayCountConvention((DayCount) newValue);
+        return;
+      case -1002835891:  // businessDayConvention
+        setBusinessDayConvention((BusinessDayConvention) newValue);
+        return;
+      case -562907755:  // announcementDate
+        setAnnouncementDate((ZonedDateTime) newValue);
+        return;
+      case -693265293:  // interestAccrualDate
+        setInterestAccrualDate((ZonedDateTime) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTime) newValue);
+        return;
+      case 793496516:  // firstCouponDate
+        setFirstCouponDate((ZonedDateTime) newValue);
+        return;
+      case -947491410:  // issuancePrice
+        setIssuancePrice((Double) newValue);
+        return;
+      case 1841198727:  // totalAmountIssued
+        setTotalAmountIssued((Double) newValue);
+        return;
+      case 2017331718:  // minimumAmount
+        setMinimumAmount((Double) newValue);
+        return;
+      case 1160465153:  // minimumIncrement
+        setMinimumIncrement((Double) newValue);
+        return;
+      case 1038626905:  // parAmount
+        setParAmount((Double) newValue);
+        return;
+      case 348936710:  // redemptionValue
+        setRedemptionValue((Double) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_issuerName, "issuerName");
+    JodaBeanUtils.notNull(_issuerType, "issuerType");
+    JodaBeanUtils.notNull(_issuerDomicile, "issuerDomicile");
+    JodaBeanUtils.notNull(_market, "market");
+    JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_yieldConvention, "yieldConvention");
+    JodaBeanUtils.notNull(_lastTradeDate, "lastTradeDate");
+    JodaBeanUtils.notNull(_couponType, "couponType");
+    JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
+    JodaBeanUtils.notNull(_dayCountConvention, "dayCountConvention");
+    JodaBeanUtils.notNull(_interestAccrualDate, "interestAccrualDate");
+    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
+    JodaBeanUtils.notNull(_firstCouponDate, "firstCouponDate");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondSecurity other = (BondSecurity) obj;
+      return JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
+          JodaBeanUtils.equal(getIssuerType(), other.getIssuerType()) &&
+          JodaBeanUtils.equal(getIssuerDomicile(), other.getIssuerDomicile()) &&
+          JodaBeanUtils.equal(getMarket(), other.getMarket()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getYieldConvention(), other.getYieldConvention()) &&
+          JodaBeanUtils.equal(getGuaranteeType(), other.getGuaranteeType()) &&
+          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate()) &&
+          JodaBeanUtils.equal(getCouponType(), other.getCouponType()) &&
+          JodaBeanUtils.equal(getCouponRate(), other.getCouponRate()) &&
+          JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
+          JodaBeanUtils.equal(getDayCountConvention(), other.getDayCountConvention()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getAnnouncementDate(), other.getAnnouncementDate()) &&
+          JodaBeanUtils.equal(getInterestAccrualDate(), other.getInterestAccrualDate()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getFirstCouponDate(), other.getFirstCouponDate()) &&
+          JodaBeanUtils.equal(getIssuancePrice(), other.getIssuancePrice()) &&
+          JodaBeanUtils.equal(getTotalAmountIssued(), other.getTotalAmountIssued()) &&
+          JodaBeanUtils.equal(getMinimumAmount(), other.getMinimumAmount()) &&
+          JodaBeanUtils.equal(getMinimumIncrement(), other.getMinimumIncrement()) &&
+          JodaBeanUtils.equal(getParAmount(), other.getParAmount()) &&
+          JodaBeanUtils.equal(getRedemptionValue(), other.getRedemptionValue()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerDomicile());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarket());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGuaranteeType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnouncementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterestAccrualDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstCouponDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuancePrice());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTotalAmountIssued());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumIncrement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedemptionValue());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the issuer name.
+   * @return the value of the property, not null
+   */
+  public String getIssuerName() {
     return _issuerName;
   }
-  public void setIssuerName (String issuerName) {
-    if (issuerName == null) throw new NullPointerException ("issuerName' cannot be null");
-    _issuerName = issuerName;
+
+  /**
+   * Sets the issuer name.
+   * @param issuerName  the new value of the property, not null
+   */
+  public void setIssuerName(String issuerName) {
+    JodaBeanUtils.notNull(issuerName, "issuerName");
+    this._issuerName = issuerName;
   }
-  public String getIssuerType () {
+
+  /**
+   * Gets the the {@code issuerName} property.
+   * @return the property, not null
+   */
+  public final Property<String> issuerName() {
+    return metaBean().issuerName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the issuer type.
+   * @return the value of the property, not null
+   */
+  public String getIssuerType() {
     return _issuerType;
   }
-  public void setIssuerType (String issuerType) {
-    if (issuerType == null) throw new NullPointerException ("issuerType' cannot be null");
-    _issuerType = issuerType;
+
+  /**
+   * Sets the issuer type.
+   * @param issuerType  the new value of the property, not null
+   */
+  public void setIssuerType(String issuerType) {
+    JodaBeanUtils.notNull(issuerType, "issuerType");
+    this._issuerType = issuerType;
   }
-  public String getIssuerDomicile () {
+
+  /**
+   * Gets the the {@code issuerType} property.
+   * @return the property, not null
+   */
+  public final Property<String> issuerType() {
+    return metaBean().issuerType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the issuer domicile.
+   * @return the value of the property, not null
+   */
+  public String getIssuerDomicile() {
     return _issuerDomicile;
   }
-  public void setIssuerDomicile (String issuerDomicile) {
-    if (issuerDomicile == null) throw new NullPointerException ("issuerDomicile' cannot be null");
-    _issuerDomicile = issuerDomicile;
+
+  /**
+   * Sets the issuer domicile.
+   * @param issuerDomicile  the new value of the property, not null
+   */
+  public void setIssuerDomicile(String issuerDomicile) {
+    JodaBeanUtils.notNull(issuerDomicile, "issuerDomicile");
+    this._issuerDomicile = issuerDomicile;
   }
-  public String getMarket () {
+
+  /**
+   * Gets the the {@code issuerDomicile} property.
+   * @return the property, not null
+   */
+  public final Property<String> issuerDomicile() {
+    return metaBean().issuerDomicile().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the market.
+   * @return the value of the property, not null
+   */
+  public String getMarket() {
     return _market;
   }
-  public void setMarket (String market) {
-    if (market == null) throw new NullPointerException ("market' cannot be null");
-    _market = market;
+
+  /**
+   * Sets the market.
+   * @param market  the new value of the property, not null
+   */
+  public void setMarket(String market) {
+    JodaBeanUtils.notNull(market, "market");
+    this._market = market;
   }
-  public com.opengamma.util.money.Currency getCurrency () {
+
+  /**
+   * Gets the the {@code market} property.
+   * @return the property, not null
+   */
+  public final Property<String> market() {
+    return metaBean().market().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  public void setCurrency (com.opengamma.util.money.Currency currency) {
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
   }
-  public com.opengamma.financial.convention.yield.YieldConvention getYieldConvention () {
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the yield convention.
+   * @return the value of the property, not null
+   */
+  public YieldConvention getYieldConvention() {
     return _yieldConvention;
   }
-  public void setYieldConvention (com.opengamma.financial.convention.yield.YieldConvention yieldConvention) {
-    if (yieldConvention == null) throw new NullPointerException ("yieldConvention' cannot be null");
-    _yieldConvention = yieldConvention;
+
+  /**
+   * Sets the yield convention.
+   * @param yieldConvention  the new value of the property, not null
+   */
+  public void setYieldConvention(YieldConvention yieldConvention) {
+    JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
+    this._yieldConvention = yieldConvention;
   }
-  public String getGuaranteeType () {
+
+  /**
+   * Gets the the {@code yieldConvention} property.
+   * @return the property, not null
+   */
+  public final Property<YieldConvention> yieldConvention() {
+    return metaBean().yieldConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the guarantee type.
+   * @return the value of the property
+   */
+  public String getGuaranteeType() {
     return _guaranteeType;
   }
-  public void setGuaranteeType (String guaranteeType) {
-    _guaranteeType = guaranteeType;
+
+  /**
+   * Sets the guarantee type.
+   * @param guaranteeType  the new value of the property
+   */
+  public void setGuaranteeType(String guaranteeType) {
+    this._guaranteeType = guaranteeType;
   }
-  public com.opengamma.util.time.Expiry getLastTradeDate () {
+
+  /**
+   * Gets the the {@code guaranteeType} property.
+   * @return the property, not null
+   */
+  public final Property<String> guaranteeType() {
+    return metaBean().guaranteeType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the last trade date.
+   * @return the value of the property, not null
+   */
+  public Expiry getLastTradeDate() {
     return _lastTradeDate;
   }
-  public void setLastTradeDate (com.opengamma.util.time.Expiry lastTradeDate) {
-    if (lastTradeDate == null) throw new NullPointerException ("'lastTradeDate' cannot be null");
-    else {
-      _lastTradeDate = lastTradeDate;
-    }
+
+  /**
+   * Sets the last trade date.
+   * @param lastTradeDate  the new value of the property, not null
+   */
+  public void setLastTradeDate(Expiry lastTradeDate) {
+    JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
+    this._lastTradeDate = lastTradeDate;
   }
-  public String getCouponType () {
+
+  /**
+   * Gets the the {@code lastTradeDate} property.
+   * @return the property, not null
+   */
+  public final Property<Expiry> lastTradeDate() {
+    return metaBean().lastTradeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the coupon type.
+   * @return the value of the property, not null
+   */
+  public String getCouponType() {
     return _couponType;
   }
-  public void setCouponType (String couponType) {
-    if (couponType == null) throw new NullPointerException ("couponType' cannot be null");
-    _couponType = couponType;
+
+  /**
+   * Sets the coupon type.
+   * @param couponType  the new value of the property, not null
+   */
+  public void setCouponType(String couponType) {
+    JodaBeanUtils.notNull(couponType, "couponType");
+    this._couponType = couponType;
   }
-  public double getCouponRate () {
+
+  /**
+   * Gets the the {@code couponType} property.
+   * @return the property, not null
+   */
+  public final Property<String> couponType() {
+    return metaBean().couponType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the coupon rate.
+   * @return the value of the property
+   */
+  public double getCouponRate() {
     return _couponRate;
   }
-  public void setCouponRate (double couponRate) {
-    _couponRate = couponRate;
+
+  /**
+   * Sets the coupon rate.
+   * @param couponRate  the new value of the property
+   */
+  public void setCouponRate(double couponRate) {
+    this._couponRate = couponRate;
   }
-  public com.opengamma.financial.convention.frequency.Frequency getCouponFrequency () {
+
+  /**
+   * Gets the the {@code couponRate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> couponRate() {
+    return metaBean().couponRate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the coupon frequency.
+   * @return the value of the property, not null
+   */
+  public Frequency getCouponFrequency() {
     return _couponFrequency;
   }
-  public void setCouponFrequency (com.opengamma.financial.convention.frequency.Frequency couponFrequency) {
-    if (couponFrequency == null) throw new NullPointerException ("couponFrequency' cannot be null");
-    _couponFrequency = couponFrequency;
+
+  /**
+   * Sets the coupon frequency.
+   * @param couponFrequency  the new value of the property, not null
+   */
+  public void setCouponFrequency(Frequency couponFrequency) {
+    JodaBeanUtils.notNull(couponFrequency, "couponFrequency");
+    this._couponFrequency = couponFrequency;
   }
-  public com.opengamma.financial.convention.daycount.DayCount getDayCountConvention () {
+
+  /**
+   * Gets the the {@code couponFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> couponFrequency() {
+    return metaBean().couponFrequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the day count convention.
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCountConvention() {
     return _dayCountConvention;
   }
-  public void setDayCountConvention (com.opengamma.financial.convention.daycount.DayCount dayCountConvention) {
-    if (dayCountConvention == null) throw new NullPointerException ("dayCountConvention' cannot be null");
-    _dayCountConvention = dayCountConvention;
+
+  /**
+   * Sets the day count convention.
+   * @param dayCountConvention  the new value of the property, not null
+   */
+  public void setDayCountConvention(DayCount dayCountConvention) {
+    JodaBeanUtils.notNull(dayCountConvention, "dayCountConvention");
+    this._dayCountConvention = dayCountConvention;
   }
-  public com.opengamma.financial.convention.businessday.BusinessDayConvention getBusinessDayConvention () {
+
+  /**
+   * Gets the the {@code dayCountConvention} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> dayCountConvention() {
+    return metaBean().dayCountConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention.
+   * @return the value of the property
+   */
+  public BusinessDayConvention getBusinessDayConvention() {
     return _businessDayConvention;
   }
-  public void setBusinessDayConvention (com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention) {
-    _businessDayConvention = businessDayConvention;
+
+  /**
+   * Sets the business day convention.
+   * @param businessDayConvention  the new value of the property
+   */
+  public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
+    this._businessDayConvention = businessDayConvention;
   }
-  public javax.time.calendar.ZonedDateTime getAnnouncementDate () {
+
+  /**
+   * Gets the the {@code businessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> businessDayConvention() {
+    return metaBean().businessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the announcement date.
+   * @return the value of the property
+   */
+  public ZonedDateTime getAnnouncementDate() {
     return _announcementDate;
   }
-  public void setAnnouncementDate (javax.time.calendar.ZonedDateTime announcementDate) {
-    if (announcementDate == null) _announcementDate = null;
-    else {
-      _announcementDate = announcementDate;
-    }
+
+  /**
+   * Sets the announcement date.
+   * @param announcementDate  the new value of the property
+   */
+  public void setAnnouncementDate(ZonedDateTime announcementDate) {
+    this._announcementDate = announcementDate;
   }
-  public javax.time.calendar.ZonedDateTime getInterestAccrualDate () {
+
+  /**
+   * Gets the the {@code announcementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> announcementDate() {
+    return metaBean().announcementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the interest accrual date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getInterestAccrualDate() {
     return _interestAccrualDate;
   }
-  public void setInterestAccrualDate (javax.time.calendar.ZonedDateTime interestAccrualDate) {
-    if (interestAccrualDate == null) throw new NullPointerException ("'interestAccrualDate' cannot be null");
-    else {
-      _interestAccrualDate = interestAccrualDate;
-    }
+
+  /**
+   * Sets the interest accrual date.
+   * @param interestAccrualDate  the new value of the property, not null
+   */
+  public void setInterestAccrualDate(ZonedDateTime interestAccrualDate) {
+    JodaBeanUtils.notNull(interestAccrualDate, "interestAccrualDate");
+    this._interestAccrualDate = interestAccrualDate;
   }
-  public javax.time.calendar.ZonedDateTime getSettlementDate () {
+
+  /**
+   * Gets the the {@code interestAccrualDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> interestAccrualDate() {
+    return metaBean().interestAccrualDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
+
+  /**
+   * Sets the settlement date.
+   * @param settlementDate  the new value of the property, not null
+   */
+  public void setSettlementDate(ZonedDateTime settlementDate) {
+    JodaBeanUtils.notNull(settlementDate, "settlementDate");
+    this._settlementDate = settlementDate;
   }
-  public javax.time.calendar.ZonedDateTime getFirstCouponDate () {
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the first coupon date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getFirstCouponDate() {
     return _firstCouponDate;
   }
-  public void setFirstCouponDate (javax.time.calendar.ZonedDateTime firstCouponDate) {
-    if (firstCouponDate == null) throw new NullPointerException ("'firstCouponDate' cannot be null");
-    else {
-      _firstCouponDate = firstCouponDate;
-    }
+
+  /**
+   * Sets the first coupon date.
+   * @param firstCouponDate  the new value of the property, not null
+   */
+  public void setFirstCouponDate(ZonedDateTime firstCouponDate) {
+    JodaBeanUtils.notNull(firstCouponDate, "firstCouponDate");
+    this._firstCouponDate = firstCouponDate;
   }
-  public double getIssuancePrice () {
+
+  /**
+   * Gets the the {@code firstCouponDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> firstCouponDate() {
+    return metaBean().firstCouponDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the issuance price.
+   * @return the value of the property
+   */
+  public double getIssuancePrice() {
     return _issuancePrice;
   }
-  public void setIssuancePrice (double issuancePrice) {
-    _issuancePrice = issuancePrice;
+
+  /**
+   * Sets the issuance price.
+   * @param issuancePrice  the new value of the property
+   */
+  public void setIssuancePrice(double issuancePrice) {
+    this._issuancePrice = issuancePrice;
   }
-  public double getTotalAmountIssued () {
+
+  /**
+   * Gets the the {@code issuancePrice} property.
+   * @return the property, not null
+   */
+  public final Property<Double> issuancePrice() {
+    return metaBean().issuancePrice().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the total amount issued.
+   * @return the value of the property
+   */
+  public double getTotalAmountIssued() {
     return _totalAmountIssued;
   }
-  public void setTotalAmountIssued (double totalAmountIssued) {
-    _totalAmountIssued = totalAmountIssued;
+
+  /**
+   * Sets the total amount issued.
+   * @param totalAmountIssued  the new value of the property
+   */
+  public void setTotalAmountIssued(double totalAmountIssued) {
+    this._totalAmountIssued = totalAmountIssued;
   }
-  public double getMinimumAmount () {
+
+  /**
+   * Gets the the {@code totalAmountIssued} property.
+   * @return the property, not null
+   */
+  public final Property<Double> totalAmountIssued() {
+    return metaBean().totalAmountIssued().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the minimum amount.
+   * @return the value of the property
+   */
+  public double getMinimumAmount() {
     return _minimumAmount;
   }
-  public void setMinimumAmount (double minimumAmount) {
-    _minimumAmount = minimumAmount;
+
+  /**
+   * Sets the minimum amount.
+   * @param minimumAmount  the new value of the property
+   */
+  public void setMinimumAmount(double minimumAmount) {
+    this._minimumAmount = minimumAmount;
   }
-  public double getMinimumIncrement () {
+
+  /**
+   * Gets the the {@code minimumAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> minimumAmount() {
+    return metaBean().minimumAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the minimum increment.
+   * @return the value of the property
+   */
+  public double getMinimumIncrement() {
     return _minimumIncrement;
   }
-  public void setMinimumIncrement (double minimumIncrement) {
-    _minimumIncrement = minimumIncrement;
+
+  /**
+   * Sets the minimum increment.
+   * @param minimumIncrement  the new value of the property
+   */
+  public void setMinimumIncrement(double minimumIncrement) {
+    this._minimumIncrement = minimumIncrement;
   }
-  public double getParAmount () {
+
+  /**
+   * Gets the the {@code minimumIncrement} property.
+   * @return the property, not null
+   */
+  public final Property<Double> minimumIncrement() {
+    return metaBean().minimumIncrement().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the par amount.
+   * @return the value of the property
+   */
+  public double getParAmount() {
     return _parAmount;
   }
-  public void setParAmount (double parAmount) {
-    _parAmount = parAmount;
+
+  /**
+   * Sets the par amount.
+   * @param parAmount  the new value of the property
+   */
+  public void setParAmount(double parAmount) {
+    this._parAmount = parAmount;
   }
-  public double getRedemptionValue () {
+
+  /**
+   * Gets the the {@code parAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> parAmount() {
+    return metaBean().parAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the redemption value.
+   * @return the value of the property
+   */
+  public double getRedemptionValue() {
     return _redemptionValue;
   }
-  public void setRedemptionValue (double redemptionValue) {
-    _redemptionValue = redemptionValue;
+
+  /**
+   * Sets the redemption value.
+   * @param redemptionValue  the new value of the property
+   */
+  public void setRedemptionValue(double redemptionValue) {
+    this._redemptionValue = redemptionValue;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof BondSecurity)) return false;
-    BondSecurity msg = (BondSecurity)o;
-    if (_issuerName != null) {
-      if (msg._issuerName != null) {
-        if (!_issuerName.equals (msg._issuerName)) return false;
-      }
-      else return false;
-    }
-    else if (msg._issuerName != null) return false;
-    if (_issuerType != null) {
-      if (msg._issuerType != null) {
-        if (!_issuerType.equals (msg._issuerType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._issuerType != null) return false;
-    if (_issuerDomicile != null) {
-      if (msg._issuerDomicile != null) {
-        if (!_issuerDomicile.equals (msg._issuerDomicile)) return false;
-      }
-      else return false;
-    }
-    else if (msg._issuerDomicile != null) return false;
-    if (_market != null) {
-      if (msg._market != null) {
-        if (!_market.equals (msg._market)) return false;
-      }
-      else return false;
-    }
-    else if (msg._market != null) return false;
-    if (_currency != null) {
-      if (msg._currency != null) {
-        if (!_currency.equals (msg._currency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._currency != null) return false;
-    if (_yieldConvention != null) {
-      if (msg._yieldConvention != null) {
-        if (!_yieldConvention.equals (msg._yieldConvention)) return false;
-      }
-      else return false;
-    }
-    else if (msg._yieldConvention != null) return false;
-    if (_guaranteeType != null) {
-      if (msg._guaranteeType != null) {
-        if (!_guaranteeType.equals (msg._guaranteeType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._guaranteeType != null) return false;
-    if (_lastTradeDate != null) {
-      if (msg._lastTradeDate != null) {
-        if (!_lastTradeDate.equals (msg._lastTradeDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._lastTradeDate != null) return false;
-    if (_couponType != null) {
-      if (msg._couponType != null) {
-        if (!_couponType.equals (msg._couponType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._couponType != null) return false;
-    if (_couponRate != msg._couponRate) return false;
-    if (_couponFrequency != null) {
-      if (msg._couponFrequency != null) {
-        if (!_couponFrequency.equals (msg._couponFrequency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._couponFrequency != null) return false;
-    if (_dayCountConvention != null) {
-      if (msg._dayCountConvention != null) {
-        if (!_dayCountConvention.equals (msg._dayCountConvention)) return false;
-      }
-      else return false;
-    }
-    else if (msg._dayCountConvention != null) return false;
-    if (_businessDayConvention != null) {
-      if (msg._businessDayConvention != null) {
-        if (!_businessDayConvention.equals (msg._businessDayConvention)) return false;
-      }
-      else return false;
-    }
-    else if (msg._businessDayConvention != null) return false;
-    if (_announcementDate != null) {
-      if (msg._announcementDate != null) {
-        if (!_announcementDate.equals (msg._announcementDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._announcementDate != null) return false;
-    if (_interestAccrualDate != null) {
-      if (msg._interestAccrualDate != null) {
-        if (!_interestAccrualDate.equals (msg._interestAccrualDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._interestAccrualDate != null) return false;
-    if (_settlementDate != null) {
-      if (msg._settlementDate != null) {
-        if (!_settlementDate.equals (msg._settlementDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._settlementDate != null) return false;
-    if (_firstCouponDate != null) {
-      if (msg._firstCouponDate != null) {
-        if (!_firstCouponDate.equals (msg._firstCouponDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._firstCouponDate != null) return false;
-    if (_issuancePrice != msg._issuancePrice) return false;
-    if (_totalAmountIssued != msg._totalAmountIssued) return false;
-    if (_minimumAmount != msg._minimumAmount) return false;
-    if (_minimumIncrement != msg._minimumIncrement) return false;
-    if (_parAmount != msg._parAmount) return false;
-    if (_redemptionValue != msg._redemptionValue) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code redemptionValue} property.
+   * @return the property, not null
+   */
+  public final Property<Double> redemptionValue() {
+    return metaBean().redemptionValue().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_issuerName != null) hc += _issuerName.hashCode ();
-    hc *= 31;
-    if (_issuerType != null) hc += _issuerType.hashCode ();
-    hc *= 31;
-    if (_issuerDomicile != null) hc += _issuerDomicile.hashCode ();
-    hc *= 31;
-    if (_market != null) hc += _market.hashCode ();
-    hc *= 31;
-    if (_currency != null) hc += _currency.hashCode ();
-    hc *= 31;
-    if (_yieldConvention != null) hc += _yieldConvention.hashCode ();
-    hc *= 31;
-    if (_guaranteeType != null) hc += _guaranteeType.hashCode ();
-    hc *= 31;
-    if (_lastTradeDate != null) hc += _lastTradeDate.hashCode ();
-    hc *= 31;
-    if (_couponType != null) hc += _couponType.hashCode ();
-    hc = (hc * 31) + (int)_couponRate;
-    hc *= 31;
-    if (_couponFrequency != null) hc += _couponFrequency.hashCode ();
-    hc *= 31;
-    if (_dayCountConvention != null) hc += _dayCountConvention.hashCode ();
-    hc *= 31;
-    if (_businessDayConvention != null) hc += _businessDayConvention.hashCode ();
-    hc *= 31;
-    if (_announcementDate != null) hc += _announcementDate.hashCode ();
-    hc *= 31;
-    if (_interestAccrualDate != null) hc += _interestAccrualDate.hashCode ();
-    hc *= 31;
-    if (_settlementDate != null) hc += _settlementDate.hashCode ();
-    hc *= 31;
-    if (_firstCouponDate != null) hc += _firstCouponDate.hashCode ();
-    hc = (hc * 31) + (int)_issuancePrice;
-    hc = (hc * 31) + (int)_totalAmountIssued;
-    hc = (hc * 31) + (int)_minimumAmount;
-    hc = (hc * 31) + (int)_minimumIncrement;
-    hc = (hc * 31) + (int)_parAmount;
-    hc = (hc * 31) + (int)_redemptionValue;
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code BondSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code issuerName} property.
+     */
+    private final MetaProperty<String> _issuerName = DirectMetaProperty.ofReadWrite(
+        this, "issuerName", BondSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code issuerType} property.
+     */
+    private final MetaProperty<String> _issuerType = DirectMetaProperty.ofReadWrite(
+        this, "issuerType", BondSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code issuerDomicile} property.
+     */
+    private final MetaProperty<String> _issuerDomicile = DirectMetaProperty.ofReadWrite(
+        this, "issuerDomicile", BondSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code market} property.
+     */
+    private final MetaProperty<String> _market = DirectMetaProperty.ofReadWrite(
+        this, "market", BondSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", BondSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code yieldConvention} property.
+     */
+    private final MetaProperty<YieldConvention> _yieldConvention = DirectMetaProperty.ofReadWrite(
+        this, "yieldConvention", BondSecurity.class, YieldConvention.class);
+    /**
+     * The meta-property for the {@code guaranteeType} property.
+     */
+    private final MetaProperty<String> _guaranteeType = DirectMetaProperty.ofReadWrite(
+        this, "guaranteeType", BondSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code lastTradeDate} property.
+     */
+    private final MetaProperty<Expiry> _lastTradeDate = DirectMetaProperty.ofReadWrite(
+        this, "lastTradeDate", BondSecurity.class, Expiry.class);
+    /**
+     * The meta-property for the {@code couponType} property.
+     */
+    private final MetaProperty<String> _couponType = DirectMetaProperty.ofReadWrite(
+        this, "couponType", BondSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code couponRate} property.
+     */
+    private final MetaProperty<Double> _couponRate = DirectMetaProperty.ofReadWrite(
+        this, "couponRate", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code couponFrequency} property.
+     */
+    private final MetaProperty<Frequency> _couponFrequency = DirectMetaProperty.ofReadWrite(
+        this, "couponFrequency", BondSecurity.class, Frequency.class);
+    /**
+     * The meta-property for the {@code dayCountConvention} property.
+     */
+    private final MetaProperty<DayCount> _dayCountConvention = DirectMetaProperty.ofReadWrite(
+        this, "dayCountConvention", BondSecurity.class, DayCount.class);
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "businessDayConvention", BondSecurity.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code announcementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _announcementDate = DirectMetaProperty.ofReadWrite(
+        this, "announcementDate", BondSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code interestAccrualDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _interestAccrualDate = DirectMetaProperty.ofReadWrite(
+        this, "interestAccrualDate", BondSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", BondSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code firstCouponDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _firstCouponDate = DirectMetaProperty.ofReadWrite(
+        this, "firstCouponDate", BondSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code issuancePrice} property.
+     */
+    private final MetaProperty<Double> _issuancePrice = DirectMetaProperty.ofReadWrite(
+        this, "issuancePrice", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code totalAmountIssued} property.
+     */
+    private final MetaProperty<Double> _totalAmountIssued = DirectMetaProperty.ofReadWrite(
+        this, "totalAmountIssued", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code minimumAmount} property.
+     */
+    private final MetaProperty<Double> _minimumAmount = DirectMetaProperty.ofReadWrite(
+        this, "minimumAmount", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code minimumIncrement} property.
+     */
+    private final MetaProperty<Double> _minimumIncrement = DirectMetaProperty.ofReadWrite(
+        this, "minimumIncrement", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code parAmount} property.
+     */
+    private final MetaProperty<Double> _parAmount = DirectMetaProperty.ofReadWrite(
+        this, "parAmount", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code redemptionValue} property.
+     */
+    private final MetaProperty<Double> _redemptionValue = DirectMetaProperty.ofReadWrite(
+        this, "redemptionValue", BondSecurity.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "issuerName",
+        "issuerType",
+        "issuerDomicile",
+        "market",
+        "currency",
+        "yieldConvention",
+        "guaranteeType",
+        "lastTradeDate",
+        "couponType",
+        "couponRate",
+        "couponFrequency",
+        "dayCountConvention",
+        "businessDayConvention",
+        "announcementDate",
+        "interestAccrualDate",
+        "settlementDate",
+        "firstCouponDate",
+        "issuancePrice",
+        "totalAmountIssued",
+        "minimumAmount",
+        "minimumIncrement",
+        "parAmount",
+        "redemptionValue");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1459772644:  // issuerName
+          return _issuerName;
+        case 1459974547:  // issuerType
+          return _issuerType;
+        case -114049505:  // issuerDomicile
+          return _issuerDomicile;
+        case -1081306052:  // market
+          return _market;
+        case 575402001:  // currency
+          return _currency;
+        case -1895216418:  // yieldConvention
+          return _yieldConvention;
+        case 693583330:  // guaranteeType
+          return _guaranteeType;
+        case -1041950404:  // lastTradeDate
+          return _lastTradeDate;
+        case 609638528:  // couponType
+          return _couponType;
+        case 609556006:  // couponRate
+          return _couponRate;
+        case 144480214:  // couponFrequency
+          return _couponFrequency;
+        case 589154980:  // dayCountConvention
+          return _dayCountConvention;
+        case -1002835891:  // businessDayConvention
+          return _businessDayConvention;
+        case -562907755:  // announcementDate
+          return _announcementDate;
+        case -693265293:  // interestAccrualDate
+          return _interestAccrualDate;
+        case -295948169:  // settlementDate
+          return _settlementDate;
+        case 793496516:  // firstCouponDate
+          return _firstCouponDate;
+        case -947491410:  // issuancePrice
+          return _issuancePrice;
+        case 1841198727:  // totalAmountIssued
+          return _totalAmountIssued;
+        case 2017331718:  // minimumAmount
+          return _minimumAmount;
+        case 1160465153:  // minimumIncrement
+          return _minimumIncrement;
+        case 1038626905:  // parAmount
+          return _parAmount;
+        case 348936710:  // redemptionValue
+          return _redemptionValue;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends BondSecurity> builder() {
+      throw new UnsupportedOperationException("BondSecurity is an abstract class");
+    }
+
+    @Override
+    public Class<? extends BondSecurity> beanType() {
+      return BondSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code issuerName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> issuerName() {
+      return _issuerName;
+    }
+
+    /**
+     * The meta-property for the {@code issuerType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> issuerType() {
+      return _issuerType;
+    }
+
+    /**
+     * The meta-property for the {@code issuerDomicile} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> issuerDomicile() {
+      return _issuerDomicile;
+    }
+
+    /**
+     * The meta-property for the {@code market} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> market() {
+      return _market;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code yieldConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<YieldConvention> yieldConvention() {
+      return _yieldConvention;
+    }
+
+    /**
+     * The meta-property for the {@code guaranteeType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> guaranteeType() {
+      return _guaranteeType;
+    }
+
+    /**
+     * The meta-property for the {@code lastTradeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Expiry> lastTradeDate() {
+      return _lastTradeDate;
+    }
+
+    /**
+     * The meta-property for the {@code couponType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> couponType() {
+      return _couponType;
+    }
+
+    /**
+     * The meta-property for the {@code couponRate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> couponRate() {
+      return _couponRate;
+    }
+
+    /**
+     * The meta-property for the {@code couponFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> couponFrequency() {
+      return _couponFrequency;
+    }
+
+    /**
+     * The meta-property for the {@code dayCountConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> dayCountConvention() {
+      return _dayCountConvention;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> businessDayConvention() {
+      return _businessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code announcementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> announcementDate() {
+      return _announcementDate;
+    }
+
+    /**
+     * The meta-property for the {@code interestAccrualDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> interestAccrualDate() {
+      return _interestAccrualDate;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> settlementDate() {
+      return _settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code firstCouponDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> firstCouponDate() {
+      return _firstCouponDate;
+    }
+
+    /**
+     * The meta-property for the {@code issuancePrice} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> issuancePrice() {
+      return _issuancePrice;
+    }
+
+    /**
+     * The meta-property for the {@code totalAmountIssued} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> totalAmountIssued() {
+      return _totalAmountIssued;
+    }
+
+    /**
+     * The meta-property for the {@code minimumAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> minimumAmount() {
+      return _minimumAmount;
+    }
+
+    /**
+     * The meta-property for the {@code minimumIncrement} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> minimumIncrement() {
+      return _minimumIncrement;
+    }
+
+    /**
+     * The meta-property for the {@code parAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> parAmount() {
+      return _parAmount;
+    }
+
+    /**
+     * The meta-property for the {@code redemptionValue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> redemptionValue() {
+      return _redemptionValue;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

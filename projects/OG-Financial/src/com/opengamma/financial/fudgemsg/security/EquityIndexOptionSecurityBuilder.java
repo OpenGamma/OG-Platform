@@ -64,7 +64,7 @@ public class EquityIndexOptionSecurityBuilder extends AbstractFudgeBuilder imple
 
   @Override
   public EquityIndexOptionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EquityIndexOptionSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EquityIndexOptionSecurity.class);
+    EquityIndexOptionSecurity object = new EquityIndexOptionSecurity();
     EquityIndexOptionSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

@@ -7,16 +7,10 @@
 namespace com.opengamma.financial.security.future {
 
   /**
-   * An index future.
+   * An index future security.
    */
   message IndexFutureSecurity extends FutureSecurity {
-  
     optional id.ExternalId underlyingIdentifier;
-   
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitIndexFutureSecurity (this); }";
-    }
-     
   }
-  
+
 }

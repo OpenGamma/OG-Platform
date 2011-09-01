@@ -13,6 +13,7 @@ import org.cometd.Bayeux;
 import org.fudgemsg.FudgeContext;
 import org.springframework.web.context.ServletContextAware;
 
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -30,6 +31,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   private ExecutorService _executorService;
   private FudgeContext _fudgeContext;
   private LiveResultsService _liveResultsService;
+  private LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   
   public LiveResultsServiceBean() {
   }
@@ -91,6 +93,14 @@ public class LiveResultsServiceBean implements ServletContextAware {
     return _liveResultsService;
   }
   
+  public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
+    return _liveMarketDataSourceRegistry;
+  }
+
+  public void setLiveMarketDataSourceRegistry(LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
+    _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
+  }
+
   public void afterPropertiesSet() {
     setBayeux((Bayeux) _servletContext.getAttribute(Bayeux.ATTRIBUTE));
     
@@ -108,7 +118,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   }
   
   public LiveResultsService createLiveResultsService() {
-    return new LiveResultsService(getBayeux(), getViewProcessor(), getSnapshotMaster(), getUser(), getExecutorService(), getFudgeContext());
+    return new LiveResultsService(getBayeux(), getViewProcessor(), getSnapshotMaster(), getUser(), getExecutorService(), getFudgeContext(), getLiveMarketDataSourceRegistry());
   }
  
 }

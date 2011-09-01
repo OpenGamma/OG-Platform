@@ -1,234 +1,421 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.master.security;
-public class ManageableSecurity implements java.io.Serializable, com.opengamma.core.security.Security, com.opengamma.id.MutableUniqueIdentifiable {
-          /**
-         * Dynamically determines a 'default' display name if one hasn't been explicitly set.
-         * This implementation constructs one from the identity key or identifiers.
-         * 
-         * @return a default display name
-         */
-        protected String buildDefaultDisplayName() {
-          final com.opengamma.id.UniqueId identifier = getUniqueId(); // assign for thread-safety
-          if (identifier != null) {
-            return identifier.toString();
-          }
-          final com.opengamma.id.ExternalIdBundle bundle = getIdentifiers(); // assign for thread-safety
-          final com.opengamma.id.ExternalId first = (bundle.size() == 0 ? null : bundle.getExternalIds().iterator().next());
-          return org.apache.commons.lang.ObjectUtils.toString(first);
-        }
-        
-        /**
-         * Add an identifier to the bundle.
-         */
-        public void addIdentifier (final com.opengamma.id.ExternalId externalId) {
-          setIdentifiers (getIdentifiers ().withExternalId (externalId));
-        }
-  private static final long serialVersionUID = -9060937764311787066l;
-  private com.opengamma.id.UniqueId _uniqueId;
-  public static final String UNIQUE_ID_KEY = "uniqueId";
-  private String _name;
-  public static final String NAME_KEY = "name";
-  private String _securityType;
-  public static final String SECURITY_TYPE_KEY = "securityType";
-  private com.opengamma.id.ExternalIdBundle _identifiers;
-  public static final String IDENTIFIERS_KEY = "identifiers";
-  public static final String NAME = "";
-  public static final com.opengamma.id.ExternalIdBundle IDENTIFIERS = new com.opengamma.id.ExternalIdBundle ();
-  public ManageableSecurity (String securityType) {
-    if (securityType == null) throw new NullPointerException ("securityType' cannot be null");
-    _securityType = securityType;
-    setName (NAME);
-    setIdentifiers (IDENTIFIERS);
+
+import java.io.Serializable;
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.core.security.Security;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.PublicSPI;
+
+/**
+ * A security that it may be possible to hold a position in.
+ * <p>
+ * A security generically defined as anything that a position can be held in.
+ * This includes the security defined in "OTC" trades, permitting back-to-back
+ * trades to be linked correctly.
+ */
+@PublicSPI
+@BeanDefinition
+public class ManageableSecurity extends DirectBean implements Serializable, Security, MutableUniqueIdentifiable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The unique identifier of the security.
+   * This must be null when adding to a master and not null when retrieved from a master.
+   */
+  @PropertyDefinition
+  private UniqueId _uniqueId;
+  /**
+   * The name of the security intended for display purposes.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _name = "";
+  /**
+   * The security type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _securityType = "";
+  /**
+   * The bundle of external identifiers that define the security.
+   * Each external system will typically refer to a security using a different identifier.
+   * Thus the bundle consists of a set of identifiers, one for each external system.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalIdBundle _identifiers = ExternalIdBundle.EMPTY;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public ManageableSecurity() {
   }
-  protected ManageableSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (NAME_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'name' is not present");
-    try {
-      _name = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'name' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (SECURITY_TYPE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'securityType' is not present");
-    try {
-      _securityType = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'securityType' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (IDENTIFIERS_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'identifiers' is not present");
-    try {
-      _identifiers = com.opengamma.id.ExternalIdBundle.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'identifiers' is not ExternalIdBundle message", e);
-    }
-    fudgeField = fudgeMsg.getByName (UNIQUE_ID_KEY);
-    if (fudgeField != null)  {
-      try {
-        final com.opengamma.id.UniqueId fudge1;
-        fudge1 = com.opengamma.id.UniqueId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-        setUniqueId (fudge1);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'uniqueId' is not UniqueId message", e);
-      }
-    }
+
+  /**
+   * Creates an instance with a security type.
+   * 
+   * @param securityType  the security type, not null
+   */
+  public ManageableSecurity(String securityType) {
+    setSecurityType(securityType);
   }
-  public ManageableSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers) {
-    if (uniqueId == null) _uniqueId = null;
-    else {
-      _uniqueId = uniqueId;
-    }
-    if (name == null) throw new NullPointerException ("name' cannot be null");
-    _name = name;
-    if (securityType == null) throw new NullPointerException ("securityType' cannot be null");
-    _securityType = securityType;
-    if (identifiers == null) throw new NullPointerException ("'identifiers' cannot be null");
-    else {
-      _identifiers = identifiers;
-    }
+
+  /**
+   * Creates a fully populated instance.
+   * 
+   * @param uniqueId  the security unique identifier, may be null
+   * @param name  the display name, not null
+   * @param securityType  the security type, not null
+   * @param identifiers  the security identifiers, not null
+   */
+  public ManageableSecurity(UniqueId uniqueId, String name, String securityType, ExternalIdBundle identifiers) {
+    setUniqueId(uniqueId);
+    setName(name);
+    setSecurityType(securityType);
+    setIdentifiers(identifiers);
   }
-  protected ManageableSecurity (final ManageableSecurity source) {
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._uniqueId == null) _uniqueId = null;
-    else {
-      _uniqueId = source._uniqueId;
-    }
-    _securityType = source._securityType;
-    _name = source._name;
-    if (source._identifiers == null) _identifiers = null;
-    else {
-      _identifiers = source._identifiers;
-    }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds an external identifier to the bundle representing this security.
+   * 
+   * @param externalId  the identifier to add, not null
+   */
+  public void addIdentifier(final ExternalId externalId) {
+    setIdentifiers(getIdentifiers().withExternalId(externalId));
   }
-  public ManageableSecurity clone () {
-    return new ManageableSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code ManageableSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static ManageableSecurity.Meta meta() {
+    return ManageableSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(ManageableSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    if (_uniqueId != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _uniqueId.getClass (), com.opengamma.id.UniqueId.class);
-      _uniqueId.toFudgeMsg (serializer, fudge1);
-      msg.add (UNIQUE_ID_KEY, null, fudge1);
-    }
-    if (_name != null)  {
-      msg.add (NAME_KEY, null, _name);
-    }
-    if (_securityType != null)  {
-      msg.add (SECURITY_TYPE_KEY, null, _securityType);
-    }
-    if (_identifiers != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _identifiers.getClass (), com.opengamma.id.ExternalIdBundle.class);
-      _identifiers.toFudgeMsg (serializer, fudge1);
-      msg.add (IDENTIFIERS_KEY, null, fudge1);
-    }
+
+  @Override
+  public ManageableSecurity.Meta metaBean() {
+    return ManageableSecurity.Meta.INSTANCE;
   }
-  public static ManageableSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.master.security.ManageableSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.master.security.ManageableSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -294460212:  // uniqueId
+        return getUniqueId();
+      case 3373707:  // name
+        return getName();
+      case 808245914:  // securityType
+        return getSecurityType();
+      case 1368189162:  // identifiers
+        return getIdentifiers();
     }
-    return new ManageableSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public com.opengamma.id.UniqueId getUniqueId () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -294460212:  // uniqueId
+        setUniqueId((UniqueId) newValue);
+        return;
+      case 3373707:  // name
+        setName((String) newValue);
+        return;
+      case 808245914:  // securityType
+        setSecurityType((String) newValue);
+        return;
+      case 1368189162:  // identifiers
+        setIdentifiers((ExternalIdBundle) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_name, "name");
+    JodaBeanUtils.notNull(_securityType, "securityType");
+    JodaBeanUtils.notNull(_identifiers, "identifiers");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableSecurity other = (ManageableSecurity) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    return hash;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unique identifier of the security.
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @return the value of the property
+   */
+  public UniqueId getUniqueId() {
     return _uniqueId;
   }
-  public void setUniqueId (com.opengamma.id.UniqueId uniqueId) {
-    if (uniqueId == null) _uniqueId = null;
-    else {
-      _uniqueId = uniqueId;
-    }
+
+  /**
+   * Sets the unique identifier of the security.
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @param uniqueId  the new value of the property
+   */
+  public void setUniqueId(UniqueId uniqueId) {
+    this._uniqueId = uniqueId;
   }
-  public String getName () {
+
+  /**
+   * Gets the the {@code uniqueId} property.
+   * This must be null when adding to a master and not null when retrieved from a master.
+   * @return the property, not null
+   */
+  public final Property<UniqueId> uniqueId() {
+    return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the security intended for display purposes.
+   * @return the value of the property, not null
+   */
+  public String getName() {
     return _name;
   }
-  public void setName (String name) {
-    if (name == null) throw new NullPointerException ("name' cannot be null");
-    _name = name;
+
+  /**
+   * Sets the name of the security intended for display purposes.
+   * @param name  the new value of the property, not null
+   */
+  public void setName(String name) {
+    JodaBeanUtils.notNull(name, "name");
+    this._name = name;
   }
-  public String getSecurityType () {
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security type.
+   * @return the value of the property, not null
+   */
+  public String getSecurityType() {
     return _securityType;
   }
-  public void setSecurityType (String securityType) {
-    if (securityType == null) throw new NullPointerException ("securityType' cannot be null");
-    _securityType = securityType;
+
+  /**
+   * Sets the security type.
+   * @param securityType  the new value of the property, not null
+   */
+  public void setSecurityType(String securityType) {
+    JodaBeanUtils.notNull(securityType, "securityType");
+    this._securityType = securityType;
   }
-  public com.opengamma.id.ExternalIdBundle getIdentifiers () {
+
+  /**
+   * Gets the the {@code securityType} property.
+   * @return the property, not null
+   */
+  public final Property<String> securityType() {
+    return metaBean().securityType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the bundle of external identifiers that define the security.
+   * Each external system will typically refer to a security using a different identifier.
+   * Thus the bundle consists of a set of identifiers, one for each external system.
+   * @return the value of the property, not null
+   */
+  public ExternalIdBundle getIdentifiers() {
     return _identifiers;
   }
-  public void setIdentifiers (com.opengamma.id.ExternalIdBundle identifiers) {
-    if (identifiers == null) throw new NullPointerException ("'identifiers' cannot be null");
-    else {
-      _identifiers = identifiers;
-    }
+
+  /**
+   * Sets the bundle of external identifiers that define the security.
+   * Each external system will typically refer to a security using a different identifier.
+   * Thus the bundle consists of a set of identifiers, one for each external system.
+   * @param identifiers  the new value of the property, not null
+   */
+  public void setIdentifiers(ExternalIdBundle identifiers) {
+    JodaBeanUtils.notNull(identifiers, "identifiers");
+    this._identifiers = identifiers;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof ManageableSecurity)) return false;
-    ManageableSecurity msg = (ManageableSecurity)o;
-    if (_uniqueId != null) {
-      if (msg._uniqueId != null) {
-        if (!_uniqueId.equals (msg._uniqueId)) return false;
-      }
-      else return false;
-    }
-    else if (msg._uniqueId != null) return false;
-    if (_name != null) {
-      if (msg._name != null) {
-        if (!_name.equals (msg._name)) return false;
-      }
-      else return false;
-    }
-    else if (msg._name != null) return false;
-    if (_securityType != null) {
-      if (msg._securityType != null) {
-        if (!_securityType.equals (msg._securityType)) return false;
-      }
-      else return false;
-    }
-    else if (msg._securityType != null) return false;
-    if (_identifiers != null) {
-      if (msg._identifiers != null) {
-        if (!_identifiers.equals (msg._identifiers)) return false;
-      }
-      else return false;
-    }
-    else if (msg._identifiers != null) return false;
-    return true;
+
+  /**
+   * Gets the the {@code identifiers} property.
+   * Each external system will typically refer to a security using a different identifier.
+   * Thus the bundle consists of a set of identifiers, one for each external system.
+   * @return the property, not null
+   */
+  public final Property<ExternalIdBundle> identifiers() {
+    return metaBean().identifiers().createProperty(this);
   }
-  public int hashCode () {
-    int hc = 1;
-    hc *= 31;
-    if (_uniqueId != null) hc += _uniqueId.hashCode ();
-    hc *= 31;
-    if (_name != null) hc += _name.hashCode ();
-    hc *= 31;
-    if (_securityType != null) hc += _securityType.hashCode ();
-    hc *= 31;
-    if (_identifiers != null) hc += _identifiers.hashCode ();
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code ManageableSecurity}.
+   */
+  public static class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     */
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableSecurity.class, UniqueId.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", ManageableSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code securityType} property.
+     */
+    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(
+        this, "securityType", ManageableSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code identifiers} property.
+     */
+    private final MetaProperty<ExternalIdBundle> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", ManageableSecurity.class, ExternalIdBundle.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "name",
+        "securityType",
+        "identifiers");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 3373707:  // name
+          return _name;
+        case 808245914:  // securityType
+          return _securityType;
+        case 1368189162:  // identifiers
+          return _identifiers;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableSecurity> builder() {
+      return new DirectBeanBuilder<ManageableSecurity>(new ManageableSecurity());
+    }
+
+    @Override
+    public Class<? extends ManageableSecurity> beanType() {
+      return ManageableSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code uniqueId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<UniqueId> uniqueId() {
+      return _uniqueId;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
+    }
+
+    /**
+     * The meta-property for the {@code securityType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> securityType() {
+      return _securityType;
+    }
+
+    /**
+     * The meta-property for the {@code identifiers} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalIdBundle> identifiers() {
+      return _identifiers;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
+
 }
-///CLOVER:ON
-// CSON: Generated File

@@ -1,442 +1,786 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.equity;
-public class EquityVarianceSwapSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          
-        public <T> T accept(EquityVarianceSwapSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-  private static final long serialVersionUID = -1913688475364825754l;
-  private com.opengamma.id.ExternalId _spotUnderlyingIdentifier;
-  public static final String SPOT_UNDERLYING_IDENTIFIER_KEY = "spotUnderlyingIdentifier";
-  private com.opengamma.util.money.Currency _currency;
-  public static final String CURRENCY_KEY = "currency";
-  private double _strike;
-  public static final String STRIKE_KEY = "strike";
-  private double _notional;
-  public static final String NOTIONAL_KEY = "notional";
-  private boolean _parameterizedAsVariance;
-  public static final String PARAMETERIZED_AS_VARIANCE_KEY = "parameterizedAsVariance";
-  private double _annualizationFactor;
-  public static final String ANNUALIZATION_FACTOR_KEY = "annualizationFactor";
-  private javax.time.calendar.ZonedDateTime _firstObservationDate;
-  public static final String FIRST_OBSERVATION_DATE_KEY = "firstObservationDate";
-  private javax.time.calendar.ZonedDateTime _lastObservationDate;
-  public static final String LAST_OBSERVATION_DATE_KEY = "lastObservationDate";
-  private javax.time.calendar.ZonedDateTime _settlementDate;
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private com.opengamma.id.ExternalId _region;
-  public static final String REGION_KEY = "region";
-  private com.opengamma.financial.convention.frequency.Frequency _observationFrequency;
-  public static final String OBSERVATION_FREQUENCY_KEY = "observationFrequency";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+
+/**
+ * A security for equity variance swaps.
+ */
+@BeanDefinition
+public class EquityVarianceSwapSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "EQUITY VARIANCE SWAP";
-  public EquityVarianceSwapSecurity (com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterizedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
-    super (SECURITY_TYPE);
-    if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
-    else {
-      _spotUnderlyingIdentifier = spotUnderlyingIdentifier;
-    }
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    _strike = strike;
-    _notional = notional;
-    _parameterizedAsVariance = parameterizedAsVariance;
-    _annualizationFactor = annualizationFactor;
-    if (firstObservationDate == null) throw new NullPointerException ("'firstObservationDate' cannot be null");
-    else {
-      _firstObservationDate = firstObservationDate;
-    }
-    if (lastObservationDate == null) throw new NullPointerException ("'lastObservationDate' cannot be null");
-    else {
-      _lastObservationDate = lastObservationDate;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
-    if (observationFrequency == null) throw new NullPointerException ("observationFrequency' cannot be null");
-    _observationFrequency = observationFrequency;
+
+  /**
+   * The underlying identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _spotUnderlyingIdentifier;
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+  /**
+   * The strike.
+   */
+  @PropertyDefinition
+  private double _strike;
+  /**
+   * The notional.
+   */
+  @PropertyDefinition
+  private double _notional;
+  /**
+   * The parameterized as variance flag.
+   */
+  @PropertyDefinition(get = "get")
+  private boolean _parameterizedAsVariance;
+  /**
+   * The annualization factor.
+   */
+  @PropertyDefinition
+  private double _annualizationFactor;
+  /**
+   * The first observation date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _firstObservationDate;
+  /**
+   * The last observation date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _lastObservationDate;
+  /**
+   * The settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _settlementDate;
+  /**
+   * The region.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _region;
+  /**
+   * The observation frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _observationFrequency;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public EquityVarianceSwapSecurity() {
   }
-  protected EquityVarianceSwapSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (SPOT_UNDERLYING_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'spotUnderlyingIdentifier' is not present");
-    try {
-      _spotUnderlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'spotUnderlyingIdentifier' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'currency' is not present");
-    try {
-      _currency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'currency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (STRIKE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'strike' is not present");
-    try {
-      _strike = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'strike' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (NOTIONAL_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'notional' is not present");
-    try {
-      _notional = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'notional' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (PARAMETERIZED_AS_VARIANCE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'parameterizedAsVariance' is not present");
-    try {
-      _parameterizedAsVariance = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'parameterizedAsVariance' is not boolean", e);
-    }
-    fudgeField = fudgeMsg.getByName (ANNUALIZATION_FACTOR_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'annualizationFactor' is not present");
-    try {
-      _annualizationFactor = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'annualizationFactor' is not double", e);
-    }
-    fudgeField = fudgeMsg.getByName (FIRST_OBSERVATION_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'firstObservationDate' is not present");
-    try {
-      _firstObservationDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'firstObservationDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (LAST_OBSERVATION_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'lastObservationDate' is not present");
-    try {
-      _lastObservationDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'lastObservationDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'settlementDate' is not present");
-    try {
-      _settlementDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (REGION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'region' is not present");
-    try {
-      _region = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'region' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (OBSERVATION_FREQUENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'observationFrequency' is not present");
-    try {
-      _observationFrequency = fudgeMsg.getFieldValue (com.opengamma.financial.convention.frequency.Frequency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityVarianceSwapSecurity - field 'observationFrequency' is not Frequency typedef", e);
-    }
+
+  public EquityVarianceSwapSecurity(ExternalId spotUnderlyingIdentifier, Currency currency, double strike, double notional,
+      boolean parameterizedAsVariance, double annualizationFactor, ZonedDateTime firstObservationDate, ZonedDateTime lastObservationDate,
+      ZonedDateTime settlementDate, ExternalId region, Frequency observationFrequency) {
+    super(SECURITY_TYPE);
+    setSpotUnderlyingIdentifier(spotUnderlyingIdentifier);
+    setCurrency(currency);
+    setStrike(strike);
+    setNotional(notional);
+    setParameterizedAsVariance(parameterizedAsVariance);
+    setAnnualizationFactor(annualizationFactor);
+    setFirstObservationDate(firstObservationDate);
+    setLastObservationDate(lastObservationDate);
+    setSettlementDate(settlementDate);
+    setRegion(region);
+    setObservationFrequency(observationFrequency);
   }
-  public EquityVarianceSwapSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.id.ExternalId spotUnderlyingIdentifier, com.opengamma.util.money.Currency currency, double strike, double notional, boolean parameterizedAsVariance, double annualizationFactor, javax.time.calendar.ZonedDateTime firstObservationDate, javax.time.calendar.ZonedDateTime lastObservationDate, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId region, com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
-    super (uniqueId, name, securityType, identifiers);
-    if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
-    else {
-      _spotUnderlyingIdentifier = spotUnderlyingIdentifier;
-    }
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    _strike = strike;
-    _notional = notional;
-    _parameterizedAsVariance = parameterizedAsVariance;
-    _annualizationFactor = annualizationFactor;
-    if (firstObservationDate == null) throw new NullPointerException ("'firstObservationDate' cannot be null");
-    else {
-      _firstObservationDate = firstObservationDate;
-    }
-    if (lastObservationDate == null) throw new NullPointerException ("'lastObservationDate' cannot be null");
-    else {
-      _lastObservationDate = lastObservationDate;
-    }
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
-    if (observationFrequency == null) throw new NullPointerException ("observationFrequency' cannot be null");
-    _observationFrequency = observationFrequency;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitEquityVarianceSwapSecurity(this);
   }
-  protected EquityVarianceSwapSecurity (final EquityVarianceSwapSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._spotUnderlyingIdentifier == null) _spotUnderlyingIdentifier = null;
-    else {
-      _spotUnderlyingIdentifier = source._spotUnderlyingIdentifier;
-    }
-    _currency = source._currency;
-    _strike = source._strike;
-    _notional = source._notional;
-    _parameterizedAsVariance = source._parameterizedAsVariance;
-    _annualizationFactor = source._annualizationFactor;
-    if (source._firstObservationDate == null) _firstObservationDate = null;
-    else {
-      _firstObservationDate = source._firstObservationDate;
-    }
-    if (source._lastObservationDate == null) _lastObservationDate = null;
-    else {
-      _lastObservationDate = source._lastObservationDate;
-    }
-    if (source._settlementDate == null) _settlementDate = null;
-    else {
-      _settlementDate = source._settlementDate;
-    }
-    if (source._region == null) _region = null;
-    else {
-      _region = source._region;
-    }
-    _observationFrequency = source._observationFrequency;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(EquityVarianceSwapSecurityVisitor<T> visitor) {
+    return visitor.visitEquityVarianceSwapSecurity(this);
   }
-  public EquityVarianceSwapSecurity clone () {
-    return new EquityVarianceSwapSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code EquityVarianceSwapSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static EquityVarianceSwapSecurity.Meta meta() {
+    return EquityVarianceSwapSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(EquityVarianceSwapSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_spotUnderlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _spotUnderlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _spotUnderlyingIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (SPOT_UNDERLYING_IDENTIFIER_KEY, null, fudge1);
-    }
-    if (_currency != null)  {
-      msg.add (CURRENCY_KEY, null, _currency);
-    }
-    msg.add (STRIKE_KEY, null, _strike);
-    msg.add (NOTIONAL_KEY, null, _notional);
-    msg.add (PARAMETERIZED_AS_VARIANCE_KEY, null, _parameterizedAsVariance);
-    msg.add (ANNUALIZATION_FACTOR_KEY, null, _annualizationFactor);
-    if (_firstObservationDate != null)  {
-      serializer.addToMessage (msg, FIRST_OBSERVATION_DATE_KEY, null, _firstObservationDate);
-    }
-    if (_lastObservationDate != null)  {
-      serializer.addToMessage (msg, LAST_OBSERVATION_DATE_KEY, null, _lastObservationDate);
-    }
-    if (_settlementDate != null)  {
-      serializer.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
-    }
-    if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
-      _region.toFudgeMsg (serializer, fudge1);
-      msg.add (REGION_KEY, null, fudge1);
-    }
-    if (_observationFrequency != null)  {
-      msg.add (OBSERVATION_FREQUENCY_KEY, null, _observationFrequency);
-    }
+
+  @Override
+  public EquityVarianceSwapSecurity.Meta metaBean() {
+    return EquityVarianceSwapSecurity.Meta.INSTANCE;
   }
-  public static EquityVarianceSwapSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.equity.EquityVarianceSwapSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.equity.EquityVarianceSwapSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -714106872:  // spotUnderlyingIdentifier
+        return getSpotUnderlyingIdentifier();
+      case 575402001:  // currency
+        return getCurrency();
+      case -891985998:  // strike
+        return getStrike();
+      case 1585636160:  // notional
+        return getNotional();
+      case 1488612956:  // parameterizedAsVariance
+        return getParameterizedAsVariance();
+      case 663363412:  // annualizationFactor
+        return getAnnualizationFactor();
+      case -1644595926:  // firstObservationDate
+        return getFirstObservationDate();
+      case -1362285436:  // lastObservationDate
+        return getLastObservationDate();
+      case -295948169:  // settlementDate
+        return getSettlementDate();
+      case -934795532:  // region
+        return getRegion();
+      case -213041520:  // observationFrequency
+        return getObservationFrequency();
     }
-    return new EquityVarianceSwapSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public com.opengamma.id.ExternalId getSpotUnderlyingIdentifier () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -714106872:  // spotUnderlyingIdentifier
+        setSpotUnderlyingIdentifier((ExternalId) newValue);
+        return;
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
+        return;
+      case -891985998:  // strike
+        setStrike((Double) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Double) newValue);
+        return;
+      case 1488612956:  // parameterizedAsVariance
+        setParameterizedAsVariance((Boolean) newValue);
+        return;
+      case 663363412:  // annualizationFactor
+        setAnnualizationFactor((Double) newValue);
+        return;
+      case -1644595926:  // firstObservationDate
+        setFirstObservationDate((ZonedDateTime) newValue);
+        return;
+      case -1362285436:  // lastObservationDate
+        setLastObservationDate((ZonedDateTime) newValue);
+        return;
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTime) newValue);
+        return;
+      case -934795532:  // region
+        setRegion((ExternalId) newValue);
+        return;
+      case -213041520:  // observationFrequency
+        setObservationFrequency((Frequency) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_spotUnderlyingIdentifier, "spotUnderlyingIdentifier");
+    JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_firstObservationDate, "firstObservationDate");
+    JodaBeanUtils.notNull(_lastObservationDate, "lastObservationDate");
+    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
+    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_observationFrequency, "observationFrequency");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquityVarianceSwapSecurity other = (EquityVarianceSwapSecurity) obj;
+      return JodaBeanUtils.equal(getSpotUnderlyingIdentifier(), other.getSpotUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getParameterizedAsVariance(), other.getParameterizedAsVariance()) &&
+          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
+          JodaBeanUtils.equal(getFirstObservationDate(), other.getFirstObservationDate()) &&
+          JodaBeanUtils.equal(getLastObservationDate(), other.getLastObservationDate()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getObservationFrequency(), other.getObservationFrequency()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParameterizedAsVariance());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getSpotUnderlyingIdentifier() {
     return _spotUnderlyingIdentifier;
   }
-  public void setSpotUnderlyingIdentifier (com.opengamma.id.ExternalId spotUnderlyingIdentifier) {
-    if (spotUnderlyingIdentifier == null) throw new NullPointerException ("'spotUnderlyingIdentifier' cannot be null");
-    else {
-      _spotUnderlyingIdentifier = spotUnderlyingIdentifier;
-    }
+
+  /**
+   * Sets the underlying identifier.
+   * @param spotUnderlyingIdentifier  the new value of the property, not null
+   */
+  public void setSpotUnderlyingIdentifier(ExternalId spotUnderlyingIdentifier) {
+    JodaBeanUtils.notNull(spotUnderlyingIdentifier, "spotUnderlyingIdentifier");
+    this._spotUnderlyingIdentifier = spotUnderlyingIdentifier;
   }
-  public com.opengamma.util.money.Currency getCurrency () {
+
+  /**
+   * Gets the the {@code spotUnderlyingIdentifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> spotUnderlyingIdentifier() {
+    return metaBean().spotUnderlyingIdentifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  public void setCurrency (com.opengamma.util.money.Currency currency) {
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
   }
-  public double getStrike () {
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the strike.
+   * @return the value of the property
+   */
+  public double getStrike() {
     return _strike;
   }
-  public void setStrike (double strike) {
-    _strike = strike;
+
+  /**
+   * Sets the strike.
+   * @param strike  the new value of the property
+   */
+  public void setStrike(double strike) {
+    this._strike = strike;
   }
-  public double getNotional () {
+
+  /**
+   * Gets the the {@code strike} property.
+   * @return the property, not null
+   */
+  public final Property<Double> strike() {
+    return metaBean().strike().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional.
+   * @return the value of the property
+   */
+  public double getNotional() {
     return _notional;
   }
-  public void setNotional (double notional) {
-    _notional = notional;
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property
+   */
+  public void setNotional(double notional) {
+    this._notional = notional;
   }
-  public boolean getParameterizedAsVariance () {
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Double> notional() {
+    return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the parameterized as variance flag.
+   * @return the value of the property
+   */
+  public boolean getParameterizedAsVariance() {
     return _parameterizedAsVariance;
   }
-  public void setParameterizedAsVariance (boolean parameterizedAsVariance) {
-    _parameterizedAsVariance = parameterizedAsVariance;
+
+  /**
+   * Sets the parameterized as variance flag.
+   * @param parameterizedAsVariance  the new value of the property
+   */
+  public void setParameterizedAsVariance(boolean parameterizedAsVariance) {
+    this._parameterizedAsVariance = parameterizedAsVariance;
   }
-  public double getAnnualizationFactor () {
+
+  /**
+   * Gets the the {@code parameterizedAsVariance} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> parameterizedAsVariance() {
+    return metaBean().parameterizedAsVariance().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the annualization factor.
+   * @return the value of the property
+   */
+  public double getAnnualizationFactor() {
     return _annualizationFactor;
   }
-  public void setAnnualizationFactor (double annualizationFactor) {
-    _annualizationFactor = annualizationFactor;
+
+  /**
+   * Sets the annualization factor.
+   * @param annualizationFactor  the new value of the property
+   */
+  public void setAnnualizationFactor(double annualizationFactor) {
+    this._annualizationFactor = annualizationFactor;
   }
-  public javax.time.calendar.ZonedDateTime getFirstObservationDate () {
+
+  /**
+   * Gets the the {@code annualizationFactor} property.
+   * @return the property, not null
+   */
+  public final Property<Double> annualizationFactor() {
+    return metaBean().annualizationFactor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the first observation date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getFirstObservationDate() {
     return _firstObservationDate;
   }
-  public void setFirstObservationDate (javax.time.calendar.ZonedDateTime firstObservationDate) {
-    if (firstObservationDate == null) throw new NullPointerException ("'firstObservationDate' cannot be null");
-    else {
-      _firstObservationDate = firstObservationDate;
-    }
+
+  /**
+   * Sets the first observation date.
+   * @param firstObservationDate  the new value of the property, not null
+   */
+  public void setFirstObservationDate(ZonedDateTime firstObservationDate) {
+    JodaBeanUtils.notNull(firstObservationDate, "firstObservationDate");
+    this._firstObservationDate = firstObservationDate;
   }
-  public javax.time.calendar.ZonedDateTime getLastObservationDate () {
+
+  /**
+   * Gets the the {@code firstObservationDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> firstObservationDate() {
+    return metaBean().firstObservationDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the last observation date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getLastObservationDate() {
     return _lastObservationDate;
   }
-  public void setLastObservationDate (javax.time.calendar.ZonedDateTime lastObservationDate) {
-    if (lastObservationDate == null) throw new NullPointerException ("'lastObservationDate' cannot be null");
-    else {
-      _lastObservationDate = lastObservationDate;
-    }
+
+  /**
+   * Sets the last observation date.
+   * @param lastObservationDate  the new value of the property, not null
+   */
+  public void setLastObservationDate(ZonedDateTime lastObservationDate) {
+    JodaBeanUtils.notNull(lastObservationDate, "lastObservationDate");
+    this._lastObservationDate = lastObservationDate;
   }
-  public javax.time.calendar.ZonedDateTime getSettlementDate () {
+
+  /**
+   * Gets the the {@code lastObservationDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> lastObservationDate() {
+    return metaBean().lastObservationDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
+
+  /**
+   * Sets the settlement date.
+   * @param settlementDate  the new value of the property, not null
+   */
+  public void setSettlementDate(ZonedDateTime settlementDate) {
+    JodaBeanUtils.notNull(settlementDate, "settlementDate");
+    this._settlementDate = settlementDate;
   }
-  public com.opengamma.id.ExternalId getRegion () {
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region.
+   * @return the value of the property, not null
+   */
+  public ExternalId getRegion() {
     return _region;
   }
-  public void setRegion (com.opengamma.id.ExternalId region) {
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  /**
+   * Sets the region.
+   * @param region  the new value of the property, not null
+   */
+  public void setRegion(ExternalId region) {
+    JodaBeanUtils.notNull(region, "region");
+    this._region = region;
   }
-  public com.opengamma.financial.convention.frequency.Frequency getObservationFrequency () {
+
+  /**
+   * Gets the the {@code region} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> region() {
+    return metaBean().region().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the observation frequency.
+   * @return the value of the property, not null
+   */
+  public Frequency getObservationFrequency() {
     return _observationFrequency;
   }
-  public void setObservationFrequency (com.opengamma.financial.convention.frequency.Frequency observationFrequency) {
-    if (observationFrequency == null) throw new NullPointerException ("observationFrequency' cannot be null");
-    _observationFrequency = observationFrequency;
+
+  /**
+   * Sets the observation frequency.
+   * @param observationFrequency  the new value of the property, not null
+   */
+  public void setObservationFrequency(Frequency observationFrequency) {
+    JodaBeanUtils.notNull(observationFrequency, "observationFrequency");
+    this._observationFrequency = observationFrequency;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof EquityVarianceSwapSecurity)) return false;
-    EquityVarianceSwapSecurity msg = (EquityVarianceSwapSecurity)o;
-    if (_spotUnderlyingIdentifier != null) {
-      if (msg._spotUnderlyingIdentifier != null) {
-        if (!_spotUnderlyingIdentifier.equals (msg._spotUnderlyingIdentifier)) return false;
-      }
-      else return false;
-    }
-    else if (msg._spotUnderlyingIdentifier != null) return false;
-    if (_currency != null) {
-      if (msg._currency != null) {
-        if (!_currency.equals (msg._currency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._currency != null) return false;
-    if (_strike != msg._strike) return false;
-    if (_notional != msg._notional) return false;
-    if (_parameterizedAsVariance != msg._parameterizedAsVariance) return false;
-    if (_annualizationFactor != msg._annualizationFactor) return false;
-    if (_firstObservationDate != null) {
-      if (msg._firstObservationDate != null) {
-        if (!_firstObservationDate.equals (msg._firstObservationDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._firstObservationDate != null) return false;
-    if (_lastObservationDate != null) {
-      if (msg._lastObservationDate != null) {
-        if (!_lastObservationDate.equals (msg._lastObservationDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._lastObservationDate != null) return false;
-    if (_settlementDate != null) {
-      if (msg._settlementDate != null) {
-        if (!_settlementDate.equals (msg._settlementDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._settlementDate != null) return false;
-    if (_region != null) {
-      if (msg._region != null) {
-        if (!_region.equals (msg._region)) return false;
-      }
-      else return false;
-    }
-    else if (msg._region != null) return false;
-    if (_observationFrequency != null) {
-      if (msg._observationFrequency != null) {
-        if (!_observationFrequency.equals (msg._observationFrequency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._observationFrequency != null) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code observationFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> observationFrequency() {
+    return metaBean().observationFrequency().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_spotUnderlyingIdentifier != null) hc += _spotUnderlyingIdentifier.hashCode ();
-    hc *= 31;
-    if (_currency != null) hc += _currency.hashCode ();
-    hc = (hc * 31) + (int)_strike;
-    hc = (hc * 31) + (int)_notional;
-    hc *= 31;
-    if (_parameterizedAsVariance) hc++;
-    hc = (hc * 31) + (int)_annualizationFactor;
-    hc *= 31;
-    if (_firstObservationDate != null) hc += _firstObservationDate.hashCode ();
-    hc *= 31;
-    if (_lastObservationDate != null) hc += _lastObservationDate.hashCode ();
-    hc *= 31;
-    if (_settlementDate != null) hc += _settlementDate.hashCode ();
-    hc *= 31;
-    if (_region != null) hc += _region.hashCode ();
-    hc *= 31;
-    if (_observationFrequency != null) hc += _observationFrequency.hashCode ();
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code EquityVarianceSwapSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code spotUnderlyingIdentifier} property.
+     */
+    private final MetaProperty<ExternalId> _spotUnderlyingIdentifier = DirectMetaProperty.ofReadWrite(
+        this, "spotUnderlyingIdentifier", EquityVarianceSwapSecurity.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", EquityVarianceSwapSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code strike} property.
+     */
+    private final MetaProperty<Double> _strike = DirectMetaProperty.ofReadWrite(
+        this, "strike", EquityVarianceSwapSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", EquityVarianceSwapSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code parameterizedAsVariance} property.
+     */
+    private final MetaProperty<Boolean> _parameterizedAsVariance = DirectMetaProperty.ofReadWrite(
+        this, "parameterizedAsVariance", EquityVarianceSwapSecurity.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code annualizationFactor} property.
+     */
+    private final MetaProperty<Double> _annualizationFactor = DirectMetaProperty.ofReadWrite(
+        this, "annualizationFactor", EquityVarianceSwapSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code firstObservationDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _firstObservationDate = DirectMetaProperty.ofReadWrite(
+        this, "firstObservationDate", EquityVarianceSwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code lastObservationDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _lastObservationDate = DirectMetaProperty.ofReadWrite(
+        this, "lastObservationDate", EquityVarianceSwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", EquityVarianceSwapSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code region} property.
+     */
+    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", EquityVarianceSwapSecurity.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code observationFrequency} property.
+     */
+    private final MetaProperty<Frequency> _observationFrequency = DirectMetaProperty.ofReadWrite(
+        this, "observationFrequency", EquityVarianceSwapSecurity.class, Frequency.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "spotUnderlyingIdentifier",
+        "currency",
+        "strike",
+        "notional",
+        "parameterizedAsVariance",
+        "annualizationFactor",
+        "firstObservationDate",
+        "lastObservationDate",
+        "settlementDate",
+        "region",
+        "observationFrequency");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -714106872:  // spotUnderlyingIdentifier
+          return _spotUnderlyingIdentifier;
+        case 575402001:  // currency
+          return _currency;
+        case -891985998:  // strike
+          return _strike;
+        case 1585636160:  // notional
+          return _notional;
+        case 1488612956:  // parameterizedAsVariance
+          return _parameterizedAsVariance;
+        case 663363412:  // annualizationFactor
+          return _annualizationFactor;
+        case -1644595926:  // firstObservationDate
+          return _firstObservationDate;
+        case -1362285436:  // lastObservationDate
+          return _lastObservationDate;
+        case -295948169:  // settlementDate
+          return _settlementDate;
+        case -934795532:  // region
+          return _region;
+        case -213041520:  // observationFrequency
+          return _observationFrequency;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends EquityVarianceSwapSecurity> builder() {
+      return new DirectBeanBuilder<EquityVarianceSwapSecurity>(new EquityVarianceSwapSecurity());
+    }
+
+    @Override
+    public Class<? extends EquityVarianceSwapSecurity> beanType() {
+      return EquityVarianceSwapSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code spotUnderlyingIdentifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> spotUnderlyingIdentifier() {
+      return _spotUnderlyingIdentifier;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code strike} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> strike() {
+      return _strike;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> notional() {
+      return _notional;
+    }
+
+    /**
+     * The meta-property for the {@code parameterizedAsVariance} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> parameterizedAsVariance() {
+      return _parameterizedAsVariance;
+    }
+
+    /**
+     * The meta-property for the {@code annualizationFactor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> annualizationFactor() {
+      return _annualizationFactor;
+    }
+
+    /**
+     * The meta-property for the {@code firstObservationDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> firstObservationDate() {
+      return _firstObservationDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastObservationDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> lastObservationDate() {
+      return _lastObservationDate;
+    }
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> settlementDate() {
+      return _settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code region} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> region() {
+      return _region;
+    }
+
+    /**
+     * The meta-property for the {@code observationFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> observationFrequency() {
+      return _observationFrequency;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

@@ -20,6 +20,11 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class MapConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final MapConverter INSTANCE = new MapConverter();
+
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[][]> VALUES = JavaTypeInfo.builder(Value[][].class).get();
   private static final JavaTypeInfo<Value[][]> VALUES_ALLOW_NULL = JavaTypeInfo.builder(Value[][].class).allowNull().get();
@@ -32,6 +37,9 @@ public class MapConverter extends AbstractTypeConverter {
   private static final TypeMap FROM_MAP = TypeMap.of(ZERO_LOSS, MAP);
   private static final TypeMap TO_MAP_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUES_ALLOW_NULL);
   private static final TypeMap FROM_MAP_ALLOW_NULL = TypeMap.of(ZERO_LOSS, MAP_ALLOW_NULL);
+
+  protected MapConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {

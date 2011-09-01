@@ -17,6 +17,9 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
  */
 public final class FrequencySecondaryType extends SecondaryFieldType<Frequency, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

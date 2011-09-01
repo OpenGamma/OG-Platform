@@ -9,4 +9,5 @@ namespace com.opengamma.financial.security.option {
     PUT;
     CALL;
   }
+
 }

@@ -131,13 +131,13 @@
 
     updateViewList(initData.viewNames);
     $backingViewList.combobox({
-      change: function(item) { populateSnapshots($backingSnapshotList, initData.snapshots, $(item).val()); }
+      change: function(item) { populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val()); }
     });
 
     $("<span class='viewlabel'>using</span>").appendTo($views);
     $backingSnapshotList.appendTo($views);
     $backingSnapshotList.combobox();
-    populateSnapshots($backingSnapshotList, initData.snapshots, null);
+    populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, null);
     
     $views.find('.ui-autocomplete-input')
       .css('z-index', 10)
@@ -179,7 +179,7 @@
     });
   }
   
-  function populateSnapshots($snapshotSelect, snapshots, selectedView) {
+  function populateSnapshots($snapshotSelect, liveSources, snapshots, selectedView) {
     var $input = $snapshotSelect.next();
     var currentVal = $input.val();
     var currentValExists = false;
@@ -187,9 +187,15 @@
     
     $snapshotSelect.empty();
     $('<option value=""></option>').appendTo($snapshotSelect);
-    var $liveMarketData = $('<option value="live">Live market data</option>')
-        .addClass("live-market-data");
-    $liveMarketData.appendTo($snapshotSelect);
+    
+    if (liveSources) {
+      var $liveMarketData;
+      $.each(liveSources, function(idx, liveSource) {
+        $liveMarketData = $('<option value="' + liveSource + '">Live market data (' + liveSource + ')</option>')
+          .addClass("live-market-data");
+        $liveMarketData.appendTo($snapshotSelect);
+      });
+    }
 
     if (selectedView) {
       if (selectedViewSnapshots) {
@@ -201,7 +207,7 @@
         });
       }
       
-      if ($snapshotSelect.children().size() > 2) {
+      if ($snapshotSelect.children().size() > 2 && $liveMarketData) {
         $liveMarketData.addClass("autocomplete-divider");
       }
 
@@ -221,8 +227,9 @@
     }
         
     $input.width(Math.min(250, $snapshotSelect.width() + 15));
-    if (!currentValExists) {
-      $input.val("Live market data");
+    if (!currentValExists && $snapshotSelect.children().size() > 1) {
+      $input.val($snapshotSelect.children()[1].text);
+      $snapshotSelect.children()[1].selected = true;
     }
   }
   
@@ -247,13 +254,20 @@
       return;
     }
     
-    var snapshotId = $('#snapshotlist option:selected').attr('value');
-    if (!snapshotId || snapshotId == "" || snapshotId == "live") {
-      snapshotId = null;
+    var $selectedMarketData = $('#snapshotlist option:selected');
+    var marketDataId = $selectedMarketData.attr('value');
+    var isLive = $selectedMarketData.hasClass('live-market-data');
+    var marketDataSpecification = {};
+    if (isLive) {
+      marketDataSpecification.marketDataType = "live";
+      marketDataSpecification.provider = marketDataId;
+    } else {
+      marketDataSpecification.marketDataType = "snapshot";
+      marketDataSpecification.snapshotId = marketDataId;
     }
     
     prepareChangeView();    
-    _liveResultsClient.changeView(view, snapshotId);
+    _liveResultsClient.changeView(view, marketDataSpecification);
   }
   
   function prepareChangeView() {

@@ -15,6 +15,7 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
+        'og.views.common.versions',
         'og.views.common.state',
         'og.views.common.default_details'
     ],
@@ -152,6 +153,23 @@ $.register_module({
                                 $html = $.tmpl(template, json.template_data),
                                 layout = og.views.common.layout, header, content,
                                 html = [], id, json_id = json.identifiers;
+                            (function () {
+                                if (json.template_data.underlyingOid) {
+                                    var id = json.template_data.underlyingOid,
+                                        rule = module.rules.load_securities,
+                                        hash = routes.hash(rule, $.extend(true, routes.current().args, {id: id})),
+                                        text = json.template_data.underlyingExternalId,
+                                        anchor = '<a href="#' + hash + '">' + text + '</a>';
+                                        $html.find('.OG-js-underlying-id').html(anchor);
+                                }
+                            }());
+                            for (id in json_id) {
+                                if (json_id.hasOwnProperty(id)) {
+                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
+                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
+                                }
+                                $html.find('.og-js-identifiers').html(html.join(''));
+                            }
                             header = $.outer($html.find('> header')[0]);
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
@@ -166,19 +184,13 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', json_id[id].split('-')[0],
-                                              '<span></td><td>', json_id[id].split('-')[1], '</td></tr>');
-                                }
-                            }
-                            $('.OG-security .og-js-identifiers').html(html.join(''));
-                            details.favorites();
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,
                     loading: function () {
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
@@ -213,12 +225,14 @@ $.register_module({
                 default_details();
             },
             load_filter: function (args) {
+                /* REMOVE THIS */
                 var search_filter = function () {
                         var filter_name = options.slickgrid.columns[0].name;
                         if (!filter_name || filter_name === 'loading') // wait until type filter is populated
                             return setTimeout(search_filter, 500);
                         search.filter($.extend(args, {filter: true}));
                 };
+                /* REMOVE THIS */
                 check_state({args: args, conditions: [
                     {new_page: function () {
                         state = {filter: true};
@@ -229,7 +243,10 @@ $.register_module({
                     }}
                 ]});
                 delete args['filter'];
+                securities.search(args);
+                /* REMOVE THIS */
                 search_filter();
+                /* REMOVE THIS */
             },
             load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
@@ -238,6 +255,7 @@ $.register_module({
                 securities.details(args);
             },
             search: function (args) {
+                /* REMOVE THIS */
                 if (!search) search = common.search_results.core();
                 if (options.slickgrid.columns[0].name === 'loading')
                     return setTimeout(securities.search.partial(args), 500);
@@ -256,6 +274,66 @@ $.register_module({
                     loading: function () {options.slickgrid.columns[0].name = 'loading';}
                 });
                 search.load($.extend(options.slickgrid, {url: args}));
+                /* REMOVE THIS */
+
+//                og.common.grid({
+//                    selector: '.OG-js-search',
+//                    resource: 'securities',
+//                    columns: [
+//                        {
+//                            id: 'type', name: null, field: 'type', width: 100, toolTip: 'type'
+//                        },
+//                        {
+//                            id: 'name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name',
+//                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'
+//                        }
+//                    ],
+//                    dependencies: [
+//                        function (config, callback) {
+//                            api.rest.securities.get({
+//                                meta: true,
+//                                handler: function (result) {
+//                                    config.columns[0].name = [
+//                                        '<select class="og-js-type-filter" style="width: 80px">',
+//                                        result.data.types.reduce(function (acc, type) {
+//                                            return acc + '<option value="' + type + '">' + type + '</option>';
+//                                        }, '<option value="">Type</option>'),
+//                                        '</select>'
+//                                    ].join('');
+//                                    callback(config);
+//                                }
+//                            });
+//                        }
+//                    ],
+//                    slick_options: {}, // add these to the default options
+//                    rest_options: {},
+//                    filters: (function (args) {
+//                        return ['type', 'name'].reduce(function (acc, val) {
+//                            if (args[val]) acc[val] = args[val];
+//                            return acc;
+//                        }, {});
+//                    }(args)),
+//                    handlers: {
+//                        data: function (data) {
+//                            return data.map(function (r) {
+//                                var arr = r.split('|');
+//                                return {type: arr[2] || args.type, name: arr[1]}
+//                            });
+//                        },
+//                        event: {
+//                            onClick: function (data) {
+//                                return function (e, dd) {
+//                                    routes.go(routes.hash(
+//                                        og.views.securities.rules['load_securities'],
+//                                        {id: data[dd.row].split('|')[0]}
+//                                    ));
+//                                }
+//                            }
+//                        },
+//                        post: function (config) {og.common.search.filter(config);} // Setup filter inputs
+//                    }
+//                });
+
             },
             details: details_page,
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},

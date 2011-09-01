@@ -8,6 +8,7 @@ package com.opengamma.language.connector;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.custom.CustomMessageVisitor;
 import com.opengamma.language.custom.CustomMessageVisitorRegistry;
@@ -106,12 +107,12 @@ public class UserMessagePayloadHandler implements UserMessagePayloadVisitor<User
   }
 
   @Override
-  public UserMessagePayload visitFunction(final Function message, final SessionContext session) {
+  public UserMessagePayload visitFunction(final Function message, final SessionContext session) throws AsynchronousExecution {
     return message.accept(_functionVisitor, session);
   }
 
   @Override
-  public UserMessagePayload visitProcedure(final Procedure message, final SessionContext session) {
+  public UserMessagePayload visitProcedure(final Procedure message, final SessionContext session) throws AsynchronousExecution {
     return message.accept(_procedureVisitor, session);
   }
 

@@ -1,198 +1,342 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.fx;
-public class FXForwardSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-    	    public <T> T accept(FXForwardSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
-  	    public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXForwardSecurity(this); }
-  private static final long serialVersionUID = 2195953966345358029l;
-  private com.opengamma.id.ExternalId _underlyingIdentifier;
-  public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
-  private javax.time.calendar.ZonedDateTime _forwardDate;
-  public static final String FORWARD_DATE_KEY = "forwardDate";
-  private com.opengamma.id.ExternalId _region;
-  public static final String REGION_KEY = "region";
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.id.ExternalId;
+
+/**
+ * A security for FX forwards.
+ */
+@BeanDefinition
+public class FXForwardSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "FX_FORWARD";
-  public FXForwardSecurity (com.opengamma.id.ExternalId underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, com.opengamma.id.ExternalId region) {
-    super (SECURITY_TYPE);
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
-    if (forwardDate == null) throw new NullPointerException ("'forwardDate' cannot be null");
-    else {
-      _forwardDate = forwardDate;
-    }
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  /**
+   * The underlying identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _underlyingIdentifier;
+  /**
+   * The forward date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _forwardDate;
+  /**
+   * The region.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _region;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public FXForwardSecurity() {
   }
-  protected FXForwardSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'underlyingIdentifier' is not present");
-    try {
-      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (FORWARD_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'forwardDate' is not present");
-    try {
-      _forwardDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'forwardDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (REGION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'region' is not present");
-    try {
-      _region = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FXForwardSecurity - field 'region' is not ExternalId message", e);
-    }
+
+  public FXForwardSecurity(ExternalId underlyingIdentifier, ZonedDateTime forwardDate, ExternalId region) {
+    super(SECURITY_TYPE);
+    setUnderlyingIdentifier(underlyingIdentifier);
+    setForwardDate(forwardDate);
+    setRegion(region);
   }
-  public FXForwardSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.id.ExternalId underlyingIdentifier, javax.time.calendar.ZonedDateTime forwardDate, com.opengamma.id.ExternalId region) {
-    super (uniqueId, name, securityType, identifiers);
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
-    if (forwardDate == null) throw new NullPointerException ("'forwardDate' cannot be null");
-    else {
-      _forwardDate = forwardDate;
-    }
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitFXForwardSecurity(this);
   }
-  protected FXForwardSecurity (final FXForwardSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._underlyingIdentifier == null) _underlyingIdentifier = null;
-    else {
-      _underlyingIdentifier = source._underlyingIdentifier;
-    }
-    if (source._forwardDate == null) _forwardDate = null;
-    else {
-      _forwardDate = source._forwardDate;
-    }
-    if (source._region == null) _region = null;
-    else {
-      _region = source._region;
-    }
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public <T> T accept(FXForwardSecurityVisitor<T> visitor) {
+    return visitor.visitFXForwardSecurity(this);
   }
-  public FXForwardSecurity clone () {
-    return new FXForwardSecurity (this);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FXForwardSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static FXForwardSecurity.Meta meta() {
+    return FXForwardSecurity.Meta.INSTANCE;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+  static {
+    JodaBeanUtils.registerMetaBean(FXForwardSecurity.Meta.INSTANCE);
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _underlyingIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
-    }
-    if (_forwardDate != null)  {
-      serializer.addToMessage (msg, FORWARD_DATE_KEY, null, _forwardDate);
-    }
-    if (_region != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _region.getClass (), com.opengamma.id.ExternalId.class);
-      _region.toFudgeMsg (serializer, fudge1);
-      msg.add (REGION_KEY, null, fudge1);
-    }
+
+  @Override
+  public FXForwardSecurity.Meta metaBean() {
+    return FXForwardSecurity.Meta.INSTANCE;
   }
-  public static FXForwardSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.fx.FXForwardSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.fx.FXForwardSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 368639974:  // underlyingIdentifier
+        return getUnderlyingIdentifier();
+      case 1652755475:  // forwardDate
+        return getForwardDate();
+      case -934795532:  // region
+        return getRegion();
     }
-    return new FXForwardSecurity (deserializer, fudgeMsg);
+    return super.propertyGet(propertyName, quiet);
   }
-  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 368639974:  // underlyingIdentifier
+        setUnderlyingIdentifier((ExternalId) newValue);
+        return;
+      case 1652755475:  // forwardDate
+        setForwardDate((ZonedDateTime) newValue);
+        return;
+      case -934795532:  // region
+        setRegion((ExternalId) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_forwardDate, "forwardDate");
+    JodaBeanUtils.notNull(_region, "region");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXForwardSecurity other = (FXForwardSecurity) obj;
+      return JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getForwardDate(), other.getForwardDate()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getUnderlyingIdentifier() {
     return _underlyingIdentifier;
   }
-  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
+
+  /**
+   * Sets the underlying identifier.
+   * @param underlyingIdentifier  the new value of the property, not null
+   */
+  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
+    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
+    this._underlyingIdentifier = underlyingIdentifier;
   }
-  public javax.time.calendar.ZonedDateTime getForwardDate () {
+
+  /**
+   * Gets the the {@code underlyingIdentifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> underlyingIdentifier() {
+    return metaBean().underlyingIdentifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the forward date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getForwardDate() {
     return _forwardDate;
   }
-  public void setForwardDate (javax.time.calendar.ZonedDateTime forwardDate) {
-    if (forwardDate == null) throw new NullPointerException ("'forwardDate' cannot be null");
-    else {
-      _forwardDate = forwardDate;
-    }
+
+  /**
+   * Sets the forward date.
+   * @param forwardDate  the new value of the property, not null
+   */
+  public void setForwardDate(ZonedDateTime forwardDate) {
+    JodaBeanUtils.notNull(forwardDate, "forwardDate");
+    this._forwardDate = forwardDate;
   }
-  public com.opengamma.id.ExternalId getRegion () {
+
+  /**
+   * Gets the the {@code forwardDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> forwardDate() {
+    return metaBean().forwardDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region.
+   * @return the value of the property, not null
+   */
+  public ExternalId getRegion() {
     return _region;
   }
-  public void setRegion (com.opengamma.id.ExternalId region) {
-    if (region == null) throw new NullPointerException ("'region' cannot be null");
-    else {
-      _region = region;
-    }
+
+  /**
+   * Sets the region.
+   * @param region  the new value of the property, not null
+   */
+  public void setRegion(ExternalId region) {
+    JodaBeanUtils.notNull(region, "region");
+    this._region = region;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FXForwardSecurity)) return false;
-    FXForwardSecurity msg = (FXForwardSecurity)o;
-    if (_underlyingIdentifier != null) {
-      if (msg._underlyingIdentifier != null) {
-        if (!_underlyingIdentifier.equals (msg._underlyingIdentifier)) return false;
+
+  /**
+   * Gets the the {@code region} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> region() {
+    return metaBean().region().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FXForwardSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code underlyingIdentifier} property.
+     */
+    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
+        this, "underlyingIdentifier", FXForwardSecurity.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code forwardDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _forwardDate = DirectMetaProperty.ofReadWrite(
+        this, "forwardDate", FXForwardSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code region} property.
+     */
+    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", FXForwardSecurity.class, ExternalId.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "underlyingIdentifier",
+        "forwardDate",
+        "region");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 368639974:  // underlyingIdentifier
+          return _underlyingIdentifier;
+        case 1652755475:  // forwardDate
+          return _forwardDate;
+        case -934795532:  // region
+          return _region;
       }
-      else return false;
+      return super.metaPropertyGet(propertyName);
     }
-    else if (msg._underlyingIdentifier != null) return false;
-    if (_forwardDate != null) {
-      if (msg._forwardDate != null) {
-        if (!_forwardDate.equals (msg._forwardDate)) return false;
-      }
-      else return false;
+
+    @Override
+    public BeanBuilder<? extends FXForwardSecurity> builder() {
+      return new DirectBeanBuilder<FXForwardSecurity>(new FXForwardSecurity());
     }
-    else if (msg._forwardDate != null) return false;
-    if (_region != null) {
-      if (msg._region != null) {
-        if (!_region.equals (msg._region)) return false;
-      }
-      else return false;
+
+    @Override
+    public Class<? extends FXForwardSecurity> beanType() {
+      return FXForwardSecurity.class;
     }
-    else if (msg._region != null) return false;
-    return super.equals (msg);
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code underlyingIdentifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> underlyingIdentifier() {
+      return _underlyingIdentifier;
+    }
+
+    /**
+     * The meta-property for the {@code forwardDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> forwardDate() {
+      return _forwardDate;
+    }
+
+    /**
+     * The meta-property for the {@code region} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> region() {
+      return _region;
+    }
+
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_underlyingIdentifier != null) hc += _underlyingIdentifier.hashCode ();
-    hc *= 31;
-    if (_forwardDate != null) hc += _forwardDate.hashCode ();
-    hc *= 31;
-    if (_region != null) hc += _region.hashCode ();
-    return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

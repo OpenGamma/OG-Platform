@@ -5,10 +5,11 @@
  */
  
 /**
- * Introduce the GICSCode element as a Fudge-Proto identifier.
+ * The GICS code for equities.
  */
 namespace com.opengamma.financial.security.equity {
 
+  // transfer GICS code as a string
   extern typedef GICSCode = string;
 
 }

@@ -69,14 +69,14 @@ public class Loader extends ContextInitializationBean {
     globalContext.getFunctionProvider().addProvider(new AbstractFunctionProvider() {
       @Override
       protected void loadDefinitions(final Collection<MetaFunction> definitions) {
-        definitions.add(new FetchTimeSeriesFunction().getMetaFunction());
+        definitions.add(FetchTimeSeriesFunction.INSTANCE.getMetaFunction());
       }
     });
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new AbstractTypeConverterProvider() {
       @Override
       protected void loadTypeConverters(final Collection<TypeConverter> converters) {
-        converters.add(new HistoricalTimeSeriesConverter());
-        converters.add(new LocalDateDoubleTimeSeriesConverter());
+        converters.add(HistoricalTimeSeriesConverter.INSTANCE);
+        converters.add(LocalDateDoubleTimeSeriesConverter.INSTANCE);
       }
     });
   }

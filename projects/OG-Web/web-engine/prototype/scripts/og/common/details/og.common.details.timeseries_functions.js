@@ -13,10 +13,18 @@ $.register_module({
              * @param {json} data
              */
             render_table = function (selector, json, handler) {
-                var CHUNK = 500, length = json.data.length,$parent = $(selector).html([
-                        '<table class="OG-table-style-01"><thead><tr><td>', json.fieldLabels[0], '</td><td>',
-                        json.fieldLabels[1], '</td></tr></thead><tbody></tbody></table>'
-                    ].join('')).find('tbody'),
+                var CHUNK = 500, length = json.data.length, $parent = $(selector).html(
+                       '<thead>\
+                          <tr>\
+                            <td>Data Points</td>\
+                            <td><span class="OG-link og-js-timeSeriesCsv">Download (CSV)</span></td>\
+                          </tr><tr>\
+                            <td>' + json.fieldLabels[0] + '</td>\
+                            <td>' + json.fieldLabels[1] + '</td>\
+                          </tr>\
+                        </thead>\
+                        <tbody class="og-mod-content" style="height: 200px"></tbody>'
+                    ).find('tbody'),
                     render = function (start, end) {
                         if (start >= length) return handler();
                         var str = json.data.slice(start, end).reduce(function (acc, val) {

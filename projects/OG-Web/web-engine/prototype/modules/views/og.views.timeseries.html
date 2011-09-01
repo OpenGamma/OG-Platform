@@ -1,31 +1,37 @@
 <article>
   <header class="OG-header-generic">
     <div class="OG-toolbar"></div>
-    <h1>${name}</h1>
+    <h1>${object_id}</h1>
   </header>
   <section>
     <div class="og-details-content OG-timeseries OG-js-details-panel">
-      <section class="OG-c10 og-grid-last OG-max-width-m">
-        <div class="og-identifiers og-js-identifiers"></div>
-        <div class="og-plotHeader">
-          <select>
-            <option>${data_field}</option>
-          </select>
-          <div>Observation time: ${observation_time}</div>
-        </div>
-        <div class="og-timeseriesPlot og-js-timeseriesPlot"></div>
-        <div class="og-plotMeta">
-          <div class="og-source">Source: ${data_source}</div>
-          <div class="og-provider">Provider: ${data_provider}</div>
-        </div>
-        <div class="og-dataPoints">
-          <div class="OG-clearFix">
-            <h2>Data Points</h2>
-            <button class="og-button-secondary og-js-timeSeriesCsv">Download (CSV)</button>
+      <div class="OG-c10 og-grid-last OG-max-width-l">
+        <section class="OG-c10 og-grid-last" style="width: 770px;">
+          <div class="og-timeseriesPlot og-js-timeseriesPlot"></div>
+          <div class="og-plotHeader">
+            <div>${data_field}<br />Observation time: ${observation_time}</div>
           </div>
-          <div class="og-js-table"></div>
-        </div>
-      </section>
+          <div class="og-plotMeta">
+            Source: <span>${data_source}</span>,
+            Provider: <span>${data_provider}</span>
+          </div>
+        </section>
+        <section class="OG-mod-1 og-style-2 OG-c5" style="width: 360px;">
+          <table>
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+              <thead>
+              <tr>
+                <td>Identifiers</td><td></td>
+              </tr>
+            </thead>
+            <tbody class="og-js-identifiers og-mod-content"></tbody>
+          </table>
+        </section>
+        <section class="OG-mod-1 og-style-2 og-dataPoints">
+          <table class="og-js-table"></table>
+        </section>
+      </div>
     </div>
   </section>
 </article>

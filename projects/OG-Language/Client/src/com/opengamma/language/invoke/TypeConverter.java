@@ -19,7 +19,7 @@ public interface TypeConverter {
   /**
    * Tests whether the type converter will attempt to produce a value of the given type.
    * 
-   * @param targetType the desired type, not null
+   * @param targetType  the desired type, not null
    * @return true if the type can be produced, false if it can never be produced
    */
   boolean canConvertTo(JavaTypeInfo<?> targetType);
@@ -33,8 +33,9 @@ public interface TypeConverter {
   Map<JavaTypeInfo<?>, Integer> getConversionsTo(JavaTypeInfo<?> targetType);
 
   /**
-   * Converts a value to a specified type if possible. If the conversion is not possible indicates the
-   * failure within the {@code conversionContext}.
+   * Converts a value to a specified type if possible.
+   * <p>
+   * If the conversion is not possible indicates the failure within the {@code conversionContext}.
    * 
    * @param conversionContext  the value conversion context
    * @param value  the value to convert from
@@ -43,11 +44,12 @@ public interface TypeConverter {
   void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type);
 
   /**
-   * Returns a "key" to identify the converter. Only one converter with any given
-   * key is allowed in a chain. This is enforced by the aggregator so that a language
-   * binding can override conversions already provided.
+   * Returns a "key" to identify the converter.
+   * <p>
+   * Only one converter with any given key is allowed in a chain. This is enforced by the
+   * aggregator so that a language binding can override conversions already provided.
    * 
-   * @return the converter key, not {@code null}
+   * @return the converter key, not null
    */
   String getTypeConverterKey();
 
