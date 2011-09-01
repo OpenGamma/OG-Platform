@@ -65,39 +65,98 @@ public class BLAS2Test {
  * Test input catchers
  */
 
+  /* Normal 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix() {
   FullMatrix NullMat = null;
-  BLAS2.dgemv(NullMat, x);
+  BLAS2.dgemvInputSanityChecker(NullMat, x);
 }
 
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherVector() {
   double[] aVector = null;
-  BLAS2.dgemv(aMatrix, aVector);
-}
-
-@Test(expectedExceptions = AssertionError.class)
-public void testInputCatcherReturnVector() {
-  double[] aVector = null;
-  BLAS2.dgemvInPlace(aVector, aMatrix, x);
+  BLAS2.dgemvInputSanityChecker(oddaMatrix, aVector);
 }
 
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherSizeWillNotCommute() {
-  BLAS2.dgemv(aMatrix,oddx);
+  BLAS2.dgemvInputSanityChecker(oddaMatrix,x);
+}
+
+/* Normal 3 inputs */
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherMatrix3inputs() {
+  FullMatrix NullMat = null;
+  BLAS2.dgemvInputSanityChecker(NullMat, oddx, oddy);
 }
 
 @Test(expectedExceptions = AssertionError.class)
-public void testInputCatcherSizeWillNotCommuteInPlaceCatch1st() {
-  double[] tmp = new double[5];
-  BLAS2.dgemvInPlace(tmp,aMatrix,oddx);
+public void testInputCatcherVectorBadVectorGood() {
+  double[] aVector = null;
+  BLAS2.dgemvInputSanityChecker(oddaMatrix, aVector, oddx);
 }
 
 @Test(expectedExceptions = AssertionError.class)
-public void testInputCatcherSizeWillNotCommuteInPlaceCatch2nd() {
-  double[] tmp = new double[2];
-  BLAS2.dgemvInPlace(tmp,aMatrix,x);
+public void testInputCatcherVectorGoodVectorBad() {
+  double[] aVector = null;
+  BLAS2.dgemvInputSanityChecker(oddaMatrix, oddx, aVector);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherSizeWillNotCommuteWithIntermediteVector() {
+  BLAS2.dgemvInputSanityChecker(oddaMatrix,singlex,oddy);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testInputCatcherSizeWillNotCommuteWithReturnVector() {
+  BLAS2.dgemvInputSanityChecker(oddaMatrix,oddx,singley);
+}
+
+/* Transpose 2 inputs */
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherMatrix() {
+  FullMatrix NullMat = null;
+  BLAS2.dgemvInputSanityCheckerTranspose(NullMat, x);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherVector() {
+  double[] aVector = null;
+  BLAS2.dgemvInputSanityCheckerTranspose(oddaMatrix, aVector);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherSizeWillNotCommute() {
+  BLAS2.dgemvInputSanityCheckerTranspose(oddaMatrix,singlex);
+}
+
+/* Transpose 3 inputs */
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherMatrix3inputs() {
+  FullMatrix NullMat = null;
+  BLAS2.dgemvInputSanityCheckerTranspose(NullMat, oddx, oddy);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherVectorBadVectorGood() {
+  double[] aVector = null;
+  BLAS2.dgemvInputSanityCheckerTranspose(oddaMatrix, aVector, oddx);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherVectorGoodVectorBad() {
+  double[] aVector = null;
+  BLAS2.dgemvInputSanityCheckerTranspose(oddaMatrix, oddx, aVector);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherSizeWillNotCommuteWithIntermediteVector() {
+  BLAS2.dgemvInputSanityCheckerTranspose(oddaMatrix,singlex,oddy);
+}
+
+@Test(expectedExceptions = AssertionError.class)
+public void testTransposeInputCatcherSizeWillNotCommuteWithReturnVector() {
+  BLAS2.dgemvInputSanityCheckerTranspose(oddaMatrix,oddx,singley);
 }
 
 
@@ -481,20 +540,99 @@ public void testDGEMV_y_eq_A_times_x() {
 }
 
 @Test
+public void testDGEMV_y_eq_A_times_D1D_x() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  BLAS2.dgemvInPlace(ycp,aMatrix,new DoubleMatrix1D(x));
+  assertTrue(Arrays.equals(ycp,A_times_x));
+}
+
+@Test
+public void testDGEMV_D1D_y_eq_A_times_x() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
+  BLAS2.dgemvInPlace(tmp,aMatrix,x);
+  assertTrue(Arrays.equals(tmp.getData(),A_times_x));
+}
+
+@Test
+public void testDGEMV_D1D_y_eq_A_times_D1D_x() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
+  BLAS2.dgemvInPlace(tmp,aMatrix,new DoubleMatrix1D(x));
+  assertTrue(Arrays.equals(tmp.getData(),A_times_x));
+}
+
+@Test
 public void testDGEMV_y_eq_alpha_times_A_times_x() {
   double [] ycp = new double[y.length];
   System.arraycopy(y, 0, ycp, 0, y.length);
-  BLAS2.dgemvInPlace(ycp,alpha,aMatrix,x,0);
+  BLAS2.dgemvInPlace(ycp,alpha,aMatrix,0,x);
   assertTrue(Arrays.equals(ycp,alpha_times_A_times_x));
+}
+
+@Test
+public void testDGEMV_y_eq_alpha_times_A_times_D1D_x() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  BLAS2.dgemvInPlace(ycp,alpha,aMatrix,0,new DoubleMatrix1D(x));
+  assertTrue(Arrays.equals(ycp,alpha_times_A_times_x));
+}
+
+@Test
+public void testDGEMV_D1D_y_eq_alpha_times_A_times_x() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
+  BLAS2.dgemvInPlace(tmp,alpha,aMatrix,0,x);
+  assertTrue(Arrays.equals(tmp.getData(),alpha_times_A_times_x));
+}
+
+@Test
+public void testDGEMV_D1D_y_eq_alpha_times_A_times_D1D_x() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
+  BLAS2.dgemvInPlace(tmp,alpha,aMatrix,0,new DoubleMatrix1D(x));
+  assertTrue(Arrays.equals(tmp.getData(),alpha_times_A_times_x));
 }
 
 @Test
 public void testDGEMV_y_eq_alpha_times_A_times_x_plus_beta_times_y() {
   double [] ycp = new double[y.length];
   System.arraycopy(y, 0, ycp, 0, y.length);
-  BLAS2.dgemvInPlace(ycp,alpha,aMatrix,x,beta);
+  BLAS2.dgemvInPlace(ycp,alpha,aMatrix,beta,x);
   assertTrue(Arrays.equals(ycp,alpha_times_A_times_x_plus_beta_times_y));
 }
+
+@Test
+public void testDGEMV_y_eq_alpha_times_A_times_D1D_x_plus_beta_times_y() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  BLAS2.dgemvInPlace(ycp,alpha,aMatrix,beta,new DoubleMatrix1D(x));
+  assertTrue(Arrays.equals(ycp,alpha_times_A_times_x_plus_beta_times_y));
+}
+
+@Test
+public void testDGEMV_D1D_y_eq_alpha_times_A_times_x_plus_beta_times_D1D_y() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
+  BLAS2.dgemvInPlace(tmp,alpha,aMatrix,beta,x);
+  assertTrue(Arrays.equals(tmp.getData(),alpha_times_A_times_x_plus_beta_times_y));
+}
+
+@Test
+public void testDGEMV_D1D_y_eq_alpha_times_A_times_D1D_x_plus_beta_times_D1D_y() {
+  double [] ycp = new double[y.length];
+  System.arraycopy(y, 0, ycp, 0, y.length);
+  DoubleMatrix1D tmp = new DoubleMatrix1D(ycp);
+  BLAS2.dgemvInPlace(tmp,alpha,aMatrix,beta,new DoubleMatrix1D(x));
+  assertTrue(Arrays.equals(tmp.getData(),alpha_times_A_times_x_plus_beta_times_y));
+}
+
 
 /**
  * DGEMV on CSR matrices

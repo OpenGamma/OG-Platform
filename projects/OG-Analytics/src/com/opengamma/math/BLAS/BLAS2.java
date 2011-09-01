@@ -39,7 +39,7 @@ public class BLAS2 {
   public enum orientation { normal, transposed };
 
   /**
-   * Ensures that the inputs to DGEMV routines are sane.
+   * Ensures that the inputs to DGEMV routines are sane when DGMEV is function(Matrix,Vector).
    * @param aMatrix is the matrix to be tested (A)
    * @param aVector is the vector to be tested (x)
    */
@@ -50,7 +50,21 @@ public class BLAS2 {
   }
 
   /**
-   * Ensures that the inputs to DGEMV routines for transposed matrices are sane.
+   * Ensures that the inputs to DGEMV routines are sane when DGMEV is function(Matrix,Vector,Vector).
+   * @param aMatrix is the matrix to be tested (A)
+   * @param aVector is the vector to be tested (x)
+   * @param addToVector is the vector to be tested (y)
+   */
+  public static void dgemvInputSanityChecker(MatrixPrimitiveInterface aMatrix, double[] aVector, double[] addToVector) {
+    assertNotNull(aMatrix); // check not null
+    assertNotNull(aVector); // check not null
+    assertNotNull(addToVector); // check not null
+    assertEquals(aMatrix.getNumberOfColumns(), aVector.length); // check commutable
+    assertEquals(aMatrix.getNumberOfRows(), addToVector.length); // check commutable
+  }
+
+  /**
+   * Ensures that the inputs to DGEMV routines for transposed matrices are sane when DGEMV is function(Matrix,Vector)
    * @param aMatrix is the matrix to be tested (A)
    * @param aVector is the vector to be tested (x)
    */
@@ -58,6 +72,20 @@ public class BLAS2 {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
     assertEquals(aMatrix.getNumberOfRows(), aVector.length); // check commutable
+  }
+
+  /**
+   * Ensures that the inputs to DGEMV routines for transposed matrices are sane when DGEMV is function(Matrix,Vector,Vector)
+   * @param aMatrix is the matrix to be tested (A)
+   * @param aVector is the vector to be tested (x)
+   * @param addToVector is the vector to be tested (y)
+   */
+  public static void dgemvInputSanityCheckerTranspose(MatrixPrimitiveInterface aMatrix, double[] aVector, double[] addToVector) {
+    assertNotNull(aMatrix); // check not null
+    assertNotNull(aVector); // check not null
+    assertNotNull(addToVector); // check not null
+    assertEquals(aMatrix.getNumberOfRows(), aVector.length); // check commutable
+    assertEquals(aMatrix.getNumberOfColumns(), addToVector.length); // check commutable
   }
 
 
@@ -352,7 +380,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(FullMatrix aMatrix, double [] aVector, double [] y) {
-    dgemvInputSanityChecker(aMatrix, aVector);
+    dgemvInputSanityChecker(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
@@ -394,7 +422,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemvTransposed(FullMatrix aMatrix, double [] aVector, double [] y) {
-    dgemvInputSanityCheckerTranspose(aMatrix, aVector);
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -498,7 +526,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, double [] y) {
-    dgemvInputSanityChecker(aMatrix, aVector);
+    dgemvInputSanityChecker(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
@@ -543,7 +571,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemvTransposed(double alpha, FullMatrix aMatrix, double [] aVector, double [] y) {
-    dgemvInputSanityCheckerTranspose(aMatrix, aVector);
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -649,7 +677,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
-    dgemvInputSanityChecker(aMatrix, aVector);
+    dgemvInputSanityChecker(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
@@ -693,7 +721,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemvTransposed(FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
-    dgemvInputSanityCheckerTranspose(aMatrix, aVector);
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -803,7 +831,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(double alpha, FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
-    dgemvInputSanityChecker(aMatrix, aVector);
+    dgemvInputSanityChecker(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
@@ -850,7 +878,7 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemvTransposed(double alpha, FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
-    dgemvInputSanityCheckerTranspose(aMatrix, aVector);
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[rows];
@@ -892,11 +920,12 @@ public class BLAS2 {
     return tmp;
   }
 
-  /* Statefull manipulators on the FullMatrix type */
 
+
+/* Statefull manipulators on the FullMatrix type */
   /**
    * DGEMV simplified: y:=A*x
-   * @param y a double vector that will be altered to contain A*x
+   * @param y a double[] vector that will be altered to contain A*x
    * @param aMatrix a FullMatrix
    * @param aVector a double[] vector
    */
@@ -927,15 +956,47 @@ public class BLAS2 {
   }
 
   /**
-   * DGEMV simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
-   * NOTE: This method uses a short cut if beta is set to 0
-   * @param y a double vector that will be altered to contain alpha*A*x
-   * @param alpha a double indicating the scaling of A*x
-   * @param beta a double indicating the scaling of y
+   * DGEMV simplified: y:=A*x
+   * @param y a double vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   */
+  public static void dgemvInPlace(double[] y, FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    dgemvInPlace(y, aMatrix, aVector.toArray());
+  }
+
+  /**
+   * DGEMV simplified: y:=A*x
+   * @param y a DoubleMatrix1D that will be altered to contain A*x
    * @param aMatrix a FullMatrix
    * @param aVector a double[] vector
    */
-  public static void dgemvInPlace(double[] y, double alpha, FullMatrix aMatrix, double [] aVector, double beta) {
+  public static void dgemvInPlace(DoubleMatrix1D y, FullMatrix aMatrix, double[] aVector) {
+    dgemvInPlace(y.getData(), aMatrix, aVector);
+  }
+
+  /**
+   * DGEMV simplified: y:=A*x
+   * @param y a DoubleMatrix1D that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   */
+  public static void dgemvInPlace(DoubleMatrix1D y, FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    dgemvInPlace(y.getData(), aMatrix, aVector.toArray());
+  }
+
+  /**
+   * DGEMV FULL/simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
+   * NOTE: This method uses a short cut if beta is set to 0
+   * NOTE: The reason for the method not mirroring the stateless method is that the signatures are
+   * identical for a number of the methods due to writebacks to vector "y"
+   * @param y a double[] vector that will be altered to contain alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a FullMatrix
+   * @param beta a double indicating the scaling of y
+   * @param aVector a double[] vector
+   */
+  public static void dgemvInPlace(double[] y, double alpha, FullMatrix aMatrix,  double beta, double [] aVector) {
     dgemvInputSanityChecker(y, aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
@@ -947,7 +1008,54 @@ public class BLAS2 {
     }
   }
 
-  /** 2 helper functions for alpha*A*x ?+ beta*y */
+  /**
+   * DGEMV FULL/simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
+   * NOTE: This method uses a short cut if beta is set to 0
+   * NOTE: The reason for the method not mirroring the stateless method is that the signatures are
+   * identical for a number of the methods due to writebacks to vector "y"
+   * @param y a double[] vector that will be altered to contain alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a FullMatrix
+   * @param beta a double indicating the scaling of y
+   * @param aVector a double[] vector
+   */
+  public static void dgemvInPlace(double[] y, double alpha, FullMatrix aMatrix,  double beta, DoubleMatrix1D aVector) {
+    dgemvInPlace(y, alpha, aMatrix, beta, aVector.toArray());
+  }
+
+  /**
+   * DGEMV FULL/simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
+   * NOTE: This method uses a short cut if beta is set to 0
+   * NOTE: The reason for the method not mirroring the stateless method is that the signatures are
+   * identical for a number of the methods due to writebacks to vector "y"
+   * @param y a DoubleMatrix1D vector that will be altered to contain alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a FullMatrix
+   * @param beta a double indicating the scaling of y
+   * @param aVector a double[] vector
+   */
+  public static void dgemvInPlace(DoubleMatrix1D y, double alpha, FullMatrix aMatrix, double beta, double[] aVector) {
+    dgemvInPlace(y.getData(), alpha, aMatrix, beta, aVector);
+  }
+
+  /**
+   * DGEMV FULL/simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
+   * NOTE: This method uses a short cut if beta is set to 0
+   * NOTE: The reason for the method not mirroring the stateless method is that the signatures are
+   * identical for a number of the methods due to writebacks to vector "y"
+   * @param y a DoubleMatrix1D vector that will be altered to contain alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a FullMatrix
+   * @param beta a double indicating the scaling of y
+   * @param aVector a DoubleMatrix1D vector
+   */
+  public static void dgemvInPlace(DoubleMatrix1D y, double alpha, FullMatrix aMatrix, double beta, DoubleMatrix1D aVector) {
+    dgemvInPlace(y.getData(), alpha, aMatrix, beta, aVector.toArray());
+  }
+
+
+/* HELPER FUNCTIONS */
+  /** 2 helper functions for STATEFULL FULL/simplified alpha*A*x ?+ beta*y */
   private static void alphaAx(double[] y, double alpha, double[] ptrA, double [] aVector, int rows, int cols) {
     double alphaTmp;
     int idx, ptr, extra, ub;
@@ -993,6 +1101,11 @@ public class BLAS2 {
       }
     }
   }
+
+
+
+
+
 
 
 /**
