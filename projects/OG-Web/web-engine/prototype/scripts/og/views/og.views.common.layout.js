@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.common.layout',
-    dependencies: [],
+    dependencies: ['og.views.common.versions'],
     obj: function () {
         var main_layout_settings = {
             defaults: {
@@ -27,8 +27,7 @@ $.register_module({
             west: {
               size: '33%',
               paneClass: 'ui-layout-search',
-              contentSelector: '.ui-layout-content',
-              enableCursorHotkey: true
+              contentSelector: '.ui-layout-content'
             },
             center: {
               paneClass: 'ui-layout-details'
@@ -41,7 +40,7 @@ $.register_module({
             center: {
                 paneSelector: '.ui-layout-inner-center',
                 contentSelector: '.ui-layout-content',
-                paneClass: '.ui-layout-inner-center'
+                paneClass: 'ui-layout-inner-center'
             },
             north: {
                 paneSelector: '.ui-layout-inner-north',
@@ -54,10 +53,11 @@ $.register_module({
             south: {
                 paneSelector: '.ui-layout-inner-south',
                 paneClass: 'ui-layout-inner-south',
-                size: 100,
+                size: 200,
                 initClosed: true,
                 spacing_closed: 0,
-                enableCursorHotkey: true
+                enableCursorHotkey: true,
+                onopen: og.views.common.versions
             }
         },
         analytics = {

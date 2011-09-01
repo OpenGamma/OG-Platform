@@ -19,4 +19,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  opacity: .8;
+  filter: alpha(opacity=80);
+  z-index: 2;
 }

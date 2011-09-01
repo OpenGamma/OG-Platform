@@ -15,10 +15,12 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
+        'og.views.common.versions',
         'og.views.common.state',
         'og.views.common.default_details',
         'og.views.configs.viewdefinition',
         'og.views.configs.yieldcurvedefinition',
+        'og.views.configs.curvespecificationbuilderconfiguration',
         'og.views.configs.default'
     ],
     obj: function () {
@@ -104,16 +106,17 @@ $.register_module({
             form_generators = {
                 'default': og.views.configs['default'],
                 viewdefinition: og.views.configs.viewdefinition,
-                yieldcurvedefinition: og.views.configs.yieldcurvedefinition
+                yieldcurvedefinition: og.views.configs.yieldcurvedefinition,
+                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration
             },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);
-                if (!config_types.length) // disable new button until we have config_types
-                    $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
+                if (config_types.length) return; // if we already have config_types, return
+                $('.OG-toolbar .og-js-new').addClass('OG-disabled').unbind();
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
-                        config_types = result.data.types.map(function (val, idx) {return {name: val, value: val};});
+                        config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
                         $('.OG-toolbar .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
                     },
                     cache_for: 15 * 1000
@@ -191,6 +194,7 @@ $.register_module({
                 rest_options = {
                     handler: rest_handler,
                     loading: function () {
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center', message: {0: 'loading...', 3000: 'still loading...'}
                         });
@@ -245,7 +249,7 @@ $.register_module({
                     handler: function (result) {
                         options.slickgrid.columns[0].name = [
                             '<select class="og-js-type-filter" style="width: 80px">',
-                            result.data.types.reduce(function (acc, type) {
+                            result.data.types.sort().reduce(function (acc, type) {
                                 return acc + '<option value="' + type + '">' + type + '</option>';
                             }, '<option value="">Type</option>'),
                             '</select>'
