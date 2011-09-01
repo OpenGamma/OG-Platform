@@ -21,6 +21,11 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class SetConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final SetConverter INSTANCE = new SetConverter();
+
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[]> VALUES = JavaTypeInfo.builder(Value[].class).get();
   private static final JavaTypeInfo<Value[]> VALUES_ALLOW_NULL = JavaTypeInfo.builder(Value[].class).allowNull().get();
@@ -33,6 +38,9 @@ public class SetConverter extends AbstractTypeConverter {
   private static final TypeMap FROM_SET = TypeMap.of(ZERO_LOSS, SET);
   private static final TypeMap TO_SET_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUES_ALLOW_NULL);
   private static final TypeMap FROM_SET_ALLOW_NULL = TypeMap.of(ZERO_LOSS, SET_ALLOW_NULL);
+
+  protected SetConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {

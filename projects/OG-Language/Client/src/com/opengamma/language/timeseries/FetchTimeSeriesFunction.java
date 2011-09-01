@@ -31,6 +31,11 @@ import com.opengamma.language.invoke.InvalidConversionException;
  */
 public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
+  /**
+   * Default instance.
+   */
+  public static final FetchTimeSeriesFunction INSTANCE = new FetchTimeSeriesFunction();
+
   private static final JavaTypeInfo<UniqueId> UNIQUE_ID = JavaTypeInfo.builder(UniqueId.class).get();
   private static final JavaTypeInfo<ExternalIdBundle> EXTERNAL_ID_BUNDLE = JavaTypeInfo.builder(ExternalIdBundle.class).get();
 
@@ -67,7 +72,7 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
     _meta = info.annotate(new MetaFunction("FetchTimeSeries", getParameters(), this));
   }
 
-  public FetchTimeSeriesFunction() {
+  protected FetchTimeSeriesFunction() {
     this(new DefinitionAnnotater(FetchTimeSeriesFunction.class));
   }
 

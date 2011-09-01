@@ -7,14 +7,10 @@
 namespace com.opengamma.financial.security.equity {
 
   /**
-   * A {@code Security} used to model Equity Variance Swaps
+   * An equity variance swap security.
    */
   message EquityVarianceSwapSecurity extends FinancialSecurity {
-
     required string securityType [default = "EQUITY VARIANCE SWAP"];
-    
-    
-    
     
     required id.ExternalId spotUnderlyingIdentifier;
     required com.opengamma.util.money.Currency currency;
@@ -27,15 +23,6 @@ namespace com.opengamma.financial.security.equity {
     required javax.time.calendar.ZonedDateTime settlementDate;
     required id.ExternalId region;
     required com.opengamma.financial.convention.frequency.Frequency observationFrequency;
-   
-    binding Java {
-      body <<<JAVA
-        
-        public <T> T accept(EquityVarianceSwapSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityVarianceSwapSecurity(this); }
-JAVA;
-    }
-    
   }
 
 }

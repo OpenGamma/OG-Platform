@@ -23,10 +23,14 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
@@ -45,7 +49,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
   private static final Pattern s_guidPattern = Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
-
+  private static final String s_defaultDataSourceString = "Default";
+  
   private Map<String, WebView> _clientViews = new HashMap<String, WebView>();
   
   /**
@@ -57,21 +62,25 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
+  private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   
   public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
-      final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext) {
+      final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext, 
+      final LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
     super(bayeux, "processPortfolioRequest");
     ArgumentChecker.notNull(bayeux, "bayeux");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(executorService, "executorService");
+    ArgumentChecker.notNull(liveMarketDataSourceRegistry, "liveMarketDataSourceRegistry");
     
     _viewProcessor = viewProcessor;
     _snapshotMaster = snapshotMaster;
     _user = user;
     _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
+    _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
     
     viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
 
@@ -221,6 +230,19 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
     s_logger.debug("Available view names: " + availableViewNames);
     return new ArrayList<String>(availableViewNames);
+  }
+
+  @SuppressWarnings("unused") //TODO PLAT-1546
+  private List<String> getLiveMarketDataSourceDetails() {
+    Iterable<String> dataSources = _liveMarketDataSourceRegistry.getDataSources();
+    Iterable<String> dataSourcesWithDefault = Iterables.transform(dataSources, new Function<String, String>() {
+
+      @Override
+      public String apply(String from) {
+        return from == null ? s_defaultDataSourceString : from;
+      }
+    });
+    return Lists.newArrayList(dataSourcesWithDefault);
   }
 
   private Map<String, Map<String, String>> getSnapshotDetails() {

@@ -62,21 +62,23 @@
 
   <target name="fudge-proto-compile" if="fudge.proto.present" depends="fudge-proto-present">
     <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-    <!--fudgeproto
-      srcdir="${src.dir}"
-      destdir="${src.dir}"
-      searchdir="${toString:lib.path.id}"
-      equals="${fudge.proto.equals}"
-      toString="${fudge.proto.toString}"
-      hashCode="${fudge.proto.hashCode}"
-      verbose="${build.verbose}"
-      fudgeContext="${fudge.proto.fudgeContext}"
-      rebuildAll="${fudge.proto.rebuildAll}">
+    <fudgeproto
+        srcdir="${src.dir}"
+        destdir="${src.dir}"
+        searchdir="${toString:lib.path.id}"
+        equals="${fudge.proto.equals}"
+        toString="${fudge.proto.toString}"
+        hashCode="${fudge.proto.hashCode}"
+        verbose="${build.verbose}"
+        fudgeContext="${fudge.proto.fudgeContext}"
+        rebuildAll="${fudge.proto.rebuildAll}">
+      <exclude name="*Security.proto" />
+      <exclude name="*FinancialSecurity.proto" />
       <fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON
 // CSON: Generated File</fileFooter>
-    </fudgeproto-->
+    </fudgeproto>
     <fixcrlf preservelastmodified="true" srcdir="${src.dir}">
       <include name="**/*.java"/>
     </fixcrlf>

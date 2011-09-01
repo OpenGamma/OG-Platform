@@ -7,10 +7,9 @@
 namespace com.opengamma.financial.security.swap {
 
   /**
-   * Base class for swaps.
+   * A swap security.
    */
   message SwapSecurity extends FinancialSecurity {
-  
     required string securityType [default = "SWAP"];
     
     required javax.time.calendar.ZonedDateTime tradeDate;
@@ -19,14 +18,6 @@ namespace com.opengamma.financial.security.swap {
     required string counterparty;
     required SwapLeg payLeg;
     required SwapLeg receiveLeg;
-    
-    binding Java {
-      body <<<JAVA
-        public <T> T accept (SwapSecurityVisitor<T> visitor) { return visitor.visitSwapSecurity (this); }
-        public <T> T accept (com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitSwapSecurity (this); }
-JAVA;
-    }
-
   }
 
 }

@@ -23,6 +23,11 @@ import com.opengamma.language.invoke.TypeConverter;
  */
 public final class DataConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final DataConverter INSTANCE = new DataConverter();
+
   private static final JavaTypeInfo<Data> DATA = JavaTypeInfo.builder(Data.class).get();
   private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value[].class).get();
@@ -30,6 +35,9 @@ public final class DataConverter extends AbstractTypeConverter {
 
   private static final TypeMap TO_DATA = TypeMap.ofWeighted(ZERO_LOSS, VALUE, VALUE_1, VALUE_2);
   private static final TypeMap FROM_DATA = TypeMap.of(ZERO_LOSS, DATA);
+
+  protected DataConverter() {
+  }
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {

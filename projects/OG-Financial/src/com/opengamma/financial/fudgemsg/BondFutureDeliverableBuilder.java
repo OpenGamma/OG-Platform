@@ -48,9 +48,9 @@ public class BondFutureDeliverableBuilder extends AbstractFudgeBuilder implement
   }
 
   public static BondFutureDeliverable fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ExternalIdBundle bundleI = ExternalIdBundleBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY));
+    ExternalIdBundle bundle = ExternalIdBundleBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY));
     double conversionFactor = msg.getDouble(CONVERSION_FACTOR_KEY);
-    return new BondFutureDeliverable(bundleI, conversionFactor);
+    return new BondFutureDeliverable(bundle, conversionFactor);
   }
 
 }
