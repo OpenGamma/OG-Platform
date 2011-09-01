@@ -71,6 +71,27 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
    * @param isIBOR  whether this is IBOR
    */
   public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
+      Notional notional, ExternalId floatingReferenceRateIdentifier, double spread, boolean isIBOR) {
+    super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
+    setFloatingReferenceRateIdentifier(floatingReferenceRateIdentifier);
+    setSpread(spread);
+    setIsIBOR(isIBOR);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dayCount  the day count, not null
+   * @param frequency  the frequency, not null
+   * @param regionIdentifier  the region, not null
+   * @param businessDayConvention  the business day convention, not null
+   * @param notional  the notional, not null
+   * @param floatingReferenceRateIdentifier  the reference rate, not null
+   * @param initialFloatingRate  the initial floating rate, may be null
+   * @param spread  the spread
+   * @param isIBOR  whether this is IBOR
+   */
+  public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
       Notional notional, ExternalId floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
     super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
     setFloatingReferenceRateIdentifier(floatingReferenceRateIdentifier);

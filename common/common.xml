@@ -78,6 +78,7 @@
       <exclude name="*OptionType.proto" />
       <exclude name="*PayoffStyle.proto" />
       <exclude name="*SwapLeg.proto" />
+      <exclude name="*Notional.proto" />
       <fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON
