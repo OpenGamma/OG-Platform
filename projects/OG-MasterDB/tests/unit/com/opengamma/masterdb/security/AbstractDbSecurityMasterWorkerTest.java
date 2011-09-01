@@ -133,7 +133,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity101", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getExternalIdBundle());
   }
 
   protected void assert102(final SecurityDocument test) {
@@ -149,7 +149,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity102", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI")), security.getExternalIdBundle());
   }
 
   protected void assert201(final SecurityDocument test) {
@@ -165,7 +165,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity201", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getExternalIdBundle());
   }
 
   protected void assert202(final SecurityDocument test) {
@@ -181,7 +181,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DBTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity202", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getIdentifiers());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), security.getExternalIdBundle());
   }
 
 }

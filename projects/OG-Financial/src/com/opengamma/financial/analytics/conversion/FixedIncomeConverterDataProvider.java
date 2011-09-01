@@ -80,7 +80,7 @@ public class FixedIncomeConverterDataProvider {
 
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
-    final ExternalIdBundle id = security.getIdentifiers();
+    final ExternalIdBundle id = security.getExternalIdBundle();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);

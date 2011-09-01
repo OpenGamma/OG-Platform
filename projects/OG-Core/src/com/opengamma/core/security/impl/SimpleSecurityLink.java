@@ -69,7 +69,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
     if (security.getUniqueId() != null) {
       link.setObjectId(security.getUniqueId().getObjectId());
     } else {
-      link.setExternalId(security.getIdentifiers());
+      link.setExternalId(security.getExternalIdBundle());
     }
     link.setTarget(security);
     return link;
@@ -83,8 +83,8 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    */
   public static SimpleSecurityLink ofBundleId(Security security) {
     ArgumentChecker.notNull(security, "security");
-    SimpleSecurityLink link = new SimpleSecurityLink(security.getIdentifiers());
-    link.setExternalId(security.getIdentifiers());
+    SimpleSecurityLink link = new SimpleSecurityLink(security.getExternalIdBundle());
+    link.setExternalId(security.getExternalIdBundle());
     link.setTarget(security);
     return link;
   }

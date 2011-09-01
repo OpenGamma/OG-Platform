@@ -150,7 +150,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC),
         rate, 1.0d);
-    sec.setIdentifiers(ExternalIdBundle.of(strip.getSecurity()));
+    sec.setExternalIdBundle(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }
 
@@ -228,7 +228,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 fixedRate));
-    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
+    swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
@@ -278,7 +278,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 0.,
                                                 spread,
                                                 true));
-    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
+    swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
@@ -289,7 +289,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final Currency currency = spec.getCurrency();
     final ExternalId region = spec.getRegion();
     final CashSecurity cash = new CashSecurity(currency, region, maturity, rate, 1);
-    cash.setIdentifiers(ExternalIdBundle.of(identifier));
+    cash.setExternalIdBundle(ExternalIdBundle.of(identifier));
     return cash;
   }
 
@@ -333,7 +333,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 fixedRate));
-    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
+    swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 

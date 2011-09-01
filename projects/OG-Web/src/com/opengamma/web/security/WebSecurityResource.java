@@ -111,7 +111,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private URI updateSecurity(SecurityDocument doc) {
-    ExternalIdBundle identifierBundle = doc.getSecurity().getIdentifiers();
+    ExternalIdBundle identifierBundle = doc.getSecurity().getExternalIdBundle();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
     return WebSecurityResource.uri(data());
   }

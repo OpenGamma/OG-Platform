@@ -25,7 +25,7 @@ public class SimpleSecurityTest {
   public void test_constructor() {
     SimpleSecurity test = new SimpleSecurity(UID, BUNDLE, "Type", "Name");
     assertEquals(UID, test.getUniqueId());
-    assertEquals(BUNDLE, test.getIdentifiers());
+    assertEquals(BUNDLE, test.getExternalIdBundle());
     assertEquals("Type", test.getSecurityType());
     assertEquals("Name", test.getName());
   }
