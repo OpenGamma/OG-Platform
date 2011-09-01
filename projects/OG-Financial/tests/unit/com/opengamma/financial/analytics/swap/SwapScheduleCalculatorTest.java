@@ -37,6 +37,7 @@ public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime MATURITY = DateUtils.getUTCDate(2020, 6, 1);
   private static final ExternalId REGION_ID = RegionUtils.countryRegionId(Country.US);
   private static final Notional NOTIONAL = new Notional() {
+    private static final long serialVersionUID = 1L;
 
     @Override
     public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
@@ -70,32 +71,20 @@ public class SwapScheduleCalculatorTest {
 
   };
   private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
-
+    private static final long serialVersionUID = 1L;
     @Override
     public <T> T accept(final SwapLegVisitor<T> visitor) {
       // Okay to return NULL as we're not using the visitor for this test
       return null;
     }
-
-    @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
-      return null;
-    }
-
   };
   private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
-
+    private static final long serialVersionUID = 1L;
     @Override
     public <T> T accept(final SwapLegVisitor<T> visitor) {
       // Okay to return NULL as we're not using the visitor for this test
       return null;
     }
-
-    @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
-      return null;
-    }
-
   };
   private static final Calendar CALENDAR = new Calendar() {
 

@@ -77,6 +77,7 @@
       <exclude name="*ExerciseType.proto" />
       <exclude name="*OptionType.proto" />
       <exclude name="*PayoffStyle.proto" />
+      <exclude name="*SwapLeg.proto" />
       <fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON
