@@ -149,7 +149,7 @@ package com.opengamma.web.server.push;
  *   <li>Subscription annotations have only been added for portfolios and positions ({@link WebPortfoliosResource}
  *   and {@link WebPositionsResource}), they need to be added for other entity types.
  *   <li>Should subscriptions be created from the POST methods that create entities?  A new filter would be needed
- *   that looked at the URL of the new entity that's in the redirect</li>
+ *   that looked at the redirecting response to find the URL of the new entity.</li>
  * </ul>
  */
 
