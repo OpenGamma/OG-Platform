@@ -181,9 +181,17 @@
     </property>
   </bean>
   
-  <!-- TODO: access to the PositionSource -->
+  <!-- Position -->
+  <bean id="positionLoader" class="com.opengamma.language.position.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
   
-  <!-- TODO: access to the SecuritySource -->
+  <!-- Security -->
+  <bean id="securityLoader" class="com.opengamma.language.security.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
   
   <!-- Time series -->
   <bean id="timeSeriesLoader" class="com.opengamma.language.timeseries.Loader">
