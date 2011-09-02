@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -83,6 +84,7 @@ import com.opengamma.util.tuple.Pair;
         }
       }
     }
+    addNodeRequirements(portfolioNode);
     addPortfolioRequirements(portfolioNode);
     addTradeRequirements(portfolioNode);
   }
@@ -141,4 +143,15 @@ import com.opengamma.util.tuple.Pair;
     _dependencyGraphBuilder.addTarget(requirements);
   }
   
+  private void addNodeRequirements(final PortfolioNode portfolioNode) {
+    final Set<Pair<String, ValueProperties>> requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
+    if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
+      final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(requiredOutputs.size());
+      for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+        requirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
+      }
+      _dependencyGraphBuilder.addTarget(requirements);
+    }
+  }
+
 }

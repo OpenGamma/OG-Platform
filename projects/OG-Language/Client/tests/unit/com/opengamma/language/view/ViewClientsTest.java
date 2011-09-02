@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -81,6 +82,11 @@ public class ViewClientsTest {
 
     @Override
     public ViewProcess getViewProcess(final UniqueId viewProcessId) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
       throw new UnsupportedOperationException();
     }
   }

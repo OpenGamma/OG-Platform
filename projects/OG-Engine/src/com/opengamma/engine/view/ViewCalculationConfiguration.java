@@ -31,6 +31,12 @@ import com.opengamma.util.tuple.Pair;
 @PublicAPI
 public class ViewCalculationConfiguration implements Serializable {
 
+  /**
+   * Dummy "security type" constant to request a value at the aggregate level only.
+   */
+  public static final String SECURITY_TYPE_AGGREGATE_ONLY = "AGGREGATE_ONLY";
+  // Andrew 2011-09-02 -- Is this a good idea? Should there be a set of requirements for aggregate nodes only?
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   private final ViewDefinition _viewDefinition;
