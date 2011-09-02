@@ -48,6 +48,7 @@ public class DataViewProcessorResource {
 
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
+  public static final String PATH_LIVE_DATA_SOURCE_REGISTRY = "liveDataSourceRegistry";
   public static final String PATH_UNIQUE_ID = "id";
   public static final String PATH_CLIENTS = "clients";
   public static final String PATH_PROCESSES = "processes";
@@ -132,6 +133,11 @@ public class DataViewProcessorResource {
   @Path(PATH_DEFINITION_REPOSITORY)
   public DataViewDefinitionRepositoryResource getViewDefinitionRepository() {
     return new DataViewDefinitionRepositoryResource(_viewProcessor.getViewDefinitionRepository());
+  }
+  
+  @Path(PATH_LIVE_DATA_SOURCE_REGISTRY)
+  public LiveMarketDataSourceRegistryResource getLiveMarketDataSourceRegistry() {
+    return new LiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
   }
 
   //-------------------------------------------------------------------------

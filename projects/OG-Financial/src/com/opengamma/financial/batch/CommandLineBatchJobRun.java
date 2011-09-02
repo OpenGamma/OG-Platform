@@ -31,6 +31,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
+import com.opengamma.engine.marketdata.DefaultLiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -356,9 +357,12 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     InMemoryViewDefinitionRepository viewDefinitionRepository = new InMemoryViewDefinitionRepository();
     viewDefinitionRepository.addViewDefinition(new AddViewDefinitionRequest(_viewDefinitionConfig.getValue()));
     
+    DefaultLiveMarketDataSourceRegistry liveMarketDataSourceRegistry = new DefaultLiveMarketDataSourceRegistry();
+    
     ViewProcessor viewProcessor = new ViewProcessorImpl(
         UniqueId.of("Vp", "Batch"),
         viewDefinitionRepository,
+        liveMarketDataSourceRegistry,
         securitySource,
         positionSource,
         computationTargetResolver,
