@@ -7,16 +7,10 @@
 namespace com.opengamma.financial.security.future {
 
   /**
-   * An interest rate future.
+   * An interest rate future security.
    */
   message InterestRateFutureSecurity extends FutureSecurity {
-  
     required id.ExternalId underlyingIdentifier;
-   
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitInterestRateFutureSecurity (this); }";
-    }   
-    
   }
 
 }

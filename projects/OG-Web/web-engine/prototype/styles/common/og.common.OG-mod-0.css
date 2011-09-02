@@ -1,0 +1,30 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-mod-0 {
+  margin: 20px 0 0 0;
+}
+
+.OG-mod-0 h3 {
+  border-bottom: 4px solid #ededed;
+  margin-bottom: 1px;
+  margin-right: 10px;
+}
+
+.OG-mod-0 h3 span {
+  vertical-align: middle;
+}
+
+
+.OG-mod-0 .og-mod-content {
+  background-color: #ecf5fa;
+  padding: 10px;
+  margin-right: 10px;
+}
+
+.OG-mod-0 .og-mod-content label {
+  margin-bottom: 5px;
+  display: block;
+}

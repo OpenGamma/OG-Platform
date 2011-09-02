@@ -17,6 +17,9 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
  */
 public final class YieldSecondaryType extends SecondaryFieldType<YieldConvention, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

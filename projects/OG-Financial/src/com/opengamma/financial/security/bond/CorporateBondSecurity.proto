@@ -7,14 +7,9 @@
 namespace com.opengamma.financial.security.bond {
 
   /**
-   * A {@code Security} used to model corporate bonds. NOT YET IMPLEMENTED.
+   * A corporate bond security.
    */
   message CorporateBondSecurity extends BondSecurity {
-  
-    binding Java {
-      body "public <T> T accept (BondSecurityVisitor<T> visitor) { return visitor.visitCorporateBondSecurity (this); }";
-    }
-  
   }
-  
+
 }

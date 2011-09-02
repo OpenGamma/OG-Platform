@@ -6,6 +6,7 @@
 
 package com.opengamma.language.function;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Function;
 
 /**
@@ -16,12 +17,12 @@ import com.opengamma.language.connector.Function;
  */
 public interface FunctionVisitor<T1, T2> {
 
-  T1 visitCustom(Custom message, T2 data);
+  T1 visitCustom(Custom message, T2 data) throws AsynchronousExecution;
 
-  T1 visitInvoke(Invoke message, T2 data);
+  T1 visitInvoke(Invoke message, T2 data) throws AsynchronousExecution;
 
-  T1 visitQueryAvailable(QueryAvailable message, T2 data);
+  T1 visitQueryAvailable(QueryAvailable message, T2 data) throws AsynchronousExecution;
 
-  T1 visitUnexpected(Function message, T2 data);
+  T1 visitUnexpected(Function message, T2 data) throws AsynchronousExecution;
 
 }

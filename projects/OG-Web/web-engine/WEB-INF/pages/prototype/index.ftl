@@ -11,14 +11,22 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
-<div class="ui-layout-container">
+<div class="OG-js-loading" style="padding: 10px">Loading...</div>
+<div class="ui-layout-container" style="display: none">
   <div class="ui-layout-center">
     <div class="ui-layout-inner-center">
       <div class="ui-layout-header">&nbsp;</div>
       <div class="ui-layout-content">&nbsp;</div>
     </div>
     <div class="ui-layout-inner-north">&nbsp;</div>
-    <div class="ui-layout-inner-south">&nbsp;</div>
+    <div class="ui-layout-inner-south OG-versions">
+      <div class="ui-layout-header">
+        <div>
+          <header><h2>Version History</h2></header>
+        </div>
+      </div>
+      <div class="ui-layout-content"></div>
+    </div>
   </div>
   <div class="ui-layout-north">
     <#include "modules/common/og.common.masthead.ftl">

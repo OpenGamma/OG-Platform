@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
 import com.opengamma.language.function.FunctionDefinitionFilter;
@@ -108,6 +109,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the generic value converter is bound. 
    */
   protected static final String VALUE_CONVERTER = "valueConverter";
+
+  /**
+   * Name under which the view processor is bound.
+   */
+  protected static final String VIEW_PROCESSOR = "viewProcessor";
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
 
@@ -264,6 +270,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return getValue(HISTORICAL_TIME_SERIES_SOURCE);
+  }
+
+  public ViewProcessor getViewProcessor() {
+    return getValue(VIEW_PROCESSOR);
   }
 
 }

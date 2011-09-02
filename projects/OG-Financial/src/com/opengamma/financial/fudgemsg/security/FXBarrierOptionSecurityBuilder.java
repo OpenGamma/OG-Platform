@@ -16,7 +16,6 @@ import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
-import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.fudgemsg.ExpiryBuilder;
@@ -79,7 +78,7 @@ public class FXBarrierOptionSecurityBuilder extends AbstractFudgeBuilder impleme
 
   @Override
   public FXBarrierOptionSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FXBarrierOptionSecurity object = FinancialSecurityBuilder.backdoorCreateClass(FXBarrierOptionSecurity.class);
+    FXBarrierOptionSecurity object = new FXBarrierOptionSecurity();
     FXBarrierOptionSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

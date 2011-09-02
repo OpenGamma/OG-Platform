@@ -6,11 +6,10 @@
  
  namespace com.opengamma.financial.security.fx {
  
-   /** 
-    * A security modelling an FX transaction
-    */
+  /**
+   * An FX security.
+   */
    message FXSecurity extends FinancialSecurity {
-     
      required string securityType [default = "FX"];
      
      required com.opengamma.util.money.Currency payCurrency;
@@ -18,12 +17,6 @@
      required double payAmount;
      required double receiveAmount;
      required id.ExternalId region;
-
-     binding Java {
-       body <<<JAVA
-         public <T> T accept (FXSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
-         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXSecurity(this); }
-JAVA;
-    }
   }
+
 }

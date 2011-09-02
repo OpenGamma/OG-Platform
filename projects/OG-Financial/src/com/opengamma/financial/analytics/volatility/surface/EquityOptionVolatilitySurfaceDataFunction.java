@@ -182,7 +182,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
         }
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
-        int numFound = 0;
+        //int numFound = 0;
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
             double strike = (Double) y;
@@ -201,7 +201,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
             @SuppressWarnings("unused")
             final double relativeExpiry = DateUtils.getDifferenceInYears(now, expiry.atTime(now.toOffsetTime())); 
             if (inputs.getValue(requirement) != null) {
-              numFound++;
+              //numFound++;
               final Double volatility = (Double) inputs.getValue(requirement);
               volatilityValues.put(Pair.of((Object) expiry, (Object) strike), volatility / 100);
               //s_logger.warn("adding data for " + expiry + " relativeStrike=" + relativeStrikeBps + " absStrike = " + strike);

@@ -6,11 +6,15 @@
 
 package com.opengamma.language.procedure;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.language.Data;
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Procedure;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
@@ -41,6 +45,20 @@ public class ProcedureHandler implements ProcedureVisitor<UserMessagePayload, Se
   @Override
   public UserMessagePayload visitCustom(final Custom message, final SessionContext data) {
     return _customVisitors.visit(message, data);
+  }
+
+  @Override
+  public UserMessagePayload visitInvoke(final Invoke message, final SessionContext context) throws AsynchronousExecution {
+    final ProcedureRepository repository = context.getProcedureRepository();
+    final MetaProcedure procedure = repository.get(message.getIdentifier());
+    if (procedure == null) {
+      s_logger.error("Invalid procedure invocation ID {}", message.getIdentifier());
+      return null;
+    }
+    s_logger.debug("Invoking {}", procedure.getName());
+    final List<Data> parameters = message.getParameter();
+    // invoke produces a "Result", so allow its async. exception to propogate out
+    return procedure.getInvoker().invoke(context, (parameters != null) ? parameters : Collections.<Data>emptyList());
   }
 
   @Override

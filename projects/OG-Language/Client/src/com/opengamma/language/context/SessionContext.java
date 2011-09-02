@@ -16,6 +16,7 @@ import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.livedata.LiveDataRepository;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.ProcedureRepository;
+import com.opengamma.language.view.SessionViewClients;
 
 /**
  * An information context specific to a given client instance. The external client process may
@@ -49,6 +50,10 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
    * The stash message.
    */
   protected static final String STASH_MESSAGE = "stashMessage";
+  /**
+   * The view clients detached into this session.
+   */
+  protected static final String VIEW_CLIENTS = "viewClients";
 
   /* package */SessionContext(final UserContext userContext) {
     super(userContext);
@@ -104,6 +109,10 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
 
   public ProcedureRepository getProcedureRepository() {
     return getValue(PROCEDURE_REPOSITORY);
+  }
+
+  public SessionViewClients getViewClients() {
+    return getValue(VIEW_CLIENTS);
   }
 
 }

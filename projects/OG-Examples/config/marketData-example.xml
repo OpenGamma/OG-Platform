@@ -31,6 +31,8 @@
     <constructor-arg ref="marketDataProvider"/>
   </bean>
   
+  <bean id="liveMarketDataSourceRegistry" class="com.opengamma.engine.marketdata.DefaultLiveMarketDataSourceRegistry" />
+  
   <!-- MarketDataProvider resolver -->
   <bean id="marketDataProviderResolver" class="com.opengamma.engine.marketdata.resolver.TypeBasedMarketDataProviderResolverFactoryBean">
     <property name="typesAndProviders">

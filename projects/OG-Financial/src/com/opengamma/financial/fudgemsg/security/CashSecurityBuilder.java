@@ -53,7 +53,7 @@ public class CashSecurityBuilder extends AbstractFudgeBuilder implements FudgeBu
 
   @Override
   public CashSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    CashSecurity object = FinancialSecurityBuilder.backdoorCreateClass(CashSecurity.class);
+    CashSecurity object = new CashSecurity();
     CashSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

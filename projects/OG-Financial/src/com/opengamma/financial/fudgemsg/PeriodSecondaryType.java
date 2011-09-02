@@ -16,6 +16,9 @@ import org.fudgemsg.wire.types.FudgeWireType;
  */
 public final class PeriodSecondaryType extends SecondaryFieldType<Period, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

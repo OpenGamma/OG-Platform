@@ -1,0 +1,21 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.procedure {
+
+  /**
+   * Procedure invocation result.
+   */
+  message Result extends connector.Procedure {
+  
+    /**
+     * Invocation result, repeated the number of times specified by the returnCount of the published definition.
+     */
+    optional repeated Data result;
+    
+  }
+
+}

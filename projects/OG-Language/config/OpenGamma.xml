@@ -10,6 +10,11 @@
   
   <import resource="classpath:/com/opengamma/language/connector/Client.xml" />
   
+  <!-- Use ActiveMQ for JMS -->
+  <bean id="defaultJMSConnectionFactory" class="com.opengamma.language.jms.ActiveMQConnectionFactoryFactoryBean">
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
   <!--
     TODO: working extension example
     

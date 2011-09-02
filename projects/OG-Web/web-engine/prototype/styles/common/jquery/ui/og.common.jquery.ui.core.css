@@ -5,7 +5,7 @@
  *  This file overwrites Jquery UI CSS from @see /styles/lib/jquery/ui/jquery.ui.core.css
  */
 .ui-icon {
-    background-image: url(/prototype/images/common/sprites/icons.png)!important;
+    background-image: none!important;
 }
 
 .ui-icon.ui-icon-closethick {
@@ -21,6 +21,12 @@
     border: none;
     background: inherit;
     color: #fee;
+}
+
+.ui-state-highlight,
+.ui-widget-content .ui-state-highlight,
+.ui-widget-header .ui-state-highlight {
+    background-image: none!important;
 }
 
 .ui-state-hover a,

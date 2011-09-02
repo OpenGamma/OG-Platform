@@ -39,7 +39,7 @@ public class EnergyFutureSecurityBuilder extends AbstractFudgeBuilder implements
 
   @Override
   public EnergyFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EnergyFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EnergyFutureSecurity.class);
+    EnergyFutureSecurity object = new EnergyFutureSecurity();
     EnergyFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
