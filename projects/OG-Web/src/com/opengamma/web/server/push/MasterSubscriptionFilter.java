@@ -81,6 +81,7 @@ public class MasterSubscriptionFilter implements ResourceFilter {
       } else {
         userId = userPrincipal.getName();
       }
+      // TODO should we only subscribe if there were query params, i.e. it was a search request, not just a request for the search page
       for (MasterType masterType : _masterTypes) {
         _updateManager.subscribe(userId, clientId, masterType, url);
       }
