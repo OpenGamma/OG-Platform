@@ -142,6 +142,10 @@ package com.opengamma.web.server.push;
  *   <li>REST endpoints haven't been implemented for pausing and resuming a viewport's view and for switching between
  *   full and summary mode.</li>
  *   <li>There is no way to close a client connection apart from waiting for it to time out.</li>
+ *   <li>Query subscriptions are created when the user just visits the query page, e.g. /jax/portfolios.  This
+ *   probably isn't what we want, a subscription should probably be created if there are some query params
+ *   specifying what to search for.  it might even be necessary to allow the relevant query params to be
+ *   specified in the annotation</li>
  * </ul>
  */
 
