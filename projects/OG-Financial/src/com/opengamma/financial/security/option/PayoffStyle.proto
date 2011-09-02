@@ -7,121 +7,63 @@
 namespace com.opengamma.financial.security.option {
 
   abstract message PayoffStyle {
-    binding Java {
-      body "public abstract <T> T accept (PayoffStyleVisitor<T> visitor);";
-    }
   }
-  
+
   message AssetOrNothingPayoffStyle extends PayoffStyle {
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAssetOrNothingPayoffStyle(this); }";  
-    }
   }
 
   message AsymmetricPoweredPayoffStyle extends PayoffStyle {
     required readonly double power;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitAsymmetricPoweredPayoffStyle(this); }";
-    }
   }
-  
+
   message BarrierPayoffStyle extends PayoffStyle {
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitBarrierPayoffStyle(this); }";
-    }
   }
-  
+
   message CappedPoweredPayoffStyle extends PayoffStyle {
     required readonly double power;
     required readonly double cap;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCappedPoweredPayoffStyle(this); }";
-    }
   }
-  
+
   message CashOrNothingPayoffStyle extends PayoffStyle {
     required readonly double payment;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitCashOrNothingPayoffStyle(this); }";
-    }
   }
-  
+
   message ExtremeSpreadPayoffStyle extends PayoffStyle {
     required readonly javax.time.calendar.ZonedDateTime periodEnd;
     required readonly boolean isReverse;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitExtremeSpreadPayoffStyle(this); }";
-    }
   }
-  
+
   message FadeInPayoffStyle extends PayoffStyle {
     required readonly double lowerBound;
     required readonly double upperBound;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFadeInPayoffStyle(this); }";
-    }
   }
-    
+
   message FixedStrikeLookbackPayoffStyle extends PayoffStyle {
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikeLookbackPayoffStyle(this); }";
-    }
   }
-  
+
   message FloatingStrikeLookbackPayoffStyle extends PayoffStyle {
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFloatingStrikeLookbackPayoffStyle(this); }";
-    }
   }
-  
+
   message GapPayoffStyle extends PayoffStyle {
     required readonly double payment;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitGapPayoffStyle(this); }";
-    }
   }
-  
+
   message PoweredPayoffStyle extends PayoffStyle {
     required readonly double power;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitPoweredPayoffStyle(this); }";
-    }
   }
-  
+
   message SimpleChooserPayoffStyle extends PayoffStyle {
     required readonly javax.time.calendar.ZonedDateTime chooseDate;
     required readonly double underlyingStrike;
     required readonly util.time.Expiry underlyingExpiry;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSimpleChooserPayoffStyle(this); }";
-    }
   }
-  
+
   message SupersharePayoffStyle extends PayoffStyle {
     required readonly double lowerBound;
     required readonly double upperBound;
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitSupersharePayoffStyle(this); }";
-    }
   }
-    
+
   message VanillaPayoffStyle extends PayoffStyle {
-    binding Java {
-      method equals;
-      body "public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitVanillaPayoffStyle(this); }";
-    }
   }
+
 }

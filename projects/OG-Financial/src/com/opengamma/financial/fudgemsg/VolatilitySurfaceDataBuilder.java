@@ -39,7 +39,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     // for compatibility with old code, remove.
     if (object.getTarget() instanceof Currency) {
-      message.add("currency", object.getCurrency());
+      message.add("currency", object.getTarget());
     } else {
       // just for now...
       message.add("currency", Currency.USD);
@@ -116,7 +116,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
       }
       return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(xsArray), ys.toArray(ysArray), values);
     } else {
-      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double> emptyMap());
+      return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(), ys.toArray(), Collections.<Pair<Object, Object>, Double>emptyMap());
     }
   }
 

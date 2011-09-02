@@ -8,15 +8,13 @@ package com.opengamma.financial.analytics.fixedincome;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
@@ -31,10 +29,6 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.money.Currency;
@@ -45,7 +39,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class BondSecurityToBondDefinitionConverterTest {
-  private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
+  private static final HolidaySource HOLIDAY_SOURCE = new WeekendHolidaySource();
   private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(
       new InMemoryConventionBundleMaster());
   private static final RegionSource REGION_SOURCE = new MasterRegionSource(RegionFileReader.createPopulated().getRegionMaster());
@@ -108,31 +102,6 @@ public class BondSecurityToBondDefinitionConverterTest {
     //    assertArrayEquals(definition.getNominalDates(), new LocalDate[] {FIRST_ACCRUAL_DATE.toLocalDate(),
     //        FIRST_COUPON_DATE.toLocalDate(), LAST_TRADE_DATE.toLocalDate()});
     //    assertEquals(definition.getSettlementDates()[0], SETTLEMENT_DATE.toLocalDate());
-  }
-
-  private static class MyHolidaySource implements HolidaySource {
-    @Override
-    public Holiday getHoliday(final UniqueId uniqueId) {
-      throw new UnsupportedOperationException();
-    }
-    @Override
-    public Holiday getHoliday(final ObjectId objectId, final VersionCorrection versionCorrection) {
-      throw new UnsupportedOperationException();
-    }
-    @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
-      return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
-    }
-    @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final ExternalIdBundle regionOrExchangeIds) {
-      return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
-    }
-    @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final ExternalId regionOrExchangeId) {
-      return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
-    }
   }
 
 }
