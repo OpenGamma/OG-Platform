@@ -22,10 +22,7 @@ public class EngineAnalyticsTest {
         "\"dependencyGraphCells\": []" +
         "}" +
         "}";
-    String viewportJson = WebPushTestUtils.createViewport(clientId, viewDefJson);
-    System.out.println("viewportJson: " + viewportJson);
-    JSONObject jsonObject = new JSONObject(viewportJson);
-    String viewportUrl = jsonObject.getString("viewportUrl");
+    String viewportUrl = WebPushTestUtils.createViewport(clientId, viewDefJson);
     // need to request data to activate the subscription
     String firstResults = WebPushTestUtils.readFromPath(viewportUrl + "/data", clientId);
     System.out.println("first results: " + firstResults);
