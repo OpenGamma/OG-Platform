@@ -128,6 +128,7 @@
             <list>
               <bean class="com.opengamma.language.identifier.ExternalIdBundleFunction" />
               <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
             </list>
           </property>
         </bean>
