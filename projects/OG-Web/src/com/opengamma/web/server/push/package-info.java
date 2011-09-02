@@ -146,11 +146,16 @@ package com.opengamma.web.server.push;
  *   probably isn't what we want, a subscription should probably be created if there are some query params
  *   specifying what to search for.  it might even be necessary to allow the relevant query params to be
  *   specified in the annotation</li>
+ *   <li>Subscription annotations have only been added for portfolios and positions ({@link WebPortfoliosResource}
+ *   and {@link WebPositionsResource}), they need to be added for other entity types.
+ *   <li>Should subscriptions be created from the POST methods that create entities?  A new filter would be needed
+ *   that looked at the URL of the new entity that's in the redirect</li>
  * </ul>
  */
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
+import com.opengamma.web.position.WebPositionsResource;
 
 import javax.ws.rs.PathParam;
 import java.util.List;
