@@ -181,6 +181,10 @@
     </property>
   </bean>
   
+  <!-- TODO: access to the PositionSource -->
+  
+  <!-- TODO: access to the SecuritySource -->
+  
   <!-- Time series -->
   <bean id="timeSeriesLoader" class="com.opengamma.language.timeseries.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
