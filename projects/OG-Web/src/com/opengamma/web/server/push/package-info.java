@@ -1,18 +1,8 @@
 package com.opengamma.web.server.push;
 
 /**
- * TODO
- * view definition names resource
- * snapshot list resource
- * viewport
- *   create - only live data ATM
- *   grid
- *   data
- * entity subs - annotations
- * manager subs - annotations
- *
- * <p>This package provides push notifications of changes to resources requested through the REST interface.
- * This includes analytics data, entities and searches for entities.</p>
+ * <p>This package provides push notifications when changes occur to resources requested through the REST interface.
+ * This includes analytics data, entities and queries for entities.</p>
  *
  * <h1>Establishing a Connection</h1>
  * <p>Before a client can receive notifications of updates it must establish a connection and be assigned a
@@ -22,9 +12,9 @@ package com.opengamma.web.server.push;
  *   /jax/handshake</pre>
  * <p>The response contains JSON with the client ID, e.g.</p>
  * <pre>
- *   {"clientId": 1234}</pre>
+ *   {"clientId": "1234"}</pre>
  *
- * <h1>Subscribing for Notifications of Updates</h1>
+ * <h1>Subscribing to Notifications of Updates</h1>
  * <p>There is no way to explicitly subscribe to notifications.  If a client ID is included in a request
  * for a REST resource a subscription will be created. e.g.</p>
  * <pre>
@@ -62,7 +52,8 @@ package com.opengamma.web.server.push;
  * <pre>
  *   /jax/viewports?clientId=...</pre>
  * <p>The response body will contain JSON with the URL for the newly-created viewport, e.g.</p>
- * <pre>{"viewportUrl": "/jax/viewports/567"}</pre>
+ * <pre>
+ *   {"viewportUrl": "/jax/viewports/567"}</pre>
  *
  * <p>The request body must contain JSON which defines the viewport:</p>
  * <pre>
@@ -76,13 +67,14 @@ package com.opengamma.web.server.push;
  *      "dependencyGraphCells": [[row, col], [row, col], ...]}</pre>
  * <ul>
  *   <li>{@code viewDefinitionName}: name of the view definition (see below)</li>
- *   <li>{@code snapshotId}: ID of the market data snapshot (see below).  Omit for live data</li>
+ *   <li>{@code snapshotId}: ID of the market data snapshot (see below).  Omit for live data.  <em>TODO No testing has
+ *   been done using snapshots yet, only live data</em></li>
  *   <li>{@code portfolioViewport / primitiveViewport}: viewport definition for the separate grids showing portfolio
  *   and primitive data</li>
  *   <li>{@code rows}: The row numbers whose data should be included in the results and the timestamp of the
  *   last time the client received an update for the row</li>
  *   <li>{@code dependencyGraphCells}: array of two-element arrays with the row and column numbers of cells whose
- *   dependency graph should be included in the results.  <em>N.B. This isn't working yet.</em></li>
+ *   dependency graph should be included in the results.  <em>TODO This isn't working yet.</em></li>
  * </ul>
  *
  * <h3>Querying Available View Definitions and Market Data Snapshots</h3>
@@ -93,6 +85,7 @@ package com.opengamma.web.server.push;
  * <pre>
  *   {"viewDefinitionNames": [viewDef1, viewDef2, ...]}
  * </pre>
+ * <p>and</p>
  * <pre>
  *   /jax/marketdatasnapshots</pre>
  * <p>returns</p>
@@ -100,24 +93,56 @@ package com.opengamma.web.server.push;
  *   {basisViewName1: {snapshotUniqueId1: snapshotName1, snapshotUniqueId2: snapshotName2, ...},
  *    basisViewName2: {snapshotUniqueId3: snapshotName3, snapshotUniqueId4: snapshotName4, ...}}
  * </pre>
- * TODO subscriptions are cancelled after one update - object is dirty and must be re-requested, no point telling the user it is still dirty
- * TODO mention the (current) lack of a way to unsubscribe
- * TODO analytics data is the only thing which requires a client ID. will this always be true?
- * TODO security - once user logon info is available will be used to cross-check client ID
- * TODO only tested with live data (in the email, not the docs?)
- * TODO dep graph viewing not implemented yet
  *
  * <h1>Receiving Notifications of Updates</h1>
- * A client receives updates by making a request to the updates URL for its client ID.
+ * <p>A client receives updates by making a request to the update URL for its client ID.</p>
  * <pre>
  *   /updates/{clientId}</pre>
  * <p>This request blocks until one of the following:</p>
+ *
  * <h2>The request times out.</h2>
  * <p>In this case the response body will be empty.</p>
+ *
  * <h2>An item for which the client has a subscription is updated.</h2>
- * <p>The response contains JSON with the REST URLs of any updated items:</p>
+ * <p>The response contains JSON with the REST URLs of any updated items, e.g.</p>
  * <pre>
- *   {"updates": ["/jax/portfolios", "/jax/positions/DbPrt~2345"]}</pre>
+ *   {"updates": ["/jax/portfolios", "/jax/positions/DbPos~2345"]}</pre>
+ * <p>Notifications for a client are queued if the client doesn't have a connection open to the update URL when
+ * the notification arrives.  When the client re-establishes the connection the notifications will be delivered
+ * immediately.</p>
+ *
+ * <h2>Notifications Generated by Entities and Queries</h2>
+ * <p>The URL used to make the original REST request is published when an entity or query changes (see example
+ * above).</p>
+ *
+ * <h2>Notifications Generated by Viewports</h2>
+ * <p>Viewports generate notifications when the grid structure changes and when the data changes.  The URLs are:</p>
+ * <pre>
+ *   /jax/viewports/{viewportId}/grid
+ *   /jax/viewports/{viewportId}/data</pre>
+ * <p>The format of the JSON returned from these URLs is unchanged from the Cometd implementation.  <em>TODO is
+ * that documented anywhere?</em></p>
+ *
+ * <h1>Cancelling Subscriptions</h1>
+ * <p>There is no way to unsubscribe for notifications for a particular URL.  When any notification is published
+ * for a URL all subscriptions for that URL are cancelled.  When and if the client makes another request to that
+ * URL a new subscription will be set up.</p>
+ * <p><em>Is it feasible to not have an unsubscribe mechanism?  A long running
+ * client could create a lot of subscriptions that wouldn't be cleared unless the underlying object were updated.
+ * Subscriptions are fairly lightweight so this might not be a massive problem.</em></p>
+ *
+ * <h1>TODO</h1>
+ * <p>The following still needs to be done:</p>
+ * <ul>
+ *   <li>All viewport requests require a client ID, for other REST requests it's optional.  Should viewports be the
+ *   same or does it not make sense to have a view without updates?  What about snapshots where the data will never
+ *   change?</li>
+ *   <li>There is no validation that a client ID belongs to the user who is requesting it.  This should work once
+ *   we have user logins.</li>
+ *   <li>REST endpoints haven't been implemented for pausing and resuming a viewport's view and for switching between
+ *   full and summary mode.</li>
+ *   <li>There is no way to close a client connection apart from waiting for it to time out.</li>
+ * </ul>
  */
 
 import com.opengamma.id.UniqueId;
