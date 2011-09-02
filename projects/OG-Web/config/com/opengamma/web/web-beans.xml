@@ -412,7 +412,8 @@
 
   <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
-    <constructor-arg index="1" ref="liveResultsService"/>
+    <constructor-arg index="1" ref="masterChangeManager"/>
+    <constructor-arg index="2" ref="liveResultsService"/>
   </bean>
 
   <bean id="webViewportsRestBean" class="com.opengamma.web.server.push.ViewportsResource">
@@ -424,6 +425,26 @@
       <list>
         <ref bean="dbPortfolioMaster"/>
         <ref bean="dbPositionMaster"/>
+        <!--TODO what other data are we interested in?-->
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManagerImpl">
+    <constructor-arg>
+      <list>
+        <bean class="com.opengamma.util.tuple.ObjectsPair">
+          <constructor-arg index="0" ref="dbPositionMaster"/>
+          <constructor-arg index="1">
+            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+          </constructor-arg>
+        </bean>
+        <bean class="com.opengamma.util.tuple.ObjectsPair">
+          <constructor-arg index="0" ref="dbPositionMaster"/>
+          <constructor-arg index="1">
+            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+          </constructor-arg>
+        </bean>
         <!--TODO what other data are we interested in?-->
       </list>
     </constructor-arg>
