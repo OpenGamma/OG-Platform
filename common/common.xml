@@ -74,6 +74,11 @@
         rebuildAll="${fudge.proto.rebuildAll}">
       <exclude name="*Security.proto" />
       <exclude name="*FinancialSecurity.proto" />
+      <exclude name="*ExerciseType.proto" />
+      <exclude name="*OptionType.proto" />
+      <exclude name="*PayoffStyle.proto" />
+      <exclude name="*SwapLeg.proto" />
+      <exclude name="*Notional.proto" />
       <fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
       <fileFooter>///CLOVER:ON

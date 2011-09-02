@@ -153,14 +153,14 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   @Override
   protected void doConnect() {
     for (AbstractLiveDataServer server : _underlyings) {
-      server.doConnect();
+      server.connect();
     }
   }
 
   @Override
   protected void doDisconnect() {
     for (AbstractLiveDataServer server : _underlyings) {
-      server.doDisconnect();
+      server.disconnect();
     }
   }
 

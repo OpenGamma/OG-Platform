@@ -114,7 +114,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     if (getCurrencyMatrix() == null) {
       return false;
     }
-    if ((target.getType() != ComputationTargetType.PRIMITIVE) || (target.getUniqueId () == null)) {
+    if ((target.getType() != ComputationTargetType.PRIMITIVE) || (target.getUniqueId() == null)) {
       return false;
     }
     if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
