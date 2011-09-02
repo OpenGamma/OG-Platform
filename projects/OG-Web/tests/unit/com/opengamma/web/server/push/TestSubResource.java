@@ -7,11 +7,11 @@ package com.opengamma.web.server.push;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
  */
-//@Path("/testsub/{uid}") // TODO is this necessary on a sub-resource?
 public class TestSubResource {
 
   private final String _uid;
@@ -21,7 +21,7 @@ public class TestSubResource {
   }
 
   @GET
-  @Produces("text/plain")
+  @Produces(MediaType.TEXT_PLAIN)
   public String getText() {
     return "Hello from TestSubResource " + _uid;
   }

@@ -34,10 +34,10 @@ import java.util.List;
   private final RestUpdateManager _restUpdateManager;
   private final HttpServletRequest _servletRequest;
 
-  /* package */ EntitySubscriptionFilter(HttpContext httpContext,
-                                  List<String> uidParamNames,
-                                  RestUpdateManager restUpdateManager,
-                                  HttpServletRequest servletRequest) {
+  /* package */ EntitySubscriptionFilter(List<String> uidParamNames,
+                                         RestUpdateManager restUpdateManager,
+                                         HttpContext httpContext,
+                                         HttpServletRequest servletRequest) {
     _httpContext = httpContext;
     _uidParamNames = uidParamNames;
     _restUpdateManager = restUpdateManager;
@@ -62,6 +62,7 @@ import java.util.List;
       this.uidParamNames = uidParamNames;
     }
 
+    // TODO this is almost identical to MasterSubscriptionFilter, common superclass? helper method / class?
     @Override
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check the response status, only subscribe if successful
@@ -69,8 +70,6 @@ import java.util.List;
       ExtendedUriInfo uriInfo = _httpContext.getUriInfo();
       MultivaluedMap<String,String> pathParameters = uriInfo.getPathParameters();
       MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-      // TODO check this is the right value
-      //String url = uriInfo.getPath();
       String url = _servletRequest.getRequestURI();
 
       List<String> clientIds = queryParameters.get(LongPollingServlet.CLIENT_ID);

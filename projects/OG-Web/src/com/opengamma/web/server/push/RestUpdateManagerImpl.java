@@ -43,17 +43,25 @@ import java.util.concurrent.atomic.AtomicLong;
   private final Map<String, String> _clientIdsToViewportUrls = new HashMap<String, String>();
   private final Map<String, ConnectionTimeoutTask> _timeoutTasks = new HashMap<String, ConnectionTimeoutTask>();
   private final Timer _timer = new Timer();
+  private final MasterChangeManager _masterChangeManager;
 
   // TODO map of ChangeManagers keyed on MasterType? or a class that encapsulates that logic? for query updates
-  /* package */ RestUpdateManagerImpl(ChangeManager changeManager, ViewportFactory viewportFactory) {
-    this(changeManager, viewportFactory, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
+  /* package */ RestUpdateManagerImpl(ChangeManager changeManager,
+                                      MasterChangeManager masterChangeManager,
+                                      ViewportFactory viewportFactory) {
+    this(changeManager, masterChangeManager, viewportFactory, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
   }
 
-  /* package */ RestUpdateManagerImpl(ChangeManager changeManager, ViewportFactory viewportFactory, long timeout, long timeoutCheckPeriod) {
+  /* package */ RestUpdateManagerImpl(ChangeManager changeManager,
+                                      MasterChangeManager masterChangeManager,
+                                      ViewportFactory viewportFactory,
+                                      long timeout,
+                                      long timeoutCheckPeriod) {
     _changeManager = changeManager;
     _viewportFactory = viewportFactory;
     _timeout = timeout;
     _timeoutCheckPeriod = timeoutCheckPeriod;
+    _masterChangeManager = masterChangeManager;
   }
 
   // handshake method that returns the client ID, must be called before any of the long-polling subscribe methods
@@ -64,6 +72,7 @@ import java.util.concurrent.atomic.AtomicLong;
       String clientId = Long.toString(_clientConnectionId.getAndIncrement());
       ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportFactory);
       _changeManager.addChangeListener(connection);
+      _masterChangeManager.addChangeListener(connection);
       _connectionsByClientId.put(clientId, connection);
       ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(userId, clientId, timeoutListener);
       _timeoutTasks.put(clientId, timeoutTask);
@@ -84,6 +93,7 @@ import java.util.concurrent.atomic.AtomicLong;
       }
       _timeoutTasks.remove(clientId);
       _changeManager.removeChangeListener(connection);
+      _masterChangeManager.removeChangeListener(connection);
       connection.disconnect();
     }
   }

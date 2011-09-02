@@ -212,7 +212,6 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   //-------------------------------------------------------------------------
   @Path("{positionId}")
-  @SubscribeMaster(MasterType.SECURITY)
   public WebPositionResource findPosition(@Subscribe @PathParam("positionId") String idStr) {
     data().setUriPositionId(idStr);
     UniqueId oid = UniqueId.parse(idStr);

@@ -422,7 +422,8 @@
   <bean id="changeManager" class="com.opengamma.core.change.AggregatingChangeManager">
     <constructor-arg>
       <list>
-        <ref bean="sharedPositionSource"/>
+        <ref bean="dbPortfolioMaster"/>
+        <ref bean="dbPositionMaster"/>
         <!--TODO what other data are we interested in?-->
       </list>
     </constructor-arg>

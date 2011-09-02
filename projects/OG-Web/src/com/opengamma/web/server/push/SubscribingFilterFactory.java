@@ -31,9 +31,8 @@ import java.util.List;
  * interpreted as a {@link UniqueId} and any changes to the entity will cause an update to be pushed over
  * the long-polling HTTP interface.  The annotated parameter must be a string that can be parsed by
  * {@link UniqueId#parse(String)} and must also have a {@link PathParam} annotation.
- *
- * TODO this class needs access to the beans from the Spring context so it can make subscriptions
  */
+@SuppressWarnings("UnusedDeclaration")
 public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SubscribingFilterFactory.class);
@@ -49,13 +48,12 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   @Override
   public List<ResourceFilter> create(AbstractMethod abstractMethod) {
-    RestUpdateManager restUpdateManager = getUpdateManager();
     List<ResourceFilter> filters = new ArrayList<ResourceFilter>();
-    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod, restUpdateManager, _servletRequest);
+    ResourceFilter entityFilter = createEntitySubscriptionFilter(abstractMethod);
     if (entityFilter != null) {
       filters.add(entityFilter);
     }
-    ResourceFilter masterFilter = createMasterSubscriptionFilter(abstractMethod, restUpdateManager);
+    ResourceFilter masterFilter = createMasterSubscriptionFilter(abstractMethod);
     if (masterFilter != null) {
       filters.add(masterFilter);
     }
@@ -67,9 +65,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     return context.getBean(RestUpdateManager.class);
   }
 
-  private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod,
-                                                        RestUpdateManager restUpdateManager,
-                                                        HttpServletRequest servletRequest) {
+  private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod) {
     Method method = abstractMethod.getMethod();
     Annotation[][] annotations = method.getParameterAnnotations();
     List<String> uidParamNames = new ArrayList<String>();
@@ -96,19 +92,18 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
     if (!uidParamNames.isEmpty()) {
       s_logger.debug("Creating subscribing filter for parameters {} on method {}.{}()",
                      new Object[]{uidParamNames, method.getDeclaringClass().getSimpleName(), method.getName()});
-      return new EntitySubscriptionFilter(_httpContext, uidParamNames, restUpdateManager, servletRequest);
+      return new EntitySubscriptionFilter(uidParamNames, getUpdateManager(), _httpContext, _servletRequest);
     } else {
       return null;
     }
   }
 
-  private static ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod,
-                                                               RestUpdateManager restUpdateManager) {
+  private ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod) {
     SubscribeMaster annotation = abstractMethod.getAnnotation(SubscribeMaster.class);
     if (annotation != null) {
       MasterType[] masterTypes = annotation.value();
       if (masterTypes.length > 0) {
-        return new MasterSubscriptionFilter(Arrays.asList(masterTypes));
+        return new MasterSubscriptionFilter(getUpdateManager(), Arrays.asList(masterTypes), _httpContext, _servletRequest);
       } else {
         s_logger.warn("@SubscribeMaster annotation found on {}.{}() with no masters specified",
                       abstractMethod.getMethod().getDeclaringClass().getSimpleName(),

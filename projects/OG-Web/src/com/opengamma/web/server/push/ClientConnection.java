@@ -8,7 +8,6 @@ package com.opengamma.web.server.push;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.id.ObjectId;

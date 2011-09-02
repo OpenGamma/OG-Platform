@@ -9,18 +9,26 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
  */
-@Path("/test")
+@Path("test")
 public class TestResource {
 
   @GET
-  @Produces("text/plain")
+  @Produces(MediaType.TEXT_PLAIN)
   @Path("{uid}")
-  //@SubscribeMaster(MasterType.HOLIDAY) // TODO another test method for this
   public String getMessage(@Subscribe @PathParam("uid") String uidStr) {
     return "Hello " + uidStr;
+  }
+
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("positions")
+  @SubscribeMaster(MasterType.POSITION)
+  public String getPositions() {
+    return "Some positions";
   }
 }

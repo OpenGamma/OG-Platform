@@ -9,9 +9,25 @@
 
   <bean id="updateManager" class="com.opengamma.web.server.push.RestUpdateManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
-    <constructor-arg index="1"><null/></constructor-arg>
+    <constructor-arg index="1" ref="masterChangeManager"/>
+    <constructor-arg index="2"><null/></constructor-arg>
   </bean>
 
   <bean id="changeManager" class="com.opengamma.web.server.push.TestChangeManager"/>
+
+  <bean id="positionChangeManager" class="com.opengamma.web.server.push.TestChangeManager"/>
+
+  <bean id="masterChangeManager" class="com.opengamma.web.server.push.MasterChangeManagerImpl">
+    <constructor-arg>
+      <list>
+        <bean class="com.opengamma.util.tuple.ObjectsPair">
+          <constructor-arg index="0" ref="positionChangeManager"/>
+          <constructor-arg index="1">
+            <value type="com.opengamma.web.server.push.MasterType">POSITION</value>
+          </constructor-arg>
+        </bean>
+      </list>
+    </constructor-arg>
+  </bean>
 
 </beans>

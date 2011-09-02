@@ -203,31 +203,34 @@ public class ClientConnectionTest {
 }
 
 /**
- * Matcher for checking an argument to a mock is a collection containing all of the specified items and nothing else.
- * I'm surprised this isn't already available in Mockito, although maybe it's there and I just can't find it.
+ * <p>Matcher for checking an argument to a mock is a collection containing all of the specified items and nothing else.
+ * The order of the elements isn't important.</p>
+
+ * <em>I'm surprised this isn't already available in Mockito, although maybe it's there and I just can't find it.</em>
+
  * @param <T> The type of items in the collection
  */
+@SuppressWarnings("unchecked")
 class CollectionMatcher<T> extends ArgumentMatcher<Collection<T>> {
 
-  private final Collection<T> _coll;
+  private final Collection<T> _expected;
 
-  public CollectionMatcher(T... items) {
-    _coll = Lists.newArrayList(items);
+  public CollectionMatcher(T... expectedItems) {
+    _expected = Lists.newArrayList(expectedItems);
   }
 
   @Override
   public boolean matches(Object o) {
-    //noinspection unchecked
-    Collection<T> coll = Lists.newArrayList((Collection<T>) o);
-    if (_coll.size() != coll.size()) {
-      return false;
-    }
-    for (T t : _coll) {
-      if (!coll.remove(t)) {
+    Collection<T> result = Lists.newArrayList((Collection<T>) o);
+    for (T expectedItem : _expected) {
+      // every member of the expected collection must be present in the result
+      if (!result.remove(expectedItem)) {
         return false;
       }
     }
-    return true;
+    // if all members of the expected collection were in the result and after removing them the result is empty
+    // the collections must have contained exactly the same elements
+    return result.isEmpty();
   }
 
   static <T> Collection<T> collectionOf(T... items) {
