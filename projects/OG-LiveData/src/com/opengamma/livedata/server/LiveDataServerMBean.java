@@ -47,6 +47,16 @@ public class LiveDataServerMBean {
     }
   }
   
+  @ManagedAttribute(description = "The connection status of the underlying server.")
+  public String getConnectionStatus() {
+    try {
+      return _server.getConnectionStatus().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getConnectionStatus() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
   @ManagedAttribute(description = "The type of the underlying server.")
   public String getServerType() {
     try {
