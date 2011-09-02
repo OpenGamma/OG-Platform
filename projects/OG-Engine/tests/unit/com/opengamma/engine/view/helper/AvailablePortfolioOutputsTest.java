@@ -38,6 +38,8 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -63,6 +65,7 @@ public class AvailablePortfolioOutputsTest {
 
   private Portfolio _testPortfolio;
   private CompiledFunctionRepository _functionRepository;
+  private MarketDataAvailabilityProvider _availabilityProvider;
 
   private SimplePosition createPosition(final String securityType, final String currency, final String securityId) {
     final SimplePosition position = new SimplePosition();
@@ -351,16 +354,17 @@ public class AvailablePortfolioOutputsTest {
   public void init() {
     _testPortfolio = createPortfolio();
     _functionRepository = createFunctionRepository();
+    _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
   }
 
   public void testGetSecurityTypes() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
     final Set<String> securityTypes = outputs.getSecurityTypes();
     assertEquals(securityTypes, new HashSet<String>(Arrays.asList(SECURITY_TYPE_1, SECURITY_TYPE_2)));
   }
 
   public void testGetTypedPositionOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
     Set<AvailableOutput> available = outputs.getPositionOutputs(SECURITY_TYPE_1);
     final AvailableOutputImpl value1Type1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1Type1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -376,7 +380,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetPortfolioNodeOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPortfolioNodeOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
@@ -386,7 +390,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetPositionOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPositionOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -398,7 +402,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
     final Set<AvailableOutput> available = outputs.getOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
