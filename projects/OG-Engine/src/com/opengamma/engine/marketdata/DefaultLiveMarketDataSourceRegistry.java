@@ -5,7 +5,8 @@
  */
 package com.opengamma.engine.marketdata;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * A registry containing a single default entry
@@ -13,7 +14,7 @@ import com.google.common.collect.Lists;
 public class DefaultLiveMarketDataSourceRegistry implements LiveMarketDataSourceRegistry {
 
   @Override
-  public Iterable<String> getDataSources() {
-    return Lists.newArrayList((String) null);
+  public Collection<String> getDataSources() {
+    return Collections.singleton(null);
   }
 }

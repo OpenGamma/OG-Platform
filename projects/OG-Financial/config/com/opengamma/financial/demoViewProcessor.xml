@@ -307,6 +307,7 @@
   <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="id" value="0" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
+    <property name="liveMarketDataSourceRegistry" ref="liveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />

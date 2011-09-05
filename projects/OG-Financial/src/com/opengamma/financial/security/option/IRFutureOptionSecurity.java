@@ -56,7 +56,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
   /**
    * The point value.
    */
@@ -65,8 +65,8 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   /**
    * The margined flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isMargined;
+  @PropertyDefinition
+  private boolean _margined;
   /**
    * The currency.
    */
@@ -92,14 +92,14 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   }
 
   public IRFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,
-      double pointValue, boolean isMargined, Currency currency, double strike, OptionType optionType) {
+      double pointValue, boolean margined, Currency currency, double strike, OptionType optionType) {
     super(SECURITY_TYPE);
     setExchange(exchange);
     setExpiry(expiry);
     setExerciseType(exerciseType);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
     setPointValue(pointValue);
-    setIsMargined(isMargined);
+    setMargined(margined);
     setCurrency(currency);
     setStrike(strike);
     setOptionType(optionType);
@@ -149,12 +149,12 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
         return getExpiry();
       case -466331342:  // exerciseType
         return getExerciseType();
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
       case 1257391553:  // pointValue
         return getPointValue();
-      case -549878249:  // isMargined
-        return getIsMargined();
+      case 243392205:  // margined
+        return isMargined();
       case 575402001:  // currency
         return getCurrency();
       case -891985998:  // strike
@@ -177,14 +177,14 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
       case -466331342:  // exerciseType
         setExerciseType((ExerciseType) newValue);
         return;
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
       case 1257391553:  // pointValue
         setPointValue((Double) newValue);
         return;
-      case -549878249:  // isMargined
-        setIsMargined((Boolean) newValue);
+      case 243392205:  // margined
+        setMargined((Boolean) newValue);
         return;
       case 575402001:  // currency
         setCurrency((Currency) newValue);
@@ -204,7 +204,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_exchange, "exchange");
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_exerciseType, "exerciseType");
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_optionType, "optionType");
     super.validate();
@@ -220,9 +220,9 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
       return JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
-          JodaBeanUtils.equal(getIsMargined(), other.getIsMargined()) &&
+          JodaBeanUtils.equal(isMargined(), other.isMargined()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
@@ -237,9 +237,9 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsMargined());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isMargined());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
@@ -329,25 +329,25 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -380,24 +380,24 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
    * Gets the margined flag.
    * @return the value of the property
    */
-  public boolean getIsMargined() {
-    return _isMargined;
+  public boolean isMargined() {
+    return _margined;
   }
 
   /**
    * Sets the margined flag.
-   * @param isMargined  the new value of the property
+   * @param margined  the new value of the property
    */
-  public void setIsMargined(boolean isMargined) {
-    this._isMargined = isMargined;
+  public void setMargined(boolean margined) {
+    this._margined = margined;
   }
 
   /**
-   * Gets the the {@code isMargined} property.
+   * Gets the the {@code margined} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isMargined() {
-    return metaBean().isMargined().createProperty(this);
+  public final Property<Boolean> margined() {
+    return metaBean().margined().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -503,20 +503,20 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     private final MetaProperty<ExerciseType> _exerciseType = DirectMetaProperty.ofReadWrite(
         this, "exerciseType", IRFutureOptionSecurity.class, ExerciseType.class);
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", IRFutureOptionSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", IRFutureOptionSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code pointValue} property.
      */
     private final MetaProperty<Double> _pointValue = DirectMetaProperty.ofReadWrite(
         this, "pointValue", IRFutureOptionSecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code isMargined} property.
+     * The meta-property for the {@code margined} property.
      */
-    private final MetaProperty<Boolean> _isMargined = DirectMetaProperty.ofReadWrite(
-        this, "isMargined", IRFutureOptionSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _margined = DirectMetaProperty.ofReadWrite(
+        this, "margined", IRFutureOptionSecurity.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code currency} property.
      */
@@ -540,9 +540,9 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
         "exchange",
         "expiry",
         "exerciseType",
-        "underlyingIdentifier",
+        "underlyingId",
         "pointValue",
-        "isMargined",
+        "margined",
         "currency",
         "strike",
         "optionType");
@@ -562,12 +562,12 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
           return _expiry;
         case -466331342:  // exerciseType
           return _exerciseType;
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
         case 1257391553:  // pointValue
           return _pointValue;
-        case -549878249:  // isMargined
-          return _isMargined;
+        case 243392205:  // margined
+          return _margined;
         case 575402001:  // currency
           return _currency;
         case -891985998:  // strike
@@ -619,11 +619,11 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
     /**
@@ -635,11 +635,11 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isMargined} property.
+     * The meta-property for the {@code margined} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isMargined() {
-      return _isMargined;
+    public final MetaProperty<Boolean> margined() {
+      return _margined;
     }
 
     /**

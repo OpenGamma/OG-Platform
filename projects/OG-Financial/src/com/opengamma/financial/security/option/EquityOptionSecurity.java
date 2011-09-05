@@ -56,7 +56,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
   /**
    * The exercise type.
    */
@@ -92,7 +92,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
     setOptionType(optionType);
     setStrike(strike);
     setCurrency(currency);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
     setExerciseType(exerciseType);
     setExpiry(expiry);
     setPointValue(pointValue);
@@ -143,8 +143,8 @@ public class EquityOptionSecurity extends FinancialSecurity {
         return getStrike();
       case 575402001:  // currency
         return getCurrency();
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
       case -466331342:  // exerciseType
         return getExerciseType();
       case -1289159373:  // expiry
@@ -169,8 +169,8 @@ public class EquityOptionSecurity extends FinancialSecurity {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
       case -466331342:  // exerciseType
         setExerciseType((ExerciseType) newValue);
@@ -192,7 +192,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
   protected void validate() {
     JodaBeanUtils.notNull(_optionType, "optionType");
     JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_exchange, "exchange");
@@ -209,7 +209,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
       return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
@@ -225,7 +225,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
@@ -315,25 +315,25 @@ public class EquityOptionSecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -465,10 +465,10 @@ public class EquityOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", EquityOptionSecurity.class, Currency.class);
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", EquityOptionSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", EquityOptionSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code exerciseType} property.
      */
@@ -497,7 +497,7 @@ public class EquityOptionSecurity extends FinancialSecurity {
         "optionType",
         "strike",
         "currency",
-        "underlyingIdentifier",
+        "underlyingId",
         "exerciseType",
         "expiry",
         "pointValue",
@@ -518,8 +518,8 @@ public class EquityOptionSecurity extends FinancialSecurity {
           return _strike;
         case 575402001:  // currency
           return _currency;
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
         case -466331342:  // exerciseType
           return _exerciseType;
         case -1289159373:  // expiry
@@ -573,11 +573,11 @@ public class EquityOptionSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
     /**

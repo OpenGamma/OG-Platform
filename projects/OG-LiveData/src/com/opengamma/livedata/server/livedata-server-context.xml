@@ -150,7 +150,7 @@
 	
 	<!-- reconnect -->
 	<bean id="reconnectManager" class="com.opengamma.livedata.server.ReconnectManager"
-        depends-on="liveDataServer">
+        depends-on="liveDataServer" init-method="start">
         <constructor-arg index="0" ref="liveDataServer"/>
     </bean>
 	

@@ -41,7 +41,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {
     Validate.notNull(security, "security");
-    ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
+    ConventionBundle conventions = _conventionSource.getConventionBundle(security.getExternalIdBundle());
     final Currency currency = security.getCurrency();
     if (conventions == null) {
       // remove this

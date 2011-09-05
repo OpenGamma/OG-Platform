@@ -404,7 +404,6 @@
     <property name="user" ref="testUser" />
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="snapshotMaster" ref="dbSnapshotMaster" />
-    <property name="liveMarketDataSourceRegistry" ref="liveMarketDataSourceRegistry" />
     <property name="executorService">
       <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
         <property name="styleName" value="CACHED" />

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
@@ -96,9 +98,19 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   protected static final String PARAMETER_CONVERTER = "parameterConverter";
 
   /**
+   * Name under which the position source is bound.
+   */
+  protected static final String POSITION_SOURCE = "positionSource";
+
+  /**
    * Name under which the generic result converter is bound.
    */
   protected static final String RESULT_CONVERTER = "resultConverter";
+
+  /**
+   * Name under which the security source is bound.
+   */
+  protected static final String SECURITY_SOURCE = "securitySource";
 
   /**
    * Name under which a source of type converters is bound.
@@ -274,6 +286,14 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public ViewProcessor getViewProcessor() {
     return getValue(VIEW_PROCESSOR);
+  }
+
+  public PositionSource getPositionSource() {
+    return getValue(POSITION_SOURCE);
+  }
+
+  public SecuritySource getSecuritySource() {
+    return getValue(SECURITY_SOURCE);
   }
 
 }

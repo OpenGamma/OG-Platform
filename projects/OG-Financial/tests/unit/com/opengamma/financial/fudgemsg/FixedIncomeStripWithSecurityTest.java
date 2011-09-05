@@ -38,7 +38,7 @@ public class FixedIncomeStripWithSecurityTest extends FinancialTestBase {
     equity.setUniqueId(UniqueId.of("TEST", "TEST"));
     equity.setName("Apple Inc");
     equity.setShortName("Apple Inc");
-    equity.setIdentifiers(bundle);
+    equity.setExternalIdBundle(bundle);
     equity.setGicsCode(GICSCode.getInstance(10203040));
     
     final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS, ZonedDateTime.now(), dummyId, equity);

@@ -36,7 +36,7 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
     // the following forces it not to use a secondary type if one is available.
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     if (object.getTarget() instanceof Currency) {
-      message.add("currency", object.getCurrency());
+      message.add("currency", object.getTarget());
     } else {
       // just for now...
       message.add("currency", Currency.USD);

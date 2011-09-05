@@ -87,11 +87,11 @@ public class TenorSwapSecurityToTenorSwapConverter {
       throw new OpenGammaRuntimeException("can only handle float-float legs");
     }
 
-    if (!payLeg.getRegionIdentifier().equals(receiveLeg.getRegionIdentifier())) {
+    if (!payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
       throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
     }
 
-    final Calendar calendar = getCalendar(payLeg.getRegionIdentifier());
+    final Calendar calendar = getCalendar(payLeg.getRegionId());
 
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));

@@ -100,7 +100,7 @@ public abstract class BondSecurity extends FinancialSecurity {
    * The day count convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private DayCount _dayCountConvention;
+  private DayCount _dayCount;
   /**
    * The business day convention.
    */
@@ -180,7 +180,7 @@ public abstract class BondSecurity extends FinancialSecurity {
     setCouponType(couponType);
     setCouponRate(couponRate);
     setCouponFrequency(couponFrequency);
-    setDayCountConvention(dayCountConvention);
+    setDayCount(dayCountConvention);
     setInterestAccrualDate(interestAccrualDate);
     setSettlementDate(settlementDate);
     setFirstCouponDate(firstCouponDate);
@@ -250,8 +250,8 @@ public abstract class BondSecurity extends FinancialSecurity {
         return getCouponRate();
       case 144480214:  // couponFrequency
         return getCouponFrequency();
-      case 589154980:  // dayCountConvention
-        return getDayCountConvention();
+      case 1905311443:  // dayCount
+        return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
       case -562907755:  // announcementDate
@@ -314,8 +314,8 @@ public abstract class BondSecurity extends FinancialSecurity {
       case 144480214:  // couponFrequency
         setCouponFrequency((Frequency) newValue);
         return;
-      case 589154980:  // dayCountConvention
-        setDayCountConvention((DayCount) newValue);
+      case 1905311443:  // dayCount
+        setDayCount((DayCount) newValue);
         return;
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
@@ -365,7 +365,7 @@ public abstract class BondSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_lastTradeDate, "lastTradeDate");
     JodaBeanUtils.notNull(_couponType, "couponType");
     JodaBeanUtils.notNull(_couponFrequency, "couponFrequency");
-    JodaBeanUtils.notNull(_dayCountConvention, "dayCountConvention");
+    JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_interestAccrualDate, "interestAccrualDate");
     JodaBeanUtils.notNull(_settlementDate, "settlementDate");
     JodaBeanUtils.notNull(_firstCouponDate, "firstCouponDate");
@@ -390,7 +390,7 @@ public abstract class BondSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getCouponType(), other.getCouponType()) &&
           JodaBeanUtils.equal(getCouponRate(), other.getCouponRate()) &&
           JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
-          JodaBeanUtils.equal(getDayCountConvention(), other.getDayCountConvention()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(getAnnouncementDate(), other.getAnnouncementDate()) &&
           JodaBeanUtils.equal(getInterestAccrualDate(), other.getInterestAccrualDate()) &&
@@ -421,7 +421,7 @@ public abstract class BondSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCouponType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCouponRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAnnouncementDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterestAccrualDate());
@@ -725,25 +725,25 @@ public abstract class BondSecurity extends FinancialSecurity {
    * Gets the day count convention.
    * @return the value of the property, not null
    */
-  public DayCount getDayCountConvention() {
-    return _dayCountConvention;
+  public DayCount getDayCount() {
+    return _dayCount;
   }
 
   /**
    * Sets the day count convention.
-   * @param dayCountConvention  the new value of the property, not null
+   * @param dayCount  the new value of the property, not null
    */
-  public void setDayCountConvention(DayCount dayCountConvention) {
-    JodaBeanUtils.notNull(dayCountConvention, "dayCountConvention");
-    this._dayCountConvention = dayCountConvention;
+  public void setDayCount(DayCount dayCount) {
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    this._dayCount = dayCount;
   }
 
   /**
-   * Gets the the {@code dayCountConvention} property.
+   * Gets the the {@code dayCount} property.
    * @return the property, not null
    */
-  public final Property<DayCount> dayCountConvention() {
-    return metaBean().dayCountConvention().createProperty(this);
+  public final Property<DayCount> dayCount() {
+    return metaBean().dayCount().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1090,10 +1090,10 @@ public abstract class BondSecurity extends FinancialSecurity {
     private final MetaProperty<Frequency> _couponFrequency = DirectMetaProperty.ofReadWrite(
         this, "couponFrequency", BondSecurity.class, Frequency.class);
     /**
-     * The meta-property for the {@code dayCountConvention} property.
+     * The meta-property for the {@code dayCount} property.
      */
-    private final MetaProperty<DayCount> _dayCountConvention = DirectMetaProperty.ofReadWrite(
-        this, "dayCountConvention", BondSecurity.class, DayCount.class);
+    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", BondSecurity.class, DayCount.class);
     /**
      * The meta-property for the {@code businessDayConvention} property.
      */
@@ -1165,7 +1165,7 @@ public abstract class BondSecurity extends FinancialSecurity {
         "couponType",
         "couponRate",
         "couponFrequency",
-        "dayCountConvention",
+        "dayCount",
         "businessDayConvention",
         "announcementDate",
         "interestAccrualDate",
@@ -1209,8 +1209,8 @@ public abstract class BondSecurity extends FinancialSecurity {
           return _couponRate;
         case 144480214:  // couponFrequency
           return _couponFrequency;
-        case 589154980:  // dayCountConvention
-          return _dayCountConvention;
+        case 1905311443:  // dayCount
+          return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
         case -562907755:  // announcementDate
@@ -1342,11 +1342,11 @@ public abstract class BondSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code dayCountConvention} property.
+     * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCountConvention() {
-      return _dayCountConvention;
+    public final MetaProperty<DayCount> dayCount() {
+      return _dayCount;
     }
 
     /**

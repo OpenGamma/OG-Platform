@@ -8,6 +8,8 @@ package com.opengamma.language.context;
 import java.util.Properties;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionDefinitionFilter;
@@ -121,6 +123,14 @@ public class MutableGlobalContext extends GlobalContext {
   
   public void setViewProcessor(final ViewProcessor viewProcessor) {
     removeOrReplaceValue(VIEW_PROCESSOR, viewProcessor);
+  }
+
+  public void setPositionSource(final PositionSource positionSource) {
+    removeOrReplaceValue(POSITION_SOURCE, positionSource);
+  }
+
+  public void setSecuritySource(final SecuritySource securitySource) {
+    removeOrReplaceValue(SECURITY_SOURCE, securitySource);
   }
 
   // Arbitrary values

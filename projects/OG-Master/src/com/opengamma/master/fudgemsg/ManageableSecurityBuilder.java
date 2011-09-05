@@ -43,7 +43,7 @@ public class ManageableSecurityBuilder extends AbstractFudgeBuilder implements F
     addToMessage(msg, UNIQUE_ID_KEY, UniqueIdBuilder.toFudgeMsg(serializer, object.getUniqueId()));
     addToMessage(msg, NAME_KEY, object.getName());
     addToMessage(msg, SECURITY_TYPE_KEY, object.getSecurityType());
-    addToMessage(msg, IDENTIFIERS_KEY, ExternalIdBundleBuilder.toFudgeMsg(serializer, object.getIdentifiers()));
+    addToMessage(msg, IDENTIFIERS_KEY, ExternalIdBundleBuilder.toFudgeMsg(serializer, object.getExternalIdBundle()));
   }
 
   @Override
@@ -57,7 +57,7 @@ public class ManageableSecurityBuilder extends AbstractFudgeBuilder implements F
     object.setUniqueId(UniqueIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_KEY)));
     object.setName(msg.getString(NAME_KEY));
     object.setSecurityType(msg.getString(SECURITY_TYPE_KEY));
-    object.setIdentifiers(ExternalIdBundleBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY)));
+    object.setExternalIdBundle(ExternalIdBundleBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY)));
   }
 
 }

@@ -59,12 +59,12 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * The long identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _longIdentifier;
+  private ExternalId _longId;
   /**
    * The short identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _shortIdentifier;
+  private ExternalId _shortId;
   /**
    * The strike.
    */
@@ -88,13 +88,13 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   /**
    * The payer flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isPayer;
+  @PropertyDefinition
+  private boolean _payer;
   /**
    * The cap flag.
    */
-  @PropertyDefinition(get = "get")
-  private boolean _isCap;
+  @PropertyDefinition
+  private boolean _cap;
 
   /**
    * Creates an empty instance.
@@ -105,19 +105,19 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   }
 
   public CapFloorCMSSpreadSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId longIdentifier,
-      ExternalId shortIdentifier, double strike, Frequency frequency, Currency currency, DayCount dayCount, boolean isPayer, boolean isCap) {
+      ExternalId shortIdentifier, double strike, Frequency frequency, Currency currency, DayCount dayCount, boolean payer, boolean cap) {
     super(SECURITY_TYPE);
     setStartDate(startDate);
     setMaturityDate(maturityDate);
     setNotional(notional);
-    setLongIdentifier(longIdentifier);
-    setShortIdentifier(shortIdentifier);
+    setLongId(longIdentifier);
+    setShortId(shortIdentifier);
     setStrike(strike);
     setFrequency(frequency);
     setCurrency(currency);
     setDayCount(dayCount);
-    setIsPayer(isPayer);
-    setIsCap(isCap);
+    setPayer(payer);
+    setCap(cap);
   }
 
   //-------------------------------------------------------------------------
@@ -164,10 +164,10 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
         return getMaturityDate();
       case 1585636160:  // notional
         return getNotional();
-      case 18113605:  // longIdentifier
-        return getLongIdentifier();
-      case -2054053307:  // shortIdentifier
-        return getShortIdentifier();
+      case -1097129801:  // longId
+        return getLongId();
+      case 2067160759:  // shortId
+        return getShortId();
       case -891985998:  // strike
         return getStrike();
       case -70023844:  // frequency
@@ -176,10 +176,10 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
         return getCurrency();
       case 1905311443:  // dayCount
         return getDayCount();
-      case 2067849291:  // isPayer
-        return getIsPayer();
-      case 100463176:  // isCap
-        return getIsCap();
+      case 106443605:  // payer
+        return isPayer();
+      case 98258:  // cap
+        return isCap();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -196,11 +196,11 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
       case 1585636160:  // notional
         setNotional((Double) newValue);
         return;
-      case 18113605:  // longIdentifier
-        setLongIdentifier((ExternalId) newValue);
+      case -1097129801:  // longId
+        setLongId((ExternalId) newValue);
         return;
-      case -2054053307:  // shortIdentifier
-        setShortIdentifier((ExternalId) newValue);
+      case 2067160759:  // shortId
+        setShortId((ExternalId) newValue);
         return;
       case -891985998:  // strike
         setStrike((Double) newValue);
@@ -214,11 +214,11 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
       case 1905311443:  // dayCount
         setDayCount((DayCount) newValue);
         return;
-      case 2067849291:  // isPayer
-        setIsPayer((Boolean) newValue);
+      case 106443605:  // payer
+        setPayer((Boolean) newValue);
         return;
-      case 100463176:  // isCap
-        setIsCap((Boolean) newValue);
+      case 98258:  // cap
+        setCap((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -228,8 +228,8 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   protected void validate() {
     JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_maturityDate, "maturityDate");
-    JodaBeanUtils.notNull(_longIdentifier, "longIdentifier");
-    JodaBeanUtils.notNull(_shortIdentifier, "shortIdentifier");
+    JodaBeanUtils.notNull(_longId, "longId");
+    JodaBeanUtils.notNull(_shortId, "shortId");
     JodaBeanUtils.notNull(_frequency, "frequency");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_dayCount, "dayCount");
@@ -246,14 +246,14 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
       return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getLongIdentifier(), other.getLongIdentifier()) &&
-          JodaBeanUtils.equal(getShortIdentifier(), other.getShortIdentifier()) &&
+          JodaBeanUtils.equal(getLongId(), other.getLongId()) &&
+          JodaBeanUtils.equal(getShortId(), other.getShortId()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getIsPayer(), other.getIsPayer()) &&
-          JodaBeanUtils.equal(getIsCap(), other.getIsCap()) &&
+          JodaBeanUtils.equal(isPayer(), other.isPayer()) &&
+          JodaBeanUtils.equal(isCap(), other.isCap()) &&
           super.equals(obj);
     }
     return false;
@@ -265,14 +265,14 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLongIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getShortIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLongId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getShortId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsPayer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIsCap());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPayer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCap());
     return hash ^ super.hashCode();
   }
 
@@ -358,25 +358,25 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * Gets the long identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getLongIdentifier() {
-    return _longIdentifier;
+  public ExternalId getLongId() {
+    return _longId;
   }
 
   /**
    * Sets the long identifier.
-   * @param longIdentifier  the new value of the property, not null
+   * @param longId  the new value of the property, not null
    */
-  public void setLongIdentifier(ExternalId longIdentifier) {
-    JodaBeanUtils.notNull(longIdentifier, "longIdentifier");
-    this._longIdentifier = longIdentifier;
+  public void setLongId(ExternalId longId) {
+    JodaBeanUtils.notNull(longId, "longId");
+    this._longId = longId;
   }
 
   /**
-   * Gets the the {@code longIdentifier} property.
+   * Gets the the {@code longId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> longIdentifier() {
-    return metaBean().longIdentifier().createProperty(this);
+  public final Property<ExternalId> longId() {
+    return metaBean().longId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -384,25 +384,25 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * Gets the short identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getShortIdentifier() {
-    return _shortIdentifier;
+  public ExternalId getShortId() {
+    return _shortId;
   }
 
   /**
    * Sets the short identifier.
-   * @param shortIdentifier  the new value of the property, not null
+   * @param shortId  the new value of the property, not null
    */
-  public void setShortIdentifier(ExternalId shortIdentifier) {
-    JodaBeanUtils.notNull(shortIdentifier, "shortIdentifier");
-    this._shortIdentifier = shortIdentifier;
+  public void setShortId(ExternalId shortId) {
+    JodaBeanUtils.notNull(shortId, "shortId");
+    this._shortId = shortId;
   }
 
   /**
-   * Gets the the {@code shortIdentifier} property.
+   * Gets the the {@code shortId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> shortIdentifier() {
-    return metaBean().shortIdentifier().createProperty(this);
+  public final Property<ExternalId> shortId() {
+    return metaBean().shortId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -513,24 +513,24 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * Gets the payer flag.
    * @return the value of the property
    */
-  public boolean getIsPayer() {
-    return _isPayer;
+  public boolean isPayer() {
+    return _payer;
   }
 
   /**
    * Sets the payer flag.
-   * @param isPayer  the new value of the property
+   * @param payer  the new value of the property
    */
-  public void setIsPayer(boolean isPayer) {
-    this._isPayer = isPayer;
+  public void setPayer(boolean payer) {
+    this._payer = payer;
   }
 
   /**
-   * Gets the the {@code isPayer} property.
+   * Gets the the {@code payer} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isPayer() {
-    return metaBean().isPayer().createProperty(this);
+  public final Property<Boolean> payer() {
+    return metaBean().payer().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -538,24 +538,24 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
    * Gets the cap flag.
    * @return the value of the property
    */
-  public boolean getIsCap() {
-    return _isCap;
+  public boolean isCap() {
+    return _cap;
   }
 
   /**
    * Sets the cap flag.
-   * @param isCap  the new value of the property
+   * @param cap  the new value of the property
    */
-  public void setIsCap(boolean isCap) {
-    this._isCap = isCap;
+  public void setCap(boolean cap) {
+    this._cap = cap;
   }
 
   /**
-   * Gets the the {@code isCap} property.
+   * Gets the the {@code cap} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isCap() {
-    return metaBean().isCap().createProperty(this);
+  public final Property<Boolean> cap() {
+    return metaBean().cap().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -584,15 +584,15 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", CapFloorCMSSpreadSecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code longIdentifier} property.
+     * The meta-property for the {@code longId} property.
      */
-    private final MetaProperty<ExternalId> _longIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "longIdentifier", CapFloorCMSSpreadSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _longId = DirectMetaProperty.ofReadWrite(
+        this, "longId", CapFloorCMSSpreadSecurity.class, ExternalId.class);
     /**
-     * The meta-property for the {@code shortIdentifier} property.
+     * The meta-property for the {@code shortId} property.
      */
-    private final MetaProperty<ExternalId> _shortIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "shortIdentifier", CapFloorCMSSpreadSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _shortId = DirectMetaProperty.ofReadWrite(
+        this, "shortId", CapFloorCMSSpreadSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code strike} property.
      */
@@ -614,15 +614,15 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
         this, "dayCount", CapFloorCMSSpreadSecurity.class, DayCount.class);
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      */
-    private final MetaProperty<Boolean> _isPayer = DirectMetaProperty.ofReadWrite(
-        this, "isPayer", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _payer = DirectMetaProperty.ofReadWrite(
+        this, "payer", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code isCap} property.
+     * The meta-property for the {@code cap} property.
      */
-    private final MetaProperty<Boolean> _isCap = DirectMetaProperty.ofReadWrite(
-        this, "isCap", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _cap = DirectMetaProperty.ofReadWrite(
+        this, "cap", CapFloorCMSSpreadSecurity.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -631,14 +631,14 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
         "startDate",
         "maturityDate",
         "notional",
-        "longIdentifier",
-        "shortIdentifier",
+        "longId",
+        "shortId",
         "strike",
         "frequency",
         "currency",
         "dayCount",
-        "isPayer",
-        "isCap");
+        "payer",
+        "cap");
 
     /**
      * Restricted constructor.
@@ -655,10 +655,10 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
           return _maturityDate;
         case 1585636160:  // notional
           return _notional;
-        case 18113605:  // longIdentifier
-          return _longIdentifier;
-        case -2054053307:  // shortIdentifier
-          return _shortIdentifier;
+        case -1097129801:  // longId
+          return _longId;
+        case 2067160759:  // shortId
+          return _shortId;
         case -891985998:  // strike
           return _strike;
         case -70023844:  // frequency
@@ -667,10 +667,10 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
           return _currency;
         case 1905311443:  // dayCount
           return _dayCount;
-        case 2067849291:  // isPayer
-          return _isPayer;
-        case 100463176:  // isCap
-          return _isCap;
+        case 106443605:  // payer
+          return _payer;
+        case 98258:  // cap
+          return _cap;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -716,19 +716,19 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code longIdentifier} property.
+     * The meta-property for the {@code longId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> longIdentifier() {
-      return _longIdentifier;
+    public final MetaProperty<ExternalId> longId() {
+      return _longId;
     }
 
     /**
-     * The meta-property for the {@code shortIdentifier} property.
+     * The meta-property for the {@code shortId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> shortIdentifier() {
-      return _shortIdentifier;
+    public final MetaProperty<ExternalId> shortId() {
+      return _shortId;
     }
 
     /**
@@ -764,19 +764,19 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code isPayer} property.
+     * The meta-property for the {@code payer} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isPayer() {
-      return _isPayer;
+    public final MetaProperty<Boolean> payer() {
+      return _payer;
     }
 
     /**
-     * The meta-property for the {@code isCap} property.
+     * The meta-property for the {@code cap} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isCap() {
-      return _isCap;
+    public final MetaProperty<Boolean> cap() {
+      return _cap;
     }
 
   }

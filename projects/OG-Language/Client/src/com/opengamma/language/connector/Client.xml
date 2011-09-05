@@ -128,6 +128,7 @@
             <list>
               <bean class="com.opengamma.language.identifier.ExternalIdBundleFunction" />
               <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+              <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
             </list>
           </property>
         </bean>
@@ -178,6 +179,18 @@
         </bean>
       </list>
     </property>
+  </bean>
+  
+  <!-- Position -->
+  <bean id="positionLoader" class="com.opengamma.language.position.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Security -->
+  <bean id="securityLoader" class="com.opengamma.language.security.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
   <!-- Time series -->

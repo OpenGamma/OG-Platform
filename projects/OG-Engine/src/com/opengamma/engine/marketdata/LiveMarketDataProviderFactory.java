@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -38,7 +40,7 @@ public class LiveMarketDataProviderFactory implements MarketDataProviderFactory,
   }
 
   @Override
-  public Iterable<String> getDataSources() {
-    return _providersByDataSource.keySet();
+  public Collection<String> getDataSources() {
+    return new ArrayList<String>(_providersByDataSource.keySet());
   }
 }

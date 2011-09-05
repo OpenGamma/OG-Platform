@@ -102,9 +102,13 @@ public class GICSCodeTest {
   public void codeDeconstruction() {
     GICSCode c1 = GICSCode.getInstance(45103020);
     assertEquals(45, c1.getSectorCode());
-    assertEquals(10, c1.getIndustryGroupCode());
-    assertEquals(30, c1.getIndustryCode());
-    assertEquals(20, c1.getSubIndustryCode());
+    assertEquals(4510, c1.getIndustryGroupCode());
+    assertEquals(451030, c1.getIndustryCode());
+    assertEquals(45103020, c1.getSubIndustryCode());
+    assertEquals("Information Technology", c1.getSectorDescription());
+    assertEquals("Software & Services", c1.getIndustryGroupDescription());
+    assertEquals("Software", c1.getIndustryDescription());
+    assertEquals("Systems Software", c1.getSubIndustryDescription());
   }
 
 }

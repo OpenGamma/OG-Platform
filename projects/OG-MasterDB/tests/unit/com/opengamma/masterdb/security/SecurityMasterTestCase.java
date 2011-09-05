@@ -144,8 +144,8 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     normalizeSecurity(sec);
     assertEquals(security, sec);
     ExternalIdBundle bundle = null;
-    if (security.getIdentifiers().size() > 0) {
-      final Iterator<ExternalId> iterator = security.getIdentifiers().iterator();
+    if (security.getExternalIdBundle().size() > 0) {
+      final Iterator<ExternalId> iterator = security.getExternalIdBundle().iterator();
       bundle = ExternalIdBundle.EMPTY;
       // retrieve with one identifier
       ExternalId id = iterator.next();
@@ -158,7 +158,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
       normalizeSecurity(sec);
       assertEquals(security, sec);
       // retrieve with exact bundle
-      sec = getSecurity(security.getIdentifiers());
+      sec = getSecurity(security.getExternalIdBundle());
       normalizeSecurity(sec);
       assertEquals(security, sec);
     }

@@ -198,7 +198,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   private URI addPosition(BigDecimal quantity, UniqueId secUid) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
-    ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getIdentifiers());
+    ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getExternalIdBundle());
     PositionDocument doc = new PositionDocument(position);
     doc = data().getPositionMaster().add(doc);
     data().setPosition(doc);

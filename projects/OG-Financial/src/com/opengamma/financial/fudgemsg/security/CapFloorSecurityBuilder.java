@@ -61,14 +61,14 @@ public class CapFloorSecurityBuilder extends AbstractFudgeBuilder implements Fud
     addToMessage(msg, START_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getStartDate()));
     addToMessage(msg, MATURITY_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getMaturityDate()));
     addToMessage(msg, NOTIONAL_KEY, object.getNotional());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, FREQUENCY_KEY, object.getFrequency());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
     addToMessage(msg, DAY_COUNT_KEY, object.getDayCount());
-    addToMessage(msg, IS_PAYER_KEY, object.getIsPayer());
-    addToMessage(msg, IS_CAP_KEY, object.getIsCap());
-    addToMessage(msg, IS_IBOR_KEY, object.getIsIbor());
+    addToMessage(msg, IS_PAYER_KEY, object.isPayer());
+    addToMessage(msg, IS_CAP_KEY, object.isCap());
+    addToMessage(msg, IS_IBOR_KEY, object.isIbor());
   }
 
   @Override
@@ -83,14 +83,14 @@ public class CapFloorSecurityBuilder extends AbstractFudgeBuilder implements Fud
     object.setStartDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(START_DATE_KEY)));
     object.setMaturityDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_KEY)));
     object.setNotional(msg.getDouble(NOTIONAL_KEY));
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setFrequency(msg.getValue(Frequency.class, FREQUENCY_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
     object.setDayCount(msg.getValue(DayCount.class, DAY_COUNT_KEY));
-    object.setIsPayer(msg.getBoolean(IS_PAYER_KEY));
-    object.setIsCap(msg.getBoolean(IS_CAP_KEY));
-    object.setIsIbor(msg.getBoolean(IS_IBOR_KEY));
+    object.setPayer(msg.getBoolean(IS_PAYER_KEY));
+    object.setCap(msg.getBoolean(IS_CAP_KEY));
+    object.setIbor(msg.getBoolean(IS_IBOR_KEY));
   }
 
 }
