@@ -45,7 +45,7 @@ public abstract class InterestRateLeg extends SwapLeg {
   protected InterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention, Notional notional) {
     setDayCount(dayCount);
     setFrequency(frequency);
-    setRegionIdentifier(regionIdentifier);
+    setRegionId(regionIdentifier);
     setBusinessDayConvention(businessDayConvention);
     setNotional(notional);
   }

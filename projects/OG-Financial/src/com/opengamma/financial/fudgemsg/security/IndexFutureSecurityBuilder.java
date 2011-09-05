@@ -34,7 +34,7 @@ public class IndexFutureSecurityBuilder extends AbstractFudgeBuilder implements 
 
   public static void toFudgeMsg(FudgeSerializer serializer, IndexFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
@@ -46,7 +46,7 @@ public class IndexFutureSecurityBuilder extends AbstractFudgeBuilder implements 
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, IndexFutureSecurity object) {
     FutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }

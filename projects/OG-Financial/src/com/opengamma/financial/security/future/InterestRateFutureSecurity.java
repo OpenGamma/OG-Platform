@@ -34,7 +34,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
 
   /**
    * Creates an empty instance.
@@ -48,7 +48,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
       ExternalId underlyingIdentifier) {
     super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
   }
 
   //-------------------------------------------------------------------------
@@ -78,8 +78,8 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -87,8 +87,8 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -96,7 +96,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     super.validate();
   }
 
@@ -107,7 +107,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InterestRateFutureSecurity other = (InterestRateFutureSecurity) obj;
-      return JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           super.equals(obj);
     }
     return false;
@@ -116,7 +116,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     return hash ^ super.hashCode();
   }
 
@@ -125,25 +125,25 @@ public class InterestRateFutureSecurity extends FutureSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -157,16 +157,16 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", InterestRateFutureSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", InterestRateFutureSecurity.class, ExternalId.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "underlyingIdentifier");
+        "underlyingId");
 
     /**
      * Restricted constructor.
@@ -177,8 +177,8 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -200,11 +200,11 @@ public class InterestRateFutureSecurity extends FutureSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
   }

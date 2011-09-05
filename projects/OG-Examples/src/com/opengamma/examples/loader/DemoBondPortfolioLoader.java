@@ -200,12 +200,12 @@ public class DemoBondPortfolioLoader {
   protected ManageablePosition createPosition(BondSecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    ExternalId buid = security.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+    ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
     ExternalIdBundle bundle;
     if (buid != null) {
       bundle = ExternalIdBundle.of(buid);
     } else {
-      bundle = security.getIdentifiers();
+      bundle = security.getExternalIdBundle();
     }
     return new ManageablePosition(BigDecimal.valueOf(shares), bundle);
   }

@@ -47,7 +47,7 @@ public class CashSecurity extends FinancialSecurity {
    * The region.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _region;
+  private ExternalId _regionId;
   /**
    * The maturity.
    */
@@ -75,7 +75,7 @@ public class CashSecurity extends FinancialSecurity {
   public CashSecurity(Currency currency, ExternalId region, ZonedDateTime maturity, double rate, double amount) {
     super(SECURITY_TYPE);
     setCurrency(currency);
-    setRegion(region);
+    setRegionId(region);
     setMaturity(maturity);
     setRate(rate);
     setAmount(amount);
@@ -121,8 +121,8 @@ public class CashSecurity extends FinancialSecurity {
     switch (propertyName.hashCode()) {
       case 575402001:  // currency
         return getCurrency();
-      case -934795532:  // region
-        return getRegion();
+      case -690339025:  // regionId
+        return getRegionId();
       case 313843601:  // maturity
         return getMaturity();
       case 3493088:  // rate
@@ -139,8 +139,8 @@ public class CashSecurity extends FinancialSecurity {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
       case 313843601:  // maturity
         setMaturity((ZonedDateTime) newValue);
@@ -158,7 +158,7 @@ public class CashSecurity extends FinancialSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     JodaBeanUtils.notNull(_maturity, "maturity");
     super.validate();
   }
@@ -171,7 +171,7 @@ public class CashSecurity extends FinancialSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       CashSecurity other = (CashSecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
           JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
@@ -184,7 +184,7 @@ public class CashSecurity extends FinancialSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
@@ -222,25 +222,25 @@ public class CashSecurity extends FinancialSecurity {
    * Gets the region.
    * @return the value of the property, not null
    */
-  public ExternalId getRegion() {
-    return _region;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
    * Sets the region.
-   * @param region  the new value of the property, not null
+   * @param regionId  the new value of the property, not null
    */
-  public void setRegion(ExternalId region) {
-    JodaBeanUtils.notNull(region, "region");
-    this._region = region;
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code region} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> region() {
-    return metaBean().region().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -335,10 +335,10 @@ public class CashSecurity extends FinancialSecurity {
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", CashSecurity.class, Currency.class);
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", CashSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", CashSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code maturity} property.
      */
@@ -360,7 +360,7 @@ public class CashSecurity extends FinancialSecurity {
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "currency",
-        "region",
+        "regionId",
         "maturity",
         "rate",
         "amount");
@@ -376,8 +376,8 @@ public class CashSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return _currency;
-        case -934795532:  // region
-          return _region;
+        case -690339025:  // regionId
+          return _regionId;
         case 313843601:  // maturity
           return _maturity;
         case 3493088:  // rate
@@ -413,11 +413,11 @@ public class CashSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> region() {
-      return _region;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**

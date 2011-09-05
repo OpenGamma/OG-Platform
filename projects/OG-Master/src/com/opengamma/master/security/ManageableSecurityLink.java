@@ -62,7 +62,7 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
     ManageableSecurityLink link = new ManageableSecurityLink();
     link.setAndLockTarget(security);
     if (link.getObjectId() == null) {
-      link.setExternalId(security.getIdentifiers());
+      link.setExternalId(security.getExternalIdBundle());
     }
     return link;
   }
@@ -76,7 +76,7 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
    */
   public static ManageableSecurityLink ofBundleId(Security security) {
     ArgumentChecker.notNull(security, "security");
-    ManageableSecurityLink link = new ManageableSecurityLink(security.getIdentifiers());
+    ManageableSecurityLink link = new ManageableSecurityLink(security.getExternalIdBundle());
     link.setTarget(security);
     return link;
   }
@@ -147,7 +147,7 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
     ObjectId objectId = getObjectId();
     ExternalIdBundle bundle = getExternalId();
     if (security != null) {
-      bundle = security.getIdentifiers();
+      bundle = security.getExternalIdBundle();
     }
     if (bundle != null && bundle.size() > 0) {
       if (bundle.getValue(SecurityUtils.BLOOMBERG_TICKER) != null) {

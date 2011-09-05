@@ -41,7 +41,7 @@ public interface Security extends UniqueIdentifiable {
    * 
    * @return the bundle defining the security, not null
    */
-  ExternalIdBundle getIdentifiers();
+  ExternalIdBundle getExternalIdBundle();
 
   /**
    * Gets the text-based type of this security.

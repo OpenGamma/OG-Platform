@@ -33,8 +33,8 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, YieldCurveDefinition object) {
     MutableFudgeMsg message = serializer.newMessage();
     serializer.addToMessage(message, "currency", null, object.getCurrency());
-    if (object.getRegion() != null) {
-      serializer.addToMessage(message, "region", null, object.getRegion());
+    if (object.getRegionId() != null) {
+      serializer.addToMessage(message, "region", null, object.getRegionId());
     }
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());

@@ -90,8 +90,8 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
       jsonObject.put(NAME_FIELD, object.getName());
       jsonObject.put(INTERPOLATOR_NAME_FIELD, object.getInterpolatorName());
       jsonObject.put(CURRENCY_FIELD, object.getCurrency().getCode());
-      if (object.getRegion() != null) {
-        jsonObject.put(REGION_FIELD, toJSONObject(object.getRegion()));
+      if (object.getRegionId() != null) {
+        jsonObject.put(REGION_FIELD, toJSONObject(object.getRegionId()));
       }
       List<JSONObject> strips = Lists.newArrayList();
       for (FixedIncomeStrip strip : object.getStrips()) {

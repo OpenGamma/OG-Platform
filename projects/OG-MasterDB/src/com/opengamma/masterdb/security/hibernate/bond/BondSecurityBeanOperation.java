@@ -123,7 +123,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
     bond.setCouponType(secMasterSession.getOrCreateCouponTypeBean(security.getCouponType()));
     bond.setCouponRate(security.getCouponRate());
     bond.setCouponFrequency(secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));
-    bond.setDayCountConvention(secMasterSession.getOrCreateDayCountBean(security.getDayCountConvention().getConventionName()));
+    bond.setDayCountConvention(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
     bond.setBusinessDayConvention(security.getBusinessDayConvention() != null ? secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()) : null);
     bond.setAnnouncementDate(security.getAnnouncementDate() != null ? dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()) : null);
     bond.setInterestAccrualDate(dateTimeWithZoneToZonedDateTimeBean(security.getInterestAccrualDate()));
