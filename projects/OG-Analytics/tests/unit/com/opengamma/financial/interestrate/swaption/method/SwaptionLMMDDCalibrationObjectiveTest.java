@@ -26,7 +26,8 @@ import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.financial.model.interestrate.LiborMarketModelDisplacedDiffusionTestsDataSet;
+import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -37,7 +38,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the calibration engine for Hull-White one factor calibration to European swaptions.
  */
-public class SwaptionHullWhiteCalibrationObjectiveTest {
+public class SwaptionLMMDDCalibrationObjectiveTest {
   // Swaption description
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
@@ -56,20 +57,19 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final int SWAP_TENOR_YEAR = 9;
-  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.ofYears(SWAP_TENOR_YEAR));
+  private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5};
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
-  private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
-  private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
-  private static final ZonedDateTime[] SETTLEMENT_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
-  private static final SwapFixedIborDefinition[] SWAP_PAYER_DEFINITION = new SwapFixedIborDefinition[EXPIRY_TENOR.length];
-  private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[EXPIRY_TENOR.length];
+  private static final int EXPIRY_TENOR = 5;
+  private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofYears(EXPIRY_TENOR));
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
+  private static final SwapFixedIborDefinition[] SWAP_PAYER_DEFINITION = new SwapFixedIborDefinition[SWAP_TENOR_YEAR.length];
+  private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[SWAP_TENOR_YEAR.length];
+  private static final CMSIndex[] CMS_INDEX = new CMSIndex[SWAP_TENOR_YEAR.length];
   static {
-    for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BUSINESS_DAY, CALENDAR, Period.ofYears(EXPIRY_TENOR[loopexp]));
-      SETTLEMENT_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexp], BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
-      SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[loopexp], CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
-      SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
+    for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
+      CMS_INDEX[loopexp] = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.ofYears(SWAP_TENOR_YEAR[loopexp]));
+      SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX[loopexp], NOTIONAL, RATE, FIXED_IS_PAYER);
+      SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
     }
   }
   // to derivatives
@@ -79,34 +79,33 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
-  private static final SwaptionPhysicalFixedIbor[] SWAPTION_LONG_PAYER = new SwaptionPhysicalFixedIbor[EXPIRY_TENOR.length];
+  private static final SwaptionPhysicalFixedIbor[] SWAPTION_LONG_PAYER = new SwaptionPhysicalFixedIbor[SWAP_TENOR_YEAR.length];
   static {
-    for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
+    for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       SWAPTION_LONG_PAYER[loopexp] = SWAPTION_LONG_PAYER_DEFINITION[loopexp].toDerivative(REFERENCE_DATE, CURVES_NAME);
     }
   }
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
-  private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_HW = new SwaptionPhysicalFixedIborHullWhiteMethod();
+  private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM = new SwaptionPhysicalFixedIborLMMDDMethod();
 
   @Test
   /**
    * Tests the correctness of Hull-White one factor calibration to swaptions with SABR price.
    */
   public void calibration() {
-    double meanReversion = 0.01;
-    HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-    SwaptionPhysicalHullWhiteCalibrationObjective objective = new SwaptionPhysicalHullWhiteCalibrationObjective(hwParameters);
-    SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-    for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
+    LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION[SWAP_TENOR_YEAR.length - 1]);
+    SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+    SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
+    for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], METHOD_SABR);
     }
     calibrationEngine.calibrate(SABR_BUNDLE);
-    CurrencyAmount[] pvSabr = new CurrencyAmount[EXPIRY_TENOR.length];
-    CurrencyAmount[] pvHw = new CurrencyAmount[EXPIRY_TENOR.length];
-    for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
+    CurrencyAmount[] pvSabr = new CurrencyAmount[SWAP_TENOR_YEAR.length];
+    CurrencyAmount[] pvLmm = new CurrencyAmount[SWAP_TENOR_YEAR.length];
+    for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
       pvSabr[loopexp] = METHOD_SABR.presentValue(SWAPTION_LONG_PAYER[loopexp], SABR_BUNDLE);
-      pvHw[loopexp] = METHOD_HW.presentValue(SWAPTION_LONG_PAYER[loopexp], objective.getHwBundle());
-      assertEquals("Hull-White calibration: swaption " + loopexp, pvSabr[loopexp].getAmount(), pvHw[loopexp].getAmount(), 1E-2);
+      pvLmm[loopexp] = METHOD_LMM.presentValue(SWAPTION_LONG_PAYER[loopexp], objective.getLmmBundle());
+      assertEquals("Hull-White calibration: swaption " + loopexp, pvSabr[loopexp].getAmount(), pvLmm[loopexp].getAmount(), 1E-2);
     }
   }
 
@@ -115,22 +114,22 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
    * Test of performance. In normal testing, "enabled = false".
    */
   public void performance() {
-    double meanReversion = 0.01;
     long startTime, endTime;
     final int nbTest = 100;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      HullWhiteOneFactorPiecewiseConstantParameters HwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-      SwaptionPhysicalHullWhiteCalibrationObjective objective = new SwaptionPhysicalHullWhiteCalibrationObjective(HwParameters);
-      SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
-      for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
+      LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionTestsDataSet
+          .createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION[SWAP_TENOR_YEAR.length - 1]);
+      SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
+      SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
+      for (int loopexp = 0; loopexp < SWAP_TENOR_YEAR.length; loopexp++) {
         calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], METHOD_SABR);
       }
       calibrationEngine.calibrate(SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Hull-White calibration to swaption (5 swaptions): " + (endTime - startTime) + " ms");
-    // Performance note: calibration: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 415 ms for 100 calibration with 5 swaptions.
+    System.out.println(nbTest + " LMM calibration to swaption (5 swaptions): " + (endTime - startTime) + " ms");
+    // Performance note: calibration: 1-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 130 ms for 100 calibration with 5 swaptions.
   }
 
 }
