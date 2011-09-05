@@ -56,27 +56,82 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
     
     ArgumentChecker.notNull(json, "JSON document");
     CurveSpecificationBuilderConfiguration result = null;
+    
     try {
       JSONObject configJSON = new JSONObject(json);
       
       Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("cashInstrumentProviders"));
-      Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("fraInstrumentProviders"));
+      
+      Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders = null;
+      Map<Tenor, CurveInstrumentProvider> fra6MInstrumentProviders = null;
+      JSONArray oldFRAArray = configJSON.optJSONArray("fraInstrumentProviders");
+      JSONArray fra3MArray = configJSON.optJSONArray("fra3MInstrumentProviders");
+      JSONArray fra6MArray = configJSON.optJSONArray("fra6MInstrumentProviders");
+      if (oldFRAArray != null) {
+        if (fra3MArray != null || fra6MArray != null) {
+          throw new OpenGammaRuntimeException("Have JSON array with the old FRA field but at least one of the new FRA fields (3m or 6m)");
+        }
+        // Treat all old FRAs as 3M (e.g. 1M x 4M)
+        s_logger.warn("Curve specification uses a FRA strip that does not contain information about its tenor: assuming that it is 3m.");
+        fra3MInstrumentProviders = processCurveInstrumentProvider(oldFRAArray);
+      } else {
+        fra3MInstrumentProviders = processCurveInstrumentProvider(fra3MArray);
+        fra6MInstrumentProviders = processCurveInstrumentProvider(fra6MArray);
+      }
+      
       Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("futureInstrumentProviders"));
-      Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("rateInstrumentProviders"));
-      Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("swapInstrumentProviders"));
+      
+      Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders = null;
+      Map<Tenor, CurveInstrumentProvider> euriborInstrumentProviders = null;
+      JSONArray oldRateArray = configJSON.optJSONArray("rateInstrumentProviders");
+      JSONArray liborArray = configJSON.optJSONArray("liborInstrumentProviders");
+      JSONArray euriborArray = configJSON.optJSONArray("euriborInstrumentProviders");
+      if (oldRateArray != null) {
+        if (liborArray != null || euriborArray != null) {
+          throw new OpenGammaRuntimeException("Have JSON array with the old rate field but at least one of the new *ibor fields (libor or euribor");
+        }
+        // Treat all old rates as libor
+        s_logger.warn("Curve specification uses a RATE strip: assuming that it is a libor rate.");
+        liborInstrumentProviders = processCurveInstrumentProvider(oldRateArray);
+      } else {
+        liborInstrumentProviders = processCurveInstrumentProvider(liborArray);
+        euriborInstrumentProviders = processCurveInstrumentProvider(euriborArray);
+      }
+      
+      Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders = null;
+      Map<Tenor, CurveInstrumentProvider> swap6MInstrumentProviders = null;
+      JSONArray oldSwapArray = configJSON.optJSONArray("swapInstrumentProviders");
+      JSONArray swap3MArray = configJSON.optJSONArray("swap3MInstrumentProviders");
+      JSONArray swap6MArray = configJSON.optJSONArray("swap6MInstrumentProviders");
+      if (oldSwapArray != null) {
+        if (swap3MArray != null || swap6MArray != null) {
+          throw new OpenGammaRuntimeException("Have JSON array with the old swap field but at least one of the new swap fields (3m or 6m)");
+        }
+        // Treat all old swaps as if the floating leg was reset quarterly
+        s_logger.warn("Curve specification uses a SWAP strip that does not contain information about its floating leg reset tenor: assuming that it is 3m.");
+        swap3MInstrumentProviders = processCurveInstrumentProvider(oldSwapArray);
+      } else {
+        swap3MInstrumentProviders = processCurveInstrumentProvider(swap3MArray);
+        swap6MInstrumentProviders = processCurveInstrumentProvider(swap6MArray);
+      }
+      
       Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("basisSwapInstrumentProviders"));
+      
       Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("tenorSwapInstrumentProviders"));
+      
       Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = processCurveInstrumentProvider(configJSON.optJSONArray("oisSwapInstrumentProviders"));
 
       result = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, 
-                                                          fraInstrumentProviders, 
-                                                          rateInstrumentProviders, 
+                                                          fra3MInstrumentProviders, 
+                                                          fra6MInstrumentProviders, 
+                                                          liborInstrumentProviders, 
+                                                          euriborInstrumentProviders, 
                                                           futureInstrumentProviders, 
-                                                          swapInstrumentProviders, 
+                                                          swap6MInstrumentProviders, 
+                                                          swap3MInstrumentProviders, 
                                                           basisSwapInstrumentProviders, 
                                                           tenorSwapInstrumentProviders,
                                                           oisSwapInstrumentProviders);
-      
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create CurveSpecificationBuilderConfiguration", ex);
     }
@@ -121,9 +176,9 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
         s_logger.debug("No cash instrument providers");
       }
       
-      if (object.getFraInstrumentProviders() != null) {
+      if (object.getFra3MInstrumentProviders() != null) {
         List<JSONObject> fraInstrumentProviders = Lists.newArrayList();
-        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFraInstrumentProviders().entrySet()) {
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFra3MInstrumentProviders().entrySet()) {
           if (entry.getKey().getPeriod().toString() == null) {
             throw new OpenGammaRuntimeException(" tenor is null");
           }
@@ -131,12 +186,28 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           fraInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           fraInstrumentProviders.add(fraInstrumentProvidersMessage);
         }
-        allTenors.addAll(object.getFraInstrumentProviders().keySet());
-        message.put("fraInstrumentProviders", fraInstrumentProviders);
+        allTenors.addAll(object.getFra3MInstrumentProviders().keySet());
+        message.put("fra3MInstrumentProviders", fraInstrumentProviders);
       } else {
-        s_logger.debug("No FRA instrument providers");
+        s_logger.debug("No FRA 3M instrument providers");
       }
       
+      if (object.getFra6MInstrumentProviders() != null) {
+        List<JSONObject> fraInstrumentProviders = Lists.newArrayList();
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFra6MInstrumentProviders().entrySet()) {
+          if (entry.getKey().getPeriod().toString() == null) {
+            throw new OpenGammaRuntimeException(" tenor is null");
+          }
+          JSONObject fraInstrumentProvidersMessage = new JSONObject();
+          fraInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          fraInstrumentProviders.add(fraInstrumentProvidersMessage);
+        }
+        allTenors.addAll(object.getFra6MInstrumentProviders().keySet());
+        message.put("fra3MInstrumentProviders", fraInstrumentProviders);
+      } else {
+        s_logger.debug("No FRA 6M instrument providers");
+      }
+
       if (object.getFutureInstrumentProviders() != null) {
         List<JSONObject> futureInstrumentProviders = Lists.newArrayList();
         for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFutureInstrumentProviders().entrySet()) {
@@ -153,9 +224,9 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
         s_logger.debug("No future instrument providers");
       }
       
-      if (object.getRateInstrumentProviders() != null) {
+      if (object.getLiborInstrumentProviders() != null) {
         List<JSONObject> rateInstrumentProviders = Lists.newArrayList();
-        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getRateInstrumentProviders().entrySet()) {
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getLiborInstrumentProviders().entrySet()) {
           if (entry.getKey().getPeriod().toString() == null) {
             throw new OpenGammaRuntimeException(" tenor is null");
           }
@@ -163,15 +234,31 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           rateInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           rateInstrumentProviders.add(rateInstrumentProvidersMessage);
         }
-        allTenors.addAll(object.getRateInstrumentProviders().keySet());
-        message.put("rateInstrumentProviders", rateInstrumentProviders);
+        allTenors.addAll(object.getLiborInstrumentProviders().keySet());
+        message.put("liborInstrumentProviders", rateInstrumentProviders);
       } else {
-        s_logger.debug("No rate instrument providers");
+        s_logger.debug("No libor instrument providers");
       }
 
-      if (object.getSwapInstrumentProviders() != null) {
+      if (object.getEuriborInstrumentProviders() != null) {
+        List<JSONObject> rateInstrumentProviders = Lists.newArrayList();
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getEuriborInstrumentProviders().entrySet()) {
+          if (entry.getKey().getPeriod().toString() == null) {
+            throw new OpenGammaRuntimeException(" tenor is null");
+          }
+          JSONObject rateInstrumentProvidersMessage = new JSONObject();
+          rateInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          rateInstrumentProviders.add(rateInstrumentProvidersMessage);
+        }
+        allTenors.addAll(object.getEuriborInstrumentProviders().keySet());
+        message.put("euriborInstrumentProviders", rateInstrumentProviders);
+      } else {
+        s_logger.debug("No euribor instrument providers");
+      }
+
+      if (object.getSwap3MInstrumentProviders() != null) {
         List<JSONObject> swapInstrumentProviders = Lists.newArrayList();
-        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getSwapInstrumentProviders().entrySet()) {
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap3MInstrumentProviders().entrySet()) {
           if (entry.getKey().getPeriod().toString() == null) {
             throw new OpenGammaRuntimeException(" tenor is null");
           }
@@ -179,10 +266,26 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           swapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
           swapInstrumentProviders.add(swapInstrumentProvidersMessage);
         }
-        allTenors.addAll(object.getSwapInstrumentProviders().keySet());
+        allTenors.addAll(object.getSwap3MInstrumentProviders().keySet());
         message.put("swapInstrumentProviders", swapInstrumentProviders);
       } else {
-        s_logger.debug("No swap instrument providers");
+        s_logger.debug("No swap 3M instrument providers");
+      }
+
+      if (object.getSwap6MInstrumentProviders() != null) {
+        List<JSONObject> swapInstrumentProviders = Lists.newArrayList();
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap6MInstrumentProviders().entrySet()) {
+          if (entry.getKey().getPeriod().toString() == null) {
+            throw new OpenGammaRuntimeException(" tenor is null");
+          }
+          JSONObject swapInstrumentProvidersMessage = new JSONObject();
+          swapInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          swapInstrumentProviders.add(swapInstrumentProvidersMessage);
+        }
+        allTenors.addAll(object.getSwap6MInstrumentProviders().keySet());
+        message.put("swapInstrumentProviders", swapInstrumentProviders);
+      } else {
+        s_logger.debug("No swap 6M instrument providers");
       }
 
       if (object.getBasisSwapInstrumentProviders() != null) {

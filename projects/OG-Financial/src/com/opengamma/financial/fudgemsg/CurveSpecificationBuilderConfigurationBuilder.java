@@ -29,127 +29,282 @@ import com.opengamma.util.time.Tenor;
  */
 @FudgeBuilderFor(CurveSpecificationBuilderConfiguration.class)
 public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuilder<CurveSpecificationBuilderConfiguration> {
+  private static final String CASH = "cashInstrumentProviders";
+  private static final String FRA = "fraInstrumentProviders";
+  private static final String FRA_3M = "fra3MInstrumentProviders";
+  private static final String FRA_6M = "fra6MInstrumentProviders";
+  private static final String FUTURE = "futureInstrumentProviders";
+  private static final String RATE = "rateInstrumentProviders";
+  private static final String LIBOR = "liborInstrumentProviders";
+  private static final String EURIBOR = "euriborInstrumentProviders";
+  private static final String SWAP = "swapInstrumentProviders";
+  private static final String SWAP_3M = "swap3MInstrumentProviders";
+  private static final String SWAP_6M = "swap6MInstrumentProviders";
+  private static final String BASIS_SWAP = "basisSwapInstrumentProviders";
+  private static final String TENOR_SWAP = "tenorSwapInstrumentProviders";
+  private static final String OIS_SWAP = "oisSwapInstrumentProviders";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurveSpecificationBuilderConfiguration object) {
-    MutableFudgeMsg message = serializer.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveSpecificationBuilderConfiguration object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     FudgeSerializer.addClassHeader(message, CurveSpecificationBuilderConfiguration.class);
-    MutableFudgeMsg cashInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getCashInstrumentProviders().entrySet()) {
-      serializer.addToMessage(cashInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
-    }
-    message.add("cashInstrumentProviders", cashInstrumentProvidersMessage);
-    
-    MutableFudgeMsg fraInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFraInstrumentProviders().entrySet()) {
-      if (entry.getKey().getPeriod().toString() == null) {
-        throw new OpenGammaRuntimeException("null");
-      }
-      serializer.addToMessage(fraInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
-    }
-    message.add("fraInstrumentProviders", fraInstrumentProvidersMessage);
-    
-    MutableFudgeMsg futureInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFutureInstrumentProviders().entrySet()) {
-      serializer.addToMessage(futureInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
-    }
-    message.add("futureInstrumentProviders", futureInstrumentProvidersMessage);
 
-    MutableFudgeMsg rateInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getRateInstrumentProviders().entrySet()) {
-      serializer.addToMessage(rateInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    if (object.getCashInstrumentProviders() != null) {
+      final MutableFudgeMsg cashInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getCashInstrumentProviders().entrySet()) {
+        serializer.addToMessage(cashInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(CASH, cashInstrumentProvidersMessage);
     }
-    message.add("rateInstrumentProviders", rateInstrumentProvidersMessage);
-    
-    MutableFudgeMsg swapInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getSwapInstrumentProviders().entrySet()) {
-      serializer.addToMessage(swapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+
+    //    final MutableFudgeMsg fraInstrumentProvidersMessage = serializer.newMessage();
+    //    for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getFraInstrumentProviders().entrySet()) {
+    //      if (entry.getKey().getPeriod().toString() == null) {
+    //        throw new OpenGammaRuntimeException("null");
+    //      }
+    //      serializer.addToMessage(fraInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    //    }
+    //    message.add(FRA, fraInstrumentProvidersMessage);
+
+    if (object.getFra3MInstrumentProviders() != null) {
+      final MutableFudgeMsg fra3MInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getFra3MInstrumentProviders().entrySet()) {
+        if (entry.getKey().getPeriod().toString() == null) {
+          throw new OpenGammaRuntimeException("null");
+        }
+        serializer.addToMessage(fra3MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(FRA_3M, fra3MInstrumentProvidersMessage);
     }
-    message.add("swapInstrumentProviders", swapInstrumentProvidersMessage);
-    
-    MutableFudgeMsg basisSwapInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getBasisSwapInstrumentProviders().entrySet()) {
-      serializer.addToMessage(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+
+    if (object.getFra6MInstrumentProviders() != null) {
+      final MutableFudgeMsg fra6MInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getFra6MInstrumentProviders().entrySet()) {
+        if (entry.getKey().getPeriod().toString() == null) {
+          throw new OpenGammaRuntimeException("null");
+        }
+        serializer.addToMessage(fra6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(FRA_6M, fra6MInstrumentProvidersMessage);
     }
-    message.add("basisSwapInstrumentProviders", basisSwapInstrumentProvidersMessage);
-    
-    MutableFudgeMsg tenorSwapInstrumentProvidersMessage = serializer.newMessage();
-    for (Entry<Tenor, CurveInstrumentProvider> entry : object.getTenorSwapInstrumentProviders().entrySet()) {
-      serializer.addToMessage(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+
+    if (object.getFutureInstrumentProviders() != null) {
+      final MutableFudgeMsg futureInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getFutureInstrumentProviders().entrySet()) {
+        serializer.addToMessage(futureInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(FUTURE, futureInstrumentProvidersMessage);
     }
-    message.add("tenorSwapInstrumentProviders", tenorSwapInstrumentProvidersMessage);
+    //    final MutableFudgeMsg rateInstrumentProvidersMessage = serializer.newMessage();
+    //    for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getRateInstrumentProviders().entrySet()) {
+    //      serializer.addToMessage(rateInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+    //    }
+    //    message.add(RATE, rateInstrumentProvidersMessage);
+
+    if (object.getLiborInstrumentProviders() != null) {
+      final MutableFudgeMsg liborInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getLiborInstrumentProviders().entrySet()) {
+        serializer.addToMessage(liborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(LIBOR, liborInstrumentProvidersMessage);
+    }
+
+    if (object.getEuriborInstrumentProviders() != null) {
+      final MutableFudgeMsg euriborInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getEuriborInstrumentProviders().entrySet()) {
+        serializer.addToMessage(euriborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(EURIBOR, euriborInstrumentProvidersMessage);
+    }
+
+    if (object.getSwap3MInstrumentProviders() != null) {
+      final MutableFudgeMsg swap3MInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap3MInstrumentProviders().entrySet()) {
+        serializer.addToMessage(swap3MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(SWAP_3M, swap3MInstrumentProvidersMessage);
+    }
+
+    if (object.getSwap6MInstrumentProviders() != null) {
+      final MutableFudgeMsg swap6MInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap6MInstrumentProviders().entrySet()) {
+        serializer.addToMessage(swap6MInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(SWAP_6M, swap6MInstrumentProvidersMessage);
+    }
+
+    if (object.getBasisSwapInstrumentProviders() != null) {
+      final MutableFudgeMsg basisSwapInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getBasisSwapInstrumentProviders().entrySet()) {
+        serializer.addToMessage(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(BASIS_SWAP, basisSwapInstrumentProvidersMessage);
+    }
+
+    if (object.getTenorSwapInstrumentProviders() != null) {
+      final MutableFudgeMsg tenorSwapInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getTenorSwapInstrumentProviders().entrySet()) {
+        serializer.addToMessage(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(TENOR_SWAP, tenorSwapInstrumentProvidersMessage);
+    }
 
     if (object.getOISSwapInstrumentProviders() != null) {
-      MutableFudgeMsg oisSwapInstrumentProvidersMessage = serializer.newMessage();
-      for (Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
+      final MutableFudgeMsg oisSwapInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getOISSwapInstrumentProviders().entrySet()) {
         serializer.addToMessage(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
       }
-      message.add("oisSwapInstrumentProviders", oisSwapInstrumentProvidersMessage);
+      message.add(OIS_SWAP, oisSwapInstrumentProvidersMessage);
     }
-   
-    return message; 
+
+    return message;
   }
 
   @Override
-  public CurveSpecificationBuilderConfiguration buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    FudgeMsg cashInstrumentProvidersMessage = message.getMessage("cashInstrumentProviders");
-    Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : cashInstrumentProvidersMessage.getAllFields()) {
-      cashInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
-    }
-    
-    FudgeMsg fraInstrumentProvidersMessage = message.getMessage("fraInstrumentProviders");
-    Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : fraInstrumentProvidersMessage.getAllFields()) {
-      fraInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+  public CurveSpecificationBuilderConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders = null;
+    if (message.hasField(CASH)) {
+      cashInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg cashInstrumentProvidersMessage = message.getMessage(CASH);
+      for (final FudgeField field : cashInstrumentProvidersMessage.getAllFields()) {
+        cashInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
     }
 
-    FudgeMsg futureInstrumentProvidersMessage = message.getMessage("futureInstrumentProviders");
-    Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : futureInstrumentProvidersMessage.getAllFields()) {
-      futureInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
-    }
-    
-    FudgeMsg rateInstrumentProvidersMessage = message.getMessage("rateInstrumentProviders");
-    Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : rateInstrumentProvidersMessage.getAllFields()) {
-      rateInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+    if (message.hasField(FRA_3M) && message.hasField(FRA)) {
+      throw new OpenGammaRuntimeException("Have message with the old FRA field and the new FRA_3M field: should not happen");
     }
 
-    FudgeMsg swapInstrumentProvidersMessage = message.getMessage("swapInstrumentProviders");
-    Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : swapInstrumentProvidersMessage.getAllFields()) {
-      swapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+    Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders = null;
+    if (message.hasField(FRA)) {
+      // Treat all old definitions as if they were 3m FRA rates
+      final FudgeMsg fraInstrumentProvidersMessage = message.getMessage(FRA);
+      fra3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      for (final FudgeField field : fraInstrumentProvidersMessage.getAllFields()) {
+        fra3MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    } else if (message.hasField(FRA_3M)) {
+      fra3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg fra3MInstrumentProvidersMessage = message.getMessage(FRA_3M);
+      for (final FudgeField field : fra3MInstrumentProvidersMessage.getAllFields()) {
+        fra3MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
     }
-    
-    FudgeMsg basisSwapInstrumentProvidersMessage = message.getMessage("basisSwapInstrumentProviders");
-    Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : basisSwapInstrumentProvidersMessage.getAllFields()) {
-      basisSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+
+    if (message.hasField(FRA_6M) && message.hasField(FRA)) {
+      throw new OpenGammaRuntimeException("Have message with the old FRA field and the new FRA_6M field: should not happen");
     }
-    
-    FudgeMsg tenorSwapInstrumentProvidersMessage = message.getMessage("tenorSwapInstrumentProviders");
+
+    Map<Tenor, CurveInstrumentProvider> fra6MInstrumentProviders = null;
+    if (message.hasField(FRA_6M)) {
+      fra6MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg fra6MInstrumentProvidersMessage = message.getMessage(FRA_6M);
+      for (final FudgeField field : fra6MInstrumentProvidersMessage.getAllFields()) {
+        fra6MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
+    Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = null;
+    if (message.hasField(FUTURE)) {
+      futureInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg futureInstrumentProvidersMessage = message.getMessage(FUTURE);
+      for (final FudgeField field : futureInstrumentProvidersMessage.getAllFields()) {
+        futureInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+    if (message.hasField(RATE) && message.hasField(LIBOR)) {
+      throw new OpenGammaRuntimeException("Have message with old RATE field and new LIBOR field: should not happen");
+    }
+
+    Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders = null;
+    if (message.hasField(RATE)) {
+      // Treat all old definitions as if they were Libor rates
+      liborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg rateInstrumentProvidersMessage = message.getMessage(RATE);
+      for (final FudgeField field : rateInstrumentProvidersMessage.getAllFields()) {
+        liborInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    } else if (message.hasField(LIBOR)) {
+      liborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg liborInstrumentProvidersMessage = message.getMessage(LIBOR);
+      for (final FudgeField field : liborInstrumentProvidersMessage.getAllFields()) {
+        liborInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
+    if (message.hasField(RATE) && message.hasField(EURIBOR)) {
+      throw new OpenGammaRuntimeException("Have message with old RATE field and new EURIBOR field: should not happen");
+    }
+
+    Map<Tenor, CurveInstrumentProvider> euriborInstrumentProviders = null;
+    if (message.hasField(EURIBOR)) {
+      euriborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg euriborInstrumentProvidersMessage = message.getMessage(EURIBOR);
+      for (final FudgeField field : euriborInstrumentProvidersMessage.getAllFields()) {
+        euriborInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+    if (message.hasField(SWAP) && message.hasField(SWAP_3M)) {
+      throw new OpenGammaRuntimeException("Have message with old SWAP field and new SWAP_3M field: should not happen");
+    }
+
+    Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders = null;
+    if (message.hasField(SWAP)) {
+      // Treat all old definitions as if they were swaps with 3m floating legs
+      swap3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg swapInstrumentProvidersMessage = message.getMessage(SWAP);
+      for (final FudgeField field : swapInstrumentProvidersMessage.getAllFields()) {
+        swap3MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    } else if (message.hasField(SWAP_3M)) {
+      swap3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg swap3MInstrumentProvidersMessage = message.getMessage(SWAP_3M);
+      for (final FudgeField field : swap3MInstrumentProvidersMessage.getAllFields()) {
+        swap3MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
+    if (message.hasField(SWAP) && message.hasField(SWAP_6M)) {
+      throw new OpenGammaRuntimeException("Have message with old SWAp field and new SWAP_6M field: should not happen");
+    }
+
+    Map<Tenor, CurveInstrumentProvider> swap6MInstrumentProviders = null;
+    if (message.hasField(SWAP_6M)) {
+      swap6MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg swap6MInstrumentProvidersMessage = message.getMessage(SWAP_6M);
+      for (final FudgeField field : swap6MInstrumentProvidersMessage.getAllFields()) {
+        swap6MInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
+    Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = null;
+    if (message.hasField(BASIS_SWAP)) {
+      basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg basisSwapInstrumentProvidersMessage = message.getMessage(BASIS_SWAP);
+      for (final FudgeField field : basisSwapInstrumentProvidersMessage.getAllFields()) {
+        basisSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
     Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    for (FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
-      tenorSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+    if (message.hasField(TENOR_SWAP)) {
+      tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg tenorSwapInstrumentProvidersMessage = message.getMessage(TENOR_SWAP);
+      for (final FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
+        tenorSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
     }
 
-    FudgeMsg oisSwapInstrumentProvidersMessage = message.getMessage("oisSwapInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = null;
-    if (oisSwapInstrumentProvidersMessage != null) {
+    if (message.hasField(OIS_SWAP)) {
+      final FudgeMsg oisSwapInstrumentProvidersMessage = message.getMessage(OIS_SWAP);
       oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-      for (FudgeField field : oisSwapInstrumentProvidersMessage.getAllFields()) {
+      for (final FudgeField field : oisSwapInstrumentProvidersMessage.getAllFields()) {
         oisSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
-    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, 
-                                                      fraInstrumentProviders, 
-                                                      rateInstrumentProviders, 
-                                                      futureInstrumentProviders,
-                                                      swapInstrumentProviders, 
-                                                      basisSwapInstrumentProviders, 
-                                                      tenorSwapInstrumentProviders,
-                                                      oisSwapInstrumentProviders);
-  }
 
+    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, euriborInstrumentProviders,
+        futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
+  }
 }

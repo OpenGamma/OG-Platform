@@ -40,5 +40,5 @@ public enum StripInstrumentType {
   /**
    * OIS swap
    */
-  OIS_SWAP
+  OIS_SWAP,
 }

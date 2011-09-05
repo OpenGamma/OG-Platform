@@ -28,14 +28,14 @@ public class YieldCurveDefinitionTest extends FinancialTestBase {
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.TWO_YEARS, 3, "CONVENTIONAL"));
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
   }
-  
+
   @Test
   public void testRealCycle() {
-    final YieldCurveDefinition curveDefinition = CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition();
+    final YieldCurveDefinition curveDefinition = CurveDefinitionAndSpecifications.buildUSDThreeMonthForwardCurveDefinition();
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
     final YieldCurveDefinition curveDefinition2 = CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition();
     assertEquals(curveDefinition2, cycleObject(YieldCurveDefinition.class, curveDefinition2));
-    
+
   }
 
 }
