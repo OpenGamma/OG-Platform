@@ -7,23 +7,13 @@
 namespace com.opengamma.financial.security.cash {
 
   message CashSecurity extends FinancialSecurity {
-  
     required string securityType [default="CASH"];
+    
     required com.opengamma.util.money.Currency currency;
     required id.ExternalId region;
     required javax.time.calendar.ZonedDateTime maturity;
     required double rate;
     required double amount;
-    
-    /* No additional fields */
-    
-    binding Java {
-      body <<<JAVA
-        public <T> T accept(CashSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }
-JAVA;
-    }
-  
   }
 
 }

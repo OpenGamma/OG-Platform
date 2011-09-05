@@ -24,26 +24,32 @@
             <group title="Analytics" packages="com.opengamma.analytics.*"/>
         </javadoc>
     </target>
-    <target name="jsondoc" depends="load-ivy"
+    <target name="jsondoc" depends="resolve"
         description="--> exports Javadoc info to JSON">
         <javadoc
             sourcepath="${src.dir}"
             destdir="docs"
             classpathref="lib.path.id"
             doclet="it.dexy.jsondoclet.Doclet"
-            docletpath="json-doclet-0.3.jar:lib/classpath.jar"
+            docletpath="${lib.path.jar.file}"
             >
         </javadoc>
     </target>
-    <target name="jsondoc-test" depends="load-ivy"
+    <target name="jsondoc-test" depends="resolve"
         description="--> exports Javadoc info to JSON">
         <javadoc
             sourcepath="tests"
             destdir="docs"
             classpathref="lib.path.id"
             doclet="it.dexy.jsondoclet.Doclet"
-            docletpath="json-doclet-0.3.jar:lib/classpath.jar"
+            docletpath="${lib.path.jar.file}"
             >
         </javadoc>
+    </target>
+    <target name="dexydocs" depends="jsondoc"
+        description="Create dexy docs">
+        <exec executable="dexy" dir="docs" searchpath="true">
+           <arg line="--global OG_VERSION=${module.version.target} --setup"/>
+        </exec>
     </target>
 </project>

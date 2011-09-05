@@ -41,8 +41,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     if (_specBuilderCache.containsKey(conventionName)) {
       return _specBuilderCache.get(conventionName);
     } else {
-      final CurveSpecificationBuilderConfiguration builderSpecDoc = _configSource.getLatestByName(
-          CurveSpecificationBuilderConfiguration.class, conventionName);
+      final CurveSpecificationBuilderConfiguration builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
       if (builderSpecDoc != null) {
         _specBuilderCache.put(conventionName, builderSpecDoc);
         return builderSpecDoc;
@@ -53,13 +52,11 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   }
 
   @Override
-  public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate,
-      final YieldCurveDefinition curveDefinition) {
+  public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate, final YieldCurveDefinition curveDefinition) {
     clearConfigCache();
     final Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (final FixedIncomeStrip strip : curveDefinition.getStrips()) {
-      final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_"
-          + curveDefinition.getCurrency().getCode());
+      final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
       ExternalId identifier;
       switch (strip.getInstrumentType()) {
         case CASH:
@@ -77,8 +74,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           break;
         }
         case FUTURE:
-          identifier = builderConfig.getFutureSecurity(curveDate, strip.getCurveNodePointTime(),
-              strip.getNumberOfFuturesAfterTenor());
+          identifier = builderConfig.getFutureSecurity(curveDate, strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor());
           break;
         case LIBOR: //TODO is this right? It seems that we should have a generic IBOR strip. We will need to think about how we deal with *ibor providers 
           final Currency ccy = curveDefinition.getCurrency();
@@ -109,19 +105,15 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           identifier = builderConfig.getOISSwapSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         default:
-          throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition "
-              + strip.getInstrumentType());
+          throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(),
-            strip.getNumberOfFuturesAfterTenor(), identifier));
+        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor(), identifier));
       } else {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(),
-            identifier));
+        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
       }
     }
     final Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
-    return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(),
-        interpolator, securities, curveDefinition.getRegion());
+    return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegionId());
   }
 }

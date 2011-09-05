@@ -17,6 +17,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
  */
 public final class BusinessDayConventionSecondaryType extends SecondaryFieldType<BusinessDayConvention, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

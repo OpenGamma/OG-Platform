@@ -25,6 +25,8 @@ $.register_module({
                     title = null;
                 });
                 $(function () { // in addition to binding hash change events to window, also fire it onload
+                    $('.OG-js-loading').hide();
+                    $('.ui-layout-container').show();
                     og.views.common.layout = /^.*\/analytics\.ftl$/.test(window.location.href)
                         ? og.views.common.layout.analytics()
                         : og.views.common.layout['default']();

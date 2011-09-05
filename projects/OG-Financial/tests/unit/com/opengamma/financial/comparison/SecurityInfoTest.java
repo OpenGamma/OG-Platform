@@ -8,8 +8,9 @@ package com.opengamma.financial.comparison;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
-import org.fudgemsg.FudgeContext;
 import org.testng.annotations.Test;
+
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Tests the SecurityInfo class.
@@ -18,7 +19,7 @@ import org.testng.annotations.Test;
 public class SecurityInfoTest extends AbstractTest {
 
   public void testRawSecurity() {
-    final AbstractComparator comparator = new AbstractComparator(FudgeContext.GLOBAL_DEFAULT) {
+    final AbstractComparator comparator = new AbstractComparator(OpenGammaFudgeContext.getInstance()) {
     };
     final ComparisonContext context = comparator.createContext();
     final SecurityInfo raw1 = new SecurityInfo(context, createRawSecurity("Foo", 42));

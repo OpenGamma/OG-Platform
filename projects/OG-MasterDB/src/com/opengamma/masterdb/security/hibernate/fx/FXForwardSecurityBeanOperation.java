@@ -36,9 +36,9 @@ public final class FXForwardSecurityBeanOperation extends AbstractSecurityBeanOp
   @Override
   public FXForwardSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, FXForwardSecurity security) {
     final FXForwardSecurityBean bean = new FXForwardSecurityBean();
-    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
     bean.setForwardDate(dateTimeWithZoneToZonedDateTimeBean(security.getForwardDate()));
-    bean.setRegion(externalIdToExternalIdBean(security.getRegion()));
+    bean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
     return bean;
   }
 

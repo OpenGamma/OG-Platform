@@ -40,7 +40,7 @@ public interface ViewProcess extends UniqueIdentifiable {
    * A convenience method for obtaining the latest view definition. This is not necessarily the version in use by any
    * current computation.
    * 
-   * @return the underlying view definition, not {@code null}
+   * @return the underlying view definition, not null
    */
   ViewDefinition getLatestViewDefinition();
   

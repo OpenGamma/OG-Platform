@@ -158,7 +158,7 @@ public interface ViewClient extends UniqueIdentifiable {
   /**
    * Sets (or replaces) the result listener.
    * 
-   * @param resultListener  the result listener, or {@code null} to remove an existing listener.
+   * @param resultListener  the result listener, or null to remove an existing listener.
    */
   void setResultListener(ViewResultListener resultListener);
 
@@ -284,7 +284,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * Creates a reference to the latest view cycle. This is consistent with any data flow restrictions being applied
    * through this view client, so does not necessarily represent the most recent state of the view process.
    * 
-   * @return a reference to the latest view cycle, or {@code null} if the latest cycle is not available
+   * @return a reference to the latest view cycle, or null if the latest cycle is not available
    * @throws UnsupportedOperationException if this client does not support referencing computation cycles.
    * @throws IllegalStateException if the view client is not attached to a view process
    */
@@ -294,7 +294,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * Creates a reference to a specific view cycle.
    * 
    * @param cycleId  the unique identifier of the view cycle, not null
-   * @return a reference to the view cycle, or {@code null} if not found
+   * @return a reference to the view cycle, or null if not found
    */
   EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId);
 

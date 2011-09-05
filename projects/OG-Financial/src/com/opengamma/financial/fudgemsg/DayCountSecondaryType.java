@@ -17,6 +17,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
  */
 public final class DayCountSecondaryType extends SecondaryFieldType<DayCount, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */

@@ -29,10 +29,9 @@ namespace com.opengamma.financial.security.option {
   }
  
   /**
-   * A security modelling an fx barrier option.
+   * An FX barrier option security.
    */
   message FXBarrierOptionSecurity extends FinancialSecurity {
-   
     required string securityType [default = "FX_BARRIER_OPTION"];
     
     required com.opengamma.util.money.Currency putCurrency;
@@ -49,12 +48,6 @@ namespace com.opengamma.financial.security.option {
     
     required double barrierLevel;
     required boolean isLong;
-   
-    binding Java {
-      body <<<JAVA
-        public <T> T accept (FXBarrierOptionSecurityVisitor<T> visitor) { return visitor.visitFXBarrierOptionSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFXBarrierOptionSecurity(this); }
-JAVA;
-    }
   }
+
 }

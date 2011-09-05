@@ -45,13 +45,15 @@ public class ExternalIdBundleFunction implements PublishedFunction {
   }
 
   private static void getIdentifiers(final Collection<ExternalId> identifiers, final Data data) {
-    if (data.getSingle() != null) {
-      getIdentifier(identifiers, data.getSingle());
-    } else if (data.getLinear() != null) {
-      getIdentifiers(identifiers, data.getLinear());
-    } else if (data.getMatrix() != null) {
-      for (Value[] values : data.getMatrix()) {
-        getIdentifiers(identifiers, values);
+    if (data != null) {
+      if (data.getSingle() != null) {
+        getIdentifier(identifiers, data.getSingle());
+      } else if (data.getLinear() != null) {
+        getIdentifiers(identifiers, data.getLinear());
+      } else if (data.getMatrix() != null) {
+        for (Value[] values : data.getMatrix()) {
+          getIdentifiers(identifiers, values);
+        }
       }
     }
   }

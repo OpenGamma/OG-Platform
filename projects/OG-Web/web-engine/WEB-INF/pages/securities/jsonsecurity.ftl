@@ -34,7 +34,7 @@
         	"exchangeCode":"${security.exchangeCode}",
         	"gicsCode":"${security.gicsCode}",
       <#break>
-      <#case "BOND"> 
+      <#case "BOND">
         "issuerName":"${security.issuerName}",
         "issuerType":"${security.issuerType}",
         "issuerDomicile":"${security.issuerDomicile}",
@@ -78,13 +78,13 @@
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
         "redemptionValue":"${security.currency}",
-        
+
         <#if futureSecurityType == "BondFuture">
             "underlying Bond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
         <#else>
             "underlyingIdentifier":"${security.underlyingIdentifier.scheme.name}-${security.underlyingIdentifier.value}",
         </#if>
-        
+
         <#break>
       <#case "EQUITY_OPTION">
         "currency":"${security.currency}",
@@ -98,7 +98,7 @@
         "underlyingName":"${underlyingSecurity.name}",
         "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
-    
+
       <#case "SWAP">
         "tradeDate": {
             "date": "${security.tradeDate.toLocalDate()}",
@@ -160,8 +160,8 @@
           </#switch>
         },
         <#break>
-       <#case "FX FORWARD">
-        "forwardDate":{"date":"${security.forwardDate.toLocalDate()}", "zone":"${security.forwardDate.zone}"},
+       <#case "FX_FORWARD">
+        "forwardDate":"${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}",
         "region":"${security.region.scheme}-${security.region.value}",
         "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
         <#break>

@@ -12,6 +12,7 @@ import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
+import com.opengamma.language.view.SessionViewClients;
 
 /**
  * A mutable version of {@link SessionContext}.
@@ -88,6 +89,10 @@ public class MutableSessionContext extends SessionContext {
 
   public void setDebug() {
     setValue(DEBUG, Boolean.TRUE);
+  }
+  
+  public void setViewClients(final SessionViewClients viewClients) {
+    setValue(VIEW_CLIENTS, viewClients);
   }
 
   // Arbitrary values

@@ -52,9 +52,9 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 
 /**
  * Default implementation of {@link MarketDataSnapshotter}.
- * TODO: reimplement this in a javalike way, transliterating LINQ is dirty.
  */
 public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
+  // TODO: reimplement this in a javalike way, transliterating LINQ is dirty.
 
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
   
@@ -63,9 +63,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final VolatilityCubeSnapper _volatilityCubeSnapper;
   @SuppressWarnings("rawtypes")
   private final StructuredSnapper[] _structuredSnappers;
-  
-  
-  
+
   /**
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls ) 
    */
@@ -210,7 +208,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
                 return from.getSpecification().getValueName();
               }
             });
-            return Maps.transformValues(indexed.asMap(), new Function<Collection<ComputedValue>, ValueSnapshot>(){
+            return Maps.transformValues(indexed.asMap(), new Function<Collection<ComputedValue>, ValueSnapshot>() {
 
               @Override
               public ValueSnapshot apply(Collection<ComputedValue> from) {

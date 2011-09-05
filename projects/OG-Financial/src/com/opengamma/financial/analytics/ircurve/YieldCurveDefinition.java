@@ -58,7 +58,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * The region that the curve is for.
    */
   @PropertyDefinition
-  private final ExternalId _region;
+  private final ExternalId _regionId;
   /**
    * The display name of the curve.
    */
@@ -92,7 +92,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    */
   public YieldCurveDefinition(final Currency currency, final ExternalId region, final String name,
       final String interpolatorName) {
-    this(currency, region, name, interpolatorName, Collections.<FixedIncomeStrip> emptySet());
+    this(currency, region, name, interpolatorName, Collections.<FixedIncomeStrip>emptySet());
   }
 
   /**
@@ -109,7 +109,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(interpolatorName, "interpolatorName");
     _currency = currency;
-    _region = region;
+    _regionId = region;
     _name = name;
     _interpolatorName = interpolatorName;
     if (strips != null) {
@@ -157,9 +157,9 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
         return getUniqueId();
       case 575402001: // currency
         return getCurrency();
-      case -934795532: // region
-        return getRegion();
-      case 3373707: // name
+      case -690339025:  // regionId
+        return getRegionId();
+      case 3373707:  // name
         return getName();
       case -1247314958: // interpolatorName
         return getInterpolatorName();
@@ -181,12 +181,12 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
           return;
         }
         throw new UnsupportedOperationException("Property cannot be written: currency");
-      case -934795532: // region
+      case -690339025:  // regionId
         if (quiet) {
           return;
         }
-        throw new UnsupportedOperationException("Property cannot be written: region");
-      case 3373707: // name
+        throw new UnsupportedOperationException("Property cannot be written: regionId");
+      case 3373707:  // name
         if (quiet) {
           return;
         }
@@ -210,11 +210,12 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       final YieldCurveDefinition other = (YieldCurveDefinition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId())
-          && JodaBeanUtils.equal(getCurrency(), other.getCurrency())
-          && JodaBeanUtils.equal(getRegion(), other.getRegion()) && JodaBeanUtils.equal(getName(), other.getName())
-          && JodaBeanUtils.equal(getInterpolatorName(), other.getInterpolatorName())
-          && JodaBeanUtils.equal(getStrips(), other.getStrips());
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getInterpolatorName(), other.getInterpolatorName()) &&
+          JodaBeanUtils.equal(getStrips(), other.getStrips());
     }
     return false;
   }
@@ -224,7 +225,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStrips());
@@ -280,16 +281,16 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Gets the region that the curve is for.
    * @return the value of the property
    */
-  public ExternalId getRegion() {
-    return _region;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
-   * Gets the the {@code region} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> region() {
-    return metaBean().region().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -373,10 +374,10 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency",
         YieldCurveDefinition.class, Currency.class);
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(this, "region",
-        YieldCurveDefinition.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", YieldCurveDefinition.class, ExternalId.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -390,14 +391,20 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     /**
      * The meta-property for the {@code strips} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<SortedSet<FixedIncomeStrip>> _strips = DirectMetaProperty.ofReadWrite(this, "strips",
         YieldCurveDefinition.class, (Class) SortedSet.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(this, null, "uniqueId",
-        "currency", "region", "name", "interpolatorName", "strips");
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "currency",
+        "regionId",
+        "name",
+        "interpolatorName",
+        "strips");
 
     /**
      * Restricted constructor.
@@ -412,9 +419,9 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
           return _uniqueId;
         case 575402001: // currency
           return _currency;
-        case -934795532: // region
-          return _region;
-        case 3373707: // name
+        case -690339025:  // regionId
+          return _regionId;
+        case 3373707:  // name
           return _name;
         case -1247314958: // interpolatorName
           return _interpolatorName;
@@ -457,11 +464,11 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     }
 
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> region() {
-      return _region;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**

@@ -1,202 +1,448 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.swap;
-public abstract class SwapLeg implements java.io.Serializable {
-  public abstract <T> T accept (SwapLegVisitor<T> visitor);
-  private static final long serialVersionUID = 2567515945211926296l;
-  private final com.opengamma.financial.convention.daycount.DayCount _dayCount;
-  public static final String DAY_COUNT_KEY = "dayCount";
-  private final com.opengamma.financial.convention.frequency.Frequency _frequency;
-  public static final String FREQUENCY_KEY = "frequency";
-  private final com.opengamma.id.ExternalId _regionIdentifier;
-  public static final String REGION_IDENTIFIER_KEY = "regionIdentifier";
-  private final com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
-  public static final String BUSINESS_DAY_CONVENTION_KEY = "businessDayConvention";
-  private final com.opengamma.financial.security.swap.Notional _notional;
-  public static final String NOTIONAL_KEY = "notional";
-  public SwapLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
-    if (dayCount == null) throw new NullPointerException ("dayCount' cannot be null");
-    _dayCount = dayCount;
-    if (frequency == null) throw new NullPointerException ("frequency' cannot be null");
-    _frequency = frequency;
-    if (regionIdentifier == null) throw new NullPointerException ("'regionIdentifier' cannot be null");
-    else {
-      _regionIdentifier = regionIdentifier;
-    }
-    if (businessDayConvention == null) throw new NullPointerException ("businessDayConvention' cannot be null");
-    _businessDayConvention = businessDayConvention;
-    if (notional == null) throw new NullPointerException ("'notional' cannot be null");
-    else {
-      _notional = notional;
-    }
+
+import java.io.Serializable;
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.id.ExternalId;
+
+/**
+ * Abstract base class for one leg in a swap.
+ */
+@BeanDefinition
+public abstract class SwapLeg extends DirectBean implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The day count.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _dayCount;
+  /**
+   * The frequency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _frequency;
+  /**
+   * The region external identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _regionId;
+  /**
+   * The business day convention.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConvention _businessDayConvention;
+  /**
+   * The notional.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Notional _notional;
+
+  /**
+   * Creates an instance.
+   */
+  protected SwapLeg() {
   }
-  protected SwapLeg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (DAY_COUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'dayCount' is not present");
-    try {
-      _dayCount = fudgeMsg.getFieldValue (com.opengamma.financial.convention.daycount.DayCount.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'dayCount' is not DayCount typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (FREQUENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'frequency' is not present");
-    try {
-      _frequency = fudgeMsg.getFieldValue (com.opengamma.financial.convention.frequency.Frequency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'frequency' is not Frequency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (REGION_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not present");
-    try {
-      _regionIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'regionIdentifier' is not ExternalId message", e);
-    }
-    fudgeField = fudgeMsg.getByName (BUSINESS_DAY_CONVENTION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'businessDayConvention' is not present");
-    try {
-      _businessDayConvention = fudgeMsg.getFieldValue (com.opengamma.financial.convention.businessday.BusinessDayConvention.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'businessDayConvention' is not BusinessDayConvention typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (NOTIONAL_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'notional' is not present");
-    try {
-      _notional = com.opengamma.financial.security.swap.Notional.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a SwapLeg - field 'notional' is not Notional message", e);
-    }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dayCount  the day count, not null
+   * @param frequency  the frequency, not null
+   * @param regionId  the region, not null
+   * @param businessDayConvention  the business day convention, not null
+   * @param notional  the notional, not null
+   */
+  protected SwapLeg(DayCount dayCount, Frequency frequency, ExternalId regionId, BusinessDayConvention businessDayConvention, Notional notional) {
+    setDayCount(dayCount);
+    setFrequency(frequency);
+    setRegionId(regionId);
+    setBusinessDayConvention(businessDayConvention);
+    setNotional(notional);
   }
-  protected SwapLeg (final SwapLeg source) {
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    _dayCount = source._dayCount;
-    _frequency = source._frequency;
-    if (source._regionIdentifier == null) _regionIdentifier = null;
-    else {
-      _regionIdentifier = source._regionIdentifier;
-    }
-    _businessDayConvention = source._businessDayConvention;
-    if (source._notional == null) _notional = null;
-    else {
-      _notional = source._notional;
-    }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public abstract <T> T accept(SwapLegVisitor<T> visitor);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code SwapLeg}.
+   * @return the meta-bean, not null
+   */
+  public static SwapLeg.Meta meta() {
+    return SwapLeg.Meta.INSTANCE;
   }
-  public abstract org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer);
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    if (_dayCount != null)  {
-      msg.add (DAY_COUNT_KEY, null, _dayCount);
-    }
-    if (_frequency != null)  {
-      msg.add (FREQUENCY_KEY, null, _frequency);
-    }
-    if (_regionIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _regionIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _regionIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (REGION_IDENTIFIER_KEY, null, fudge1);
-    }
-    if (_businessDayConvention != null)  {
-      msg.add (BUSINESS_DAY_CONVENTION_KEY, null, _businessDayConvention);
-    }
-    if (_notional != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _notional.getClass (), com.opengamma.financial.security.swap.Notional.class);
-      _notional.toFudgeMsg (serializer, fudge1);
-      msg.add (NOTIONAL_KEY, null, fudge1);
-    }
+  static {
+    JodaBeanUtils.registerMetaBean(SwapLeg.Meta.INSTANCE);
   }
-  public static SwapLeg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.swap.SwapLeg".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.swap.SwapLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
-    }
-    throw new UnsupportedOperationException ("SwapLeg is an abstract message");
+
+  @Override
+  public SwapLeg.Meta metaBean() {
+    return SwapLeg.Meta.INSTANCE;
   }
-  public com.opengamma.financial.convention.daycount.DayCount getDayCount () {
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1905311443:  // dayCount
+        return getDayCount();
+      case -70023844:  // frequency
+        return getFrequency();
+      case -690339025:  // regionId
+        return getRegionId();
+      case -1002835891:  // businessDayConvention
+        return getBusinessDayConvention();
+      case 1585636160:  // notional
+        return getNotional();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1905311443:  // dayCount
+        setDayCount((DayCount) newValue);
+        return;
+      case -70023844:  // frequency
+        setFrequency((Frequency) newValue);
+        return;
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
+        return;
+      case -1002835891:  // businessDayConvention
+        setBusinessDayConvention((BusinessDayConvention) newValue);
+        return;
+      case 1585636160:  // notional
+        setNotional((Notional) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_dayCount, "dayCount");
+    JodaBeanUtils.notNull(_frequency, "frequency");
+    JodaBeanUtils.notNull(_regionId, "regionId");
+    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
+    JodaBeanUtils.notNull(_notional, "notional");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwapLeg other = (SwapLeg) obj;
+      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    return hash;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the day count.
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCount() {
     return _dayCount;
   }
-  public com.opengamma.financial.convention.frequency.Frequency getFrequency () {
+
+  /**
+   * Sets the day count.
+   * @param dayCount  the new value of the property, not null
+   */
+  public void setDayCount(DayCount dayCount) {
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    this._dayCount = dayCount;
+  }
+
+  /**
+   * Gets the the {@code dayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> dayCount() {
+    return metaBean().dayCount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the frequency.
+   * @return the value of the property, not null
+   */
+  public Frequency getFrequency() {
     return _frequency;
   }
-  public com.opengamma.id.ExternalId getRegionIdentifier () {
-    return _regionIdentifier;
+
+  /**
+   * Sets the frequency.
+   * @param frequency  the new value of the property, not null
+   */
+  public void setFrequency(Frequency frequency) {
+    JodaBeanUtils.notNull(frequency, "frequency");
+    this._frequency = frequency;
   }
-  public com.opengamma.financial.convention.businessday.BusinessDayConvention getBusinessDayConvention () {
+
+  /**
+   * Gets the the {@code frequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> frequency() {
+    return metaBean().frequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the region external identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getRegionId() {
+    return _regionId;
+  }
+
+  /**
+   * Sets the region external identifier.
+   * @param regionId  the new value of the property, not null
+   */
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
+  }
+
+  /**
+   * Gets the the {@code regionId} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getBusinessDayConvention() {
     return _businessDayConvention;
   }
-  public com.opengamma.financial.security.swap.Notional getNotional () {
+
+  /**
+   * Sets the business day convention.
+   * @param businessDayConvention  the new value of the property, not null
+   */
+  public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
+    JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
+    this._businessDayConvention = businessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code businessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> businessDayConvention() {
+    return metaBean().businessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional.
+   * @return the value of the property, not null
+   */
+  public Notional getNotional() {
     return _notional;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof SwapLeg)) return false;
-    SwapLeg msg = (SwapLeg)o;
-    if (_dayCount != null) {
-      if (msg._dayCount != null) {
-        if (!_dayCount.equals (msg._dayCount)) return false;
-      }
-      else return false;
-    }
-    else if (msg._dayCount != null) return false;
-    if (_frequency != null) {
-      if (msg._frequency != null) {
-        if (!_frequency.equals (msg._frequency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._frequency != null) return false;
-    if (_regionIdentifier != null) {
-      if (msg._regionIdentifier != null) {
-        if (!_regionIdentifier.equals (msg._regionIdentifier)) return false;
-      }
-      else return false;
-    }
-    else if (msg._regionIdentifier != null) return false;
-    if (_businessDayConvention != null) {
-      if (msg._businessDayConvention != null) {
-        if (!_businessDayConvention.equals (msg._businessDayConvention)) return false;
-      }
-      else return false;
-    }
-    else if (msg._businessDayConvention != null) return false;
-    if (_notional != null) {
-      if (msg._notional != null) {
-        if (!_notional.equals (msg._notional)) return false;
-      }
-      else return false;
-    }
-    else if (msg._notional != null) return false;
-    return true;
+
+  /**
+   * Sets the notional.
+   * @param notional  the new value of the property, not null
+   */
+  public void setNotional(Notional notional) {
+    JodaBeanUtils.notNull(notional, "notional");
+    this._notional = notional;
   }
-  public int hashCode () {
-    int hc = 1;
-    hc *= 31;
-    if (_dayCount != null) hc += _dayCount.hashCode ();
-    hc *= 31;
-    if (_frequency != null) hc += _frequency.hashCode ();
-    hc *= 31;
-    if (_regionIdentifier != null) hc += _regionIdentifier.hashCode ();
-    hc *= 31;
-    if (_businessDayConvention != null) hc += _businessDayConvention.hashCode ();
-    hc *= 31;
-    if (_notional != null) hc += _notional.hashCode ();
-    return hc;
+
+  /**
+   * Gets the the {@code notional} property.
+   * @return the property, not null
+   */
+  public final Property<Notional> notional() {
+    return metaBean().notional().createProperty(this);
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code SwapLeg}.
+   */
+  public static class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", SwapLeg.class, DayCount.class);
+    /**
+     * The meta-property for the {@code frequency} property.
+     */
+    private final MetaProperty<Frequency> _frequency = DirectMetaProperty.ofReadWrite(
+        this, "frequency", SwapLeg.class, Frequency.class);
+    /**
+     * The meta-property for the {@code regionId} property.
+     */
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", SwapLeg.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "businessDayConvention", SwapLeg.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Notional> _notional = DirectMetaProperty.ofReadWrite(
+        this, "notional", SwapLeg.class, Notional.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "dayCount",
+        "frequency",
+        "regionId",
+        "businessDayConvention",
+        "notional");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          return _dayCount;
+        case -70023844:  // frequency
+          return _frequency;
+        case -690339025:  // regionId
+          return _regionId;
+        case -1002835891:  // businessDayConvention
+          return _businessDayConvention;
+        case 1585636160:  // notional
+          return _notional;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends SwapLeg> builder() {
+      throw new UnsupportedOperationException("SwapLeg is an abstract class");
+    }
+
+    @Override
+    public Class<? extends SwapLeg> beanType() {
+      return SwapLeg.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> dayCount() {
+      return _dayCount;
+    }
+
+    /**
+     * The meta-property for the {@code frequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> frequency() {
+      return _frequency;
+    }
+
+    /**
+     * The meta-property for the {@code regionId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> businessDayConvention() {
+      return _businessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Notional> notional() {
+      return _notional;
+    }
+
   }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

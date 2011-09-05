@@ -16,6 +16,9 @@ import com.opengamma.financial.security.equity.GICSCode;
  */
 public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, Integer> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */
@@ -28,12 +31,12 @@ public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, In
 
   @Override
   public Integer secondaryToPrimary(GICSCode object) {
-    return object.getCode();
+    return object.getCodeInt();
   }
 
   @Override
   public GICSCode primaryToSecondary(final Integer code) {
-    return GICSCode.getInstance(code);
+    return GICSCode.of(code);
   }
 
   @Override

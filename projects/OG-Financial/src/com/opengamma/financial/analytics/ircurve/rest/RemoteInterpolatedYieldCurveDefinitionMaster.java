@@ -25,6 +25,7 @@ import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * 
@@ -62,11 +63,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
   }
 
   private UniqueId getIdentifier(FudgeMsg msg) {
-    final FudgeField uidField = msg.getByName("uniqueId");
-    if (uidField == null) {
-      return null;
-    }
-    return UniqueId.fromFudgeMsg(getFudgeDeserializer(), msg.getFieldValue(FudgeMsg.class, uidField));
+    return UniqueIdBuilder.fromFudgeMsg(getFudgeDeserializer(), msg.getMessage("uniqueId"));
   }
 
   public YieldCurveDefinitionDocument postDefinition(final YieldCurveDefinitionDocument document, final String path) {

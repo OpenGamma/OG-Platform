@@ -7,10 +7,9 @@
 namespace com.opengamma.financial.security.option {
  
   /**
-   * A security modelling an equity option.
+   * An equity option security.
    */
   message EquityOptionSecurity extends FinancialSecurity {
-   
     required string securityType [default = "EQUITY_OPTION"];
     
     required OptionType optionType;
@@ -21,12 +20,6 @@ namespace com.opengamma.financial.security.option {
     required util.time.Expiry expiry;
     required double pointValue;
     required string exchange;
-    
-    binding Java {
-      body <<<JAVA
-        public <T> T accept (EquityOptionSecurityVisitor<T> visitor) { return visitor.visitEquityOptionSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityOptionSecurity(this); }
-JAVA;
-    }
   }
+
 }

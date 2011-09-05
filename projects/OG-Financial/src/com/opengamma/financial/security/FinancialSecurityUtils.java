@@ -289,7 +289,7 @@ public class FinancialSecurityUtils {
         // REVIEW: jim 1-Aug-2011 -- fix once FXForwardSecurity is refactored
         @Override
         public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+          //Collection<Currency> currencies = new ArrayList<Currency>();
           //currencies.add(security.getPayCurrency());
           //currencies.add(security.getReceiveCurrency());
           return Collections.emptyList();          

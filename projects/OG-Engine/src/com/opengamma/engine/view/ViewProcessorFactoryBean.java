@@ -16,6 +16,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -40,6 +41,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   
   private Long _id;
   private ViewDefinitionRepository _viewDefinitionRepository;
+  private LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private CachingComputationTargetResolver _computationTargetResolver;
@@ -68,6 +70,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
 
   public void setViewDefinitionRepository(ViewDefinitionRepository viewDefinitionRepository) {
     _viewDefinitionRepository = viewDefinitionRepository;
+  }
+  
+  public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
+    return _liveMarketDataSourceRegistry;
+  }
+
+  public void setLiveMarketDataSourceRegistry(LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
+    _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
   }
 
   public SecuritySource getSecuritySource() {
@@ -171,6 +181,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     s_logger.debug("Checking injected inputs.");
     ArgumentChecker.notNullInjected(_id, "id");
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
+    ArgumentChecker.notNullInjected(getLiveMarketDataSourceRegistry(), "liveMarketDataSourceRegistry");
     ArgumentChecker.notNullInjected(getFunctionCompilationService(), "functionCompilationService");
     if (getFunctionResolver() == null) {
       setFunctionResolver(new DefaultFunctionResolver(getFunctionCompilationService()));
@@ -193,6 +204,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return new ViewProcessorImpl(
         UniqueId.of(VIEW_PROCESSOR_ID_SCHEME, getId().toString()),
         getViewDefinitionRepository(),
+        getLiveMarketDataSourceRegistry(),
         getSecuritySource(),
         getPositionSource(),
         getComputationTargetResolver(),

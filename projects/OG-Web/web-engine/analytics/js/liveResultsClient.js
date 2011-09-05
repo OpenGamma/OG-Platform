@@ -232,7 +232,7 @@
     //-----------------------------------------------------------------------
     // Public API
     
-    this.changeView = function(viewName, snapshotId) {
+    this.changeView = function(viewName, marketDataSpec) {
       _logger.info("Sending change view request");
       _portfolioDetails = null;
       _primitiveDetails = null;
@@ -241,9 +241,7 @@
       
       var changeViewRequest = {};
       changeViewRequest["viewName"] = viewName;
-      if (snapshotId) {
-        changeViewRequest["snapshotId"] = snapshotId;
-      }
+      $.extend(changeViewRequest, marketDataSpec);
       _cometd.publish('/service/changeView', changeViewRequest);
     }
     

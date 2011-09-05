@@ -25,19 +25,16 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ExecutionFlags;
-import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
@@ -54,7 +51,7 @@ public class WebView {
   private final Client _remote;
   private final ViewClient _client;
   private final String _viewDefinitionName;
-  private final UniqueId _snapshotId;
+  private final ViewExecutionOptions _executionOptions;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
   
@@ -73,13 +70,14 @@ public class WebView {
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
-      final UniqueId snapshotId, final UserPrincipal user, final ExecutorService executorService,
-      final ResultConverterCache resultConverterCache) {    
+      final ViewExecutionOptions executionOptions, final UserPrincipal user, final ExecutorService executorService,
+      final ResultConverterCache resultConverterCache) {
+    ArgumentChecker.notNull(executionOptions, "executionOptions");
     _local = local;
     _remote = remote;
     _client = client;
     _viewDefinitionName = viewDefinitionName;
-    _snapshotId = snapshotId;
+    _executionOptions = executionOptions;
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
     _gridsByName = new HashMap<String, WebViewGrid>();
@@ -116,14 +114,6 @@ public class WebView {
     
     MarketDataSpecification marketDataSpec;
     EnumSet<ViewExecutionFlags> flags;
-    if (snapshotId != null) {
-      marketDataSpec = MarketData.user(snapshotId.toLatest());
-      flags = ExecutionFlags.none().triggerOnMarketData().get();
-    } else {
-      marketDataSpec = MarketData.live();
-      flags = ExecutionFlags.triggersEnabled().get();
-    }
-    ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
     client.attachToViewProcess(viewDefinitionName, executionOptions);
   }
   
@@ -184,12 +174,12 @@ public class WebView {
     return _viewDefinitionName;
   }
   
-  public UniqueId getSnapshotId() {
-    return _snapshotId;
+  public ViewExecutionOptions getExecutionOptions() {
+    return _executionOptions;
   }
   
-  public boolean matches(String viewDefinitionName, UniqueId snapshotId) {
-    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getSnapshotId(), snapshotId);
+  public boolean matches(String viewDefinitionName, ViewExecutionOptions executionOptions) {
+    return getViewDefinitionName().equals(viewDefinitionName) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
   }
   
   public WebViewGrid getGridByName(String name) {

@@ -3,7 +3,7 @@
 // CSOFF: Generated File
 package com.opengamma.language.connector;
 public class Test extends com.opengamma.language.connector.UserMessagePayload implements java.io.Serializable {
-  public <T1,T2> T1 accept (final UserMessagePayloadVisitor<T1,T2> visitor, final T2 data) { return visitor.visitTest (this, data); }
+  public <T1,T2> T1 accept (final UserMessagePayloadVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.language.async.AsynchronousExecution { return visitor.visitTest (this, data); }
   private static final long serialVersionUID = 48456185335614l;
   public enum Operation {
     ECHO_REQUEST,

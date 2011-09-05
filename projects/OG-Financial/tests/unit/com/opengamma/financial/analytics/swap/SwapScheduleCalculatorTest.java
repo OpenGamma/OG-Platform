@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.region.RegionUtils;
@@ -37,19 +35,12 @@ public class SwapScheduleCalculatorTest {
   private static final ZonedDateTime MATURITY = DateUtils.getUTCDate(2020, 6, 1);
   private static final ExternalId REGION_ID = RegionUtils.countryRegionId(Country.US);
   private static final Notional NOTIONAL = new Notional() {
-
-    @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
-      // Okay to return NULL as we're not doing any messaging with this
-      return null;
-    }
-
+    private static final long serialVersionUID = 1L;
     @Override
     public <T> T accept(final NotionalVisitor<T> visitor) {
       // Okay to return NULL as we're not using the visitor for this test
       return null;
     }
-
   };
   private static final DayCount DAY_COUNT = new DayCount() {
 
@@ -70,32 +61,20 @@ public class SwapScheduleCalculatorTest {
 
   };
   private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
-
+    private static final long serialVersionUID = 1L;
     @Override
     public <T> T accept(final SwapLegVisitor<T> visitor) {
       // Okay to return NULL as we're not using the visitor for this test
       return null;
     }
-
-    @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
-      return null;
-    }
-
   };
   private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION_ID, new ModifiedFollowingBusinessDayConvention(), NOTIONAL) {
-
+    private static final long serialVersionUID = 1L;
     @Override
     public <T> T accept(final SwapLegVisitor<T> visitor) {
       // Okay to return NULL as we're not using the visitor for this test
       return null;
     }
-
-    @Override
-    public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeContext) {
-      return null;
-    }
-
   };
   private static final Calendar CALENDAR = new Calendar() {
 
