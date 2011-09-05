@@ -103,7 +103,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitCashSecurity(final CashSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
         @Override
@@ -113,7 +113,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitFRASecurity(final FRASecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
         @Override
@@ -158,12 +158,12 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitFXSecurity(final FXSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
         @Override
         public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
         @Override
@@ -178,7 +178,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
       });
@@ -257,12 +257,12 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitFXSecurity(final FXSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
         @Override
         public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
         @Override
@@ -277,7 +277,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-          return security.getRegion();
+          return security.getRegionId();
         }
 
       });
