@@ -160,6 +160,20 @@ public final class GICSCode implements Serializable {
     return _code;
   }
 
+  /**
+   * Gets the combined code as a string.
+   * <p>
+   * The combined code will consist of the sector, group, industry and sub-industry parts.
+   * <p>
+   * Note that if the code represents only a sector then the value will be from 1 to 99.
+   * For example, a sector of 20 is returned as 20, not 20000000.
+   * 
+   * @return the combined code, from 1 to 99999999 inclusive
+   */
+  public String getCodeString() {
+    return Integer.toString(getCode());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the sector code.
@@ -188,7 +202,7 @@ public final class GICSCode implements Serializable {
    * The group code is the second most important part of the classification.
    * It is the first four digits of the code.
    * 
-   * @return the industry group code, 
+   * @return the industry group code
    */
   public int getIndustryGroupCode() {
     return getCode() / 10000;
@@ -270,16 +284,14 @@ public final class GICSCode implements Serializable {
   }
 
   /**
-   * Returns a string representation of the code, which is always an even number of digits.
+   * Returns a string description of the code, which incldues the code and a description.
    * 
    * @return the string version of the code, not null
    */
   @Override
   public String toString() {
-    String str = Integer.toString(getCode());
-    //String result = str.length() % 2 == 0 ? str : "0" + str; // never happens in practice because codes always start with non-zero number.
     StringBuilder sb = new StringBuilder();
-    sb.append(str);
+    sb.append(getCodeString());
     sb.append(" ");
     sb.append(getSubIndustryDescription());
     return sb.toString();
