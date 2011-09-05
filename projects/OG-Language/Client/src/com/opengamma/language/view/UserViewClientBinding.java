@@ -13,6 +13,9 @@ package com.opengamma.language.view;
  */
 public abstract class UserViewClientBinding<T extends UserViewClientData> {
 
+  private static final UserViewClientData NULL = new UserViewClientData() {
+  };
+
   /**
    * Returns the binding association object. By default this is the binding instance; so a singleton pattern should be used
    * for constructing the binding instances. If there is object "churn", then the {@link #getClass} object could be used, or
@@ -47,12 +50,20 @@ public abstract class UserViewClientBinding<T extends UserViewClientData> {
         if (data != null) {
           return data;
         }
-        data = create(viewClient);
+        try {
+          data = create(viewClient);
+        } catch (RuntimeException e) {
+          viewClient.setData(getBindingObject(), NULL);
+          throw e;
+        }
         if (data == null) {
+          viewClient.setData(getBindingObject(), NULL);
           throw new NullPointerException();
         }
         viewClient.setData(getBindingObject(), data);
       }
+    } else if (data == NULL) {
+      return null;
     }
     return data;
   }
