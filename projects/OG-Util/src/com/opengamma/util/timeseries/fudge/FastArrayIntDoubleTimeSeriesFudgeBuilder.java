@@ -13,8 +13,6 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 
 /**
  * 
- *
- * @author jim
  */
 @FudgeBuilderFor(FastArrayIntDoubleTimeSeries.class)
 public class FastArrayIntDoubleTimeSeriesFudgeBuilder extends FastIntDoubleTimeSeriesFudgeBuilder<FastArrayIntDoubleTimeSeries> implements

@@ -22,11 +22,11 @@ import com.opengamma.util.money.Currency;
 public class FXFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<FXFutureSecurity> {
 
   /** Field name. */
-  public static final String NUMERATOR_KEY = "numerator";
+  public static final String NUMERATOR_FIELD_NAME = "numerator";
   /** Field name. */
-  public static final String DENOMINATOR_KEY = "denominator";
+  public static final String DENOMINATOR_FIELD_NAME = "denominator";
   /** Field name. */
-  public static final String MULTIPLICATION_FACTOR_KEY = "multiplicationFactor";
+  public static final String MULTIPLICATION_FACTOR_FIELD_NAME = "multiplicationFactor";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FXFutureSecurity object) {
@@ -37,9 +37,9 @@ public class FXFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implement
 
   public static void toFudgeMsg(FudgeSerializer serializer, FXFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, NUMERATOR_KEY, object.getNumerator());
-    addToMessage(msg, DENOMINATOR_KEY, object.getDenominator());
-    addToMessage(msg, MULTIPLICATION_FACTOR_KEY, object.getMultiplicationFactor());
+    addToMessage(msg, NUMERATOR_FIELD_NAME, object.getNumerator());
+    addToMessage(msg, DENOMINATOR_FIELD_NAME, object.getDenominator());
+    addToMessage(msg, MULTIPLICATION_FACTOR_FIELD_NAME, object.getMultiplicationFactor());
   }
 
   @Override
@@ -51,9 +51,9 @@ public class FXFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implement
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FXFutureSecurity object) {
     FutureSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setNumerator(msg.getValue(Currency.class, NUMERATOR_KEY));
-    object.setDenominator(msg.getValue(Currency.class, DENOMINATOR_KEY));
-    object.setMultiplicationFactor(msg.getDouble(MULTIPLICATION_FACTOR_KEY));
+    object.setNumerator(msg.getValue(Currency.class, NUMERATOR_FIELD_NAME));
+    object.setDenominator(msg.getValue(Currency.class, DENOMINATOR_FIELD_NAME));
+    object.setMultiplicationFactor(msg.getDouble(MULTIPLICATION_FACTOR_FIELD_NAME));
   }
 
 }

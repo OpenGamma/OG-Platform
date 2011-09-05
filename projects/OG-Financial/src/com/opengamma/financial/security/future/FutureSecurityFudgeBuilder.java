@@ -21,32 +21,32 @@ import com.opengamma.util.time.ExpiryFudgeBuilder;
 public class FutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
 
   /** Field name. */
-  public static final String EXPIRY_KEY = "expiry";
+  public static final String EXPIRY_FIELD_NAME = "expiry";
   /** Field name. */
-  public static final String TRADING_EXCHANGE_KEY = "tradingExchange";
+  public static final String TRADING_EXCHANGE_FIELD_NAME = "tradingExchange";
   /** Field name. */
-  public static final String SETTLEMENT_EXCHANGE_KEY = "settlementExchange";
+  public static final String SETTLEMENT_EXCHANGE_FIELD_NAME = "settlementExchange";
   /** Field name. */
-  public static final String CURRENCY_KEY = "currency";
+  public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
-  public static final String UNIT_AMOUNT_KEY = "unitAmount";
+  public static final String UNIT_AMOUNT_FIELD_NAME = "unitAmount";
 
   public static void toFudgeMsg(FudgeSerializer serializer, FutureSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
-    addToMessage(msg, TRADING_EXCHANGE_KEY, object.getTradingExchange());
-    addToMessage(msg, SETTLEMENT_EXCHANGE_KEY, object.getSettlementExchange());
-    addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, UNIT_AMOUNT_KEY, object.getUnitAmount());
+    addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, TRADING_EXCHANGE_FIELD_NAME, object.getTradingExchange());
+    addToMessage(msg, SETTLEMENT_EXCHANGE_FIELD_NAME, object.getSettlementExchange());
+    addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
+    addToMessage(msg, UNIT_AMOUNT_FIELD_NAME, object.getUnitAmount());
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FutureSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
-    object.setTradingExchange(msg.getString(TRADING_EXCHANGE_KEY));
-    object.setSettlementExchange(msg.getString(SETTLEMENT_EXCHANGE_KEY));
-    object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setUnitAmount(msg.getDouble(UNIT_AMOUNT_KEY));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
+    object.setTradingExchange(msg.getString(TRADING_EXCHANGE_FIELD_NAME));
+    object.setSettlementExchange(msg.getString(SETTLEMENT_EXCHANGE_FIELD_NAME));
+    object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
+    object.setUnitAmount(msg.getDouble(UNIT_AMOUNT_FIELD_NAME));
   }
 
 }

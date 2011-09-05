@@ -25,9 +25,9 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public final class ExternalIdSearchFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<ExternalIdSearch> {
 
   /** Field name. */
-  public static final String IDENTIFIERS_KEY = "identifiers";
+  public static final String IDENTIFIERS_FIELD_NAME = "identifiers";
   /** Field name. */
-  public static final String SEARCH_TYPE_KEY = "searchType";
+  public static final String SEARCH_TYPE_FIELD_NAME = "searchType";
 
   //-------------------------------------------------------------------------
   @Override
@@ -49,8 +49,8 @@ public final class ExternalIdSearchFudgeBuilder extends AbstractFudgeBuilder imp
     for (ExternalId externalId : object.getExternalIds()) {
       addToMessage(ids, null, ExternalIdFudgeBuilder.toFudgeMsg(serializer, externalId));
     }
-    addToMessage(msg, IDENTIFIERS_KEY, ids);
-    addToMessage(msg, SEARCH_TYPE_KEY, object.getSearchType().name());
+    addToMessage(msg, IDENTIFIERS_FIELD_NAME, ids);
+    addToMessage(msg, SEARCH_TYPE_FIELD_NAME, object.getSearchType().name());
   }
 
   //-------------------------------------------------------------------------
@@ -63,8 +63,8 @@ public final class ExternalIdSearchFudgeBuilder extends AbstractFudgeBuilder imp
     if (msg == null) {
       return null;
     }
-    final FudgeMsg idMsg = msg.getMessage(IDENTIFIERS_KEY);
-    final String searchType = msg.getString(SEARCH_TYPE_KEY);
+    final FudgeMsg idMsg = msg.getMessage(IDENTIFIERS_FIELD_NAME);
+    final String searchType = msg.getString(SEARCH_TYPE_FIELD_NAME);
     Set<ExternalId> ids = new HashSet<ExternalId>();
     for (FudgeField field : idMsg) {
       ids.add(ExternalIdFudgeBuilder.fromFudgeMsg((FudgeMsg) field.getValue()));

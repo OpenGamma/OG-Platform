@@ -25,15 +25,15 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 public class CashSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<CashSecurity> {
 
   /** Field name. */
-  public static final String CURRENCY_KEY = "currency";
+  public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
-  public static final String REGION_KEY = "region";
+  public static final String REGION_FIELD_NAME = "region";
   /** Field name. */
-  public static final String MATURITY_KEY = "maturity";
+  public static final String MATURITY_FIELD_NAME = "maturity";
   /** Field name. */
-  public static final String RATE_KEY = "rate";
+  public static final String RATE_FIELD_NAME = "rate";
   /** Field name. */
-  public static final String AMOUNT_KEY = "amount";
+  public static final String AMOUNT_FIELD_NAME = "amount";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CashSecurity object) {
@@ -44,11 +44,11 @@ public class CashSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
 
   public static void toFudgeMsg(FudgeSerializer serializer, CashSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, REGION_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
-    addToMessage(msg, MATURITY_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturity()));
-    addToMessage(msg, RATE_KEY, object.getRate());
-    addToMessage(msg, AMOUNT_KEY, object.getAmount());
+    addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
+    addToMessage(msg, REGION_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, MATURITY_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturity()));
+    addToMessage(msg, RATE_FIELD_NAME, object.getRate());
+    addToMessage(msg, AMOUNT_FIELD_NAME, object.getAmount());
   }
 
   @Override
@@ -60,11 +60,11 @@ public class CashSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CashSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
-    object.setMaturity(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_KEY)));
-    object.setRate(msg.getDouble(RATE_KEY));
-    object.setAmount(msg.getDouble(AMOUNT_KEY));
+    object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_FIELD_NAME)));
+    object.setMaturity(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_FIELD_NAME)));
+    object.setRate(msg.getDouble(RATE_FIELD_NAME));
+    object.setAmount(msg.getDouble(AMOUNT_FIELD_NAME));
   }
 
 }

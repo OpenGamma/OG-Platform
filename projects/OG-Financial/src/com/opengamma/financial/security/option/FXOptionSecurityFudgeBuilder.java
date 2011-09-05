@@ -25,19 +25,19 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 public class FXOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<FXOptionSecurity> {
 
   /** Field name. */
-  public static final String PUT_CURRENCY_KEY = "putCurrency";
+  public static final String PUT_CURRENCY_FIELD_NAME = "putCurrency";
   /** Field name. */
-  public static final String CALL_CURRENCY_KEY = "callCurrency";
+  public static final String CALL_CURRENCY_FIELD_NAME = "callCurrency";
   /** Field name. */
-  public static final String PUT_AMOUNT_KEY = "putAmount";
+  public static final String PUT_AMOUNT_FIELD_NAME = "putAmount";
   /** Field name. */
-  public static final String CALL_AMOUNT_KEY = "callAmount";
+  public static final String CALL_AMOUNT_FIELD_NAME = "callAmount";
   /** Field name. */
-  public static final String EXPIRY_KEY = "expiry";
+  public static final String EXPIRY_FIELD_NAME = "expiry";
   /** Field name. */
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
+  public static final String SETTLEMENT_DATE_FIELD_NAME = "settlementDate";
   /** Field name. */
-  public static final String IS_LONG_KEY = "isLong";
+  public static final String IS_LONG_FIELD_NAME = "isLong";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FXOptionSecurity object) {
@@ -48,13 +48,13 @@ public class FXOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
 
   public static void toFudgeMsg(FudgeSerializer serializer, FXOptionSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, PUT_CURRENCY_KEY, object.getPutCurrency());
-    addToMessage(msg, CALL_CURRENCY_KEY, object.getCallCurrency());
-    addToMessage(msg, PUT_AMOUNT_KEY, object.getPutAmount());
-    addToMessage(msg, CALL_AMOUNT_KEY, object.getCallAmount());
-    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
-    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
-    addToMessage(msg, IS_LONG_KEY, object.getIsLong());
+    addToMessage(msg, PUT_CURRENCY_FIELD_NAME, object.getPutCurrency());
+    addToMessage(msg, CALL_CURRENCY_FIELD_NAME, object.getCallCurrency());
+    addToMessage(msg, PUT_AMOUNT_FIELD_NAME, object.getPutAmount());
+    addToMessage(msg, CALL_AMOUNT_FIELD_NAME, object.getCallAmount());
+    addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
+    addToMessage(msg, IS_LONG_FIELD_NAME, object.getIsLong());
   }
 
   @Override
@@ -66,13 +66,13 @@ public class FXOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FXOptionSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setPutCurrency(msg.getValue(Currency.class, PUT_CURRENCY_KEY));
-    object.setCallCurrency(msg.getValue(Currency.class, CALL_CURRENCY_KEY));
-    object.setPutAmount(msg.getDouble(PUT_AMOUNT_KEY));
-    object.setCallAmount(msg.getDouble(CALL_AMOUNT_KEY));
-    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
-    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
-    object.setIsLong(msg.getBoolean(IS_LONG_KEY));
+    object.setPutCurrency(msg.getValue(Currency.class, PUT_CURRENCY_FIELD_NAME));
+    object.setCallCurrency(msg.getValue(Currency.class, CALL_CURRENCY_FIELD_NAME));
+    object.setPutAmount(msg.getDouble(PUT_AMOUNT_FIELD_NAME));
+    object.setCallAmount(msg.getDouble(CALL_AMOUNT_FIELD_NAME));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
+    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
+    object.setIsLong(msg.getBoolean(IS_LONG_FIELD_NAME));
   }
 
 }

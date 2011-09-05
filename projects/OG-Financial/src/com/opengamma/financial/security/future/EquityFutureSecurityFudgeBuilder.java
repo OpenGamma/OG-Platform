@@ -23,9 +23,9 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 public class EquityFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<EquityFutureSecurity> {
 
   /** Field name. */
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
+  public static final String SETTLEMENT_DATE_FIELD_NAME = "settlementDate";
   /** Field name. */
-  public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
+  public static final String UNDERLYING_IDENTIFIER_FIELD_NAME = "underlyingIdentifier";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, EquityFutureSecurity object) {
@@ -36,8 +36,8 @@ public class EquityFutureSecurityFudgeBuilder extends AbstractFudgeBuilder imple
 
   public static void toFudgeMsg(FudgeSerializer serializer, EquityFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
@@ -49,8 +49,8 @@ public class EquityFutureSecurityFudgeBuilder extends AbstractFudgeBuilder imple
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EquityFutureSecurity object) {
     FutureSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
-    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_FIELD_NAME)));
   }
 
 }

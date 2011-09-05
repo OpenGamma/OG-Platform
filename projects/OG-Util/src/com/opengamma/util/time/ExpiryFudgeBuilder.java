@@ -32,14 +32,10 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 @FudgeBuilderFor(Expiry.class)
 public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<Expiry> {
 
-  /**
-   * Field name for the date & time component.
-   */
-  public static final String DATETIME_KEY = "datetime";
-  /**
-   * Field name for the timezone component.
-   */
-  public static final String TIMEZONE_KEY = "timezone";
+  /** Field name. */
+  public static final String DATETIME_FIELD_NAME = "datetime";
+  /** Field name. */
+  public static final String TIMEZONE_FIELD_NAME = "timezone";
 
   /**
    * Dummy secondary type to force serialization.
@@ -117,8 +113,8 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
   }
 
   public static void toFudgeMsg(final FudgeSerializer serializer, final Expiry object, final MutableFudgeMsg msg) {
-    addToMessage(msg, DATETIME_KEY, expiryToDateTime(object));
-    addToMessage(msg, TIMEZONE_KEY, object.getExpiry().getZone().getID());
+    addToMessage(msg, DATETIME_FIELD_NAME, expiryToDateTime(object));
+    addToMessage(msg, TIMEZONE_FIELD_NAME, object.getExpiry().getZone().getID());
   }
 
   //-------------------------------------------------------------------------
@@ -132,8 +128,8 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
       return null;
     }
     return dateTimeToExpiry(
-        msg.getValue(FudgeDateTime.class, DATETIME_KEY),
-        msg.getString(TIMEZONE_KEY));
+        msg.getValue(FudgeDateTime.class, DATETIME_FIELD_NAME),
+        msg.getString(TIMEZONE_FIELD_NAME));
   }
 
 }

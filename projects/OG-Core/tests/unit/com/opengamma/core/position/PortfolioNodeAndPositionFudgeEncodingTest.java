@@ -132,7 +132,7 @@ public class PortfolioNodeAndPositionFudgeEncodingTest extends AbstractFudgeBuil
   private int countParents(final FudgeMsg message) {
     int count = 0;
     for (FudgeField field : message) {
-      if (PortfolioNodeFudgeBuilder.FIELD_PARENT.equals(field.getName()) || PositionFudgeBuilder.FIELD_PARENT.equals(field.getName())) {
+      if (PortfolioNodeFudgeBuilder.PARENT_FIELD_NAME.equals(field.getName()) || PositionFudgeBuilder.PARENT_FIELD_NAME.equals(field.getName())) {
         s_logger.debug("Found parent ref {}", field.getValue());
         count++;
       } else if (field.getValue() instanceof FudgeMsg) {

@@ -20,24 +20,24 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public class CommodityFutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
 
   /** Field name. */
-  public static final String COMMODITY_TYPE_KEY = "commodityType";
+  public static final String COMMODITY_TYPE_FIELD_NAME = "commodityType";
   /** Field name. */
-  public static final String UNIT_NUMBER_KEY = "unitNumber";
+  public static final String UNIT_NUMBER_FIELD_NAME = "unitNumber";
   /** Field name. */
-  public static final String UNIT_NAME_KEY = "unitName";
+  public static final String UNIT_NAME_FIELD_NAME = "unitName";
 
   public static void toFudgeMsg(FudgeSerializer serializer, CommodityFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, COMMODITY_TYPE_KEY, object.getCommodityType());
-    addToMessage(msg, UNIT_NUMBER_KEY, object.getUnitNumber());
-    addToMessage(msg, UNIT_NAME_KEY, object.getUnitName());
+    addToMessage(msg, COMMODITY_TYPE_FIELD_NAME, object.getCommodityType());
+    addToMessage(msg, UNIT_NUMBER_FIELD_NAME, object.getUnitNumber());
+    addToMessage(msg, UNIT_NAME_FIELD_NAME, object.getUnitName());
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CommodityFutureSecurity object) {
     FutureSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setCommodityType(msg.getString(COMMODITY_TYPE_KEY));
-    object.setUnitNumber(msg.getDouble(UNIT_NUMBER_KEY));
-    object.setUnitName(msg.getString(UNIT_NAME_KEY));
+    object.setCommodityType(msg.getString(COMMODITY_TYPE_FIELD_NAME));
+    object.setUnitNumber(msg.getDouble(UNIT_NUMBER_FIELD_NAME));
+    object.setUnitName(msg.getString(UNIT_NAME_FIELD_NAME));
   }
 
 }

@@ -21,7 +21,7 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public class RawSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<RawSecurity> {
 
   /** Field name. */
-  public static final String RAW_DATA_KEY = "rawData";
+  public static final String RAW_DATA_FIELD_NAME = "rawData";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, RawSecurity object) {
@@ -32,7 +32,7 @@ public class RawSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fud
 
   public static void toFudgeMsg(FudgeSerializer serializer, RawSecurity object, final MutableFudgeMsg msg) {
     ManageableSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, RAW_DATA_KEY, object.getRawData());
+    addToMessage(msg, RAW_DATA_FIELD_NAME, object.getRawData());
   }
 
   @Override
@@ -44,7 +44,7 @@ public class RawSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fud
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, RawSecurity object) {
     ManageableSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setRawData(msg.getValue(byte[].class, RAW_DATA_KEY));
+    object.setRawData(msg.getValue(byte[].class, RAW_DATA_FIELD_NAME));
   }
 
 }

@@ -32,7 +32,10 @@ import com.opengamma.util.money.Currency;
  * 
  */
 final class LabelledMatrix1DBuilder {
-  private static final String MATRIX_FIELD = "matrix";
+
+  /** Field name. */
+  private static final String MATRIX_FIELD_NAME = "matrix";
+
   private static final int LABEL_TYPE_ORDINAL = 0;
   private static final int KEY_ORDINAL = 1;
   private static final int LABEL_ORDINAL = 2;
@@ -42,7 +45,7 @@ final class LabelledMatrix1DBuilder {
   }
 
   @FudgeBuilderFor(DoubleLabelledMatrix1D.class)
-  public static final class DoubleLabelledMatrix1DBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix1D> {
+  public static final class DoubleLabelledMatrix1DFudgeBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix1D> {
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DoubleLabelledMatrix1D object) {
@@ -58,12 +61,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public DoubleLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -130,12 +133,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public LocalDateLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -204,12 +207,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public CurrencyLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -272,12 +275,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(KEY_ORDINAL, keys[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public StringLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
       final List<String> keys = new LinkedList<String>();
       final List<Double> values = new LinkedList<Double>();
       for (final FudgeField field : msg) {

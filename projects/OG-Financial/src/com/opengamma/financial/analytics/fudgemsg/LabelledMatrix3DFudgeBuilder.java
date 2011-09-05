@@ -42,56 +42,36 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
  * @param <KZ> Z key type
  * @param <T> sub-type of matrix to build
  */
-public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatrix3D<KX, KY, KZ, ?, ?, ?, T>> extends AbstractFudgeBuilder<T> {
+public abstract class LabelledMatrix3DFudgeBuilder<KX, KY, KZ, T extends LabelledMatrix3D<KX, KY, KZ, ?, ?, ?, T>> extends AbstractFudgeBuilder<T> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(LabelledMatrix3DBuilder.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(LabelledMatrix3DFudgeBuilder.class);
 
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String X_KEYS_KEY = "X_KEYS";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String Y_KEYS_KEY = "Y_KEYS";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String Z_KEYS_KEY = "Z_KEYS";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String X_LABELS_KEY = "X_LABELS";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String X_LABEL_TYPES_KEY = "X_LABEL_TYPES";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String Y_LABELS_KEY = "Y_LABELS";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String Y_LABEL_TYPES_KEY = "Y_LABEL_TYPES";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String Z_LABELS_KEY = "Z_LABELS";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String Z_LABEL_TYPES_KEY = "Z_LABEL_TYPES";
-  /**
-   * Fudge field name.
-   */
+  /** Field name. */
   public static final String VALUES_KEY = "VALUES";
 
   private final Class<KX> _xKeyClass;
   private final Class<KY> _yKeyClass;
   private final Class<KZ> _zKeyClass;
 
-  protected LabelledMatrix3DBuilder(final Class<KX> xKey, final Class<KY> yKey, final Class<KZ> zKey) {
+  protected LabelledMatrix3DFudgeBuilder(final Class<KX> xKey, final Class<KY> yKey, final Class<KZ> zKey) {
     _xKeyClass = xKey;
     _yKeyClass = yKey;
     _zKeyClass = zKey;
@@ -416,7 +396,7 @@ public abstract class LabelledMatrix3DBuilder<KX, KY, KZ, T extends LabelledMatr
    * Builder for {@link DoubleLabelledMatrix3D}.
    */
   @FudgeBuilderFor(DoubleLabelledMatrix3D.class)
-  public static final class DoubleBuilder extends LabelledMatrix3DBuilder<Double, Double, Double, DoubleLabelledMatrix3D> {
+  public static final class DoubleBuilder extends LabelledMatrix3DFudgeBuilder<Double, Double, Double, DoubleLabelledMatrix3D> {
 
     public DoubleBuilder() {
       super(Double.class, Double.class, Double.class);

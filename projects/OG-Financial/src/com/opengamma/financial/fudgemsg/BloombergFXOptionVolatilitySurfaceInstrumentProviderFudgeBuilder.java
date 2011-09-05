@@ -19,23 +19,27 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVol
  */
 @FudgeBuilderFor(BloombergFXOptionVolatilitySurfaceInstrumentProvider.class)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergFXOptionVolatilitySurfaceInstrumentProvider> {
-  private static final String FX_PREFIX = "FX_PREFIX";
-  private static final String POSTFIX = "POSTFIX";
-  private static final String DATA_FIELD_NAME = "DATA_FIELD_NAME";
+
+  /** Field name. */
+  public static final String FX_PREFIX_FIELD_NAME = "FX_PREFIX";
+  /** Field name. */
+  public static final String POSTFIX_FIELD_NAME = "POSTFIX";
+  /** Field name. */
+  public static final String DATA_FIELD_NAME = "DATA_FIELD_NAME";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergFXOptionVolatilitySurfaceInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
     FudgeSerializer.addClassHeader(message, BloombergFXOptionVolatilitySurfaceInstrumentProvider.class);
-    message.add(FX_PREFIX, object.getFXPrefix());
-    message.add(POSTFIX, object.getPostfix());
+    message.add(FX_PREFIX_FIELD_NAME, object.getFXPrefix());
+    message.add(POSTFIX_FIELD_NAME, object.getPostfix());
     message.add(DATA_FIELD_NAME, object.getDataFieldName());
     return message;
   }
 
   @Override
   public BloombergFXOptionVolatilitySurfaceInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    return new BloombergFXOptionVolatilitySurfaceInstrumentProvider(message.getString(FX_PREFIX), message.getString(POSTFIX), message.getString(DATA_FIELD_NAME));
+    return new BloombergFXOptionVolatilitySurfaceInstrumentProvider(message.getString(FX_PREFIX_FIELD_NAME), message.getString(POSTFIX_FIELD_NAME), message.getString(DATA_FIELD_NAME));
   }
 
 }

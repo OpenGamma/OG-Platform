@@ -23,9 +23,9 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public class BondFutureDeliverableFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<BondFutureDeliverable> {
 
   /** Field name. */
-  public static final String IDENTIFIERS_KEY = "identifiers";
+  public static final String IDENTIFIERS_FIELD_NAME = "identifiers";
   /** Field name. */
-  public static final String CONVERSION_FACTOR_KEY = "conversionFactor";
+  public static final String CONVERSION_FACTOR_FIELD_NAME = "conversionFactor";
 
   //-------------------------------------------------------------------------
   @Override
@@ -36,8 +36,8 @@ public class BondFutureDeliverableFudgeBuilder extends AbstractFudgeBuilder impl
   }
 
   public static void toFudgeMsg(FudgeSerializer serializer, BondFutureDeliverable object, final MutableFudgeMsg msg) {
-    addToMessage(msg, IDENTIFIERS_KEY, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, object.getIdentifiers()));
-    addToMessage(msg, CONVERSION_FACTOR_KEY, object.getConversionFactor());
+    addToMessage(msg, IDENTIFIERS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, object.getIdentifiers()));
+    addToMessage(msg, CONVERSION_FACTOR_FIELD_NAME, object.getConversionFactor());
   }
 
   //-------------------------------------------------------------------------
@@ -47,8 +47,8 @@ public class BondFutureDeliverableFudgeBuilder extends AbstractFudgeBuilder impl
   }
 
   public static BondFutureDeliverable fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ExternalIdBundle bundle = ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY));
-    double conversionFactor = msg.getDouble(CONVERSION_FACTOR_KEY);
+    ExternalIdBundle bundle = ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME));
+    double conversionFactor = msg.getDouble(CONVERSION_FACTOR_FIELD_NAME);
     return new BondFutureDeliverable(bundle, conversionFactor);
   }
 

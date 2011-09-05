@@ -23,13 +23,13 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<ManageableSecurity> {
 
   /** Field name. */
-  public static final String UNIQUE_ID_KEY = "uniqueId";
+  public static final String UNIQUE_ID_FIELD_NAME = "uniqueId";
   /** Field name. */
-  public static final String NAME_KEY = "name";
+  public static final String NAME_FIELD_NAME = "name";
   /** Field name. */
-  public static final String SECURITY_TYPE_KEY = "securityType";
+  public static final String SECURITY_TYPE_FIELD_NAME = "securityType";
   /** Field name. */
-  public static final String IDENTIFIERS_KEY = "identifiers";
+  public static final String IDENTIFIERS_FIELD_NAME = "identifiers";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ManageableSecurity object) {
@@ -39,10 +39,10 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   }
 
   public static void toFudgeMsg(FudgeSerializer serializer, ManageableSecurity object, final MutableFudgeMsg msg) {
-    addToMessage(msg, UNIQUE_ID_KEY, UniqueIdFudgeBuilder.toFudgeMsg(serializer, object.getUniqueId()));
-    addToMessage(msg, NAME_KEY, object.getName());
-    addToMessage(msg, SECURITY_TYPE_KEY, object.getSecurityType());
-    addToMessage(msg, IDENTIFIERS_KEY, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, object.getExternalIdBundle()));
+    addToMessage(msg, UNIQUE_ID_FIELD_NAME, UniqueIdFudgeBuilder.toFudgeMsg(serializer, object.getUniqueId()));
+    addToMessage(msg, NAME_FIELD_NAME, object.getName());
+    addToMessage(msg, SECURITY_TYPE_FIELD_NAME, object.getSecurityType());
+    addToMessage(msg, IDENTIFIERS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, object.getExternalIdBundle()));
   }
 
   @Override
@@ -53,10 +53,10 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ManageableSecurity object) {
-    object.setUniqueId(UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_KEY)));
-    object.setName(msg.getString(NAME_KEY));
-    object.setSecurityType(msg.getString(SECURITY_TYPE_KEY));
-    object.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_KEY)));
+    object.setUniqueId(UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNIQUE_ID_FIELD_NAME)));
+    object.setName(msg.getString(NAME_FIELD_NAME));
+    object.setSecurityType(msg.getString(SECURITY_TYPE_FIELD_NAME));
+    object.setExternalIdBundle(ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(IDENTIFIERS_FIELD_NAME)));
   }
 
 }

@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-
 /**
  * Fudge builder for {@code Country}.
  */
@@ -20,19 +19,19 @@ import org.fudgemsg.mapping.FudgeSerializer;
 public final class CountryFudgeBuilder implements FudgeBuilder<Country> {
 
   /** Field name. */
-  public static final String COUNTRY_KEY = "country";
+  public static final String COUNTRY_FIELD_NAME = "country";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Country object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     FudgeSerializer.addClassHeader(msg, Country.class);
-    serializer.addToMessage(msg, COUNTRY_KEY, null, object.getCode());
+    serializer.addToMessage(msg, COUNTRY_FIELD_NAME, null, object.getCode());
     return msg;
   }
 
   @Override
   public Country buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final String countryStr = msg.getString(COUNTRY_KEY);
+    final String countryStr = msg.getString(COUNTRY_FIELD_NAME);
     if (countryStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Country - field 'country' is not present");
     }

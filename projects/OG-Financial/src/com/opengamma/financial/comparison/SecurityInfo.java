@@ -38,7 +38,7 @@ import com.opengamma.master.security.ManageableSecurityFudgeBuilder;
     final Iterator<FudgeField> itr = rawMsg.iterator();
     while (itr.hasNext()) {
       final FudgeField field = itr.next();
-      if (ManageableSecurityFudgeBuilder.UNIQUE_ID_KEY.equals(field.getName()) || ManageableSecurityFudgeBuilder.IDENTIFIERS_KEY.equals(field.getName())) {
+      if (ManageableSecurityFudgeBuilder.UNIQUE_ID_FIELD_NAME.equals(field.getName()) || ManageableSecurityFudgeBuilder.IDENTIFIERS_FIELD_NAME.equals(field.getName())) {
         continue;
       }
       addFieldToMap(field, _info);

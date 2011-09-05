@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-
 /**
  * Fudge builder for {@code Currency}.
  */
@@ -20,19 +19,19 @@ import org.fudgemsg.mapping.FudgeSerializer;
 public final class CurrencyFudgeBuilder implements FudgeBuilder<Currency> {
 
   /** Field name. */
-  public static final String CURRENCY_KEY = "currency";
+  public static final String CURRENCY_FIELD_NAME = "currency";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Currency object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     FudgeSerializer.addClassHeader(msg, Currency.class);
-    serializer.addToMessage(msg, CURRENCY_KEY, null, object.getCode());
+    serializer.addToMessage(msg, CURRENCY_FIELD_NAME, null, object.getCode());
     return msg;
   }
 
   @Override
   public Currency buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    final String currencyStr = msg.getString(CURRENCY_KEY);
+    final String currencyStr = msg.getString(CURRENCY_FIELD_NAME);
     if (currencyStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Currency - field 'currency' is not present");
     }

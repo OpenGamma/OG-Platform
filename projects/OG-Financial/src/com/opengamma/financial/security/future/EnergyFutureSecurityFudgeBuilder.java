@@ -22,7 +22,7 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public class EnergyFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<EnergyFutureSecurity> {
 
   /** Field name. */
-  public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
+  public static final String UNDERLYING_IDENTIFIER_FIELD_NAME = "underlyingIdentifier";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, EnergyFutureSecurity object) {
@@ -33,7 +33,7 @@ public class EnergyFutureSecurityFudgeBuilder extends AbstractFudgeBuilder imple
 
   public static void toFudgeMsg(FudgeSerializer serializer, EnergyFutureSecurity object, final MutableFudgeMsg msg) {
     CommodityFutureSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
@@ -45,7 +45,7 @@ public class EnergyFutureSecurityFudgeBuilder extends AbstractFudgeBuilder imple
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EnergyFutureSecurity object) {
     CommodityFutureSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_FIELD_NAME)));
   }
 
 }

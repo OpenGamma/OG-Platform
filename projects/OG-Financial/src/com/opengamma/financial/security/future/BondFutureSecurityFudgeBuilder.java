@@ -26,13 +26,13 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<BondFutureSecurity> {
 
   /** Field name. */
-  public static final String BASKET_KEY = "basket";
+  public static final String BASKET_FIELD_NAME = "basket";
   /** Field name. */
-  public static final String BOND_TYPE_KEY = "bondType";
+  public static final String BOND_TYPE_FIELD_NAME = "bondType";
   /** Field name. */
-  public static final String FIRST_DELIVERY_DATE_KEY = "firstDeliveryDate";
+  public static final String FIRST_DELIVERY_DATE_FIELD_NAME = "firstDeliveryDate";
   /** Field name. */
-  public static final String LAST_DELIVERY_DATE_KEY = "lastDeliveryDate";
+  public static final String LAST_DELIVERY_DATE_FIELD_NAME = "lastDeliveryDate";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BondFutureSecurity object) {
@@ -45,12 +45,12 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     FutureSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     if (object.getBasket() != null) {
       for (BondFutureDeliverable bfd : object.getBasket()) {
-        addToMessage(serializer, msg, BASKET_KEY, bfd, BondFutureDeliverable.class);
+        addToMessage(serializer, msg, BASKET_FIELD_NAME, bfd, BondFutureDeliverable.class);
       }
     }
-    addToMessage(msg, BOND_TYPE_KEY, object.getBondType());
-    addToMessage(msg, FIRST_DELIVERY_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstDeliveryDate()));
-    addToMessage(msg, LAST_DELIVERY_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastDeliveryDate()));
+    addToMessage(msg, BOND_TYPE_FIELD_NAME, object.getBondType());
+    addToMessage(msg, FIRST_DELIVERY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstDeliveryDate()));
+    addToMessage(msg, LAST_DELIVERY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastDeliveryDate()));
   }
 
   @Override
@@ -62,15 +62,15 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, BondFutureSecurity object) {
     FutureSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    List<FudgeField> basketFields = msg.getAllByName(BASKET_KEY);
+    List<FudgeField> basketFields = msg.getAllByName(BASKET_FIELD_NAME);
     List<BondFutureDeliverable> basket = new ArrayList<BondFutureDeliverable>(basketFields.size());
     for (FudgeField field : basketFields) {
       basket.add(deserializer.fieldValueToObject(BondFutureDeliverable.class, field));
     }
     object.setBasket(basket);
-    object.setBondType(msg.getString(BOND_TYPE_KEY));
-    object.setFirstDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_DELIVERY_DATE_KEY)));
-    object.setLastDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_DELIVERY_DATE_KEY)));
+    object.setBondType(msg.getString(BOND_TYPE_FIELD_NAME));
+    object.setFirstDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_DELIVERY_DATE_FIELD_NAME)));
+    object.setLastDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_DELIVERY_DATE_FIELD_NAME)));
   }
 
 }

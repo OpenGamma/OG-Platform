@@ -14,7 +14,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-
 /**
  * Fudge builder for {@code Tenor}.
  * There is also a secondary type.

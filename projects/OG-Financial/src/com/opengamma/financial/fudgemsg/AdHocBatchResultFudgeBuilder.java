@@ -23,30 +23,27 @@ import com.opengamma.financial.batch.BatchId;
  */
 @FudgeBuilderFor(AdHocBatchResult.class)
 public class AdHocBatchResultFudgeBuilder implements FudgeBuilder<AdHocBatchResult> {
-  /**
-   * Fudge field name.
-   */
-  private static final String BATCHID_KEY = "batchId";
-  /**
-   * Fudge field name.
-   */
-  private static final String RESULT_KEY = "result";
+
+  /** Field name. */
+  private static final String BATCHID_FIELD_NAME = "batchId";
+  /** Field name. */
+  private static final String RESULT_FIELD_NAME = "result";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, AdHocBatchResult object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessage(msg, BATCHID_KEY, null, object.getBatchId());
-    serializer.addToMessage(msg, RESULT_KEY, null, object.getResult());
+    serializer.addToMessage(msg, BATCHID_FIELD_NAME, null, object.getBatchId());
+    serializer.addToMessage(msg, RESULT_FIELD_NAME, null, object.getResult());
     return msg;
   }
 
   @Override
   public AdHocBatchResult buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    FudgeField batchIdField = message.getByName(BATCHID_KEY);
-    FudgeField resultField = message.getByName(RESULT_KEY);
+    FudgeField batchIdField = message.getByName(BATCHID_FIELD_NAME);
+    FudgeField resultField = message.getByName(RESULT_FIELD_NAME);
 
-    Validate.notNull(batchIdField, "Fudge message is not a AdHocBatchResult - field " + BATCHID_KEY + " is not present");
-    Validate.notNull(resultField, "Fudge message is not a AdHocBatchResult - field " + RESULT_KEY + " is not present");
+    Validate.notNull(batchIdField, "Fudge message is not a AdHocBatchResult - field " + BATCHID_FIELD_NAME + " is not present");
+    Validate.notNull(resultField, "Fudge message is not a AdHocBatchResult - field " + RESULT_FIELD_NAME + " is not present");
 
     BatchId batchId = deserializer.fieldValueToObject(BatchId.class, batchIdField);
     ViewComputationResultModel result = deserializer.fieldValueToObject(ViewComputationResultModel.class, resultField);

@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-
 /**
  * Builder for converting UnorderedCurrencyPair instances to/from Fudge messages.
  */

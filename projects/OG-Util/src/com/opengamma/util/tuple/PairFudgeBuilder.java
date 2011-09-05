@@ -17,7 +17,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-
 /**
  * Fudge builder for {@code DoublesPair}.
  */

@@ -26,27 +26,27 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 public class EquityVarianceSwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<EquityVarianceSwapSecurity> {
 
   /** Field name. */
-  public static final String SPOT_UNDERLYING_IDENTIFIER_KEY = "spotUnderlyingIdentifier";
+  public static final String SPOT_UNDERLYING_IDENTIFIER_FIELD_NAME = "spotUnderlyingIdentifier";
   /** Field name. */
-  public static final String CURRENCY_KEY = "currency";
+  public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
-  public static final String STRIKE_KEY = "strike";
+  public static final String STRIKE_FIELD_NAME = "strike";
   /** Field name. */
-  public static final String NOTIONAL_KEY = "notional";
+  public static final String NOTIONAL_FIELD_NAME = "notional";
   /** Field name. */
-  public static final String PARAMETERIZED_AS_VARIANCE_KEY = "parameterizedAsVariance";
+  public static final String PARAMETERIZED_AS_VARIANCE_FIELD_NAME = "parameterizedAsVariance";
   /** Field name. */
-  public static final String ANNUALIZATION_FACTOR_KEY = "annualizationFactor";
+  public static final String ANNUALIZATION_FACTOR_FIELD_NAME = "annualizationFactor";
   /** Field name. */
-  public static final String FIRST_OBSERVATION_DATE_KEY = "firstObservationDate";
+  public static final String FIRST_OBSERVATION_DATE_FIELD_NAME = "firstObservationDate";
   /** Field name. */
-  public static final String LAST_OBSERVATION_DATE_KEY = "lastObservationDate";
+  public static final String LAST_OBSERVATION_DATE_FIELD_NAME = "lastObservationDate";
   /** Field name. */
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
+  public static final String SETTLEMENT_DATE_FIELD_NAME = "settlementDate";
   /** Field name. */
-  public static final String REGION_KEY = "region";
+  public static final String REGION_FIELD_NAME = "region";
   /** Field name. */
-  public static final String OBSERVATION_FREQUENCY_KEY = "observationFrequency";
+  public static final String OBSERVATION_FREQUENCY_FIELD_NAME = "observationFrequency";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, EquityVarianceSwapSecurity object) {
@@ -57,17 +57,17 @@ public class EquityVarianceSwapSecurityFudgeBuilder extends AbstractFudgeBuilder
 
   public static void toFudgeMsg(FudgeSerializer serializer, EquityVarianceSwapSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, SPOT_UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getSpotUnderlyingId()));
-    addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, STRIKE_KEY, object.getStrike());
-    addToMessage(msg, NOTIONAL_KEY, object.getNotional());
-    addToMessage(msg, PARAMETERIZED_AS_VARIANCE_KEY, object.isParameterizedAsVariance());
-    addToMessage(msg, ANNUALIZATION_FACTOR_KEY, object.getAnnualizationFactor());
-    addToMessage(msg, FIRST_OBSERVATION_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstObservationDate()));
-    addToMessage(msg, LAST_OBSERVATION_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastObservationDate()));
-    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
-    addToMessage(msg, REGION_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
-    addToMessage(msg, OBSERVATION_FREQUENCY_KEY, object.getObservationFrequency());
+    addToMessage(msg, SPOT_UNDERLYING_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getSpotUnderlyingId()));
+    addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
+    addToMessage(msg, STRIKE_FIELD_NAME, object.getStrike());
+    addToMessage(msg, NOTIONAL_FIELD_NAME, object.getNotional());
+    addToMessage(msg, PARAMETERIZED_AS_VARIANCE_FIELD_NAME, object.isParameterizedAsVariance());
+    addToMessage(msg, ANNUALIZATION_FACTOR_FIELD_NAME, object.getAnnualizationFactor());
+    addToMessage(msg, FIRST_OBSERVATION_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstObservationDate()));
+    addToMessage(msg, LAST_OBSERVATION_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastObservationDate()));
+    addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
+    addToMessage(msg, REGION_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, OBSERVATION_FREQUENCY_FIELD_NAME, object.getObservationFrequency());
   }
 
   @Override
@@ -79,17 +79,17 @@ public class EquityVarianceSwapSecurityFudgeBuilder extends AbstractFudgeBuilder
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EquityVarianceSwapSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setSpotUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SPOT_UNDERLYING_IDENTIFIER_KEY)));
-    object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setStrike(msg.getDouble(STRIKE_KEY));
-    object.setNotional(msg.getDouble(NOTIONAL_KEY));
-    object.setParameterizedAsVariance(msg.getBoolean(PARAMETERIZED_AS_VARIANCE_KEY));
-    object.setAnnualizationFactor(msg.getDouble(ANNUALIZATION_FACTOR_KEY));
-    object.setFirstObservationDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_OBSERVATION_DATE_KEY)));
-    object.setLastObservationDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_OBSERVATION_DATE_KEY)));
-    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
-    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
-    object.setObservationFrequency(msg.getValue(Frequency.class, OBSERVATION_FREQUENCY_KEY));
+    object.setSpotUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SPOT_UNDERLYING_IDENTIFIER_FIELD_NAME)));
+    object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
+    object.setStrike(msg.getDouble(STRIKE_FIELD_NAME));
+    object.setNotional(msg.getDouble(NOTIONAL_FIELD_NAME));
+    object.setParameterizedAsVariance(msg.getBoolean(PARAMETERIZED_AS_VARIANCE_FIELD_NAME));
+    object.setAnnualizationFactor(msg.getDouble(ANNUALIZATION_FACTOR_FIELD_NAME));
+    object.setFirstObservationDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_OBSERVATION_DATE_FIELD_NAME)));
+    object.setLastObservationDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_OBSERVATION_DATE_FIELD_NAME)));
+    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_FIELD_NAME)));
+    object.setObservationFrequency(msg.getValue(Frequency.class, OBSERVATION_FREQUENCY_FIELD_NAME));
   }
 
 }

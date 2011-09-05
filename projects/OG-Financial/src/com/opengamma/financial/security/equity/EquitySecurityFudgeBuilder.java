@@ -23,17 +23,17 @@ import com.opengamma.util.money.Currency;
 public class EquitySecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<EquitySecurity> {
 
   /** Field name. */
-  public static final String SHORT_NAME_KEY = "shortName";
+  public static final String SHORT_NAME_FIELD_NAME = "shortName";
   /** Field name. */
-  public static final String EXCHANGE_KEY = "exchange";
+  public static final String EXCHANGE_FIELD_NAME = "exchange";
   /** Field name. */
-  public static final String EXCHANGE_CODE_KEY = "exchangeCode";
+  public static final String EXCHANGE_CODE_FIELD_NAME = "exchangeCode";
   /** Field name. */
-  public static final String COMPANY_NAME_KEY = "companyName";
+  public static final String COMPANY_NAME_FIELD_NAME = "companyName";
   /** Field name. */
-  public static final String CURRENCY_KEY = "currency";
+  public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
-  public static final String GICS_CODE_KEY = "gicsCode";
+  public static final String GICS_CODE_FIELD_NAME = "gicsCode";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, EquitySecurity object) {
@@ -44,12 +44,12 @@ public class EquitySecurityFudgeBuilder extends AbstractFudgeBuilder implements 
 
   public static void toFudgeMsg(FudgeSerializer serializer, EquitySecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, SHORT_NAME_KEY, object.getShortName());
-    addToMessage(msg, EXCHANGE_KEY, object.getExchange());
-    addToMessage(msg, EXCHANGE_CODE_KEY, object.getExchangeCode());
-    addToMessage(msg, COMPANY_NAME_KEY, object.getCompanyName());
-    addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, GICS_CODE_KEY, object.getGicsCode());
+    addToMessage(msg, SHORT_NAME_FIELD_NAME, object.getShortName());
+    addToMessage(msg, EXCHANGE_FIELD_NAME, object.getExchange());
+    addToMessage(msg, EXCHANGE_CODE_FIELD_NAME, object.getExchangeCode());
+    addToMessage(msg, COMPANY_NAME_FIELD_NAME, object.getCompanyName());
+    addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
+    addToMessage(msg, GICS_CODE_FIELD_NAME, object.getGicsCode());
   }
 
   @Override
@@ -61,12 +61,12 @@ public class EquitySecurityFudgeBuilder extends AbstractFudgeBuilder implements 
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EquitySecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setShortName(msg.getString(SHORT_NAME_KEY));
-    object.setExchange(msg.getString(EXCHANGE_KEY));
-    object.setExchangeCode(msg.getString(EXCHANGE_CODE_KEY));
-    object.setCompanyName(msg.getString(COMPANY_NAME_KEY));
-    object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setGicsCode(msg.getValue(GICSCode.class, GICS_CODE_KEY));
+    object.setShortName(msg.getString(SHORT_NAME_FIELD_NAME));
+    object.setExchange(msg.getString(EXCHANGE_FIELD_NAME));
+    object.setExchangeCode(msg.getString(EXCHANGE_CODE_FIELD_NAME));
+    object.setCompanyName(msg.getString(COMPANY_NAME_FIELD_NAME));
+    object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
+    object.setGicsCode(msg.getValue(GICSCode.class, GICS_CODE_FIELD_NAME));
   }
 
 }

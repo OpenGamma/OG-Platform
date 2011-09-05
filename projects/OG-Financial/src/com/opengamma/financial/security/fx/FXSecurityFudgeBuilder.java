@@ -24,15 +24,15 @@ import com.opengamma.util.money.Currency;
 public class FXSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<FXSecurity> {
 
   /** Field name. */
-  public static final String PAY_CURRENCY_KEY = "payCurrency";
+  public static final String PAY_CURRENCY_FIELD_NAME = "payCurrency";
   /** Field name. */
-  public static final String RECEIVE_CURRENCY_KEY = "receiveCurrency";
+  public static final String RECEIVE_CURRENCY_FIELD_NAME = "receiveCurrency";
   /** Field name. */
-  public static final String PAY_AMOUNT_KEY = "payAmount";
+  public static final String PAY_AMOUNT_FIELD_NAME = "payAmount";
   /** Field name. */
-  public static final String RECEIVE_AMOUNT_KEY = "receiveAmount";
+  public static final String RECEIVE_AMOUNT_FIELD_NAME = "receiveAmount";
   /** Field name. */
-  public static final String REGION_KEY = "region";
+  public static final String REGION_FIELD_NAME = "region";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FXSecurity object) {
@@ -43,11 +43,11 @@ public class FXSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fudg
 
   public static void toFudgeMsg(FudgeSerializer serializer, FXSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, PAY_CURRENCY_KEY, object.getPayCurrency());
-    addToMessage(msg, RECEIVE_CURRENCY_KEY, object.getReceiveCurrency());
-    addToMessage(msg, PAY_AMOUNT_KEY, object.getPayAmount());
-    addToMessage(msg, RECEIVE_AMOUNT_KEY, object.getReceiveAmount());
-    addToMessage(msg, REGION_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, PAY_CURRENCY_FIELD_NAME, object.getPayCurrency());
+    addToMessage(msg, RECEIVE_CURRENCY_FIELD_NAME, object.getReceiveCurrency());
+    addToMessage(msg, PAY_AMOUNT_FIELD_NAME, object.getPayAmount());
+    addToMessage(msg, RECEIVE_AMOUNT_FIELD_NAME, object.getReceiveAmount());
+    addToMessage(msg, REGION_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
   }
 
   @Override
@@ -59,11 +59,11 @@ public class FXSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fudg
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FXSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setPayCurrency(msg.getValue(Currency.class, PAY_CURRENCY_KEY));
-    object.setReceiveCurrency(msg.getValue(Currency.class, RECEIVE_CURRENCY_KEY));
-    object.setPayAmount(msg.getDouble(PAY_AMOUNT_KEY));
-    object.setReceiveAmount(msg.getDouble(RECEIVE_AMOUNT_KEY));
-    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setPayCurrency(msg.getValue(Currency.class, PAY_CURRENCY_FIELD_NAME));
+    object.setReceiveCurrency(msg.getValue(Currency.class, RECEIVE_CURRENCY_FIELD_NAME));
+    object.setPayAmount(msg.getDouble(PAY_AMOUNT_FIELD_NAME));
+    object.setReceiveAmount(msg.getDouble(RECEIVE_AMOUNT_FIELD_NAME));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_FIELD_NAME)));
   }
 
 }

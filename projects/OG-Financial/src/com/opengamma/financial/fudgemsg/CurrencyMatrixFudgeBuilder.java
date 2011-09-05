@@ -38,10 +38,14 @@ import com.opengamma.util.tuple.Pair;
 @GenericFudgeBuilderFor(CurrencyMatrix.class)
 public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> {
 
-  private static final String UNIQUE_ID_FIELD_NAME = "uniqueId";
-  private static final String FIXED_RATE_FIELD_NAME = "fixedRate";
-  private static final String VALUE_REQUIREMENTS_FIELD_NAME = "valueReq";
-  private static final String CROSS_CONVERT_FIELD_NAME = "crossConvert";
+  /** Field name. */
+  public static final String UNIQUE_ID_FIELD_NAME = "uniqueId";
+  /** Field name. */
+  public static final String FIXED_RATE_FIELD_NAME = "fixedRate";
+  /** Field name. */
+  public static final String VALUE_REQUIREMENTS_FIELD_NAME = "valueReq";
+  /** Field name. */
+  public static final String CROSS_CONVERT_FIELD_NAME = "crossConvert";
 
   private static MutableFudgeMsg getOrCreateMessage(final FudgeMsgFactory factory, final String name, final Map<String, MutableFudgeMsg> map) {
     MutableFudgeMsg msg = map.get(name);

@@ -25,23 +25,23 @@ import com.opengamma.util.time.ExpiryFudgeBuilder;
 public class IRFutureOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<IRFutureOptionSecurity> {
 
   /** Field name. */
-  public static final String EXCHANGE_KEY = "exchange";
+  public static final String EXCHANGE_FIELD_NAME = "exchange";
   /** Field name. */
-  public static final String EXPIRY_KEY = "expiry";
+  public static final String EXPIRY_FIELD_NAME = "expiry";
   /** Field name. */
-  public static final String EXERCISE_TYPE_KEY = "exerciseType";
+  public static final String EXERCISE_TYPE_FIELD_NAME = "exerciseType";
   /** Field name. */
-  public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
+  public static final String UNDERLYING_IDENTIFIER_FIELD_NAME = "underlyingIdentifier";
   /** Field name. */
-  public static final String POINT_VALUE_KEY = "pointValue";
+  public static final String POINT_VALUE_FIELD_NAME = "pointValue";
   /** Field name. */
-  public static final String IS_MARGINED_KEY = "isMargined";
+  public static final String IS_MARGINED_FIELD_NAME = "isMargined";
   /** Field name. */
-  public static final String CURRENCY_KEY = "currency";
+  public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
-  public static final String STRIKE_KEY = "strike";
+  public static final String STRIKE_FIELD_NAME = "strike";
   /** Field name. */
-  public static final String OPTION_TYPE_KEY = "optionType";
+  public static final String OPTION_TYPE_FIELD_NAME = "optionType";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, IRFutureOptionSecurity object) {
@@ -52,15 +52,15 @@ public class IRFutureOptionSecurityFudgeBuilder extends AbstractFudgeBuilder imp
 
   public static void toFudgeMsg(FudgeSerializer serializer, IRFutureOptionSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, EXCHANGE_KEY, object.getExchange());
-    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
-    addToMessage(msg, EXERCISE_TYPE_KEY, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
-    addToMessage(msg, POINT_VALUE_KEY, object.getPointValue());
-    addToMessage(msg, IS_MARGINED_KEY, object.isMargined());
-    addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, STRIKE_KEY, object.getStrike());
-    addToMessage(msg, OPTION_TYPE_KEY, object.getOptionType());
+    addToMessage(msg, EXCHANGE_FIELD_NAME, object.getExchange());
+    addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, EXERCISE_TYPE_FIELD_NAME, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, POINT_VALUE_FIELD_NAME, object.getPointValue());
+    addToMessage(msg, IS_MARGINED_FIELD_NAME, object.isMargined());
+    addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
+    addToMessage(msg, STRIKE_FIELD_NAME, object.getStrike());
+    addToMessage(msg, OPTION_TYPE_FIELD_NAME, object.getOptionType());
   }
 
   @Override
@@ -72,15 +72,15 @@ public class IRFutureOptionSecurityFudgeBuilder extends AbstractFudgeBuilder imp
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, IRFutureOptionSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setExchange(msg.getString(EXCHANGE_KEY));
-    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
-    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
-    object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_KEY)));
-    object.setPointValue(msg.getDouble(POINT_VALUE_KEY));
-    object.setMargined(msg.getBoolean(IS_MARGINED_KEY));
-    object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setStrike(msg.getDouble(STRIKE_KEY));
-    object.setOptionType(msg.getFieldValue(OptionType.class, msg.getByName(OPTION_TYPE_KEY)));
+    object.setExchange(msg.getString(EXCHANGE_FIELD_NAME));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_FIELD_NAME)));
+    object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_FIELD_NAME)));
+    object.setPointValue(msg.getDouble(POINT_VALUE_FIELD_NAME));
+    object.setMargined(msg.getBoolean(IS_MARGINED_FIELD_NAME));
+    object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
+    object.setStrike(msg.getDouble(STRIKE_FIELD_NAME));
+    object.setOptionType(msg.getFieldValue(OptionType.class, msg.getByName(OPTION_TYPE_FIELD_NAME)));
   }
 
 }
