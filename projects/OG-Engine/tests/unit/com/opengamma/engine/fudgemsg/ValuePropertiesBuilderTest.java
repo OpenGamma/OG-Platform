@@ -11,7 +11,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
- * Test the {@link ValuePropertiesBuilder} class.
+ * Test the {@link ValuePropertiesFudgeBuilder} class.
  */
 @Test
 public class ValuePropertiesBuilderTest extends AbstractFudgeBuilderTestCase {

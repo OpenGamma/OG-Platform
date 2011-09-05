@@ -12,16 +12,16 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.core.fudgemsg.TradeBuilder;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.TradeFudgeBuilder;
 
 /**
- * Fudge builder for {@link ManageableTrade} delegating to {@link TradeBuilder}.
+ * Fudge builder for {@link ManageableTrade} delegating to {@link TradeFudgeBuilder}.
  */
 @FudgeBuilderFor(ManageableTrade.class)
 public class ManageableTradeFudgeBuilder implements FudgeBuilder<ManageableTrade> {
 
-  private final TradeBuilder _delegate = new TradeBuilder();
+  private final TradeFudgeBuilder _delegate = new TradeFudgeBuilder();
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ManageableTrade object) {

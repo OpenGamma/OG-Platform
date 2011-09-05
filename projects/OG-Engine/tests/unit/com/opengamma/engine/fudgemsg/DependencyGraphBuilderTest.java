@@ -20,7 +20,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
- * Tests {@link DependencyGraphBuilder}
+ * Tests {@link DependencyGraphFudgeBuilder}
  */
 @Test
 public class DependencyGraphBuilderTest extends AbstractFudgeBuilderTestCase {

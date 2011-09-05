@@ -20,7 +20,7 @@ import com.opengamma.engine.view.helper.AvailableOutputsImpl;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
- * Tests {@link AvailableOutputsBuilder}
+ * Tests {@link AvailableOutputsFudgeBuilder}
  */
 @Test
 public class AvailableOutputsBuilderTest extends AbstractFudgeBuilderTestCase {
