@@ -224,13 +224,18 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
   
   void reestablishSubscriptions() {
-    for (Subscription subscription : getSubscriptions()) {
-      try {
-        Map<String, Object> handle = doSubscribe(Collections.singleton(subscription.getSecurityUniqueId()));
-        subscription.setHandle(handle.get(subscription.getSecurityUniqueId()));
-      } catch (RuntimeException e) {
-        s_logger.error("Could not reestablish subscription to " + subscription, e);
+    _subscriptionLock.lock();
+    try {
+      for (Subscription subscription : getSubscriptions()) {
+        try {
+          Map<String, Object> handle = doSubscribe(Collections.singleton(subscription.getSecurityUniqueId()));
+          subscription.setHandle(handle.get(subscription.getSecurityUniqueId()));
+        } catch (RuntimeException e) {
+          s_logger.error("Could not reestablish subscription to " + subscription, e);
+        }
       }
+    } finally {
+      _subscriptionLock.unlock();
     }
   }
   
