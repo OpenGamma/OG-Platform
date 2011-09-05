@@ -68,7 +68,7 @@ public final class GICSCode implements Serializable {
     InputStream subIndutriesStream = GICSCode.class.getClassLoader().getResourceAsStream("com/opengamma/financial/security/equity/sub-industries.csv");
     parseCSV("sub-industries.csv", subIndutriesStream, s_subIndustries);
   }
-  
+
   private static void parseCSV(String filename, InputStream is, Map<Integer, String> resultMap) {
     CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(is)));
     try {
@@ -91,7 +91,7 @@ public final class GICSCode implements Serializable {
       s_logger.error("Couldn't read gics file " + filename, ex);
     }
   }
-  
+
   /**
    * Obtains a {@code GICSCode} instance from the combined code.
    * <p>
@@ -172,7 +172,7 @@ public final class GICSCode implements Serializable {
   public int getSectorCode() {
     return getCode() / 1000000;
   }
-  
+
   /**
    * Gets the sector description
    * @return the description of the sector, or "Unknown" if not found
@@ -191,10 +191,9 @@ public final class GICSCode implements Serializable {
    * @return the industry group code, 
    */
   public int getIndustryGroupCode() {
-    int c = getCode();
     return getCode() / 10000;
   }
-  
+
   /**
    * Gets the industry group description
    * @return the description of the industry group, or "Unknown" if not found
@@ -215,7 +214,7 @@ public final class GICSCode implements Serializable {
   public int getIndustryCode() {
     return getCode() / 100;
   }
-  
+
   /**
    * Gets the industry description
    * @return the description of the industry, or "Unknown" if not found
@@ -236,7 +235,7 @@ public final class GICSCode implements Serializable {
   public int getSubIndustryCode() {
     return getCode();
   }
-  
+
   /**
    * Gets the sub-industry description
    * @return the description of the sub-industry, or "Unknown" if not found
@@ -245,7 +244,7 @@ public final class GICSCode implements Serializable {
     String description = s_subIndustries.get(getSubIndustryCode());
     return description != null ? description : "Unknown"; 
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Compares this code to another based on the combined code.
