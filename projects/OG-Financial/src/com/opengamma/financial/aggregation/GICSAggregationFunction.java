@@ -58,7 +58,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private EquityOptionSecurityVisitor<String> _equityOptionSecurityVisitor = new EquityOptionSecurityVisitor<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-      EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
+      EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
       switch (_level) {
         case SECTOR:
           return underlying.getGicsCode().getSectorDescription();

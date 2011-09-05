@@ -48,8 +48,8 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private EquityIndexOptionSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new EquityIndexOptionSecurityVisitor<String>() {
     @Override
     public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
-      String identifier = underlying.getIdentifiers().getValue(_preferredScheme);
+      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
       return identifier != null ? identifier : NOT_APPLICABLE;
     }
   };
@@ -57,8 +57,8 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private EquityOptionSecurityVisitor<String> _equityOptionSecurityVisitor = new EquityOptionSecurityVisitor<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
-      String identifier = underlying.getIdentifiers().getValue(_preferredScheme);
+      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
       return identifier != null ? identifier : NOT_APPLICABLE;    
     }    
   };
@@ -82,15 +82,15 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private IRFutureOptionSecurityVisitor<String> _irFutureOptionSecurityVisitor = new IRFutureOptionSecurityVisitor<String>() {
     @Override
     public String visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
-      String identifier = underlying.getIdentifiers().getValue(_preferredScheme);
+      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
       return identifier != null ? identifier : NOT_APPLICABLE;
     }
   };
   
   private SwaptionSecurityVisitor<String> _swaptionSecurityVisitor = new SwaptionSecurityVisitor<String>() {
     public String visitSwaptionSecurity(SwaptionSecurity security) {
-      SwapSecurity underlying = (SwapSecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
+      SwapSecurity underlying = (SwapSecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
       String name = underlying.getName();
       return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
     }    
