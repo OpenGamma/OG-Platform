@@ -1105,7 +1105,7 @@ public class BLAS2 {
 
 
 
-
+/*  -------------------------------------------------------------------------------------------------------------------------------------------------- */
 
 
 /**
@@ -1122,6 +1122,44 @@ public class BLAS2 {
  *   speed up over the naive version, which is not acceptable!
  *
  */
+
+
+
+  /* GROUP1:: A*x OR A^T*x */
+  /**
+   * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, double [] aVector, orientation o)
+  {
+    double [] tmp = null;
+    switch (o) {
+      case normal:
+        tmp = dgemv(aMatrix, aVector);
+        break;
+      case transposed:
+        tmp = dgemvTransposed(aMatrix, aVector);
+        break;
+      default:
+        throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, orientation o) {
+    return dgemv(aMatrix, aVector.getData(), o);
+  }
+
   /**
    * DGEMV simplified: returns:=A*x
    * @param aMatrix a CompressedSparseRowFormatMatrix
@@ -1146,6 +1184,91 @@ public class BLAS2 {
   }
 
   /**
+   * DGEMV simplified: returns:=A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector) {
+    return dgemv(aMatrix, aVector.getData());
+  }
+
+
+  /**
+   * DGEMV simplified: returns:=A^T*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(CompressedSparseRowFormatMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector);
+    final int [] rowPtr = aMatrix.getRowPtr();
+    final double [] values = aMatrix.getNonZeroElements();
+    final int [] colIdx = aMatrix.getColumnIndex();
+    final int rows = aMatrix.getNumberOfRows();
+    final int cols = aMatrix.getNumberOfColumns();
+    double [] tmp = new double[cols];
+    int ptr = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
+        tmp[colIdx[ptr]] += values[ptr] * aVector[i];
+        ptr++;
+      }
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A^T*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector) {
+    return dgemvTransposed(aMatrix, aVector.getData());
+  }
+
+
+
+  /* GROUP2:: alpha*A*x OR alpha*A^T*x */
+  /**
+   * DGEMV simplified: returns:=alpha*A*x OR returns:=alpha*A^T*x depending on the enum orientation.
+   * @param alpha a double indicating the scaling of A*x OR A^T*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector, orientation o)
+  {
+    double [] tmp = null;
+    switch (o) {
+      case normal:
+        tmp = dgemv(alpha, aMatrix, aVector);
+        break;
+      case transposed:
+        tmp = dgemvTransposed(alpha, aMatrix, aVector);
+        break;
+      default:
+        throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=alpha*A*x OR returns:=alpha*A^T*x depending on the enum orientation.
+   * @param alpha a double indicating the scaling of A*x OR A^T*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, orientation o)
+  {
+    return dgemv(alpha, aMatrix, aVector.getData(), o);
+  }
+
+  /**
    * DGEMV simplified: returns:=alpha*A*x
    * @param alpha a double indicating the scaling of A*x
    * @param aMatrix a CompressedSparseRowFormatMatrix
@@ -1153,21 +1276,120 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector) {
-    dgemvInputSanityChecker(aMatrix, aVector);
-    final int [] rowPtr = aMatrix.getRowPtr();
-    final int [] colIdx = aMatrix.getColumnIndex();
-    final double [] values = aMatrix.getNonZeroElements();
     final int rows = aMatrix.getNumberOfRows();
-    double [] tmp = new double[rows];
-    int ptr = 0;
+    double [] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
-        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
-        ptr++;
-      }
       tmp[i] *= alpha;
     }
     return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=alpha*A*x
+   * @param alpha a double indicating the scaling of A*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector) {
+    final int rows = aMatrix.getNumberOfRows();
+    double [] tmp = dgemv(aMatrix, aVector.getData());
+    for (int i = 0; i < rows; i++) {
+      tmp[i] *= alpha;
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=alpha*A^T*x
+   * @param alpha a double indicating the scaling of A^T*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(double alpha, CompressedSparseRowFormatMatrix aMatrix, double[] aVector) {
+    final int rows = aMatrix.getNumberOfRows();
+    double[] tmp = dgemvTransposed(aMatrix, aVector);
+    for (int i = 0; i < rows; i++) {
+      tmp[i] *= alpha;
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=alpha*A^T*x
+   * @param alpha a double indicating the scaling of A^T*x
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(double alpha, CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector) {
+    return dgemvTransposed(alpha, aMatrix, aVector.getData());
+  }
+
+
+/* GROUP3:: A*x + y OR A^T*x + y */
+  /**
+   * DGEMV simplified: returns:=A*x + y OR returns:=A^T*x + y depending on the enum orientation.
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double[] y, orientation o)
+  {
+    double [] tmp = null;
+    switch (o) {
+      case normal:
+        tmp = dgemv(aMatrix, aVector, y);
+        break;
+      case transposed:
+        tmp = dgemvTransposed(aMatrix, aVector, y);
+        break;
+      default:
+        throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x + y OR returns:=A^T*x + y depending on the enum orientation.
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, double[] y, orientation o)
+  {
+    return dgemv(aMatrix, aVector.getData(), y, o);
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x + y OR returns:=A^T*x + y depending on the enum orientation.
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param y a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, double[] aVector, DoubleMatrix1D y, orientation o)
+  {
+    return dgemv(aMatrix, aVector, y.getData(), o);
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x + y OR returns:=A^T*x + y depending on the enum orientation.
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y, orientation o)
+  {
+    return dgemv(aMatrix, aVector.getData(), y.getData(), o);
   }
 
 
@@ -1180,22 +1402,70 @@ public class BLAS2 {
    */
   public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double [] y) {
     dgemvInputSanityChecker(y, aMatrix, aVector);
-    final int [] rowPtr = aMatrix.getRowPtr();
-    final int [] colIdx = aMatrix.getColumnIndex();
-    final double [] values = aMatrix.getNonZeroElements();
     final int rows = aMatrix.getNumberOfRows();
-    double [] tmp = new double[rows];
-    int ptr = 0;
+    double [] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
-        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
-        ptr++;
-      }
       tmp[i] += y[i];
     }
     return tmp;
   }
 
+  /**
+   * DGEMV simplified: returns:=A*x + y
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemv(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, double [] y) {
+    return dgemv(aMatrix, aVector.getData(), y);
+  }
+
+
+  /**
+   * DGEMV simplified: returns:=A^T*x + y
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a double[] vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double [] y) {
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
+    final int cols = aMatrix.getNumberOfColumns();
+    double [] tmp = new double[cols];
+    tmp = dgemvTransposed(aMatrix, aVector);
+    for (int i = 0; i < cols; i++) {
+      tmp[i] += y[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A^T*x + y
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a double[] vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, double [] y) {
+    double[] tmp = dgemvTransposed(aMatrix, aVector.toArray(), y);
+    return tmp;
+  }
+
+  /**
+   * DGEMV simplified: returns:=A^T*x + y
+   * @param aMatrix a CompressedSparseRowFormatMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param y a DoubleMatrix1D vector
+   * @return tmp a double[] vector
+   */
+  public static double[] dgemvTransposed(CompressedSparseRowFormatMatrix aMatrix, DoubleMatrix1D aVector, DoubleMatrix1D y) {
+    double[] tmp = dgemvTransposed(aMatrix, aVector.toArray(), y.toArray());
+    return tmp;
+  }
+
+
+  /* GROUP4:: alpha*A*x + y or alpha*A^T*x + y */
   /**
    * DGEMV simplified: returns:=alpha*A*x + y
    * @param alpha a double indicating the scaling of A*x
@@ -1206,22 +1476,18 @@ public class BLAS2 {
    */
   public static double[] dgemv(double alpha, CompressedSparseRowFormatMatrix aMatrix, double [] aVector, double [] y) {
     dgemvInputSanityChecker(y, aMatrix, aVector);
-    final int [] rowPtr = aMatrix.getRowPtr();
-    final int [] colIdx = aMatrix.getColumnIndex();
-    final double [] values = aMatrix.getNonZeroElements();
     final int rows = aMatrix.getNumberOfRows();
-    double [] tmp = new double[rows];
-    int ptr = 0;
+    double[] tmp = dgemv(aMatrix, aVector);
     for (int i = 0; i < rows; i++) {
-      for (int j = rowPtr[i]; j < rowPtr[i + 1]; j++) {
-        tmp[i] += values[ptr] * aVector[colIdx[ptr]];
-        ptr++;
-      }
-
       tmp[i] = alpha * tmp[i] + y[i];
     }
     return tmp;
   }
+
+  /* GROUP5:: A*x + beta*y or A^T*x + beta*y */
+
+
+  /* GROUP6:: alpha*A*x + beta*y or alpha*A^T*x + beta*y */
 
   /**
    * DGEMV FULL: returns:=alpha*A*x + beta*y

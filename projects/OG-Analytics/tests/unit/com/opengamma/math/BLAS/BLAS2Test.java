@@ -29,6 +29,7 @@ public class BLAS2Test {
   double [][] oddA ={{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16},{17,18,19,20}};
   double [] oddx = {1,2,3,4};
   double [] oddy = {10,20,30,40,50};
+  double [] oddy4 = {10,20,30,40};
 
   // single element data
   double [][] singleA = {{1}};
@@ -196,6 +197,12 @@ public void testDGEMV_ans_eq_A_times_x_interfaced_normal() {
 @Test
 public void testDGEMV_ans_eq_A_times_D1D_x_interfaced_normal() {
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,new DoubleMatrix1D(x),BLAS2.orientation.normal),A_times_x));
+}
+
+@Test
+public void testDGEMV_ans_eq_A_times_x_interfaced_transposed() {
+  double[] tmp = {215,230,245,260,275};
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,x,BLAS2.orientation.transposed),tmp));
 }
 
 @Test
@@ -451,6 +458,8 @@ public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_D1D_y_interfaced_tran
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix,new DoubleMatrix1D(x),beta,new DoubleMatrix1D(y),BLAS2.orientation.transposed),tmp));
 }
 
+
+
 //** group 6:: alpha*A*x+beta*y OR alpha*A^T*x+beta*y
 /* test some different sizes first */
 @Test
@@ -460,6 +469,13 @@ public void testDGEMV_ans_eq_alpha_times_oddA_times_oddx_plus_beta_times_oddy() 
 
 public void testDGEMV_ans_eq_alpha_times_singleA_times_singlex_plus_beta_times_singley() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,singleaMatrix,singlex,beta,singley),alpha_times_singleA_times_singlex_plus_beta_times_singley));
+}
+
+@Test
+public void testDGEMV_ans_eq_odd_AT_times_odd_x_plus_beta_times_odd_y_transposed() {
+  double[] tmp={1195,1270,1345,1420};
+  System.out.println(new DoubleMatrix1D(BLAS2.dgemvTransposed(alpha,oddaMatrix,x,beta,oddy4)).toString());
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,oddaMatrix,x,beta,oddy4),tmp));
 }
 
 /* normal tests */
@@ -638,6 +654,8 @@ public void testDGEMV_D1D_y_eq_alpha_times_A_times_D1D_x_plus_beta_times_D1D_y()
  * DGEMV on CSR matrices
  */
 //stateless manipulators
+
+/* GROUP1:: A*x OR A^T*x */
 @Test
 public void testCSRDGEMV_ans_eq_A_times_x_single() {
   double [] tmp = {5};
@@ -660,11 +678,98 @@ public void testCSRDGEMV_ans_eq_A_times_x_large() {
 }
 
 @Test
-public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_small() {
-  double [] tmp = {35,105,196,147};
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csraMatrix,oddx),tmp));
+public void testCSRDGEMV_ans_eq_A_times_D1D_x_large() {
+  double [] tmp = {5,15,28,21,156,173,70};
+  assertTrue(Arrays.equals(BLAS2.dgemv(csrLargeaMatrix,new DoubleMatrix1D(largeX)),tmp));
 }
 
+@Test
+public void testCSRDGEMV_ans_eq_AT_times_x_large() {
+  double [] tmp = {7,83,54,40,170,45,128};
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(csrLargeaMatrix,largeX),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_AT_times_D1D_x_large() {
+  double [] tmp = {7,83,54,40,170,45,128};
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(csrLargeaMatrix,new DoubleMatrix1D(largeX)),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_A_times_x_interfaced_normal() {
+  double [] tmp = {5,15,28,21,156,173,70};
+  assertTrue(Arrays.equals(BLAS2.dgemv(csrLargeaMatrix,largeX,BLAS2.orientation.normal),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_A_times_D1D_x_interfaced_normal() {
+  double [] tmp = {5,15,28,21,156,173,70};
+  assertTrue(Arrays.equals(BLAS2.dgemv(csrLargeaMatrix,new DoubleMatrix1D(largeX),BLAS2.orientation.normal),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_A_times_x_interfaced_transposed() {
+  double [] tmp = {7,83,54,40,170,45,128};
+  assertTrue(Arrays.equals(BLAS2.dgemv(csrLargeaMatrix,largeX,BLAS2.orientation.transposed),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_A_times_D1D_x_interfaced_transposed() {
+  double [] tmp = {7,83,54,40,170,45,128};
+  assertTrue(Arrays.equals(BLAS2.dgemv(csrLargeaMatrix,new DoubleMatrix1D(largeX),BLAS2.orientation.transposed),tmp));
+}
+
+/* GROUP2:: alpha*A*x OR alpha*A^T*x */
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_x() {
+  double [] tmp = {35,105,196,147,1092,1211,490};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csrLargeaMatrix,largeX),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_D1D_x() {
+  double [] tmp = {35,105,196,147,1092,1211,490};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csrLargeaMatrix,new DoubleMatrix1D(largeX)),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_AT_times_x() {
+  double [] tmp = {49,581,378,280,1190,315,896};
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,csrLargeaMatrix,largeX),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_AT_times_D1D_x() {
+  double [] tmp = {49,581,378,280,1190,315,896};
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,csrLargeaMatrix,new DoubleMatrix1D(largeX)),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_interfaced_normal() {
+  double [] tmp = {35,105,196,147,1092,1211,490};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csrLargeaMatrix,largeX,BLAS2.orientation.normal),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_D1D_x_interfaced_normal() {
+  double [] tmp = {35,105,196,147,1092,1211,490};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csrLargeaMatrix,new DoubleMatrix1D(largeX),BLAS2.orientation.normal),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_interfaced_transposed() {
+  double [] tmp = {49,581,378,280,1190,315,896};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csrLargeaMatrix,largeX,BLAS2.orientation.transposed),tmp));
+}
+
+@Test
+public void testCSRDGEMV_ans_eq_alpha_times_A_times_D1D_x_interfaced_transposed() {
+  double [] tmp = {49,581,378,280,1190,315,896};
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csrLargeaMatrix,new DoubleMatrix1D(largeX),BLAS2.orientation.transposed),tmp));
+}
+
+/* GROUP3:: A*x + y or A^T*x + y */
 @Test
 public void testCSRDGEMV_ans_eq_A_times_x_plus_y() {
   double[] tmp = {15,35,58,61};
@@ -672,6 +777,7 @@ public void testCSRDGEMV_ans_eq_A_times_x_plus_y() {
   assertTrue(Arrays.equals(BLAS2.dgemv(csraMatrix,oddx,ytmp),tmp));
 }
 
+/* GROUP4:: alpha*A*x + y or alpha*A^T*x + y */
 @Test
 public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_plus_y() {
   double[] tmp = {45,125,226,187};
@@ -679,6 +785,10 @@ public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_plus_y() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,csraMatrix,oddx,ytmp),tmp));
 }
 
+/* GROUP5:: A*x + beta*y or A^T*x + beta*y */
+
+
+/* GROUP6:: alpha*A*x + beta*y or alpha*A^T*x + beta*y */
 @Test
 public void testCSRDGEMV_ans_eq_alpha_times_A_times_x_plus_beta_times_y() {
   double[] tmp = {5,45,106,27};
