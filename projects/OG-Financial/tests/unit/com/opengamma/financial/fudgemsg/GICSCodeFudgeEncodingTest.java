@@ -16,19 +16,19 @@ import com.opengamma.financial.security.equity.GICSCode;
 /**
  * Test GICSCode Fudge support.
  */
-public class GICSCodeTest extends FinancialTestBase {
+public class GICSCodeFudgeEncodingTest extends FinancialTestBase {
 
-  private static final GICSCode s_ref = GICSCode.getInstance(10203040);
+  private static final GICSCode GICS = GICSCode.of("10203040");
 
   @Test
   public void testCycle() {
-    assertEquals(s_ref, cycleObject(GICSCode.class, s_ref));
+    assertEquals(GICS, cycleObject(GICSCode.class, GICS));
   }
 
   @Test
   public void testFromInteger () {
-    assertEquals(s_ref, getFudgeContext().getFieldValue(GICSCode.class,
-        UnmodifiableFudgeField.of(FudgeWireType.INT, s_ref.getCode())));
+    assertEquals(GICS, getFudgeContext().getFieldValue(GICSCode.class,
+        UnmodifiableFudgeField.of(FudgeWireType.INT, GICS.getCodeInt())));
   }
 
 }
