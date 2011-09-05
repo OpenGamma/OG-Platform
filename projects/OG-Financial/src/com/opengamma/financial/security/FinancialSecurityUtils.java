@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.opengamma.core.exchange.ExchangeUtils;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -31,7 +33,9 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.util.money.Currency;
 
 
@@ -84,6 +88,204 @@ public class FinancialSecurityUtils {
     return ValueProperties.none();
   }
 
+  /**
+   * @param security the security to be examined.
+   * @return an ExternalId for a Region, where it is possible to determine, null otherwise.
+   */
+  public static ExternalId getRegion(final Security security) {
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final ExternalId regionId = finSec.accept(new FinancialSecurityVisitor<ExternalId>() {
+        @Override
+        public ExternalId visitBondSecurity(final BondSecurity security) {
+          return ExternalId.of(RegionUtils.ISO_COUNTRY_ALPHA2, security.getIssuerDomicile());
+        }
+
+        @Override
+        public ExternalId visitCashSecurity(final CashSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitEquitySecurity(final EquitySecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitFRASecurity(final FRASecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitFutureSecurity(final FutureSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitSwapSecurity(final SwapSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitEquityOptionSecurity(final EquityOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
+          throw null;
+        }
+
+        @Override
+        public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          return null;
+        }
+        
+        @Override
+        public ExternalId visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitFXSecurity(final FXSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return security.getRegion();
+        }
+
+      });
+      return regionId;
+    }
+    return null;
+  }
+
+  /**
+   * @param security the security to be examined.
+   * @return an ExternalId for an Exchange, where it is possible to determine, null otherwise.
+   */
+  public static ExternalId getExchange(final Security security) {
+    if (security instanceof FinancialSecurity) {
+      final FinancialSecurity finSec = (FinancialSecurity) security;
+      final ExternalId regionId = finSec.accept(new FinancialSecurityVisitor<ExternalId>() {
+        @Override
+        public ExternalId visitBondSecurity(final BondSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitCashSecurity(final CashSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitEquitySecurity(final EquitySecurity security) {
+          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchangeCode());
+        }
+
+        @Override
+        public ExternalId visitFRASecurity(final FRASecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitFutureSecurity(final FutureSecurity security) {
+          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getTradingExchange());
+        }
+
+        @Override
+        public ExternalId visitSwapSecurity(final SwapSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
+        }
+
+        @Override
+        public ExternalId visitEquityOptionSecurity(final EquityOptionSecurity security) {
+          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
+        }
+
+        @Override
+        public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
+          throw null;
+        }
+
+        @Override
+        public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          return null;
+        }
+        
+        @Override
+        public ExternalId visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitFXSecurity(final FXSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return security.getRegion();
+        }
+
+      });
+      return regionId;
+    }
+    return null;
+  }
+  
   /**
    * @param security the security to be examined.
    * @return a Currency, where it is possible to determine a single Currency association, null otherwise.
