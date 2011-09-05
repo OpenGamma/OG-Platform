@@ -3,17 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.timeseries.zoneddatetime;
+package com.opengamma.util.timeseries.fudge;
 
 import java.util.TimeZone;
 
-import com.opengamma.util.timeseries.fudge.DateTimeConverterFudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
+
 import com.opengamma.util.timeseries.localdate.LocalDateEpochDaysConverter;
 
 /**
- * Fudge message builder (serializer/deserializer) for LocalDateEpochDaysConverter.
+ * Fudge message builder (serializer/deserializer) for LocalDateEpochMillisConverter.
  */
-public class LocalDateEpochDaysConverterBuilder extends DateTimeConverterFudgeBuilder<LocalDateEpochDaysConverter> {
+@FudgeBuilderFor(LocalDateEpochDaysConverter.class)
+public class LocalDateEpochMillisConverterFudgeBuilder extends DateTimeConverterFudgeBuilder<LocalDateEpochDaysConverter> {
   @Override
   public LocalDateEpochDaysConverter makeConverter(TimeZone timeZone) {
     return new LocalDateEpochDaysConverter(timeZone);

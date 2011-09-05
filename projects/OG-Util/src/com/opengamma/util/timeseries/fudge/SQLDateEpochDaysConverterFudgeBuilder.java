@@ -3,19 +3,23 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.timeseries.zoneddatetime;
+package com.opengamma.util.timeseries.fudge;
 
 import java.util.TimeZone;
 
-import com.opengamma.util.timeseries.fudge.DateTimeConverterFudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFor;
+
 import com.opengamma.util.timeseries.sqldate.SQLDateEpochDaysConverter;
 
 /**
- * Fudge message builder (serializer/deserializer) for SQLDateEpochDaysConverter
+ * Fudge message builder (serializer/deserializer) for SQLDateEpochDaysConverter.
  */
-public class SQLDateEpochDaysConverterBuilder extends DateTimeConverterFudgeBuilder<SQLDateEpochDaysConverter> {
+@FudgeBuilderFor(SQLDateEpochDaysConverter.class)
+public class SQLDateEpochDaysConverterFudgeBuilder extends DateTimeConverterFudgeBuilder<SQLDateEpochDaysConverter> {
+
   @Override
   public SQLDateEpochDaysConverter makeConverter(TimeZone timeZone) {
     return new SQLDateEpochDaysConverter(timeZone);
   }
+
 }
