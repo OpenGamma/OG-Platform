@@ -85,7 +85,7 @@ public class BondSecurityBuilder extends AbstractFudgeBuilder {
     addToMessage(msg, COUPON_TYPE_KEY, object.getCouponType());
     addToMessage(msg, COUPON_RATE_KEY, object.getCouponRate());
     addToMessage(msg, COUPON_FREQUENCY_KEY, object.getCouponFrequency());
-    addToMessage(msg, DAY_COUNT_CONVENTION_KEY, object.getDayCountConvention());
+    addToMessage(msg, DAY_COUNT_CONVENTION_KEY, object.getDayCount());
     addToMessage(msg, BUSINESS_DAY_CONVENTION_KEY, object.getBusinessDayConvention());
     addToMessage(msg, ANNOUNCEMENT_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getAnnouncementDate()));
     addToMessage(msg, INTEREST_ACCRUAL_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getInterestAccrualDate()));
@@ -112,7 +112,7 @@ public class BondSecurityBuilder extends AbstractFudgeBuilder {
     object.setCouponType(msg.getString(COUPON_TYPE_KEY));
     object.setCouponRate(msg.getDouble(COUPON_RATE_KEY));
     object.setCouponFrequency(msg.getValue(Frequency.class, COUPON_FREQUENCY_KEY));
-    object.setDayCountConvention(msg.getValue(DayCount.class, DAY_COUNT_CONVENTION_KEY));
+    object.setDayCount(msg.getValue(DayCount.class, DAY_COUNT_CONVENTION_KEY));
     object.setBusinessDayConvention(msg.getValue(BusinessDayConvention.class, BUSINESS_DAY_CONVENTION_KEY));
     object.setAnnouncementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(ANNOUNCEMENT_DATE_KEY)));
     object.setInterestAccrualDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INTEREST_ACCRUAL_DATE_KEY)));

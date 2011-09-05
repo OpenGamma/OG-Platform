@@ -73,7 +73,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final ForexConverter<?> definition = _visitor.visitFXForwardSecurity(security);
-    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
+    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
     final Currency payCurrency = fx.getPayCurrency();
     final Currency receiveCurrency = fx.getReceiveCurrency();
     final String payCurveName = _payCurveName + "_" + payCurrency.getCode();
@@ -113,7 +113,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingIdentifier()));
+    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingId()));
     final ValueRequirement payCurve = YieldCurveFunction.getCurveRequirement(fx.getPayCurrency(), _payCurveName, _payCurveName, _payCurveName);
     final ValueRequirement receiveCurve = YieldCurveFunction.getCurveRequirement(fx.getReceiveCurrency(), _receiveCurveName, _receiveCurveName, _receiveCurveName);
     final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fx, true);

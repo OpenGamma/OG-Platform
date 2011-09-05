@@ -75,7 +75,7 @@ public class AvailablePortfolioOutputsTest {
     link.setTarget(new Security() {
 
       @Override
-      public ExternalIdBundle getIdentifiers() {
+      public ExternalIdBundle getExternalIdBundle() {
         return ExternalIdBundle.EMPTY;
       }
 

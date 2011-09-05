@@ -49,12 +49,12 @@ public class FRASecurityBuilder extends AbstractFudgeBuilder implements FudgeBui
   public static void toFudgeMsg(FudgeSerializer serializer, FRASecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegion()));
+    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
     addToMessage(msg, START_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getStartDate()));
     addToMessage(msg, END_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getEndDate()));
     addToMessage(msg, RATE_KEY, object.getRate());
     addToMessage(msg, AMOUNT_KEY, object.getAmount());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
@@ -67,12 +67,12 @@ public class FRASecurityBuilder extends AbstractFudgeBuilder implements FudgeBui
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FRASecurity object) {
     FinancialSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setRegion(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setRegionId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
     object.setStartDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(START_DATE_KEY)));
     object.setEndDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(END_DATE_KEY)));
     object.setRate(msg.getDouble(RATE_KEY));
     object.setAmount(msg.getDouble(AMOUNT_KEY));
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }

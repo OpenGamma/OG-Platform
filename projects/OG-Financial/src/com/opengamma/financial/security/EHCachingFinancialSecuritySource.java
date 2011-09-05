@@ -268,7 +268,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
       try {
         //Caching is based on the idea that this query is significantly faster
         Security candidate = getSecurity(hint, versionCorrection);
-        if (candidate.getIdentifiers().containsAny(bundle)) {
+        if (candidate.getExternalIdBundle().containsAny(bundle)) {
           //This is a good enough result with the current resolution logic,
           // h'ver as soon as we have rules about which of multiple matches to use this caching must be rewritten
           return candidate;

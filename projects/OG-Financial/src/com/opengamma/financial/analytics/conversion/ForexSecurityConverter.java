@@ -89,7 +89,7 @@ public class ForexSecurityConverter implements FXOptionSecurityVisitor<ForexConv
   @Override
   public ForexConverter<?> visitFXForwardSecurity(final FXForwardSecurity fxForwardSecurity) {
     Validate.notNull(fxForwardSecurity, "fx forward security");
-    final ExternalId underlyingIdentifier = fxForwardSecurity.getUnderlyingIdentifier();
+    final ExternalId underlyingIdentifier = fxForwardSecurity.getUnderlyingId();
     final FXSecurity fxSecurity = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier));
     final Currency payCurrency = fxSecurity.getPayCurrency();
     final Currency receiveCurrency = fxSecurity.getReceiveCurrency();

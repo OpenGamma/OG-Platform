@@ -84,7 +84,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
-      if (sec.getIdentifiers().containsAny(bundle)) {
+      if (sec.getExternalIdBundle().containsAny(bundle)) {
         result.add(sec);
       }
     }
@@ -102,7 +102,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(bundle, "bundle");
     for (ExternalId secId : bundle.getExternalIds()) {
       for (Security sec : _securities.values()) {
-        if (sec.getIdentifiers().contains(secId)) {
+        if (sec.getExternalIdBundle().contains(secId)) {
           return sec;
         }
       }
