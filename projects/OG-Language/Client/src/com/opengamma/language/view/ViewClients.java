@@ -8,6 +8,8 @@ package com.opengamma.language.view;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.language.context.AbstractContext;
 
@@ -35,10 +37,13 @@ import com.opengamma.language.context.AbstractContext;
 
   protected abstract void releaseViewClient(UserViewClient client);
 
+  protected abstract Logger getLogger();
+
   /**
    * Releases any remaining view clients. Do not call {@link #lockViewClient} or {@link #unlockViewClient} again. 
    */
   protected void destroyAll() {
+    getLogger().info("Destroy all called");
     for (UserViewClient client : getClients().values()) {
       releaseViewClient(client);
     }

@@ -10,10 +10,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
@@ -42,6 +45,10 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
    * The suppler of unique identifiers.
    */
   private final UniqueIdSupplier _uidSupplier;
+  /**
+   * Change manager.
+   */
+  private final BasicChangeManager _changeManager = new BasicChangeManager();
 
   /**
    * Creates the security master.
@@ -136,7 +143,6 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
   public void removeSecurity(Security security) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(security.getUniqueId(), "security.uniqueId");
-    
     Security prev = _securities.remove(security.getUniqueId().getObjectId());
     if (prev == null) {
       throw new IllegalArgumentException("Security not found");
@@ -144,13 +150,14 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     if (prev != security) {
       throw new IllegalArgumentException("Security passed was not the one in this source");
     }
+    _changeManager.entityChanged(ChangeType.REMOVED, security.getUniqueId(), null, Instant.now());
   }
 
   
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return DummyChangeManager.INSTANCE;
+    return _changeManager;
   }
   
 }
