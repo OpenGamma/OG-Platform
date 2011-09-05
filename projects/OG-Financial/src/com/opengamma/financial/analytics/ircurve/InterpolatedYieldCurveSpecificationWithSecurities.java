@@ -28,6 +28,10 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class InterpolatedYieldCurveSpecificationWithSecurities implements Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   private final LocalDate _curveDate;
   private final Currency _currency;
   private final String _name;

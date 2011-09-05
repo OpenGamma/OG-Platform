@@ -24,6 +24,8 @@ public class MetaProcedure extends Definition {
    */
   private static final long serialVersionUID = 0L;
 
+  private final ProcedureInvoker _invoker;
+
   private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
     throw new NotSerializableException();
   }
@@ -32,16 +34,29 @@ public class MetaProcedure extends Definition {
     throw new NotSerializableException();
   }
 
-  public MetaProcedure(final String name, final List<? extends Parameter> parameters) {
+  public MetaProcedure(final String name, final List<? extends Parameter> parameters, final ProcedureInvoker invoker) {
     super(name);
     setParameter(parameters);
+    _invoker = invoker;
   }
 
-  public MetaProcedure(final String name, final List<? extends Parameter> parameters, final int returnCount) {
-    this(name, parameters);
+  public MetaProcedure(final String name, final List<? extends Parameter> parameters, final ProcedureInvoker invoker, final int returnCount) {
+    this(name, parameters, invoker);
     setReturnCount(returnCount);
   }
 
-  // TODO: invocation details
+  protected MetaProcedure(final MetaProcedure copyFrom) {
+    super(copyFrom);
+    _invoker = copyFrom.getInvoker();
+  }
+
+  public ProcedureInvoker getInvoker() {
+    return _invoker;
+  }
+
+  @Override
+  public MetaProcedure clone() {
+    return new MetaProcedure(this);
+  }
 
 }

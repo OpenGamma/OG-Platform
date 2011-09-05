@@ -1,5 +1,6 @@
-/**
- * view for timeseries section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.timeseries',
@@ -174,7 +175,8 @@ $.register_module({
                                     </section>\
                                 ',
                                 $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content
+                                layout = og.views.common.layout, header, content,
+                                html, id, json_id = json.identifiers,
                                 stop_loading = function () {
                                     ui.message({location: '.ui-layout-inner-center', destroy: true});
                                     layout.inner.resizeAll();
@@ -193,7 +195,10 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            f.render_identifiers('.OG-timeseries .og-js-identifiers', json.identifiers);
+                            html = json_id.reduce(function (pre, cur) {
+                                return pre + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +'</td></tr>'
+                            }, '');
+                            $('.ui-layout-inner-center .og-js-identifiers').html(html);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', json.timeseries.data);
                             f.render_table('.OG-timeseries .og-js-table', {
                                 'fieldLabels': json.timeseries.fieldLabels, 'data': json.timeseries.data
@@ -201,6 +206,7 @@ $.register_module({
                             $('.og-js-timeSeriesCsv').click(function () {
                                 window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });
+                            layout.inner.resizeAll();
                         }});
                     },
                     id: args.id,

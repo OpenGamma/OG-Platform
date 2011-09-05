@@ -34,7 +34,7 @@ public class AgricultureFutureSecurityBuilder extends AbstractFudgeBuilder imple
 
   @Override
   public AgricultureFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    AgricultureFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(AgricultureFutureSecurity.class);
+    AgricultureFutureSecurity object = new AgricultureFutureSecurity();
     AgricultureFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

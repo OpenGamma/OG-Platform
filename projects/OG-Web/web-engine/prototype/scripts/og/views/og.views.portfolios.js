@@ -15,6 +15,7 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
+        'og.views.common.versions',
         'og.views.common.state',
         'og.views.common.default_details'
     ],
@@ -70,9 +71,8 @@ $.register_module({
                                             args_obj.node = json.template_data.parent_node_id;
                                             args_obj.id = json.template_data.object_id;
                                         }
-                                        routes.go(routes.hash(module.rules.load_delete,
-                                                $.extend(true, {}, last.args, {deleted: true}, args_obj)
-                                        ));
+                                        portfolios.deleted = true;
+                                        routes.handler();
                                     }
                                 };
                                 if (routes.last().args.node) obj.node = routes.last().args.node;
@@ -343,6 +343,7 @@ $.register_module({
                     id: args.id,
                     node: args.node,
                     loading: function () {
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}

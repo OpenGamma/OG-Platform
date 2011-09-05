@@ -19,8 +19,16 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public class ArrayTypeConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final ArrayTypeConverter INSTANCE = new ArrayTypeConverter();
+
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
   private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS, OBJECT);
+
+  protected ArrayTypeConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {

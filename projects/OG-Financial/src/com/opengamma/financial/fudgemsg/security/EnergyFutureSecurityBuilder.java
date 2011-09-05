@@ -34,19 +34,19 @@ public class EnergyFutureSecurityBuilder extends AbstractFudgeBuilder implements
 
   public static void toFudgeMsg(FudgeSerializer serializer, EnergyFutureSecurity object, final MutableFudgeMsg msg) {
     CommodityFutureSecurityBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
   public EnergyFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    EnergyFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(EnergyFutureSecurity.class);
+    EnergyFutureSecurity object = new EnergyFutureSecurity();
     EnergyFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EnergyFutureSecurity object) {
     CommodityFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }

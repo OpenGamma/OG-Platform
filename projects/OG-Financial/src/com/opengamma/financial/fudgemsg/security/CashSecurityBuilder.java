@@ -45,7 +45,7 @@ public class CashSecurityBuilder extends AbstractFudgeBuilder implements FudgeBu
   public static void toFudgeMsg(FudgeSerializer serializer, CashSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegion()));
+    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
     addToMessage(msg, MATURITY_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getMaturity()));
     addToMessage(msg, RATE_KEY, object.getRate());
     addToMessage(msg, AMOUNT_KEY, object.getAmount());
@@ -53,7 +53,7 @@ public class CashSecurityBuilder extends AbstractFudgeBuilder implements FudgeBu
 
   @Override
   public CashSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    CashSecurity object = FinancialSecurityBuilder.backdoorCreateClass(CashSecurity.class);
+    CashSecurity object = new CashSecurity();
     CashSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
@@ -61,7 +61,7 @@ public class CashSecurityBuilder extends AbstractFudgeBuilder implements FudgeBu
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CashSecurity object) {
     FinancialSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setRegion(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setRegionId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
     object.setMaturity(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_KEY)));
     object.setRate(msg.getDouble(RATE_KEY));
     object.setAmount(msg.getDouble(AMOUNT_KEY));

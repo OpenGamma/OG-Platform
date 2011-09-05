@@ -39,7 +39,7 @@ public class ForwardSwapSecurityBuilder extends AbstractFudgeBuilder implements 
 
   @Override
   public ForwardSwapSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ForwardSwapSecurity object = FinancialSecurityBuilder.backdoorCreateClass(ForwardSwapSecurity.class);
+    ForwardSwapSecurity object = new ForwardSwapSecurity();
     ForwardSwapSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

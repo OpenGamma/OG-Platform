@@ -34,19 +34,19 @@ public class StockFutureSecurityBuilder extends AbstractFudgeBuilder implements 
 
   public static void toFudgeMsg(FudgeSerializer serializer, StockFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
   public StockFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    StockFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(StockFutureSecurity.class);
+    StockFutureSecurity object = new StockFutureSecurity();
     StockFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, StockFutureSecurity object) {
     FutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }

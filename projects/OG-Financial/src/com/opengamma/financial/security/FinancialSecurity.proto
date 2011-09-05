@@ -7,18 +7,10 @@
 namespace com.opengamma.financial.security {
 
   /**
-   * An implementation of {@code Security} that implements the visitor pattern.
+   * An abstract base financial security.
    */
   abstract message FinancialSecurity extends com.opengamma.master.security.ManageableSecurity {
-  
     // No additional fields
-  
-    binding Java {
-      body <<<JAVA
-        public abstract <T> T accept (FinancialSecurityVisitor<T> visitor);
-JAVA;
-    }
-  
   }
-  
+
 }

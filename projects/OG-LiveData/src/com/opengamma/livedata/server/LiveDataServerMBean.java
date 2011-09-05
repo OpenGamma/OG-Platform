@@ -15,6 +15,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +24,6 @@ import com.opengamma.util.ArgumentChecker;
  * JMX management of a LiveData server.
  */
 @ManagedResource(
-    objectName = "com.opengamma:name=LiveDataServer",
     description = "LiveData server attributes and operations that can be managed via JMX"
     )
 public class LiveDataServerMBean {
@@ -34,6 +34,37 @@ public class LiveDataServerMBean {
   public LiveDataServerMBean(AbstractLiveDataServer server) {
     ArgumentChecker.notNull(server, "Live Data Server");
     _server = server;
+  }
+  
+  @ManagedAttribute(description = "The unique id domain of the underlying server.")
+  public String getUniqueIdDomain() {
+    try {
+      ExternalScheme uniqueIdDomain = _server.getUniqueIdDomain();
+      return uniqueIdDomain == null ? "<null>" : uniqueIdDomain.toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getUniqueIdDomain() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedAttribute(description = "The connection status of the underlying server.")
+  public String getConnectionStatus() {
+    try {
+      return _server.getConnectionStatus().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getConnectionStatus() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedAttribute(description = "The type of the underlying server.")
+  public String getServerType() {
+    try {
+      return _server.getClass().getName();
+    } catch (RuntimeException e) {
+      s_logger.error("getServerType() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
   }
   
   @ManagedAttribute(description = "How many different tickers the server subscribes to.")

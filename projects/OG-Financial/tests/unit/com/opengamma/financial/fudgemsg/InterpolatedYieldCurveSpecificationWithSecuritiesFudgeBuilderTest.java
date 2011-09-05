@@ -4,7 +4,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
@@ -28,27 +27,37 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
 
+/**
+ * Test.
+ */
 public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilderTest extends FinancialTestBase {
 
   @Test
   public void testCycle() {
-    final ExternalIdBundle bundle = ExternalIdBundle.of(Collections.singleton(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "AAPL US Equity")));
-    final EquitySecurity equity = new EquitySecurity(UniqueId.of("TEST", "TEST"), "Apple Inc", "EQUITY", bundle, "Apple Inc", "NASDAQ", "NSDQ", "Apple Inc", Currency.USD,
-        GICSCode.getInstance(10203040));
-    final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS, ZonedDateTime.now(), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER,
-        "AAPL US Equity"), equity);
+    final ExternalId dummyId = SecurityUtils.bloombergTickerSecurityId("AAPL US Equity");
+    final ExternalIdBundle bundle = ExternalIdBundle.of(dummyId);
+    final EquitySecurity equity = new EquitySecurity("NASDAQ", "NSDQ", "Apple Inc", Currency.USD);
+    equity.setUniqueId(UniqueId.of("TEST", "TEST"));
+    equity.setName("Apple Inc");
+    equity.setShortName("Apple Inc");
+    equity.setExternalIdBundle(bundle);
+    equity.setGicsCode(GICSCode.getInstance(10203040));
+    
+    final FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.DAY, Tenor.TWO_DAYS,
+        ZonedDateTime.now(), dummyId, equity);
 
-    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR), "XCSE", "XCSE", Currency.USD, 0, ExternalId.of(
-        SecurityUtils.BLOOMBERG_TICKER, "US0003M Index"));
-    final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.DAY, Tenor.TWO_DAYS, 2, ZonedDateTime.now(), ExternalId.of(
-        SecurityUtils.BLOOMBERG_TICKER, "US0003M Index"), future);
+    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now(), ExpiryAccuracy.DAY_MONTH_YEAR), "XCSE", "XCSE",
+        Currency.USD, 0, SecurityUtils.bloombergTickerSecurityId("US0003M Index"));
+    final FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.DAY, Tenor.TWO_DAYS, 2,
+        ZonedDateTime.now(), SecurityUtils.bloombergTickerSecurityId("US0003M Index"), future);
 
     final Collection<FixedIncomeStripWithSecurity> strips = new ArrayList<FixedIncomeStripWithSecurity>();
     strips.add(strip);
     strips.add(futureStrip);
 
-    final InterpolatedYieldCurveSpecificationWithSecurities spec = new InterpolatedYieldCurveSpecificationWithSecurities(LocalDate.now(), "FUNDING", Currency.USD,
-        Interpolator1DFactory.LINEAR_INSTANCE, strips);
+    final InterpolatedYieldCurveSpecificationWithSecurities spec = new InterpolatedYieldCurveSpecificationWithSecurities(
+        LocalDate.now(), "FUNDING", Currency.USD, Interpolator1DFactory.LINEAR_INSTANCE, strips);
     assertEquals(spec, cycleObject(InterpolatedYieldCurveSpecificationWithSecurities.class, spec));
   }
+
 }

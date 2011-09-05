@@ -34,19 +34,19 @@ public class InterestRateFutureSecurityBuilder extends AbstractFudgeBuilder impl
 
   public static void toFudgeMsg(FudgeSerializer serializer, InterestRateFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
   public InterestRateFutureSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    InterestRateFutureSecurity object = FinancialSecurityBuilder.backdoorCreateClass(InterestRateFutureSecurity.class);
+    InterestRateFutureSecurity object = new InterestRateFutureSecurity();
     InterestRateFutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, InterestRateFutureSecurity object) {
     FutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }

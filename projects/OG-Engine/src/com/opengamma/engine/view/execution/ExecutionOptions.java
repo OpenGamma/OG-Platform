@@ -132,13 +132,19 @@ public class ExecutionOptions implements ViewExecutionOptions {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "ExecutionOptions [executionSequence=" + _executionSequence + ", flags=" + _flags + ", maxSuccessiveDeltaCycles=" + _maxSuccessiveDeltaCycles + ", defaultExecutionOptions=" +
+        _defaultExecutionOptions + ", versionCorrection=" + _versionCorrection + "]";
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates a custom execution sequence.
    * 
-   * @param cycleExecutionSequence  the execution sequence, not {@code null}
-   * @param flags  execution flags, not {@code null}
-   * @return the execution sequence, not {@code null}
+   * @param cycleExecutionSequence  the execution sequence, not null
+   * @param flags  execution flags, not null
+   * @return the execution sequence, not null
    */
   public static ViewExecutionOptions of(ViewCycleExecutionSequence cycleExecutionSequence, EnumSet<ViewExecutionFlags> flags) {
     ArgumentChecker.notNull(cycleExecutionSequence, "cycleExecutionSequence");
@@ -149,10 +155,10 @@ public class ExecutionOptions implements ViewExecutionOptions {
   /**
    * Creates a custom execution sequence.
    * 
-   * @param cycleExecutionSequence  the execution sequence, not {@code null}
-   * @param defaultCycleOptions  the default view cycle execution options, may be {@code null}
-   * @param flags  the execution flags, not {@code null}
-   * @return the execution sequence, not {@code null}
+   * @param cycleExecutionSequence  the execution sequence, not null
+   * @param defaultCycleOptions  the default view cycle execution options, may be null
+   * @param flags  the execution flags, not null
+   * @return the execution sequence, not null
    */
   public static ViewExecutionOptions of(ViewCycleExecutionSequence cycleExecutionSequence, ViewCycleExecutionOptions defaultCycleOptions, EnumSet<ViewExecutionFlags> flags) {
     ArgumentChecker.notNull(cycleExecutionSequence, "cycleExecutionSequence");
@@ -169,8 +175,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
    *  ExecutionOptions.infinite(MarketData.live());
    * </pre>
    * 
-   * @param marketDataSpec  the market data specification, not {@code null}
-   * @return the execution sequence, not {@code null}
+   * @param marketDataSpec  the market data specification, not null
+   * @return the execution sequence, not null
    */
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec) {
     return infinite(marketDataSpec, ExecutionFlags.triggersEnabled().get());
@@ -180,9 +186,9 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue
    * for as long as there is demand.
    * 
-   * @param marketDataSpec  the market data specification, not {@code null}
-   * @param flags  the execution flags, not {@code null}
-   * @return the execution sequence, not {@code null}
+   * @param marketDataSpec  the market data specification, not null
+   * @param flags  the execution flags, not null
+   * @return the execution sequence, not null
    */
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
@@ -194,9 +200,9 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * Creates an execution sequence designed for batch-mode operation. The typical next-cycle triggers are disabled; the
    * sequence is instead configured to run as fast as possible.
    * 
-   * @param cycleExecutionSequence  the execution sequence, not {@code null}
-   * @param defaultCycleOptions  the default view cycle execution options, may be {@code null}
-   * @return the execution sequence, not {@code null}
+   * @param cycleExecutionSequence  the execution sequence, not null
+   * @param defaultCycleOptions  the default view cycle execution options, may be null
+   * @return the execution sequence, not null
    */
   public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence, ViewCycleExecutionOptions defaultCycleOptions) {
     return of(cycleExecutionSequence, defaultCycleOptions, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
@@ -205,9 +211,9 @@ public class ExecutionOptions implements ViewExecutionOptions {
   /**
    * Creates an execution sequence to run a single cycle.
    * 
-   * @param valuationTimeProvider  the valuation time provider, or {@code null} to use the market data time
-   * @param marketDataSpec  the market data specificaiton, not {@code null}
-   * @return an execution sequence representing the single cycle, not {@code null}
+   * @param valuationTimeProvider  the valuation time provider, or null to use the market data time
+   * @param marketDataSpec  the market data specificaiton, not null
+   * @return an execution sequence representing the single cycle, not null
    */
   public static ViewExecutionOptions singleCycle(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec) {
     ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");

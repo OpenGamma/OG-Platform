@@ -1,19 +1,14 @@
 {
     "$globals" : {
-        "title" : "Examples"
+        "title" : "Examples",
+        "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
     },
         "*.py|pyg" : {},
         "*.java|pyg" : {},
         "*.py|dexy" : {},
-        "*.java|fn|java" : {
-            "env" : { "CLASSPATH" : "../../../build/classes:../../../tests/classes:../../../lib/classpath.jar:../../../../OG-Util/build/classes:../../../../OG-Util/lib/classpath.jar" }
-        },
-        "*.py|idio|jythoni|pyg|l" : {
-            "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../tests/classes:../../../OG-Util/build/classes:/java/fastutil-6.2.2.jar" }
-        },
-        "*.py|fn|idio|jythoni|pyg" : {
-            "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../tests/classes:../../../OG-Util/build/classes:/java/fastutil-6.2.2.jar" }
-        },
+        "*.java|fn|java" : {},
+        "*.py|idio|jythoni|pyg|l" : {},
+        "*.py|fn|idio|jythoni|pyg" : {},
         "*.R|fn|idio|rint|pyg" : {
             "ifinput" : "%.py|fn|idio|jythoni|pyg"
         }

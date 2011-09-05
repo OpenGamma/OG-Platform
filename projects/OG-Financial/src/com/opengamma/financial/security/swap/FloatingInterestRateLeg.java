@@ -1,229 +1,407 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.swap;
-public class FloatingInterestRateLeg extends com.opengamma.financial.security.swap.InterestRateLeg implements java.io.Serializable {
-  public <T> T accept (SwapLegVisitor<T> visitor) { return visitor.visitFloatingInterestRateLeg (this); }
-  private static final long serialVersionUID = -916431960834911563l;
-  private final com.opengamma.id.ExternalId _floatingReferenceRateIdentifier;
-  public static final String FLOATING_REFERENCE_RATE_IDENTIFIER_KEY = "floatingReferenceRateIdentifier";
-  private final Double _initialFloatingRate;
-  public static final String INITIAL_FLOATING_RATE_KEY = "initialFloatingRate";
-  private final double _spread;
-  public static final String SPREAD_KEY = "spread";
-  private final boolean _isIBOR;
-  public static final String IS_IBOR_KEY = "isIBOR";
-  public static class Builder {
-    private com.opengamma.financial.convention.daycount.DayCount _dayCount;
-    private com.opengamma.financial.convention.frequency.Frequency _frequency;
-    private com.opengamma.id.ExternalId _regionIdentifier;
-    private com.opengamma.financial.convention.businessday.BusinessDayConvention _businessDayConvention;
-    private com.opengamma.financial.security.swap.Notional _notional;
-    private org.fudgemsg.mapping.FudgeDeserializer _deserializer;
-    protected org.fudgemsg.mapping.FudgeDeserializer getDeserializer () {
-      return _deserializer;
-    }
-    private org.fudgemsg.FudgeMsg _fudgeRoot;
-    protected org.fudgemsg.FudgeMsg getFudgeRoot () {
-      return _fudgeRoot;
-    }
-    private com.opengamma.id.ExternalId _floatingReferenceRateIdentifier;
-    private Double _initialFloatingRate;
-    private double _spread;
-    private boolean _isIBOR;
-    public Builder (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.ExternalId floatingReferenceRateIdentifier, double spread, boolean isIBOR) {
-      _dayCount = dayCount;
-      _frequency = frequency;
-      _regionIdentifier = regionIdentifier;
-      _businessDayConvention = businessDayConvention;
-      _notional = notional;
-      floatingReferenceRateIdentifier (floatingReferenceRateIdentifier);
-      spread (spread);
-      isIBOR (isIBOR);
-    }
-    protected Builder (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-      _fudgeRoot = fudgeMsg;
-      _deserializer = deserializer;
-      org.fudgemsg.FudgeField fudgeField;
-      fudgeField = fudgeMsg.getByName (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY);
-      if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not present");
-      try {
-        _floatingReferenceRateIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not ExternalId message", e);
-      }
-      fudgeField = fudgeMsg.getByName (SPREAD_KEY);
-      if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not present");
-      try {
-        _spread = fudgeMsg.getFieldValue (Double.class, fudgeField);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'spread' is not double", e);
-      }
-      fudgeField = fudgeMsg.getByName (IS_IBOR_KEY);
-      if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'isIBOR' is not present");
-      try {
-        _isIBOR = fudgeMsg.getFieldValue (Boolean.class, fudgeField);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'isIBOR' is not boolean", e);
-      }
-      fudgeField = fudgeMsg.getByName (INITIAL_FLOATING_RATE_KEY);
-      if (fudgeField != null)  {
-        try {
-          initialFloatingRate (fudgeMsg.getFieldValue (Double.class, fudgeField));
-        }
-        catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'initialFloatingRate' is not double", e);
-        }
-      }
-    }
-    public Builder floatingReferenceRateIdentifier (com.opengamma.id.ExternalId floatingReferenceRateIdentifier) {
-      if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
-      else {
-        _floatingReferenceRateIdentifier = floatingReferenceRateIdentifier;
-      }
-      return this;
-    }
-    public Builder initialFloatingRate (Double initialFloatingRate) {
-      _initialFloatingRate = initialFloatingRate;
-      return this;
-    }
-    public Builder spread (double spread) {
-      _spread = spread;
-      return this;
-    }
-    public Builder isIBOR (boolean isIBOR) {
-      _isIBOR = isIBOR;
-      return this;
-    }
-    public FloatingInterestRateLeg build () {
-      return (getFudgeRoot () != null) ? new FloatingInterestRateLeg (getDeserializer (), getFudgeRoot (), this) : new FloatingInterestRateLeg (this);
-    }
+
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.id.ExternalId;
+
+/**
+ * The floating interest rate swap leg.
+ */
+@BeanDefinition
+public class FloatingInterestRateLeg extends InterestRateLeg {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The reference rate external identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _floatingReferenceRateId;
+  /**
+   * The initial floating rate.
+   */
+  @PropertyDefinition
+  private Double _initialFloatingRate;
+  /**
+   * The spread.
+   */
+  @PropertyDefinition
+  private double _spread;
+  /**
+   * The IBOR flag.
+   */
+  @PropertyDefinition
+  private boolean _ibor;
+
+  /**
+   * Creates an instance.
+   */
+  private FloatingInterestRateLeg() {
   }
-  protected FloatingInterestRateLeg (final Builder builder) {
-    super (builder._dayCount, builder._frequency, builder._regionIdentifier, builder._businessDayConvention, builder._notional);
-    if (builder._floatingReferenceRateIdentifier == null) _floatingReferenceRateIdentifier = null;
-    else {
-      _floatingReferenceRateIdentifier = builder._floatingReferenceRateIdentifier;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dayCount  the day count, not null
+   * @param frequency  the frequency, not null
+   * @param regionIdentifier  the region, not null
+   * @param businessDayConvention  the business day convention, not null
+   * @param notional  the notional, not null
+   * @param floatingReferenceRateId  the reference rate, not null
+   * @param spread  the spread
+   * @param ibor  whether this is IBOR
+   */
+  public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
+      Notional notional, ExternalId floatingReferenceRateId, double spread, boolean ibor) {
+    super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
+    setFloatingReferenceRateId(floatingReferenceRateId);
+    setSpread(spread);
+    setIbor(ibor);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dayCount  the day count, not null
+   * @param frequency  the frequency, not null
+   * @param regionIdentifier  the region, not null
+   * @param businessDayConvention  the business day convention, not null
+   * @param notional  the notional, not null
+   * @param floatingReferenceRateIdentifier  the reference rate, not null
+   * @param initialFloatingRate  the initial floating rate, may be null
+   * @param spread  the spread
+   * @param isIBOR  whether this is IBOR
+   */
+  public FloatingInterestRateLeg(DayCount dayCount, Frequency frequency, ExternalId regionIdentifier, BusinessDayConvention businessDayConvention,
+      Notional notional, ExternalId floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
+    super(dayCount, frequency, regionIdentifier, businessDayConvention, notional);
+    setFloatingReferenceRateId(floatingReferenceRateIdentifier);
+    setInitialFloatingRate(initialFloatingRate);
+    setSpread(spread);
+    setIbor(isIBOR);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(SwapLegVisitor<T> visitor) {
+    return visitor.visitFloatingInterestRateLeg(this);
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FloatingInterestRateLeg}.
+   * @return the meta-bean, not null
+   */
+  public static FloatingInterestRateLeg.Meta meta() {
+    return FloatingInterestRateLeg.Meta.INSTANCE;
+  }
+  static {
+    JodaBeanUtils.registerMetaBean(FloatingInterestRateLeg.Meta.INSTANCE);
+  }
+
+  @Override
+  public FloatingInterestRateLeg.Meta metaBean() {
+    return FloatingInterestRateLeg.Meta.INSTANCE;
+  }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1120221088:  // floatingReferenceRateId
+        return getFloatingReferenceRateId();
+      case -1216922774:  // initialFloatingRate
+        return getInitialFloatingRate();
+      case -895684237:  // spread
+        return getSpread();
+      case 3225788:  // ibor
+        return isIbor();
     }
-    _initialFloatingRate = builder._initialFloatingRate;
-    _spread = builder._spread;
-    _isIBOR = builder._isIBOR;
+    return super.propertyGet(propertyName, quiet);
   }
-  protected FloatingInterestRateLeg (final org.fudgemsg.mapping.FudgeDeserializer serializer, final org.fudgemsg.FudgeMsg fudgeMsg, final Builder builder) {
-    super (serializer, fudgeMsg);
-    if (builder._floatingReferenceRateIdentifier == null) _floatingReferenceRateIdentifier = null;
-    else {
-      _floatingReferenceRateIdentifier = builder._floatingReferenceRateIdentifier;
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1120221088:  // floatingReferenceRateId
+        setFloatingReferenceRateId((ExternalId) newValue);
+        return;
+      case -1216922774:  // initialFloatingRate
+        setInitialFloatingRate((Double) newValue);
+        return;
+      case -895684237:  // spread
+        setSpread((Double) newValue);
+        return;
+      case 3225788:  // ibor
+        setIbor((Boolean) newValue);
+        return;
     }
-    _initialFloatingRate = builder._initialFloatingRate;
-    _spread = builder._spread;
-    _isIBOR = builder._isIBOR;
+    super.propertySet(propertyName, newValue, quiet);
   }
-  public FloatingInterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.ExternalId regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional, com.opengamma.id.ExternalId floatingReferenceRateIdentifier, Double initialFloatingRate, double spread, boolean isIBOR) {
-    super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
-    if (floatingReferenceRateIdentifier == null) throw new NullPointerException ("'floatingReferenceRateIdentifier' cannot be null");
-    else {
-      _floatingReferenceRateIdentifier = floatingReferenceRateIdentifier;
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_floatingReferenceRateId, "floatingReferenceRateId");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
     }
-    _initialFloatingRate = initialFloatingRate;
-    _spread = spread;
-    _isIBOR = isIBOR;
-  }
-  protected FloatingInterestRateLeg (final FloatingInterestRateLeg source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._floatingReferenceRateIdentifier == null) _floatingReferenceRateIdentifier = null;
-    else {
-      _floatingReferenceRateIdentifier = source._floatingReferenceRateIdentifier;
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FloatingInterestRateLeg other = (FloatingInterestRateLeg) obj;
+      return JodaBeanUtils.equal(getFloatingReferenceRateId(), other.getFloatingReferenceRateId()) &&
+          JodaBeanUtils.equal(getInitialFloatingRate(), other.getInitialFloatingRate()) &&
+          JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
+          JodaBeanUtils.equal(isIbor(), other.isIbor()) &&
+          super.equals(obj);
     }
-    _initialFloatingRate = source._initialFloatingRate;
-    _spread = source._spread;
-    _isIBOR = source._isIBOR;
+    return false;
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialFloatingRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIbor());
+    return hash ^ super.hashCode();
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_floatingReferenceRateIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _floatingReferenceRateIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, null, fudge1);
-    }
-    if (_initialFloatingRate != null)  {
-      msg.add (INITIAL_FLOATING_RATE_KEY, null, _initialFloatingRate);
-    }
-    msg.add (SPREAD_KEY, null, _spread);
-    msg.add (IS_IBOR_KEY, null, _isIBOR);
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the reference rate external identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getFloatingReferenceRateId() {
+    return _floatingReferenceRateId;
   }
-  public static FloatingInterestRateLeg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.swap.FloatingInterestRateLeg".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.swap.FloatingInterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
-    }
-    return new Builder (deserializer, fudgeMsg).build ();
+
+  /**
+   * Sets the reference rate external identifier.
+   * @param floatingReferenceRateId  the new value of the property, not null
+   */
+  public void setFloatingReferenceRateId(ExternalId floatingReferenceRateId) {
+    JodaBeanUtils.notNull(floatingReferenceRateId, "floatingReferenceRateId");
+    this._floatingReferenceRateId = floatingReferenceRateId;
   }
-  public com.opengamma.id.ExternalId getFloatingReferenceRateIdentifier () {
-    return _floatingReferenceRateIdentifier;
+
+  /**
+   * Gets the the {@code floatingReferenceRateId} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> floatingReferenceRateId() {
+    return metaBean().floatingReferenceRateId().createProperty(this);
   }
-  public Double getInitialFloatingRate () {
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the initial floating rate.
+   * @return the value of the property
+   */
+  public Double getInitialFloatingRate() {
     return _initialFloatingRate;
   }
-  public double getSpread () {
+
+  /**
+   * Sets the initial floating rate.
+   * @param initialFloatingRate  the new value of the property
+   */
+  public void setInitialFloatingRate(Double initialFloatingRate) {
+    this._initialFloatingRate = initialFloatingRate;
+  }
+
+  /**
+   * Gets the the {@code initialFloatingRate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> initialFloatingRate() {
+    return metaBean().initialFloatingRate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the spread.
+   * @return the value of the property
+   */
+  public double getSpread() {
     return _spread;
   }
-  public boolean getIsIBOR () {
-    return _isIBOR;
+
+  /**
+   * Sets the spread.
+   * @param spread  the new value of the property
+   */
+  public void setSpread(double spread) {
+    this._spread = spread;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FloatingInterestRateLeg)) return false;
-    FloatingInterestRateLeg msg = (FloatingInterestRateLeg)o;
-    if (_floatingReferenceRateIdentifier != null) {
-      if (msg._floatingReferenceRateIdentifier != null) {
-        if (!_floatingReferenceRateIdentifier.equals (msg._floatingReferenceRateIdentifier)) return false;
-      }
-      else return false;
+
+  /**
+   * Gets the the {@code spread} property.
+   * @return the property, not null
+   */
+  public final Property<Double> spread() {
+    return metaBean().spread().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the IBOR flag.
+   * @return the value of the property
+   */
+  public boolean isIbor() {
+    return _ibor;
+  }
+
+  /**
+   * Sets the IBOR flag.
+   * @param ibor  the new value of the property
+   */
+  public void setIbor(boolean ibor) {
+    this._ibor = ibor;
+  }
+
+  /**
+   * Gets the the {@code ibor} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> ibor() {
+    return metaBean().ibor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FloatingInterestRateLeg}.
+   */
+  public static class Meta extends InterestRateLeg.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code floatingReferenceRateId} property.
+     */
+    private final MetaProperty<ExternalId> _floatingReferenceRateId = DirectMetaProperty.ofReadWrite(
+        this, "floatingReferenceRateId", FloatingInterestRateLeg.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code initialFloatingRate} property.
+     */
+    private final MetaProperty<Double> _initialFloatingRate = DirectMetaProperty.ofReadWrite(
+        this, "initialFloatingRate", FloatingInterestRateLeg.class, Double.class);
+    /**
+     * The meta-property for the {@code spread} property.
+     */
+    private final MetaProperty<Double> _spread = DirectMetaProperty.ofReadWrite(
+        this, "spread", FloatingInterestRateLeg.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code ibor} property.
+     */
+    private final MetaProperty<Boolean> _ibor = DirectMetaProperty.ofReadWrite(
+        this, "ibor", FloatingInterestRateLeg.class, Boolean.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "floatingReferenceRateId",
+        "initialFloatingRate",
+        "spread",
+        "ibor");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
     }
-    else if (msg._floatingReferenceRateIdentifier != null) return false;
-    if (_initialFloatingRate != null) {
-      if (msg._initialFloatingRate != null) {
-        if (!_initialFloatingRate.equals (msg._initialFloatingRate)) return false;
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1120221088:  // floatingReferenceRateId
+          return _floatingReferenceRateId;
+        case -1216922774:  // initialFloatingRate
+          return _initialFloatingRate;
+        case -895684237:  // spread
+          return _spread;
+        case 3225788:  // ibor
+          return _ibor;
       }
-      else return false;
+      return super.metaPropertyGet(propertyName);
     }
-    else if (msg._initialFloatingRate != null) return false;
-    if (_spread != msg._spread) return false;
-    if (_isIBOR != msg._isIBOR) return false;
-    return super.equals (msg);
+
+    @Override
+    public BeanBuilder<? extends FloatingInterestRateLeg> builder() {
+      return new DirectBeanBuilder<FloatingInterestRateLeg>(new FloatingInterestRateLeg());
+    }
+
+    @Override
+    public Class<? extends FloatingInterestRateLeg> beanType() {
+      return FloatingInterestRateLeg.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code floatingReferenceRateId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> floatingReferenceRateId() {
+      return _floatingReferenceRateId;
+    }
+
+    /**
+     * The meta-property for the {@code initialFloatingRate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> initialFloatingRate() {
+      return _initialFloatingRate;
+    }
+
+    /**
+     * The meta-property for the {@code spread} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> spread() {
+      return _spread;
+    }
+
+    /**
+     * The meta-property for the {@code ibor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> ibor() {
+      return _ibor;
+    }
+
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_floatingReferenceRateIdentifier != null) hc += _floatingReferenceRateIdentifier.hashCode ();
-    hc *= 31;
-    if (_initialFloatingRate != null) hc += _initialFloatingRate.hashCode ();
-    hc = (hc * 31) + (int)_spread;
-    hc *= 31;
-    if (_isIBOR) hc++;
-    return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

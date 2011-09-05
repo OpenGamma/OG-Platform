@@ -18,6 +18,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.joda.beans.impl.direct.DirectBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
@@ -30,6 +33,8 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  * the message/object builders otherwise.  
  */
 public final class FudgeTypeConverter extends AbstractTypeConverter {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(FudgeTypeConverter.class);
 
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
   private static final JavaTypeInfo<Object> OBJECT_ALLOW_NULL = JavaTypeInfo.builder(Object.class).allowNull().get();
@@ -84,7 +89,7 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
             final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
             final MutableFudgeMsg msg = serializer.objectToFudgeMsg(value);
             if (msg.getByOrdinal(FudgeSerializer.TYPES_HEADER_ORDINAL) == null) {
-              FudgeSerializer.addClassHeader(msg, valueClass);
+              FudgeSerializer.addClassHeader(msg, valueClass, baseClass(valueClass));
             }
             conversionContext.setResult(msg);
           }
@@ -110,22 +115,32 @@ public final class FudgeTypeConverter extends AbstractTypeConverter {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  private Class<?> baseClass(Class<?> cls) {
+    while (cls.getSuperclass() != Object.class && cls.getSuperclass() != DirectBean.class) {
+      cls = cls.getSuperclass();
+    }
+    return cls.getSuperclass();
+  }
+
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
     final FudgeFieldType fieldType = getFudgeContext().getTypeDictionary().getByJavaType(targetType.getRawClass());
     if (fieldType == null) {
       // Arbitrary object type found; conversion may be possible from a Fudge message
+      s_logger.debug("Possible conversion from FudgeMsg to arbitrary object {}", targetType);
       return targetType.isAllowNull() ? FROM_FUDGE_MSG_ALLOW_NULL : FROM_FUDGE_MSG;
     } else if (fieldType instanceof SecondaryFieldType<?, ?>) {
       // Secondary type found; conversion is from the primary type
-      final Builder builder = JavaTypeInfo.builder(((SecondaryFieldType<?, ?>) fieldType).getPrimaryType().getJavaType());
+      final Builder<?> builder = JavaTypeInfo.builder(((SecondaryFieldType<?, ?>) fieldType).getPrimaryType().getJavaType());
       if (targetType.isAllowNull()) {
         builder.allowNull();
       }
-      return TypeMap.of(TypeMap.MINOR_LOSS, builder.get());
+      final JavaTypeInfo<?> sourceType = builder.get();
+      s_logger.debug("Secondary type conversion from {} to {}", sourceType, targetType);
+      return TypeMap.of(TypeMap.MINOR_LOSS, sourceType);
     } else {
       // Arbitrary wire type found; dictionary conversion may be possible
+      s_logger.debug("Possible conversion from Object to wire type {}", targetType);
       return targetType.isAllowNull() ? FROM_OBJECT_ALLOW_NULL : FROM_OBJECT;
     }
   }

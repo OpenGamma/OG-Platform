@@ -1,3 +1,7 @@
+/*
+ * @copyright 2011 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
 Function.prototype.partial = function () {
     var method = this, orig = arguments, orig_len = orig.length, i, j, args, arguments_len;
     return function () {

@@ -411,7 +411,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         return false;
       }
       // Hack to only shift equities
-      if (security.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_TICKER).contains("Equity")) {
+      if (security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER).contains("Equity")) {
         return true;
       }
     }

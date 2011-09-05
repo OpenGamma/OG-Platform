@@ -31,6 +31,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   
   private final CombinedMarketDataListener _prefferedListener;
   private final CombinedMarketDataListener _fallBackListener;
+  private final MarketDataAvailabilityProvider _availabilityProvider;
   
   private final Map<ValueRequirement, MarketDataProvider> _providerByRequirement = new HashMap<ValueRequirement, MarketDataProvider>();
 
@@ -43,6 +44,8 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
     
     _prefferedListener = new CombinedMarketDataListener(this, _preffered);
     _fallBackListener = new CombinedMarketDataListener(this, _fallBack);
+    
+    _availabilityProvider = buildAvailabilityProvider();
   }
 
   
@@ -123,6 +126,12 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
+    return _availabilityProvider;
+  }
+
+
+
+  private MarketDataAvailabilityProvider buildAvailabilityProvider() {
     final MarketDataAvailabilityProvider prefProvider = _preffered.getAvailabilityProvider();
     final MarketDataAvailabilityProvider fallbackProvider = _fallBack.getAvailabilityProvider();
     return new MarketDataAvailabilityProvider() {

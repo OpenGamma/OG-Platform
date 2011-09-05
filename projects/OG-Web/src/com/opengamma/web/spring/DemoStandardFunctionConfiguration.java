@@ -27,6 +27,9 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.aggregation.BottomPositionValues;
+import com.opengamma.financial.aggregation.SortedPositionValues;
+import com.opengamma.financial.aggregation.TopPositionValues;
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
@@ -471,6 +474,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     // functionConfigs.add(new StaticFunctionConfiguration(CurrencyInversionFunction.class.getName()));
     // functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyCrossRateFunction.class.getName(), Collections.singleton("USD")));
     // functionConfigs.add(new StaticFunctionConfiguration(BloombergCurrencyRateFunction.class.getName()));
+
+    functionConfigs.add(new StaticFunctionConfiguration(BottomPositionValues.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(SortedPositionValues.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(TopPositionValues.class.getName()));
 
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 

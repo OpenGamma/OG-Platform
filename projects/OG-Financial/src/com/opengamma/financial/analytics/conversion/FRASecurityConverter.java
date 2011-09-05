@@ -44,9 +44,9 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
   public ForwardRateAgreementDefinition visitFRASecurity(final FRASecurity security) {
     Validate.notNull(security, "security");
     final Currency currency = security.getCurrency();
-    final ConventionBundle fraConvention = _conventionSource.getConventionBundle(security.getUnderlyingIdentifier());
+    final ConventionBundle fraConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
     if (fraConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention for " + security.getUnderlyingIdentifier());
+      throw new OpenGammaRuntimeException("Could not get convention for " + security.getUnderlyingId());
     }
     final ZonedDateTime accrualStartDate = security.getStartDate();
     final ZonedDateTime accrualEndDate = security.getEndDate();

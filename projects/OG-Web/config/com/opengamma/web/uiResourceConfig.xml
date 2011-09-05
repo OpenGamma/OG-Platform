@@ -16,15 +16,20 @@
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
     <fragment>/styles/common/og.common.OG-main.css</fragment>
-    <fragment>/styles/common/og.common.OG-mod.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-0.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-0.og-mod-al.css</fragment><!-- awesome list module -->
+    <fragment>/styles/common/og.common.OG-mod-1.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-1.slick-viewport.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-1.table.css</fragment>
+    <fragment>/styles/common/og.common.OG-mod-1.og-style-2.css</fragment>
     <fragment>/styles/common/og.common.OG-filter.css</fragment>
     <fragment>/styles/common/og.common.OG-header-generic.css</fragment>
     <fragment>/styles/common/og.common.OG-footer.css</fragment>
     <fragment>/styles/common/og.common.OG-logo-light.css</fragment>
     <fragment>/styles/common/og.common.OG-box.css</fragment>
     <fragment>/styles/common/og.common.OG-box-history.css</fragment>
-    <fragment>/styles/common/og.common.OG-details-content.css</fragment>
     <fragment>/styles/common/og.common.data.editable.css</fragment>
+    <fragment>/styles/common/og.common.OG-versions.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -82,6 +87,9 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
+    <fragment>/styles/common/forms/og.common.forms.OG-form.og-csb.css</fragment>
   </bundle>
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>
@@ -126,6 +134,7 @@
     <fragment>/scripts/lib/js.ext.array.prototype.reduce.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.some.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
+    <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-1.6.2.js</fragment>
@@ -146,6 +155,8 @@
     <fragment>/scripts/lib/jquery/ui/jquery.ui.datepicker.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.event.drag-2.0.min.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.selection.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.navigate.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.core.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
@@ -191,6 +202,7 @@
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/og.views.common.state.js</fragment>
+    <fragment>/scripts/og/views/og.views.common.versions.js</fragment>
     <fragment>/scripts/og/views/og.views.common.layout.js</fragment>
     <fragment>/scripts/og/views/og.views.common.default_details.js</fragment>
   </bundle>
@@ -201,6 +213,7 @@
     <fragment>/scripts/og/views/configs/og.views.configs.default.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.viewdefinition.js</fragment>
     <fragment>/scripts/og/views/configs/og.views.configs.yieldcurvedefinition.js</fragment>
+    <fragment>/scripts/og/views/configs/og.views.configs.curvespecificationbuilderconfiguration.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>

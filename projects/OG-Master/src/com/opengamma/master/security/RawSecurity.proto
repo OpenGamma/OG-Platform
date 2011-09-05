@@ -7,12 +7,10 @@
 namespace com.opengamma.master.security {
 
   /**
-   * A {@code Security} used to model Raw Securities
+   * A raw security that can hold any security information.
    */
   message RawSecurity extends ManageableSecurity {
-    
     required byte[] rawData;
-    
   }
 
 }

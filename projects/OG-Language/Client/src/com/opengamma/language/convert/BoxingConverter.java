@@ -39,12 +39,17 @@ public class BoxingConverter extends AbstractMappedConverter {
     }
   };
 
+  /**
+   * Default instance.
+   */
+  public static final BoxingConverter INSTANCE = new BoxingConverter();
+
   @SuppressWarnings("unchecked")
   private static <T> Action<T, T> identity() {
     return (Action<T, T>) s_identity;
   }
 
-  public BoxingConverter() {
+  protected BoxingConverter() {
     conversion(ZERO_LOSS, BOOLEAN_PRIMITIVE, BOOLEAN_OBJECT, BoxingConverter.<Boolean>identity(), BoxingConverter.<Boolean>identity());
     conversion(ZERO_LOSS, BYTE_PRIMITIVE, BYTE_OBJECT, BoxingConverter.<Byte>identity(), BoxingConverter.<Byte>identity());
     conversion(ZERO_LOSS, CHARACTER_PRIMITIVE, CHARACTER_OBJECT, BoxingConverter.<Character>identity(), BoxingConverter.<Character>identity());
