@@ -33,7 +33,7 @@ public final class DetachedViewClientHandle extends ViewClientHandle {
     if (viewClients != null) {
       final UserViewClient viewClient = getViewClient();
       s_logger.debug("Attaching and unlocking {}", viewClient);
-      if (viewClient.decrementRefCount()) {
+      if (!viewClient.decrementRefCount()) {
         // Can only happen if the session context has been closed
         s_logger.debug("Last reference on {} released", viewClient);
         viewClient.getUserContext().getViewClients().releaseViewClient(viewClient);
