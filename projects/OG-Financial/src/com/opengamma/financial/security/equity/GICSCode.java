@@ -5,20 +5,8 @@
  */
 package com.opengamma.financial.security.equity;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Representation of a GICS code.
@@ -47,8 +35,6 @@ public final class GICSCode implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(GICSCode.class);
   /** Pattern for the code. */
   private static final Pattern FORMAT = Pattern.compile("([1-9][0-9]){1,4}");
 
@@ -56,43 +42,6 @@ public final class GICSCode implements Serializable {
    * The code.
    */
   private final String _code;
-
-  private static Map<String, String> s_sectors = new HashMap<String, String>();
-  private static Map<String, String> s_industryGroups = new HashMap<String, String>();
-  private static Map<String, String> s_industries = new HashMap<String, String>();
-  private static Map<String, String> s_subIndustries = new HashMap<String, String>();
-  static {
-    InputStream sectorsStream = GICSCode.class.getClassLoader().getResourceAsStream("com/opengamma/financial/security/equity/sectors.csv");
-    parseCSV("sectors.csv", sectorsStream, s_sectors);
-    InputStream industryGroupsStream = GICSCode.class.getClassLoader().getResourceAsStream("com/opengamma/financial/security/equity/industry-groups.csv");
-    parseCSV("industry-groups.csv", industryGroupsStream, s_industryGroups);
-    InputStream industriesStream = GICSCode.class.getClassLoader().getResourceAsStream("com/opengamma/financial/security/equity/industries.csv");
-    parseCSV("industries.csv", industriesStream, s_industries);
-    InputStream subIndutriesStream = GICSCode.class.getClassLoader().getResourceAsStream("com/opengamma/financial/security/equity/sub-industries.csv");
-    parseCSV("sub-industries.csv", subIndutriesStream, s_subIndustries);
-  }
-
-  private static void parseCSV(String filename, InputStream is, Map<String, String> resultMap) {
-    CSVReader reader = new CSVReader(new InputStreamReader(new BufferedInputStream(is)));
-    try {
-      List<String[]> rows = reader.readAll();
-      for (String[] row : rows) {
-        if (row.length != 2) {
-          s_logger.warn("Row in " + filename + " has more or less than two items, aborting");
-          break;
-        }
-        String codeStr = row[0];
-        String description = row[1];
-        try {
-          resultMap.put(codeStr, description);
-        } catch (NumberFormatException ex) {
-          s_logger.warn("Couldn't parse " + codeStr + " in file " + filename);
-        }
-      }
-    } catch (IOException ex) {
-      s_logger.error("Couldn't read gics file " + filename, ex);
-    }
-  }
 
   /**
    * Obtains a {@code GICSCode} instance from the combined code.
@@ -217,7 +166,7 @@ public final class GICSCode implements Serializable {
    * @return the description of the sector, or "Unknown" if not found
    */
   public String getSectorDescription() {
-    String description = s_sectors.get(getSectorCode());
+    String description = GICSCodeDescription.INSTANCE.getDescription(getSectorCode());
     return description != null ? description : "Unknown";
   }
 
@@ -259,7 +208,7 @@ public final class GICSCode implements Serializable {
     if (getCode().length() < 4) {
       return "";
     }
-    String description = s_industryGroups.get(getIndustryGroupCode());
+    String description = GICSCodeDescription.INSTANCE.getDescription(getIndustryGroupCode());
     return description != null ? description : "Unknown";
   }
 
@@ -301,7 +250,7 @@ public final class GICSCode implements Serializable {
     if (getCode().length() < 6) {
       return "";
     }
-    String description = s_industries.get(getIndustryCode());
+    String description = GICSCodeDescription.INSTANCE.getDescription(getIndustryCode());
     return description != null ? description : "Unknown";
   }
 
@@ -343,7 +292,7 @@ public final class GICSCode implements Serializable {
     if (getCode().length() < 8) {
       return "";
     }
-    String description = s_subIndustries.get(getSubIndustryCode());
+    String description = GICSCodeDescription.INSTANCE.getDescription(getSubIndustryCode());
     return description != null ? description : "Unknown";
   }
 
@@ -448,7 +397,7 @@ public final class GICSCode implements Serializable {
   }
 
   /**
-   * Returns a string description of the code, which incldues the code and a description.
+   * Returns a string description of the code, which includes the code and a description.
    * 
    * @return the string version of the code, not null
    */

@@ -28,7 +28,7 @@ public class GICSCodeFudgeEncodingTest extends FinancialTestBase {
   @Test
   public void testFromInteger () {
     assertEquals(GICS, getFudgeContext().getFieldValue(GICSCode.class,
-        UnmodifiableFudgeField.of(FudgeWireType.INT, GICS.getCode())));
+        UnmodifiableFudgeField.of(FudgeWireType.INT, GICS.getCodeInt())));
   }
 
 }
