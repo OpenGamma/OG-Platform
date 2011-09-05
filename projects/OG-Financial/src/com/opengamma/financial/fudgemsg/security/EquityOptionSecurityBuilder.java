@@ -55,7 +55,7 @@ public class EquityOptionSecurityBuilder extends AbstractFudgeBuilder implements
     addToMessage(msg, OPTION_TYPE_KEY, object.getOptionType());
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, EXERCISE_TYPE_KEY, ExerciseTypeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
     addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, POINT_VALUE_KEY, object.getPointValue());
@@ -74,7 +74,7 @@ public class EquityOptionSecurityBuilder extends AbstractFudgeBuilder implements
     object.setOptionType(msg.getFieldValue(OptionType.class, msg.getByName(OPTION_TYPE_KEY)));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setExerciseType(ExerciseTypeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_KEY)));
     object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
     object.setPointValue(msg.getDouble(POINT_VALUE_KEY));

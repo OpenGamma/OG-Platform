@@ -171,7 +171,7 @@ public class DemoEquityPortfolioAndSecurityLoader {
   protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, int gicsCode, ExternalId... identifiers) {
     EquitySecurity equitySecurity = new EquitySecurity(exchange, exchangeCode, companyName, currency);
     equitySecurity.setGicsCode(GICSCode.getInstance(gicsCode));
-    equitySecurity.setIdentifiers(ExternalIdBundle.of(identifiers));
+    equitySecurity.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     equitySecurity.setName(companyName);
     return equitySecurity;
   }
@@ -278,7 +278,7 @@ public class DemoEquityPortfolioAndSecurityLoader {
     s_logger.debug("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
     
-    ExternalIdBundle bundle = security.getIdentifiers(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
+    ExternalIdBundle bundle = security.getExternalIdBundle(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
 
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
     

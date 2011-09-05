@@ -133,7 +133,7 @@ public class PortfolioLoaderHelper {
       ConventionBundle liborConvention = getLiborConventionBundle(swapConvention, loaderContext.getConventionBundleSource());
       sb.append("\t").append(liborConvention.getIdentifiers()).append("\n");
       RawSecurity rawSecurity = new RawSecurity(LIBOR_RATE_SECURITY_TYPE, rawData);
-      rawSecurity.setIdentifiers(liborConvention.getIdentifiers());
+      rawSecurity.setExternalIdBundle(liborConvention.getIdentifiers());
       SecurityDocument secDoc = new SecurityDocument();
       secDoc.setSecurity(rawSecurity);
       securityMaster.add(secDoc);

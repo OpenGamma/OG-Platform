@@ -38,7 +38,7 @@ public class EquityFutureSecurityBuilder extends AbstractFudgeBuilder implements
   public static void toFudgeMsg(FudgeSerializer serializer, EquityFutureSecurity object, final MutableFudgeMsg msg) {
     FutureSecurityBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingIdentifier()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
@@ -51,7 +51,7 @@ public class EquityFutureSecurityBuilder extends AbstractFudgeBuilder implements
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EquityFutureSecurity object) {
     FutureSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setSettlementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
-    object.setUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }
