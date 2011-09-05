@@ -222,8 +222,27 @@ public final class UserViewClient implements UniqueIdentifiable {
     return _viewClientKey;
   }
 
+  /**
+   * Returns the user data associated with the client. The first caller will create the user data. Other callers will be blocked
+   * until the data is available.
+   * 
+   * @param <T> user data type
+   * @param binding the data binding, not null
+   * @return the user data, null if there was previously an error
+   */
   public <T extends UserViewClientData> T getData(final UserViewClientBinding<T> binding) {
-    return binding.get(this);
+    return binding.get(this, true);
+  }
+
+  /**
+   * Returns the user data associated with the client if it is available.
+   * 
+   * @param <T> user data type
+   * @param binding the data binding, not null
+   * @return the user data, null if there was previously an error or the data hasn't been created yet.
+   */
+  public <T extends UserViewClientData> T tryAndGetData(final UserViewClientBinding<T> binding) {
+    return binding.get(this, false);
   }
 
   /**
