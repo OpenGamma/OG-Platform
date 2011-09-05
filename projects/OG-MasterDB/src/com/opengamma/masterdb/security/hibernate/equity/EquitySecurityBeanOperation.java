@@ -35,14 +35,14 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
     if (gicsCodeBean == null) {
       return null;
     }
-    return GICSCode.getInstance(gicsCodeBean.getName());
+    return GICSCode.of(gicsCodeBean.getName());
   }
 
   @Override
   public EquitySecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final EquitySecurity security) {
     GICSCodeBean gicsCodeBean = null;
     if (security.getGicsCode() != null) {
-      gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean(security.getGicsCode().getCodeString(), "");
+      gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean(security.getGicsCode().getCode(), "");
     }
     final EquitySecurityBean bean = createBean(secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()), security.getCompanyName(), secMasterSession
         .getOrCreateCurrencyBean(security

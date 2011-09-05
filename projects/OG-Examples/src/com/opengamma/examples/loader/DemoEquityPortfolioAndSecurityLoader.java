@@ -122,13 +122,13 @@ public class DemoEquityPortfolioAndSecurityLoader {
     for (EquitySecurity security : securities) {
       
       GICSCode gics = security.getGicsCode();
-      if (gics == null) {
+      if (gics == null || gics.isPartial()) {
         continue;
       }
-      String sector = SECTORS.get(Integer.toString(gics.getSectorCode()));
-      String industryGroup = Integer.toString(gics.getIndustryGroupCode());
-      String industry = Integer.toString(gics.getIndustryCode());
-      String subIndustry = Integer.toString(gics.getSubIndustryCode());
+      String sector = SECTORS.get(gics.getSectorCode());
+      String industryGroup = gics.getIndustryGroupCode();
+      String industry = gics.getIndustryCode();
+      String subIndustry = gics.getSubIndustryCode();
       
       // create portfolio structure
       ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
@@ -168,9 +168,9 @@ public class DemoEquityPortfolioAndSecurityLoader {
     addPortfolio(portfolio);
   }
 
-  protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, int gicsCode, ExternalId... identifiers) {
+  protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, String gicsCode, ExternalId... identifiers) {
     EquitySecurity equitySecurity = new EquitySecurity(exchange, exchangeCode, companyName, currency);
-    equitySecurity.setGicsCode(GICSCode.getInstance(gicsCode));
+    equitySecurity.setGicsCode(GICSCode.of(gicsCode));
     equitySecurity.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     equitySecurity.setName(companyName);
     return equitySecurity;
@@ -240,12 +240,12 @@ public class DemoEquityPortfolioAndSecurityLoader {
     String currency = getWithException(equityDetails, "currency");
     String exchange = getWithException(equityDetails, "exchange");
     String exchangeCode = getWithException(equityDetails, "exchangecode");
-    String gisCode = getWithException(equityDetails, "giscode");
+    String gicsCode = getWithException(equityDetails, "giscode");
     String isin = getWithException(equityDetails, "isin");
     String cusip = getWithException(equityDetails, "cusip");
     String ticker = getWithException(equityDetails, "ticker");
     
-    return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, Integer.parseInt(gisCode), 
+    return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, gicsCode,
         ExternalId.of(SecurityUtils.ISIN, isin), 
         ExternalId.of(SecurityUtils.CUSIP, cusip), 
         ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker));
