@@ -294,7 +294,7 @@ public class DefaultValueConverter extends ValueConverter {
         }
       }
       s_logger.debug("{} states processed, {} states queued", statesLoaded, statesStored);
-      nextState: do {
+      nextState: do {//CSIGNORE
         if (searchStates.isEmpty()) {
           s_logger.debug("No more states");
           switch (conversionContext.getReentranceCount()) {
