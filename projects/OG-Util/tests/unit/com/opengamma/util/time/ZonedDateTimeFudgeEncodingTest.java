@@ -13,13 +13,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class ZonedDateTimeFudgeEncodingTest extends AbstractBuilderTestCase {
+public class ZonedDateTimeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_UTC() {
     ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC);

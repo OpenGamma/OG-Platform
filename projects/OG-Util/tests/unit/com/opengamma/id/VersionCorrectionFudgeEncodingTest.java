@@ -10,13 +10,13 @@ import javax.time.Instant;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class VersionCorrectionFudgeEncodingTest extends AbstractBuilderTestCase {
+public class VersionCorrectionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Instant INSTANT1 = Instant.ofEpochSeconds(1);
   private static final Instant INSTANT2 = Instant.ofEpochSeconds(2);

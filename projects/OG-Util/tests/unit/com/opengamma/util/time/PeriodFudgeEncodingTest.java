@@ -14,12 +14,12 @@ import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Period Fudge support.
  */
-public class PeriodFudgeEncodingTest extends AbstractBuilderTestCase {
+public class PeriodFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Period s_ref = Period.of(2, ISOChronology.periodDays());
 

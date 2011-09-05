@@ -12,13 +12,13 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class ExternalIdSearchFudgeEncodingTest extends AbstractBuilderTestCase {
+public class ExternalIdSearchFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_empty() {
     ExternalIdSearch object = new ExternalIdSearch();

@@ -9,13 +9,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class MultipleCurrencyAmountFudgeEncodingTest extends AbstractBuilderTestCase {
+public class MultipleCurrencyAmountFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test() {
     MultipleCurrencyAmount object = MultipleCurrencyAmount.of(Currency.AUD, 101);

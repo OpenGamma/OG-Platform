@@ -26,13 +26,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSupplier;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test {@link PortfolioNodeBuilder} and {@link PositionBuilder}.
  */
 @Test
-public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase {
+public class PortfolioNodeAndPositionBuilderTest extends AbstractFudgeBuilderTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioNodeAndPositionBuilderTest.class);
 

@@ -17,13 +17,13 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.helper.AvailableOutput;
 import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsImpl;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Tests {@link AvailableOutputsBuilder}
  */
 @Test
-public class AvailableOutputsBuilderTest extends AbstractBuilderTestCase {
+public class AvailableOutputsBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testCycleEmptyObject() {
     final AvailableOutputsImpl outputs = new AvailableOutputsImpl();

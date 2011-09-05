@@ -8,13 +8,13 @@ package com.opengamma.util.paging;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.PagingRequest;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class PagingRequestFudgeEncodingTest extends AbstractBuilderTestCase {
+public class PagingRequestFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test() {
     PagingRequest object = PagingRequest.ofIndex(0, 20);

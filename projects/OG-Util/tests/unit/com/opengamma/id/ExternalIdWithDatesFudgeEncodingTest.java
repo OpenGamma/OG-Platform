@@ -12,13 +12,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdWithDates;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class ExternalIdWithDatesFudgeEncodingTest extends AbstractBuilderTestCase {
+public class ExternalIdWithDatesFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final LocalDate VALID_FROM = LocalDate.of(2010, MonthOfYear.JANUARY, 1);
   private static final LocalDate VALID_TO = LocalDate.of(2010, MonthOfYear.DECEMBER, 1);

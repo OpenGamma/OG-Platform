@@ -20,13 +20,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test {@link TradeBuilder}.
  */
 @Test
-public class TradeBuilderTest extends AbstractBuilderTestCase {
+public class TradeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {
     SimpleTrade trade = new SimpleTrade();

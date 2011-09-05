@@ -9,13 +9,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class ExternalIdBundleFudgeEncodingTest extends AbstractBuilderTestCase {
+public class ExternalIdBundleFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test() {
     ExternalIdBundle object = ExternalIdBundle.of(

@@ -21,10 +21,10 @@ import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 /**
  * Base class for builder tests.
  */
-public abstract class AbstractBuilderTestCase {
+public abstract class AbstractFudgeBuilderTestCase {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBuilderTestCase.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractFudgeBuilderTestCase.class);
 
   private FudgeContext _context;
   private FudgeSerializer _serializer;

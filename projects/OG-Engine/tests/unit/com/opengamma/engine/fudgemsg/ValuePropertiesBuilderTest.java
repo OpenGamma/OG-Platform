@@ -8,13 +8,13 @@ package com.opengamma.engine.fudgemsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test the {@link ValuePropertiesBuilder} class.
  */
 @Test
-public class ValuePropertiesBuilderTest extends AbstractBuilderTestCase {
+public class ValuePropertiesBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmptyProperties() {
     assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.none());

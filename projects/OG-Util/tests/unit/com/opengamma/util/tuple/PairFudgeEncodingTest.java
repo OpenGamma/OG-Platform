@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.IntDoublePair;
@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
  * Test Fudge encoding.
  */
 @Test
-public class PairFudgeEncodingTest extends AbstractBuilderTestCase {
+public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_OO_Bundle() {
     Pair<String, ExternalIdBundle> object = Pair.of("Hello", ExternalIdBundle.of(ExternalId.of("A", "B")));

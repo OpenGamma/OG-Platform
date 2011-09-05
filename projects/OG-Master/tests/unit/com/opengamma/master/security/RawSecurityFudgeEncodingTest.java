@@ -10,13 +10,13 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.RawSecurity;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class RawSecurityFudgeEncodingTest extends AbstractBuilderTestCase {
+public class RawSecurityFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_basic() {
     RawSecurity object = new RawSecurity("Dummy", new byte[0]);

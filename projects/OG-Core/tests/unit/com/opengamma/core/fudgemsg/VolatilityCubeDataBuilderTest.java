@@ -14,14 +14,14 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeDataBuilder;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test {@link VolatilityCubeDataBuilder}.
  */
-public class VolatilityCubeDataBuilderTest extends AbstractBuilderTestCase {
+public class VolatilityCubeDataBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void testCycleSimpleGraph() {

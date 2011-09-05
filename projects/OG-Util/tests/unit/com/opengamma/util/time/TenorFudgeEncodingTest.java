@@ -11,12 +11,12 @@ import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Tenor Fudge support.
  */
-public class TenorFudgeEncodingTest extends AbstractBuilderTestCase {
+public class TenorFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   private static final Tenor s_ref = Tenor.EIGHT_MONTHS;
 

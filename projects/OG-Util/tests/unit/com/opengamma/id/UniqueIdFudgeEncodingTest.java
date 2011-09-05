@@ -8,13 +8,13 @@ package com.opengamma.id;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class UniqueIdFudgeEncodingTest extends AbstractBuilderTestCase {
+public class UniqueIdFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_simple() {
     UniqueId object = UniqueId.of("A", "B");

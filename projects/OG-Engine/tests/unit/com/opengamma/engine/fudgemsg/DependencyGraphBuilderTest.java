@@ -17,13 +17,13 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Tests {@link DependencyGraphBuilder}
  */
 @Test
-public class DependencyGraphBuilderTest extends AbstractBuilderTestCase {
+public class DependencyGraphBuilderTest extends AbstractFudgeBuilderTestCase {
   
   @Test
   public void testCycleSimpleGraph() {

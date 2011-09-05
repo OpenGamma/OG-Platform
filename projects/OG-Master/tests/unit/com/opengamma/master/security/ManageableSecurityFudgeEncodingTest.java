@@ -10,13 +10,13 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class ManageableSecurityFudgeEncodingTest extends AbstractBuilderTestCase {
+public class ManageableSecurityFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_basic() {
     ManageableSecurity object = new ManageableSecurity("Dummy");
