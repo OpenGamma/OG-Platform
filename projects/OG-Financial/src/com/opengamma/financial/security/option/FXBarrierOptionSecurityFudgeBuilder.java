@@ -14,9 +14,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code FXBarrierOptionSecurity}.
@@ -62,8 +62,8 @@ public class FXBarrierOptionSecurityFudgeBuilder extends AbstractFudgeBuilder im
     addToMessage(msg, CALL_CURRENCY_KEY, object.getCallCurrency());
     addToMessage(msg, PUT_AMOUNT_KEY, object.getPutAmount());
     addToMessage(msg, CALL_AMOUNT_KEY, object.getCallAmount());
-    addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
-    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
+    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
     addToMessage(msg, BARRIER_TYPE_KEY, object.getBarrierType());
     addToMessage(msg, BARRIER_DIRECTION_KEY, object.getBarrierDirection());
     addToMessage(msg, MONITORING_TYPE_KEY, object.getMonitoringType());
@@ -85,8 +85,8 @@ public class FXBarrierOptionSecurityFudgeBuilder extends AbstractFudgeBuilder im
     object.setCallCurrency(msg.getValue(Currency.class, CALL_CURRENCY_KEY));
     object.setPutAmount(msg.getDouble(PUT_AMOUNT_KEY));
     object.setCallAmount(msg.getDouble(CALL_AMOUNT_KEY));
-    object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
-    object.setSettlementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
+    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
     object.setBarrierType(msg.getFieldValue(BarrierType.class, msg.getByName(BARRIER_TYPE_KEY)));
     object.setBarrierDirection(msg.getFieldValue(BarrierDirection.class, msg.getByName(BARRIER_DIRECTION_KEY)));
     object.setMonitoringType(msg.getFieldValue(MonitoringType.class, msg.getByName(MONITORING_TYPE_KEY)));

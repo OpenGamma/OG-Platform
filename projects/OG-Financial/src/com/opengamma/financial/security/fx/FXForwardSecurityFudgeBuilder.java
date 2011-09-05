@@ -13,9 +13,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code FXForwardSecurity}.
@@ -39,9 +39,9 @@ public class FXForwardSecurityFudgeBuilder extends AbstractFudgeBuilder implemen
 
   public static void toFudgeMsg(FudgeSerializer serializer, FXForwardSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
-    addToMessage(msg, FORWARD_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getForwardDate()));
-    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, FORWARD_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getForwardDate()));
+    addToMessage(msg, REGION_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
   }
 
   @Override
@@ -53,9 +53,9 @@ public class FXForwardSecurityFudgeBuilder extends AbstractFudgeBuilder implemen
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FXForwardSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
-    object.setForwardDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FORWARD_DATE_KEY)));
-    object.setRegionId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setForwardDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FORWARD_DATE_KEY)));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
   }
 
 }

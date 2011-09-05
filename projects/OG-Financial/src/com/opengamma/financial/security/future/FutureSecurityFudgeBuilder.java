@@ -12,8 +12,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
 
 /**
  * A Fudge builder for {@code FutureSecurity}.
@@ -33,7 +33,7 @@ public class FutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
 
   public static void toFudgeMsg(FudgeSerializer serializer, FutureSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, TRADING_EXCHANGE_KEY, object.getTradingExchange());
     addToMessage(msg, SETTLEMENT_EXCHANGE_KEY, object.getSettlementExchange());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
@@ -42,7 +42,7 @@ public class FutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FutureSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
     object.setTradingExchange(msg.getString(TRADING_EXCHANGE_KEY));
     object.setSettlementExchange(msg.getString(SETTLEMENT_EXCHANGE_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));

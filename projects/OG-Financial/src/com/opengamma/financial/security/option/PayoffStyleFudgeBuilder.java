@@ -15,9 +15,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code PayoffStyle} implementations.
@@ -149,14 +149,14 @@ public class PayoffStyleFudgeBuilder extends AbstractFudgeBuilder {
     @Override
     public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExtremeSpreadPayoffStyle object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-      addToMessage(msg, PERIOD_END_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getPeriodEnd()));
+      addToMessage(msg, PERIOD_END_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getPeriodEnd()));
       addToMessage(msg, IS_REVERSE_KEY, object.isReverse());
       return msg;
     }
 
     @Override
     public ExtremeSpreadPayoffStyle buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      ZonedDateTime periodEnd = ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(PERIOD_END_KEY));
+      ZonedDateTime periodEnd = ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(PERIOD_END_KEY));
       boolean reverse = msg.getBoolean(IS_REVERSE_KEY);
       return new ExtremeSpreadPayoffStyle(periodEnd, reverse);
     }
@@ -289,17 +289,17 @@ public class PayoffStyleFudgeBuilder extends AbstractFudgeBuilder {
     @Override
     public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SimpleChooserPayoffStyle object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-      addToMessage(msg, CHOOSE_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getChooseDate()));
+      addToMessage(msg, CHOOSE_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getChooseDate()));
       addToMessage(msg, UNDERLYING_STRIKE_KEY, object.getUnderlyingStrike());
-      addToMessage(msg, UNDERLYING_EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getUnderlyingExpiry()));
+      addToMessage(msg, UNDERLYING_EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingExpiry()));
       return msg;
     }
 
     @Override
     public SimpleChooserPayoffStyle buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      ZonedDateTime chooseDate = ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(CHOOSE_DATE_KEY));
+      ZonedDateTime chooseDate = ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(CHOOSE_DATE_KEY));
       double strike = msg.getDouble(UNDERLYING_STRIKE_KEY);
-      Expiry expiry = ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_EXPIRY_KEY));
+      Expiry expiry = ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_EXPIRY_KEY));
       return new SimpleChooserPayoffStyle(chooseDate, strike, expiry);
     }
   }

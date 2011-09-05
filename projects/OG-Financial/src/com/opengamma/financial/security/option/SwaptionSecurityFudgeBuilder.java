@@ -13,10 +13,10 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
 
 /**
  * A Fudge builder for {@code SwaptionSecurity}.
@@ -47,9 +47,9 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   public static void toFudgeMsg(FudgeSerializer serializer, SwaptionSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, IS_PAYER_KEY, object.isPayer());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, IS_LONG_KEY, object.getIsLong());
-    addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, IS_CASH_SETTLED_KEY, object.isCashSettled());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
   }
@@ -64,9 +64,9 @@ public class SwaptionSecurityFudgeBuilder extends AbstractFudgeBuilder implement
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, SwaptionSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setPayer(msg.getBoolean(IS_PAYER_KEY));
-    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setIsLong(msg.getBoolean(IS_LONG_KEY));
-    object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
     object.setCashSettled(msg.getBoolean(IS_CASH_SETTLED_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
   }

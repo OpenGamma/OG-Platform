@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code SwapSecurity}.
@@ -44,9 +44,9 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
 
   public static void toFudgeMsg(FudgeSerializer serializer, SwapSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, TRADE_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getTradeDate()));
-    addToMessage(msg, EFFECTIVE_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getEffectiveDate()));
-    addToMessage(msg, MATURITY_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getMaturityDate()));
+    addToMessage(msg, TRADE_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getTradeDate()));
+    addToMessage(msg, EFFECTIVE_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getEffectiveDate()));
+    addToMessage(msg, MATURITY_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturityDate()));
     addToMessage(msg, COUNTERPARTY_KEY, object.getCounterparty());
     addToMessage(serializer, msg, PAY_LEG_KEY, object.getPayLeg(), SwapLeg.class);
     addToMessage(serializer, msg, RECEIVE_LEG_KEY, object.getReceiveLeg(), SwapLeg.class);
@@ -61,9 +61,9 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, SwapSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setTradeDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(TRADE_DATE_KEY)));
-    object.setEffectiveDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EFFECTIVE_DATE_KEY)));
-    object.setMaturityDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_KEY)));
+    object.setTradeDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(TRADE_DATE_KEY)));
+    object.setEffectiveDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EFFECTIVE_DATE_KEY)));
+    object.setMaturityDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_KEY)));
     object.setCounterparty(msg.getString(COUNTERPARTY_KEY));
     object.setPayLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(PAY_LEG_KEY)));
     object.setReceiveLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(RECEIVE_LEG_KEY)));

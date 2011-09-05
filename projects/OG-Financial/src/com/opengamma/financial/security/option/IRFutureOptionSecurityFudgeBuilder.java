@@ -13,10 +13,10 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
 
 /**
  * A Fudge builder for {@code IRFutureOptionSecurity}.
@@ -53,9 +53,9 @@ public class IRFutureOptionSecurityFudgeBuilder extends AbstractFudgeBuilder imp
   public static void toFudgeMsg(FudgeSerializer serializer, IRFutureOptionSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, EXCHANGE_KEY, object.getExchange());
-    addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, EXERCISE_TYPE_KEY, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, POINT_VALUE_KEY, object.getPointValue());
     addToMessage(msg, IS_MARGINED_KEY, object.isMargined());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
@@ -73,8 +73,8 @@ public class IRFutureOptionSecurityFudgeBuilder extends AbstractFudgeBuilder imp
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, IRFutureOptionSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setExchange(msg.getString(EXCHANGE_KEY));
-    object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
-    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_KEY)));
     object.setPointValue(msg.getDouble(POINT_VALUE_KEY));
     object.setMargined(msg.getBoolean(IS_MARGINED_KEY));

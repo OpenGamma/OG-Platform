@@ -12,8 +12,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 
 /**
  * A Fudge builder for {@code MetalFutureSecurity}.
@@ -33,7 +33,7 @@ public class MetalFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implem
 
   public static void toFudgeMsg(FudgeSerializer serializer, MetalFutureSecurity object, final MutableFudgeMsg msg) {
     CommodityFutureSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
   }
 
   @Override
@@ -45,7 +45,7 @@ public class MetalFutureSecurityFudgeBuilder extends AbstractFudgeBuilder implem
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, MetalFutureSecurity object) {
     CommodityFutureSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
   }
 
 }

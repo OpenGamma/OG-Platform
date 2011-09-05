@@ -13,8 +13,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -80,13 +80,13 @@ public class NotionalFudgeBuilder extends AbstractFudgeBuilder {
     @Override
     public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SecurityNotional object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-      addToMessage(msg, NOTIONAL_IDENTIFIER_KEY, UniqueIdBuilder.toFudgeMsg(serializer, object.getNotionalId()));
+      addToMessage(msg, NOTIONAL_IDENTIFIER_KEY, UniqueIdFudgeBuilder.toFudgeMsg(serializer, object.getNotionalId()));
       return msg;
     }
 
     @Override
     public SecurityNotional buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      UniqueId id = UniqueIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(NOTIONAL_IDENTIFIER_KEY));
+      UniqueId id = UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(NOTIONAL_IDENTIFIER_KEY));
       return new SecurityNotional(id);
     }
   }

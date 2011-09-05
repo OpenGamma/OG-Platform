@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code ForwardSwapSecurity}.
@@ -33,7 +33,7 @@ public class ForwardSwapSecurityFudgeBuilder extends AbstractFudgeBuilder implem
 
   public static void toFudgeMsg(FudgeSerializer serializer, ForwardSwapSecurity object, final MutableFudgeMsg msg) {
     SwapSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, FORWARD_START_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getForwardStartDate()));
+    addToMessage(msg, FORWARD_START_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getForwardStartDate()));
   }
 
   @Override
@@ -45,7 +45,7 @@ public class ForwardSwapSecurityFudgeBuilder extends AbstractFudgeBuilder implem
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, ForwardSwapSecurity object) {
     SwapSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setForwardStartDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FORWARD_START_DATE_KEY)));
+    object.setForwardStartDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FORWARD_START_DATE_KEY)));
   }
 
 }

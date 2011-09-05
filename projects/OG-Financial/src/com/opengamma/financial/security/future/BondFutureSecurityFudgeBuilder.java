@@ -17,7 +17,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code BondFutureSecurity}.
@@ -49,8 +49,8 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
       }
     }
     addToMessage(msg, BOND_TYPE_KEY, object.getBondType());
-    addToMessage(msg, FIRST_DELIVERY_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getFirstDeliveryDate()));
-    addToMessage(msg, LAST_DELIVERY_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getLastDeliveryDate()));
+    addToMessage(msg, FIRST_DELIVERY_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstDeliveryDate()));
+    addToMessage(msg, LAST_DELIVERY_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastDeliveryDate()));
   }
 
   @Override
@@ -69,8 +69,8 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     }
     object.setBasket(basket);
     object.setBondType(msg.getString(BOND_TYPE_KEY));
-    object.setFirstDeliveryDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_DELIVERY_DATE_KEY)));
-    object.setLastDeliveryDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_DELIVERY_DATE_KEY)));
+    object.setFirstDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_DELIVERY_DATE_KEY)));
+    object.setLastDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_DELIVERY_DATE_KEY)));
   }
 
 }

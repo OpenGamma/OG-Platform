@@ -13,10 +13,10 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code CashSecurity}.
@@ -45,8 +45,8 @@ public class CashSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
   public static void toFudgeMsg(FudgeSerializer serializer, CashSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
-    addToMessage(msg, MATURITY_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getMaturity()));
+    addToMessage(msg, REGION_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, MATURITY_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturity()));
     addToMessage(msg, RATE_KEY, object.getRate());
     addToMessage(msg, AMOUNT_KEY, object.getAmount());
   }
@@ -61,8 +61,8 @@ public class CashSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, CashSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setRegionId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
-    object.setMaturity(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_KEY)));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setMaturity(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_KEY)));
     object.setRate(msg.getDouble(RATE_KEY));
     object.setAmount(msg.getDouble(AMOUNT_KEY));
   }

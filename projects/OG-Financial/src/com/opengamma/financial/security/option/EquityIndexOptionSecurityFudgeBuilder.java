@@ -13,10 +13,10 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
 
 /**
  * A Fudge builder for {@code EquityIndexOptionSecurity}.
@@ -53,9 +53,9 @@ public class EquityIndexOptionSecurityFudgeBuilder extends AbstractFudgeBuilder 
     addToMessage(msg, OPTION_TYPE_KEY, object.getOptionType());
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
-    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
+    addToMessage(msg, UNDERLYING_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getUnderlyingId()));
     addToMessage(msg, EXERCISE_TYPE_KEY, ExerciseTypeFudgeBuilder.toFudgeMsg(serializer, object.getExerciseType()));
-    addToMessage(msg, EXPIRY_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getExpiry()));
+    addToMessage(msg, EXPIRY_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, POINT_VALUE_KEY, object.getPointValue());
     addToMessage(msg, EXCHANGE_KEY, object.getExchange());
   }
@@ -72,9 +72,9 @@ public class EquityIndexOptionSecurityFudgeBuilder extends AbstractFudgeBuilder 
     object.setOptionType(msg.getFieldValue(OptionType.class, msg.getByName(OPTION_TYPE_KEY)));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
-    object.setUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
+    object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_KEY)));
     object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_KEY)));
-    object.setExpiry(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
+    object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_KEY)));
     object.setPointValue(msg.getDouble(POINT_VALUE_KEY));
     object.setExchange(msg.getString(EXCHANGE_KEY));
   }

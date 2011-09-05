@@ -13,8 +13,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -47,7 +47,7 @@ public class FXSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fudg
     addToMessage(msg, RECEIVE_CURRENCY_KEY, object.getReceiveCurrency());
     addToMessage(msg, PAY_AMOUNT_KEY, object.getPayAmount());
     addToMessage(msg, RECEIVE_AMOUNT_KEY, object.getReceiveAmount());
-    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, REGION_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
   }
 
   @Override
@@ -63,7 +63,7 @@ public class FXSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fudg
     object.setReceiveCurrency(msg.getValue(Currency.class, RECEIVE_CURRENCY_KEY));
     object.setPayAmount(msg.getDouble(PAY_AMOUNT_KEY));
     object.setReceiveAmount(msg.getDouble(RECEIVE_AMOUNT_KEY));
-    object.setRegionId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
   }
 
 }

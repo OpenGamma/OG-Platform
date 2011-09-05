@@ -18,8 +18,8 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * Builder for converting Region instances to/from Fudge messages.
@@ -33,7 +33,7 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
     serializer.addToMessage(message, "type", null, object.getInstrumentType());
     serializer.addToMessage(message, "tenor", null, object.getTenor());
     serializer.addToMessage(message, "resolvedTenor", null, object.getResolvedTenor());
-    ZonedDateTimeBuilder zonedDateTimeBuilder = new ZonedDateTimeBuilder();
+    ZonedDateTimeFudgeBuilder zonedDateTimeBuilder = new ZonedDateTimeFudgeBuilder();
     MutableFudgeMsg subMessage = zonedDateTimeBuilder.buildMessage(serializer, object.getMaturity());
     serializer.addToMessage(message, "maturity", null, subMessage);
     serializer.addToMessage(message, "identifier", null, object.getSecurityIdentifier());
@@ -49,7 +49,7 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
     StripInstrumentType type = deserializer.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
     Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName("tenor"));
     Tenor resolvedTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName("resolvedTenor"));
-    ZonedDateTimeBuilder zonedDateTimeBuilder = new ZonedDateTimeBuilder();
+    ZonedDateTimeFudgeBuilder zonedDateTimeBuilder = new ZonedDateTimeFudgeBuilder();
     ZonedDateTime maturity = zonedDateTimeBuilder.buildObject(deserializer, message.getMessage("maturity"));
     ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, message.getByName("identifier"));
     Security security = (Security) deserializer.fieldValueToObject(message.getByName("security"));

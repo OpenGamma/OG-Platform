@@ -10,7 +10,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.master.fudgemsg.ManageableSecurityBuilder;
+import com.opengamma.master.security.ManageableSecurityFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**
@@ -19,11 +19,11 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 public class FinancialSecurityFudgeBuilder extends AbstractFudgeBuilder {
 
   public static void toFudgeMsg(FudgeSerializer serializer, FinancialSecurity object, final MutableFudgeMsg msg) {
-    ManageableSecurityBuilder.toFudgeMsg(serializer, object, msg);
+    ManageableSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FinancialSecurity object) {
-    ManageableSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
+    ManageableSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
   }
 
 //  public static <T> T backdoorCreateClass(Class<T> clazz) {

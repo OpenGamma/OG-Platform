@@ -16,8 +16,8 @@ import org.joda.beans.BeanBuilder;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 
 /**
  * A Fudge builder for {@code SwapLeg} implementations.
@@ -38,7 +38,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   public static void toFudgeMsg(FudgeSerializer serializer, SwapLeg object, final MutableFudgeMsg msg) {
     addToMessage(msg, DAY_COUNT_KEY, object.getDayCount());
     addToMessage(msg, FREQUENCY_KEY, object.getFrequency());
-    addToMessage(msg, REGION_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, REGION_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
     addToMessage(msg, BUSINESS_DAY_CONVENTION_KEY, object.getBusinessDayConvention());
     addToMessage(serializer, msg, NOTIONAL_KEY, object.getNotional(), Notional.class);
   }
@@ -46,7 +46,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, BeanBuilder<? extends SwapLeg> object) {
     object.set(SwapLeg.meta().dayCount().name(), msg.getValue(DayCount.class, DAY_COUNT_KEY));
     object.set(SwapLeg.meta().frequency().name(), msg.getValue(Frequency.class, FREQUENCY_KEY));
-    object.set(SwapLeg.meta().regionId().name(), ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_IDENTIFIER_KEY)));
+    object.set(SwapLeg.meta().regionId().name(), ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_IDENTIFIER_KEY)));
     object.set(SwapLeg.meta().businessDayConvention().name(), msg.getValue(BusinessDayConvention.class, BUSINESS_DAY_CONVENTION_KEY));
     object.set(SwapLeg.meta().notional().name(), deserializer.fudgeMsgToObject(Notional.class, msg.getMessage(NOTIONAL_KEY)));
   }
@@ -96,7 +96,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FloatingInterestRateLeg object) {
       final MutableFudgeMsg msg = serializer.newMessage();
       SwapLegFudgeBuilder.toFudgeMsg(serializer, object, msg);
-      addToMessage(msg, FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getFloatingReferenceRateId()));
+      addToMessage(msg, FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getFloatingReferenceRateId()));
       addToMessage(msg, INITIAL_FLOATING_RATE_KEY, object.getInitialFloatingRate());
       addToMessage(msg, SPREAD_KEY, object.getSpread());
       addToMessage(msg, IS_IBOR_KEY, object.isIbor());
@@ -107,7 +107,7 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     public FloatingInterestRateLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
       BeanBuilder<? extends FloatingInterestRateLeg> builder = FloatingInterestRateLeg.meta().builder();
       SwapLegFudgeBuilder.fromFudgeMsg(deserializer, msg, builder);
-      builder.set(FloatingInterestRateLeg.meta().floatingReferenceRateId().name(), ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(FLOATING_REFERENCE_RATE_IDENTIFIER_KEY)));
+      builder.set(FloatingInterestRateLeg.meta().floatingReferenceRateId().name(), ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FLOATING_REFERENCE_RATE_IDENTIFIER_KEY)));
       builder.set(FloatingInterestRateLeg.meta().initialFloatingRate().name(), msg.getDouble(INITIAL_FLOATING_RATE_KEY));
       builder.set(FloatingInterestRateLeg.meta().spread().name(), msg.getDouble(SPREAD_KEY));
       builder.set(FloatingInterestRateLeg.meta().ibor().name(), msg.getBoolean(IS_IBOR_KEY));

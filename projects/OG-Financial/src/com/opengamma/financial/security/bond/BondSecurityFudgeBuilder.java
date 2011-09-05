@@ -16,9 +16,9 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
-import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.ExpiryFudgeBuilder;
+import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 
 /**
  * A Fudge builder for {@code BondSecurity}.
@@ -81,16 +81,16 @@ public class BondSecurityFudgeBuilder extends AbstractFudgeBuilder {
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
     addToMessage(msg, YIELD_CONVENTION_KEY, object.getYieldConvention());
     addToMessage(msg, GUARANTEE_TYPE_KEY, object.getGuaranteeType());
-    addToMessage(msg, LAST_TRADE_DATE_KEY, ExpiryBuilder.toFudgeMsg(serializer, object.getLastTradeDate()));
+    addToMessage(msg, LAST_TRADE_DATE_KEY, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getLastTradeDate()));
     addToMessage(msg, COUPON_TYPE_KEY, object.getCouponType());
     addToMessage(msg, COUPON_RATE_KEY, object.getCouponRate());
     addToMessage(msg, COUPON_FREQUENCY_KEY, object.getCouponFrequency());
     addToMessage(msg, DAY_COUNT_CONVENTION_KEY, object.getDayCount());
     addToMessage(msg, BUSINESS_DAY_CONVENTION_KEY, object.getBusinessDayConvention());
-    addToMessage(msg, ANNOUNCEMENT_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getAnnouncementDate()));
-    addToMessage(msg, INTEREST_ACCRUAL_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getInterestAccrualDate()));
-    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
-    addToMessage(msg, FIRST_COUPON_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getFirstCouponDate()));
+    addToMessage(msg, ANNOUNCEMENT_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getAnnouncementDate()));
+    addToMessage(msg, INTEREST_ACCRUAL_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getInterestAccrualDate()));
+    addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
+    addToMessage(msg, FIRST_COUPON_DATE_KEY, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstCouponDate()));
     addToMessage(msg, ISSUANCE_PRICE_KEY, object.getIssuancePrice());
     addToMessage(msg, TOTAL_AMOUNT_ISSUED_KEY, object.getTotalAmountIssued());
     addToMessage(msg, MINIMUM_AMOUNT_KEY, object.getMinimumAmount());
@@ -108,16 +108,16 @@ public class BondSecurityFudgeBuilder extends AbstractFudgeBuilder {
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
     object.setYieldConvention(msg.getValue(YieldConvention.class, YIELD_CONVENTION_KEY));
     object.setGuaranteeType(msg.getString(GUARANTEE_TYPE_KEY));
-    object.setLastTradeDate(ExpiryBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_TRADE_DATE_KEY)));
+    object.setLastTradeDate(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_TRADE_DATE_KEY)));
     object.setCouponType(msg.getString(COUPON_TYPE_KEY));
     object.setCouponRate(msg.getDouble(COUPON_RATE_KEY));
     object.setCouponFrequency(msg.getValue(Frequency.class, COUPON_FREQUENCY_KEY));
     object.setDayCount(msg.getValue(DayCount.class, DAY_COUNT_CONVENTION_KEY));
     object.setBusinessDayConvention(msg.getValue(BusinessDayConvention.class, BUSINESS_DAY_CONVENTION_KEY));
-    object.setAnnouncementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(ANNOUNCEMENT_DATE_KEY)));
-    object.setInterestAccrualDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INTEREST_ACCRUAL_DATE_KEY)));
-    object.setSettlementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
-    object.setFirstCouponDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_COUPON_DATE_KEY)));
+    object.setAnnouncementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(ANNOUNCEMENT_DATE_KEY)));
+    object.setInterestAccrualDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INTEREST_ACCRUAL_DATE_KEY)));
+    object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
+    object.setFirstCouponDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_COUPON_DATE_KEY)));
     object.setIssuancePrice(msg.getDouble(ISSUANCE_PRICE_KEY));
     object.setTotalAmountIssued(msg.getDouble(TOTAL_AMOUNT_ISSUED_KEY));
     object.setMinimumAmount(msg.getDouble(MINIMUM_AMOUNT_KEY));
