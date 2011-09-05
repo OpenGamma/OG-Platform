@@ -109,6 +109,8 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       }
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor(), identifier));
+      } else if (strip.getInstrumentType() == StripInstrumentType.FRA || strip.getInstrumentType() == StripInstrumentType.SWAP) {
+        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getFloatingTenor(), identifier));
       } else {
         securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
       }

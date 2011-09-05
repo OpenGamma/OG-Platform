@@ -18,7 +18,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting FixedIncomeStripWithIdentifier instances to/from Fudge messages.
  */
 @FudgeBuilderFor(FixedIncomeStripWithIdentifier.class)
 public class ResolvedFixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStripWithIdentifier> {

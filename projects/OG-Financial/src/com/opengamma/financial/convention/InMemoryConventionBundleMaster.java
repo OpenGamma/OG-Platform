@@ -452,6 +452,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", thirty360,
         modified, semiAnnual, 2, usgb, act360, modified, quarterly, 2,
         ExternalId.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "USD_3M_SWAP")), "USD_3M_SWAP", thirty360,
+        modified, semiAnnual, 2, usgb, act360, modified, quarterly, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "USD_6M_SWAP")), "USD_6M_SWAP", thirty360,
+        modified, semiAnnual, 2, usgb, act360, modified, semiAnnual, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "USD LIBOR 6m"), usgb);
 
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360,
         modified, annual, 2, usgb, thirty360, modified, annual, 2,
@@ -610,6 +616,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", thirty360,
         modified, annual, 2, eu, act360, modified, semiAnnual, 2,
         ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EUR_3M_SWAP")), "EUR_3M_SWAP", thirty360,
+        modified, annual, 2, eu, act360, modified, quarterly, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EUR_6M_SWAP")), "EUR_6M_SWAP", thirty360,
+        modified, annual, 2, eu, act360, modified, semiAnnual, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP",
         thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2,
         ExternalId.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
@@ -687,6 +699,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     //TODO looked at BSYM and the codes seem right but need to check
     addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00O/N Index"),
@@ -756,6 +769,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO holiday associated with JPY swaps is Tokyo
     final ExternalId jp = RegionUtils.financialRegionId("JP");
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPY_SWAP")), "JPY_SWAP", act365,
+        modified, semiAnnual, 2, jp, act360, modified, semiAnnual, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPY_3M_SWAP")), "JPY_3M_SWAP", act365,
+        modified, semiAnnual, 2, jp, act360, modified, quarterly, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 3m"), jp);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "JPY_6M_SWAP")), "JPY_6M_SWAP", act365,
         modified, semiAnnual, 2, jp, act360, modified, semiAnnual, 2,
         ExternalId.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
     //TODO check this
@@ -948,10 +967,16 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBP_SWAP")), "GBP_SWAP", act365,
         modified, semiAnnual, 0, gb, act365, modified, semiAnnual, 0,
         ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBP_3M_SWAP")), "GBP_3M_SWAP", act365,
+        modified, semiAnnual, 0, gb, act365, modified, quarterly, 0,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBP_6M_SWAP")), "GBP_6M_SWAP", act365,
+        modified, semiAnnual, 0, gb, act365, modified, semiAnnual, 0,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb);
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365,
         modified, quarterly, 0, gb, act365, modified, quarterly, 0,
         ExternalId.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb);
-
+    //TODO sort out the swap names so that they are consistent
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "GBP_IBOR_INDEX")), "GBP_IBOR_INDEX",
         act365, modified, 0, false);
 
@@ -1054,6 +1079,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
     //TODO check that it's actually libor that we need
@@ -1126,6 +1152,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final ExternalId ch = RegionUtils.financialRegionId("CH");
     //TODO check reference rate
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360,
+        modified, annual, 2, ch, act360, modified, semiAnnual, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHF_3M_SWAP")), "CHF_3M_SWAP", thirty360,
+        modified, annual, 2, ch, act360, modified, quarterly, 2,
+        ExternalId.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 3m"), ch);
+    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHF_6M_SWAP")), "CHF_6M_SWAP", thirty360,
         modified, annual, 2, ch, act360, modified, semiAnnual, 2,
         ExternalId.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "CHF_IBOR_INDEX")), "CHF_IBOR_INDEX",

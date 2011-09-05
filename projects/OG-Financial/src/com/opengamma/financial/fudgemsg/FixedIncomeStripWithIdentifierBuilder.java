@@ -18,7 +18,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting FixedIncomeStripWithIdentifier instances to/from Fudge messages.
  */
 @FudgeBuilderFor(FixedIncomeStripWithIdentifier.class)
 public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<FixedIncomeStripWithIdentifier> {
@@ -30,6 +30,9 @@ public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<Fixed
     serializer.addToMessage(message, "tenor", null, object.getMaturity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());
+    }
+    if (object.getInstrumentType() == StripInstrumentType.FRA || object.getInstrumentType() == StripInstrumentType.SWAP) {
+      serializer.addToMessage(message, "floatingLength", null, object.getFloatingLength());
     }
     serializer.addToMessage(message, "identifier", null, object.getSecurity());
     return message; 
@@ -43,6 +46,9 @@ public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<Fixed
     if (type == StripInstrumentType.FUTURE) {
       int numFutures = message.getInt("numFutures");
       return new FixedIncomeStripWithIdentifier(type, tenor, numFutures, security);
+    } else if (type == StripInstrumentType.FRA || type == StripInstrumentType.SWAP) {
+      Tenor floatingLength = deserializer.fieldValueToObject(Tenor.class, message.getByName("floatingLength"));
+      return new FixedIncomeStripWithIdentifier(type, tenor, floatingLength, security);
     } else { 
       return new FixedIncomeStripWithIdentifier(type, tenor, security);
     }

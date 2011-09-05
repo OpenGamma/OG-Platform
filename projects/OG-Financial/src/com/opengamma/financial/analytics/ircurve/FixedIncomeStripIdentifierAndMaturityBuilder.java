@@ -136,6 +136,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor, strip.getNumberOfFuturesAfterTenor(), maturity, strip.getSecurity(),
             security));
+      } else if (strip.getInstrumentType() == StripInstrumentType.FRA || strip.getInstrumentType() == StripInstrumentType.SWAP) {
+        securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor, strip.getFloatingLength(), maturity, strip.getSecurity(), security));
       } else {
         securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor, maturity, strip.getSecurity(), security));
       }
@@ -156,8 +158,18 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
 
   private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
     final LocalDate curveDate = spec.getCurveDate(); // quick hack
-    final LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(3));
-    final LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
+    Tenor tenor = strip.getFloatingLength();
+    // TODO emcleod this offset and start and end date calculations should not be done like this - it's consistent with what was there before but I'm not why it is that way
+    int offset;
+    if (tenor.equals(Tenor.ofMonths(3))) {
+      offset = 3;
+    } else if (tenor.equals(Tenor.ofMonths(6))) {
+      offset = 6;
+    } else {
+      throw new OpenGammaRuntimeException("Can only handle 3m or 6m FRAs");
+    }
+    final LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(offset));
+    final LocalDate endDate = startDate.plus(Period.ofMonths(offset)); 
     final ExternalId underlyingIdentifier = strip.getSecurity();
     //TODO this normalization should not be done here
     return new FRASecurity(spec.getCurrency(), spec.getRegion(),
@@ -171,6 +183,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
       final Map<ExternalId, Double> marketValues) {
     final ExternalId swapIdentifier = strip.getSecurity();
+    final Tenor resetTenor = strip.getFloatingLength();
+    int months = resetTenor.getPeriod().getMonths(); //TODO this isn't right
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
     final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
@@ -178,7 +192,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + months + "M_SWAP"));
+    if (convention == null) {
+      convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + months + "_SWAP"));
+    }
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
     final ExternalId floatRateBloombergTicker = floatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);

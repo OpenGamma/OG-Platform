@@ -21,6 +21,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
   private final Tenor _maturity;
   private int _nthFutureFromTenor;
   private final ExternalId _security;
+  private Tenor _floatingLength;
 
   /**
    * Gets the instrumentType field.
@@ -54,9 +55,21 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
    */
   public int getNumberOfFuturesAfterTenor() {
     if (_instrumentType != StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot get number of futures after tenor for a non future node " + toString());
+      throw new IllegalStateException("Cannot get number of futures after tenor for a non-future node " + toString());
     }
     return _nthFutureFromTenor;
+  }
+  
+  /**
+   * Get the tenor of the floating rate (e.g. 3m for a 3M x 6M FRA, 6m for a swap with semi-annual resets of the floating leg)
+   * @return The floating tenor
+   * @throws IllegalStateException if called on a non-FRA or non-swap strip
+   */
+  public Tenor getFloatingLength() {
+    if (_instrumentType == StripInstrumentType.FRA || _instrumentType == StripInstrumentType.SWAP) {
+      return _floatingLength;
+    }
+    throw new IllegalStateException("Cannot get floating length for a non-FRA or non-swap node " + toString());
   }
 
   public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final int nthFutureFromTenor, final ExternalId security) {
@@ -73,15 +86,31 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
 
   public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final ExternalId security) {
     _instrumentType = instrumentType;
-    if (_instrumentType == StripInstrumentType.FUTURE) {
+    if (instrumentType == StripInstrumentType.FUTURE) {
       throw new IllegalStateException("Cannot create future node type without a nthFutureFromTenor parameter, type=" + instrumentType + " maturity=" + maturity + " security=" + security);
+    }
+    if (instrumentType == StripInstrumentType.FRA && instrumentType == StripInstrumentType.SWAP) {
+      throw new IllegalStateException("Cannot create type + " + instrumentType + " without a floating tenor");
     }
     Validate.notNull(maturity);
     _maturity = maturity;
     Validate.notNull(security);
     _security = security;
   }
-
+  
+  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, Tenor floatingLength, final ExternalId security) {
+    _instrumentType = instrumentType;
+    if (instrumentType != StripInstrumentType.FRA && instrumentType != StripInstrumentType.SWAP) {
+      throw new IllegalStateException("Cannot create type + " + instrumentType + " with a floating tenor");
+    }
+    Validate.notNull(maturity);
+    _maturity = maturity;
+    Validate.notNull(security);
+    _security = security;
+    Validate.notNull(floatingLength);
+    _floatingLength = floatingLength;
+  }
+  
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -91,6 +120,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
       final FixedIncomeStripWithIdentifier other = (FixedIncomeStripWithIdentifier) obj;
       return ObjectUtils.equals(_maturity, other._maturity) &&
              _nthFutureFromTenor == other._nthFutureFromTenor &&
+             ObjectUtils.equals(_floatingLength, other._floatingLength) &&
              ObjectUtils.equals(_security, other._security) &&
              _instrumentType == other._instrumentType;
     }
@@ -114,6 +144,10 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
       return result;
     }
     result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal();
+    if (result != 0) {
+      return result;
+    }
+    result = getFloatingLength().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(o.getFloatingLength().getPeriod().toPeriodFields().toEstimatedDuration());
     if (result != 0) {
       return result;
     }
