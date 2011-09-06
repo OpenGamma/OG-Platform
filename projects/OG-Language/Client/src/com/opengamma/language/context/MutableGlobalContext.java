@@ -6,6 +6,7 @@
 package com.opengamma.language.context;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionSource;
@@ -131,6 +132,10 @@ public class MutableGlobalContext extends GlobalContext {
 
   public void setSecuritySource(final SecuritySource securitySource) {
     removeOrReplaceValue(SECURITY_SOURCE, securitySource);
+  }
+
+  public void setSaturatingExecutor(final ExecutorService executorService) {
+    setValue(SATURATING_EXECUTOR, executorService);
   }
 
   // Arbitrary values

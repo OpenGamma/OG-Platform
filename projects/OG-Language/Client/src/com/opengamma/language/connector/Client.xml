@@ -121,12 +121,12 @@
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="functionProviders">
       <list>
+        <bean class="com.opengamma.language.identifier.IdentifierFunctionProvider" />
         <bean class="com.opengamma.language.object.ObjectFunctionProvider" />
         <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
         <bean class="com.opengamma.language.function.FunctionProviderBean">
           <property name="functions">
             <list>
-              <bean class="com.opengamma.language.identifier.ExternalIdBundleFunction" />
               <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
               <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
             </list>
@@ -170,11 +170,11 @@
         <bean class="com.opengamma.language.convert.Converters">
           <property name="fudgeContext" ref="engineFudgeContext" />
         </bean>
+        <bean class="com.opengamma.language.identifier.Converters "/>
+        <!-- For odd functions, use the provider bean. If a package exports more than a couple, create a provider for it -->
         <bean class="com.opengamma.language.invoke.TypeConverterProviderBean">
           <property name="converters">
-            <list>
-              <bean class="com.opengamma.language.identifier.TypeConverter" />
-            </list>
+            <list />
           </property>
         </bean>
       </list>
