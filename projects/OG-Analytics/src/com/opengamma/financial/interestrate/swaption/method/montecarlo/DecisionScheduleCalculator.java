@@ -11,7 +11,9 @@ import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisito
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
+import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
 /**
@@ -62,4 +64,27 @@ public class DecisionScheduleCalculator extends AbstractInterestRateDerivativeVi
     DecisionSchedule decision = new DecisionSchedule(decisionTime, impactTime, impactAmount);
     return decision;
   }
+
+  @Override
+  public DecisionSchedule visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final YieldCurveBundle curves) {
+    int nbCpn = annuity.getNumberOfPayments();
+    double[] decisionTime = new double[nbCpn];
+    double[][] impactTime = new double[nbCpn][];
+    double[][] impactAmount = new double[nbCpn][];
+    for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
+      AnnuityPaymentFixed cfe = CFEC.visit(annuity.getNthPayment(loopcpn), curves);
+      decisionTime[loopcpn] = annuity.isFixed()[loopcpn] ? 0.0 : ((CouponFloating) annuity.getNthPayment(loopcpn)).getFixingTime();
+      impactTime[loopcpn] = new double[cfe.getNumberOfPayments()];
+      impactAmount[loopcpn] = new double[cfe.getNumberOfPayments()];
+      for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
+        impactTime[loopcpn][loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
+        impactAmount[loopcpn][loopcf] = cfe.getNthPayment(loopcf).getAmount();
+      }
+    }
+    DecisionSchedule decision = new DecisionSchedule(decisionTime, impactTime, impactAmount);
+    return decision;
+  }
+
+  //TODO: Ratchet
+
 }

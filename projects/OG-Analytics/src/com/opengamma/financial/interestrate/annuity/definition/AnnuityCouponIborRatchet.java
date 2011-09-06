@@ -19,6 +19,9 @@ import com.opengamma.financial.interestrate.payments.derivative.CouponIborRatche
  */
 public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
 
+  /**
+   * Flag indicating if a coupon is already fixed.
+   */
   private final boolean[] _isFixed;
 
   /**
@@ -33,6 +36,14 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
       Validate.isTrue((payments[looppay] instanceof CouponFixed) || (payments[looppay] instanceof CouponIborRatchet), "Next coupons should be CouponFixed or CouponIborRatchet");
       _isFixed[looppay] = (payments[looppay] instanceof CouponFixed);
     }
+  }
+
+  /**
+   * Gets the flag indicating if a coupon is already fixed.
+   * @return The flag.
+   */
+  public boolean[] isFixed() {
+    return _isFixed;
   }
 
   @Override
