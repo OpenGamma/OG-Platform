@@ -6,6 +6,7 @@
 package com.opengamma.engine.function;
 
 import java.util.ArrayDeque;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -31,7 +32,30 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingFunctionRepositoryCompiler.class);
 
-  private final TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository>();
+  private static final Comparator<Pair<FunctionRepository, Instant>> s_comparator = new Comparator<Pair<FunctionRepository, Instant>>() {
+    @Override
+    public int compare(final Pair<FunctionRepository, Instant> o1, final Pair<FunctionRepository, Instant> o2) {
+      if (o1 == o2) {
+        return 0;
+      }
+      if (o1.getFirst() == o2.getFirst()) {
+        // Same repository, order by timestamp
+        return o1.getSecond().compareTo(o2.getSecond());
+      }
+      // If the repositories aren't equal, just need a deterministic ordering
+      final int hc1 = o1.getFirst().hashCode();
+      final int hc2 = o2.getFirst().hashCode();
+      if (hc1 < hc2) {
+        return -1;
+      }
+      if (hc1 > hc2) {
+        return 1;
+      }
+      return o1.getSecond().compareTo(o2.getSecond());
+    }
+  };
+  private final TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository> _compilationCache = new TreeMap<Pair<FunctionRepository, Instant>, InMemoryCompiledFunctionRepository>(
+      s_comparator);
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
   private int _cacheSize = 16;
   private long _functionInitId;

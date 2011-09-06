@@ -17,7 +17,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
 
 /**
  * An indication of when something expires.
@@ -149,7 +148,7 @@ public class Expiry implements InstantProvider, Serializable {
    */
   @Deprecated
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ExpiryBuilder.toFudgeMsg(serializer, this, msg);
+    ExpiryFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
@@ -163,7 +162,7 @@ public class Expiry implements InstantProvider, Serializable {
    */
   @Deprecated
   public static Expiry fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ExpiryBuilder.fromFudgeMsg(deserializer, msg);
+    return ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

@@ -8,21 +8,13 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.TemporaryQueue;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +35,10 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
+import com.opengamma.financial.rest.AbstractRestfulJmsResultConsumer;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
-import com.opengamma.transport.FudgeMessageReceiver;
-import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
-import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -58,29 +47,16 @@ import com.sun.jersey.api.client.ClientResponse;
  * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote
  * view client to a single engine-side view client may result in undesired behaviour including inconsistencies.
  */
-public class RemoteViewClient implements ViewClient {
+public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implements ViewClient {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
-  /**
-   * The heartbeat frequency.
-   */
-  private static final long HEARTBEAT_FREQUENCY_MILLIS = DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2;
-
-  /**
-   * The base URI.
-   */
-  private final URI _baseUri;
-  /**
-   * The client.
-   */
-  private final FudgeRestClient _client;
   /**
    * The view processor.
    */
   private final ViewProcessor _viewProcessor;
   /**
-   * The lock for tread-safety.
+   * The lock for thread-safety.
    */
   private final ReentrantLock _listenerLock = new ReentrantLock();
   /**
@@ -88,41 +64,17 @@ public class RemoteViewClient implements ViewClient {
    */
   private final ViewResultListener _internalResultListener;
   /**
-   * The demand of listeners.
-   */
-  private long _listenerDemand;
-  /**
    * The result listener.
    */
   private ViewResultListener _resultListener;
   /**
-   * The latch for thread-safety.
+   * The latch for awaiting process completion.
    */
   private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
-  /**
-   * The Fudge context.
-   */
-  private final FudgeContext _fudgeContext;
-  /**
-   * The connection factory.
-   */
-  private final ConnectionFactory _connectionFactory;
   /**
    * The scheduler.
    */
   private final ScheduledExecutorService _scheduler;
-  /**
-   * The heartbeat.
-   */
-  private final ScheduledFuture<?> _scheduledHeartbeat;
-  /**
-   * The connection.
-   */
-  private Connection _connection;
-  /**
-   * The message consumer.
-   */
-  private MessageConsumer _consumer;
 
   /**
    * Creates an instance.
@@ -134,11 +86,8 @@ public class RemoteViewClient implements ViewClient {
    * @param scheduler  the scheduler
    */
   public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, ConnectionFactory connectionFactory, ScheduledExecutorService scheduler) {
+    super(baseUri, fudgeContext, connectionFactory, scheduler, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2);
     _viewProcessor = viewProcessor;
-    _baseUri = baseUri;
-    _client = FudgeRestClient.create();
-    _fudgeContext = fudgeContext;
-    _connectionFactory = connectionFactory;
     _scheduler = scheduler;
     _internalResultListener = new AbstractViewResultListener() {
       
@@ -153,27 +102,19 @@ public class RemoteViewClient implements ViewClient {
       }
 
     };
-    
-    Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        heartbeat();
-      }
-    };
-    _scheduledHeartbeat = scheduler.scheduleAtFixedRate(runnable, HEARTBEAT_FREQUENCY_MILLIS, HEARTBEAT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public UniqueId getUniqueId() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_UNIQUE_ID);
-    return _client.access(uri).get(UniqueId.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_UNIQUE_ID);
+    return getClient().access(uri).get(UniqueId.class);
   }
 
   @Override
   public UserPrincipal getUser() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_USER);
-    return _client.access(uri).get(UserPrincipal.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_USER);
+    return getClient().access(uri).get(UserPrincipal.class);
   }
 
   @Override
@@ -183,15 +124,15 @@ public class RemoteViewClient implements ViewClient {
 
   @Override
   public ViewClientState getState() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_STATE);
-    return _client.access(uri).get(ViewClientState.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_STATE);
+    return getClient().access(uri).get(ViewClientState.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean isAttached() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_IS_ATTACHED);
-    return _client.access(uri).get(Boolean.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_IS_ATTACHED);
+    return getClient().access(uri).get(Boolean.class);
   }
 
   @Override
@@ -208,8 +149,8 @@ public class RemoteViewClient implements ViewClient {
     _listenerLock.lock();
     try {
       _completionLatch = new CountDownLatch(1);
-      URI uri = getUri(_baseUri, DataViewClientResource.PATH_ATTACH_SEARCH);
-      _client.access(uri).post(request);
+      URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_ATTACH_SEARCH);
+      getClient().access(uri).post(request);
     } finally {
       _listenerLock.unlock();
     }
@@ -220,8 +161,8 @@ public class RemoteViewClient implements ViewClient {
     _listenerLock.lock();
     try {
       _completionLatch = new CountDownLatch(1);
-      URI uri = getUri(_baseUri, DataViewClientResource.PATH_ATTACH_DIRECT);
-      _client.access(uri).post(processId);
+      URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_ATTACH_DIRECT);
+      getClient().access(uri).post(processId);
     } finally {
       _listenerLock.unlock();
     }
@@ -231,8 +172,8 @@ public class RemoteViewClient implements ViewClient {
   public void detachFromViewProcess() {
     _listenerLock.lock();
     try {
-      URI uri = getUri(_baseUri, DataViewClientResource.PATH_DETACH);
-      _client.access(uri).post();
+      URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_DETACH);
+      getClient().access(uri).post();
       processCompleted();
     } finally {
       _listenerLock.unlock();
@@ -241,14 +182,14 @@ public class RemoteViewClient implements ViewClient {
 
   @Override
   public MarketDataInjector getLiveDataOverrideInjector() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
     return new RemoteLiveDataInjector(uri);
   }
   
   @Override
   public ViewDefinition getLatestViewDefinition() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_DEFINITION);
-    return _client.access(uri).get(ViewDefinition.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_DEFINITION);
+    return getClient().access(uri).get(ViewDefinition.class);
   }
 
   private void processCompleted() {
@@ -263,11 +204,10 @@ public class RemoteViewClient implements ViewClient {
       ViewResultListener oldListener = _resultListener;
       _resultListener = newListener;
       if (oldListener == null && newListener != null) {
-        _listenerDemand++;
+        incrementListenerDemand();
       } else if (oldListener != null && newListener == null) {
-        _listenerDemand--;
+        decrementListenerDemand();
       }
-      configureResultListener();
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("JMS error configuring result listener", e);
     } finally {
@@ -275,129 +215,50 @@ public class RemoteViewClient implements ViewClient {
     }
   }
 
-  private void configureResultListener() throws JMSException {
-    if (_listenerDemand == 0) {
-      URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP_JMS_RESULT_STREAM);
-      _client.access(uri).post();
-      closeJms();
-      _completionLatch = null;
-    } else if (_listenerDemand == 1) {
-      _completionLatch = new CountDownLatch(1);
-      String destination = startJms();
-      MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
-      msg.add(DataViewClientResource.DESTINATION_FIELD, destination);
-      URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
-      _client.access(uri).post(msg);
-      
-      // We have not been listening to results so far, so initialise the state of the latch
-      if (isAttached() && isCompleted()) {
-        _completionLatch.countDown();
-      }
-    }
-  }
-
-  private String startJms() throws JMSException {
-    try {
-      _connection = _connectionFactory.createConnection();
-      Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      TemporaryQueue tempQueue = session.createTemporaryQueue();
-      _consumer = session.createConsumer(tempQueue);
-      _consumer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
-        @SuppressWarnings("unchecked")
-        @Override
-        public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-          s_logger.debug("Result listener call received");
-          Function<ViewResultListener, ?> listenerCall;
-          try {
-            listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
-          } catch (Exception e) {
-            s_logger.warn("Caught exception parsing message", e);
-            s_logger.debug("Couldn't parse message {}", msgEnvelope.getMessage());
-            return;
-          }
-          dispatchListenerCall(listenerCall);
-        }
-      }, _fudgeContext)));
-      _connection.start();
-      s_logger.info("Set up result JMS subscription to {}", tempQueue);
-      return tempQueue.getQueueName();
-    } catch (JMSException e) {
-      s_logger.error("Exception setting up JMS result listener", e);
-      closeJms();
-      throw e;
-    }
-  }
-
-  private void dispatchListenerCall(Function<ViewResultListener, ?> listenerCall) {
-    ViewResultListener listener = _resultListener;
-    if (listener != null) {
-      try {
-        listenerCall.apply(listener);
-      } catch (Exception e) {
-        s_logger.warn("Exception notifying ViewClient listener of call " + listenerCall.getClass().getName(), e);
-      }
-    }
-    listenerCall.apply(_internalResultListener);
-  }
-
-  private void closeJms() {
-    if (_consumer != null) {
-      try {
-        _connection.close();
-      } catch (Exception e) {
-        s_logger.error("Error closing JMS connection", e);
-      } finally {
-        _connection = null;
-        _consumer = null;
-      }
-    }
-  }
-
   @Override
   public void setUpdatePeriod(long periodMillis) {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_UPDATE_PERIOD);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_UPDATE_PERIOD);
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add(DataViewClientResource.UPDATE_PERIOD_FIELD, periodMillis);
-    _client.access(uri).put(msg);
+    getClient().access(uri).put(msg);
   }
 
   @Override
   public ViewResultMode getResultMode() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_MODE);
-    return _client.access(uri).get(ViewResultMode.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESULT_MODE);
+    return getClient().access(uri).get(ViewResultMode.class);
   }
 
   @Override
   public void setResultMode(ViewResultMode viewResultMode) {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_MODE);
-    _client.access(uri).put(viewResultMode);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESULT_MODE);
+    getClient().access(uri).put(viewResultMode);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void pause() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PAUSE);
-    _client.access(uri).post();
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_PAUSE);
+    getClient().access(uri).post();
   }
 
   @Override
   public void resume() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESUME);
-    _client.access(uri).post();
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESUME);
+    getClient().access(uri).post();
   }
 
   @Override
   public void triggerCycle() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_TRIGGER_CYCLE);
-    _client.access(uri).post();
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_TRIGGER_CYCLE);
+    getClient().access(uri).post();
   }
 
   @Override
   public void waitForCompletion() throws InterruptedException {
     _listenerLock.lock();
     try {
-      _listenerDemand++;
-      configureResultListener();
+      incrementListenerDemand();
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("JMS error while setting up result listener", e);
     } finally {
@@ -408,8 +269,7 @@ public class RemoteViewClient implements ViewClient {
     
     _listenerLock.lock();
     try {
-      _listenerDemand--;
-      configureResultListener();
+      decrementListenerDemand();
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("JMS error while removing result listener following completion", e);
     } finally {
@@ -419,53 +279,53 @@ public class RemoteViewClient implements ViewClient {
 
   @Override
   public boolean isResultAvailable() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_AVAILABLE);
-    return _client.access(uri).get(Boolean.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESULT_AVAILABLE);
+    return getClient().access(uri).get(Boolean.class);
   }
 
   @Override
   public boolean isCompleted() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_COMPLETED);
-    return _client.access(uri).get(Boolean.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_COMPLETED);
+    return getClient().access(uri).get(Boolean.class);
   }
 
   @Override
   public ViewComputationResultModel getLatestResult() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_RESULT);
-    return _client.access(uri).get(ViewComputationResultModel.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_LATEST_RESULT);
+    return getClient().access(uri).get(ViewComputationResultModel.class);
   }
 
   @Override
   public CompiledViewDefinition getLatestCompiledViewDefinition() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_COMPILED_VIEW_DEFINITION);
-    return _client.access(uri).get(CompiledViewDefinition.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_LATEST_COMPILED_VIEW_DEFINITION);
+    return getClient().access(uri).get(CompiledViewDefinition.class);
   }
   
   @Override
   public VersionCorrection getProcessVersionCorrection() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PROCESS_VERSION_CORRECTION);
-    return _client.access(uri).get(VersionCorrection.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_PROCESS_VERSION_CORRECTION);
+    return getClient().access(uri).get(VersionCorrection.class);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean isViewCycleAccessSupported() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
-    return _client.access(uri).get(Boolean.class);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
+    return getClient().access(uri).get(Boolean.class);
   }
 
   @Override
   public void setViewCycleAccessSupported(boolean isViewCycleAccessSupported) {
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add(DataViewClientResource.VIEW_CYCLE_ACCESS_SUPPORTED_FIELD, isViewCycleAccessSupported);
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
-    _client.access(uri).post(msg);
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
+    getClient().access(uri).post(msg);
   }
 
   @Override
   public EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId) {
-    URI createReferenceUri = getUri(_baseUri, DataViewClientResource.PATH_CREATE_CYCLE_REFERENCE);
-    ClientResponse response = _client.access(createReferenceUri).post(ClientResponse.class, cycleId);
+    URI createReferenceUri = getUri(getBaseUri(), DataViewClientResource.PATH_CREATE_CYCLE_REFERENCE);
+    ClientResponse response = getClient().access(createReferenceUri).post(ClientResponse.class, cycleId);
     if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
       return null;
     }
@@ -475,8 +335,8 @@ public class RemoteViewClient implements ViewClient {
 
   @Override
   public RemoteEngineResourceReference<? extends ViewCycle> createLatestCycleReference() {
-    URI createReferenceUri = getUri(_baseUri, DataViewClientResource.PATH_CREATE_LATEST_CYCLE_REFERENCE);
-    ClientResponse response = _client.access(createReferenceUri).post(ClientResponse.class);
+    URI createReferenceUri = getUri(getBaseUri(), DataViewClientResource.PATH_CREATE_LATEST_CYCLE_REFERENCE);
+    ClientResponse response = getClient().access(createReferenceUri).post(ClientResponse.class);
     if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
       return null;
     }
@@ -488,29 +348,40 @@ public class RemoteViewClient implements ViewClient {
   @Override
   public void shutdown() {
     stopHeartbeating();
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
-    _client.access(uri).post();
+    getClient().access(getBaseUri()).delete();
   }
 
   //-------------------------------------------------------------------------
-  private static URI getUri(URI baseUri, String path) {
-    return UriBuilder.fromUri(baseUri).path(path).build();
+  @Override
+  @SuppressWarnings("unchecked")
+  protected void dispatchListenerCall(Function<?, ?> listenerCall) {
+    ViewResultListener listener = _resultListener;
+    if (listener != null) {
+      try {
+        ((Function<ViewResultListener, ?>) listenerCall).apply(listener);
+      } catch (Exception e) {
+        s_logger.warn("Exception notifying ViewClient listener of call " + listenerCall.getClass().getName(), e);
+      }
+    }
+    ((Function<ViewResultListener, ?>) listenerCall).apply(_internalResultListener);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Externally visible for testing
-   */
-  public void heartbeat() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_HEARTBEAT);
-    _client.access(uri).post();
+  @Override
+  protected void onStartResultStream() {
+    super.onStartResultStream();
+    
+    _completionLatch = new CountDownLatch(1);
+    
+    // We have not been listening to results so far, so initialise the state of the latch
+    if (isAttached() && isCompleted()) {
+      _completionLatch.countDown();
+    }
   }
 
-  /**
-   * Externally visible for testing
-   */
-  public void stopHeartbeating() {
-    _scheduledHeartbeat.cancel(true);
+  @Override
+  protected void onEndResultStream() {
+    super.onEndResultStream();
+    _completionLatch = null;
   }
-
+  
 }

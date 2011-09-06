@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -87,6 +88,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity, S data);
 
   T visitForwardLiborAnnuity(AnnuityCouponIbor forwardLiborAnnuity, S data);
+
+  T visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity, S data);
 
   T visitSwap(Swap<?, ?> swap, S data);
 
@@ -179,6 +182,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity);
 
   T visitForwardLiborAnnuity(AnnuityCouponIbor forwardLiborAnnuity);
+
+  T visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity);
 
   T visitSwap(Swap<?, ?> swap);
 
