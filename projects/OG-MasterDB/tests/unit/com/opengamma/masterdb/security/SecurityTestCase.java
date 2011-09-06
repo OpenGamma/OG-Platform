@@ -366,7 +366,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(GICSCode.class, new TestDataProvider<GICSCode>() {
       @Override
       public void getValues(final Collection<GICSCode> values) {
-        values.add(GICSCode.getInstance((((s_random.nextInt(90) + 10) * 100 + (s_random.nextInt(90) + 10)) * 100 + (s_random.nextInt(90) + 10)) * 100 + (s_random.nextInt(90) + 10)));
+        int code = (((s_random.nextInt(90) + 10) * 100 + (s_random.nextInt(90) + 10)) * 100 + (s_random.nextInt(90) + 10)) * 100 + (s_random.nextInt(90) + 10);
+        values.add(GICSCode.of(Integer.toString(code)));
       }
     });
     s_dataProviders.put(Pair.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));

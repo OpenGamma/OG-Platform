@@ -83,7 +83,7 @@ public class DbSecurityMasterTest extends DBTest {
   public void test_equity() throws Exception {
     EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
     sec.setName("OpenGamma");
-    sec.setGicsCode(GICSCode.getInstance(2));
+    sec.setGicsCode(GICSCode.of("20102010"));
     sec.setShortName("OG");
     sec.setExternalIdBundle(ExternalIdBundle.of("Test", "OG"));
     SecurityDocument addDoc = new SecurityDocument(sec);
