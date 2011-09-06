@@ -864,14 +864,10 @@ public class BLAS2 {
    */
   public static double[] dgemvTransposed(double alpha, FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
-    final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        tmp[i] += ptrA[i + j * cols] * aVector[j];
-      }
+    double[] tmp = new double[cols];
+    tmp = dgemvTransposed(aMatrix, aVector);
+    for (int i = 0; i < cols; i++) {
       tmp[i] = alpha * tmp[i] + beta * y[i];
     }
     return tmp;
