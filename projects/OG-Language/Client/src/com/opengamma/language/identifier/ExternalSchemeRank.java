@@ -175,4 +175,26 @@ public final class ExternalSchemeRank {
     return strings;
   }
 
+  @Override
+  public String toString() {
+    return "ExternalSchemeRank" + _ranks;
+  }
+
+  @Override
+  public int hashCode() {
+    return _ranks.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof ExternalSchemeRank)) {
+      return false;
+    }
+    final ExternalSchemeRank other = (ExternalSchemeRank) o;
+    return _ranks.equals(other._ranks);
+  }
+
 }

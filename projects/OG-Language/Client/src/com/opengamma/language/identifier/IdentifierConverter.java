@@ -17,14 +17,19 @@ import com.opengamma.language.definition.JavaTypeInfo;
 /**
  * Converts identifier types. For example the ExternalId to/from a singleton bundle.
  */
-public class TypeConverter extends AbstractMappedConverter {
+public class IdentifierConverter extends AbstractMappedConverter {
 
   private static final JavaTypeInfo<ExternalId> EXTERNAL_ID = JavaTypeInfo.builder(ExternalId.class).allowNull().get();
   private static final JavaTypeInfo<ExternalIdBundle> EXTERNAL_ID_BUNDLE = JavaTypeInfo.builder(ExternalIdBundle.class).allowNull().get();
   private static final JavaTypeInfo<ObjectId> OBJECT_ID = JavaTypeInfo.builder(ObjectId.class).get();
   private static final JavaTypeInfo<UniqueId> UNIQUE_ID = JavaTypeInfo.builder(UniqueId.class).get();
 
-  public TypeConverter() {
+  /**
+   * Default instance.
+   */
+  public static final IdentifierConverter INSTANCE = new IdentifierConverter();
+
+  protected IdentifierConverter() {
     conversion(TypeMap.ZERO_LOSS, EXTERNAL_ID, EXTERNAL_ID_BUNDLE, new Action<ExternalId, ExternalIdBundle>() {
       @Override
       protected ExternalIdBundle convert(final ExternalId value) {

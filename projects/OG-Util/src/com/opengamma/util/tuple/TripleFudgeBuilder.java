@@ -12,20 +12,21 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
-
 /**
- * Fudge builder for {@code ObjectsPair}.
+ * Fudge builder for {@code Triple}.
  */
-@GenericFudgeBuilderFor(ObjectsPair.class)
-public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?, ?>> {
+@GenericFudgeBuilderFor(Triple.class)
+public final class TripleFudgeBuilder implements FudgeBuilder<Triple<?, ?, ?>> {
 
   /** Field name. */
   public static final String FIRST_FIELD_NAME = "first";
   /** Field name. */
   public static final String SECOND_FIELD_NAME = "second";
+  /** Field name. */
+  public static final String THIRD_FIELD_NAME = "third";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ObjectsPair<?, ?> object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Triple<?, ?, ?> object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     if (object.getFirst() != null) {
       serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
@@ -33,25 +34,27 @@ public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?
     if (object.getSecond() != null) {
       serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
     }
+    if (object.getThird() != null) {
+      serializer.addToMessageObject(msg, THIRD_FIELD_NAME, null, object.getThird(), Object.class);
+    }
     return msg;
   }
 
   @Override
-  public ObjectsPair<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    Object first;
+  public Triple<?, ?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    Object first = null;
     if (msg.hasField(FIRST_FIELD_NAME)) {
       first = deserializer.fieldValueToObject(msg.getByName(FIRST_FIELD_NAME));
-    } else {
-      first = null;
     }
-    Object second;
+    Object second = null;
     if (msg.hasField(SECOND_FIELD_NAME)) {
       second = deserializer.fieldValueToObject(msg.getByName(SECOND_FIELD_NAME));
-    } else {
-      second = null;
     }
-    return ObjectsPair.of(first, second);
+    Object third = null;
+    if (msg.hasField(THIRD_FIELD_NAME)) {
+      third = deserializer.fieldValueToObject(msg.getByName(THIRD_FIELD_NAME));
+    }
+    return Triple.of(first, second, third);
   }
-  
 
 }

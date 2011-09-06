@@ -352,8 +352,6 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     _manager.removeCache(MULTI_SECURITIES_CACHE);
     _manager.removeCache(MULTI_BONDS_CACHE);
     _manager.removeCache(BUNDLE_HINT_SECURITIES_CACHE);
-    // Andrew 2011-09-05 -- shutting down the manager is not good if it is shared with other caches
-    _manager.shutdown();
   }
 
   //-------------------------------------------------------------------------

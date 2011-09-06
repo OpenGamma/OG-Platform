@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.view.rest;
+package com.opengamma.financial.rest;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,7 +17,6 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
@@ -25,32 +24,17 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.listener.CycleCompletedCall;
-import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
-import com.opengamma.engine.view.listener.ProcessCompletedCall;
-import com.opengamma.engine.view.listener.ProcessTerminatedCall;
-import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
-import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
-import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.livedata.UserPrincipal;
-
 /**
- * Publishes asynchronous results from a view client over JMS.
+ * Publishes asynchronous results over JMS.
  * <p>
  * Always call {@link #stopPublishingResults()} when this result publisher is no longer required to ensure that
  * associated resources are tidied up.
  */
-public class JmsResultPublisher implements ViewResultListener {
+public abstract class AbstractJmsResultPublisher {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(JmsResultPublisher.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractJmsResultPublisher.class);
   private static final String SEQUENCE_NUMBER_FIELD_NAME = "#";
   
-  private final ViewClient _viewClient;
   private final FudgeContext _fudgeContext;
   private final FudgeSerializer _fudgeSerializationContext;
   private final ConnectionFactory _connectionFactory;
@@ -64,19 +48,48 @@ public class JmsResultPublisher implements ViewResultListener {
   private volatile Session _session;
   private volatile MessageProducer _producer;
 
-  public JmsResultPublisher(ViewClient viewClient, FudgeContext fudgeContext, ConnectionFactory connectionFactory) {
-    _viewClient = viewClient;
+  public AbstractJmsResultPublisher(FudgeContext fudgeContext, ConnectionFactory connectionFactory) {
     _fudgeContext = fudgeContext;
     _fudgeSerializationContext = new FudgeSerializer(fudgeContext);
     _connectionFactory = connectionFactory;
   }
   
+  //-------------------------------------------------------------------------
+  /**
+   * Stops listening to results from the underlying provider. 
+   */
+  protected abstract void stopListener();
+  
+  /**
+   * Begins listening to results from the underlying provider. When a result occurs, {@code #send(Object)} should be
+   * called to publish that result over JMS.
+   */
+  protected abstract void startListener();
+
+  /**
+   * Publishes a result over JMS.
+   * <p>
+   * This should only be called once results are required, as indicated by a call to {@link #startListener()}.
+   * 
+   * @param result  the result, not null
+   */
+  protected void send(Object result) {
+    s_logger.debug("Result received to forward over JMS: {}", result);    
+    MutableFudgeMsg resultMsg = _fudgeSerializationContext.objectToFudgeMsg(result);
+    FudgeSerializer.addClassHeader(resultMsg, result.getClass());
+    long sequenceNumber = _sequenceNumber.getAndIncrement();
+    resultMsg.add(SEQUENCE_NUMBER_FIELD_NAME, sequenceNumber);
+    s_logger.debug("Sending result as fudge message with sequence number {}: {}", sequenceNumber, resultMsg);
+    byte[] resultMsgByteArray = _fudgeContext.toByteArray(resultMsg);
+    _messageQueue.add(resultMsgByteArray);
+  }
+  
+  //-------------------------------------------------------------------------
   public void startPublishingResults(String destination) throws Exception {
     _lock.lock();
     try {
-      s_logger.debug("Setting listener {} on view client {}'s results", this, _viewClient);
       startJmsIfRequired(destination);
-      _viewClient.setResultListener(this);
+      startListener();
     } finally {
       _lock.unlock();
     }
@@ -152,62 +165,14 @@ public class JmsResultPublisher implements ViewResultListener {
   public void stopPublishingResults() throws JMSException {
     _lock.lock();
     try {
-      s_logger.debug("Removing listener {} from view client {}'s results", this, _viewClient);
-      _viewClient.setResultListener(null);
+      s_logger.debug("Removing listener {}", this);
+      stopListener();
       _isShutdown.set(true);
       _messageQueue.add(new byte[0]);
       closeJms();
     } finally {
       _lock.unlock();
     }
-  }
-  
-  //-------------------------------------------------------------------------
-  @Override
-  public UserPrincipal getUser() {
-    return _viewClient.getUser();
-  }
-  
-  @Override
-  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
-    send(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
-  }  
-  
-  @Override
-  public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
-    send(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
-  }
-
-  @Override
-  public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    send(new CycleCompletedCall(fullResult, deltaResult));
-  }
-
-  @Override
-  public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
-    send(new CycleExecutionFailedCall(executionOptions, exception));
-  }
-
-  @Override
-  public void processCompleted() {
-    send(new ProcessCompletedCall());
-  }
-
-  @Override
-  public void processTerminated(boolean executionInterrupted) {
-    send(new ProcessTerminatedCall(executionInterrupted));
-  }
-
-  //-------------------------------------------------------------------------
-  private void send(Object result) {
-    s_logger.debug("Result received to forward over JMS: {}", result);    
-    MutableFudgeMsg resultMsg = _fudgeSerializationContext.objectToFudgeMsg(result);
-    FudgeSerializer.addClassHeader(resultMsg, result.getClass());
-    long sequenceNumber = _sequenceNumber.getAndIncrement();
-    resultMsg.add(SEQUENCE_NUMBER_FIELD_NAME, sequenceNumber);
-    s_logger.debug("Sending result as fudge message with sequence number {}: {}", sequenceNumber, resultMsg);
-    byte[] resultMsgByteArray = _fudgeContext.toByteArray(resultMsg);
-    _messageQueue.add(resultMsgByteArray);
   }
   
 }
