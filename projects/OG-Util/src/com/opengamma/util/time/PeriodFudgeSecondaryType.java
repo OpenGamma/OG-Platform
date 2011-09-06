@@ -12,7 +12,7 @@ import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 /**
- * Converts DayCount instances to/from a Fudge string type.
+ * Converts Period instances to/from a Fudge string type.
  */
 public final class PeriodFudgeSecondaryType extends SecondaryFieldType<Period, String> {
 
