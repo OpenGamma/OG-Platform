@@ -394,16 +394,17 @@ public final class ScheduleCalculator {
    * The start date is not included in the array. The date are constructed forward and the stub period, if any, is short
    * and last. The end date is always included in the schedule.
    * @param startDate The reference initial date for the construction.
-   * @param tenor The annuity tenor.
-   * @param period The period between payments.
+   * @param tenorAnnuity The annuity tenor.
+   * @param periodPayments The period between payments.
    * @param businessDayConvention The business day convention.
    * @param calendar The applicable calendar.
    * @param isEOM The end-of-month rule flag.
    * @return The array of dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenor, Period period, BusinessDayConvention businessDayConvention, Calendar calendar, boolean isEOM) {
-    ZonedDateTime endDate = startDate.plus(tenor);
-    return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, true);
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenorAnnuity, Period periodPayments, BusinessDayConvention businessDayConvention, Calendar calendar,
+      boolean isEOM) {
+    ZonedDateTime endDate = startDate.plus(tenorAnnuity);
+    return getAdjustedDateSchedule(startDate, endDate, periodPayments, businessDayConvention, calendar, isEOM, true);
   }
 
   public static ZonedDateTime[] getSettlementDateSchedule(final ZonedDateTime[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
