@@ -85,7 +85,14 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
 
   @Override
   public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
-    throw new UnsupportedOperationException();
+    try {
+      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("add"), getFudgeSerializer().objectToFudgeMsg(document));
+      UniqueId snapshotId = getFudgeDeserializer().fieldValueToObject(UniqueId.class, response.getMessage().getByName("uniqueId"));
+      // REVIEW jonathan 2011-09-06 -- why does the remote resource not return the complete added document?
+      return get(snapshotId);
+    } catch (RestRuntimeException ex) {
+      throw ex.translate();
+    }
   }
 
   @Override
