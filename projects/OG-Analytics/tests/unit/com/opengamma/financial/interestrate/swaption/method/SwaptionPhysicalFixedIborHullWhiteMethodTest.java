@@ -326,7 +326,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
