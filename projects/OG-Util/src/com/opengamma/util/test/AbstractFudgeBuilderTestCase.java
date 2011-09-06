@@ -6,9 +6,11 @@
 package com.opengamma.util.test;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
@@ -51,25 +53,56 @@ public abstract class AbstractFudgeBuilderTestCase {
     return _deserializer;
   }
 
+  protected Logger getLogger() {
+    return s_logger;
+  }
+
+  //-------------------------------------------------------------------------
+  protected <T> void assertEncodeDecodeCycle(final Class<T> clazz, final T object) {
+    assertEquals(object, cycleObjectProxy(clazz, object));
+    assertEquals(object, cycleObjectBytes(clazz, object));
+  }
+
   protected <T> T cycleObject(final Class<T> clazz, final T object) {
-    getLogger().debug("cycle object {} of class {}", object, clazz);
-    final FudgeMsg message = getFudgeSerializer().objectToFudgeMsg(object);
-    getLogger().debug("message {}", message);
+    return cycleObjectProxy(clazz, object);
+  }
+
+  private <T> T cycleObjectProxy(final Class<T> clazz, final T object) {
+    getLogger().debug("cycle object {} of class by proxy {}", object, clazz);
     
-    final FudgeMsg proxiedMessage = _proxy.proxy(clazz, message);
-    getLogger().debug("message after proxy {}", proxiedMessage);
+    final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
+    getFudgeSerializer().addToMessage(msgOut, "test", null, object);
+    getLogger().debug("message out by proxy {}", msgOut);
     
-    final T cycled = getFudgeDeserializer().fudgeMsgToObject(clazz, proxiedMessage);
-    getLogger().debug("created object {}", cycled);
+    final FudgeMsg msgIn = _proxy.proxy(clazz, msgOut);
+    getLogger().debug("message in by proxy {}", msgIn);
+    
+    final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
+    getLogger().debug("created object by proxy {}", cycled);
+    assertTrue(clazz.isAssignableFrom(cycled.getClass()));
     return cycled;
   }
 
-  protected <T> void assertEncodeDecodeCycle(final Class<T> clazz, final T object) {
-    assertEquals(object, cycleObject(clazz, object));
+  private <T> T cycleObjectBytes(final Class<T> clazz, final T object) {
+    getLogger().debug("cycle object {} of class by bytes {}", object, clazz);
+    
+    final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
+    getFudgeSerializer().addToMessage(msgOut, "test", null, object);
+    getLogger().debug("message out by bytes {}", msgOut);
+    
+    final FudgeMsg msgIn = cycleMessage(msgOut);
+    getLogger().debug("message in by bytes {}", msgIn);
+    
+    final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
+    getLogger().debug("created object by bytes {}", cycled);
+    assertTrue(clazz.isAssignableFrom(cycled.getClass()));
+    return cycled;
   }
 
-  protected Logger getLogger() {
-    return s_logger;
+  private FudgeMsg cycleMessage(final FudgeMsg message) {
+    final byte[] data = getFudgeContext().toByteArray(message);
+    s_logger.info("{} bytes", data.length);
+    return getFudgeContext().deserialize(data).getMessage();
   }
 
 }
