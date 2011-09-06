@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.context.SessionContext;
@@ -21,7 +22,6 @@ import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.language.text.Ordinal;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 
 /**
  * Constructs an identifier bundle from a set of identifiers.
@@ -34,7 +34,7 @@ public class ExternalIdBundleFunction implements PublishedFunction {
     if (value.getStringValue() != null) {
       identifiers.add(ExternalId.parse(value.getStringValue()));
     } else if (value.getMessageValue() != null) {
-      identifiers.add(ExternalIdBuilder.fromFudgeMsg(value.getMessageValue()));
+      identifiers.add(ExternalIdFudgeBuilder.fromFudgeMsg(value.getMessageValue()));
     }
   }
 

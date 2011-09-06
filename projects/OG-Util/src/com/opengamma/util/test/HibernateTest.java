@@ -18,7 +18,6 @@ import com.opengamma.util.db.DbSource;
 public abstract class HibernateTest extends DBTest {
   
   private SessionFactory _sessionFactory;
-  private static int testCount = 0;
   
   protected HibernateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
@@ -45,8 +44,6 @@ public abstract class HibernateTest extends DBTest {
 
     SessionFactory sessionFactory = configuration.buildSessionFactory();
     setSessionFactory(sessionFactory);
-
-    testCount++;
   }
 
   @AfterMethod
