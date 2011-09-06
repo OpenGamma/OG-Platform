@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -33,6 +36,8 @@ import com.opengamma.language.position.PortfolioUtils;
  * Retrieves the identifiers of components that make up a portfolio. 
  */
 public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvoker implements PublishedFunction {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioComponentIdentifiersFunction.class);
 
   /**
    * Default instance.
@@ -103,6 +108,7 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
     final boolean includePosition = (Boolean) parameters[3];
     final boolean includeTrade = (Boolean) parameters[4];
     final boolean includePortfolioNode = (Boolean) parameters[5];
+    s_logger.info("invoke {}, {}", portfolioIdentifier, externalSchemeRank);
     final Portfolio portfolio = PortfolioUtils.getPortfolio(sessionContext.getGlobalContext(), portfolioIdentifier, includeSecurity);
     final List<String> result = new LinkedList<String>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {

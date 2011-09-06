@@ -28,6 +28,10 @@ import com.opengamma.language.text.Ordinal;
  */
 public class ExternalIdBundleFunction implements PublishedFunction {
 
+  // TODO: need functions for extracting an identifier from a bundle
+
+  // TODO: a type converter would do away with this function
+
   /**
    * Default instance.
    */
