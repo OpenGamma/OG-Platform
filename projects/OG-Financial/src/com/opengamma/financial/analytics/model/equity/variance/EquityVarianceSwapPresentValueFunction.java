@@ -86,7 +86,7 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
     // 1. Build the analytic derivative to be priced
     SimpleTrade trade = (SimpleTrade) target.getTrade(); // confirms that the ComputationTargetType == TRADE
     EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) trade.getSecurity();
-    ExternalId id = security.getSpotUnderlyingIdentifier();
+    ExternalId id = security.getSpotUnderlyingId();
 
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
@@ -141,13 +141,13 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
   }
 
   private ValueRequirement getForwardRequirement(EquityVarianceSwapSecurity security) {
-    ExternalId id = security.getSpotUnderlyingIdentifier();
+    ExternalId id = security.getSpotUnderlyingId();
     ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
   }
 
   private ValueRequirement getSpotRequirement(EquityVarianceSwapSecurity security) {
-    ExternalId id = security.getSpotUnderlyingIdentifier();
+    ExternalId id = security.getSpotUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
@@ -162,7 +162,7 @@ public class EquityVarianceSwapPresentValueFunction extends AbstractFunction.Non
                                                           .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_VANILLA_OPTIONS")
                                                           .with(STRIKE_PARAMETERIZATION_METHOD, _strikeParameterizationMethodName)
                                                           .get();
-    ExternalId id = security.getSpotUnderlyingIdentifier(); // TODO Case - Review - when thinking about vol surface definitions
+    ExternalId id = security.getSpotUnderlyingId(); // TODO Case - Review - when thinking about vol surface definitions
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
   }
 

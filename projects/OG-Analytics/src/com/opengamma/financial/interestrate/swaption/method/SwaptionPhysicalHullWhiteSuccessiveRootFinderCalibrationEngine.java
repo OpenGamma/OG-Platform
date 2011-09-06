@@ -5,18 +5,28 @@
  */
 package com.opengamma.financial.interestrate.swaption.method;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.math.rootfinding.BracketRoot;
+import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
  * Specific calibration engine for the Hull-White one factor model with swaption.
  */
 public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
+  /**
+   * The list of calibration times.
+   */
+  private final List<Double> _calibrationTimes = new ArrayList<Double>();
 
   /**
    * Constructor of the calibration engine.
@@ -37,7 +47,26 @@ public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine exte
     getBasket().add(instrument);
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
-    getCalibrationTimes().add(((SwaptionPhysicalFixedIbor) instrument).getTimeToExpiry());
+    _calibrationTimes.add(((SwaptionPhysicalFixedIbor) instrument).getTimeToExpiry());
+  }
+
+  @Override
+  public void calibrate(YieldCurveBundle curves) {
+    computeCalibrationPrice(curves);
+    getCalibrationObjective().setCurves(curves);
+    int nbInstruments = getBasket().size();
+    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(getCalibrationObjective().getFunctionValueAccuracy(), getCalibrationObjective().getVariableAbsoluteAccuracy());
+    final BracketRoot bracketer = new BracketRoot();
+    for (int loopins = 0; loopins < nbInstruments; loopins++) {
+      InterestRateDerivative instrument = getBasket().get(loopins);
+      getCalibrationObjective().setInstrument(instrument);
+      getCalibrationObjective().setPrice(getCalibrationPrice().get(loopins));
+      final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());
+      rootFinder.getRoot(getCalibrationObjective(), range[0], range[1]);
+      if (loopins < nbInstruments - 1) {
+        ((SwaptionPhysicalHullWhiteCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
+      }
+    }
   }
 
 }

@@ -36,7 +36,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
   @Override
   protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
+    final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
     final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
@@ -67,7 +67,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
     if (canApplyTo(context, target)) {
       final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
       final SecuritySource secMaster = context.getSecuritySource();
-      final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
+      final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option));

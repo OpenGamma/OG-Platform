@@ -83,7 +83,7 @@ public class NotionalBuilder extends AbstractFudgeBuilder {
     @Override
     public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SecurityNotional object) {
       final MutableFudgeMsg msg = serializer.newMessage();
-      addToMessage(msg, NOTIONAL_IDENTIFIER_KEY, UniqueIdBuilder.toFudgeMsg(serializer, object.getNotionalIdentifier()));
+      addToMessage(msg, NOTIONAL_IDENTIFIER_KEY, UniqueIdBuilder.toFudgeMsg(serializer, object.getNotionalId()));
       return msg;
     }
 

@@ -57,16 +57,16 @@ public class EquityVarianceSwapSecurityBuilder extends AbstractFudgeBuilder impl
 
   public static void toFudgeMsg(FudgeSerializer serializer, EquityVarianceSwapSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityBuilder.toFudgeMsg(serializer, object, msg);
-    addToMessage(msg, SPOT_UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getSpotUnderlyingIdentifier()));
+    addToMessage(msg, SPOT_UNDERLYING_IDENTIFIER_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getSpotUnderlyingId()));
     addToMessage(msg, CURRENCY_KEY, object.getCurrency());
     addToMessage(msg, STRIKE_KEY, object.getStrike());
     addToMessage(msg, NOTIONAL_KEY, object.getNotional());
-    addToMessage(msg, PARAMETERIZED_AS_VARIANCE_KEY, object.getParameterizedAsVariance());
+    addToMessage(msg, PARAMETERIZED_AS_VARIANCE_KEY, object.isParameterizedAsVariance());
     addToMessage(msg, ANNUALIZATION_FACTOR_KEY, object.getAnnualizationFactor());
     addToMessage(msg, FIRST_OBSERVATION_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getFirstObservationDate()));
     addToMessage(msg, LAST_OBSERVATION_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getLastObservationDate()));
     addToMessage(msg, SETTLEMENT_DATE_KEY, ZonedDateTimeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
-    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegion()));
+    addToMessage(msg, REGION_KEY, ExternalIdBuilder.toFudgeMsg(serializer, object.getRegionId()));
     addToMessage(msg, OBSERVATION_FREQUENCY_KEY, object.getObservationFrequency());
   }
 
@@ -79,7 +79,7 @@ public class EquityVarianceSwapSecurityBuilder extends AbstractFudgeBuilder impl
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, EquityVarianceSwapSecurity object) {
     FinancialSecurityBuilder.fromFudgeMsg(deserializer, msg, object);
-    object.setSpotUnderlyingIdentifier(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(SPOT_UNDERLYING_IDENTIFIER_KEY)));
+    object.setSpotUnderlyingId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(SPOT_UNDERLYING_IDENTIFIER_KEY)));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_KEY));
     object.setStrike(msg.getDouble(STRIKE_KEY));
     object.setNotional(msg.getDouble(NOTIONAL_KEY));
@@ -88,7 +88,7 @@ public class EquityVarianceSwapSecurityBuilder extends AbstractFudgeBuilder impl
     object.setFirstObservationDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_OBSERVATION_DATE_KEY)));
     object.setLastObservationDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_OBSERVATION_DATE_KEY)));
     object.setSettlementDate(ZonedDateTimeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_KEY)));
-    object.setRegion(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
+    object.setRegionId(ExternalIdBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_KEY)));
     object.setObservationFrequency(msg.getValue(Frequency.class, OBSERVATION_FREQUENCY_KEY));
   }
 
