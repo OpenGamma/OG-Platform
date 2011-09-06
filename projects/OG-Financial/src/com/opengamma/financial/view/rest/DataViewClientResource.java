@@ -8,8 +8,8 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 
 import javax.jms.ConnectionFactory;
-import javax.time.Instant;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -20,12 +20,13 @@ import javax.ws.rs.core.Response.Status;
 
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
+import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisher;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
@@ -37,7 +38,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @Path("/data/viewProcessors/{viewProcessId}/clients/{viewClientId}")
 @Consumes(FudgeRest.MEDIA)
 @Produces(FudgeRest.MEDIA)
-public class DataViewClientResource {
+public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
 
   //CSOFF: just constants
   public static final String PATH_UNIQUE_ID = "id";
@@ -61,50 +62,36 @@ public class DataViewClientResource {
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
   public static final String PATH_SHUTDOWN = "shutdown";
-  public static final String PATH_HEARTBEAT = "heartbeat";
   public static final String PATH_TRIGGER_CYCLE = "triggerCycle";
-  
-  public static final String PATH_START_JMS_COMPILATION_STREAM = "startJmsCompilationStream";
-  public static final String PATH_STOP_JMS_COMPILATION_STREAM = "stopJmsCompilationStream";
-  public static final String PATH_START_JMS_RESULT_STREAM = "startJmsResultStream";
-  public static final String PATH_STOP_JMS_RESULT_STREAM = "stopJmsResultStream";
-  public static final String PATH_START_JMS_DELTA_STREAM = "startJmsDeltaStream";
-  public static final String PATH_STOP_JMS_DELTA_STREAM = "stopJmsDeltaStream";
+
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
   
   public static final String UPDATE_PERIOD_FIELD = "updatePeriod";
-  public static final String DESTINATION_FIELD = "destination";
   public static final String VIEW_CYCLE_ACCESS_SUPPORTED_FIELD = "isViewCycleAccessSupported";
   //CSON: just constants
   
   private final ViewClient _viewClient;
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
-  private final JmsResultPublisher _resultPublisher;
 
-  private volatile Instant _lastAccessed = Instant.now();
-  
-  public DataViewClientResource(ViewClient viewClient,
-      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
+  public DataViewClientResource(ViewClient viewClient, DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
+    super(new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), connectionFactory));
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
-    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), connectionFactory);
-    updateLastAccessed();
   }
   
   /*package*/ ViewClient getViewClient() {
     return _viewClient;
   }
   
-  /*package*/ Instant getLastAccessed() {
-    return _lastAccessed;
-  }
-  
   //-------------------------------------------------------------------------
-  @POST
-  @Path(PATH_HEARTBEAT)
-  public Response heartbeat() {
-    updateLastAccessed();
-    return Response.ok().build();
+  @Override
+  protected boolean isTerminated() {
+    return getViewClient().getState() == ViewClientState.TERMINATED;
+  }
+
+  @Override
+  protected void expire() {
+    shutdown();
   }
   
   //-------------------------------------------------------------------------
@@ -177,33 +164,6 @@ public class DataViewClientResource {
   @Path(PATH_VIEW_DEFINITION)
   public Response getLatestViewDefinition() {
     return Response.ok(getViewClient().getLatestViewDefinition()).build();
-  }
-  
-  //-------------------------------------------------------------------------  
-  @POST
-  @Path(PATH_START_JMS_RESULT_STREAM)
-  @Consumes(FudgeRest.MEDIA)
-  public Response startResultStream(FudgeMsg msg) {
-    updateLastAccessed();
-    String destination = msg.getString(DESTINATION_FIELD);
-    try {
-      _resultPublisher.startPublishingResults(destination);
-      return Response.ok(destination).build();
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Error starting result publisher", e);
-    }
-  }
-  
-  @POST
-  @Path(PATH_STOP_JMS_RESULT_STREAM)
-  public Response stopResultStream() {
-    updateLastAccessed();
-    try {
-      _resultPublisher.stopPublishingResults();
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Error stopping result publisher", e);
-    }
-    return Response.ok().build();
   }
   
   //-------------------------------------------------------------------------
@@ -337,17 +297,11 @@ public class DataViewClientResource {
   }
   
   //-------------------------------------------------------------------------
-  @POST
+  @DELETE
   @Path(PATH_SHUTDOWN)
-  public Response shutdown() {
+  public void shutdown() {
     getViewClient().shutdown();
     stopResultStream();
-    return Response.ok().build();
-  }
-  
-  //-------------------------------------------------------------------------
-  private void updateLastAccessed() {
-    _lastAccessed = Instant.now();
   }
   
 }

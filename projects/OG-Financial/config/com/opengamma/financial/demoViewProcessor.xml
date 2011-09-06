@@ -351,6 +351,21 @@
     </property>
   </bean>
   
+  <!-- Pnl Explain -->
+  <bean id="demoPnlExplainProcessor" class="com.opengamma.integration.pnlexplain.DefaultPnlExplainProcessorFactoryBean">
+    <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="executorService" ref="scheduler" />
+    <property name="availableOutputsProvider" ref="demoAvailableOutputsProvider" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="manageableViewDefinitionRepository" ref="userViewDefinitionRepository" />
+    <property name="conventionBundleSource" ref="conventionBundleSource" />
+    <property name="regionSource" ref="regionSource" />
+    <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
+    <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
+  </bean>
+  
   <!-- Code fragment needed for work on ENG-199 & ENG-200 only -->
   <!--
   <bean id="tuner" class="com.opengamma.integration.server.MultipleNodeExecutorTuner">
