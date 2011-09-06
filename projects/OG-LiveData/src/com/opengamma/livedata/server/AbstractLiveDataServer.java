@@ -362,6 +362,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // this is the only place where subscribe() can 'partially' fail
         DistributionSpecification distributionSpec;
         try {
+          //REVIEW simon 2011-09-06: If it weren't for caching doing this unbatched would be very bad. 
+          //    Doing it unbatched might get us an exception, although the comments say that null should be returned. 
           distributionSpec = getDistributionSpecificationResolver().resolve(specFromClient);
         } catch (RuntimeException e) {
           s_logger.info("Unable to work out distribution spec for specification " + specFromClient, e);
