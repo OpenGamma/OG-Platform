@@ -8,6 +8,7 @@ package com.opengamma.language.context;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionSource;
@@ -106,6 +107,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the generic result converter is bound.
    */
   protected static final String RESULT_CONVERTER = "resultConverter";
+
+  /**
+   * Name under which the {@link ExecutorService} for saturating the processor(s) is bound.
+   */
+  protected static final String SATURATING_EXECUTOR = "saturatingExecutor";
 
   /**
    * Name under which the security source is bound.
@@ -294,6 +300,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public SecuritySource getSecuritySource() {
     return getValue(SECURITY_SOURCE);
+  }
+
+  public ExecutorService getSaturatingExecutor() {
+    return getValue(SATURATING_EXECUTOR);
   }
 
 }

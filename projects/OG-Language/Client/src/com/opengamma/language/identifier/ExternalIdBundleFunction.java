@@ -28,7 +28,15 @@ import com.opengamma.util.fudgemsg.ExternalIdBuilder;
  */
 public class ExternalIdBundleFunction implements PublishedFunction {
 
+  /**
+   * Default instance.
+   */
+  public static final ExternalIdBundleFunction INSTANCE = new ExternalIdBundleFunction();
+
   private static final int MAX_PARAMETERS = 20;
+
+  protected ExternalIdBundleFunction() {
+  }
 
   private static void getIdentifier(final Collection<ExternalId> identifiers, final Value value) {
     if (value.getStringValue() != null) {
