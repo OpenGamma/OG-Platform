@@ -7,6 +7,7 @@ package com.opengamma.financial.aggregation;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.id.ExternalId;
 
 /**
  * Function to classify positions by Currency.
@@ -14,14 +15,16 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  */
 public class RegionAggregationFunction implements AggregationFunction<String> {
 
-  private static final String NAME = "Currency";
+  private static final String NAME = "Region";
+  private static final String NO_REGION = "N/A";
   
   @Override
   public String classifyPosition(Position position) {
     try {
-      return FinancialSecurityUtils.getCurrency(position.getSecurity()).toString();
+      ExternalId id = FinancialSecurityUtils.getRegion(position.getSecurity());
+      return id != null ? id.getValue() : NO_REGION; 
     } catch (UnsupportedOperationException ex) {
-      return "No or multiple currencies";
+      return "No or multiple regions";
     }
   }
 

@@ -193,11 +193,6 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
-  <!-- Identifier -->
-  <bean id="identifierLoader" class="com.opengamma.language.identifier.Loader">
-    <property name="globalContextFactory" ref="globalContextFactory" />
-  </bean>
-  
   <!-- Time series -->
   <bean id="timeSeriesLoader" class="com.opengamma.language.timeseries.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />

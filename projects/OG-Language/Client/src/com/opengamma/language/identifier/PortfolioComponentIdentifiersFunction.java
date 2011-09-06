@@ -18,6 +18,7 @@ import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -68,12 +69,29 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
     result.add(identifier.toString());
   }
 
+  private static void storeIdentifier(final List<String> result, final ObjectId identifier) {
+    result.add(identifier.toString());
+  }
+
+  private static void storeIdentifier(final List<String> result, final ExternalId identifier) {
+    result.add(identifier.toString());
+  }
+
   private static void storeIdentifier(final List<String> result, final UniqueId identifier, final ExternalIdBundle identifiers, final ExternalSchemeRank rank) {
     final ExternalId externalId = rank.getPreferredIdentifier(identifiers);
     if (externalId == null) {
-      result.add(identifier.toString());
+      storeIdentifier(result, identifier);
     } else {
-      result.add(externalId.toString());
+      storeIdentifier(result, externalId);
+    }
+  }
+
+  private static void storeIdentifier(final List<String> result, final ObjectId identifier, final ExternalIdBundle identifiers, final ExternalSchemeRank rank) {
+    final ExternalId externalId = rank.getPreferredIdentifier(identifiers);
+    if (externalId == null) {
+      storeIdentifier(result, identifier);
+    } else {
+      storeIdentifier(result, externalId);
     }
   }
 
@@ -107,7 +125,11 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
           }
         }
         if (includeSecurity) {
-          storeIdentifier(result, position.getSecurity().getUniqueId(), position.getSecurity().getExternalIdBundle(), externalSchemeRank);
+          if (position.getSecurity() != null) {
+            storeIdentifier(result, position.getSecurity().getUniqueId(), position.getSecurity().getExternalIdBundle(), externalSchemeRank);
+          } else {
+            storeIdentifier(result, position.getSecurityLink().getObjectId(), position.getSecurityLink().getExternalId(), externalSchemeRank);
+          }
         }
       }
 

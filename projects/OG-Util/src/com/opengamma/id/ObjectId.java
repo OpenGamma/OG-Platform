@@ -16,7 +16,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.ObjectIdBuilder;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -250,7 +249,7 @@ public final class ObjectId
    */
   @Deprecated
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ObjectIdBuilder.toFudgeMsg(serializer, this, msg);
+    ObjectIdFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
@@ -264,7 +263,7 @@ public final class ObjectId
    */
   @Deprecated
   public static ObjectId fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ObjectIdBuilder.fromFudgeMsg(deserializer, msg);
+    return ObjectIdFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }
