@@ -291,17 +291,14 @@ public class BLAS2 {
    * @param aMatrix a FullMatrix
    * @param aVector a double[] vector
    * @return tmp a double[] vector
+   * TODO: Replace vector scalings with BLAS1 calls.
    */
   public static double[] dgemvTransposed(double alpha, FullMatrix aMatrix, double [] aVector) {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector);
-    final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] tmp = new double[cols];
-    double[] ptrA = aMatrix.getData();
+    tmp = dgemvTransposed(aMatrix, aVector);
     for (int i = 0; i < cols; i++) {
-      for (int j = 0; j < rows; j++) {
-        tmp[i] += ptrA[i + j * cols] * aVector[j];
-      }
       tmp[i] *= alpha;
     }
     return tmp;
@@ -423,14 +420,10 @@ public class BLAS2 {
    */
   public static double[] dgemvTransposed(FullMatrix aMatrix, double [] aVector, double [] y) {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
-    final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        tmp[i] += ptrA[i + j * cols] * aVector[j];
-      }
+    double[] tmp = new double[cols];
+    tmp = dgemvTransposed(aMatrix, aVector);
+    for (int i = 0; i < cols; i++) {
       tmp[i] += y[i];
     }
     return tmp;
@@ -572,14 +565,10 @@ public class BLAS2 {
    */
   public static double[] dgemvTransposed(double alpha, FullMatrix aMatrix, double [] aVector, double [] y) {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
-    final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        tmp[i] += ptrA[i + j * cols] * aVector[j];
-      }
+    double[] tmp = new double[cols];
+    tmp = dgemvTransposed(aMatrix, aVector);
+    for (int i = 0; i < cols; i++) {
       tmp[i] = alpha * tmp[i] + y[i];
     }
     return tmp;
@@ -722,15 +711,11 @@ public class BLAS2 {
    */
   public static double[] dgemvTransposed(FullMatrix aMatrix, double [] aVector, double beta, double [] y) {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
-    final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
-    double[] ptrA = aMatrix.getData();
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        tmp[i] += ptrA[i + j * cols] * aVector[j];
-      }
-      tmp[i] = tmp[i] + beta * y[i];
+    double[] tmp = new double[cols];
+    tmp = dgemvTransposed(aMatrix, aVector);
+    for (int i = 0; i < cols; i++) {
+      tmp[i] += beta * y[i];
     }
     return tmp;
   }

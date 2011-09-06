@@ -28,7 +28,7 @@ public class BLAS2Test {
   // single element data
   double [][] A1by1 = {{1}};
   double [] x1 = {2};
-  double [] y1 = {4};
+  double [] y1 = {10};
 
   // sparse
   double[][]sparseA4by4 = {{1,2,0,0},{3,0,4,0},{0,5,6,0},{0,0,7,0}};
@@ -514,211 +514,710 @@ public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_interfaced_transposed
 assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1),BLAS2.orientation.transposed),tmp_alpha_times_A1x1_times_x1));
 }
 
-//** group 3:: A*x+y5 OR A^T*x+y5
+//** group 3:: A*x+y OR A^T*x+y
+
+//test 5x5
+double[] tmp_A5x5_times_x5_plus_y5 = {65,150,235,320,405};
+double[] tmp_A5x5T_times_x5_plus_y5 = {225,250,275,300,325};
 @Test
-public void testDGEMV_ans_eq_A_times_x_plus_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,y5),A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x5_times_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,y5),tmp_A5x5_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),y5),A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),y5),tmp_A5x5_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_D1D_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),tmp_A5x5_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_AT_times_x_plus_y() {
-  double[] tmp = {225,250,275,300,325};
-  BLAS2.dgemvTransposed(aMatrix5by5,x5,y5);
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,x5,y5),tmp));
+public void testDGEMV_ans_eq_A5x5T_times_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,x5,y5),tmp_A5x5T_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_AT_times_D1D_x_plus_y() {
-  double[] tmp = {225,250,275,300,325};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),y5),tmp));
+public void testDGEMV_ans_eq_A5x5T_times_D1D_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),y5),tmp_A5x5T_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_AT_times_D1D_x_plus_D1D_y() {
-  double[] tmp = {225,250,275,300,325};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),tmp));
+public void testDGEMV_ans_eq_A5x5T_times_D1D_x5_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),tmp_A5x5T_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_x_plus_y_interfaced_normal() {
+public void testDGEMV_ans_eq_A5x5_times_x5_plus_y5_interfaced_normal() {
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,y5,BLAS2.orientation.normal),A_times_x_plus_y));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_y_interfaced_normal() {
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_y5_interfaced_normal() {
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.normal),A_times_x_plus_y));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_D1D_y_interfaced_normal() {
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_D1D_y5_interfaced_normal() {
   assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5),BLAS2.orientation.normal),A_times_x_plus_y));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_x_plus_y_interfaced_transposed() {
-  double[] tmp = {225,250,275,300,325};
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,y5,BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A5x5_times_x5_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,y5,BLAS2.orientation.transposed),tmp_A5x5T_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_y_interfaced_transposed() {
-  double[] tmp = {225,250,275,300,325};
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.transposed),tmp_A5x5T_times_x5_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_D1D_y_interfaced_transposed() {
-  double[] tmp = {225,250,275,300,325};
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_D1D_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp_A5x5T_times_x5_plus_y5));
 }
 
-//** group 4:: alpha*A*x+y5 OR alpha*A^T*x+y5
+//test 5x4
+double[] tmp_A5x4_times_x4_plus_y5 = {40,90,140,190,240};
+double[] tmp_A5x4T_times_x5_plus_y4 = {185,210,235,260};
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_x_plus_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,y5),alpha_times_A_times_x_plus_y));
-}
-
-@Test
-public void testDGEMV_ans_eq_alpha_times_A_times_D1D_x_plus_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5),alpha_times_A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x4_times_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,x4,y5),tmp_A5x4_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_D1D_x_plus_D1D_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),alpha_times_A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),y5),tmp_A5x4_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_AT_times_x_plus_y() {
-  double[] tmp = {1515,1630,1745,1860,1975};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,x5,y5),tmp));
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),new DoubleMatrix1D(y5)),tmp_A5x4_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_AT_times_D1D_x_plus_y() {
-  double[] tmp = {1515,1630,1745,1860,1975};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5),tmp));
+public void testDGEMV_ans_eq_A5x4T_times_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by4,x5,y4),tmp_A5x4T_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_AT_times_D1D_x_plus_D1D_y() {
-  double[] tmp = {1515,1630,1745,1860,1975};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),tmp));
+public void testDGEMV_ans_eq_A5x4T_times_D1D_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by4,new DoubleMatrix1D(x5),y4),tmp_A5x4T_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_x_plus_y_interfaced_normal() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,y5,BLAS2.orientation.normal),alpha_times_A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x4T_times_D1D_x5_plus_D1D_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by4,new DoubleMatrix1D(x5),new DoubleMatrix1D(y4)),tmp_A5x4T_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_D1D_x_plus_y_interfaced_normal() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.normal),alpha_times_A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x4_times_x4_plus_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,x4,y5,BLAS2.orientation.normal),tmp_A5x4_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_D1D_x_plus_D1D_y_interfaced_normal() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5), new DoubleMatrix1D(y5),BLAS2.orientation.normal),alpha_times_A_times_x_plus_y));
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),y5,BLAS2.orientation.normal),tmp_A5x4_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_x_plus_y_interfaced_transposed() {
-  double[] tmp = {1515,1630,1745,1860,1975};
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,y5,BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_D1D_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),new DoubleMatrix1D(y5),BLAS2.orientation.normal),tmp_A5x4_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_D1D_x_plus_y_interfaced_transposed() {
-  double[] tmp = {1515,1630,1745,1860,1975};
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A5x4_times_x5_plus_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,x5,y4,BLAS2.orientation.transposed),tmp_A5x4T_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_alpha_times_A_times_D1D_x_plus_D1D_y_interfaced_transposed() {
-  double[] tmp = {1515,1630,1745,1860,1975};
-  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5), new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp));
-}
-
-//** group 5:: A*x+beta*y5 OR A^T*x+beta*y5
-@Test
-public void testDGEMV_ans_eq_A_times_x_plus_beta_times_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,beta,y5),A_times_x_plus_beta_times_y));
+public void testDGEMV_ans_eq_A5x4_times_D1D_x5_plus_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x5),y4,BLAS2.orientation.transposed),tmp_A5x4T_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5),A_times_x_plus_beta_times_y));
+public void testDGEMV_ans_eq_A5x4_times_D1D_x5_plus_D1D_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x5),new DoubleMatrix1D(y4),BLAS2.orientation.transposed),tmp_A5x4T_times_x5_plus_y4));
+}
+
+//test 4x5
+double[] tmp_A4x5_times_x5_plus_y4 = {65,150,235,320};
+double[] tmp_A4x5T_times_x4_plus_y5 = {120,140,160,180,200};
+@Test
+public void testDGEMV_ans_eq_A4x5_times_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,x5,y4),tmp_A4x5_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_D1D_y() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5)),A_times_x_plus_beta_times_y));
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),y4),tmp_A4x5_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_AT_times_x_plus_beta_times_y() {
-  double [] tmp={185,170,155,140,125};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,x5,beta,y5),tmp));
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_D1D_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y4)),tmp_A4x5_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_AT_times_D1D_x_plus_beta_times_y() {
-  double [] tmp={185,170,155,140,125};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5),tmp));
+public void testDGEMV_ans_eq_A4x5T_times_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix4by5,x4,y5),tmp_A4x5T_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_AT_times_D1D_x_plus_beta_times_D1D_y() {
-  double [] tmp={185,170,155,140,125};
-  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5)),tmp));
+public void testDGEMV_ans_eq_A4x5T_times_D1D_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix4by5,new DoubleMatrix1D(x4),y5),tmp_A4x5T_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_x_plus_beta_times_y_interfaced_normal() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,beta,y5,BLAS2.orientation.normal),A_times_x_plus_beta_times_y));
+public void testDGEMV_ans_eq_A4x5T_times_D1D_x4_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix4by5,new DoubleMatrix1D(x4),new DoubleMatrix1D(y5)),tmp_A4x5T_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_y_interfaced_normal() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5,BLAS2.orientation.normal),A_times_x_plus_beta_times_y));
+public void testDGEMV_ans_eq_A4x5_times_x5_plus_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,x5,y4,BLAS2.orientation.normal),tmp_A4x5_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_D1D_y_interfaced_normal() {
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5),BLAS2.orientation.normal),A_times_x_plus_beta_times_y));
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),y4,BLAS2.orientation.normal),tmp_A4x5_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_x_plus_beta_times_y_interfaced_transposed() {
-  double [] tmp={185,170,155,140,125};
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,beta,y5,BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_D1D_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y4),BLAS2.orientation.normal),tmp_A4x5_times_x5_plus_y4));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_y_interfaced_transposed() {
-  double [] tmp={185,170,155,140,125};
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5,BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A4x5_times_x4_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,x4,y5,BLAS2.orientation.transposed),tmp_A4x5T_times_x4_plus_y5));
 }
 
 @Test
-public void testDGEMV_ans_eq_A_times_D1D_x_plus_beta_times_D1D_y_interfaced_transposed() {
-  double [] tmp={185,170,155,140,125};
-  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp));
+public void testDGEMV_ans_eq_A4x5_times_D1D_x4_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x4),y5,BLAS2.orientation.transposed),tmp_A4x5T_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x4_plus_D1D_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x4),new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp_A4x5T_times_x4_plus_y5));
+}
+
+//test 1x1
+double[] tmp_A1x1_times_x1_plus_y1 = {12};
+double[] tmp_A1x1T_times_x1_plus_y1 = {12};
+@Test
+public void testDGEMV_ans_eq_A1x1_times_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,x1,y1),tmp_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_D1D_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,new DoubleMatrix1D(x1),y1),tmp_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_D1D_x1_plus_D1D_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,new DoubleMatrix1D(x1),new DoubleMatrix1D(y1)),tmp_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1T_times_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix1by1,x1,y1),tmp_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1T_times_D1D_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix1by1,new DoubleMatrix1D(x1),y1),tmp_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1T_times_D1D_x1_plus_D1D_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix1by1,new DoubleMatrix1D(x1),new DoubleMatrix1D(y1)),tmp_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_x1_plus_y1_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,x1,y1,BLAS2.orientation.normal),tmp_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_D1D_x1_plus_y1_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,new DoubleMatrix1D(x1),y1,BLAS2.orientation.normal),tmp_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_D1D_x1_plus_D1D_y1_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,new DoubleMatrix1D(x1),new DoubleMatrix1D(y1),BLAS2.orientation.normal),tmp_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_x1_plus_y1_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,x1,y1,BLAS2.orientation.transposed),tmp_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_D1D_x1_plus_y1_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,new DoubleMatrix1D(x1),y1,BLAS2.orientation.transposed),tmp_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_A1x1_times_D1D_x1_plus_D1D_y1_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix1by1,new DoubleMatrix1D(x1),new DoubleMatrix1D(y1),BLAS2.orientation.transposed),tmp_A1x1T_times_x1_plus_y1));
+}
+
+//** group 4:: alpha*A*x+y OR alpha*A^T*x+y
+//5x5
+double[] alpha_times_A5x5_times_x5_plus_y5 = {395,930,1465,2000,2535};
+double[] alpha_times_A5x5T_times_x5_plus_y5 = {1515,1630,1745,1860,1975};
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,y5),alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5),alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5T_times_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,x5,y5),alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5T_times_D1D_x5_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5),alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5T_times_D1D_x5_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,y5,BLAS2.orientation.normal),alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.normal),alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_D1D_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5), new DoubleMatrix1D(y5),BLAS2.orientation.normal),alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,y5,BLAS2.orientation.transposed),alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.transposed),alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_D1D_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5), new DoubleMatrix1D(y5),BLAS2.orientation.transposed),alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+//5x4
+double[] alpha_times_A5x4_times_x4_plus_y5 = {220,510,800,1090,1380};
+double[] alpha_times_A5x4T_times_x5_plus_y4 = {1235,1350,1465,1580};
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,x4,y5),alpha_times_A5x4_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_D1D_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,new DoubleMatrix1D(x4),y5),alpha_times_A5x4_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_D1D_x4_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,new DoubleMatrix1D(x4),new DoubleMatrix1D(y5)),alpha_times_A5x4_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4T_times_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by4,x5,y4),alpha_times_A5x4T_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4T_times_D1D_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by4,new DoubleMatrix1D(x5),y4),alpha_times_A5x4T_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4T_times_D1D_x5_plus_D1D_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by4,new DoubleMatrix1D(x5),new DoubleMatrix1D(y4)),alpha_times_A5x4T_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_x4_plus_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,x4,y5,BLAS2.orientation.normal),alpha_times_A5x4_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_D1D_x4_plus_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,new DoubleMatrix1D(x4),y5,BLAS2.orientation.normal),alpha_times_A5x4_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_D1D_x4_plus_D1D_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,new DoubleMatrix1D(x4), new DoubleMatrix1D(y5),BLAS2.orientation.normal),alpha_times_A5x4_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_x5_plus_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,x5,y4,BLAS2.orientation.transposed),alpha_times_A5x4T_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_D1D_x5_plus_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,new DoubleMatrix1D(x5),y4,BLAS2.orientation.transposed),alpha_times_A5x4T_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x4_times_D1D_x5_plus_D1D_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by4,new DoubleMatrix1D(x5), new DoubleMatrix1D(y4),BLAS2.orientation.transposed),alpha_times_A5x4T_times_x5_plus_y4));
+}
+
+
+//4x5
+double[] alpha_times_A4x5_times_x5_plus_y4 = {395,930,1465,2000};
+double[] alpha_times_A4x5T_times_x4_plus_y5 = {780,860,940,1020,1100};
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,x5,y4),alpha_times_A4x5_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_D1D_x5_plus_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,new DoubleMatrix1D(x5),y4),alpha_times_A4x5_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_D1D_x5_plus_D1D_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y4)),alpha_times_A4x5_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5T_times_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix4by5,x4,y5),alpha_times_A4x5T_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5T_times_D1D_x4_plus_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix4by5,new DoubleMatrix1D(x4),y5),alpha_times_A4x5T_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5T_times_D1D_x4_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix4by5,new DoubleMatrix1D(x4),new DoubleMatrix1D(y5)),alpha_times_A4x5T_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_x5_plus_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,x5,y4,BLAS2.orientation.normal),alpha_times_A4x5_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_D1D_x5_plus_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,new DoubleMatrix1D(x5),y4,BLAS2.orientation.normal),alpha_times_A4x5_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_D1D_x5_plus_D1D_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,new DoubleMatrix1D(x5), new DoubleMatrix1D(y4),BLAS2.orientation.normal),alpha_times_A4x5_times_x5_plus_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_x4_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,x4,y5,BLAS2.orientation.transposed),alpha_times_A4x5T_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_D1D_x4_plus_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,new DoubleMatrix1D(x4),y5,BLAS2.orientation.transposed),alpha_times_A4x5T_times_x4_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A4x5_times_D1D_x4_plus_D1D_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix4by5,new DoubleMatrix1D(x4), new DoubleMatrix1D(y5),BLAS2.orientation.transposed),alpha_times_A4x5T_times_x4_plus_y5));
+}
+
+//1x1
+double[] alpha_times_A1x1_times_x1_plus_y1 = {24};
+double[] alpha_times_A1x1T_times_x1_plus_y1 = {24};
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,x1,y1),alpha_times_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1),y1),alpha_times_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_plus_D1D_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1),new DoubleMatrix1D(y1)),alpha_times_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1T_times_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix1by1,x1,y1),alpha_times_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1T_times_D1D_x1_plus_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix1by1,new DoubleMatrix1D(x1),y1),alpha_times_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1T_times_D1D_x1_plus_D1D_y1() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix1by1,new DoubleMatrix1D(x1),new DoubleMatrix1D(y1)),alpha_times_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_x1_plus_y1_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,x1,y1,BLAS2.orientation.normal),alpha_times_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_plus_y1_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1),y1,BLAS2.orientation.normal),alpha_times_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_plus_D1D_y1_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1), new DoubleMatrix1D(y1),BLAS2.orientation.normal),alpha_times_A1x1_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_x1_plus_y1_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,x1,y1,BLAS2.orientation.transposed),alpha_times_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_plus_y1_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1),y1,BLAS2.orientation.transposed),alpha_times_A1x1T_times_x1_plus_y1));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A1x1_times_D1D_x1_plus_D1D_y1_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix1by1,new DoubleMatrix1D(x1), new DoubleMatrix1D(y1),BLAS2.orientation.transposed),alpha_times_A1x1T_times_x1_plus_y1));
+}
+
+//** group 5:: A*x+beta*y OR A^T*x+beta*y
+//5x5
+double []tmp_A5x5_times_x5_plus_beta_times_y5 = {25,70,115,160,205};
+double []tmp_A5x5T_times_x5_plus_beta_times_y5 = {185,170,155,140,125};
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_x5_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,beta,y5),tmp_A5x5_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5),tmp_A5x5_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_beta_times_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5)),tmp_A5x5_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5T_times_x5_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,x5,beta,y5),tmp_A5x5T_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5T_times_D1D_x5_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5),tmp_A5x5T_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5T_times_D1D_x5_plus_beta_times_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5)),tmp_A5x5T_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_x5_plus_beta_times_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,beta,y5,BLAS2.orientation.normal),tmp_A5x5_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_beta_times_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5,BLAS2.orientation.normal),tmp_A5x5_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_beta_times_D1D_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5),BLAS2.orientation.normal),tmp_A5x5_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_x5_plus_beta_times_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,x5,beta,y5,BLAS2.orientation.transposed),tmp_A5x5T_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_beta_times_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,y5,BLAS2.orientation.transposed),tmp_A5x5T_times_x5_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x5_times_D1D_x5_plus_beta_times_D1D_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp_A5x5T_times_x5_plus_beta_times_y5));
+}
+
+//5x4
+double []tmp_A5x4_times_x4_plus_beta_times_y5 = {0,10,20,30,40};
+double []tmp_A5x4T_times_x5_plus_beta_times_y4 = {145,130,115,100};
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_x4_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,x4,beta,y5),tmp_A5x4_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),beta,y5),tmp_A5x4_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_beta_times_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),beta,new DoubleMatrix1D(y5)),tmp_A5x4_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4T_times_x5_plus_beta_times_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by4,x5,beta,y4),tmp_A5x4T_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4T_times_D1D_x5_plus_beta_times_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by4,new DoubleMatrix1D(x5),beta,y4),tmp_A5x4T_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4T_times_D1D_x5_plus_beta_times_D1D_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix5by4,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y4)),tmp_A5x4T_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_x4_plus_beta_times_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,x4,beta,y5,BLAS2.orientation.normal),tmp_A5x4_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_beta_times_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),beta,y5,BLAS2.orientation.normal),tmp_A5x4_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_D1D_x4_plus_beta_times_D1D_y5_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x4),beta,new DoubleMatrix1D(y5),BLAS2.orientation.normal),tmp_A5x4_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_x5_plus_beta_times_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,x5,beta,y4,BLAS2.orientation.transposed),tmp_A5x4T_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_D1D_x5_plus_beta_times_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x5),beta,y4,BLAS2.orientation.transposed),tmp_A5x4T_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A5x4_times_D1D_x5_plus_beta_times_D1D_y4_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix5by4,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y4),BLAS2.orientation.transposed),tmp_A5x4T_times_x5_plus_beta_times_y4));
+}
+
+//4x5
+double []tmp_A4x5_times_x5_plus_beta_times_y4 = {25,70,115,160};
+double []tmp_A4x5T_times_x4_plus_beta_times_y5 = {80,60,40,20,0};
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_x5_plus_beta_times_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,x5,beta,y4),tmp_A4x5_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_beta_times_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),beta,y4),tmp_A4x5_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_beta_times_D1D_y4() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y4)),tmp_A4x5_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5T_times_x4_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix4by5,x4,beta,y5),tmp_A4x5T_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5T_times_D1D_x4_plus_beta_times_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix4by5,new DoubleMatrix1D(x4),beta,y5),tmp_A4x5T_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5T_times_D1D_x4_plus_beta_times_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(aMatrix4by5,new DoubleMatrix1D(x4),beta,new DoubleMatrix1D(y5)),tmp_A4x5T_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_x5_plus_beta_times_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,x5,beta,y4,BLAS2.orientation.normal),tmp_A4x5_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_beta_times_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),beta,y4,BLAS2.orientation.normal),tmp_A4x5_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x5_plus_beta_times_D1D_y4_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x5),beta,new DoubleMatrix1D(y4),BLAS2.orientation.normal),tmp_A4x5_times_x5_plus_beta_times_y4));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_x4_plus_beta_times_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,x4,beta,y5,BLAS2.orientation.transposed),tmp_A4x5T_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x4_plus_beta_times_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x4),beta,y5,BLAS2.orientation.transposed),tmp_A4x5T_times_x4_plus_beta_times_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_A4x5_times_D1D_x4_plus_beta_times_D1D_y5_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(aMatrix4by5,new DoubleMatrix1D(x4),beta,new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp_A4x5T_times_x4_plus_beta_times_y5));
 }
 
 
 
-//** group 6:: alpha*A*x+beta*y5 OR alpha*A^T*x+beta*y5
+//** group 6:: alpha*A*x+beta*y OR alpha*A^T*x+beta*y
 /* test some different sizes first */
 @Test
 public void testDGEMV_ans_eq_alpha_times_oddA_times_oddx_plus_beta_times_oddy() {
