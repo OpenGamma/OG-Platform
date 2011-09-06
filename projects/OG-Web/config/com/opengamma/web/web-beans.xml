@@ -39,12 +39,19 @@
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
-  <bean id="vailableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
+  <bean id="availableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
     <constructor-arg ref="demoAvailableOutputsProvider" />
     <constructor-arg ref="fudgeContext" />
   </bean>
   
-   <!-- Snapshotter  service -->
+  <!-- PnL Explain service -->
+  <bean id="pnlExplainRestBean" class="com.opengamma.integration.pnlexplain.rest.DataPnlExplainProcessorResource">
+    <constructor-arg ref="demoPnlExplainProcessor" />
+    <constructor-arg ref="activeMQConnectionFactory" />
+    <constructor-arg ref="scheduler" />
+  </bean>
+  
+   <!-- Snapshotter service -->
   <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
     <constructor-arg name="processors" ref="viewProcessorRestBean" />
     <constructor-arg name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
@@ -325,6 +332,12 @@
             <entry key="viewProcessor">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="pnlExplainProcessor">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/pnlExplainProcessor/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
