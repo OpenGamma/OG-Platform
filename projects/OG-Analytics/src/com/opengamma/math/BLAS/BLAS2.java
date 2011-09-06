@@ -905,6 +905,63 @@ public class BLAS2 {
 
 /* Statefull manipulators on the FullMatrix type */
   /**
+   * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
+   * @param y a double[] vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   */
+  public static void dgemvInPlace(double[] y, FullMatrix aMatrix, double [] aVector, BLAS2.orientation o)
+  {
+    switch (o) {
+      case normal:
+        dgemvInPlace(y, aMatrix, aVector);
+        break;
+      case transposed:
+        dgemvTransposedInPlace(y, aMatrix, aVector);
+        break;
+      default:
+        throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
+    }
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
+   * @param y a DoubleMatrix1D vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   */
+  public static void dgemvInPlace(DoubleMatrix1D y, FullMatrix aMatrix, double [] aVector, BLAS2.orientation o)
+  {
+    dgemvInPlace(y.getData(), aMatrix, aVector, o);
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
+   * @param y a double[] vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   */
+  public static void dgemvInPlace(double[] y, FullMatrix aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o)
+  {
+    dgemvInPlace(y, aMatrix, aVector.getData(), o);
+  }
+
+  /**
+   * DGEMV simplified: returns:=A*x OR returns:=A^T*x depending on the enum orientation.
+   * @param y a DoubleMatrix1D vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
+   */
+  public static void dgemvInPlace(DoubleMatrix1D y, FullMatrix aMatrix, DoubleMatrix1D aVector, BLAS2.orientation o)
+  {
+    dgemvInPlace(y.getData(), aMatrix, aVector.getData(), o);
+  }
+
+  /**
    * DGEMV simplified: y:=A*x
    * @param y a double[] vector that will be altered to contain A*x
    * @param aMatrix a FullMatrix
@@ -965,6 +1022,57 @@ public class BLAS2 {
   public static void dgemvInPlace(DoubleMatrix1D y, FullMatrix aMatrix, DoubleMatrix1D aVector) {
     dgemvInPlace(y.getData(), aMatrix, aVector.toArray());
   }
+
+  /**
+   * DGEMV simplified: y:=A^T*x
+   * @param y a double[] vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   */
+  public static void dgemvTransposedInPlace(double[] y, FullMatrix aMatrix, double [] aVector) {
+    dgemvInputSanityCheckerTranspose(aMatrix, aVector, y);
+    final int rows = aMatrix.getNumberOfRows();
+    final int cols = aMatrix.getNumberOfColumns();
+    double[] ptrA = aMatrix.getData();
+    for (int i = 0; i < cols; i++) {
+      y[i] = 0;
+      for (int j = 0; j < rows; j++) {
+        y[i] += ptrA[i + j * cols] * aVector[j];
+      }
+    }
+  }
+
+  /**
+   * DGEMV simplified: y:=A^T*x
+   * @param y a double vector that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   */
+  public static void dgemvTransposedInPlace(double[] y, FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    dgemvTransposedInPlace(y, aMatrix, aVector.toArray());
+  }
+
+  /**
+   * DGEMV simplified: y:=A^T*x
+   * @param y a DoubleMatrix1D that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a double[] vector
+   */
+  public static void dgemvTransposedInPlace(DoubleMatrix1D y, FullMatrix aMatrix, double[] aVector) {
+    dgemvTransposedInPlace(y.getData(), aMatrix, aVector);
+  }
+
+  /**
+   * DGEMV simplified: y:=A^T*x
+   * @param y a DoubleMatrix1D that will be altered to contain A*x
+   * @param aMatrix a FullMatrix
+   * @param aVector a DoubleMatrix1D vector
+   */
+  public static void dgemvTransposedInPlace(DoubleMatrix1D y, FullMatrix aMatrix, DoubleMatrix1D aVector) {
+    dgemvTransposedInPlace(y.getData(), aMatrix, aVector.toArray());
+  }
+
+
 
   /**
    * DGEMV FULL/simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
