@@ -10,7 +10,7 @@ $.register_module({
     obj: function () {
         var module = this, live_data_root = module.live_data_root, api,
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
-            end_loading = common.end_loading, encode = encodeURIComponent, cache = {},
+            end_loading = common.end_loading, encode = window['encodeURIComponent'], cache = window['sessionStorage'],
             outstanding_requests = {}, registrations = [],
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
@@ -46,6 +46,26 @@ $.register_module({
                 handlers.forEach(function (val) {val.update(val);});
                 live.register(registrations.map(function (val) {return val.url;}));
             },
+            /** @ignore */
+            init_cache = function (len) { // cleans cache so nothing leaks from other sessions (e.g. from a FF crash)
+                for (var key, lcv = 0; lcv < len; lcv += 1)
+                    if (~(key = cache.key(lcv)).indexOf(module.name)) cache[remove](key);
+            },
+            /** @ignore */
+            get_cache = function (key) {
+                return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
+            },
+            /** @ignore */
+            set_cache = function (key, value) {
+                try { // if the cache is too full, fail gracefully
+                    cache['setItem'](module.name + key, JSON.stringify(value));
+                } catch (error) {
+                    og.dev.warn('set_cache failed');
+                    del_cache(key);
+                }
+            },
+            /** @ignore */
+            del_cache = function (key) {cache['removeItem'](module.name + key);},
             /** @ignore */
             request = function (method, config) {
                 var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
@@ -86,7 +106,7 @@ $.register_module({
                                 if (config.meta.type in no_post_body) meta.url = url;
                                 result = {error: false, message: status, data: data, meta: meta};
                                 if (cache_for = config.meta.cache_for)
-                                    (cache[url] = result), setTimeout(function () {delete cache[url];}, cache_for);
+                                    set_cache(url, result), setTimeout(function () {del_cache(url);}, cache_for);
                                 config.meta.handler(result);
                             },
                             complete: end_loading
@@ -98,9 +118,10 @@ $.register_module({
                 if (config.meta.cache_for && config.meta.type !== 'GET')
                     og.dev.warn('only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
-                if (typeof cache[url] === 'object') return (setTimeout(config.meta.handler.partial(cache[url]), 0)), id;
-                if (cache[url]) return (setTimeout(request.partial(method, config), 500)), id;
-                if (config.meta.cache_for) cache[url] = true;
+                if (get_cache(url) && typeof get_cache(url) === 'object')
+                    return (setTimeout(config.meta.handler.partial(get_cache(url)), 0)), id;
+                if (get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
+                if (config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();
             },
@@ -112,14 +133,9 @@ $.register_module({
             },
             /** @ignore */
             paginate = function (config) {
-                var result = {},
-                    from = str(config.from), to = str(config.to),
-                    page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
-                if (from)
-                    result['pgIdx'] = from, result['pgSze'] = to ? +to - +from : page_size;
-                else
-                    result['pgSze'] = page_size, result['pgNum'] = page;
-                return result;
+                var from = str(config.from), to = str(config.to);
+                return from ? {'pgIdx': from, 'pgSze': to ? +to - +from : str(config.page_size) || PAGE_SIZE}
+                    : {'pgSze': str(config.page_size) || PAGE_SIZE, 'pgNum': str(config.page) || PAGE};
             },
             /** @ignore */
             check = function (params) {
@@ -186,6 +202,7 @@ $.register_module({
             not_implemented = function (method) {
                 throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
             };
+        init_cache(cache.length);
         return api = {
             abort: function (id) {
                 var xhr = outstanding_requests[id] && outstanding_requests[id].ajax;
