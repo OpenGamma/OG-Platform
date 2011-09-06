@@ -196,10 +196,10 @@ public class BLAS2 {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
+    double[] tmp = new double[cols];
     double[] ptrA = aMatrix.getData();
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
+    for (int i = 0; i < cols; i++) {
+      for (int j = 0; j < rows; j++) {
         tmp[i] += ptrA[i + j * cols] * aVector[j];
       }
     }
@@ -296,10 +296,10 @@ public class BLAS2 {
     dgemvInputSanityCheckerTranspose(aMatrix, aVector);
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
-    double[] tmp = new double[rows];
+    double[] tmp = new double[cols];
     double[] ptrA = aMatrix.getData();
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
+    for (int i = 0; i < cols; i++) {
+      for (int j = 0; j < rows; j++) {
         tmp[i] += ptrA[i + j * cols] * aVector[j];
       }
       tmp[i] *= alpha;
