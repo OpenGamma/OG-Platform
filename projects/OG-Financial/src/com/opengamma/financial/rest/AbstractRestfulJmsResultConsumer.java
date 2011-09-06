@@ -178,8 +178,6 @@ public abstract class AbstractRestfulJmsResultConsumer {
     }
   }
   
-  
-  
   private void closeJms() {
     if (_consumer != null) {
       try {
