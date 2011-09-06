@@ -19,9 +19,9 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -127,8 +127,8 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     JSONObject blankIdentifier = null;
     try {
       blankIdentifier = new JSONObject();
-      blankIdentifier.put(ExternalIdBuilder.SCHEME_FIELD_NAME, "");
-      blankIdentifier.put(ExternalIdBuilder.VALUE_FIELD_NAME, "");
+      blankIdentifier.put(ExternalIdFudgeBuilder.SCHEME_FIELD_NAME, "");
+      blankIdentifier.put(ExternalIdFudgeBuilder.VALUE_FIELD_NAME, "");
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("invalid json produced from blank region identifier", ex);
     }

@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.master.fudgemsg.ManageableSecurityBuilder;
+import com.opengamma.master.security.ManageableSecurityFudgeBuilder;
 
 /* package */final class SecurityInfo extends AbstractInfo<Security> {
 
@@ -38,7 +38,7 @@ import com.opengamma.master.fudgemsg.ManageableSecurityBuilder;
     final Iterator<FudgeField> itr = rawMsg.iterator();
     while (itr.hasNext()) {
       final FudgeField field = itr.next();
-      if (ManageableSecurityBuilder.UNIQUE_ID_KEY.equals(field.getName()) || ManageableSecurityBuilder.IDENTIFIERS_KEY.equals(field.getName())) {
+      if (ManageableSecurityFudgeBuilder.UNIQUE_ID_FIELD_NAME.equals(field.getName()) || ManageableSecurityFudgeBuilder.IDENTIFIERS_FIELD_NAME.equals(field.getName())) {
         continue;
       }
       addFieldToMap(field, _info);

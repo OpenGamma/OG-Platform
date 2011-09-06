@@ -45,6 +45,9 @@ public class SessionViewClients extends ViewClients<UniqueId, SessionContext> {
    */
   @Override
   public DetachedViewClientHandle lockViewClient(final UniqueId uniqueId) {
+    if (uniqueId == null) {
+      return null;
+    }
     UserViewClient client;
     do {
       client = getClients().get(uniqueId);
@@ -104,8 +107,8 @@ public class SessionViewClients extends ViewClients<UniqueId, SessionContext> {
     synchronized (this) {
       AtomicInteger detachCount = _detachCount.get(viewClient.getUniqueId());
       if (detachCount == null) {
-        // This shouldn't happen
-        throw new IllegalStateException();
+        // This happens if the context was destroyed
+        return;
       }
       if (detachCount.decrementAndGet() > 0) {
         // Still detached
@@ -127,6 +130,11 @@ public class SessionViewClients extends ViewClients<UniqueId, SessionContext> {
    */
   public Collection<UserViewClient> getDetachedClients() {
     return Collections.unmodifiableCollection(getClients().values());
+  }
+
+  @Override
+  protected Logger getLogger() {
+    return s_logger;
   }
 
 }

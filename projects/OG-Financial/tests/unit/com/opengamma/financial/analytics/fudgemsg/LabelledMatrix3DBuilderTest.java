@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
 /**
- * Tests the {@link LabelledMatrix3DBuilder} implementations.
+ * Tests the {@link LabelledMatrix3DFudgeBuilder} implementations.
  */
 public class LabelledMatrix3DBuilderTest extends AnalyticsTestBase {
 

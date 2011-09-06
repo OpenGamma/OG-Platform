@@ -221,7 +221,7 @@ public class ViewClientsTest {
 
     @Override
     public void setResultListener(final ViewResultListener resultListener) {
-      throw new UnsupportedOperationException();
+      // Ignore
     }
 
     @Override

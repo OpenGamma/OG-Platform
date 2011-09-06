@@ -30,6 +30,7 @@
 <listEntry value="com.opengamma.financial.position.rest"/>
 <listEntry value="com.opengamma.financial.rest.security"/>
 <listEntry value="com.opengamma.financial.security"/>
+<listEntry value="com.opengamma.financial.security.equity"/>
 <listEntry value="com.opengamma.financial.view"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>

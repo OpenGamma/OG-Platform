@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -183,6 +184,10 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
 
     public AttributeInfo getDirectAttribute(final String attribute) {
       return _attributeInfo.get(attribute);
+    }
+
+    public Set<String> getDirectAttributes() {
+      return _attributeInfo.keySet();
     }
 
     public AttributeInfo getInheritedAttribute(final String attribute) {
@@ -368,6 +373,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
   protected void loadGetAndSet(final ObjectInfo object, final Collection<MetaFunction> definitions) {
     if (object.getLabel() != null) {
       final Class<?> clazz = object.getObjectClass();
+      final Set<String> attributes = new HashSet<String>(object.getDirectAttributes());
       for (PropertyDescriptor prop : PropertyUtils.getPropertyDescriptors(clazz)) {
         final AttributeInfo attribute = object.getDirectAttribute(prop.getName());
         if (attribute != null) {
@@ -375,14 +381,21 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
             final Method read = PropertyUtils.getReadMethod(prop);
             if (read != null) {
               loadObjectGetter(object, attribute, read, definitions);
+              attributes.remove(prop.getName());
             }
           }
           if (attribute.isWriteable()) {
             final Method write = PropertyUtils.getWriteMethod(prop);
             if (write != null) {
               loadObjectSetter(object, attribute, write, definitions);
+              attributes.remove(prop.getName());
             }
           }
+        }
+      }
+      if (!attributes.isEmpty()) {
+        for (String attribute : attributes) {
+          throw new OpenGammaRuntimeException("Attribute " + attribute + " is not exposed on object " + object);
         }
       }
     }
