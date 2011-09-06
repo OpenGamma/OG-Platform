@@ -348,8 +348,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public void shutdown() {
     stopHeartbeating();
-    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_SHUTDOWN);
-    getClient().access(uri).delete();
+    getClient().access(getBaseUri()).delete();
   }
 
   //-------------------------------------------------------------------------
