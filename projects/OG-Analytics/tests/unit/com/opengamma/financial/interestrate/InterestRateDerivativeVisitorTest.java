@@ -19,6 +19,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -558,6 +559,16 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity) {
       return null;
     }
   };
