@@ -80,7 +80,7 @@ public final class ExtendedFudgeBuilderFactory extends FudgeBuilderFactoryAdapte
   private <T> FudgeBuilder<T> createBeanBuilder(final Class<T> cls) {
     FudgeBuilder<T> builder = (FudgeBuilder<T>) _builders.get(cls);
     if (builder == null) {
-      builder = DirectBeanBuilder.of((Class) cls);
+      builder = DirectBeanFudgeBuilder.of((Class) cls);
       _builders.putIfAbsent(cls, builder);
     }
     return builder;

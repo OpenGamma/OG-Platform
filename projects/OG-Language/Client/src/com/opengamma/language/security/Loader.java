@@ -6,10 +6,13 @@
 
 package com.opengamma.language.security;
 
+import net.sf.ehcache.CacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.rest.security.RemoteFinancialSecuritySource;
+import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -25,6 +28,7 @@ public class Loader extends ContextInitializationBean {
 
   private String _configurationEntry = "securitySource";
   private Configuration _configuration;
+  private CacheManager _cacheManager = CacheManager.getInstance();
 
   public void setConfiguration(final Configuration configuration) {
     ArgumentChecker.notNull(configuration, "configuration");
@@ -44,6 +48,15 @@ public class Loader extends ContextInitializationBean {
     return _configurationEntry;
   }
 
+  public void setCacheManager(final CacheManager cacheManager) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    _cacheManager = cacheManager;
+  }
+
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
   // ContextInitializationBean
 
   @Override
@@ -59,7 +72,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring security support");
-    globalContext.setSecuritySource(new RemoteFinancialSecuritySource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setSecuritySource(new EHCachingFinancialSecuritySource(new RemoteFinancialSecuritySource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
     // TODO: type, function and procedure providers
   }
 

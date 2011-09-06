@@ -17,6 +17,7 @@
 <listEntry value="com.opengamma.master.marketdatasnapshot.impl"/>
 <listEntry value="com.opengamma.master.position.impl"/>
 <listEntry value="com.opengamma.master.region.impl"/>
+<listEntry value="com.opengamma.master.security"/>
 <listEntry value="com.opengamma.master.security.impl"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
