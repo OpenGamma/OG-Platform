@@ -43,6 +43,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
 import com.opengamma.financial.interestrate.swaption.method.montecarlo.HullWhiteMonteCarloMethod;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -231,19 +232,20 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Compare explicit formula with Monte-Carlo and long/short and payer/receiver parities.
    */
   public void monteCarlo() {
+    YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     int nbPath = 12500;
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    CurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    CurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_PAYER_LONG, CUR, curve, BUNDLE_HW);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(), pvPayerLongMC.getAmount(), 1.0E+5);
     double pvMCPreviousRun = 5188076.7548;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(), 1.0E-2);
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    CurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_PAYER_SHORT, BUNDLE_HW);
+    CurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_PAYER_SHORT, CUR, curve, BUNDLE_HW);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvPayerLongMC.getAmount(), pvPayerShortMC.getAmount(), 1.0E-2);
-    CurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_RECEIVER_LONG, BUNDLE_HW);
+    CurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_RECEIVER_LONG, CUR, curve, BUNDLE_HW);
     double pvSwap = PVC.visit(SWAP_RECEIVER, CURVES);
     assertEquals("Swaption physical - Hull-White - Monte Carlo - payer/receiver/swap parity", pvReceiverLongMC.getAmount() + pvPayerShortMC.getAmount(), pvSwap, 1.0E+5);
   }
@@ -337,6 +339,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     CurrencyAmount pvPayerLongMC = CurrencyAmount.of(CUR, 0.0);
     double[] pvhws = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     PresentValueSensitivity pvcs = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
@@ -374,7 +377,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     // Performance note: HW approximation: 18-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 160 ms for 10000 swaptions.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pvPayerLongMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
+      pvPayerLongMC = METHOD_HW_MONTECARLO.presentValue(SWAPTION_PAYER_LONG, CUR, curve, BUNDLE_HW);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " swaption Hull-White Monte Carlo method (" + NB_PATH + " paths): " + (endTime - startTime) + " ms");

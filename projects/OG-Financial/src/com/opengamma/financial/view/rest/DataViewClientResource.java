@@ -61,7 +61,6 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public static final String PATH_VIEW_CYCLE_ACCESS_SUPPORTED = "viewCycleAccessSupported";
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
-  public static final String PATH_SHUTDOWN = "shutdown";
   public static final String PATH_TRIGGER_CYCLE = "triggerCycle";
 
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
@@ -298,7 +297,6 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   
   //-------------------------------------------------------------------------
   @DELETE
-  @Path(PATH_SHUTDOWN)
   public void shutdown() {
     getViewClient().shutdown();
     stopResultStream();
