@@ -146,11 +146,7 @@
   <!-- Vol Cubes service -->
   <bean id="volatilityCubeDefinitionSourceRestBean" class="com.opengamma.financial.analytics.volatility.cube.rest.VolatilityCubeDefinitionSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlyingMap">
-      <map>
-        <entry key="0" value-ref="combinedVolatilityCubeDefinitionSource" />
-      </map>
-    </property>
+    <property name="underlying" ref="combinedVolatilityCubeDefinitionSource" />
   </bean>
   
   <!-- Users resource context -->
@@ -216,11 +212,7 @@
   </bean>
   <bean id="dataExchangesRestBean" class="com.opengamma.financial.exchange.rest.ExchangeSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlyingMap">
-      <map>
-        <entry key="0" value-ref="sharedExchangeSource" />
-      </map>
-    </property>
+    <property name="underlying" ref="sharedExchangeSource" />
   </bean>
   
   <!-- Holidays RESTful service -->
@@ -231,6 +223,10 @@
   <!-- Exchanges RESTful service -->
   <bean id="webRegionsRestBean" class="com.opengamma.web.region.WebRegionsResource" scope="request">
     <constructor-arg ref="regionMaster" />
+  </bean>
+  <bean id="dataRegionsRestBean" class="com.opengamma.financial.region.rest.RegionSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="regionSource" />
   </bean>
   
   <!-- Distributed component configuration data -->
@@ -303,6 +299,12 @@
             <entry key="positionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/positionSource/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="regionSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/regionSource/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

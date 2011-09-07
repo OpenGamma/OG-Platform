@@ -193,6 +193,12 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
+  <!-- Region -->
+  <bean id="regionLoader" class="com.opengamma.language.region.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
   <!-- Security -->
   <bean id="securityLoader" class="com.opengamma.language.security.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
