@@ -42,9 +42,10 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -185,7 +186,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCouponOIS(final CouponOIS payment, final S data) {
+  public T visitZZZCouponOIS(final ZZZCouponOIS payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitContinuouslyMonitoredAverageRatePayment()");
   }
 
@@ -205,13 +206,18 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCapFloorIbor(final CapFloorIbor payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
+  public T visitCouponOIS(final CouponOIS payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
   }
 
   @Override
   public T visitCouponCMS(final CouponCMS payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
+  public T visitCapFloorIbor(final CapFloorIbor payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
   }
 
   @Override
@@ -375,7 +381,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCouponOIS(final CouponOIS payment) {
+  public T visitZZZCouponOIS(final ZZZCouponOIS payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitContinuouslyMonitoredAverageRatePayment()");
   }
 
@@ -395,13 +401,18 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCapFloorIbor(final CapFloorIbor payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
+  public T visitCouponOIS(final CouponOIS payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
   }
 
   @Override
   public T visitCouponCMS(final CouponCMS payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
+  public T visitCapFloorIbor(final CapFloorIbor payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
   }
 
   @Override

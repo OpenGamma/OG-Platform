@@ -42,7 +42,7 @@ public class CouponIbor extends CouponFloating {
    */
   private final double _spreadAmount;
   /**
-   * The forward curve name used in to estimate the fixing index..
+   * The forward curve name used in to estimate the fixing index.
    */
   private final String _forwardCurveName;
 
@@ -56,8 +56,8 @@ public class CouponIbor extends CouponFloating {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
-   * @param fixingPeriodStartTime Time (in years) up to the start of the fixing period.
-   * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime The fixing period end time (in years).
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param spread The spread.
    * @param forwardCurveName Name of the forward (or estimation) curve.
@@ -85,7 +85,7 @@ public class CouponIbor extends CouponFloating {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
-   * @param fixingPeriodStartTime Time (in years) up to the start of the fixing period.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
    * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param forwardCurveName Name of the forward (or estimation) curve.
@@ -96,24 +96,24 @@ public class CouponIbor extends CouponFloating {
   }
 
   /**
-   * Gets the _fixingPeriodStartTime field.
-   * @return the _fixingPeriodStartTime
+   * Gets the fixing period start time (in years).
+   * @return The fixing period start time.
    */
   public double getFixingPeriodStartTime() {
     return _fixingPeriodStartTime;
   }
 
   /**
-   * Gets the _fixingPeriodEndTime field.
-   * @return the _fixingPeriodEndTime
+   * Gets the fixing period end time (in years).
+   * @return The fixing period end time.
    */
   public double getFixingPeriodEndTime() {
     return _fixingPeriodEndTime;
   }
 
   /**
-   * Gets the _fixingYearFraction field.
-   * @return the _fixingYearFraction
+   * Gets the accrual factor for the fixing period.
+   * @return The accrual factor.
    */
   public double getFixingYearFraction() {
     return _fixingYearFraction;
@@ -136,8 +136,8 @@ public class CouponIbor extends CouponFloating {
   }
 
   /**
-   * Gets the _forwardCurveName field.
-   * @return the _forwardCurveName
+   * Gets the forward curve name.
+   * @return The name.
    */
   public String getForwardCurveName() {
     return _forwardCurveName;

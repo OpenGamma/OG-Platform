@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecu
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -151,7 +151,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
-  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+  public Double visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     final double ta = payment.getStartTime();
     final double tb = payment.getEndTime();

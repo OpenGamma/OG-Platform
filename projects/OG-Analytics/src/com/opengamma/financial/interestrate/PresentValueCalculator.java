@@ -29,7 +29,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
@@ -198,7 +198,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle curves) {
+  public Double visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());

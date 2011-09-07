@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
@@ -222,7 +222,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     //  final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
     final double ta = payment.getStartTime();
