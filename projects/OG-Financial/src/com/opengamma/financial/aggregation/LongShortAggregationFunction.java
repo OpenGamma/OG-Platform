@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -143,5 +146,10 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Arrays.asList(LONG, SHORT, NOT_LONG_SHORT);
   }
 }

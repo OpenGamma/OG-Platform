@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
@@ -62,5 +65,10 @@ public class LiquidityAggregationFunction implements AggregationFunction<String>
 
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Arrays.asList("< 0.2", "0.2 - 0.5", "0.5 - 1", "1 - 3", "3 - 10", "10+");
   }
 }
