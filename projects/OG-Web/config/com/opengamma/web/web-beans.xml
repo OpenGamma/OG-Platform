@@ -219,6 +219,10 @@
   <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
     <constructor-arg ref="dbHolidayMaster" />
   </bean>
+  <bean id="dataHolidaysRestBean" class="com.opengamma.financial.holiday.rest.HolidaySourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="sharedHolidaySource" />
+  </bean>
   
   <!-- Exchanges RESTful service -->
   <bean id="webRegionsRestBean" class="com.opengamma.web.region.WebRegionsResource" scope="request">
@@ -269,7 +273,13 @@
             <entry key="historicalTimeSeriesSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/historicalTimeSeriesSource/0/" />
-                  <property name="port" value="${jetty.port}" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="holidaySource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/holidaySource/0/" />
+                <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
             <entry key="interpolatedYieldCurveDefinitionSource"> 

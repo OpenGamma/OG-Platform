@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -69,6 +70,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which a historical time series source is bound.
    */
   protected static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
+
+  /**
+   * Name under which a holiday source is bound.
+   */
+  protected static final String HOLIDAY_SOURCE = "holidaySource";
 
   /**
    * Name under which the live data definition filter is bound.
@@ -324,6 +330,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public RegionSource getRegionSource() {
     return getValue(REGION_SOURCE);
+  }
+
+  public HolidaySource getHolidaySource() {
+    return getValue(HOLIDAY_SOURCE);
   }
 
 }

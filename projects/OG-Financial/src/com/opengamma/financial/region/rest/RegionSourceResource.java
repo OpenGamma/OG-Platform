@@ -59,7 +59,7 @@ public class RegionSourceResource {
     }
     final FudgeSerializer serializer = getFudgeSerializer();
     final MutableFudgeMsg response = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(response, "region", null, region);
+    serializer.addToMessageWithClassHeaders(response, "region", null, region, Region.class);
     return new FudgeMsgEnvelope(response);
   }
 
@@ -105,7 +105,7 @@ public class RegionSourceResource {
     final FudgeSerializer serializer = getFudgeSerializer();
     final MutableFudgeMsg response = serializer.newMessage();
     for (Region region : getUnderlying().getRegions(ExternalIdBundle.of(externalIds), VersionCorrection.parse(versionString, correctionString))) {
-      serializer.addToMessageWithClassHeaders(response, "region", null, region);
+      serializer.addToMessageWithClassHeaders(response, "region", null, region, Region.class);
     }
     return new FudgeMsgEnvelope(response);
   }

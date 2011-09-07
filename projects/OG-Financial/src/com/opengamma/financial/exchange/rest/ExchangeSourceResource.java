@@ -60,7 +60,7 @@ public class ExchangeSourceResource {
     }
     final FudgeSerializer serializer = getFudgeSerializer();
     final MutableFudgeMsg response = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(response, "exchange", null, exchange);
+    serializer.addToMessageWithClassHeaders(response, "exchange", null, exchange, Exchange.class);
     return new FudgeMsgEnvelope(response);
   }
 
@@ -92,7 +92,7 @@ public class ExchangeSourceResource {
     final FudgeSerializer serializer = getFudgeSerializer();
     final MutableFudgeMsg response = serializer.newMessage();
     for (Exchange exchange : exchanges) {
-      serializer.addToMessageWithClassHeaders(response, "exchange", null, exchange);
+      serializer.addToMessageWithClassHeaders(response, "exchange", null, exchange, Exchange.class);
     }
     return new FudgeMsgEnvelope(response);
   }
