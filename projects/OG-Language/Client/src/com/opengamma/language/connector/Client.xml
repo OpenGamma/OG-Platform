@@ -181,8 +181,20 @@
     </property>
   </bean>
   
+  <!-- Exchange -->
+  <bean id="exchangeLoader" class="com.opengamma.language.exchange.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
   <!-- Position -->
   <bean id="positionLoader" class="com.opengamma.language.position.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+  
+  <!-- Region -->
+  <bean id="regionLoader" class="com.opengamma.language.region.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
