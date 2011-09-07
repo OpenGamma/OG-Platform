@@ -29,11 +29,13 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -44,6 +46,11 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
  */
 public class PresentValueCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
+
+  /**
+   * The method used for OIS coupons.
+   */
+  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
 
   private static final PresentValueCalculator s_instance = new PresentValueCalculator();
 
@@ -195,6 +202,11 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     final YieldAndDiscountCurve liborCurve = curves.getCurve(payment.getForwardCurveName());
     final double forward = (liborCurve.getDiscountFactor(payment.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
     return payment.getNotional() * (forward + payment.getSpread()) * payment.getPaymentYearFraction() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
+  }
+
+  @Override
+  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+    return METHOD_OIS.presentValue(payment, data).getAmount();
   }
 
   @Override

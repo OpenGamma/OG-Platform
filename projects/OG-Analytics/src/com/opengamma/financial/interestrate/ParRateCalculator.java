@@ -18,8 +18,10 @@ import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecu
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -33,6 +35,11 @@ import com.opengamma.util.CompareUtils;
 public final class ParRateCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
+  /**
+   * The method used for OIS coupons.
+   */
+  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+
   private static final ParRateCalculator s_instance = new ParRateCalculator();
 
   public static ParRateCalculator getInstance() {
@@ -146,6 +153,11 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
+  public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+    return METHOD_OIS.parRate(payment, data);
+  }
+
+  @Override
   public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment, data);
   }
@@ -167,6 +179,5 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
-
 
 }
