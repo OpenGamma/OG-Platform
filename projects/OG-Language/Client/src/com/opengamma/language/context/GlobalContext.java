@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
+import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -42,6 +43,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the system settings (OpenGamma.properties) are bound. 
    */
   protected static final String SYSTEM_SETTINGS = "systemSettings";
+
+  /**
+   * Name under which the exchange source is bound.
+   */
+  protected static final String EXCHANGE_SOURCE = "exchangeSource";
 
   /**
    * Name under which the function definition filter is bound.
@@ -304,6 +310,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public ExecutorService getSaturatingExecutor() {
     return getValue(SATURATING_EXECUTOR);
+  }
+
+  public ExchangeSource getExchangeSource() {
+    return getValue(EXCHANGE_SOURCE);
   }
 
 }
