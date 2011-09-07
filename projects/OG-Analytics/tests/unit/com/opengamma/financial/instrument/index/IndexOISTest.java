@@ -28,7 +28,7 @@ public class IndexOISTest {
   private static final int US_PUBLICATION_LAG = 1;
   private static final Calendar US_CALENDAR = new MondayToFridayCalendar("A");
   private static final IndexOIS US_OIS = new IndexOIS(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, US_CALENDAR);
-  //USD OIS
+  //EUR Eonia
   private static final String EUR_OIS_NAME = "EUR EONIA";
   private static final Currency EUR_CUR = Currency.EUR;
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("EUR");
