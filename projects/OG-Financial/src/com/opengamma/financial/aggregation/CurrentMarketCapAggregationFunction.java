@@ -33,6 +33,18 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   private static final String FIELD = "CUR_MKT_CAP";
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
   private static final String NO_CUR_MKT_CAP = "N/A";
+  
+  private static final double NANO_CAP_UPPER_THRESHOLD = 10E6;
+  private static final double MICRO_CAP_UPPER_THRESHOLD = 100E6;
+  private static final double SMALL_CAP_UPPER_THRESHOLD = 1000E6;
+  private static final double MID_CAP_UPPER_THRESHOLD = 10E9;
+  private static final double LARGE_CAP_UPPER_THRESHOLD = 100E9;
+  
+  private static final String NANO_CAP = "E) Nano Cap";
+  private static final String MICRO_CAP = "D) Micro Cap";
+  private static final String SMALL_CAP = "C) Small Cap";
+  private static final String MID_CAP = "B) Mid Cap";
+  private static final String LARGE_CAP = "A) Large Cap";
 
   private HistoricalTimeSeriesSource _htsSource;
   private SecuritySource _secSource;
@@ -65,18 +77,16 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
                                                                                      RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
       if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
         double currentMarketCap = historicalTimeSeries.getTimeSeries().getLatestValue();
-        if (currentMarketCap < 0.2) {
-          return "< 0.2";
-        } else if (currentMarketCap < 0.5) {
-          return "0.2 - 0.5";
-        } else if (currentMarketCap < 1.0) {
-          return "0.5 - 1";
-        } else if (currentMarketCap < 3) {
-          return "1 - 3";
-        } else if (currentMarketCap < 10) {
-          return "3 - 10";
+        if (currentMarketCap < NANO_CAP_UPPER_THRESHOLD) {
+          return NANO_CAP;
+        } else if (currentMarketCap < MICRO_CAP_UPPER_THRESHOLD) {
+          return MICRO_CAP;
+        } else if (currentMarketCap < SMALL_CAP_UPPER_THRESHOLD) {
+          return SMALL_CAP;
+        } else if (currentMarketCap < MID_CAP_UPPER_THRESHOLD) {
+          return MID_CAP;
         } else {
-          return "10+";
+          return LARGE_CAP;
         }
       } else {
         return NO_CUR_MKT_CAP;
@@ -94,7 +104,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
                                                                                             .create();
     FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
     String classification = security.accept(visitorAdapter);
-    return classification == null ? "Unknown" : classification;
+    return classification == null ? NO_CUR_MKT_CAP : classification;
   }
 
   public String getName() {
@@ -103,6 +113,6 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Arrays.<String>asList(new String[] {"< 0.2", "0.2 - 0.5", "0.5 - 1", "1 - 3", "3 - 10", "10+" });
+    return Arrays.<String>asList(new String[] {LARGE_CAP, MID_CAP, SMALL_CAP, MICRO_CAP, NANO_CAP, NO_CUR_MKT_CAP});
   }
 }

@@ -6,6 +6,11 @@
 
 package com.opengamma.language.convert;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.UserContext;
@@ -19,6 +24,8 @@ public final class ValueConversionContext {
 
   private final SessionContext _sessionContext;
   private final com.opengamma.language.invoke.ValueConverter _converter;
+  private final Map<Object, Set<JavaTypeInfo<?>>> _failedConversions = new HashMap<Object, Set<JavaTypeInfo<?>>>();
+  private final Set<JavaTypeInfo<?>> _visited = new HashSet<JavaTypeInfo<?>>();
   private boolean _hasResult;
   private boolean _hasFailed;
   private Object _result;
@@ -48,9 +55,31 @@ public final class ValueConversionContext {
   }
 
   public void convertValue(final Object value, final JavaTypeInfo<?> type) {
-    _reentrance++;
-    _converter.convertValue(this, value, type);
-    _reentrance--;
+    if (_visited.add(type)) {
+      _reentrance++;
+      _converter.convertValue(this, value, type);
+      _reentrance--;
+      _visited.remove(type);
+    } else {
+      setFail();
+    }
+  }
+
+  public void recordFailedConversion(final Object value, final JavaTypeInfo<?> type) {
+    Set<JavaTypeInfo<?>> types = _failedConversions.get(value);
+    if (types == null) {
+      types = new HashSet<JavaTypeInfo<?>>();
+      _failedConversions.put(value, types);
+    }
+    types.add(type);
+  }
+
+  public boolean isFailedConversion(final Object value, final JavaTypeInfo<?> type) {
+    final Set<JavaTypeInfo<?>> types = _failedConversions.get(value);
+    if (types == null) {
+      return false;
+    }
+    return types.contains(type);
   }
 
   public boolean setFail() {
