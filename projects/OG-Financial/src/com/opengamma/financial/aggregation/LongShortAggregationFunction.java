@@ -6,6 +6,7 @@
 package com.opengamma.financial.aggregation;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -36,10 +37,15 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   private static final String NOT_LONG_SHORT = "N/A"; 
   private static final String LONG = "Long";
   private static final String SHORT = "Short";
+  private SecuritySource _secSource;
+  
+  public LongShortAggregationFunction(SecuritySource secSource) {
+    _secSource = secSource;
+  }
   
   @Override
   public String classifyPosition(final Position position) {
-    
+    position.getSecurityLink().resolve(_secSource);
     FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitor<String>() {
 
       @Override

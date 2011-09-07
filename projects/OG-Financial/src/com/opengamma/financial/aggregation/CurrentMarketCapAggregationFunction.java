@@ -60,7 +60,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
       LocalDate oneWeekAgo = yesterday.minusDays(7);
       HistoricalTimeSeries historicalTimeSeries = _htsSource.getHistoricalTimeSeries(FIELD, externalIdBundle, 
                                                                                      RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
-      if (historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
+      if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
         double currentMarketCap = historicalTimeSeries.getTimeSeries().getLatestValue();
         if (currentMarketCap < 0.2) {
           return "< 0.2";

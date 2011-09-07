@@ -36,7 +36,7 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
       LocalDate oneWeekAgo = yesterday.minusDays(7);
       HistoricalTimeSeries historicalTimeSeries = _htsSource.getHistoricalTimeSeries(FIELD, position.getSecurity().getExternalIdBundle(), 
                                                                                      RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
-      if (historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
+      if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
         Double beta = historicalTimeSeries.getTimeSeries().getLatestValue();
         if (beta < 0.5) {
           return "< 0.5";
