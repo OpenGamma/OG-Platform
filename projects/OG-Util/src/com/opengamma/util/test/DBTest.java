@@ -121,6 +121,20 @@ public abstract class DBTest implements TableCreationCallback {
     FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
   }
 
+  //-------------------------------------------------------------------------
+  public static Collection<Object[]> getParameters() {
+    int previousVersionCount = getPreviousVersionCount();
+    return getParameters(previousVersionCount);
+  }
+
+  protected static Collection<Object[]> getParameters(final int previousVersionCount) {
+    String databaseType = System.getProperty("test.database.type");
+    if (databaseType == null) {
+      databaseType = "all";
+    }
+    return getParameters(databaseType, previousVersionCount);
+  }
+
   protected static Collection<Object[]> getParameters(final String databaseType, final int previousVersionCount) {
     ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
@@ -156,17 +170,13 @@ public abstract class DBTest implements TableCreationCallback {
     return result;
   }
 
-  protected static Collection<Object[]> getParameters(final int previousVersionCount) {
-    String databaseType = System.getProperty("test.database.type");
-    if (databaseType == null) {
-      databaseType = "all";
-    }
-    return getParameters(databaseType, previousVersionCount);
-  }
-
-  public static Collection<Object[]> getParameters() {
-    int previousVersionCount = getPreviousVersionCount();
-    return getParameters(previousVersionCount);
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "localDatabase")
+  public static Object[][] data_localDatabase() {
+    Collection<Object[]> parameters = getParameters("hsqldb", 0);
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
   }
 
   @DataProvider(name = "databases")
