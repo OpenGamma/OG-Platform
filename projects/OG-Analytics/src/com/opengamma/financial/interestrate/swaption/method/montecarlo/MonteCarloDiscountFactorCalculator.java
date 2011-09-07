@@ -9,6 +9,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.derivative.CouponIborRatchet;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
 /**
@@ -55,6 +58,43 @@ public class MonteCarloDiscountFactorCalculator extends AbstractInterestRateDeri
         swapPathValue += impactAmount[0][loopcf] * pathDiscountFactors[looppath][0][loopcf];
       }
       price += Math.max(swapPathValue, 0);
+    }
+    price = price / nbPath * (swaption.isLong() ? 1.0 : -1.0);
+    return price;
+  }
+
+  @Override
+  public Double visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final MonteCarloDiscountFactorDataBundle mcResults) {
+    Double[][][] pathDiscountFactors = mcResults.getPathDiscountingFactors();
+    double[][] impactAmount = mcResults.getImpactAmount();
+    double price = 0.0;
+    int nbPath = pathDiscountFactors.length;
+    int nbCpn = annuity.getNumberOfPayments();
+    double[] annuityPathValue = new double[nbPath];
+    double[][] cpnRate = new double[nbCpn][nbPath];
+    double ibor;
+    for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
+      if (annuity.isFixed()[loopcpn]) { // Coupon already fixed: only one cash flow
+        CouponFixed cpn = (CouponFixed) annuity.getNthPayment(loopcpn);
+        for (int looppath = 0; looppath < nbPath; looppath++) {
+          cpnRate[loopcpn][looppath] = cpn.getFixedRate();
+          annuityPathValue[looppath] += impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0];
+        }
+      } else {
+        // Ratchet coupon - TODO: Ibor coupon
+        CouponIborRatchet cpn = (CouponIborRatchet) annuity.getNthPayment(loopcpn);
+        for (int looppath = 0; looppath < nbPath; looppath++) {
+          ibor = (-impactAmount[loopcpn][0] * pathDiscountFactors[looppath][loopcpn][0] / (impactAmount[loopcpn][1] * pathDiscountFactors[looppath][loopcpn][1]) - 1.0) / cpn.getPaymentYearFraction();
+          double cpnMain = cpn.getMainCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getMainCoefficients()[1] * ibor + cpn.getMainCoefficients()[2];
+          double cpnFloor = cpn.getFloorCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getFloorCoefficients()[1] * ibor + cpn.getFloorCoefficients()[2];
+          double cpnCap = cpn.getCapCoefficients()[0] * cpnRate[loopcpn - 1][looppath] + cpn.getCapCoefficients()[1] * ibor + cpn.getCapCoefficients()[2];
+          cpnRate[loopcpn][looppath] = Math.min(Math.max(cpnFloor, cpnMain), cpnCap);
+          annuityPathValue[looppath] += cpnRate[loopcpn][looppath] * cpn.getPaymentYearFraction() * cpn.getNotional() * pathDiscountFactors[looppath][loopcpn][1];
+        }
+      }
+    }
+    for (int looppath = 0; looppath < nbPath; looppath++) {
+      price += annuityPathValue[looppath];
     }
     price = price / nbPath;
     return price;
