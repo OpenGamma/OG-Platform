@@ -28,7 +28,7 @@ public class ArrayTypeConverter extends AbstractTypeConverter {
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
   private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value.class).arrayOf().get();
   private static final JavaTypeInfo<Value[][]> VALUE_2 = JavaTypeInfo.builder(Value.class).arrayOf().arrayOf().get();
-  private static final Map<JavaTypeInfo<?>, Integer> TO_OBJECT = TypeMap.of(ZERO_LOSS, VALUE_1, VALUE_2);
+  private static final Map<JavaTypeInfo<?>, Integer> TO_OBJECT = TypeMap.ofWeighted(ZERO_LOSS, VALUE_1, VALUE_2);
   private static final Map<JavaTypeInfo<?>, Integer> TO_VALUE = TypeMap.of(ZERO_LOSS, OBJECT);
 
   protected ArrayTypeConverter() {
