@@ -214,6 +214,14 @@
   <bean id="webExchangesRestBean" class="com.opengamma.web.exchange.WebExchangesResource" scope="request">
     <constructor-arg ref="dbExchangeMaster" />
   </bean>
+  <bean id="dataExchangesRestBean" class="com.opengamma.financial.exchange.rest.ExchangeSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlyingMap">
+      <map>
+        <entry key="0" value-ref="sharedExchangeSource" />
+      </map>
+    </property>
+  </bean>
   
   <!-- Holidays RESTful service -->
   <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
@@ -250,6 +258,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="exchangeSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/exchangeSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="functionRepositoryConfiguration">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/repositoryConfigurationSource/0/" />
@@ -277,6 +291,12 @@
            <entry key="volatilityCubeDefinitionSource"> 
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/volatilityCubeDefinitionSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="pnlExplainProcessor">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/pnlExplainProcessor/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -332,12 +352,6 @@
             <entry key="viewProcessor">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="pnlExplainProcessor">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/pnlExplainProcessor/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
