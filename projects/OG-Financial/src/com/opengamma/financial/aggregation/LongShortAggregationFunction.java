@@ -150,6 +150,6 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Arrays.asList(LONG, SHORT, NOT_LONG_SHORT);
+    return Arrays.asList(LONG, SHORT, NOT_LONG_SHORT, NOT_LONG_SHORT);
   }
 }
