@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
@@ -36,7 +39,7 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
       LocalDate oneWeekAgo = yesterday.minusDays(7);
       HistoricalTimeSeries historicalTimeSeries = _htsSource.getHistoricalTimeSeries(FIELD, position.getSecurity().getExternalIdBundle(), 
                                                                                      RESOLUTION_KEY, oneWeekAgo, true, yesterday, true);
-      if (historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
+      if (historicalTimeSeries != null && historicalTimeSeries.getTimeSeries() != null && !historicalTimeSeries.getTimeSeries().isEmpty()) {
         Double beta = historicalTimeSeries.getTimeSeries().getLatestValue();
         if (beta < 0.5) {
           return "< 0.5";
@@ -59,5 +62,10 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
 
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Arrays.asList("< 0.5", "0.5 - 0.75", "0.75 - 0.9", "0.9 - 1.25", "> 1.25");
   }
 }

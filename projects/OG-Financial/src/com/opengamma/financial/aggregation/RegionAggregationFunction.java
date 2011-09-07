@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
@@ -61,5 +64,10 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
 
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Collections.emptyList();
   }
 }
