@@ -145,52 +145,17 @@
   </bean>
   
   <!-- Exchange Source -->
-  <!-- TODO [PLAT-670] -->
-  <bean id="exchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
+  <bean id="exchangeSource" class="com.opengamma.financial.exchange.rest.RemoteExchangeSource">
+    <constructor-arg ref="fudgeContext" />
     <constructor-arg>
-		  <bean class="com.opengamma.masterdb.exchange.DbExchangeMaster">
-		    <constructor-arg>
-				  <bean class="com.opengamma.util.db.DbSourceFactoryBean">
-            <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
-            <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-				    <property name="name" value="CalcNodeExchange"/>
-				    <property name="dataSource">
-		          <bean class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		            <property name="driverClassName">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.driver" />
-                  </bean>
-                </property>
-		            <property name="url">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.url" />
-                  </bean>
-                </property>
-		            <property name="username">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.username" />
-                  </bean>
-                </property>
-		            <property name="password">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.password" />
-                  </bean>
-                </property>
-		          </bean>
-				    </property>
-				    <property name="dialect">
-						  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-						    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.dbhelper"/>
-						  </bean>
-						</property>
-    		  </bean>
+      <bean class="com.opengamma.transport.jaxrs.RestTarget">
+        <constructor-arg ref="fudgeContext" />
+        <constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
+            <property name="uri" value="${opengamma.engine.configuration.url}/exchangeSource" />
+          </bean>
         </constructor-arg>
-		    <property name="uniqueIdScheme">
-	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.exchangemaster.scheme" />
-	        </bean>
-	      </property>
-		  </bean>
+      </bean>
     </constructor-arg>
   </bean>
   
