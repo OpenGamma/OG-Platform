@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
@@ -42,13 +43,13 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
     cash.setUniqueId(UniqueId.of("TEST", "TEST"));
     cash.setName("1m deposit rate");
     cash.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity cashStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.ONE_MONTH, Tenor.ONE_MONTH, maturity, dummyId, cash);
+    FixedIncomeStripWithSecurity cashStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_MONTH, "DEFAULT"), Tenor.ONE_MONTH, maturity, dummyId, cash);
 
     dummyId = SecurityUtils.bloombergTickerSecurityId("EDZ2 Comdty");
     bundle = ExternalIdBundle.of(dummyId);
     final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId);
     future.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, 2, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
+    FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, 2, "DEFAULT"), Tenor.THREE_MONTHS, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
 
     dummyId = SecurityUtils.bloombergTickerSecurityId("USFR0BE Curncy");
     bundle = ExternalIdBundle.of(dummyId);
@@ -57,7 +58,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
     ExternalId underlyingIdentifier = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
     FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier);
     fra.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, Tenor.FIVE_MONTHS, endDate, dummyId, fra);
+    FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, "DEFAULT"), Tenor.FIVE_MONTHS, endDate, dummyId, fra);
     
     final Collection<FixedIncomeStripWithSecurity> strips = new ArrayList<FixedIncomeStripWithSecurity>();
     strips.add(cashStrip);

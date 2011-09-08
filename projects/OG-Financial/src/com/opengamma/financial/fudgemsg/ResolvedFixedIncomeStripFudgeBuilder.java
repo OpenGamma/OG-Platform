@@ -12,32 +12,31 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Builder for converting FixedIncomeStripWithIdentifier instances to/from Fudge messages.
  */
 @FudgeBuilderFor(FixedIncomeStripWithIdentifier.class)
 public class ResolvedFixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStripWithIdentifier> {
-
+  private static final String STRIP_NAME = "strip";
+  private static final String IDENTIFIER_NAME = "identifier";
+  
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FixedIncomeStripWithIdentifier object) {
     MutableFudgeMsg message = serializer.newMessage();
-    serializer.addToMessage(message, "type", null, object.getInstrumentType());
-    serializer.addToMessage(message, "maturity", null, object.getMaturity());
-    serializer.addToMessage(message, "security", null, object.getSecurity());
+    serializer.addToMessage(message, STRIP_NAME, null, object.getStrip());
+    serializer.addToMessage(message, IDENTIFIER_NAME, null, object.getSecurity());
     return message; 
   }
 
   @Override
   public FixedIncomeStripWithIdentifier buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    StripInstrumentType type = deserializer.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
-    Tenor maturity = deserializer.fieldValueToObject(Tenor.class, message.getByName("maturity"));
-    ExternalId security = deserializer.fieldValueToObject(ExternalId.class, message.getByName("security"));
-    return new FixedIncomeStripWithIdentifier(type, maturity, security);
+    FixedIncomeStrip type = deserializer.fieldValueToObject(FixedIncomeStrip.class, message.getByName(STRIP_NAME));
+    ExternalId security = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IDENTIFIER_NAME));
+    return new FixedIncomeStripWithIdentifier(type, security);
   }
 
 }

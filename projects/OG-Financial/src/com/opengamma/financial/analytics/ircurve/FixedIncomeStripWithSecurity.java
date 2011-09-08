@@ -20,21 +20,26 @@ import com.opengamma.util.time.Tenor;
  *  
  */
 public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStripWithSecurity> {
-  private final StripInstrumentType _instrumentType;
-  private final Tenor _tenor;
+  private final FixedIncomeStrip _originalStrip;
   private final Tenor _resolvedTenor;
-  private int _nthFutureFromTenor;
-  //private Tenor _floatingLength;
   private final ZonedDateTime _maturity;
   private final ExternalId _securityIdentifier;
   private final Security _security;
 
   /**
+   * Gets the fixed income strip.
+   * @return The fixed income strip
+   */
+  public FixedIncomeStrip getStrip() {
+    return _originalStrip;
+  }
+  
+  /**
    * Gets the instrumentType field.
    * @return the instrumentType
    */
   public StripInstrumentType getInstrumentType() {
-    return _instrumentType;
+    return _originalStrip.getInstrumentType();
   }
 
   /**
@@ -42,7 +47,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
    * @return the tenor
    */
   public Tenor getTenor() {
-    return _tenor;
+    return _originalStrip.getCurveNodePointTime();
   }
 
   /**
@@ -60,24 +65,9 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
    * @throws IllegalStateException if called on a non-future strip
    */
   public int getNumberOfFuturesAfterTenor() {
-    if (_instrumentType != StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot get number of futures after tenor for a non future strip " + toString());
-    }
-    return _nthFutureFromTenor;
+    return _originalStrip.getNumberOfFuturesAfterTenor();
   }
 
-  /**
-   * Get the tenor of the floating rate
-   * @return The tenor
-   * @throws IllegalStateException if called on a non-FRA or non-swap strip
-   */
-//  public Tenor getFloatingLength() {
-//    if (_instrumentType == StripInstrumentType.FRA || _instrumentType == StripInstrumentType.SWAP) {
-//      return _floatingLength;
-//    }
-//    throw new IllegalStateException("Cannot get floating length for a non-FRA or non-swap security " + toString());
-//  }
-//  
   /**
    * Gets the years field.
    * @return the years
@@ -103,46 +93,23 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
     return _security;
   }
 
-  public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
-                                      final Tenor resolvedTenor, final int nthFutureFromOriginalTenor,
-                                      final ZonedDateTime maturity, final ExternalId securityIdentifier,
+  public FixedIncomeStripWithSecurity(final FixedIncomeStrip originalStrip,
+                                      final Tenor resolvedTenor, 
+                                      final ZonedDateTime maturity, 
+                                      final ExternalId securityIdentifier,
                                       final Security security) {
-    Validate.isTrue(instrumentType == StripInstrumentType.FUTURE, "Trying to create a node with a nthFutureFromOriginalTenor param when not a future node");
-    _instrumentType = instrumentType;
-    _tenor = originalTenor;
-    _resolvedTenor = resolvedTenor;
-    _nthFutureFromTenor = nthFutureFromOriginalTenor;
-    _maturity = maturity;
-    _securityIdentifier = securityIdentifier;
-    _security = security;
-  }
-
-  public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
-      final Tenor resolvedTenor, final ZonedDateTime maturity, final ExternalId securityIdentifier,
-      final Security security) {
-    Validate.isTrue(instrumentType != StripInstrumentType.FUTURE, "Trying to create a node without a nthFutureFromOriginalTenor param when a future node");
-  //  Validate.isTrue(instrumentType != StripInstrumentType.FRA || instrumentType != StripInstrumentType.SWAP, "Trying to create a node without a floating length tenor when a swap or FRA node");
-    _instrumentType = instrumentType;
-    _tenor = originalTenor;
+    Validate.notNull(originalStrip, "original strip");
+    Validate.notNull(resolvedTenor, "resolved tenor");
+    Validate.notNull(maturity, "maturity");
+    Validate.notNull(securityIdentifier, "security identifier");
+    Validate.notNull(security, "security");
+    _originalStrip = originalStrip;
     _resolvedTenor = resolvedTenor;
     _maturity = maturity;
     _securityIdentifier = securityIdentifier;
     _security = security;
   }
 
-//  public FixedIncomeStripWithSecurity(final StripInstrumentType instrumentType, final Tenor originalTenor,
-//      final Tenor resolvedTenor, Tenor floatingTenor, final ZonedDateTime maturity, final ExternalId securityIdentifier,
-//      final Security security) {
-//    Validate.isTrue(instrumentType == StripInstrumentType.FRA || instrumentType == StripInstrumentType.SWAP, "Trying to create a node with a floating length tenor when not a swap or FRA node"); 
-//    _instrumentType = instrumentType;
-//    _tenor = originalTenor;
-//    _resolvedTenor = resolvedTenor;
-//    _floatingLength = floatingTenor;
-//    _maturity = maturity;
-//    _securityIdentifier = securityIdentifier;
-//    _security = security;
-//  }
-  
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -150,12 +117,9 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
     }
     if (obj instanceof FixedIncomeStripWithSecurity) {
       final FixedIncomeStripWithSecurity other = (FixedIncomeStripWithSecurity) obj;
-      return ObjectUtils.equals(_tenor, other._tenor) &&
-             ObjectUtils.equals(_nthFutureFromTenor, other._nthFutureFromTenor) &&
-    //         ObjectUtils.equals(_floatingLength, other._floatingLength) &&
+      return ObjectUtils.equals(_originalStrip, other._originalStrip) &&
              ObjectUtils.equals(_maturity, other._maturity) &&
-             ObjectUtils.equals(_security, other._security) &&
-             _instrumentType == other._instrumentType;
+             ObjectUtils.equals(_security, other._security);
     }
     return false;
   }
@@ -172,25 +136,13 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
 
   @Override
   public int compareTo(final FixedIncomeStripWithSecurity o) {
-    int result = getMaturity().compareTo(o.getMaturity());
+    int result = getStrip().compareTo(o.getStrip());
     if (result != 0) {
       return result;
     }
-    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal();
+    result = getMaturity().compareTo(o.getMaturity());
     if (result != 0) {
       return result;
-    }
-//    if (getInstrumentType() == StripInstrumentType.FRA || getInstrumentType() == StripInstrumentType.SWAP) {
-//      result = getFloatingLength().compareTo(o.getFloatingLength());
-//      if (result != 0) {
-//        return result;
-//      }
-//    }
-    if (getInstrumentType() == StripInstrumentType.FUTURE) {
-      result = getNumberOfFuturesAfterTenor() - o.getNumberOfFuturesAfterTenor();
-      if (result != 0) {
-        return result;
-      }
     }
     if (getSecurity().getUniqueId() == null) {
       if (o.getSecurity().getUniqueId() == null) {

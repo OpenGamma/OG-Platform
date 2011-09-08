@@ -185,12 +185,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
       final Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.toLocalDate()));
-      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor, strip.getNumberOfFuturesAfterTenor(), maturity, strip.getSecurity(),
-            security));
-      } else {
-        securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor, maturity, strip.getSecurity(), security));
-      }
+      securityStrips.add(new FixedIncomeStripWithSecurity(strip.getStrip(), resolvedTenor, maturity, strip.getSecurity(), security));
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(), securityStrips);
   }

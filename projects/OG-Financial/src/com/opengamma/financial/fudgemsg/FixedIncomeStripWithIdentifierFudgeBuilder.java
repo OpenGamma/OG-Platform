@@ -12,40 +12,31 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Builder for converting FixedIncomeStripWithIdentifier instances to/from Fudge messages.
  */
 @FudgeBuilderFor(FixedIncomeStripWithIdentifier.class)
 public class FixedIncomeStripWithIdentifierFudgeBuilder implements FudgeBuilder<FixedIncomeStripWithIdentifier> {
-
+  private static final String STRIP_NAME = "strip";
+  private static final String IDENTIFIER_NAME = "identifier";
+  
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FixedIncomeStripWithIdentifier object) {
     MutableFudgeMsg message = serializer.newMessage();
-    serializer.addToMessage(message, "type", null, object.getInstrumentType());
-    serializer.addToMessage(message, "tenor", null, object.getMaturity());
-    if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
-      message.add("numFutures", object.getNumberOfFuturesAfterTenor());
-    }
-    serializer.addToMessage(message, "identifier", null, object.getSecurity());
+    serializer.addToMessage(message, STRIP_NAME, null, object.getStrip());
+    serializer.addToMessage(message, IDENTIFIER_NAME, null, object.getSecurity());
     return message; 
   }
 
   @Override
   public FixedIncomeStripWithIdentifier buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    StripInstrumentType type = deserializer.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
-    Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName("tenor"));
-    ExternalId security = deserializer.fieldValueToObject(ExternalId.class, message.getByName("identifier"));
-    if (type == StripInstrumentType.FUTURE) {
-      int numFutures = message.getInt("numFutures");
-      return new FixedIncomeStripWithIdentifier(type, tenor, numFutures, security);
-    } else { 
-      return new FixedIncomeStripWithIdentifier(type, tenor, security);
-    }
+    FixedIncomeStrip type = deserializer.fieldValueToObject(FixedIncomeStrip.class, message.getByName(STRIP_NAME));
+    ExternalId security = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IDENTIFIER_NAME));
+    return new FixedIncomeStripWithIdentifier(type, security);
   }
 
 }

@@ -105,11 +105,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
-      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor(), identifier));
-      } else {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
-      }
+      securities.add(new FixedIncomeStripWithIdentifier(strip, identifier));
     }
     final Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
     return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegionId());

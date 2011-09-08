@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.ExternalId;
@@ -19,10 +20,28 @@ public class FixedIncomeStripWithIdentifierFudgeEncodingTest extends FinancialTe
 
   @Test
   public void testCycle() {
-    final FixedIncomeStripWithIdentifier strip = new FixedIncomeStripWithIdentifier(StripInstrumentType.CASH, Tenor.DAY, ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "AAPL US Equity"));
+    FixedIncomeStripWithIdentifier strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.DAY, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USDR5 Curncy"));
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
-    final FixedIncomeStripWithIdentifier futureStrip = new FixedIncomeStripWithIdentifier(StripInstrumentType.FUTURE, Tenor.YEAR, 3, ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GOOG US Equity"));
-    assertEquals(futureStrip, cycleObject(FixedIncomeStripWithIdentifier.class, futureStrip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ONE_MONTH, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "US0001M Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.EURIBOR, Tenor.ONE_MONTH, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "US0001M Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.YEAR, 3, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "L Z3 Comdty"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USFR01C Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.FRA_6M, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USFR01C Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSW1 Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSW1 Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USBG1 Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USBG1 Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.YEAR, "DEFAULT"), ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSO1 Curncy"));
+    assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
   }
 
 }

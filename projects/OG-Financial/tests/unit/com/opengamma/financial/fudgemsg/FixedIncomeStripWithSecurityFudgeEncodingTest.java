@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.security.cash.CashSecurity;
@@ -41,14 +42,14 @@ public class FixedIncomeStripWithSecurityFudgeEncodingTest extends FinancialTest
     cash.setUniqueId(UniqueId.of("TEST", "TEST"));
     cash.setName("1m deposit rate");
     cash.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(StripInstrumentType.CASH, Tenor.ONE_MONTH, Tenor.ONE_MONTH, maturity, dummyId, cash);
+    FixedIncomeStripWithSecurity strip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_MONTH, "DEFAULT"), Tenor.ONE_MONTH, maturity, dummyId, cash);
     assertEquals(strip, cycleObject(FixedIncomeStripWithSecurity.class, strip));
 
     dummyId = SecurityUtils.bloombergTickerSecurityId("EDZ2 Comdty");
     bundle = ExternalIdBundle.of(dummyId);
     final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId);
     future.setExternalIdBundle(bundle);
-    strip = new FixedIncomeStripWithSecurity(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, 2, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
+    strip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, 2, "DEFAULT"), Tenor.THREE_MONTHS, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
     assertEquals(strip, cycleObject(FixedIncomeStripWithSecurity.class, strip));
     
     dummyId = SecurityUtils.bloombergTickerSecurityId("USFR0BE Curncy");
@@ -58,7 +59,7 @@ public class FixedIncomeStripWithSecurityFudgeEncodingTest extends FinancialTest
     ExternalId underlyingIdentifier = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
     FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier);
     fra.setExternalIdBundle(bundle);
-    strip = new FixedIncomeStripWithSecurity(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, Tenor.FIVE_MONTHS, endDate, dummyId, fra);
+    strip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, "DEFAULT"), Tenor.FIVE_MONTHS, endDate, dummyId, fra);
     assertEquals(strip, cycleObject(FixedIncomeStripWithSecurity.class, strip));
   }
 

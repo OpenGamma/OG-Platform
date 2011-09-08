@@ -31,7 +31,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
   private int _nthFutureFromTenor;
-  //private Tenor _floatingLength;
 
   /**
    * Creates a strip for non-future, non-FRA and non-swap instruments.
