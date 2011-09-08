@@ -19,9 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,12 +32,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.convention.ConventionBundle;
-import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
@@ -124,24 +115,6 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurity()));
     }
-    final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext
-        .getConventionBundleSource(context);
-    final ConventionBundle conventionBundle = conventionBundleSource.getConventionBundle(ExternalId.of(
-        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, specification.getCurrency().getCode() + "_SWAP"));
-    final ConventionBundle referenceRateConvention = conventionBundleSource.getConventionBundle(ExternalIdBundle
-        .of(conventionBundle.getSwapFloatingLegInitialRate()));
-    
-    SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    Security security = securitySource.getSecurity(referenceRateConvention.getIdentifiers());
-    
-    if (security == null) {
-      s_logger.warn("No security returned for {} from security source", referenceRateConvention.getIdentifiers());
-      final ExternalId initialRefRateId = referenceRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
-      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, initialRefRateId));
-    } else {
-      result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,  ComputationTargetType.SECURITY, security.getUniqueId()));
-    }
-    
     return Collections.unmodifiableSet(result);
   }
 

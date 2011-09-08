@@ -17,8 +17,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -57,44 +55,44 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     final Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
     for (final FixedIncomeStrip strip : curveDefinition.getStrips()) {
       final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
+      if (builderConfig == null) {
+        throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + 
+            curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() + ", strip=" + strip);
+      }
       ExternalId identifier;
       switch (strip.getInstrumentType()) {
         case CASH:
           identifier = builderConfig.getCashSecurity(curveDate, strip.getCurveNodePointTime());
           break;
-        case FRA: {
-          final Tenor tenor = strip.getFloatingTenor();
-          if (tenor.equals(Tenor.THREE_MONTHS)) {
-            identifier = builderConfig.getFRA3MSecurity(curveDate, strip.getCurveNodePointTime());
-          } else if (tenor.equals(Tenor.SIX_MONTHS)) {
-            identifier = builderConfig.getFRA6MSecurity(curveDate, strip.getCurveNodePointTime());
-          } else {
-            throw new OpenGammaRuntimeException("Unhandled FRA tenor in curve definition " + tenor);
-          }
+        case FRA_3M:
+          identifier = builderConfig.getFRA3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
-        }
+        case FRA_6M:
+          identifier = builderConfig.getFRA6MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case FRA: 
+          // assume that all old FRAs are 3m - shouldn't be used but just for consistency
+          identifier = builderConfig.getFRA3MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case FUTURE:
           identifier = builderConfig.getFutureSecurity(curveDate, strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor());
           break;
         case LIBOR: //TODO is this right? It seems that we should have a generic IBOR strip. We will need to think about how we deal with *ibor providers 
-          final Currency ccy = curveDefinition.getCurrency();
-          if (ccy.equals(Currency.EUR)) {
-            identifier = builderConfig.getEuriborSecurity(curveDate, strip.getCurveNodePointTime());
-          } else {
-            identifier = builderConfig.getLiborSecurity(curveDate, strip.getCurveNodePointTime());
-          }
+          identifier = builderConfig.getLiborSecurity(curveDate, strip.getCurveNodePointTime());
           break;
-        case SWAP: {
-          final Tenor tenor = strip.getFloatingTenor();
-          if (tenor.equals(Tenor.THREE_MONTHS)) {
-            identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
-          } else if (tenor.equals(Tenor.SIX_MONTHS)) {
-            identifier = builderConfig.getSwap6MSecurity(curveDate, strip.getCurveNodePointTime());
-          } else {
-            throw new OpenGammaRuntimeException("Unhandled swap floating leg tenor in curve definition " + tenor);
-          }
+        case EURIBOR:
+          identifier = builderConfig.getEuriborSecurity(curveDate, strip.getCurveNodePointTime());
           break;
-        }
+        case SWAP_3M:
+          identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case SWAP_6M:
+          identifier = builderConfig.getSwap6MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case SWAP: 
+          // assume that all old swaps are 3m - shouldn't be used but just for consistency
+          identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case BASIS_SWAP:
           identifier = builderConfig.getBasisSwapSecurity(curveDate, strip.getCurveNodePointTime());
           break;
@@ -109,8 +107,6 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       }
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
         securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor(), identifier));
-      } else if (strip.getInstrumentType() == StripInstrumentType.FRA || strip.getInstrumentType() == StripInstrumentType.SWAP) {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getFloatingTenor(), identifier));
       } else {
         securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
       }

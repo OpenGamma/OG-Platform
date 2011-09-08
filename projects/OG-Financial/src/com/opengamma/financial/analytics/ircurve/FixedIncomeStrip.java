@@ -31,7 +31,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
   private int _nthFutureFromTenor;
-  private Tenor _floatingLength;
+  //private Tenor _floatingLength;
 
   /**
    * Creates a strip for non-future, non-FRA and non-swap instruments.
@@ -42,7 +42,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    */
   public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final String conventionName) {
     Validate.notNull(instrumentType, "InstrumentType");
-    Validate.isTrue(instrumentType != StripInstrumentType.FUTURE && instrumentType != StripInstrumentType.FRA && instrumentType != StripInstrumentType.SWAP);
+    Validate.isTrue(instrumentType != StripInstrumentType.FUTURE);
     Validate.notNull(curveNodePointTime, "Tenor");
     Validate.notNull(conventionName, "ConventionName");
     _instrumentType = instrumentType;
@@ -68,24 +68,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _instrumentType = instrumentType;
     _curveNodePointTime = curveNodePointTime;
     _nthFutureFromTenor = nthFutureFromTenor;
-    _conventionName = conventionName;
-  }
-
-  /**
-   * @param instrumentType The instrument type
-   * @param curveNodePointTime The time of the curve node point
-   * @param floatingLength The length of the floating period 
-   * (e.g. 6 months for 3M x 9M FRA, 3 months for 3M x 6M FRA, 3 months for a vanilla USD swap, 6 months for a vanilla EUR swap) 
-   * @param conventionName The name of the convention to use to resolve the strip into a security
-   */
-  public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final Tenor floatingLength, final String conventionName) {
-    Validate.isTrue(instrumentType == StripInstrumentType.FRA || instrumentType == StripInstrumentType.SWAP);
-    Validate.notNull(curveNodePointTime, "Tenor");
-    Validate.notNull(floatingLength, "Floating length");
-    Validate.notNull(conventionName, "convention name");
-    _instrumentType = instrumentType;
-    _curveNodePointTime = curveNodePointTime;
-    _floatingLength = floatingLength;
     _conventionName = conventionName;
   }
 
@@ -131,18 +113,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     return _conventionName;
   }
 
-  /**
-   * Gets the length of the floating tenor 
-   * @return The length of the floating tenor
-   * @throws IllegalStateException if called on a strip that is not a swap or FRA
-   */
-  public Tenor getFloatingTenor() {
-    if (_instrumentType != StripInstrumentType.FRA && _instrumentType != StripInstrumentType.SWAP) {
-      throw new IllegalStateException("Cannot get floating length for a strip that is not a FRA or swap: " + toString());
-    }
-    return _floatingLength;
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
@@ -156,8 +126,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     }
     if (getInstrumentType() == StripInstrumentType.FUTURE) {
       result = getNumberOfFuturesAfterTenor() - other.getNumberOfFuturesAfterTenor();
-    } else if (getInstrumentType() == StripInstrumentType.FRA) {
-      result = getFloatingTenor().compareTo(other.getFloatingTenor());
     }
     return result;
   }
@@ -173,8 +141,6 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
           && _instrumentType == other._instrumentType;
       if (getInstrumentType() == StripInstrumentType.FUTURE) {
         return result && _nthFutureFromTenor == other._nthFutureFromTenor;
-      } else if (getInstrumentType() == StripInstrumentType.FRA || getInstrumentType() == StripInstrumentType.SWAP) {
-        return result && ObjectUtils.equals(_floatingLength, other._floatingLength);
       }
       return result;
     }

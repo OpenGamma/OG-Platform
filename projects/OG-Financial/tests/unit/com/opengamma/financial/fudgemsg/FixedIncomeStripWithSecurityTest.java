@@ -58,7 +58,7 @@ public class FixedIncomeStripWithSecurityTest extends FinancialTestBase {
     ExternalId underlyingIdentifier = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
     FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier);
     fra.setExternalIdBundle(bundle);
-    strip = new FixedIncomeStripWithSecurity(StripInstrumentType.FRA, Tenor.FIVE_MONTHS, Tenor.FIVE_MONTHS, Tenor.THREE_MONTHS, endDate, dummyId, fra);
+    strip = new FixedIncomeStripWithSecurity(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, Tenor.FIVE_MONTHS, endDate, dummyId, fra);
     assertEquals(strip, cycleObject(FixedIncomeStripWithSecurity.class, strip));
   }
 

@@ -92,9 +92,9 @@ public class CurveDefinitionAndSpecificationsTest {
 
   @Test
   public void testBBGLiborProvider() {
-    final Map<Tenor, CurveInstrumentProvider> result = CurveDefinitionAndSpecifications.buildStandardBloombergLiborInstrumentProvider("BP");
+    final Map<Tenor, CurveInstrumentProvider> result = CurveDefinitionAndSpecifications.buildStandardBloombergLiborInstrumentProvider("BP", "S/N", "T/N");
     assertEquals(result.size(), 17);
-    assertEquals(result.get(Tenor.ofDays(1)).getInstrument(null, null), SecurityUtils.bloombergTickerSecurityId("BP00O/N Index")); // O/N
+    assertEquals(result.get(Tenor.ofDays(1)).getInstrument(null, null), SecurityUtils.bloombergTickerSecurityId("BP00S/N Index")); // O/N
     assertEquals(result.get(Tenor.ofDays(21)).getInstrument(null, null), SecurityUtils.bloombergTickerSecurityId("BP0003W Index")); // 3W
     assertEquals(result.get(Tenor.ofMonths(4)).getInstrument(null, null), SecurityUtils.bloombergTickerSecurityId("BP0004M Index")); // 4M
     assertEquals(result.get(Tenor.ofMonths(11)).getInstrument(null, null), SecurityUtils.bloombergTickerSecurityId("BP0011M Index")); // 11M

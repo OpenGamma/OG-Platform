@@ -29,7 +29,7 @@ public class CurveDefinitionAndSpecifications {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     final int[] tenors = new int[] {1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 25, 30};
     for (final int i : tenors) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD,
@@ -41,7 +41,7 @@ public class CurveDefinitionAndSpecifications {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     final int[] tenors = new int[] {1, 2, 4, 5, 6, 7, 10, 15, 20, 25, 30};
     for (final int i : tenors) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD,
@@ -53,7 +53,7 @@ public class CurveDefinitionAndSpecifications {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     final int[] tenors = new int[] {3};
     for (final int i : tenors) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
     final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD,
@@ -78,7 +78,7 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildUSDThreeMonthForwardCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2, 7, 14, 21}) {
+    for (final int i : new int[] {1, 7, 14}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3}) {
@@ -88,7 +88,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.ofYears(0), i, "DEFAULT"));
     }
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), Tenor.THREE_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "FORWARD_3M",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -96,32 +96,32 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildEURFundingCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2, 7, 14, 21}) {
+    for (final int i : new int[] {7, 14, 21}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
-    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofMonths(i), "DEFAULT"));
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.EUR, RegionUtils.financialRegionId("EU"), "FUNDING",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
-  public static YieldCurveDefinition buildEURSixMonthForwardCurveDefinition() {
+  public static YieldCurveDefinition buildEURSixMonthForwardCurveDefinition() { //TODO use euribor somewhere in the name
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2, 7, 14, 21}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofDays(i), "DEFAULT"));
+    for (final int i : new int[] {7, 14, 21}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.EURIBOR, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.EURIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
     for (final int i : new int[] {9, 12, 15, 18}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, Tenor.ofMonths(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_6M, Tenor.ofMonths(i), "DEFAULT"));
     }
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.EUR, RegionUtils.financialRegionId("EU"), "FORWARD_6M",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -132,10 +132,10 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 7, 14, 21}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
-    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.GB), "FUNDING",
@@ -144,7 +144,7 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildGBPThreeMonthForwardCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2}) {
+    for (final int i : new int[] {1}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3}) {
@@ -154,7 +154,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.ofMonths(0), i, "DEFAULT"));
     }
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), Tenor.THREE_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.GB), "FORWARD_3M",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -162,18 +162,18 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildGBPSixMonthForwardCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2}) {
+    for (final int i : new int[] {1}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
     for (final int i : new int[] {9, 12, 15}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, Tenor.ofMonths(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_6M, Tenor.ofMonths(i), "DEFAULT"));
     }
-    strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofMonths(18), Tenor.SIX_MONTHS, "DEFAULT"));
+    strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofMonths(18), "DEFAULT"));
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.GB), "FORWARD_6M",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -184,10 +184,10 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 7, 14, 21}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
-    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.CHF, RegionUtils.countryRegionId(Country.CH), "FUNDING",
@@ -196,18 +196,17 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildCHFSixMonthForwardCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2}) {
+    for (final int i : new int[] {1}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
     for (final int i : new int[] {9, 12, 15}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, Tenor.ofMonths(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_6M, Tenor.ofMonths(i), "DEFAULT"));
     }
-    strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofMonths(18), Tenor.SIX_MONTHS, "DEFAULT"));
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.CHF, RegionUtils.countryRegionId(Country.CH), "FORWARD_6M",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -218,10 +217,10 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 7, 14, 21}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofDays(i), "DEFAULT"));
     }
-    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.JPY, RegionUtils.countryRegionId(Country.JP), "FUNDING",
@@ -230,18 +229,18 @@ public class CurveDefinitionAndSpecifications {
 
   public static YieldCurveDefinition buildJPYSixMonthForwardCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
-    for (final int i : new int[] {1, 2}) {
+    for (final int i : new int[] {1}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofDays(i), "DEFAULT"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5, 6}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
     for (final int i : new int[] {9, 12, 15}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA, Tenor.ofMonths(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_6M, Tenor.ofMonths(i), "DEFAULT"));
     }
-    strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofMonths(18), Tenor.SIX_MONTHS, "DEFAULT"));
+    strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofMonths(18), "DEFAULT"));
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, Tenor.ofYears(i), Tenor.SIX_MONTHS, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.JPY, RegionUtils.countryRegionId(Country.JP), "FORWARD_6M",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -272,7 +271,7 @@ public class CurveDefinitionAndSpecifications {
     final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = new HashMap<Currency, CurveSpecificationBuilderConfiguration>();
     final CurveSpecificationBuilderConfiguration usdConfig = new CurveSpecificationBuilderConfiguration(
         buildStandardBloombergDepositInstrumentProvider("US"), buildStandardBloomberg3MFRAInstrumentProvider("US"),
-        buildStandardBloomberg6MFRAInstrumentProvider("US"), buildStandardBloombergLiborInstrumentProvider("US"), null,
+        buildStandardBloomberg6MFRAInstrumentProvider("US"), buildStandardBloombergLiborInstrumentProvider("US", "O/N", "T/N"), null,
         buildStandardBloombergFutureInstrumentProvider("ED"), null, buildStandardBloomberg3MSwapInstrumentProvider(
             "US", ""), null, null, buildStandardBloombergOISSwapInstrumentProvider("USSO"));
     configurations.put(Currency.USD, usdConfig);
@@ -285,21 +284,21 @@ public class CurveDefinitionAndSpecifications {
     configurations.put(Currency.EUR, eurConfig);
     final CurveSpecificationBuilderConfiguration gbpConfig = new CurveSpecificationBuilderConfiguration(
         buildStandardBloombergDepositInstrumentProvider("BP"), buildStandardBloomberg3MFRAInstrumentProvider("BP"),
-        buildStandardBloomberg6MFRAInstrumentProvider("BP"), buildStandardBloombergLiborInstrumentProvider("BP"), null,
+        buildStandardBloomberg6MFRAInstrumentProvider("BP"), buildStandardBloombergLiborInstrumentProvider("BP", "O/N", "T/N"), null,
         buildStandardBloombergFutureInstrumentProvider("L "), buildStandardBloomberg6MSwapInstrumentProvider("BPSW"),
         null, null, null, buildStandardBloombergOISSwapInstrumentProvider("BPSWS"));
     configurations.put(Currency.GBP, gbpConfig);
     final CurveSpecificationBuilderConfiguration jpyConfig = new CurveSpecificationBuilderConfiguration(
         buildStandardBloombergDepositInstrumentProvider("JY"), null,
-        buildStandardBloombergJPY6MFRAInstrumentProvider(), buildStandardBloombergLiborInstrumentProvider("JY"), null,
+        buildStandardBloombergJPY6MFRAInstrumentProvider(), buildStandardBloombergLiborInstrumentProvider("JY", "S/N", "T/N"), null,
         buildStandardBloombergFutureInstrumentProvider("EF"), buildStandardBloomberg6MSwapInstrumentProvider("JYSW"),
         null, null, null, buildStandardBloombergOISSwapInstrumentProvider("JYSO"));
     configurations.put(Currency.JPY, jpyConfig);
     final CurveSpecificationBuilderConfiguration chfConfig = new CurveSpecificationBuilderConfiguration(
         buildStandardBloombergDepositInstrumentProvider("SF"), buildStandardBloomberg3MFRAInstrumentProvider("SF"),
-        buildStandardBloomberg6MFRAInstrumentProvider("SF"), buildStandardBloombergLiborInstrumentProvider("SF"), null,
+        buildStandardBloomberg6MFRAInstrumentProvider("SF"), buildStandardBloombergLiborInstrumentProvider("SF", "S/N", "T/N"), null,
         buildStandardBloombergFutureInstrumentProvider("ES"), buildStandardBloomberg6MSwapInstrumentProvider("SFSW"),
-        null, null, null, buildStandardBloombergOISSwapInstrumentProvider("SFSO"));
+        null, null, null, buildStandardBloombergOISSwapInstrumentProvider("SFSWT"));
     configurations.put(Currency.CHF, chfConfig);
     return configurations;
   }
@@ -334,39 +333,39 @@ public class CurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> euriborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
-    final Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> swap6MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
 
     final Tenor[] tenors = new Tenor[] {Tenor.DAY, Tenor.MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS,
-        Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS,
-        Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS,
-        Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8),
-        Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15),
-        Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40), Tenor.ofYears(50),
-        Tenor.ofYears(80)};
+      Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS,
+      Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS,
+      Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8),
+      Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15),
+      Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40), Tenor.ofYears(50),
+      Tenor.ofYears(80)};
 
     for (final Tenor tenor : tenors) {
       cashInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.CASH,
           scheme));
-      fra3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA,
+      fra3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA_3M,
           scheme));
-      fra6MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA,
+      fra6MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA_6M,
           scheme));
       liborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.LIBOR, scheme));
       euriborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
-          StripInstrumentType.LIBOR, scheme));
+          StripInstrumentType.EURIBOR, scheme));
       futureInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.FUTURE, scheme));
       tenorSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.TENOR_SWAP, scheme));
-      swapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.SWAP,
+      swap6MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.SWAP_6M,
           scheme));
       swap3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
-          StripInstrumentType.SWAP, scheme));
+          StripInstrumentType.SWAP_3M, scheme));
       basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.BASIS_SWAP, scheme));
       oisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
@@ -374,7 +373,7 @@ public class CurveDefinitionAndSpecifications {
     }
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(
         cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders,
-        euriborInstrumentProviders, futureInstrumentProviders, swapInstrumentProviders, swap3MInstrumentProviders,
+        euriborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders,
         basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
     return config;
   }
@@ -404,12 +403,13 @@ public class CurveDefinitionAndSpecifications {
     return provider;
   }
 
-  public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergLiborInstrumentProvider(final String prefix) {
+  public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergLiborInstrumentProvider(final String prefix, String overnightString, 
+      String twoDayString) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     provider.put(Tenor.ofDays(1),
-        new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00O/N Index")));
+        new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00" + overnightString + " Index")));
     provider.put(Tenor.ofDays(2),
-        new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00T/N Index")));
+        new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00" + twoDayString + " Index")));
     for (int i = 1; i < 4; i++) {
       provider.put(Tenor.ofDays(i * 7),
           new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "000" + i + "W Index")));

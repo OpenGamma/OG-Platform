@@ -27,11 +27,6 @@ public class FixedIncomeStripTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_nullType() {
-    new FixedIncomeStrip(null, new Tenor(Period.ofYears(5)), Tenor.ofMonths(3), "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor1_nullTenor() {
     new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, null, "Test");
   }
@@ -39,11 +34,6 @@ public class FixedIncomeStripTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor2_nullTenor() {
     new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, null, 3, "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_nullTenor() {
-    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, null, Tenor.ofMonths(3), "Test");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -57,42 +47,8 @@ public class FixedIncomeStripTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_nullName() {
-    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, new Tenor(Period.ofYears(5)), Tenor.ofMonths(3), null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor1_future() {
     new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(5)), "Test");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_future() {
-    new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(5)), Tenor.ofMonths(3), "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor1_fra() {
-    new FixedIncomeStrip(StripInstrumentType.FRA, new Tenor(Period.ofYears(5)), "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor2_fra() {
-    new FixedIncomeStrip(StripInstrumentType.FRA, new Tenor(Period.ofYears(5)), 4, "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor1_swap() {
-    new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(5)), "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor2_swap() {
-    new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(5)), 5, "Test");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_basisSwap() {
-    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.ofYears(5), Tenor.ofMonths(3), "Test");
-  }
 }

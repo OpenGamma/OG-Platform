@@ -47,7 +47,11 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
       // remove this
       conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_GENERIC_CASH"));
       if (conventions == null) {
-        throw new OpenGammaRuntimeException("Could not get convention for " + security);
+        //TODO remove this when we handle OIS properly
+        conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_OIS_CASH"));
+        if (conventions == null) {
+          throw new OpenGammaRuntimeException("Could not get convention for " + security);
+        }
       }
     }
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);

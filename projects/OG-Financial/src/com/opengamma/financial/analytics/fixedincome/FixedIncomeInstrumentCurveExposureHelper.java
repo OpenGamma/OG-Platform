@@ -26,15 +26,21 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   public static String[] getCurveNamesForFundingCurveInstrument(final StripInstrumentType type, final String fundingCurveName,
       final String forwardCurveName) {
     switch (type) {
-      case SWAP:
+      case SWAP_3M:
+        return new String[] {fundingCurveName, forwardCurveName};
+      case SWAP_6M:
         return new String[] {fundingCurveName, forwardCurveName};
       case CASH:
         return new String[] {fundingCurveName};
-      case FRA:
+      case FRA_3M:
+        return new String[] {fundingCurveName, forwardCurveName};
+      case FRA_6M:
         return new String[] {fundingCurveName, forwardCurveName};
       case FUTURE:
         return new String[] {fundingCurveName, forwardCurveName};
       case LIBOR:
+        return new String[] {fundingCurveName};
+      case EURIBOR:
         return new String[] {fundingCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, forwardCurveName, fundingCurveName};
@@ -48,15 +54,21 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   public static String[] getCurveNamesForForwardCurveInstrument(final StripInstrumentType type, final String fundingCurveName,
       final String forwardCurveName) {
     switch (type) {
-      case SWAP:
+      case SWAP_3M:
+        return new String[] {fundingCurveName, forwardCurveName};
+      case SWAP_6M:
         return new String[] {fundingCurveName, forwardCurveName};
       case CASH:
         return new String[] {forwardCurveName};
-      case FRA:
+      case FRA_3M:
+        return new String[] {fundingCurveName, forwardCurveName};
+      case FRA_6M:
         return new String[] {fundingCurveName, forwardCurveName};
       case FUTURE:
         return new String[] {fundingCurveName, forwardCurveName};
       case LIBOR:
+        return new String[] {forwardCurveName};
+      case EURIBOR:
         return new String[] {forwardCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, fundingCurveName, forwardCurveName};
@@ -83,8 +95,6 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName, forwardCurveName};
       case COUPON_BOND:
         return new String[] {fundingCurveName, fundingCurveName};
-        //      case BOND_FUTURE:
-        //        return new String[] {fundingCurveName, fundingCurveName};
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in security instrument list");
     }

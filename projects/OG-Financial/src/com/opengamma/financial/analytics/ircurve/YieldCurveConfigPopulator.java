@@ -74,8 +74,6 @@ public class YieldCurveConfigPopulator {
         dumpDefinition(definition);
       }
     }
-    final ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>(
-        YieldCurveDefinition.class);
     final ConfigDocument<YieldCurveDefinition> swapOnlyUSD = new ConfigDocument<YieldCurveDefinition>(
         YieldCurveDefinition.class);
     swapOnlyUSD.setName("SWAP_ONLY_USD");

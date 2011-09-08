@@ -57,7 +57,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilderTest e
     ExternalId underlyingIdentifier = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
     FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier);
     fra.setExternalIdBundle(bundle);
-    FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FRA, Tenor.FIVE_MONTHS, Tenor.FIVE_MONTHS, Tenor.THREE_MONTHS, endDate, dummyId, fra);
+    FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, Tenor.FIVE_MONTHS, endDate, dummyId, fra);
     
     final Collection<FixedIncomeStripWithSecurity> strips = new ArrayList<FixedIncomeStripWithSecurity>();
     strips.add(cashStrip);

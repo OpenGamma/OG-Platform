@@ -25,7 +25,6 @@ public class FixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStrip> {
   private static final String TENOR = "tenor";
   private static final String CONVENTION_NAME = "conventionName";
   private static final String NUM_FUTURES = "numFutures";
-  private static final String FLOATING_TENOR = "floatingTenor";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedIncomeStrip object) {
@@ -35,9 +34,6 @@ public class FixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStrip> {
     serializer.addToMessage(message, TENOR, null, object.getCurveNodePointTime());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add(NUM_FUTURES, object.getNumberOfFuturesAfterTenor());
-    }
-    if (object.getInstrumentType() == StripInstrumentType.FRA || object.getInstrumentType() == StripInstrumentType.SWAP) {
-      message.add(FLOATING_TENOR, object.getFloatingTenor());
     }
     return message;
   }
@@ -50,15 +46,6 @@ public class FixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStrip> {
     if (type == StripInstrumentType.FUTURE) {
       final int numFutures = message.getInt(NUM_FUTURES);
       return new FixedIncomeStrip(type, tenor, numFutures, conventionName);
-    } else if (type == StripInstrumentType.FRA || type == StripInstrumentType.SWAP) {
-      // Not sure if this is necessary but just in case there's some old definitions hanging 
-      // around, making the arbitrary decision that the default floating tenor is 3m
-      if (message.hasField(FLOATING_TENOR)) {
-        final Tenor floatingTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(FLOATING_TENOR));
-        return new FixedIncomeStrip(type, tenor, floatingTenor, conventionName);
-      } else {
-        return new FixedIncomeStrip(type, tenor, Tenor.THREE_MONTHS, conventionName);
-      }
     } else {
       return new FixedIncomeStrip(type, tenor, conventionName);
     }

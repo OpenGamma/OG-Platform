@@ -40,8 +40,6 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
     serializer.addToMessageWithClassHeaders(message, "security", null, object.getSecurity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());
-    } else if (object.getInstrumentType() == StripInstrumentType.FRA || object.getInstrumentType() == StripInstrumentType.SWAP) {
-      message.add("floatingLength", object.getFloatingLength());
     }
     return message; 
   }
@@ -58,9 +56,6 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
     if (type == StripInstrumentType.FUTURE) {
       int numFutures = message.getInt("numFutures");
       return new FixedIncomeStripWithSecurity(type, tenor, resolvedTenor, numFutures, maturity, identifier, security);
-    } else if (type == StripInstrumentType.FRA || type == StripInstrumentType.SWAP) {
-      Tenor floatingLength = deserializer.fieldValueToObject(Tenor.class, message.getByName("floatingLength"));
-      return new FixedIncomeStripWithSecurity(type, tenor, resolvedTenor, floatingLength, maturity, identifier, security);
     } else { 
       return new FixedIncomeStripWithSecurity(type, tenor, resolvedTenor, maturity, identifier, security);
     }

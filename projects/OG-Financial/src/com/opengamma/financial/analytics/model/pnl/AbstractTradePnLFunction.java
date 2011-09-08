@@ -88,7 +88,8 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
         throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey);
       }
       if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
-        throw new NullPointerException("Could not get mark to market value for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
+        throw new NullPointerException("Could not get mark to market value for security " + 
+            security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
       }
       final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
       final ValueSpecification valueSpecification;

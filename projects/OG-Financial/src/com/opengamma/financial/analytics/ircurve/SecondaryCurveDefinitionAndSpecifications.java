@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.LIBOR;
+import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.EURIBOR;
+import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.SWAP_3M;
+import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.SWAP_6M;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,10 +54,11 @@ public class SecondaryCurveDefinitionAndSpecifications {
   }
 
   public static YieldCurveDefinition buildForwardCurve(final Currency ccy, final ExternalId region,
-      final Tenor[] liborStrips, final Tenor futureStartTenor, final int numQuarterlyFutures, final Tenor[] swaps) {
+      final Tenor[] liborStrips, final Tenor futureStartTenor, final int numQuarterlyFutures, final Tenor[] swaps, 
+      final StripInstrumentType iborType, final StripInstrumentType swapType) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (final Tenor liborTenor : liborStrips) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, SPEC_NAME));
+      strips.add(new FixedIncomeStrip(iborType, liborTenor, SPEC_NAME));
     }
     if (futureStartTenor != null) {
       for (int i = 1; i <= numQuarterlyFutures; i++) {
@@ -61,7 +66,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
       }
     }
     for (final Tenor swapTenor : swaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, swapTenor, SPEC_NAME));
+      strips.add(new FixedIncomeStrip(swapType, swapTenor, SPEC_NAME));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "FORWARD",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -69,7 +74,8 @@ public class SecondaryCurveDefinitionAndSpecifications {
   }
 
   public static YieldCurveDefinition buildSecondaryCurve(final Currency ccy, final ExternalId region,
-      final Tenor[] liborStrips, final Tenor futureStartTenor, final int numQuarterlyFutures, final Tenor[] swaps) {
+      final Tenor[] liborStrips, final Tenor futureStartTenor, final int numQuarterlyFutures, final Tenor[] swaps, 
+      final StripInstrumentType iborType, final StripInstrumentType swapType) {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     for (final Tenor liborTenor : liborStrips) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, liborTenor, SPEC_NAME));
@@ -80,7 +86,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
       }
     }
     for (final Tenor tenorSwapTenor : swaps) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP, tenorSwapTenor, SPEC_NAME));
+      strips.add(new FixedIncomeStrip(swapType, tenorSwapTenor, SPEC_NAME));
     }
     final YieldCurveDefinition definition = new YieldCurveDefinition(ccy, region, "SECONDARY",
         Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -96,7 +102,6 @@ public class SecondaryCurveDefinitionAndSpecifications {
     if (includeSpotNext) {
       results.add(Tenor.ofDays(3));
     }
-    //results.add(Tenor.ofDays(7));
     if (include2W) {
       results.add(Tenor.ofDays(14));
     }
@@ -120,78 +125,76 @@ public class SecondaryCurveDefinitionAndSpecifications {
   }
 
   public static Map<String, Map<Currency, YieldCurveDefinition>> buildSecondaryCurveDefintions() {
-    //Map<Currency, YieldCurveDefinition> forwardDefinitions = new HashMap<Currency, YieldCurveDefinition>();
-    //Map<Currency, YieldCurveDefinition> fundingDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     final Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     final Currency usd = Currency.USD;
     final ExternalId usdRegion = RegionUtils.countryRegionId(Country.US);
     singleDefinitions.put(
         usd,
         buildSecondaryCurve(usd, usdRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_3M));
 
     final Currency eur = Currency.EUR;
     final ExternalId eurRegion = RegionUtils.countryRegionId(Country.EU);
     singleDefinitions.put(
         eur,
         buildSecondaryCurve(eur, eurRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), EURIBOR, SWAP_6M));
 
     final Currency gbp = Currency.GBP;
     final ExternalId gbpRegion = RegionUtils.countryRegionId(Country.GB);
     singleDefinitions.put(
         gbp,
         buildSecondaryCurve(gbp, gbpRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency chf = Currency.CHF;
     final ExternalId chfRegion = RegionUtils.countryRegionId(Country.CH);
     singleDefinitions.put(
         chf,
         buildSecondaryCurve(chf, chfRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency aud = Currency.AUD;
     final ExternalId audRegion = RegionUtils.countryRegionId(Country.AU);
     singleDefinitions.put(
         aud,
         buildSecondaryCurve(aud, audRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency sek = Currency.SEK;
     final ExternalId sekRegion = RegionUtils.countryRegionId(Country.SE);
     singleDefinitions.put(
         sek,
         buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency nzd = Currency.NZD;
     final ExternalId nzdRegion = RegionUtils.countryRegionId(Country.NZ);
     singleDefinitions.put(
         nzd,
         buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 30})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 30}), LIBOR, SWAP_6M));
 
     final Currency cad = Currency.CAD;
     final ExternalId cadRegion = RegionUtils.countryRegionId(Country.CA);
     singleDefinitions.put(
         cad,
         buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency dkk = Currency.DKK;
     final ExternalId dkkRegion = RegionUtils.countryRegionId(Country.DK);
     singleDefinitions.put(
         dkk,
         buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency jpy = Currency.JPY;
     final ExternalId jpyRegion = RegionUtils.countryRegionId(Country.JP);
     singleDefinitions.put(
         jpy,
         buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(true, false, false), null, 0,
-            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40})));
+            makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
     //    Currency nzd = Currency.of("NZD");
     //    Identifier nzdRegion = RegionUtils.countryRegionId(Country.NZ);
     //    singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(false, true, true), null, 0, makeLongEnd(2, 15, new int[] {20, 30 })));
@@ -209,8 +212,6 @@ public class SecondaryCurveDefinitionAndSpecifications {
     //    singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(false, true, true), Tenor.ofYears(1), 3, makeLongEnd(2, 15, new int[] {20, 25, 30, 35, 40, 50 })));
     //    
     final Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
-    //results.put("FORWARD", forwardDefinitions);
-    //results.put("FUNDING", fundingDefinitions);
     results.put("SECONDARY", singleDefinitions);
     return results;
   }
@@ -253,31 +254,31 @@ public class SecondaryCurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
 
     final Tenor[] tenors = new Tenor[] {Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS,
-        Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS,
-        Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS,
-        Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8),
-        Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15),
-        Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40)}; //, Tenor.ofYears(50), Tenor.ofYears(80)};
+      Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS,
+      Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS,
+      Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8),
+      Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15),
+      Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40)}; //, Tenor.ofYears(50), Tenor.ofYears(80)};
 
     for (final Tenor tenor : tenors) {
       cashInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.CASH,
           scheme));
-      fra3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA,
+      fra3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA_3M,
           scheme));
-      fra6MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA,
+      fra6MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FRA_6M,
           scheme));
       liborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.LIBOR, scheme));
       euriborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
-          StripInstrumentType.LIBOR, scheme));
+          StripInstrumentType.EURIBOR, scheme));
       futureInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.FUTURE, scheme));
       tenorSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.TENOR_SWAP, scheme));
       swap3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
-          StripInstrumentType.SWAP, scheme));
+          StripInstrumentType.SWAP_3M, scheme));
       swap6MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
-          StripInstrumentType.SWAP, scheme));
+          StripInstrumentType.SWAP_6M, scheme));
       basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
           StripInstrumentType.BASIS_SWAP, scheme));
       oisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy,
