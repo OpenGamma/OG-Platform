@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments.method;
+package com.opengamma.financial.interestrate.annuity.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 

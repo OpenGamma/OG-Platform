@@ -14,14 +14,14 @@ import com.opengamma.util.money.Currency;
 /**
  * The OIS rate the the continuously compounded overnight rate (e.g. Feb Funds for USD) from the start time (T) to the end time (S) 
  */
-public class CouponOIS extends Coupon {
+public class ZZZCouponOIS extends Coupon {
   private final double _rateYearFraction;
   private final double _startTime;
   private final double _endTime;
   private final double _spread;
   private final String _indexCurveName;
 
-  public CouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
+  public ZZZCouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
       double startTime, double endTime, double spread, String indexCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(startTime >= 0, "startTime < 0");
@@ -102,7 +102,7 @@ public class CouponOIS extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponOIS other = (CouponOIS) obj;
+    ZZZCouponOIS other = (ZZZCouponOIS) obj;
     if (Double.doubleToLongBits(_endTime) != Double.doubleToLongBits(other._endTime)) {
       return false;
     }
@@ -123,11 +123,11 @@ public class CouponOIS extends Coupon {
 
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitCouponOIS(this, data);
+    return visitor.visitZZZCouponOIS(this, data);
   }
 
   @Override
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitCouponOIS(this);
+    return visitor.visitZZZCouponOIS(this);
   }
 }
