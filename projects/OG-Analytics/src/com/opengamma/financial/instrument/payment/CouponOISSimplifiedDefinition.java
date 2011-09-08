@@ -83,6 +83,11 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   public static CouponOISSimplifiedDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
+    return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays, businessDayConvention, isEOM);
+  }
+
+  public static CouponOISSimplifiedDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays,
+      final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1); // Overnight
     lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getCalendar(), index.getPublicationLag()); // Lag
     ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getCalendar(), settlementDays);
