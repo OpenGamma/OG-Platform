@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.position.impl;
+package com.opengamma.master.position;
 
 import static org.testng.AssertJUnit.fail;
 
