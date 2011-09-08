@@ -17,7 +17,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.fudgemsg.FixedIncomeStripBuilder.FixedIncomeStripFudgeBuilder;
+import com.opengamma.financial.fudgemsg.FixedIncomeStripFudgeBuilder;
 import com.opengamma.util.time.Tenor;
 
 /**

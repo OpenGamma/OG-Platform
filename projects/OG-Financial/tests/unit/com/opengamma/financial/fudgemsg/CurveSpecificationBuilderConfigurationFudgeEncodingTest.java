@@ -11,18 +11,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.TestYieldCurveDefinitionAndSpecificationProvider;
 
 public class CurveSpecificationBuilderConfigurationFudgeEncodingTest extends FinancialTestBase {
-
   private static final Logger s_logger = LoggerFactory.getLogger(CurveSpecificationBuilderConfigurationFudgeEncodingTest.class);
+
   @Test
   public void testCycle() {
-    CurveSpecificationBuilderConfiguration configuration = CurveDefinitionAndSpecifications.buildTestConfiguration();
+    CurveSpecificationBuilderConfiguration configuration = TestYieldCurveDefinitionAndSpecificationProvider.buildOldTestCurveConfiguration();
     CurveSpecificationBuilderConfiguration cycleObject = cycleObject(CurveSpecificationBuilderConfiguration.class, configuration);
-    s_logger.error(configuration.toString());
-    s_logger.error(cycleObject.toString());
+    s_logger.info(configuration.toString());
+    s_logger.info(cycleObject.toString());
+    assertEquals(configuration, cycleObject(CurveSpecificationBuilderConfiguration.class, configuration));
+    configuration = TestYieldCurveDefinitionAndSpecificationProvider.buildTestUSDCurveConfiguration();
+    cycleObject = cycleObject(CurveSpecificationBuilderConfiguration.class, configuration);
+    s_logger.info(configuration.toString());
+    s_logger.info(cycleObject.toString());
+    assertEquals(configuration, cycleObject(CurveSpecificationBuilderConfiguration.class, configuration));
+    configuration = TestYieldCurveDefinitionAndSpecificationProvider.buildTestEURCurveConfiguration();
+    cycleObject = cycleObject(CurveSpecificationBuilderConfiguration.class, configuration);
+    s_logger.info(configuration.toString());
+    s_logger.info(cycleObject.toString());
     assertEquals(configuration, cycleObject(CurveSpecificationBuilderConfiguration.class, configuration));
   }
 

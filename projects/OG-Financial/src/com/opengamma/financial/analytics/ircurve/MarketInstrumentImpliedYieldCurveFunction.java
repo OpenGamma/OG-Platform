@@ -372,16 +372,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         yields = result.getData();
       } catch (final Exception eLU) {
         try {
-          s_logger.warn("Could not find root using LU decomposition and present value method for curves " +
+          s_logger.warn("Could not find root using LU decomposition and " + _calculationType + " method for curves " +
               _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
           rootFinder = new BroydenVectorRootFinder(5e-4, 5e-4, 1000,
-              DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME));
+              DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
               .getData();
         } catch (final Exception eSV) {
-          s_logger.warn("Could not find root using SV decomposition and present value method for curves " +
+          s_logger.warn("Could not find root using SV decomposition and " + _calculationType + " method for curves " +
               _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + ". Error was: " + eSV.getMessage());
-          throw new OpenGammaRuntimeException("Could not find curves using SV decomposition", eSV);
+          throw new OpenGammaRuntimeException("Could not find curves " + _fundingCurveDefinition.getName() + " (" + 
+              _fundingCurveDefinition.getCurrency() + "), " + _forwardCurveDefinitionName + " (" + 
+              _forwardCurveDefinition.getCurrency() + ") using SV decomposition", eSV);
         }
       }
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
