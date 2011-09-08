@@ -23,6 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IndexOIS;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
@@ -32,6 +33,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -223,6 +225,45 @@ public class CouponOISDiscountingMethodTest {
       assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", sensiForwardMethod[loopnode], pairPv.second, deltaTolerancePrice);
     }
+  }
+
+  // OIS swap
+  // Swap EONIA 3M
+  private static final double FIXED_RATE = 0.01;
+  private static final boolean IS_PAYER = true;
+  private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
+  private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
+      FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
+  private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3M = EONIA_SWAP_3M_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
+  //Swap EONIA 3Y
+  private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
+  private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
+  private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS, FIXED_RATE,
+      IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
+  private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3Y = EONIA_SWAP_3Y_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
+
+  @Test
+  /**
+   * Tests the present value.
+   */
+  public void presentValueSwap3M() {
+    double pv = PVC.visit(EONIA_SWAP_3M, CURVES);
+    double pvExpected = PVC.visit(EONIA_SWAP_3M.getFirstLeg(), CURVES);
+    pvExpected += PVC.visit(EONIA_SWAP_3M.getSecondLeg().getNthPayment(0), CURVES);
+    assertEquals("OIS swap: present value", pvExpected, pv, 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the present value.
+   */
+  public void presentValueSwap3Y() {
+    double pv = PVC.visit(EONIA_SWAP_3Y, CURVES);
+    double pvExpected = PVC.visit(EONIA_SWAP_3Y.getFirstLeg(), CURVES);
+    for (int loopcpn = 0; loopcpn < EONIA_SWAP_3Y.getSecondLeg().getNumberOfPayments(); loopcpn++) {
+      pvExpected += PVC.visit(EONIA_SWAP_3Y.getSecondLeg().getNthPayment(loopcpn), CURVES);
+    }
+    assertEquals("OIS swap: present value", pvExpected, pv, 1.0E-2);
   }
 
 }
