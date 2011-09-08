@@ -353,6 +353,20 @@ public final class ScheduleCalculator {
     return adjustedDates.toArray(EMPTY_ARRAY);
   }
 
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, final Frequency frequency, BusinessDayConvention businessDayConvention,
+      Calendar calendar, boolean isEOM) {
+    PeriodFrequency periodFrequency;
+    if (frequency instanceof PeriodFrequency) {
+      periodFrequency = (PeriodFrequency) frequency;
+    } else if (frequency instanceof SimpleFrequency) {
+      periodFrequency = ((SimpleFrequency) frequency).toPeriodFrequency();
+    } else {
+      throw new IllegalArgumentException("For the moment can only deal with PeriodFrequency and SimpleFrequency");
+    }
+    final Period period = periodFrequency.getPeriod();
+    return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, true);
+  }
+
   /**
    * Construct an array of dates according the a start date, an end date, the period between dates and the conventions. 
    * The start date is not included in the array. The date are constructed forward and the stub period, if any, is last
