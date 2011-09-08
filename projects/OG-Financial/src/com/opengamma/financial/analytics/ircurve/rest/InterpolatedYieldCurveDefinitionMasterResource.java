@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.fudgemsg.UniqueIdBuilder;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 
 /**
  * 
@@ -60,7 +60,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     }
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg resp = serializer.newMessage();
-    resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
+    resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -76,7 +76,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     }
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     final MutableFudgeMsg resp = serializer.newMessage();
-    resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
+    resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -88,7 +88,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
       final YieldCurveDefinitionDocument document = getUnderlying().get(uid);
       final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
       final MutableFudgeMsg resp = serializer.newMessage();
-      resp.add("uniqueId", UniqueIdBuilder.toFudgeMsg(serializer, document.getUniqueId()));
+      resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
       serializer.addToMessageWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {

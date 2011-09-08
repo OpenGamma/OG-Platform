@@ -5,12 +5,16 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquitySecurityVisitor;
+import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
@@ -87,6 +91,21 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   @Override
   public String getName() {
     return "GICS by " + _level;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    switch (_level) {
+      case SECTOR:
+        return GICSCode.getAllSectorDescriptions();
+      case INDUSTRY_GROUP:
+        return GICSCode.getAllIndustryGroupDescriptions();
+      case INDUSTRY:
+        return GICSCode.getAllIndustryDescriptions();
+      case SUB_INDUSTRY:
+        return GICSCode.getAllSubIndustryDescriptions();
+    }
+    return Collections.emptyList();
   }
 
 }

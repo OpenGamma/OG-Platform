@@ -9,12 +9,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.test.TestViewDefinitionProvider;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Tests ViewDefinitionBuilder
  */
-public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
+public class ViewDefinitionBuilderTest extends AbstractFudgeBuilderTestCase {
   
   @Test
   public void test_viewDefinition_NoUniqueId() {

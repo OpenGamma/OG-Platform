@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -114,6 +117,11 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   @Override
   public String getName() {
     return "Underlying";
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Collections.emptyList();
   }
 
 }

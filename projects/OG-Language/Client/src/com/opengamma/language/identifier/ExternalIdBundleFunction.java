@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.language.Data;
 import com.opengamma.language.Value;
 import com.opengamma.language.context.SessionContext;
@@ -21,20 +22,31 @@ import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.language.text.Ordinal;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 
 /**
  * Constructs an identifier bundle from a set of identifiers.
  */
 public class ExternalIdBundleFunction implements PublishedFunction {
 
+  // TODO: need functions for extracting an identifier from a bundle
+
+  // TODO: a type converter would do away with this function
+
+  /**
+   * Default instance.
+   */
+  public static final ExternalIdBundleFunction INSTANCE = new ExternalIdBundleFunction();
+
   private static final int MAX_PARAMETERS = 20;
+
+  protected ExternalIdBundleFunction() {
+  }
 
   private static void getIdentifier(final Collection<ExternalId> identifiers, final Value value) {
     if (value.getStringValue() != null) {
       identifiers.add(ExternalId.parse(value.getStringValue()));
     } else if (value.getMessageValue() != null) {
-      identifiers.add(ExternalIdBuilder.fromFudgeMsg(value.getMessageValue()));
+      identifiers.add(ExternalIdFudgeBuilder.fromFudgeMsg(value.getMessageValue()));
     }
   }
 
