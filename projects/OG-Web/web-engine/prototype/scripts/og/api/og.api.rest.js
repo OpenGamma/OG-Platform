@@ -47,11 +47,6 @@ $.register_module({
                 live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
-            init_cache = function () { // cleans cache so nothing leaks from other sessions (e.g. from a FF crash)
-                for (var key, lcv = 0; lcv < cache.length; lcv += 1) // do not cache length, since we remove items
-                    if (0 === (key = cache.key(lcv)).indexOf(module.name)) cache['removeItem'](key);
-            },
-            /** @ignore */
             get_cache = function (key) {
                 return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
             },
@@ -202,7 +197,10 @@ $.register_module({
             not_implemented = function (method) {
                 throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
             };
-        init_cache();
+        (function () { // initialize cache so nothing leaks from other sessions (e.g. from a FF crash)
+            for (var key, lcv = 0; lcv < cache.length; lcv += 1) // do not cache length, since we remove items
+                if (0 === (key = cache.key(lcv)).indexOf(module.name)) cache['removeItem'](key);
+        })();
         return api = {
             abort: function (id) {
                 var xhr = outstanding_requests[id] && outstanding_requests[id].ajax;
