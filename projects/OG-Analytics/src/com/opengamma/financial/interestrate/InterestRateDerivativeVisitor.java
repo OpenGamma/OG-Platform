@@ -40,9 +40,10 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -119,7 +120,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
 
-  T visitCouponOIS(CouponOIS payment, S data);
+  T visitZZZCouponOIS(ZZZCouponOIS payment, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
 
@@ -131,9 +132,11 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponIborGearing(CouponIborGearing payment, S data);
 
-  T visitCapFloorIbor(CapFloorIbor payment, S data);
+  T visitCouponOIS(CouponOIS payment, S data);
 
   T visitCouponCMS(CouponCMS payment, S data);
+
+  T visitCapFloorIbor(CapFloorIbor payment, S data);
 
   T visitCapFloorCMS(CapFloorCMS payment, S data);
 
@@ -215,7 +218,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
 
-  T visitCouponOIS(CouponOIS payment);
+  T visitZZZCouponOIS(ZZZCouponOIS payment);
 
   T visitFixedPayment(PaymentFixed payment);
 
@@ -227,9 +230,11 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponIborGearing(CouponIborGearing payment);
 
-  T visitCapFloorIbor(CapFloorIbor payment);
+  T visitCouponOIS(CouponOIS payment);
 
   T visitCouponCMS(CouponCMS payment);
+
+  T visitCapFloorIbor(CapFloorIbor payment);
 
   T visitCapFloorCMS(CapFloorCMS payment);
 
