@@ -99,9 +99,14 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
     }
   }
   
-  private String findTopLevelRegion(Set<UniqueId> parentRegions) {
-    for (UniqueId parentRegion : parentRegions) {
-      Region region = _regionSource.getRegion(parentRegion);
+  private String findTopLevelRegion(Set<?> parentRegions) {
+    for (Object parentRegion : parentRegions) {
+      Region region;
+      if (parentRegion instanceof String) {
+        region = _regionSource.getRegion(UniqueId.parse((String) parentRegion));
+      } else {
+        region = _regionSource.getRegion((UniqueId) parentRegion);
+      }
       if (region != null) {
         if (s_topLevelRegions.contains(region.getName())) {
           return region.getName();
