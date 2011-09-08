@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.ObjectTimeSeries;
@@ -277,9 +278,29 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     emptyTS.getValueAt(0);
   }
 
+  @DataProvider(name = "subSeries")
+  Object[][] data_subSeries() {
+    return new Object[][] {
+//        {0, true, 4, false, 4, 0},
+//        {0, true, 4, true, 5, 0},
+//        {0, false, 4, false, 3, 1},
+//        {0, false, 4, true, 4, 1},
+//        
+//        {4, true, 5, false, 1, 4},
+//        {4, true, 5, true, 2, 4},
+//        {4, false, 5, false, 0, -1},
+//        {4, false, 5, true, 1, 5},
+//        
+//        {4, true, 4, false, 0, -1},
+//        {4, true, 4, true, 1, 4},
+        {4, false, 4, false, 0, -1},  // matches TreeMap definition
+        {4, false, 4, true, 0, -1},
+    };
+  }
+
   @SuppressWarnings("cast")
-  public void testSubSeriesInstantProviderInstantProvider() {
-    ObjectTimeSeries<E, T> emptyTS = createEmptyTimeSeries();
+  @Test(dataProvider = "subSeries")
+  public void testSubSeriesInstantProviderInstantProvider(int startIndex, boolean startInclude, int endIndex, boolean endInclude, int expectedSize, int expectedFirstIndex) {
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
     E[] testDates = testTimes();
     T[] testValues = testValues();
@@ -291,11 +312,20 @@ public abstract class ObjectTimeSeriesTest<E, T> {
       assertEquals(testDates[i], item.getKey());
       assertEquals(testValues[i], item.getValue());
     }
-    assertEquals(4, dts.subSeries(testDates[0], testDates[4]).size());
-    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], true).size());
-    assertEquals(1, dts.subSeries(testDates[4], testDates[5]).size());
-    assertEquals(0, dts.subSeries(testDates[4], false, testDates[5], false).size());
-    assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
+    
+    ObjectTimeSeries<E, T> sub = dts.subSeries(testDates[startIndex], startInclude, testDates[endIndex], endInclude);
+    assertEquals(expectedSize, sub.size());
+    if (expectedFirstIndex >= 0) {
+      assertEquals(testDates[expectedFirstIndex], sub.getTimeAt(0));
+    }
+    
+    if (startInclude && endInclude == false) {
+      sub = dts.subSeries(testDates[startIndex], testDates[endIndex]);
+      assertEquals(expectedSize, sub.size());
+      if (expectedFirstIndex >= 0) {
+        assertEquals(testDates[expectedFirstIndex], sub.getTimeAt(0));
+      }
+    }
   }
 
   public void testHashCode() {

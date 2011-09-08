@@ -75,7 +75,7 @@ int CSettings::GetHeartbeatTimeout () const {
 }
 
 /// Returns the prefix to use at the start of pipe names for inbound traffic. This should include
-/// a path in the case of Posix and named pipes, or the \\.\pipe\ prefix in the case of Win32.
+/// a path in the case of Posix and named pipes, or the \\\\.\\pipe\\ prefix in the case of Win32.
 ///
 /// @return the pipe prefix
 const TCHAR *CSettings::GetInputPipePrefix () const {
@@ -98,7 +98,7 @@ int CSettings::GetMaxPipeAttempts () const {
 }
 
 /// Returns the prefix to use at the start of pipe names for outgoing traffic. This should include
-/// a path in the case of Posix and named pipes, or the \\.\pipe\ prefix in the case of Win32.
+/// a path in the case of Posix and named pipes, or the \\\\.\\pipe\\ prefix in the case of Win32.
 ///
 /// @return the pipe prefix
 const TCHAR *CSettings::GetOutputPipePrefix () const {

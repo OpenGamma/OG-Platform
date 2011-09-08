@@ -5,18 +5,17 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 /**
  * A DiscountCurve contains discount factors <i>e<sup>-r(t)t</sup></i> (where
- * <i>t</i> is the maturity in years and <i>r(t)</i> is the interest rate at
+ * <i>t</i> is the maturity in years and <i>r(t)</i> is the continuously-compounded interest rate to
  * maturity <i>t</i>).
- * 
  */
 
 public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {

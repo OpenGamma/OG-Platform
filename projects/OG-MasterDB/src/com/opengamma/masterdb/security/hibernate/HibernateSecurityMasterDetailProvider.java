@@ -201,15 +201,17 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
           s_logger.debug("no detail found for security {}", base.getUniqueId());
           return base;
         }
-//        final SecurityBeanOperation beanOperation = getBeanOperation(security);
         security = beanOperation.resolve(getOperationContext(), secMasterSession, null, security);
         final ManageableSecurity result = (ManageableSecurity) beanOperation.createSecurity(getOperationContext(), security);
+        if (result == null) {
+          throw new IllegalStateException("Unable to convert security from database: " + base.getUniqueId() + " " + base.getSecurityType());
+        }
         if (Objects.equal(base.getSecurityType(), result.getSecurityType()) == false) {
           throw new IllegalStateException("Security type returned by Hibernate load does not match");
         }
         result.setUniqueId(base.getUniqueId());
         result.setName(base.getName());
-        result.setIdentifiers(base.getIdentifiers());
+        result.setExternalIdBundle(base.getExternalIdBundle());
         return result;
       }
     });

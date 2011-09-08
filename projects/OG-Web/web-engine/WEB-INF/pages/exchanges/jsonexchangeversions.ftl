@@ -3,9 +3,9 @@
     "header": {
         "type": "ExchangeHistory",
         <#if versionsResult??>
-        "total" : ${"${paging.totalItems}"?replace(',','')},
-        "page": ${"${paging.page}"?replace(',','')},
-        "pageSize": ${"${paging.pagingSize}"?replace(',','')},
+        "pgIdx": ${"${paging.firstItem}"?replace(',','')},
+        "pgSze": ${"${paging.pagingSize}"?replace(',','')},
+        "pgTtl": ${"${paging.totalItems}"?replace(',','')},
         </#if>
         "object_id": "${exchange.uniqueId.objectId}",
         "dataFields": ["version", "name", "validFrom", "validTo", "correctionFrom", "correctionTo"]

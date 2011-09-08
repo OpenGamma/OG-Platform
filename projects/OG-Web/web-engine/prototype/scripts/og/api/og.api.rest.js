@@ -146,7 +146,7 @@ $.register_module({
                 // page_size and page might be overwritten in check so set their values after check returns
                 page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                 if (meta_request) method.push('metaData');
-                if (search) data = {pageSize: page_size, page: page};
+                if (search) data = {pgSze: page_size, pgNum: page};
                 if (field_search) fields.forEach(function (val, idx) {
                     if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
                 });
@@ -219,7 +219,7 @@ $.register_module({
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     if (meta_request) method.push('metaData');
                     if (!meta_request && !template && (field_search || version_search || id_search || !id))
-                        data = {pageSize: page_size, page: page};
+                        data = {pgSze: page_size, pgNum: page};
                     if (field_search) fields.forEach(function (val, idx) {
                         if (val = str(config[val])) data[fields[idx]] = val;
                     });
@@ -287,7 +287,7 @@ $.register_module({
                     });
                     // page_size and page might be overwritten in check so set their values after check returns
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
-                    if (search) data = {pageSize: page_size, page: page};
+                    if (search) data = {pgSze: page_size, pgNum: page};
                     if (name_search) data.name = name;
                     if (id_search) data.portfolioId = ids;
                     if (node_search) data.nodeId = nodes;
@@ -401,7 +401,7 @@ $.register_module({
                     // page_size and page might be overwritten in check so set their values after check returns
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     if (search) {
-                        data = {pageSize: page_size, page: page};
+                        data = {pgSze: page_size, pgNum: page};
                         fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
                     } else {
                         method.push(id);
@@ -434,7 +434,7 @@ $.register_module({
                     });
                     // page_size and page might be overwritten in check so set their values after check returns
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
-                    data = {pageSize: page_size, page: page};
+                    data = {pgSze: page_size, pgNum: page};
                     if (meta_request) method.push('metaData');
                     return request(method, {data: data, meta: meta});
                 },

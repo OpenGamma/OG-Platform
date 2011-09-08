@@ -13,8 +13,8 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -66,7 +66,7 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
       case SECURITY: {
         try {
           Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
-          for (ExternalId identifier : security.getIdentifiers()) {
+          for (ExternalId identifier : security.getExternalIdBundle()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
               return true;
             }

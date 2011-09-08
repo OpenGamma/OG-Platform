@@ -17,11 +17,11 @@ public interface DefinitionFilter<WireDefinition extends Definition, MetaDefinit
 
   /**
    * Return the definition to be published for the given definition. The returned object may be
-   * the same, or a substituted one. Returning {@code null} will suppress publication of the
+   * the same, or a substituted one. Returning null will suppress publication of the
    * definition, although it is better to do that through the definition providers.
    * 
    * @param definition raw definition given by a provider
-   * @return the definition to be published, or {@code null} to suppress
+   * @return the definition to be published, null to suppress
    */
   WireDefinition createDefinition(MetaDefinition definition);
 

@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 
 /**
  * Request containing options for getting a single batch data set.

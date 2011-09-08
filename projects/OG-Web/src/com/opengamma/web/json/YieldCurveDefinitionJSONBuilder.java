@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdFudgeBuilder;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -89,8 +90,8 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
       jsonObject.put(NAME_FIELD, object.getName());
       jsonObject.put(INTERPOLATOR_NAME_FIELD, object.getInterpolatorName());
       jsonObject.put(CURRENCY_FIELD, object.getCurrency().getCode());
-      if (object.getRegion() != null) {
-        jsonObject.put(REGION_FIELD, toJSONObject(object.getRegion()));
+      if (object.getRegionId() != null) {
+        jsonObject.put(REGION_FIELD, toJSONObject(object.getRegionId()));
       }
       List<JSONObject> strips = Lists.newArrayList();
       for (FixedIncomeStrip strip : object.getStrips()) {
@@ -126,8 +127,8 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     JSONObject blankIdentifier = null;
     try {
       blankIdentifier = new JSONObject();
-      blankIdentifier.put(ExternalId.SCHEME_FUDGE_FIELD_NAME, "");
-      blankIdentifier.put(ExternalId.VALUE_FUDGE_FIELD_NAME, "");
+      blankIdentifier.put(ExternalIdFudgeBuilder.SCHEME_FIELD_NAME, "");
+      blankIdentifier.put(ExternalIdFudgeBuilder.VALUE_FIELD_NAME, "");
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("invalid json produced from blank region identifier", ex);
     }

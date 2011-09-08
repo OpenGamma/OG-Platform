@@ -24,7 +24,7 @@ public interface ViewResultListener {
   /**
    * Gets the user represented by this listener.
    * 
-   * @return the user represented by this listener, not {@code null}
+   * @return the user represented by this listener, not null
    */
   UserPrincipal getUser();
   
@@ -41,8 +41,8 @@ public interface ViewResultListener {
    * it will be called again if recompilation is necessary for future results.
    * 
    * @param compiledViewDefinition  the compiled view definition, not null
-   * @param hasMarketDataPermissions  {@code true} if the listener's user has permission to access all market data
-   *                                      requirements of the compiled view definition, {@code false} otherwise
+   * @param hasMarketDataPermissions  true if the listener's user has permission to access all market data
+   *                                      requirements of the compiled view definition
    */
   void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions);
   
@@ -85,8 +85,8 @@ public interface ViewResultListener {
    * <p>
    * This could be the result of an administrator forcibly terminating the process.
    * 
-   * @param executionInterrupted  {@code true} if the process termination caused execution to be interrupted;
-   *                              {@code false} otherwise, for example if execution has already completed
+   * @param executionInterrupted  true if the process termination caused execution to be interrupted;
+   *                              false otherwise, for example if execution has already completed
    */
   void processTerminated(boolean executionInterrupted);
   

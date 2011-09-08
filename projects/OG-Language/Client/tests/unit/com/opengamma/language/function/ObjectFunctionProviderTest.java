@@ -11,12 +11,19 @@ import static org.testng.Assert.assertNotNull;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+
+import com.opengamma.language.definition.Parameter;
+import com.opengamma.language.object.ObjectFunctionProvider;
 
 /**
  * Tests the {@link ObjectFunctionProvider} class to check it can load its definitions.
  */
 public class ObjectFunctionProviderTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ObjectFunctionProviderTest.class);
 
   @Test
   public void testDefinitionsLoad() {
@@ -24,14 +31,12 @@ public class ObjectFunctionProviderTest {
     final Set<MetaFunction> functions = provider.getDefinitions();
     assertNotNull(functions);
     assertFalse(functions.isEmpty());
-    /*
     for (MetaFunction function : functions) {
-      System.out.println(function.getName() + "\t" + function.getDescription());
+      s_logger.info("{} {}", function.getName(), function.getDescription());
       for (Parameter parameter : function.getParameter()) {
-        System.out.println("\t" + parameter.getName() + "\t" + parameter.getDescription());
+        s_logger.info("\t{}\t{}", parameter.getName(), parameter.getDescription());
       }
     }
-    */
   }
 
 }

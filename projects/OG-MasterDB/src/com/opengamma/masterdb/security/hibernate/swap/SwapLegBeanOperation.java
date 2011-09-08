@@ -8,9 +8,9 @@ package com.opengamma.masterdb.security.hibernate.swap;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.businessDayConventionBeanToBusinessDayConvention;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
-import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -37,8 +37,8 @@ public final class SwapLegBeanOperation {
         bean.setDayCount(secMasterSession.getOrCreateDayCountBean(swapLeg.getDayCount().getConventionName()));
         bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(swapLeg.getFrequency().getConventionName()));
         bean.setNotional(NotionalBeanOperation.createBean(secMasterSession, swapLeg.getNotional()));
-        bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionIdentifier()));
-        bean.setEOM(swapLeg.getIsEOM());
+        bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionId()));
+        bean.setEom(swapLeg.isEom());
         return bean;
       }
 
@@ -58,7 +58,7 @@ public final class SwapLegBeanOperation {
       public SwapLegBean visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
         final SwapLegBean bean = createInterestRateLegBean(swapLeg);
         bean.setRate(swapLeg.getInitialFloatingRate());
-        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateIdentifier()));
+        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateId()));
         bean.setSpread(swapLeg.getSpread());
         bean.setFloatingRateType(swapLeg.getFloatingRateType());
         return bean;
@@ -77,7 +77,7 @@ public final class SwapLegBeanOperation {
             externalIdBeanToExternalId(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
-            bean.isEOM(), bean.getRate());
+            bean.isEom(), bean.getRate());
       }
 
       @Override
@@ -88,7 +88,7 @@ public final class SwapLegBeanOperation {
             externalIdBeanToExternalId(bean.getRegion()),
             businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
             NotionalBeanOperation.createNotional(bean.getNotional()),
-            bean.isEOM(), 
+            bean.isEom(), 
             externalIdBeanToExternalId(bean.getRateIdentifier()),
             bean.getRate(),
             bean.getSpread(),

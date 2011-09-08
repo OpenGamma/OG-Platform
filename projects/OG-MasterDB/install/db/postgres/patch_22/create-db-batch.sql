@@ -155,9 +155,9 @@ create table rsk_run (
     master_process_host_id int not null,    -- machine where 'master' batch process was started
     run_time_id int not null,
     live_data_snapshot_id int not null,
-    create_instant timestamp not null,
-    start_instant timestamp not null,       -- can be different from create_instant if is run is restarted
-    end_instant	timestamp,
+    create_instant timestamp with time zone not null,
+    start_instant timestamp with time zone not null,       -- can be different from create_instant if is run is restarted
+    end_instant	timestamp with time zone,
     num_restarts int not null,
     complete boolean not null,
     
@@ -262,7 +262,7 @@ create table rsk_value (
     computation_target_id int not null,        
     run_id int not null,             	       -- shortcut
     value double precision not null,
-    eval_instant timestamp not null,
+    eval_instant timestamp with time zone not null,
     compute_node_id int not null,
     
     primary key (id),
@@ -305,7 +305,7 @@ create table rsk_failure (
     function_unique_id int not null,
     computation_target_id int not null,
     run_id int not null,             	       -- shortcut
-    eval_instant timestamp not null,
+    eval_instant timestamp with time zone not null,
     compute_node_id int not null,
     
     primary key (id),

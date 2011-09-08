@@ -27,11 +27,15 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.aggregation.BottomPositionValues;
+import com.opengamma.financial.aggregation.SortedPositionValues;
+import com.opengamma.financial.aggregation.TopPositionValues;
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyLabelledMatrix2DPositionFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.FXSummingFunction;
+import com.opengamma.financial.analytics.LastHistoricalValueFunction;
 import com.opengamma.financial.analytics.PV01SummingFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
@@ -471,6 +475,21 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     // functionConfigs.add(new StaticFunctionConfiguration(CurrencyInversionFunction.class.getName()));
     // functionConfigs.add(new ParameterizedFunctionConfiguration(CurrencyCrossRateFunction.class.getName(), Collections.singleton("USD")));
     // functionConfigs.add(new StaticFunctionConfiguration(BloombergCurrencyRateFunction.class.getName()));
+
+    functionConfigs.add(new StaticFunctionConfiguration(BottomPositionValues.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(SortedPositionValues.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(TopPositionValues.class.getName()));
+    
+    // Historical data functions.
+    addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_VOLUME);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_VOLUME)));
+    addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_MARKET_CAP);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_MARKET_CAP);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_MARKET_CAP)));
+    addDummyFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.DAILY_APPLIED_BETA);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LastHistoricalValueFunction.class.getName(), Collections.singleton(ValueRequirementNames.DAILY_APPLIED_BETA)));
 
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 

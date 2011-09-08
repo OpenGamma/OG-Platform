@@ -69,7 +69,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (cashSecurity == null) {
             throw new OpenGammaRuntimeException("Could not resolve cash curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
-          final Region region = _regionSource.getHighestLevelRegion(cashSecurity.getRegion());
+          final Region region = _regionSource.getHighestLevelRegion(cashSecurity.getRegionId());
           TimeZone timeZone = region.getTimeZone();
           timeZone = ensureZone(timeZone);
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone);
@@ -97,7 +97,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           if (rateSecurity == null) {
             throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
           }
-          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegion());
+          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
           TimeZone timeZone2 = region2.getTimeZone();
           timeZone2 = ensureZone(timeZone2);
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
@@ -145,9 +145,13 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
+    Double rate = marketValues.get(strip.getSecurity());
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("No market data for " + strip.getSecurity());
+    }
     final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC),
-        marketValues.get(strip.getSecurity()), 1.0d);
-    sec.setIdentifiers(ExternalIdBundle.of(strip.getSecurity()));
+        rate, 1.0d);
+    sec.setExternalIdBundle(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }
 
@@ -225,7 +229,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
                                                 convention.getSwapFixedLegBusinessDayConvention(),
                                                 new InterestRateNotional(spec.getCurrency(), 1),
                                                 false, fixedRate));
-    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
+    swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
@@ -273,7 +277,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
             0.,
             spread,
             FloatingRateType.IBOR));
-    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
+    swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
@@ -284,7 +288,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final Currency currency = spec.getCurrency();
     final ExternalId region = spec.getRegion();
     final CashSecurity cash = new CashSecurity(currency, region, maturity, rate, 1);
-    cash.setIdentifiers(ExternalIdBundle.of(identifier));
+    cash.setExternalIdBundle(ExternalIdBundle.of(identifier));
     return cash;
   }
 
@@ -326,7 +330,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
             new InterestRateNotional(spec.getCurrency(), 1),
             false, 
             fixedRate));
-    swap.setIdentifiers(ExternalIdBundle.of(swapIdentifier));
+    swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
+
     return swap;
   }
 

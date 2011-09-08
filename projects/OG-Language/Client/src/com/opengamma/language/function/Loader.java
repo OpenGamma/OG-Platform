@@ -8,6 +8,7 @@ package com.opengamma.language.function;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.language.context.ContextInitializationBean;
@@ -16,8 +17,6 @@ import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.MutableUserContext;
 import com.opengamma.util.ArgumentChecker;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 /**
  * Extends a context factory to attach a function provider.
  */
@@ -25,7 +24,6 @@ public class Loader extends ContextInitializationBean {
 
   private List<FunctionProvider> _functionProviders;
 
-  @SuppressWarnings("unchecked")
   public void setFunctionProvider(final FunctionProvider functionProvider) {
     ArgumentChecker.notNull(functionProvider, "functionProvider");
     _functionProviders = Collections.singletonList(functionProvider);

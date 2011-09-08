@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+
 import com.opengamma.core.position.Position;
 
 /**
@@ -13,6 +15,7 @@ import com.opengamma.core.position.Position;
  * @param <T> type of bucket.
  */
 public interface AggregationFunction<T> {
+  Collection<T> getRequiredEntries();
   T classifyPosition(Position position);
   String getName();
 }

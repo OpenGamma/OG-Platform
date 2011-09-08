@@ -6,7 +6,9 @@
 package com.opengamma.math;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.number.ComplexNumber;
 
 /**
@@ -211,6 +213,25 @@ public class ComplexMathUtilsTest {
     assertComplexEquals(ComplexMathUtils.pow(ComplexMathUtils.pow(Z1, 1. / 3), 3), Z1);
     assertComplexEquals(ComplexMathUtils.pow(ComplexMathUtils.pow(X, ComplexMathUtils.inverse(Z2)), Z2), new ComplexNumber(X, 0));
     assertComplexEquals(ComplexMathUtils.pow(ComplexMathUtils.pow(Z1, ComplexMathUtils.inverse(Z2)), Z2), Z1);
+  }
+  
+  @Test
+  public void testSqrt() {
+    ComplexNumber z1 = new ComplexNumber(3, -2);
+    ComplexNumber z2 = new ComplexNumber(-3, 4);
+    ComplexNumber z3 = new ComplexNumber(-3, -4);
+    
+    ComplexNumber rZ1 = ComplexMathUtils.sqrt(z1);
+    ComplexNumber rZ2 = ComplexMathUtils.sqrt(z2);
+    ComplexNumber rZ3 = ComplexMathUtils.sqrt(z3);
+    
+    assertComplexEquals(ComplexMathUtils.pow(z1, 0.5),rZ1);
+    assertComplexEquals(ComplexMathUtils.pow(z2, 0.5),rZ2);
+    assertComplexEquals(ComplexMathUtils.pow(z3, 0.5),rZ3);
+    
+    assertComplexEquals(z1, ComplexMathUtils.square(rZ1));
+    assertComplexEquals(z2, ComplexMathUtils.square(rZ2));
+    assertComplexEquals(z3, ComplexMathUtils.square(rZ3));   
   }
 
   private void assertComplexEquals(final ComplexNumber z1, final ComplexNumber z2) {

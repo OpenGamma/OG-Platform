@@ -22,7 +22,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * A computation target resolver implementation that caches another implementation.
  */
-public class DefaultCachingComputationTargetResolver extends ForwardingComputationTargetResolver implements CachingComputationTargetResolver {
+public class DefaultCachingComputationTargetResolver extends DelegatingComputationTargetResolver implements CachingComputationTargetResolver {
 
   /** The cache key. */
   private static final String COMPUTATIONTARGET_CACHE = "computationTarget";

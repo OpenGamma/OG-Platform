@@ -226,7 +226,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
       receiveLegDescription = fixedLegDescription;
     }
     SwapSecurity swap = new SwapSecurity(tradeDateTime, tradeDateTime, maturityDateTime, counterparty, payLeg, receiveLeg);
-    swap.addIdentifier(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap.setName("IR Swap " + ccy + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(notional) + " " +
         maturityDateTime.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     return swap;  
@@ -244,7 +244,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
         HistoricalTimeSeriesFields.LAST_PRICE, 
         swapRateForMaturityIdentifier.toBundle(), 
         HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, 
-        tradeDate, true, tradeDate, false);
+        tradeDate, true, tradeDate, true);
     if (fixedRateSeries == null) {
       throw new OpenGammaRuntimeException("can't find time series for " + swapRateForMaturityIdentifier + " on " + tradeDate);
     }
@@ -256,7 +256,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
     HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
         HistoricalTimeSeriesFields.LAST_PRICE, liborIdentifier.toBundle(), 
-        HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, false);
+        HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier + " on " + tradeDate);
     }
@@ -321,7 +321,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
       SecurityDocument swapToAddDoc = new SecurityDocument();
       swapToAddDoc.setSecurity(swap);
       securityMaster.add(swapToAddDoc);
-      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getIdentifiers());
+      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
       PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));
       rootNode.addPosition(addedDoc.getUniqueId());
     }

@@ -7,7 +7,9 @@ package com.opengamma.math.function.special;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.tuple.Pair;

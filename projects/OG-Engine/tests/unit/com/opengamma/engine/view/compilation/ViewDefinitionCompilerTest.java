@@ -8,7 +8,7 @@ package com.opengamma.engine.view.compilation;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,6 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.time.Instant;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
@@ -74,7 +76,9 @@ public class ViewDefinitionCompilerTest {
     InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
+    final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
+    cfs.initialize();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
 
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
@@ -122,7 +126,9 @@ public class ViewDefinitionCompilerTest {
     functionCompilationContext.setFunctionInitId(123);
     functionCompilationContext.setSecuritySource(securitySource);
 
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
+    final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
+    cfs.initialize();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
 
@@ -180,7 +186,9 @@ public class ViewDefinitionCompilerTest {
     functionRepo.addFunction(fn2);
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
     functionCompilationContext.setFunctionInitId(123);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext));
+    final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
+    cfs.initialize();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
 
@@ -224,7 +232,9 @@ public class ViewDefinitionCompilerTest {
 
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     compilationContext.setFunctionInitId(123);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext));
+    final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
+    cfs.initialize();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService);
@@ -263,7 +273,9 @@ public class ViewDefinitionCompilerTest {
 
     FunctionCompilationContext compilationContext = new FunctionCompilationContext();
     compilationContext.setFunctionInitId(123);
-    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(new CompiledFunctionService (functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext));
+    final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
+    cfs.initialize();
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils
         .createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();

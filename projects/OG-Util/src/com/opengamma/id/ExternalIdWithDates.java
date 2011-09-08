@@ -11,11 +11,10 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Year;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -36,15 +35,6 @@ public final class ExternalIdWithDates
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * Fudge message key for the valid_from.
-   */
-  public static final String VALID_FROM_FUDGE_FIELD_NAME = "ValidFrom";
-  /**
-   * Fudge message key for the valid_to.
-   */
-  public static final String VALID_TO_FUDGE_FIELD_NAME = "ValidTo";
 
   /**
    * The identifier.
@@ -222,49 +212,31 @@ public final class ExternalIdWithDates
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
-    ArgumentChecker.notNull(factory, "factory");
-    ArgumentChecker.notNull(message, "message");
-    MutableFudgeMsg fudgeMsg = _identifier.toFudgeMsg(factory, message);
-    if (_validFrom != null) {
-      fudgeMsg.add(VALID_FROM_FUDGE_FIELD_NAME, _validFrom);
-    }
-    if (_validTo != null) {
-      fudgeMsg.add(VALID_TO_FUDGE_FIELD_NAME, _validTo);
-    }
-    return fudgeMsg;
+  /**
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
+   * 
+   * @param serializer  the serializer, not null
+   * @param msg  the message to populate, not null
+   * @deprecated Use builder
+   */
+  @Deprecated
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
+    ExternalIdWithDatesFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
-   * Serializes to a Fudge message.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  the Fudge context, not null
-   * @return the Fudge message, not null
+   * @param deserializer  the deserializer, not null
+   * @param msg  the message to decode, not null
+   * @return the created object, not null
+   * @deprecated Use builder
    */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    return toFudgeMsg(factory, factory.newMessage());
-  }
-
-  /**
-   * Deserializes from a Fudge message.
-   * 
-   * @param fudgeContext  the Fudge context
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
-   */
-  public static ExternalIdWithDates fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
-    ExternalId identifier = ExternalId.fromFudgeMsg(fudgeContext, msg);
-    FudgeField field = msg.getByName(VALID_FROM_FUDGE_FIELD_NAME);
-    LocalDate validFrom = null;
-    if (field != null) {
-      validFrom = (LocalDate) field.getValue();
-    }
-    field = msg.getByName(VALID_TO_FUDGE_FIELD_NAME);
-    LocalDate validTo = null;
-    if (field != null) {
-      validTo = (LocalDate) field.getValue();
-    }
-    return ExternalIdWithDates.of(identifier, validFrom, validTo);
+  @Deprecated
+  public static ExternalIdWithDates fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return ExternalIdWithDatesFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

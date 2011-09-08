@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -223,13 +224,20 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
   
   void reestablishSubscriptions() {
-    for (Subscription subscription : getSubscriptions()) {
+    _subscriptionLock.lock();
+    try {
+      Set<String> securities = _securityUniqueId2Subscription.keySet();
       try {
-        Object handle = doSubscribe(Collections.singleton(subscription.getSecurityUniqueId()));
-        subscription.setHandle(handle);
+        Map<String, Object> subscriptions = doSubscribe(securities);
+        for (Entry<String, Object> entry : subscriptions.entrySet()) {
+          Subscription subscription = _securityUniqueId2Subscription.get(entry.getKey());
+          subscription.setHandle(entry.getValue());
+        }
       } catch (RuntimeException e) {
-        s_logger.error("Could not reestablish subscription to " + subscription, e);        
+        s_logger.error("Could not reestablish subscription to {}", new Object[] {securities}, e);
       }
+    } finally {
+      _subscriptionLock.unlock();
     }
   }
   
@@ -354,6 +362,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // this is the only place where subscribe() can 'partially' fail
         DistributionSpecification distributionSpec;
         try {
+          //REVIEW simon 2011-09-06: If it weren't for caching doing this unbatched would be very bad. 
+          //    Doing it unbatched might get us an exception, although the comments say that null should be returned. 
           distributionSpec = getDistributionSpecificationResolver().resolve(specFromClient);
         } catch (RuntimeException e) {
           s_logger.info("Unable to work out distribution spec for specification " + specFromClient, e);
@@ -604,28 +614,36 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     ArrayList<LiveDataSpecification> subscriptions = new ArrayList<LiveDataSpecification>();
     
     Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
-    
+    ArrayList<LiveDataSpecification> distributable = new ArrayList<LiveDataSpecification>();
     for (LiveDataSpecification requestedSpecification : subscriptionRequest
         .getSpecifications()) {
-
       try {
-
         // Check that this spec can be found
         DistributionSpecification spec = distributionSpecifications.get(requestedSpecification);
         if (spec == null) {
-          responses.add(new LiveDataSubscriptionResponse(
-              requestedSpecification,
-              LiveDataSubscriptionResult.NOT_PRESENT,
-              "Could not build distribution specification for " + requestedSpecification,
-              null,
-              null, 
-              null));
-          continue;
+          responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
+              LiveDataSubscriptionResult.NOT_PRESENT, "Could not build distribution specification for "
+                  + requestedSpecification, null, null, null));
+        } else {
+          distributable.add(requestedSpecification);
         }
-
-        // Entitlement check
-        if (!getEntitlementChecker().isEntitled(
-            subscriptionRequest.getUser(), requestedSpecification)) {
+      } catch (Exception e) {
+        s_logger.error("Failed to subscribe to " + requestedSpecification, e);
+        responses.add(new LiveDataSubscriptionResponse(requestedSpecification,
+            LiveDataSubscriptionResult.INTERNAL_ERROR,
+            e.getMessage(),
+            null,
+            null,
+            null));
+      }
+    }
+    
+    Map<LiveDataSpecification, Boolean> entitled = getEntitlementChecker().isEntitled(subscriptionRequest.getUser(), distributable);
+    for (Entry<LiveDataSpecification, Boolean> entry : entitled.entrySet()) {
+      LiveDataSpecification requestedSpecification = entry.getKey();
+      try {
+        Boolean entitlement = entry.getValue();
+        if (!entitlement) {
           String msg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
           s_logger.info(msg);
           responses.add(new LiveDataSubscriptionResponse(

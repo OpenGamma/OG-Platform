@@ -9,13 +9,13 @@ import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.JodaBeanUtils;
 
 /**
  * Result from a meta-data request for a single master.

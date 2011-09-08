@@ -5,15 +5,17 @@
  */
 package com.opengamma.engine.function;
 
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotSame;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertSame;
+
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -95,6 +97,7 @@ public class CachingFunctionRepositoryCompilerTest {
     functions.addFunction (validWithin);
     final CachingFunctionRepositoryCompiler compiler = new CachingFunctionRepositoryCompiler();
     final CompiledFunctionService context = new CompiledFunctionService (functions, compiler, new FunctionCompilationContext ());
+    context.initialize();
     final Instant timestamp = Instant.now();
 
     // Everything compiled once

@@ -171,7 +171,7 @@ public class DemoEquityPortfolioLoader {
    * @return the lowest child node, not null
    */
   protected ManageablePortfolioNode buildPortfolioTree(ManageablePortfolioNode rootNode, GICSCode gics) {
-    String sector = Integer.toString(gics.getSectorCode());
+    String sector = gics.getSectorCode();
     ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
     if (sectorNode == null) {
       s_logger.warn("Creating node for sector {}", sector);
@@ -179,7 +179,7 @@ public class DemoEquityPortfolioLoader {
       rootNode.addChildNode(sectorNode);
     }
     
-    String industryGroup = Integer.toString(gics.getIndustryGroupCode());
+    String industryGroup = gics.getIndustryGroupCode();
     ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
     if (groupNode == null) {
       s_logger.warn("Creating node for industry group {}", industryGroup);
@@ -187,7 +187,7 @@ public class DemoEquityPortfolioLoader {
       sectorNode.addChildNode(groupNode);
     }
     
-    String industry = Integer.toString(gics.getIndustryCode());
+    String industry = gics.getIndustryCode();
     ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
     if (industryNode == null) {
       s_logger.warn("Creating node for industry {}", industry);
@@ -195,7 +195,7 @@ public class DemoEquityPortfolioLoader {
       groupNode.addChildNode(industryNode);
     }
     
-    String subIndustry = Integer.toString(gics.getSubIndustryCode());
+    String subIndustry = gics.getSubIndustryCode();
     ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
     if (subIndustryNode == null) {
       s_logger.warn("Creating node for sub industry {}", subIndustry);
@@ -216,13 +216,13 @@ public class DemoEquityPortfolioLoader {
   protected ManageablePosition createPosition(EquitySecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    ExternalId buid = security.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_BUID);
-    ExternalId ticker = security.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+    ExternalId ticker = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     ExternalIdBundle bundle;
     if (buid != null && ticker != null) {
       bundle = ExternalIdBundle.of(buid, ticker);
     } else {
-      bundle = security.getIdentifiers();
+      bundle = security.getExternalIdBundle();
     }
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
     

@@ -1,10 +1,22 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.option;
+
+/**
+ * The FX barrier option monitoring type.
+ */
 public enum MonitoringType {
+
+  /**
+   * Continuous.
+   */
   CONTINUOUS,
-  DISCRETE;
+  /**
+   * Discrete.
+   */
+  DISCRETE,
+
 }
-///CLOVER:ON
-// CSON: Generated File

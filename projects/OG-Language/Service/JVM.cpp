@@ -1,12 +1,10 @@
-/**
+/*
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// Start up an embedded JVM, and call methods on the "Main" class
 
 #include "JVM.h"
 #include "Service.h"
@@ -21,6 +19,12 @@ LOGGING(com.opengamma.language.service.JVM);
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppEnv, JavaVMInitArgs *pArgs);
 
+/// Creates a new JVM instance. Note that only one JVM instance is sensible; some libraries don't like
+/// destroying JVMs or creating multiple ones.
+///
+/// @param[in] poModule the JVM library, never NULL
+/// @param[in] pJVM the created JVM instance, never NULL
+/// @param[in] pEnv the created JVM environment, never NULL
 CJVM::CJVM (CLibrary *poModule, JavaVM *pJVM, JNIEnv *pEnv) {
 	LOGINFO (TEXT ("JVM created"));
 	m_poModule = poModule;
@@ -30,7 +34,10 @@ CJVM::CJVM (CLibrary *poModule, JavaVM *pJVM, JNIEnv *pEnv) {
 	m_bRunning = false;
 }
 
+/// Destroys the JVM. Not all JVM libraries support the DestroyJavaVM method properly when there are
+/// Java threads still running. Use the DESTROY_JVM macro to control whether to make the call at compile-time.
 CJVM::~CJVM () {
+// TODO: this should be a "setting" with a compile-time default, not just a compile-time flag
 #ifdef DESTROY_JVM
 	LOGDEBUG (TEXT ("Destroying JVM"));
 	m_pJVM->DestroyJavaVM ();
@@ -44,6 +51,10 @@ CJVM::~CJVM () {
 	}
 }
 
+/// Loads the JVM library.
+///
+/// @param[in] pszLibrary full path to the JVM library (or just the path name if it is in the path
+/// @return the library, or NULL if none could be loaded
 static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
 	const TCHAR *pszSearchPath = NULL;
 	TCHAR *psz = _tcsdup (pszLibrary);
@@ -68,6 +79,11 @@ static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
 	return po;
 }
 
+/// Creates a JVM parameter to describe the Fudge annotation cache path as given in the supplied
+/// settings. The caller must free the allocated memory.
+///
+/// @param[in] pSettings current settings
+/// @return the JVM parameter
 static char *_OptionFudgeAnnotationCache (const CSettings *pSettings) {
 	const TCHAR *pszCache = pSettings->GetAnnotationCache ();
 	if (!pszCache) {
@@ -89,6 +105,13 @@ static char *_OptionFudgeAnnotationCache (const CSettings *pSettings) {
 	return pszOption;
 }
 
+/// Appends a fragment to the classpath buffer.
+///
+/// @param[in,out] pszBuffer classpath buffer, never NULL
+/// @param[in,out] pcchUsed number of characters used in the buffer, never NULL
+/// @param[in] pszPath path fragment to append, never NULL
+/// @param[in] pszFile filename to append, never NULL
+/// @return the classpath buffer; this may be pszBuffer, or may be reallocated memory
 static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTotal, const TCHAR *pszPath, const TCHAR *pszFile) {
 	LOGDEBUG (TEXT ("Appending ") << pszFile << TEXT (" to classpath"));
 	size_t cchExtra = _tcslen (pszPath) + _tcslen (pszFile) + 2;
@@ -120,6 +143,13 @@ static char *_BuildClasspath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTot
 	return pszBuffer;
 }
 
+/// Recursively scans a folder for Java resources and adds them to the classpath.
+///
+/// @param[in,out] pszBuffer classpath buffer, never NULL
+/// @param[in,out] pcchUsed number of characters used in the buffer, never NULL
+/// @param[in,out] pcchTotal size of the buffer in characters, never NULL
+/// @param[in] pszPath folder to scan, never NULL
+/// @return the classpath buffer; this may be pszBuffer, or may be reallocated memory
 static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTotal, const TCHAR *pszPath) {
 	size_t cchSearch;
 	TCHAR *pszSearch;
@@ -188,6 +218,12 @@ static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTota
 	return pszBuffer;
 }
 
+/// Creates a JVM parameter for the classpath to use. The caller must free the allocated memory.
+/// The classpath is based on the JarPath returned by the settings object; with each Java resource
+/// underneath it explicitly named.
+///
+/// @param[in] pSettings the current settings
+/// @return the classpath
 static char *_OptionClassPath (const CSettings *pSettings) {
 	const TCHAR *pszPath = pSettings->GetJarPath ();
 	if (!pszPath) {
@@ -217,16 +253,27 @@ static char *_OptionClassPath (const CSettings *pSettings) {
 	return pszOption;
 }
 
+/// Implementation of the notifyStop method in the Main class.
+///
+/// @param pEnv see Java documentation
+/// @param cls see Java documentation
 static void JNICALL _notifyStop (JNIEnv *pEnv, jclass cls) {
 	LOGINFO (TEXT ("STOP called from JVM"));
 	ServiceStop (false);
 }
 
+/// Implementation of the notifyPause method in the Main class.
+///
+/// @param pEnv see Java documentation
+/// @param cls see Java documentation
 static void JNICALL _notifyPause (JNIEnv *pEnv, jclass cls) {
 	LOGINFO (TEXT ("PAUSE called from JVM"));
 	ServiceSuspend ();
 }
 
+/// Creates a new JVM instance.
+///
+/// @return the JVM, or NULL if there was a problem
 CJVM *CJVM::Create () {
 	CSettings settings;
 	const TCHAR *pszLibrary = settings.GetJvmLibrary ();
@@ -244,21 +291,21 @@ CJVM *CJVM::Create () {
 	}
 	JavaVM *pJVM;
 	JNIEnv *pEnv;
-	JavaVMOption option[3];
-	memset (&option, 0, sizeof (option));
-	option[0].optionString = _OptionClassPath (&settings);
-	option[1].optionString = _OptionFudgeAnnotationCache (&settings);
-#ifdef _DEBUG
-	option[2].optionString = (char*)"-Dservice.debug=true";
-#else
-	option[2].optionString = (char*)"-Dservice.ndebug=true";
-#endif
-	// TODO [PLAT-1116] additional option strings from registry
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
+	JavaVMOption option[4];
+	memset (&option, 0, sizeof (option));
 	args.options = option;
-	args.nOptions = 3;
+	option[args.nOptions++].optionString = _OptionClassPath (&settings);
+	option[args.nOptions++].optionString = _OptionFudgeAnnotationCache (&settings);
+#ifdef _DEBUG
+	option[args.nOptions++].optionString = (char*)"-Dservice.debug=true";
+#else
+	option[args.nOptions++].optionString = (char*)"-Dservice.ndebug=true";
+#endif
+	option[args.nOptions++].optionString = (char*)"-Dcom.sun.management.jmxremote";
+	// TODO [PLAT-1116] additional option strings from registry
 	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
 	if (option[0].optionString) {
@@ -298,13 +345,12 @@ CJVM *CJVM::Create () {
 	return pJvm;
 }
 
-/**
- * <summary>Calls a static method on our main class.</summary>
- * <param name="pEnv">The JNI environment.</param>
- * <param name="pszMethodName">The name of the method to invoke.</param>
- * <param name="pszSignature">The method signature to invoke.</param>
- * <returns>The boolean result of the method.</returns>
- */
+/// Calls a static method on the Main class that returns a boolean value
+///
+/// @param[in] pEnv the JNI environment, never NULL
+/// @param[in] pszMethodName name of the method to invoke, never NULL
+/// @param[in] pszSignature method signature to invoke, never NULL
+/// @return the method result, or FALSE if it could not be invoked
 bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSignature, ...) {
 	LOGDEBUG ("Invoking " << pszMethodName << " on " << MAIN_CLASS);
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
@@ -324,11 +370,10 @@ bool CJVM::Invoke (JNIEnv *pEnv, const char *pszMethodName, const char *pszSigna
 	return res != 0;
 }
 
-/**
- * <summary>Attaches the calling thread to the JVM and calls the no-arg static method on our main class.</summary>
- * <param name="pszMethodName">The name of the method to invoke.</param>
- * <returns>The boolean result of the method.</returns>
- */
+/// Attaches the calling thread to the JVM and calls the no-arg static method on the Main class.
+///
+/// @param[in] pszMethodName name of the method to invoke
+/// @return boolean result of the method, or FALSE if it could not be invoked
 bool CJVM::Invoke (const char *pszMethodName) {
 	JNIEnv *pEnv;
 	JavaVMAttachArgs args;
@@ -345,15 +390,27 @@ bool CJVM::Invoke (const char *pszMethodName) {
 	return res != 0;
 }
 
+/// Slave thread for asynchronous Start and Stop calls.
 class CBusyTask : public CThread {
 private:
+
+	/// JVM instance to invoke the method on
 	CJVM *m_pJVM;
+
+	/// TRUE to invoke Start, FALSE to invoke Stop
 	bool m_bStart;
 public:
+
+	/// Creates a new slave thread
+	///
+	/// @param[in] pJVM JVM instance to invoke the method in
+	/// @param[in] bStart TRUE to invoke Start, FALSE to invoke Stop
 	CBusyTask (CJVM *pJVM, bool bStart) {
 		m_pJVM = pJVM;
 		m_bStart = bStart;
 	}
+
+	// Invokes either Start or Stop on the JVM instance
 	void Run () {
 		if (m_bStart) {
 			m_pJVM->Start (false);
@@ -363,6 +420,10 @@ public:
 	}
 };
 
+/// Attempts to start the OpenGamma Java stack. Success of the call can be seen by the IsRunning, IsBusy and/or IsStopped methods.
+///
+/// @param[in] bAsync TRUE to return immediately and use a slave thread to start the Java stack, FALSE
+/// to start it from the calling thread.
 void CJVM::Start (bool bAsync) {
 	if (bAsync) {
 		m_oMutex.Enter ();
@@ -389,6 +450,10 @@ void CJVM::Start (bool bAsync) {
 	}
 }
 
+/// Attempts to stop the OpenGamma Java stack. Success of the call can be seen by the IsRunning, IsBusy, and/or IsStopped methods.
+///
+/// @param[in] bAsync TRUE to return immediately and use a slave thread to stop the Java stack, FALSE
+/// to stop it from the calling thread.
 void CJVM::Stop (bool bAsync) {
 	if (bAsync) {
 		m_oMutex.Enter ();
@@ -415,6 +480,10 @@ void CJVM::Stop (bool bAsync) {
 	}
 }
 
+/// Tests if the JVM instance is busy servicing an asynchronous call to Start or to Stop.
+///
+/// @param[in] dwTimeout milliseconds to wait for the servicing to finish
+/// @return TRUE if an asynchronous call is in progress, FALSE otherwise
 bool CJVM::IsBusy (unsigned long dwTimeout) const {
 	CThread *poBusyTask;
 	m_oMutex.Enter ();
@@ -439,6 +508,10 @@ bool CJVM::IsBusy (unsigned long dwTimeout) const {
 	}
 }
 
+/// Tests if the OpenGamma Java stack is running (or at least indicated it could start).
+///
+/// @return TRUE if the stack is running, FALSE if it has not been started, has been stopped or the
+/// call to Start failed.
 bool CJVM::IsRunning () const {
 	bool bResult;
 	m_oMutex.Enter ();
@@ -449,6 +522,10 @@ bool CJVM::IsRunning () const {
 
 #ifdef _UNICODE
 #ifdef _WIN64
+/// Returns the length of a string, truncated gracefully on 64-bit architecture.
+///
+/// @param[in] psz string to measure
+/// @return the length of the string, truncated to a positive integer
 static inline jsize _SafeLen (const TCHAR *psz) {
 	size_t len = wcslen (psz);
 	return (len > MAXINT32) ? MAXINT32 : (jsize)len;
@@ -458,6 +535,12 @@ static inline jsize _SafeLen (const TCHAR *psz) {
 #endif /* ifdef _WIN64 */
 #endif /* ifdef _UNICODE */
 
+/// Notifies the Java stack of a new user connection.
+///
+/// @param[in] pszUserName name of the user, never NULL
+/// @param[in] pszInputPipe name of the pipe the stack should open for reading (i.e. the client will be writing to it), never NULL
+/// @param[in] pszOutputPipe name of the pipe the stack should open for writing (i.e. the client will be reading from it), never NULL
+/// @param[in] pszLanguageID language ID of the client, never NULL
 void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID) {
 	m_oMutex.Enter ();
 	if (m_bRunning) {
@@ -492,6 +575,9 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 	m_oMutex.Leave ();
 }
 
+/// Tests if the OpenGamma Java stack has been stopped.
+///
+/// @return TRUE if it is stopped, FALSE if not or if the method couldn't be invoked
 bool CJVM::IsStopped () const {
 	return Invoke (m_pEnv, "svcIsStopped", "()Z");
 }

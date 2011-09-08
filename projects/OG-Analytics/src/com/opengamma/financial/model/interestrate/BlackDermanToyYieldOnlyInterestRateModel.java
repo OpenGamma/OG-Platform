@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 

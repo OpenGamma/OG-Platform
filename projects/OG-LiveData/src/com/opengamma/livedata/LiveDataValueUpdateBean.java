@@ -9,10 +9,10 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.PublicAPI;
 
@@ -50,12 +50,12 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   public LiveDataSpecification getSpecification() {
     return _specification;
   }
-  
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory fudgeMessageFactory) {
-    MutableFudgeMsg msg = fudgeMessageFactory.newMessage();
+
+  public FudgeMsg toFudgeMsg(FudgeSerializer serializer) {
+    MutableFudgeMsg msg = serializer.newMessage();
     msg.add(SEQUENCE_NUMBER_FIELD_NAME, getSequenceNumber());
     if (getSpecification() != null) {
-      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeMessageFactory));
+      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(serializer));
     }
     if (getFields() != null) {
       msg.add(FIELDS_FIELD_NAME, getFields());
@@ -63,7 +63,8 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return msg;
   
   }
-  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
+
+  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
     Long sequenceNumber = msg.getLong(SEQUENCE_NUMBER_FIELD_NAME);
     FudgeMsg specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
     FudgeMsg fields = msg.getMessage(FIELDS_FIELD_NAME);
@@ -77,7 +78,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     if (fields == null) {
       return null;
     }
-    LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(fudgeContext, specificationFields);
+    LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(deserializer, specificationFields);
     return new LiveDataValueUpdateBean(sequenceNumber, spec, fields);
   }
 

@@ -31,7 +31,7 @@ import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 /**
  * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer} 
  * NOTE: this is only really a partial implementation of AbstractLiveDataServer
- *        e.g. Entitlement checking will have to be set up on thi client as wekk as on the underlyings 
+ *        e.g. Entitlement checking will have to be set up on this client as well as on the underlyings 
  */
 public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   //TODO: things include Entitlement checking
@@ -138,14 +138,14 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   @Override
   protected void doConnect() {
     for (AbstractLiveDataServer server : _underlyings) {
-      server.doConnect();
+      server.start();
     }
   }
 
   @Override
   protected void doDisconnect() {
     for (AbstractLiveDataServer server : _underlyings) {
-      server.doDisconnect();
+      server.stop();
     }
   }
 

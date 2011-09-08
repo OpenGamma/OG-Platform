@@ -56,7 +56,7 @@ import com.opengamma.OpenGammaRuntimeException;
    * Replaces an anonymous inner class with a serializable substitution based on its {@code writeReplace}
    * method.
    * 
-   * @param object  the object to substitute, not {@code null}
+   * @param object  the object to substitute, not null
    * @return the substitution object as returned by its {@code writeReplace} method
    * @throws OpenGammaRuntimeException if no suitable method is defined or an error occurs in its execution
    */

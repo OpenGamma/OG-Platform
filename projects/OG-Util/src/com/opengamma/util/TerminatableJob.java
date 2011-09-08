@@ -11,18 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A base class for any job which consists of cycles of work, and may be terminated between any two cycles. This
- * implements {@link Runnable} so that it may be executed in its own thread.
+ * A base class for any job which consists of cycles of work, and may be terminated between any two cycles.
+ * This implements {@link Runnable} so that it may be executed in its own thread.
  */
 public abstract class TerminatableJob implements Runnable {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(TerminatableJob.class);
-  
+
   /**
    * A flag to indicate whether the job has been started
    */
   private AtomicBoolean _started = new AtomicBoolean(false);
-  
   /**
    * A flag to indicate whether the job has terminated.
    */
@@ -37,7 +37,6 @@ public abstract class TerminatableJob implements Runnable {
     if (_started.getAndSet(true)) {
       throw new IllegalStateException("Job has already been run or is currently running");
     }
-    
     preStart();
     try {
       while (!isTerminated()) {
@@ -83,16 +82,16 @@ public abstract class TerminatableJob implements Runnable {
   /**
    * Gets whether the job has been started.
    * 
-   * @return {@code true} if the job has been started, {@code false} otherwise
+   * @return true if the job has been started
    */
   public boolean isStarted() {
     return _started.get();
   }
-  
+
   /**
    * Gets whether the job has been terminated.
    * 
-   * @return {@code true} if the job has been terminated, {@code false} otherwise
+   * @return true if the job has been terminated
    */
   public boolean isTerminated() {
     return _terminated;

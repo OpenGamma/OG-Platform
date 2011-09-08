@@ -9,9 +9,9 @@ package com.opengamma.masterdb.security.hibernate.capfloor;
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
-import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import javax.time.calendar.ZonedDateTime;
@@ -46,12 +46,12 @@ public final class CapFloorCMSSpreadSecurityBeanOperation extends AbstractSecuri
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
     bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getConventionName()));
-    bean.setCap(security.getIsCap());
-    bean.setPayer(security.getIsPayer());
-    bean.setLongIdentifier(externalIdToExternalIdBean(security.getLongIdentifier()));
+    bean.setCap(security.isCap());
+    bean.setPayer(security.isPayer());
+    bean.setLongIdentifier(externalIdToExternalIdBean(security.getLongId()));
     bean.setMaturityDate(dateTimeWithZoneToZonedDateTimeBean(security.getMaturityDate()));
     bean.setNotional(security.getNotional());
-    bean.setShortIdentifier(externalIdToExternalIdBean(security.getShortIdentifier()));
+    bean.setShortIdentifier(externalIdToExternalIdBean(security.getShortId()));
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setStrike(security.getStrike());
     return bean;

@@ -90,7 +90,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   public LiveResultsService getLiveResultsService() {
     return _liveResultsService;
   }
-  
+
   public void afterPropertiesSet() {
     setBayeux((Bayeux) _servletContext.getAttribute(Bayeux.ATTRIBUTE));
     
@@ -108,7 +108,7 @@ public class LiveResultsServiceBean implements ServletContextAware {
   }
   
   public LiveResultsService createLiveResultsService() {
-    return new LiveResultsService(getBayeux(), getViewProcessor(), getSnapshotMaster(), getUser(), getExecutorService(), getFudgeContext());
+    return new LiveResultsService(getBayeux(), getViewProcessor(), getSnapshotMaster(), getUser(), getExecutorService(), getFudgeContext(), getViewProcessor().getLiveMarketDataSourceRegistry());
   }
  
 }

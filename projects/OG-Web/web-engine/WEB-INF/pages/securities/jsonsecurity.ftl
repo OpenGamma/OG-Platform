@@ -10,7 +10,7 @@
               "zone": "${security.endDate.zone}"
           },
         "rate":"${security.rate}",
-        "region":"${security.region?replace("_", " ")}",
+        "region":"${security.regionId?replace("_", " ")}",
         "startDate": {
               "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"
@@ -24,7 +24,7 @@
               "zone": "${security.maturity.zone}"
           },
         "rate":"${security.rate}",
-        "region":"${security.region?replace("_", " ")}",
+        "region":"${security.regionId?replace("_", " ")}",
       <#break>
       <#case "EQUITY">
         	"shortName":"${security.shortName}",
@@ -34,7 +34,7 @@
         	"exchangeCode":"${security.exchangeCode}",
         	"gicsCode":"${security.gicsCode}",
       <#break>
-      <#case "BOND"> 
+      <#case "BOND">
         "issuerName":"${security.issuerName}",
         "issuerType":"${security.issuerType}",
         "issuerDomicile":"${security.issuerDomicile}",
@@ -46,7 +46,7 @@
         "couponType":"${security.couponType}",
         "couponRate":"${security.couponRate}",
         "couponFrequency":"${security.couponFrequency.conventionName}",
-        "dayCountConvention":"${security.dayCountConvention.conventionName}",
+        "dayCount":"${security.dayCount.conventionName}",
         "guaranteeType":"${security.guaranteeType}",
         "businessDayConvention":"${security.businessDayConvention}",
         "announcementDate":"${security.announcementDate}",
@@ -78,13 +78,13 @@
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
         "redemptionValue":"${security.currency}",
-        
+
         <#if futureSecurityType == "BondFuture">
-            "underlying Bond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
+            "underlyingBond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
         <#else>
-            "underlyingIdentifier":"${security.underlyingIdentifier.scheme.name}-${security.underlyingIdentifier.value}",
+            "underlyingId":"${security.underlyingId.scheme.name}-${security.underlyingId.value}",
         </#if>
-        
+
         <#break>
       <#case "EQUITY_OPTION">
         "currency":"${security.currency}",
@@ -94,11 +94,11 @@
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
-        "underlyingExternalId":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         "underlyingName":"${underlyingSecurity.name}",
         "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
         <#break>
-    
+
       <#case "SWAP">
         "tradeDate": {
             "date": "${security.tradeDate.toLocalDate()}",
@@ -116,9 +116,9 @@
         "payLeg":{
           "dayCount":"${security.payLeg.dayCount.conventionName}",
 	      "frequency":"${security.payLeg.frequency.conventionName}",
-	      "regionIdentifier": {
-	          "scheme": "${security.payLeg.regionIdentifier.scheme.name}",
-	          "value": "${security.payLeg.regionIdentifier.value}"
+	      "regionId": {
+	          "scheme": "${security.payLeg.regionId.scheme.name}",
+	          "value": "${security.payLeg.regionId.value}"
 	      },
 	      "businessDayConvention":"${security.payLeg.businessDayConvention.conventionName}",
 	      "notional": {
@@ -130,7 +130,7 @@
               "interestRateLeg":"${security.payLeg.rate}"
 	        <#break>
 	        <#case "FloatingInterestRateLeg">
-              "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateIdentifier}",
+              "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
               "spread":"${security.payLeg.spread}"
 	        <#break>
@@ -139,38 +139,38 @@
         "receiveLeg":{
           "dayCount":"${security.receiveLeg.dayCount.conventionName}",
 	      "frequency":"${security.receiveLeg.frequency.conventionName}",
-	      "regionIdentifier": {
-	          "scheme": "${security.receiveLeg.regionIdentifier.scheme.name}",
-	          "value": "${security.receiveLeg.regionIdentifier.value}"
+	      "regionId": {
+	          "scheme": "${security.receiveLeg.regionId.scheme.name}",
+	          "value": "${security.receiveLeg.regionId.value}"
 	      },
 	      "businessDayConvention":"${security.receiveLeg.businessDayConvention.conventionName}",
 	      "notional": {
 	          "amount": "${security.receiveLeg.notional.amount}",
               "currency": "${security.payLeg.notional.currency}"
 	      },
-          <#switch payLegType>
+          <#switch receiveLegType>
             <#case "FixedInterestRateLeg">
               "interestRateLeg":"${security.receiveLeg.rate}"
             <#break>
             <#case "FloatingInterestRateLeg">
-              "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateIdentifier}",
+              "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
               "spread":"${security.receiveLeg.spread}"
             <#break>
           </#switch>
         },
         <#break>
-       <#case "FX FORWARD">
-        "forwardDate":{"date":"${security.forwardDate.toLocalDate()}", "zone":"${security.forwardDate.zone}"},
-        "region":"${security.region.scheme}-${security.region.value}",
-        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+       <#case "FX_FORWARD">
+        "forwardDate":"${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}",
+        "region":"${security.regionId.scheme}-${security.regionId.value}",
+        "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         <#break>
        <#case "FX">
         "payAmount":"${security.payAmount}",
         "payCurrency":"${security.payCurrency}",
         "receiveAmount":"${security.receiveAmount}",
         "receiveCurrency":"${security.receiveCurrency}",
-        "region":"${security.region.scheme}-${security.region.value}",
+        "region":"${security.regionId.scheme}-${security.regionId.value}",
         <#break>
        <#case "FX_BARRIER_OPTION">
         "barrierDirection":"${security.barrierDirection}",
@@ -203,26 +203,26 @@
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
-        "underlyingIdentifier":"${security.underlyingIdentifier.scheme} - ${security.underlyingIdentifier.value}",
+        "underlyingId":"${security.underlyingId.scheme} - ${security.underlyingId.value}",
         <#break>
        <#case "SWAPTION">
         "currency":"${security.currency}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
-        "isCashSettled":"${security.isCashSettled?string?upper_case}",
+        "isCashSettled":"${security.cashSettled?string?upper_case}",
         "isLong":"${security.isLong?string?upper_case}",
-        "isPayer":"${security.isPayer?string?upper_case}",
-        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        "isPayer":"${security.payer?string?upper_case}",
+        "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         <#break>
        <#case "IRFUTURE_OPTION">
         "currency":"${security.currency}",
         "exchange":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
-        "isMargined":"${security.isMargined?string?upper_case}",
+        "isMargined":"${security.margined?string?upper_case}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",
-        "underlyingIdentifier":"${security.underlyingIdentifier.scheme}-${security.underlyingIdentifier.value}",
+        "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         <#break>
     </#switch>
     "name": "${security.name}",
@@ -232,6 +232,6 @@
     "deleted": "${securityDoc.versionToInstant}",
     </#if>
     "securityType":"${security.securityType}" },
-    "identifiers": {<#list security.identifiers.externalIds as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
+    "identifiers": {<#list security.externalIdBundle.externalIds as item> "${item.scheme.name}":"${item.scheme.name}-${item.value}"<#if item_has_next>,</#if> </#list>}
 }
 </#escape>

@@ -13,8 +13,8 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Map.Entry;
 
-import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
+import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.FastObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 

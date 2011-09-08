@@ -17,7 +17,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
  */
 public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /** The first element. */

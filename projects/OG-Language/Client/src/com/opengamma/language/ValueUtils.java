@@ -99,7 +99,7 @@ public final class ValueUtils {
     } else if (data.getDoubleValue() != null) {
       return data.getDoubleValue();
     } else if (data.getIntValue() != null) {
-      return (double) data.getIntValue();
+      return data.getIntValue().doubleValue();
     } else if (data.getBoolValue() != null) {
       return data.getBoolValue() ? 1.0 : 0.0;
     } else if (data.getStringValue() != null) {
@@ -151,8 +151,8 @@ public final class ValueUtils {
   /**
    * Displayable form of the Value object.
    * 
-   * @param value value to convert to a string
-   * @param quoted {@code true} to surround strings in quote marks and escape them, {@code false} otherwise
+   * @param value  the value to convert to a string
+   * @param quoted  true to surround strings in quote marks and escape them
    * @return a displayable string representation
    */
   public static String toString(final Value value, final boolean quoted) {

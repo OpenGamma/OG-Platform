@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.annotations.Test;
 
 
 /**

@@ -17,7 +17,7 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
  */
 public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap.Entry {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /** The first element. */

@@ -5,10 +5,12 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.util.TreeMap;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;

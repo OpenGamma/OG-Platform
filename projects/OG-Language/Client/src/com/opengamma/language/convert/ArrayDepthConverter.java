@@ -12,12 +12,20 @@ import java.lang.reflect.Array;
 import java.util.Map;
 
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Converts arrays with a single element from X[] to X, or any value X to the single element array X[]
  */
-public class ArrayDepthConverter implements TypeConverter {
+public class ArrayDepthConverter extends AbstractTypeConverter {
+
+  /**
+   * Default instance.
+   */
+  public static final ArrayDepthConverter INSTANCE = new ArrayDepthConverter();
+
+  protected ArrayDepthConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {
@@ -38,7 +46,7 @@ public class ArrayDepthConverter implements TypeConverter {
     final int targetDimensions = type.getArrayDimension();
     final int sourceDimensions = getArrayDimension(value.getClass());
     if (targetDimensions == sourceDimensions + 1) {
-      final Object result = Array.newInstance(value.getClass(), 1);
+      final Object result = Array.newInstance(type.getArrayElementType().getRawClass(), 1);
       Array.set(result, 0, value);
       conversionContext.setResult(result);
     } else if (targetDimensions == sourceDimensions - 1) {

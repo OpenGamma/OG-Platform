@@ -7,9 +7,7 @@ package com.opengamma.engine.management;
 
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.util.Set;
 
 import javax.management.MBeanServer;
@@ -19,6 +17,9 @@ import javax.management.ObjectName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
@@ -107,7 +108,7 @@ public class ManagementServiceTest {
   private void addAnotherView(ViewProcessorImpl viewprocessor) {
     ViewDefinition anotherDefinition = new ViewDefinition(ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
-    _env.getViewDefinitionRepository().addDefinition(anotherDefinition);
+    _env.getMockViewDefinitionRepository().addDefinition(anotherDefinition);
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.infinite(MarketData.live()), false);
   }

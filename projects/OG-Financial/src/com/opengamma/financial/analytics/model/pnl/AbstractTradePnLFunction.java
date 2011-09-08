@@ -81,14 +81,14 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
       LocalDate tradeDate = trade.getTradeDate();
 
       final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-      final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(_markDataField, security.getIdentifiers(), _resolutionKey,
-          tradeDate, true, tradeDate, false);
+      final HistoricalTimeSeries markToMarketSeries = historicalSource.getHistoricalTimeSeries(_markDataField, security.getExternalIdBundle(), _resolutionKey,
+          tradeDate, true, tradeDate, true);
 
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
-        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey);
+        throw new NullPointerException("Could not get identifier / mark to market series pair for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey);
       }
       if (markToMarketSeries.getTimeSeries().isEmpty() || markToMarketSeries.getTimeSeries().getValue(tradeDate) == null) {
-        throw new NullPointerException("Could not get mark to market value for security " + security.getIdentifiers() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
+        throw new NullPointerException("Could not get mark to market value for security " + security.getExternalIdBundle() + " for " + _markDataField + " using " + _resolutionKey + " for " + tradeDate);
       }
       final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
       final ValueSpecification valueSpecification;
@@ -103,7 +103,7 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
 
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}",
-          new Object[] {trade.getUniqueId(), trade.getSecurity().getIdentifiers(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL });
+          new Object[] {trade.getUniqueId(), trade.getSecurity().getExternalIdBundle(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL });
       final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtils.rounded(dailyPnL).doubleValue());
       return Sets.newHashSet(result);
     }
@@ -111,18 +111,18 @@ public abstract class AbstractTradePnLFunction extends AbstractFunction.NonCompi
   }
 
   private double getCostOfCarry(final Security security, LocalDate tradeDate, final HistoricalTimeSeriesSource historicalSource) {
-    Double cachedCost = _costOfCarryCache.get(Pair.of(security.getIdentifiers(), tradeDate));
+    Double cachedCost = _costOfCarryCache.get(Pair.of(security.getExternalIdBundle(), tradeDate));
     if (cachedCost == null) {
       cachedCost = UN_AVAILABLE_COST;
-      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getIdentifiers(), _resolutionKey,
-          tradeDate, true, tradeDate, false);
+      final HistoricalTimeSeries costOfCarryPair = historicalSource.getHistoricalTimeSeries(_costOfCarryField, security.getExternalIdBundle(), _resolutionKey,
+          tradeDate, true, tradeDate, true);
       if (costOfCarryPair != null && costOfCarryPair.getTimeSeries() != null && !costOfCarryPair.getTimeSeries().isEmpty()) {
         Double histCost = costOfCarryPair.getTimeSeries().getValue(tradeDate);
         if (histCost != null) {
           cachedCost = histCost;
         }
       }
-      _costOfCarryCache.put(Pair.of(security.getIdentifiers(), tradeDate), cachedCost);
+      _costOfCarryCache.put(Pair.of(security.getExternalIdBundle(), tradeDate), cachedCost);
     }
     return cachedCost == UN_AVAILABLE_COST ? 0.0d : cachedCost;
   }

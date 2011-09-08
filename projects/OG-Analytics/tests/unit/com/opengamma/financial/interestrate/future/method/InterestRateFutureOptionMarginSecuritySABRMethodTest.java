@@ -114,7 +114,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
     final InterestRateFutureOptionMarginSecurity optionEDU2Standard = new InterestRateFutureOptionMarginSecurity(EDU2, expirationTime, STRIKE, IS_CALL);
     final double priceOption = METHOD.optionPrice(optionEDU2Standard, SABR_BUNDLE);
     final InterestRateFutureSecurityDiscountingMethod methodFuture = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    final double priceFuture = methodFuture.priceFromCurves(EDU2, CURVES_BUNDLE);
+    final double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
     final double priceOptionExpected = METHOD.optionPriceFromFuturePrice(optionEDU2Standard, SABR_BUNDLE, priceFuture);
     assertEquals("Future option with SABR volatilities: option price", priceOptionExpected, priceOption);
   }

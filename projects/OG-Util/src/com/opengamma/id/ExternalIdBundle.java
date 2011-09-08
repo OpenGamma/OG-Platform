@@ -14,11 +14,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
@@ -53,10 +52,6 @@ public final class ExternalIdBundle
    * Singleton empty bundle.
    */
   public static final ExternalIdBundle EMPTY = new ExternalIdBundle();
-  /**
-   * Fudge message key for the identifier set.
-   */
-  public static final String ID_FUDGE_FIELD_NAME = "ID";
 
   /**
    * The set of identifiers.
@@ -136,11 +131,8 @@ public final class ExternalIdBundle
 
   /**
    * Creates an empty bundle.
-   * @deprecated use EMPTY constant
    */
-  @Deprecated
-  public ExternalIdBundle() {
-    // public for Fudge proto
+  private ExternalIdBundle() {
     _externalIds = ImmutableSortedSet.of();
   }
 
@@ -415,47 +407,30 @@ public final class ExternalIdBundle
 
   //-------------------------------------------------------------------------
   /**
-   * Serializes to a Fudge message.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @param msg  the message to serialize into, not null
-   * @return the serialized message
+   * @param serializer  the serializer, not null
+   * @param msg  the message to populate, not null
+   * @deprecated Use builder
    */
-  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
-    ArgumentChecker.notNull(factory, "factory");
-    ArgumentChecker.notNull(msg, "msg");
-    for (ExternalId identifier : getExternalIds()) {
-      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(factory));
-    }
-    return msg;
+  @Deprecated
+  public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
+    ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
-   * Serializes to a Fudge message.
+   * This is for more efficient code within the .proto representations of securities, allowing this class
+   * to be used directly as a message type instead of through the serialization framework.
    * 
-   * @param factory  a message creator, not null
-   * @return the serialized Fudge message, not null
+   * @param deserializer  the deserializer, not null
+   * @param msg  the message to decode, not null
+   * @return the created object, not null
+   * @deprecated Use builder
    */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    return toFudgeMsg(factory, factory.newMessage());
-  }
-
-  /**
-   * Deserializes from a Fudge message.
-   * 
-   * @param fudgeContext  the Fudge context, not null
-   * @param msg  the Fudge message, not null
-   * @return the bundle, not null
-   */
-  public static ExternalIdBundle fromFudgeMsg(FudgeDeserializer fudgeContext, FudgeMsg msg) {
-    Set<ExternalId> ids = new HashSet<ExternalId>();
-    for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
-      if (field.getValue() instanceof FudgeMsg == false) {
-        throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
-      }
-      ids.add(ExternalId.fromFudgeMsg(fudgeContext, (FudgeMsg) field.getValue()));
-    }
-    return create(ids);
+  @Deprecated
+  public static ExternalIdBundle fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    return ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

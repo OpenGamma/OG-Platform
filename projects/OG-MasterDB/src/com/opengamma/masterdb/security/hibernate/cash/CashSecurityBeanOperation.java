@@ -15,8 +15,8 @@ import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTime
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
-import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
 
@@ -37,7 +37,7 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
   @Override
   public CashSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CashSecurity security) {
     CurrencyBean currencyBean = secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode());
-    ExternalIdBean regionIdentifier = externalIdToExternalIdBean(security.getRegion());
+    ExternalIdBean regionIdentifier = externalIdToExternalIdBean(security.getRegionId());
     ZonedDateTimeBean maturityBean = dateTimeWithZoneToZonedDateTimeBean(security.getMaturity());
     final CashSecurityBean bean = new CashSecurityBean();
     bean.setCurrency(currencyBean);

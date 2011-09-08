@@ -23,6 +23,11 @@ public class CustomVisitors<T1, T2> implements CustomFunctionVisitorRegistry<T1,
 
   private final ConcurrentMap<Class<?>, Object> _visitors = new ConcurrentHashMap<Class<?>, Object>();
 
+  public void registerAll(final CustomVisitors<T1, T2> copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _visitors.putAll(copyFrom._visitors);
+  }
+
   private void registerImpl(final Class<?> clazz, final Object visitor) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(visitor, "visitor");

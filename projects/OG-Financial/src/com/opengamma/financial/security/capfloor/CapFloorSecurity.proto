@@ -7,12 +7,11 @@
 namespace com.opengamma.financial.security.capfloor {
 
   /**
-   * A security modelling a cap/floor
+   * A cap/floor security.
    */
-   
   message CapFloorSecurity extends FinancialSecurity {
-  
     required string securityType [default = "CAP/FLOOR"];
+    
     required javax.time.calendar.ZonedDateTime startDate;
     required javax.time.calendar.ZonedDateTime maturityDate;
     required double notional;
@@ -24,12 +23,6 @@ namespace com.opengamma.financial.security.capfloor {
     required boolean isPayer;
     required boolean isCap;
     required boolean isIbor;
-    
-    binding Java {
-      body <<<JAVA
-        public <T> T accept(CapFloorSecurityVisitor<T> visitor) { return visitor.visitCapFloorSecurity(this); }
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitCapFloorSecurity(this); }
-JAVA;
-    }
   }
+
 }

@@ -5,9 +5,11 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator;
+import static org.testng.AssertJUnit.assertEquals;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**

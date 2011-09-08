@@ -24,8 +24,8 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -195,7 +195,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     if (getObjectIds() != null && getObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getExternalIdSearch() != null && getExternalIdSearch().matches(security.getIdentifiers()) == false) {
+    if (getExternalIdSearch() != null && getExternalIdSearch().matches(security.getExternalIdBundle()) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), document.getName()) == false) {
@@ -205,7 +205,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       return false;
     }
     if (getExternalIdValue() != null) {
-      for (ExternalId identifier : security.getIdentifiers()) {
+      for (ExternalId identifier : security.getExternalIdBundle()) {
         if (RegexUtils.wildcardMatch(getExternalIdValue(), identifier.getValue()) == false) {
           return false;
         }

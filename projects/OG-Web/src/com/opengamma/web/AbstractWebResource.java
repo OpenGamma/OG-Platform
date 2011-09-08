@@ -9,6 +9,7 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PagingRequest;
 
 /**
  * Abstract base class for RESTful resources intended for websites.
@@ -70,8 +71,28 @@ public abstract class AbstractWebResource {
    * Gets the Freemarker outputer.
    * @return the Freemarker outputter, not null
    */
-  public FreemarkerOutputter getFreemarker() {
+  protected FreemarkerOutputter getFreemarker() {
     return _freemarker;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds the paging request.
+   * 
+   * @param pgIdx  the paging first-item index, null if not input
+   * @param pgNum  the paging page, null if not input
+   * @param pgSze  the paging size, null if not input
+   * @return the paging request, not null
+   */
+  protected PagingRequest buildPagingRequest(Integer pgIdx, Integer pgNum, Integer pgSze) {
+    int size = (pgSze != null ? pgSze : PagingRequest.DEFAULT_PAGING_SIZE);
+    if (pgIdx != null) {
+      return PagingRequest.ofIndex(pgIdx, size);
+    } else if (pgNum != null) {
+      return PagingRequest.ofPage(pgNum, size);
+    } else {
+      return PagingRequest.ofPage(1, size);
+    }
+  }
+
 }

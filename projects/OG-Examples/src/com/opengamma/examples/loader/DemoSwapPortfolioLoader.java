@@ -189,7 +189,7 @@ public class DemoSwapPortfolioLoader {
       SecurityDocument swapToAddDoc = new SecurityDocument();
       swapToAddDoc.setSecurity(swap);
       securityMaster.add(swapToAddDoc);
-      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getIdentifiers());
+      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
       PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));
       rootNode.addPosition(addedDoc.getUniqueId());
     }
@@ -217,7 +217,7 @@ public class DemoSwapPortfolioLoader {
         }
         try {
           SwapSecurity swap = parseSwap(swapDetails);
-          swap.addIdentifier(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+          swap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
           swaps.add(swap);
         } catch (Exception e) {
           s_logger.warn("Skipped row " + rowIndex + " because of an error", e);

@@ -6,13 +6,11 @@
 
 namespace com.opengamma.financial.security.swap {
 
+  /**
+   * A forward swap security.
+   */
   message ForwardSwapSecurity extends SwapSecurity {
-  
     required javax.time.calendar.ZonedDateTime forwardStartDate;
-    
-    binding Java {
-      body "public <T> T accept (SwapSecurityVisitor<T> visitor) { return visitor.visitForwardSwapSecurity (this); }";
-    }
-    
   }
+
 }

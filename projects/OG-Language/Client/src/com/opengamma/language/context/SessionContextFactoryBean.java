@@ -34,7 +34,7 @@ public class SessionContextFactoryBean implements SessionContextFactory {
    * registered when the extension is made are applied, changes to the context factory extended
    * made after this call have no effect.
    * 
-   * @param extendedFrom the context factory to extend from, not {@code null} and can only be set once
+   * @param extendedFrom the context factory to extend from, not null and can only be set once
    */
   public synchronized void setExtendedFrom(final SessionContextFactoryBean extendedFrom) {
     ArgumentChecker.notNull(extendedFrom, "extendedFrom");
@@ -45,19 +45,21 @@ public class SessionContextFactoryBean implements SessionContextFactory {
     // Prepend the event handlers of the factory we're extending from
     setSessionContextEventHandler(new AbstractSessionContextEventHandler(extendedFrom.getSessionContextEventHandler()) {
 
+      private final SessionContextEventHandler _chain = getSessionContextEventHandler();
+
       @Override
       protected void doneContextImpl(MutableSessionContext context) {
-        getSessionContextEventHandler().doneContext(context);
+        _chain.doneContext(context);
       }
 
       @Override
       protected void initContextImpl(MutableSessionContext context) {
-        getSessionContextEventHandler().initContext(context);
+        _chain.initContext(context);
       }
 
       @Override
       protected void initContextWithStashImpl(MutableSessionContext context, FudgeMsg stash) {
-        getSessionContextEventHandler().initContextWithStash(context, stash);
+        _chain.initContextWithStash(context, stash);
       }
 
     });

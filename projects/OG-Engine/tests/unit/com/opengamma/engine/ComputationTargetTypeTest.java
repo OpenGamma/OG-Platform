@@ -5,13 +5,15 @@
  */
 package com.opengamma.engine;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.math.BigDecimal;
 
 import javax.time.calendar.OffsetDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;

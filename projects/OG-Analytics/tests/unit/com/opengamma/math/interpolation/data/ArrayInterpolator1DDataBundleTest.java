@@ -7,9 +7,8 @@ package com.opengamma.math.interpolation.data;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
-import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 

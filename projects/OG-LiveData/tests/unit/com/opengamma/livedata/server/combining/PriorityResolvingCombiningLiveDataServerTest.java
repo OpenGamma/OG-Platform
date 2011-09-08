@@ -2,12 +2,13 @@ package com.opengamma.livedata.server.combining;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
@@ -15,6 +16,8 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.server.AbstractLiveDataServer;
+import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.MockDistributionSpecificationResolver;
 import com.opengamma.livedata.server.MockLiveDataServer;
 
@@ -44,7 +47,15 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC));
       _combiningServer.start();
       
+      assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
       _domainD = ExternalScheme.of("D");
+    }
+    
+    @AfterMethod
+    public void teardown() {
+      assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
+      _combiningServer.stop();
+      assertEquals(AbstractLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
     }
     
     @Test(expectedExceptions =  Throwable.class)
@@ -94,5 +105,13 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       assertEquals(1, _serverB.getSubscriptions().size());
       assertEquals(0, _serverC.getSubscriptions().size());
       
+    }
+    
+    @Test
+    public void matchingResolution() {
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
+      DistributionSpecification combined = _combiningServer.getDefaultDistributionSpecificationResolver().resolve(spec);
+      DistributionSpecification direct = _serverC.getDistributionSpecificationResolver().resolve(spec);
+      assertEquals(direct, combined);
     }
 }

@@ -1,225 +1,449 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.future;
-public abstract class FutureSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
-          public abstract <T> T accept(FutureSecurityVisitor<T> visitor);
-        public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitFutureSecurity(this); }
-  private static final long serialVersionUID = 4746632989975319918l;
-  private com.opengamma.util.time.Expiry _expiry;
-  public static final String EXPIRY_KEY = "expiry";
-  private String _tradingExchange;
-  public static final String TRADING_EXCHANGE_KEY = "tradingExchange";
-  private String _settlementExchange;
-  public static final String SETTLEMENT_EXCHANGE_KEY = "settlementExchange";
-  private com.opengamma.util.money.Currency _currency;
-  public static final String CURRENCY_KEY = "currency";
-  private double _unitAmount;
-  public static final String UNIT_AMOUNT_KEY = "unitAmount";
+
+import java.util.Map;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * An abstract base class for future securities.
+ */
+@BeanDefinition
+public abstract class FutureSecurity extends FinancialSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The security type.
+   */
   public static final String SECURITY_TYPE = "FUTURE";
-  public FutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
-    super (SECURITY_TYPE);
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
-    if (tradingExchange == null) throw new NullPointerException ("tradingExchange' cannot be null");
-    _tradingExchange = tradingExchange;
-    if (settlementExchange == null) throw new NullPointerException ("settlementExchange' cannot be null");
-    _settlementExchange = settlementExchange;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    _unitAmount = unitAmount;
+
+  /**
+   * The expiry.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Expiry _expiry;
+  /**
+   * The trading exchange.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _tradingExchange;
+  /**
+   * The settlement exchange.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _settlementExchange;
+  /**
+   * The currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+  /**
+   * The unit amount.
+   */
+  @PropertyDefinition
+  private double _unitAmount;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  protected FutureSecurity() {
+    super(SECURITY_TYPE);
   }
-  protected FutureSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'expiry' is not present");
-    try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'expiry' is not Expiry message", e);
-    }
-    fudgeField = fudgeMsg.getByName (TRADING_EXCHANGE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'tradingExchange' is not present");
-    try {
-      _tradingExchange = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'tradingExchange' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (SETTLEMENT_EXCHANGE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'settlementExchange' is not present");
-    try {
-      _settlementExchange = fudgeField.getValue ().toString ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'settlementExchange' is not string", e);
-    }
-    fudgeField = fudgeMsg.getByName (CURRENCY_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'currency' is not present");
-    try {
-      _currency = fudgeMsg.getFieldValue (com.opengamma.util.money.Currency.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'currency' is not Currency typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (UNIT_AMOUNT_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'unitAmount' is not present");
-    try {
-      _unitAmount = fudgeMsg.getFieldValue (Double.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'unitAmount' is not double", e);
-    }
+
+  protected FutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount) {
+    super(SECURITY_TYPE);
+    setExpiry(expiry);
+    setTradingExchange(tradingExchange);
+    setSettlementExchange(settlementExchange);
+    setCurrency(currency);
+    setUnitAmount(unitAmount);
   }
-  public FutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
-    super (uniqueId, name, securityType, identifiers);
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
-    if (tradingExchange == null) throw new NullPointerException ("tradingExchange' cannot be null");
-    _tradingExchange = tradingExchange;
-    if (settlementExchange == null) throw new NullPointerException ("settlementExchange' cannot be null");
-    _settlementExchange = settlementExchange;
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
-    _unitAmount = unitAmount;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitFutureSecurity(this);
   }
-  protected FutureSecurity (final FutureSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._expiry == null) _expiry = null;
-    else {
-      _expiry = source._expiry;
-    }
-    _tradingExchange = source._tradingExchange;
-    _settlementExchange = source._settlementExchange;
-    _currency = source._currency;
-    _unitAmount = source._unitAmount;
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   * 
+   * @param <T> the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  public abstract <T> T accept(FutureSecurityVisitor<T> visitor);
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code FutureSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static FutureSecurity.Meta meta() {
+    return FutureSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_expiry != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
-      _expiry.toFudgeMsg (serializer, fudge1);
-      msg.add (EXPIRY_KEY, null, fudge1);
-    }
-    if (_tradingExchange != null)  {
-      msg.add (TRADING_EXCHANGE_KEY, null, _tradingExchange);
-    }
-    if (_settlementExchange != null)  {
-      msg.add (SETTLEMENT_EXCHANGE_KEY, null, _settlementExchange);
-    }
-    if (_currency != null)  {
-      msg.add (CURRENCY_KEY, null, _currency);
-    }
-    msg.add (UNIT_AMOUNT_KEY, null, _unitAmount);
+  static {
+    JodaBeanUtils.registerMetaBean(FutureSecurity.Meta.INSTANCE);
   }
-  public static FutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.future.FutureSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.future.FutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
-    }
-    throw new UnsupportedOperationException ("FutureSecurity is an abstract message");
+
+  @Override
+  public FutureSecurity.Meta metaBean() {
+    return FutureSecurity.Meta.INSTANCE;
   }
-  public com.opengamma.util.time.Expiry getExpiry () {
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1289159373:  // expiry
+        return getExpiry();
+      case -661485980:  // tradingExchange
+        return getTradingExchange();
+      case 389497452:  // settlementExchange
+        return getSettlementExchange();
+      case 575402001:  // currency
+        return getCurrency();
+      case 1673913084:  // unitAmount
+        return getUnitAmount();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1289159373:  // expiry
+        setExpiry((Expiry) newValue);
+        return;
+      case -661485980:  // tradingExchange
+        setTradingExchange((String) newValue);
+        return;
+      case 389497452:  // settlementExchange
+        setSettlementExchange((String) newValue);
+        return;
+      case 575402001:  // currency
+        setCurrency((Currency) newValue);
+        return;
+      case 1673913084:  // unitAmount
+        setUnitAmount((Double) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_expiry, "expiry");
+    JodaBeanUtils.notNull(_tradingExchange, "tradingExchange");
+    JodaBeanUtils.notNull(_settlementExchange, "settlementExchange");
+    JodaBeanUtils.notNull(_currency, "currency");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FutureSecurity other = (FutureSecurity) obj;
+      return JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getTradingExchange(), other.getTradingExchange()) &&
+          JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradingExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the expiry.
+   * @return the value of the property, not null
+   */
+  public Expiry getExpiry() {
     return _expiry;
   }
-  public void setExpiry (com.opengamma.util.time.Expiry expiry) {
-    if (expiry == null) throw new NullPointerException ("'expiry' cannot be null");
-    else {
-      _expiry = expiry;
-    }
+
+  /**
+   * Sets the expiry.
+   * @param expiry  the new value of the property, not null
+   */
+  public void setExpiry(Expiry expiry) {
+    JodaBeanUtils.notNull(expiry, "expiry");
+    this._expiry = expiry;
   }
-  public String getTradingExchange () {
+
+  /**
+   * Gets the the {@code expiry} property.
+   * @return the property, not null
+   */
+  public final Property<Expiry> expiry() {
+    return metaBean().expiry().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the trading exchange.
+   * @return the value of the property, not null
+   */
+  public String getTradingExchange() {
     return _tradingExchange;
   }
-  public void setTradingExchange (String tradingExchange) {
-    if (tradingExchange == null) throw new NullPointerException ("tradingExchange' cannot be null");
-    _tradingExchange = tradingExchange;
+
+  /**
+   * Sets the trading exchange.
+   * @param tradingExchange  the new value of the property, not null
+   */
+  public void setTradingExchange(String tradingExchange) {
+    JodaBeanUtils.notNull(tradingExchange, "tradingExchange");
+    this._tradingExchange = tradingExchange;
   }
-  public String getSettlementExchange () {
+
+  /**
+   * Gets the the {@code tradingExchange} property.
+   * @return the property, not null
+   */
+  public final Property<String> tradingExchange() {
+    return metaBean().tradingExchange().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement exchange.
+   * @return the value of the property, not null
+   */
+  public String getSettlementExchange() {
     return _settlementExchange;
   }
-  public void setSettlementExchange (String settlementExchange) {
-    if (settlementExchange == null) throw new NullPointerException ("settlementExchange' cannot be null");
-    _settlementExchange = settlementExchange;
+
+  /**
+   * Sets the settlement exchange.
+   * @param settlementExchange  the new value of the property, not null
+   */
+  public void setSettlementExchange(String settlementExchange) {
+    JodaBeanUtils.notNull(settlementExchange, "settlementExchange");
+    this._settlementExchange = settlementExchange;
   }
-  public com.opengamma.util.money.Currency getCurrency () {
+
+  /**
+   * Gets the the {@code settlementExchange} property.
+   * @return the property, not null
+   */
+  public final Property<String> settlementExchange() {
+    return metaBean().settlementExchange().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the currency.
+   * @return the value of the property, not null
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  public void setCurrency (com.opengamma.util.money.Currency currency) {
-    if (currency == null) throw new NullPointerException ("currency' cannot be null");
-    _currency = currency;
+
+  /**
+   * Sets the currency.
+   * @param currency  the new value of the property, not null
+   */
+  public void setCurrency(Currency currency) {
+    JodaBeanUtils.notNull(currency, "currency");
+    this._currency = currency;
   }
-  public double getUnitAmount () {
+
+  /**
+   * Gets the the {@code currency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> currency() {
+    return metaBean().currency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unit amount.
+   * @return the value of the property
+   */
+  public double getUnitAmount() {
     return _unitAmount;
   }
-  public void setUnitAmount (double unitAmount) {
-    _unitAmount = unitAmount;
+
+  /**
+   * Sets the unit amount.
+   * @param unitAmount  the new value of the property
+   */
+  public void setUnitAmount(double unitAmount) {
+    this._unitAmount = unitAmount;
   }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof FutureSecurity)) return false;
-    FutureSecurity msg = (FutureSecurity)o;
-    if (_expiry != null) {
-      if (msg._expiry != null) {
-        if (!_expiry.equals (msg._expiry)) return false;
-      }
-      else return false;
-    }
-    else if (msg._expiry != null) return false;
-    if (_tradingExchange != null) {
-      if (msg._tradingExchange != null) {
-        if (!_tradingExchange.equals (msg._tradingExchange)) return false;
-      }
-      else return false;
-    }
-    else if (msg._tradingExchange != null) return false;
-    if (_settlementExchange != null) {
-      if (msg._settlementExchange != null) {
-        if (!_settlementExchange.equals (msg._settlementExchange)) return false;
-      }
-      else return false;
-    }
-    else if (msg._settlementExchange != null) return false;
-    if (_currency != null) {
-      if (msg._currency != null) {
-        if (!_currency.equals (msg._currency)) return false;
-      }
-      else return false;
-    }
-    else if (msg._currency != null) return false;
-    if (_unitAmount != msg._unitAmount) return false;
-    return super.equals (msg);
+
+  /**
+   * Gets the the {@code unitAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> unitAmount() {
+    return metaBean().unitAmount().createProperty(this);
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_expiry != null) hc += _expiry.hashCode ();
-    hc *= 31;
-    if (_tradingExchange != null) hc += _tradingExchange.hashCode ();
-    hc *= 31;
-    if (_settlementExchange != null) hc += _settlementExchange.hashCode ();
-    hc *= 31;
-    if (_currency != null) hc += _currency.hashCode ();
-    hc = (hc * 31) + (int)_unitAmount;
-    return hc;
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code FutureSecurity}.
+   */
+  public static class Meta extends FinancialSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code expiry} property.
+     */
+    private final MetaProperty<Expiry> _expiry = DirectMetaProperty.ofReadWrite(
+        this, "expiry", FutureSecurity.class, Expiry.class);
+    /**
+     * The meta-property for the {@code tradingExchange} property.
+     */
+    private final MetaProperty<String> _tradingExchange = DirectMetaProperty.ofReadWrite(
+        this, "tradingExchange", FutureSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code settlementExchange} property.
+     */
+    private final MetaProperty<String> _settlementExchange = DirectMetaProperty.ofReadWrite(
+        this, "settlementExchange", FutureSecurity.class, String.class);
+    /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", FutureSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code unitAmount} property.
+     */
+    private final MetaProperty<Double> _unitAmount = DirectMetaProperty.ofReadWrite(
+        this, "unitAmount", FutureSecurity.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "expiry",
+        "tradingExchange",
+        "settlementExchange",
+        "currency",
+        "unitAmount");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          return _expiry;
+        case -661485980:  // tradingExchange
+          return _tradingExchange;
+        case 389497452:  // settlementExchange
+          return _settlementExchange;
+        case 575402001:  // currency
+          return _currency;
+        case 1673913084:  // unitAmount
+          return _unitAmount;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends FutureSecurity> builder() {
+      throw new UnsupportedOperationException("FutureSecurity is an abstract class");
+    }
+
+    @Override
+    public Class<? extends FutureSecurity> beanType() {
+      return FutureSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code expiry} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Expiry> expiry() {
+      return _expiry;
+    }
+
+    /**
+     * The meta-property for the {@code tradingExchange} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> tradingExchange() {
+      return _tradingExchange;
+    }
+
+    /**
+     * The meta-property for the {@code settlementExchange} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> settlementExchange() {
+      return _settlementExchange;
+    }
+
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> currency() {
+      return _currency;
+    }
+
+    /**
+     * The meta-property for the {@code unitAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> unitAmount() {
+      return _unitAmount;
+    }
+
   }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

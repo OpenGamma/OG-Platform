@@ -10,10 +10,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.Instant;
+
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
@@ -42,6 +45,10 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
    * The suppler of unique identifiers.
    */
   private final UniqueIdSupplier _uidSupplier;
+  /**
+   * Change manager.
+   */
+  private final BasicChangeManager _changeManager = new BasicChangeManager();
 
   /**
    * Creates the security master.
@@ -77,7 +84,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(bundle, "bundle");
     List<Security> result = new ArrayList<Security>();
     for (Security sec : _securities.values()) {
-      if (sec.getIdentifiers().containsAny(bundle)) {
+      if (sec.getExternalIdBundle().containsAny(bundle)) {
         result.add(sec);
       }
     }
@@ -95,7 +102,7 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     ArgumentChecker.notNull(bundle, "bundle");
     for (ExternalId secId : bundle.getExternalIds()) {
       for (Security sec : _securities.values()) {
-        if (sec.getIdentifiers().contains(secId)) {
+        if (sec.getExternalIdBundle().contains(secId)) {
           return sec;
         }
       }
@@ -133,10 +140,24 @@ public class MockFinancialSecuritySource implements FinancialSecuritySource {
     _securities.put(security.getUniqueId().getObjectId(), security);
   }
 
+  public void removeSecurity(Security security) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(security.getUniqueId(), "security.uniqueId");
+    Security prev = _securities.remove(security.getUniqueId().getObjectId());
+    if (prev == null) {
+      throw new IllegalArgumentException("Security not found");
+    }
+    if (prev != security) {
+      throw new IllegalArgumentException("Security passed was not the one in this source");
+    }
+    _changeManager.entityChanged(ChangeType.REMOVED, security.getUniqueId(), null, Instant.now());
+  }
+
+  
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
-    return DummyChangeManager.INSTANCE;
+    return _changeManager;
   }
   
 }

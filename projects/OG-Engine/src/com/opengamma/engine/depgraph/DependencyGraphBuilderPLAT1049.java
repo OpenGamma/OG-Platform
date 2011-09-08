@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.fudgemsg.DependencyGraphBuilder;
+import com.opengamma.engine.fudgemsg.DependencyGraphFudgeBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
@@ -50,7 +50,7 @@ import com.opengamma.util.Cancellable;
  * methods at any one time. If multiple threads are to attempt to add targets to the graph
  * concurrently, it is possible to synchronize on the builder instance.
  * <p>
- * This is an alternative algorithm to that used in {@link DependencyGraphBuilder}. It is a
+ * This is an alternative algorithm to that used in {@link DependencyGraphFudgeBuilder}. It is a
  * work in progress and cannot be relied on to build accurate graphs at the moment.
  */
 public final class DependencyGraphBuilderPLAT1049 {
@@ -245,7 +245,7 @@ public final class DependencyGraphBuilderPLAT1049 {
     /**
      * Schedule the task for execution.
      * 
-     * @param runnable task to execute, not {@code null}
+     * @param runnable task to execute, not null
      */
     public void run(final ResolveTask runnable) {
       s_loggerContext.debug("Running {}", runnable);
@@ -320,7 +320,7 @@ public final class DependencyGraphBuilderPLAT1049 {
      * Stores an exception that should be reported to the user. Only store the first copy of an exception; after that increment
      * the count of times that it occurred.
      * 
-     * @param t exception to store, not {@code null}
+     * @param t exception to store, not null
      */
     public void exception(final Throwable t) {
       s_loggerContext.debug("Caught exception", t);
@@ -673,7 +673,7 @@ public final class DependencyGraphBuilderPLAT1049 {
    * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy the requirement that
    * must be checked after graph construction is complete.
    * 
-   * @param requirement requirement to add, not {@code null}
+   * @param requirement requirement to add, not null
    */
   public void addTarget(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
@@ -691,7 +691,7 @@ public final class DependencyGraphBuilderPLAT1049 {
    * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements
    * that must be checked after graph construction is complete.
    * 
-   * @param requirements requirements to add, not {@code null} and not containing {@code null}s.
+   * @param requirements requirements to add, not null and not containing nulls.
    */
   public void addTarget(Set<ValueRequirement> requirements) {
     ArgumentChecker.noNulls(requirements, "requirements");
@@ -708,7 +708,7 @@ public final class DependencyGraphBuilderPLAT1049 {
   /**
    * For compatibility with DependencyGraphBuilderFunctionalIntegrationTest in OG-Integration. Do not use this.
    * 
-   * @param requirement requirement to add, not {@code null}
+   * @param requirement requirement to add, not null
    * @deprecated update OG-Integration and remove this
    */
   @Deprecated
@@ -887,7 +887,7 @@ public final class DependencyGraphBuilderPLAT1049 {
    * Tests if the graph has been built or if work is still required. Graphs are only built in the
    * background if additional threads is set to non-zero.
    * 
-   * @return {@code true} if the graph has been built, {@code false} if it is outstanding.
+   * @return true if the graph has been built, false if it is outstanding
    */
   public boolean isGraphBuilt() {
     synchronized (_activeJobs) {
@@ -902,10 +902,10 @@ public final class DependencyGraphBuilderPLAT1049 {
 
   /**
    * Returns the dependency graph if it has been completed by background threads. If the graph has
-   * not been completed it will return {@code null}. If the number of additional threads is set to
+   * not been completed it will return null. If the number of additional threads is set to
    * zero then the graph will not be built until {@link #getDependencyGraph} is called.
    * 
-   * @return the graph if built or {@code null} otherwise
+   * @return the graph if built, null otherwise
    */
   public DependencyGraph pollDependencyGraph() {
     if (isGraphBuilt()) {
@@ -975,7 +975,7 @@ public final class DependencyGraphBuilderPLAT1049 {
    * graph construction if additional threads is set to zero). For a non-blocking form see
    * {@link #pollDependencyGraph} or {@link #getDependencyGraph(boolean)}.
    * 
-   * @return the graph, not {@code null}
+   * @return the graph, not null
    */
   public DependencyGraph getDependencyGraph() {
     return getDependencyGraph(true);
@@ -988,10 +988,10 @@ public final class DependencyGraphBuilderPLAT1049 {
    * background threads are being used, the caller may optionally be blocked until all have completed.
    * For a completely non-blocking form see {@link #pollDependencyGraph}.
    * 
-   * @param allowBackgroundContinuation block the caller until graph construction is complete. If set to
-   *        {@code false} the function may return {@code null} if background threads are still completing
-   *        but there was no work for the calling thread to do.
-   * @return the graph if built or {@code null} if still being built in the background.
+   * @param allowBackgroundContinuation  whether to block the caller until graph construction is complete.
+   *  If set to false the function may return null if background threads are still completing
+   *  but there was no work for the calling thread to do.
+   * @return the graph if built, null if still being built in the background
    */
   public DependencyGraph getDependencyGraph(final boolean allowBackgroundContinuation) {
     if (!isGraphBuilt()) {
@@ -1066,7 +1066,7 @@ public final class DependencyGraphBuilderPLAT1049 {
    * Returns a map of the originally requested value requirements to the value specifications that were put into the
    * graph as terminal outputs. Any unsatisfied requirements will be absent from the map.
    * 
-   * @return the map of requirements to value specifications, not {@code null}
+   * @return the map of requirements to value specifications, not null
    */
   public Map<ValueRequirement, ValueSpecification> getValueRequirementMapping() {
     return new HashMap<ValueRequirement, ValueSpecification>(_terminalOutputs);
@@ -1075,7 +1075,7 @@ public final class DependencyGraphBuilderPLAT1049 {
   /**
    * Returns the set of exceptions that may have prevented graph construction.
    * 
-   * @return the set of exceptions that were thrown by the building process, or {@code null} for none
+   * @return the set of exceptions that were thrown by the building process, null for none
    */
   public Map<Throwable, Integer> getExceptions() {
     return getContext().getExceptions();

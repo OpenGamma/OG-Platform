@@ -32,7 +32,12 @@ public class PrimitiveArrayConverter extends AbstractMappedConverter {
   private static final JavaTypeInfo<short[]> SHORT_PRIMITIVE = JavaTypeInfo.builder(short[].class).get();
   private static final JavaTypeInfo<Short[]> SHORT_OBJECT = JavaTypeInfo.builder(Short[].class).get();
 
-  public PrimitiveArrayConverter() {
+  /**
+   * Default instance.
+   */
+  public static final PrimitiveArrayConverter INSTANCE = new PrimitiveArrayConverter();
+
+  protected PrimitiveArrayConverter() {
     conversion(ZERO_LOSS, BOOLEAN_PRIMITIVE, BOOLEAN_OBJECT, new Action<boolean[], Boolean[]>() {
       @Override
       public boolean[] cast(final Object value) {

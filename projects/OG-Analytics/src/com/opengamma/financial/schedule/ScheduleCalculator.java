@@ -122,11 +122,13 @@ public final class ScheduleCalculator {
 
     // TODO what if there's no valid date between accrual date and maturity date?
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    int nbPeriod = 1; // M 26-Aug
     ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
     date = date.plus(period);
     while (isWithinSwapLifetime(date, maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
       dates.add(date);
-      date = date.plus(period);
+      nbPeriod++; // M 26-Aug
+      date = effectiveDate.plus(period.multipliedBy(nbPeriod)); // M 26-Aug date = date.plus(period);
     }
     return dates.toArray(EMPTY_ARRAY);
   }
@@ -392,16 +394,17 @@ public final class ScheduleCalculator {
    * The start date is not included in the array. The date are constructed forward and the stub period, if any, is short
    * and last. The end date is always included in the schedule.
    * @param startDate The reference initial date for the construction.
-   * @param tenor The annuity tenor.
-   * @param period The period between payments.
+   * @param tenorAnnuity The annuity tenor.
+   * @param periodPayments The period between payments.
    * @param businessDayConvention The business day convention.
    * @param calendar The applicable calendar.
    * @param isEOM The end-of-month rule flag.
    * @return The array of dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenor, Period period, BusinessDayConvention businessDayConvention, Calendar calendar, boolean isEOM) {
-    ZonedDateTime endDate = startDate.plus(tenor);
-    return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, true);
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenorAnnuity, Period periodPayments, BusinessDayConvention businessDayConvention, Calendar calendar,
+      boolean isEOM) {
+    ZonedDateTime endDate = startDate.plus(tenorAnnuity);
+    return getAdjustedDateSchedule(startDate, endDate, periodPayments, businessDayConvention, calendar, isEOM, true);
   }
 
   public static ZonedDateTime[] getSettlementDateSchedule(final ZonedDateTime[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {

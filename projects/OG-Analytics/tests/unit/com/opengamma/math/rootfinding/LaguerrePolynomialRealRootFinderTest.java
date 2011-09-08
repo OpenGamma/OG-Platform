@@ -6,8 +6,10 @@
 package com.opengamma.math.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.Arrays;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.RealPolynomialFunction1D;

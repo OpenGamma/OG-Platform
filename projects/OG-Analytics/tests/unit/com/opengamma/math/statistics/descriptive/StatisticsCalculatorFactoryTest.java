@@ -5,8 +5,9 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
+
 import org.testng.annotations.Test;
 
 /**

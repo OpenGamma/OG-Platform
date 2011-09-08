@@ -47,6 +47,17 @@ public final class Constants {
   public static final int ERROR_RESULT_CONVERSION = declare(ERROR_INVOCATION + 1);
 
   /**
+   * One or more parameters were not valid. The offending parameter index is in the integer field, or the integer is omitted if there
+   * was a more general fault from a combination of parameters (e.g. all of them). A description of the problem is in the string field.
+   */
+  public static final int ERROR_INVALID_ARGUMENT = declare(ERROR_INVOCATION + 2);
+
+  /**
+   * The internal implementation did not behave as expected. A description of the problem is in the string field.
+   */
+  public static final int ERROR_INTERNAL_IMPLEMENTATION = declare(ERROR_INVOCATION + 3);
+
+  /**
    * Errors 100 to 999 reserved for built-in OpenGamma functions.
    */
   public static final int FIRST_OPENGAMMA_ERROR = 100, LAST_OPENGAMMA_ERROR = 999;

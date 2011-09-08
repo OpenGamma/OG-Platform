@@ -103,7 +103,7 @@ public:
 
 	/// Creates a new execution thread.
 	///
-	/// @param poCaller parent service object, never NULL
+	/// @param[in] poCaller parent service object, never NULL
 	CAsynchronousRunnerThread (CAsynchronous *poCaller)
 	: CThread () {
 		poCaller->Retain ();

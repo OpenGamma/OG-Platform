@@ -11,20 +11,32 @@ import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+import com.opengamma.language.Value;
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.invoke.AbstractTypeConverter;
 
 /**
  * Converts arrays from X[] to Y[]
  */
-public class ArrayTypeConverter implements TypeConverter {
+public class ArrayTypeConverter extends AbstractTypeConverter {
+
+  /**
+   * Default instance.
+   */
+  public static final ArrayTypeConverter INSTANCE = new ArrayTypeConverter();
 
   private static final JavaTypeInfo<Object> OBJECT = JavaTypeInfo.builder(Object.class).get();
-  private static final Map<JavaTypeInfo<?>, Integer> FROM_OBJECT = TypeMap.of(ZERO_LOSS, OBJECT);
+  private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value.class).arrayOf().get();
+  private static final JavaTypeInfo<Value[][]> VALUE_2 = JavaTypeInfo.builder(Value.class).arrayOf().arrayOf().get();
+  private static final Map<JavaTypeInfo<?>, Integer> TO_OBJECT = TypeMap.ofWeighted(ZERO_LOSS, VALUE_1, VALUE_2);
+  private static final Map<JavaTypeInfo<?>, Integer> TO_VALUE = TypeMap.of(ZERO_LOSS, OBJECT);
+
+  protected ArrayTypeConverter() {
+  }
 
   @Override
   public boolean canConvertTo(final JavaTypeInfo<?> targetType) {
-    return targetType.isArray();
+    return targetType.isArray() && (targetType.getArrayDimension() > 1 || !targetType.getArrayElementType().getRawClass().isPrimitive());
   }
 
   @Override
@@ -50,7 +62,11 @@ public class ArrayTypeConverter implements TypeConverter {
 
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(final JavaTypeInfo<?> targetType) {
-    return FROM_OBJECT;
+    if ((targetType.getRawClass() == Value[].class) || (targetType.getRawClass() == Value[][].class)) {
+      return TO_VALUE;
+    } else {
+      return TO_OBJECT;
+    }
   }
 
 }

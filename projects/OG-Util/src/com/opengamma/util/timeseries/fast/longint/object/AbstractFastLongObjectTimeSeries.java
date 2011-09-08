@@ -59,7 +59,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   }
 
   @Override
-  public Long getTime(final int index) {
+  public Long getTimeAt(final int index) {
     return getTimeFast(index);
   }
 
@@ -85,8 +85,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   }
 
   @Override
-  public ObjectTimeSeries<Long, T> subSeries(final Long startTime, final boolean includeStart, final Long endTime,
-      final boolean includeEnd) {
+  public ObjectTimeSeries<Long, T> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
     return (ObjectTimeSeries<Long, T>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
   }
 
@@ -400,9 +399,12 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     }
   }
 
-  public FastLongObjectTimeSeries<T> subSeriesFast(final long startTime, final boolean includeStart,
-      final long endTime, final boolean includeEnd) {
-    return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
+  public FastLongObjectTimeSeries<T> subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd) {
+    if (startTime != endTime || includeStart || includeEnd) {
+      startTime += (includeStart ? 0 : 1);
+      endTime += (includeEnd ? 1 : 0);
+    }
+    return subSeriesFast(startTime, endTime);
   }
 
   public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries() {

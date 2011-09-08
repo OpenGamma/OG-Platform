@@ -10,8 +10,8 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
-import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
+import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 
 /**
  * A bean representation of a {@link SwapLeg}.
@@ -166,12 +166,12 @@ public class SwapLegBean {
   public void setRateIdentifier(ExternalIdBean rateIdentifier) {
     _rateIdentifier = rateIdentifier;
   }
-
+  
   /**
    * Gets the eom.
    * @return the eom
    */
-  public boolean isEOM() {
+  public boolean isEom() {
     return _eom;
   }
 
@@ -179,7 +179,7 @@ public class SwapLegBean {
    * Sets the eom.
    * @param eom  the eom
    */
-  public void setEOM(boolean eom) {
+  public void setEom(boolean eom) {
     _eom = eom;
   }
 

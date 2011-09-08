@@ -25,10 +25,10 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -167,7 +167,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     final Collection<ComputedValue> inputValues = inputs.getAllValues();
-    desiredValueLoop: for (ValueRequirement desiredValue : desiredValues) {
+  desiredValueLoop:
+    for (ValueRequirement desiredValue : desiredValues) {
       final ValueRequirement inputRequirement = getInputValueRequirement(desiredValue);
       final String outputCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
       for (ComputedValue inputValue : inputValues) {

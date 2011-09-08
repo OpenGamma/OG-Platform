@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.analytics;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.Arrays;
+
+import org.testng.annotations.Test;
 
 /**
  * 

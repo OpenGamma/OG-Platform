@@ -1,0 +1,21 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * a version of OG-mod-1 with an og-awesome-list
+ */
+
+.OG-mod-0.og-mod-al .og-awesome-list {
+  margin: 0 -10px;
+}
+
+.OG-mod-0.og-mod-al .og-footer {
+  background-color: #f6fafc;
+  margin: 10px -10px -10px -10px;
+  padding: 5px 5px 10px 5px;
+  border-top: 1px solid #ededed;
+}
+
+.OG-mod-0.og-mod-al .og-awesome-list li {
+  padding-left: 10px;
+}

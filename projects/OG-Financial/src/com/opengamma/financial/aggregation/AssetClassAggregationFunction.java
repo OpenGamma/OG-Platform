@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -154,5 +157,10 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   @Override
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Collections.emptyList();
   }
 }

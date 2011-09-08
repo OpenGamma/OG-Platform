@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**

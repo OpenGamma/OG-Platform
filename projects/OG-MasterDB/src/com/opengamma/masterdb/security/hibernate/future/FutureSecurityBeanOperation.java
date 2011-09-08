@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -36,8 +38,8 @@ import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
-import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
+import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
 
 /**
@@ -150,7 +152,7 @@ public final class FutureSecurityBeanOperation extends
             if (bean.getUnitName() != null) {
               security.setUnitName(bean.getUnitName().getName());
             }
-            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
+            security.setUnderlyingId(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -168,7 +170,7 @@ public final class FutureSecurityBeanOperation extends
             if (bean.getUnitName() != null) {
               security.setUnitName(bean.getUnitName().getName());
             }
-            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
+            security.setUnderlyingId(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -181,7 +183,7 @@ public final class FutureSecurityBeanOperation extends
                 bean.getSettlementExchange().getName(),
                 currencyBeanToCurrency(bean.getCurrency1()),
                 bean.getUnitAmount());
-            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
+            security.setUnderlyingId(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
@@ -194,15 +196,22 @@ public final class FutureSecurityBeanOperation extends
                 bean.getSettlementExchange().getName(),
                 currencyBeanToCurrency(bean.getCurrency1()),
                 bean.getUnitAmount());
-            security.setUnderlyingIdentifier(externalIdBeanToExternalId(bean
+            security.setUnderlyingId(externalIdBeanToExternalId(bean
                 .getUnderlying()));
             return security;
           }
 
           @Override
           public FutureSecurity visitEquityFutureType() {
-            // TODO Auto-generated method stub
-            return null;
+            final EquityFutureSecurity security = new EquityFutureSecurity(
+                expiryBeanToExpiry(bean.getExpiry()),
+                bean.getTradingExchange().getName(),
+                bean.getSettlementExchange().getName(),
+                currencyBeanToCurrency(bean.getCurrency1()),
+                bean.getUnitAmount(),
+                ZonedDateTime.now(),  // TODO: this is a temporary hack as this isn't being stored in database
+                externalIdBeanToExternalId(bean.getUnderlying()));
+            return security;
           }
 
           @Override
@@ -448,7 +457,7 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitEnergyFutureSecurity(
           EnergyFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        ExternalId underlying = security.getUnderlyingIdentifier();
+        ExternalId underlying = security.getUnderlyingId();
         if (underlying != null) {
           bean.setUnderlying(externalIdToExternalIdBean(underlying));
         }
@@ -473,7 +482,7 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitInterestRateFutureSecurity(
           InterestRateFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+        bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
         return bean;
       }
 
@@ -481,10 +490,10 @@ public final class FutureSecurityBeanOperation extends
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        ExternalId underlying = security.getUnderlyingIdentifier();
+        ExternalId underlying = security.getUnderlyingId();
         if (underlying != null) {
           bean.setUnderlying(externalIdToExternalIdBean(security
-              .getUnderlyingIdentifier()));
+              .getUnderlyingId()));
         }
         return bean;
       }
@@ -494,7 +503,7 @@ public final class FutureSecurityBeanOperation extends
           IndexFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
         bean.setUnderlying(externalIdToExternalIdBean(security
-            .getUnderlyingIdentifier()));
+            .getUnderlyingId()));
         return bean;
       }
 
@@ -503,7 +512,7 @@ public final class FutureSecurityBeanOperation extends
           StockFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
         bean.setUnderlying(externalIdToExternalIdBean(security
-            .getUnderlyingIdentifier()));
+            .getUnderlyingId()));
         return bean;
       }
 
@@ -513,7 +522,7 @@ public final class FutureSecurityBeanOperation extends
         // TODO Case: Confirm this add is correct
         final FutureSecurityBean bean = createFutureBean(security);
         bean.setUnderlying(externalIdToExternalIdBean(security
-            .getUnderlyingIdentifier()));
+            .getUnderlyingId()));
         return bean;
       }
 
@@ -523,7 +532,7 @@ public final class FutureSecurityBeanOperation extends
         // TODO Case: Confirm this add is correct
         final FutureSecurityBean bean = createFutureBean(security);
         bean.setUnderlying(externalIdToExternalIdBean(security
-            .getUnderlyingIdentifier()));
+            .getUnderlyingId()));
         return bean;
       }
     });

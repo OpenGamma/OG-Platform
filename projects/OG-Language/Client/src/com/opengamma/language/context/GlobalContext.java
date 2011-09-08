@@ -8,7 +8,15 @@ package com.opengamma.language.context;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 
+import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
 import com.opengamma.language.function.FunctionDefinitionFilter;
@@ -39,57 +47,109 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   protected static final String SYSTEM_SETTINGS = "systemSettings";
 
   /**
+   * Name under which the exchange source is bound.
+   */
+  protected static final String EXCHANGE_SOURCE = "exchangeSource";
+
+  /**
    * Name under which the function definition filter is bound.
    */
   protected static final String FUNCTION_DEFINITION_FILTER = "functionDefinitionFilter";
-  /**
-   * Name under which the live data definition filter is bound.
-   */
-  protected static final String LIVEDATA_DEFINITION_FILTER = "liveDataDefinitionFilter";
-  /**
-   * Name under which the procedure definition filter is bound.
-   */
-  protected static final String PROCEDURE_DEFINITION_FILTER = "procedureDefinitionFilter";
-  /**
-   * Name under which the generic parameter converter is bound.
-   */
-  protected static final String PARAMETER_CONVERTER = "parameterConverter";
-  /**
-   * Name under which the generic result converter is bound.
-   */
-  protected static final String RESULT_CONVERTER = "resultConverter";
-  /**
-   * Name under which the generic value converter is bound. 
-   */
-  protected static final String VALUE_CONVERTER = "valueConverter";
-  /**
-   * Name under which a source of type converters is bound.
-   */
-  protected static final String TYPE_CONVERTER_PROVIDER = "typeConverterProvider";
+
   /**
    * Name under which a function specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String FUNCTION_PARAMETER_CONVERTER = "functionParameterConverter";
+
   /**
    * Name under which a function specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String FUNCTION_RESULT_CONVERTER = "functionResultConverter";
+
+  /**
+   * Name under which a historical time series source is bound.
+   */
+  protected static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
+
+  /**
+   * Name under which a holiday source is bound.
+   */
+  protected static final String HOLIDAY_SOURCE = "holidaySource";
+
+  /**
+   * Name under which the live data definition filter is bound.
+   */
+  protected static final String LIVEDATA_DEFINITION_FILTER = "liveDataDefinitionFilter";
+
   /**
    * Name under which a live data specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String LIVEDATA_PARAMETER_CONVERTER = "liveDataParameterConverter";
+
   /**
    * Name under which a live data specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String LIVEDATA_RESULT_CONVERTER = "liveDataResultConverter";
+
+  /**
+   * Name under which the procedure definition filter is bound.
+   */
+  protected static final String PROCEDURE_DEFINITION_FILTER = "procedureDefinitionFilter";
+
   /**
    * Name under which a procedure specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String PROCEDURE_PARAMETER_CONVERTER = "procedureParameterConverter";
+
   /**
    * Name under which a procedure specific result converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String PROCEDURE_RESULT_CONVERTER = "procedureResultConverter";
+
+  /**
+   * Name under which the generic parameter converter is bound.
+   */
+  protected static final String PARAMETER_CONVERTER = "parameterConverter";
+
+  /**
+   * Name under which the position source is bound.
+   */
+  protected static final String POSITION_SOURCE = "positionSource";
+
+  /**
+   * Name under which the region source is bound.
+   */
+  protected static final String REGION_SOURCE = "regionSource";
+
+  /**
+   * Name under which the generic result converter is bound.
+   */
+  protected static final String RESULT_CONVERTER = "resultConverter";
+
+  /**
+   * Name under which the {@link ExecutorService} for saturating the processor(s) is bound.
+   */
+  protected static final String SATURATING_EXECUTOR = "saturatingExecutor";
+
+  /**
+   * Name under which the security source is bound.
+   */
+  protected static final String SECURITY_SOURCE = "securitySource";
+
+  /**
+   * Name under which a source of type converters is bound.
+   */
+  protected static final String TYPE_CONVERTER_PROVIDER = "typeConverterProvider";
+
+  /**
+   * Name under which the generic value converter is bound. 
+   */
+  protected static final String VALUE_CONVERTER = "valueConverter";
+
+  /**
+   * Name under which the view processor is bound.
+   */
+  protected static final String VIEW_PROCESSOR = "viewProcessor";
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
 
@@ -137,20 +197,20 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * operation, synchronize on the global context object (e.g. for get followed by add).
    * 
    * @param userName name of the user to search for
-   * @return an existing context, or {@code null} if none is available
+   * @return an existing context, null if none is available
    */
   protected synchronized UserContext getUserContext(final String userName) {
     return _userContexts.get(userName);
   }
 
   /**
-   * Returns {@code true} iff the service is running from a debug build. This is dependent
-   * only on the service runner and should probably control infrastructure behavior,
-   * logging or diagnostics. The session context will indicate whether the code used by
-   * the bound language is a debug build which could control the operation available or
+   * Returns true iff the service is running from a debug build.
+   * This is dependent only on the service runner and should probably control infrastructure
+   * behavior, logging or diagnostics. The session context will indicate whether the code used
+   * by the bound language is a debug build which could control the operation available or
    * additional debugging/diagnostic metadata apply to the results.
    * 
-   * @return {@code true} if the service runner is a debug build, {@code false} otherwise
+   * @return true if the service runner is a debug build
    */
   public static boolean isDebug() {
     return System.getProperty("system.debug") != null;
@@ -242,6 +302,38 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public TypeConverterProvider getTypeConverterProvider() {
     return getTypeConverterProviderImpl();
+  }
+
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return getValue(HISTORICAL_TIME_SERIES_SOURCE);
+  }
+
+  public ViewProcessor getViewProcessor() {
+    return getValue(VIEW_PROCESSOR);
+  }
+
+  public PositionSource getPositionSource() {
+    return getValue(POSITION_SOURCE);
+  }
+
+  public SecuritySource getSecuritySource() {
+    return getValue(SECURITY_SOURCE);
+  }
+
+  public ExecutorService getSaturatingExecutor() {
+    return getValue(SATURATING_EXECUTOR);
+  }
+
+  public ExchangeSource getExchangeSource() {
+    return getValue(EXCHANGE_SOURCE);
+  }
+
+  public RegionSource getRegionSource() {
+    return getValue(REGION_SOURCE);
+  }
+
+  public HolidaySource getHolidaySource() {
+    return getValue(HOLIDAY_SOURCE);
   }
 
 }

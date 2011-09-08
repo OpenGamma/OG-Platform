@@ -8,11 +8,13 @@ package com.opengamma.language.invoke;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +66,7 @@ public class DefaultValueConverter extends ValueConverter {
 
     public String toString() {
       final StringBuilder sb = new StringBuilder();
-      sb.append(", TargetType = ").append(_targetType).append(", NextStateConverter = ").append(_nextStateConverter).append(", Cost = ").append(_cost);
+      sb.append("TargetType = ").append(_targetType).append(", NextStateConverter = ").append(_nextStateConverter).append(", Cost = ").append(_cost);
       return sb.toString();
     }
 
@@ -150,6 +152,8 @@ public class DefaultValueConverter extends ValueConverter {
       converters = Collections.<TypeConverter>emptyList();
       _convertersByTarget.putIfAbsent(type, converters);
     } else {
+      // Reverse the order so that the most recently added converter is returned first
+      Collections.reverse(converters);
       final List<TypeConverter> previous = _convertersByTarget.putIfAbsent(type, converters);
       if (previous != null) {
         converters = previous;
@@ -192,6 +196,10 @@ public class DefaultValueConverter extends ValueConverter {
         return conversionContext.setFail();
       }
     }
+    if (conversionContext.isFailedConversion(value, type)) {
+      s_logger.debug("Cached failure of {} to {}", value, type);
+      return conversionContext.setFail();
+    }
     s_logger.debug("Attempting class assignment from {} to {}", value.getClass(), type.getRawClass());
     if (type.getRawClass().isAssignableFrom(value.getClass())) {
       // TODO: if there are deep cast generic issues, the conversion will need to go deeper (e.g. Foo<X> to Foo<Y> where (? extends X)->Y is a well defined conversion for all values) 
@@ -202,6 +210,19 @@ public class DefaultValueConverter extends ValueConverter {
   }
 
   private boolean stateConversion(final ValueConversionContext conversionContext, State state) {
+    /*{
+      final StringBuilder sb = new StringBuilder();
+      final Object result = conversionContext.getResult();
+      conversionContext.setResult(result);
+      sb.append(state.getCost()).append(' ').append(result);
+      State s = state;
+      do {
+        sb.append("--[").append(s.getNextStateConverter()).append("]->");
+        s = s.getNextState();
+        sb.append(s.getTargetType());
+      } while (s.getNextStateConverter() != null);
+      System.out.println(sb.toString());
+    }*/
     TypeConverter converter = state.getNextStateConverter();
     do {
       state = state.getNextState();
@@ -216,8 +237,6 @@ public class DefaultValueConverter extends ValueConverter {
     s_logger.debug("Chain complete");
     return true;
   }
-
-  // TODO: the "already visited" record should be in the context as that may need to survive re-entrant calls
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
@@ -252,17 +271,22 @@ public class DefaultValueConverter extends ValueConverter {
     s_logger.debug("Processing state {}", explore);
     int statesLoaded = 1;
     int statesStored = 0;
+    final Set<JavaTypeInfo<?>> consideredConverters = new HashSet<JavaTypeInfo<?>>();
     do {
-      final List<TypeConverter> converters = getConvertersTo(conversionContext, explore.getTargetType());
-      for (TypeConverter converter : converters) {
+      consideredConverters.clear();
+      for (TypeConverter converter : getConvertersTo(conversionContext, explore.getTargetType())) {
         if (!explore.visited(converter)) {
-
           final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
           if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
             for (Map.Entry<JavaTypeInfo<?>, Integer> alternativeType : alternativeTypes.entrySet()) {
-              if (!explore.visited(alternativeType.getKey())) {
+              // Only try types not already used on the chain, and only use the first converter (most recently added) for a type
+              if (!explore.visited(alternativeType.getKey()) && consideredConverters.add(alternativeType.getKey())) {
                 final State nextState = new State(alternativeType.getKey(), converter, explore, alternativeType.getValue());
                 final Integer key = (Integer) nextState.getCost();
+                if (key > 80) {
+                  // Ignore expensive chains 
+                  continue;
+                }
                 Queue<State> states = searchStates.get(key);
                 if (states == null) {
                   states = new LinkedList<State>();
@@ -276,10 +300,21 @@ public class DefaultValueConverter extends ValueConverter {
         }
       }
       s_logger.debug("{} states processed, {} states queued", statesLoaded, statesStored);
-      nextState: do {
+      nextState: do {//CSIGNORE
         if (searchStates.isEmpty()) {
           s_logger.debug("No more states");
-          s_logger.warn("Conversion of {} to {} failed", value, type);
+          switch (conversionContext.getReentranceCount()) {
+            case 0:
+              s_logger.warn("Conversion of {} to {} failed", value, type);
+              break;
+            case 1:
+              s_logger.info("Conversion of {} to {} failed", value, type);
+              break;
+            default:
+              s_logger.debug("Conversion of {} to {} failed", value, type);
+              break;
+          }
+          conversionContext.recordFailedConversion(value, type);
           conversionContext.setFail();
           return;
         }
@@ -291,8 +326,8 @@ public class DefaultValueConverter extends ValueConverter {
         }
         statesLoaded++;
         s_logger.debug("Processing state {}", explore);
-        if (directConversion(conversionContext, value, explore.getTargetType())) {
-          s_logger.debug("Direct conversion ok");
+        if (directConversion(conversionContext, value, explore.getTargetType()) && !conversionContext.isFailed()) {
+          s_logger.debug("Direct conversion possible");
           if (stateConversion(conversionContext, explore)) {
             synchronized (conversionChains) {
               if (!conversionChains.contains(explore)) {

@@ -23,8 +23,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
@@ -40,10 +40,10 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.Paging;
 
 /**
  * A security master implementation using a database for persistence.
@@ -418,7 +418,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    for (ExternalId id : document.getSecurity().getIdentifiers()) {
+    for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
@@ -544,7 +544,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         final String idValue = rs.getString("KEY_VALUE");
         if (idScheme != null && idValue != null) {
           ExternalId id = ExternalId.of(idScheme, idValue);
-          _security.setIdentifiers(_security.getIdentifiers().withExternalId(id));
+          _security.setExternalIdBundle(_security.getExternalIdBundle().withExternalId(id));
         }
       }
       return _documents;

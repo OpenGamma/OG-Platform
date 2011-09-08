@@ -9,9 +9,9 @@ $.register_module({
         return function () {
             var routes = og.common.routes, slick_manager, options, timer, grid, filters_obj = {},
                 load = function (obj) {
-                    slick_manager = og.common.slickgrid.manager($.extend({}, obj.url, {
-                        page_type: obj.page_type, selector: obj.selector
-                    }));
+                    slick_manager = og.common.slickgrid.manager(
+                        $.extend({}, obj.url, {page_type: obj.page_type, selector: obj.selector})
+                    );
                     options = $.extend({}, obj.options, {
                         editable: false,
                         enableAddRow: false,

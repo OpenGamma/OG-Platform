@@ -14,6 +14,7 @@ import javax.jms.Session;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -46,12 +47,12 @@ public class JmsSender implements MarketDataSender {
   private volatile boolean _interrupted; // = false;
   private final Semaphore _lock = new Semaphore(1);
   
-  public JmsSender(JmsTemplate jmsTemplate, MarketDataDistributor distributor) {
+  public JmsSender(JmsTemplate jmsTemplate, MarketDataDistributor distributor, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(jmsTemplate, "JMS template");
     ArgumentChecker.notNull(distributor, "Market data distributor");
     
     _jmsTemplate = jmsTemplate;
-    _fudgeContext = new FudgeContext();
+    _fudgeContext = fudgeContext;
     _distributor = distributor;
   }
   
@@ -83,11 +84,11 @@ public class JmsSender implements MarketDataSender {
     
     LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(
         _lastSequenceNumber, 
-        _distributor.getDistributionSpec().getFullyQualifiedLiveDataSpecification(), 
+        distributionSpec.getFullyQualifiedLiveDataSpecification(), 
         _cumulativeDelta.getLastKnownValues());
     s_logger.debug("{}: Sending Live Data update {}", this, liveDataValueUpdateBean);
     
-    FudgeMsg fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(_fudgeContext);
+    FudgeMsg fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(new FudgeSerializer(_fudgeContext));
     String destinationName = distributionSpec.getJmsTopic();
     final byte[] bytes = _fudgeContext.toByteArray(fudgeMsg);
     

@@ -11,13 +11,13 @@ import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.resolver.ApplyToAllTargets;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
- * Test the {@link SimpleResolutionRuleTransformBuilder} class.
+ * Test the {@link SimpleResolutionRuleTransformFudgeBuilder} class.
  */
 @Test
-public class SimpleResolutionRuleTransformBuilderTest extends AbstractBuilderTestCase {
+public class SimpleResolutionRuleTransformBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void testEmpty() {
     final SimpleResolutionRuleTransform transform = new SimpleResolutionRuleTransform();

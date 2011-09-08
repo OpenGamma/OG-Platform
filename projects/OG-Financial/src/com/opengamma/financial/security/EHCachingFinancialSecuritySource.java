@@ -6,9 +6,15 @@
 package com.opengamma.financial.security;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+
+import javax.time.Instant;
+import javax.time.calendar.Period;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -17,6 +23,7 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -28,6 +35,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * A cache decorating a {@code FinancialSecuritySource}.
@@ -39,11 +47,13 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingFinancialSecuritySource.class);
   /** The single security cache key. */
-  /* package for testing */ static final String SINGLE_SECURITY_CACHE = "single-security-cache";
+  /* package for testing */static final String SINGLE_SECURITY_CACHE = "single-security-cache";
   /** The multiple security cache key. */
-  /* package for testing */ static final String MULTI_SECURITIES_CACHE = "multi-securities-cache";
+  /* package for testing */static final String MULTI_SECURITIES_CACHE = "multi-securities-cache";
   /** The mulitple bonds cache key */
-  /* package for testing */ static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
+  /* package for testing */static final String MULTI_BONDS_CACHE = "multi-bonds-cache";
+  /** The Bundle hint cache key. */
+  /* package for testing */static final String BUNDLE_HINT_SECURITIES_CACHE = "multi-securities-hint-cache";
 
   /**
    * The underlying cache.
@@ -66,6 +76,10 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
    */
   private final Cache _bondCache;
   /**
+   * The bundle hint cache.
+   */
+  private final Cache _bundleHintCache;
+  /**
    * Listens for changes in the underlying security source.
    */
   private final ChangeListener _changeListener;
@@ -87,13 +101,15 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     EHCacheUtils.addCache(cacheManager, SINGLE_SECURITY_CACHE);
     EHCacheUtils.addCache(cacheManager, MULTI_SECURITIES_CACHE);
     EHCacheUtils.addCache(cacheManager, MULTI_BONDS_CACHE);
+    EHCacheUtils.addCache(cacheManager, BUNDLE_HINT_SECURITIES_CACHE);
     _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, SINGLE_SECURITY_CACHE);
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_SECURITIES_CACHE);
+    _bundleHintCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_HINT_SECURITIES_CACHE);
     _bondCache = EHCacheUtils.getCacheFromManager(cacheManager, MULTI_BONDS_CACHE);
     _manager = cacheManager;
     _changeManager = new BasicChangeManager();
     _changeListener = new ChangeListener() {
-      
+
       @Override
       public void entityChanged(ChangeEvent event) {
         if (event.getBeforeId() != null) {
@@ -104,7 +120,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
         }
         changeManager().entityChanged(event.getType(), event.getBeforeId(), event.getAfterId(), event.getVersionInstant());
       }
-      
+
     };
     underlying.changeManager().addChangeListener(_changeListener);
   }
@@ -148,13 +164,40 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     }
     return result;
   }
-  
+
+  @SuppressWarnings("unchecked")
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    Security result = getUnderlying().getSecurity(objectId, versionCorrection);
-    _uidCache.put(new Element(result.getUniqueId(), result));
+    final Element e = _uidCache.get(objectId);
+    Map<VersionCorrection, Security> securities;
+    Security result;
+    if (e != null) {
+      Serializable value = e.getValue();
+      if (value instanceof Map<?, ?>) {
+        securities = (Map<VersionCorrection, Security>) value;
+        result = securities.get(versionCorrection);
+      } else {
+        securities = null;
+        result = null;
+      }
+    } else {
+      securities = null;
+      result = null;
+    }
+    if (result == null) {
+      result = getUnderlying().getSecurity(objectId, versionCorrection);
+      if (result != null) {
+        _uidCache.put(new Element(result.getUniqueId(), result));
+      }
+      final Map<VersionCorrection, Security> newSecurities = new HashMap<VersionCorrection, Security>();
+      if (securities != null) {
+        newSecurities.putAll(securities);
+      }
+      newSecurities.put(versionCorrection, result);
+      _uidCache.put(new Element(objectId, newSecurities));
+    }
     return result;
   }
 
@@ -180,7 +223,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     }
     return result;
   }
-  
+
   @Override
   public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
@@ -202,16 +245,48 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     }
     return matched.iterator().next();
   }
-  
+
+  static final Period s_versionCorrectionBucketSize = Period.ofDays(1); //This is an attempt to avoid thrashing if we get conflicting queries
+  static final BigInteger s_versionCorrectionBucketSizeInNanos = BigInteger.valueOf(s_versionCorrectionBucketSize.totalNanosWith24HourDays());
+  static final int s_versionCorrectionBucketSizeInSeconds = (int) Period.ofDays(1).totalSecondsWith24HourDays();
+  static final BigInteger s_latestBucket = BigInteger.valueOf(-1);
+
   @Override
   public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+
+    Instant correctedTo = versionCorrection.getCorrectedTo();
+    Instant versionAsOf = versionCorrection.getVersionAsOf();
+    BigInteger correctedToBucket = correctedTo == null ? s_latestBucket : versionCorrection.getCorrectedTo().toEpochNanos().divide(s_versionCorrectionBucketSizeInNanos);
+    BigInteger versionAsOfBucket = versionAsOf == null ? s_latestBucket : versionCorrection.getVersionAsOf().toEpochNanos().divide(s_versionCorrectionBucketSizeInNanos);
+    Triple<ExternalIdBundle, BigInteger, BigInteger> key = Triple.of(bundle, correctedToBucket, versionAsOfBucket);
+
+    Element hintUid = _bundleHintCache.get(key);
+    if (hintUid != null) {
+      ObjectId hint = (ObjectId) hintUid.getValue();
+      try {
+        //Caching is based on the idea that this query is significantly faster
+        Security candidate = getSecurity(hint, versionCorrection);
+        if (candidate.getExternalIdBundle().containsAny(bundle)) {
+          //This is a good enough result with the current resolution logic,
+          // h'ver as soon as we have rules about which of multiple matches to use this caching must be rewritten
+          return candidate;
+        }
+      } catch (DataNotFoundException dnfe) {
+        s_logger.debug("Hinted security {} has dissapeared", hint);
+      }
+    }
+
     Collection<Security> matched = getSecurities(bundle, versionCorrection);
     if (matched.isEmpty()) {
       return null;
     }
-    return matched.iterator().next();
+    Security ret = matched.iterator().next();
+    Element element = new Element(key, ret.getUniqueId().getObjectId());
+    element.setTimeToLive(s_versionCorrectionBucketSizeInSeconds);
+    _bundleHintCache.put(element);
+    return ret;
   }
 
   @SuppressWarnings("unchecked")
@@ -260,7 +335,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
       _uidCache.remove(securityKey);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
@@ -275,16 +350,18 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     _underlying.changeManager().removeChangeListener(_changeListener);
     _manager.removeCache(SINGLE_SECURITY_CACHE);
     _manager.removeCache(MULTI_SECURITIES_CACHE);
-    _manager.shutdown();
+    _manager.removeCache(MULTI_BONDS_CACHE);
+    _manager.removeCache(BUNDLE_HINT_SECURITIES_CACHE);
   }
-  
+
   //-------------------------------------------------------------------------
   private void cleanCaches(UniqueId id) {
     // Only care where the unversioned ID has been cached since it now represents something else
     UniqueId latestId = id.toLatest();
     _uidCache.remove(latestId);
+    _uidCache.remove(id.getObjectId());
   }
-  
+
   private void cacheSecurities(Collection<Security> securities) {
     for (Security security : securities) {
       _uidCache.put(new Element(security.getUniqueId(), security));

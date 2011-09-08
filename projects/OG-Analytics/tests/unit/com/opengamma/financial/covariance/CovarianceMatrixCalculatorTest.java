@@ -6,7 +6,9 @@
 package com.opengamma.financial.covariance;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

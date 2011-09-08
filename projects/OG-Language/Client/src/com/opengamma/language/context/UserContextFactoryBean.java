@@ -32,7 +32,7 @@ public class UserContextFactoryBean implements UserContextFactory {
    * registered when the extension is made are applied, changes to the context factory extended
    * made after this call have no effect.
    * 
-   * @param extendedFrom the context factory to extend from, not {@code null} and can only be set once
+   * @param extendedFrom the context factory to extend from, not null and can only be set once
    */
   public synchronized void setExtendedFrom(final UserContextFactoryBean extendedFrom) {
     ArgumentChecker.notNull(extendedFrom, "extendedFrom");
@@ -43,14 +43,16 @@ public class UserContextFactoryBean implements UserContextFactory {
     // Prepend the event handlers of the factory we're extending from
     setUserContextEventHandler(new AbstractUserContextEventHandler(extendedFrom.getUserContextEventHandler()) {
 
+      private final UserContextEventHandler _chain = getUserContextEventHandler();
+
       @Override
       protected void doneContextImpl(MutableUserContext context) {
-        getUserContextEventHandler().doneContext(context);
+        _chain.doneContext(context);
       }
 
       @Override
       protected void initContextImpl(MutableUserContext context) {
-        getUserContextEventHandler().initContext(context);
+        _chain.initContext(context);
       }
 
     });

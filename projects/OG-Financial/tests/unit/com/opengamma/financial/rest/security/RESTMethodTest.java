@@ -33,9 +33,9 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -75,7 +75,7 @@ public class RESTMethodTest {
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
         ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100, 100000000, 5000, 1000, 100, 100);
-    bondSec.setIdentifiers(ExternalIdBundle.of(ExternalId.of("A", "B")));
+    bondSec.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B")));
     securitySource.addSecurity(bondSec);
     
     getSecuritySourceService().setUnderlying(securitySource);

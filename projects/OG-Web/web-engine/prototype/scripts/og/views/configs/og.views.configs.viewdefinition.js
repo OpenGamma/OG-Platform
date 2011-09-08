@@ -26,7 +26,6 @@ $.register_module({
             REQO = 'requiredOutput',
             CONS = 'constraints';
         return function (config) {
-            og.dev.log('config.data!', config.data.template_data.configJSON);
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type,
@@ -77,14 +76,13 @@ $.register_module({
                     $('.ui-layout-inner-center .ui-layout-header').html(header);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
                     load_handler();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-submit', handler: function (e) {
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    og.dev.log(submit_type, result.data, result.errors);
                     save_resource(result.data, submit_type === 'save_as_new');
                 }},
                 {type: 'click', selector: form_id + ' .og-js-collapse-handle', handler: function (e) {

@@ -25,6 +25,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 
 /**
  * 
@@ -57,8 +58,9 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     if (document == null) {
       return null;
     }
-    final MutableFudgeMsg resp = getFudgeContext().newMessage();
-    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg resp = serializer.newMessage();
+    resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -72,8 +74,9 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     if (document == null) {
       return null;
     }
-    final MutableFudgeMsg resp = getFudgeContext().newMessage();
-    resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final MutableFudgeMsg resp = serializer.newMessage();
+    resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
     return new FudgeMsgEnvelope(resp);
   }
 
@@ -83,10 +86,10 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     final UniqueId uid = UniqueId.parse(uidString);
     try {
       final YieldCurveDefinitionDocument document = getUnderlying().get(uid);
-      final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
-      final MutableFudgeMsg resp = sctx.newMessage();
-      resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
-      sctx.addToMessageWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
+      final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+      final MutableFudgeMsg resp = serializer.newMessage();
+      resp.add("uniqueId", UniqueIdFudgeBuilder.toFudgeMsg(serializer, document.getUniqueId()));
+      serializer.addToMessageWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);

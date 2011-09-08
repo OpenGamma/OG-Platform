@@ -1,151 +1,272 @@
-// Automatically created - do not modify
-///CLOVER:OFF
-// CSOFF: Generated File
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.future;
-public class EquityFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
-  public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityFutureSecurity (this); }
-  private static final long serialVersionUID = -10447956813653l;
-  private javax.time.calendar.ZonedDateTime _settlementDate;
-  public static final String SETTLEMENT_DATE_KEY = "settlementDate";
-  private com.opengamma.id.ExternalId _underlyingIdentifier;
-  public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
-  public EquityFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId underlyingIdentifier) {
-    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
+
+import java.util.Map;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
+
+/**
+ * A security for equity futures.
+ */
+@BeanDefinition
+public class EquityFutureSecurity extends FutureSecurity {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The settlement date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _settlementDate;
+  /**
+   * The underlying identifier.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _underlyingId;
+
+  /**
+   * Creates an empty instance.
+   * <p>
+   * The security details should be set before use.
+   */
+  public EquityFutureSecurity() {
+    super();
   }
-  protected EquityFutureSecurity (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    super (deserializer, fudgeMsg);
-    org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (SETTLEMENT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'settlementDate' is not present");
-    try {
-      _settlementDate = deserializer.fieldValueToObject (javax.time.calendar.ZonedDateTime.class, fudgeField);
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'settlementDate' is not ZonedDateTime typedef", e);
-    }
-    fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not present");
-    try {
-      _underlyingIdentifier = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a EquityFutureSecurity - field 'underlyingIdentifier' is not ExternalId message", e);
-    }
+
+  public EquityFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
+      ZonedDateTime settlementDate, ExternalId underlyingIdentifier) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
+    setSettlementDate(settlementDate);
+    setUnderlyingId(underlyingIdentifier);
   }
-  public EquityFutureSecurity (com.opengamma.id.UniqueId uniqueId, String name, String securityType, com.opengamma.id.ExternalIdBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, javax.time.calendar.ZonedDateTime settlementDate, com.opengamma.id.ExternalId underlyingIdentifier) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, unitAmount);
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
-    }
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+    return visitor.visitEquityFutureSecurity(this);
   }
-  protected EquityFutureSecurity (final EquityFutureSecurity source) {
-    super (source);
-    if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._settlementDate == null) _settlementDate = null;
-    else {
-      _settlementDate = source._settlementDate;
-    }
-    if (source._underlyingIdentifier == null) _underlyingIdentifier = null;
-    else {
-      _underlyingIdentifier = source._underlyingIdentifier;
-    }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code EquityFutureSecurity}.
+   * @return the meta-bean, not null
+   */
+  public static EquityFutureSecurity.Meta meta() {
+    return EquityFutureSecurity.Meta.INSTANCE;
   }
-  public EquityFutureSecurity clone () {
-    return new EquityFutureSecurity (this);
+  static {
+    JodaBeanUtils.registerMetaBean(EquityFutureSecurity.Meta.INSTANCE);
   }
-  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer) {
-    if (serializer == null) throw new NullPointerException ("serializer must not be null");
-    final org.fudgemsg.MutableFudgeMsg msg = serializer.newMessage ();
-    toFudgeMsg (serializer, msg);
-    return msg;
+
+  @Override
+  public EquityFutureSecurity.Meta metaBean() {
+    return EquityFutureSecurity.Meta.INSTANCE;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
-    super.toFudgeMsg (serializer, msg);
-    if (_settlementDate != null)  {
-      serializer.addToMessage (msg, SETTLEMENT_DATE_KEY, null, _settlementDate);
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -295948169:  // settlementDate
+        return getSettlementDate();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
     }
-    if (_underlyingIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _underlyingIdentifier.getClass (), com.opengamma.id.ExternalId.class);
-      _underlyingIdentifier.toFudgeMsg (serializer, fudge1);
-      msg.add (UNDERLYING_IDENTIFIER_KEY, null, fudge1);
-    }
+    return super.propertyGet(propertyName, quiet);
   }
-  public static EquityFutureSecurity fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
-    final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
-    for (org.fudgemsg.FudgeField field : types) {
-      final String className = (String)field.getValue ();
-      if ("com.opengamma.financial.security.future.EquityFutureSecurity".equals (className)) break;
-      try {
-        return (com.opengamma.financial.security.future.EquityFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializer.class, org.fudgemsg.FudgeMsg.class).invoke (null, deserializer, fudgeMsg);
-      }
-      catch (Throwable t) {
-        // no-action
-      }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -295948169:  // settlementDate
+        setSettlementDate((ZonedDateTime) newValue);
+        return;
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
+        return;
     }
-    return new EquityFutureSecurity (deserializer, fudgeMsg);
+    super.propertySet(propertyName, newValue, quiet);
   }
-  public javax.time.calendar.ZonedDateTime getSettlementDate () {
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
+    super.validate();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquityFutureSecurity other = (EquityFutureSecurity) obj;
+      return JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the settlement date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getSettlementDate() {
     return _settlementDate;
   }
-  public void setSettlementDate (javax.time.calendar.ZonedDateTime settlementDate) {
-    if (settlementDate == null) throw new NullPointerException ("'settlementDate' cannot be null");
-    else {
-      _settlementDate = settlementDate;
+
+  /**
+   * Sets the settlement date.
+   * @param settlementDate  the new value of the property, not null
+   */
+  public void setSettlementDate(ZonedDateTime settlementDate) {
+    JodaBeanUtils.notNull(settlementDate, "settlementDate");
+    this._settlementDate = settlementDate;
+  }
+
+  /**
+   * Gets the the {@code settlementDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> settlementDate() {
+    return metaBean().settlementDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying identifier.
+   * @return the value of the property, not null
+   */
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
+  }
+
+  /**
+   * Sets the underlying identifier.
+   * @param underlyingId  the new value of the property, not null
+   */
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
+  }
+
+  /**
+   * Gets the the {@code underlyingId} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code EquityFutureSecurity}.
+   */
+  public static class Meta extends FutureSecurity.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _settlementDate = DirectMetaProperty.ofReadWrite(
+        this, "settlementDate", EquityFutureSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code underlyingId} property.
+     */
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", EquityFutureSecurity.class, ExternalId.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "settlementDate",
+        "underlyingId");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
     }
-  }
-  public com.opengamma.id.ExternalId getUnderlyingIdentifier () {
-    return _underlyingIdentifier;
-  }
-  public void setUnderlyingIdentifier (com.opengamma.id.ExternalId underlyingIdentifier) {
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
-  }
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof EquityFutureSecurity)) return false;
-    EquityFutureSecurity msg = (EquityFutureSecurity)o;
-    if (_settlementDate != null) {
-      if (msg._settlementDate != null) {
-        if (!_settlementDate.equals (msg._settlementDate)) return false;
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -295948169:  // settlementDate
+          return _settlementDate;
+        case -771625640:  // underlyingId
+          return _underlyingId;
       }
-      else return false;
+      return super.metaPropertyGet(propertyName);
     }
-    else if (msg._settlementDate != null) return false;
-    if (_underlyingIdentifier != null) {
-      if (msg._underlyingIdentifier != null) {
-        if (!_underlyingIdentifier.equals (msg._underlyingIdentifier)) return false;
-      }
-      else return false;
+
+    @Override
+    public BeanBuilder<? extends EquityFutureSecurity> builder() {
+      return new DirectBeanBuilder<EquityFutureSecurity>(new EquityFutureSecurity());
     }
-    else if (msg._underlyingIdentifier != null) return false;
-    return super.equals (msg);
+
+    @Override
+    public Class<? extends EquityFutureSecurity> beanType() {
+      return EquityFutureSecurity.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<Object>> metaPropertyMap() {
+      return _map;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code settlementDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> settlementDate() {
+      return _settlementDate;
+    }
+
+    /**
+     * The meta-property for the {@code underlyingId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
+    }
+
   }
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc *= 31;
-    if (_settlementDate != null) hc += _settlementDate.hashCode ();
-    hc *= 31;
-    if (_underlyingIdentifier != null) hc += _underlyingIdentifier.hashCode ();
-    return hc;
-  }
-  public String toString () {
-    return org.apache.commons.lang.builder.ToStringBuilder.reflectionToString(this, org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE);
-  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
-///CLOVER:ON
-// CSON: Generated File

@@ -114,7 +114,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final String FORWARD_CURVE_NAME = "Forward";
     InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
         DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
+    double factor = MODEL.futureConvexityFactor(ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), MODEL_PARAMETERS);
     double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }
@@ -223,8 +223,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " alpha Hull-White adjoint (value+" + nbVolatility + " derivatives): " + (endTime - startTime) + " ms");
-    // Performance note: value: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 190 ms for 1000000 swaptions.
-    // Performance note: value+derivatives: 8-Jul-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 335 ms for 1000000 swaptions.
+    // Performance note: value: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 1000000 swaptions.
+    // Performance note: value+derivatives: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 100 ms for 1000000 swaptions.
     System.out.println("Alpha: " + alpha);
   }
 

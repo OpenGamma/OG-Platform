@@ -7,6 +7,10 @@
  * Identifiers
  */
 
+.OG-timeseries {
+  margin-top: 20px;
+}
+
 .OG-timeseries .og-identifiers {
   margin: 10px 0 20px 0;
 }
@@ -38,15 +42,24 @@
 
 .OG-timeseries .og-plotHeader div {
   display: inline-block;
+  position: absolute;
+  top: -10px;
+  left: 5px;
 }
 
 .OG-timeseries .og-plotMeta {
-  color: #ccc;
+  color: #999;
   margin-top: 10px;
+  position: absolute;
+  top: 0;
+  right: 63px;
+}
+
+.OG-timeseries .og-plotMeta span {
+  color: #ccc;
 }
 
 .OG-timeseries .og-timeseriesPlot {
-  height: 200px;
   margin-left: -6px;
   width: 550px;
 }
@@ -59,8 +72,12 @@
 .OG-timeseries .og-dataPoints {
   display: inline-block;
   margin-top: 20px;
-  min-width: 400px;
+  width: 360px;
   position: relative;
+}
+
+.OG-timeseries .og-dataPoints tr {
+  height: 30px;
 }
 
 .OG-timeseries .og-dataPoints tbody {
@@ -74,4 +91,11 @@
 
 .OG-timeseries .og-dataPoints button {
   float: right;
+}
+
+.OG-timeseries .og-js-timeSeriesCsv {
+  font-size: 10px;
+  position: absolute;
+  right: 13px;
+  top: 3px;
 }

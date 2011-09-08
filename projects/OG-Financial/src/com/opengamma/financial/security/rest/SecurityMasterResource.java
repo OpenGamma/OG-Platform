@@ -29,6 +29,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -116,7 +117,7 @@ public class SecurityMasterResource {
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
-        return new FudgeMsgEnvelope(uid.toFudgeMsg(getFudgeContext()));
+        return new FudgeMsgEnvelope(UniqueIdFudgeBuilder.toFudgeMsg(getFudgeSerializer(), uid));
       }
     }
 
@@ -128,7 +129,7 @@ public class SecurityMasterResource {
       if (uid == null) {
         return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
       } else {
-        return new FudgeMsgEnvelope(uid.toFudgeMsg(getFudgeContext()));
+        return new FudgeMsgEnvelope(UniqueIdFudgeBuilder.toFudgeMsg(getFudgeSerializer(), uid));
       }
     }
 
@@ -148,7 +149,7 @@ public class SecurityMasterResource {
     public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
       SecurityDocument document = getFudgeDeserializer().fudgeMsgToObject(SecurityDocument.class, payload.getMessage());
       document = getSecurityMaster().add(document);
-      return new FudgeMsgEnvelope(document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(UniqueIdFudgeBuilder.toFudgeMsg(getFudgeSerializer(), document.getUniqueId()));
     }
 
     @Path("{uid}")

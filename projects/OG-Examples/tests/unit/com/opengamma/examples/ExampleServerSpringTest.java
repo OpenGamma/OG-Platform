@@ -57,6 +57,7 @@ public class ExampleServerSpringTest extends AbstractSpringContextValidationTest
 
   @AfterMethod
   public void runAfter() {
+    getSpringContext().close();
     cleanUp();
   }
 

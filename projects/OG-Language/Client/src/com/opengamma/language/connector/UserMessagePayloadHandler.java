@@ -8,6 +8,7 @@ package com.opengamma.language.connector;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.custom.CustomMessageVisitor;
 import com.opengamma.language.custom.CustomMessageVisitorRegistry;
@@ -29,6 +30,17 @@ public class UserMessagePayloadHandler implements UserMessagePayloadVisitor<User
   private FunctionVisitor<UserMessagePayload, SessionContext> _functionVisitor;
   private LiveDataVisitor<UserMessagePayload, SessionContext> _liveDataVisitor;
   private ProcedureVisitor<UserMessagePayload, SessionContext> _procedureVisitor;
+
+  public UserMessagePayloadHandler() {
+  }
+
+  public UserMessagePayloadHandler(final UserMessagePayloadHandler copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    _customVisitors.registerAll(copyFrom._customVisitors);
+    _functionVisitor = copyFrom._functionVisitor;
+    _liveDataVisitor = copyFrom._liveDataVisitor;
+    _procedureVisitor = copyFrom._procedureVisitor;
+  }
 
   // Main message type delegates
 
@@ -95,12 +107,12 @@ public class UserMessagePayloadHandler implements UserMessagePayloadVisitor<User
   }
 
   @Override
-  public UserMessagePayload visitFunction(final Function message, final SessionContext session) {
+  public UserMessagePayload visitFunction(final Function message, final SessionContext session) throws AsynchronousExecution {
     return message.accept(_functionVisitor, session);
   }
 
   @Override
-  public UserMessagePayload visitProcedure(final Procedure message, final SessionContext session) {
+  public UserMessagePayload visitProcedure(final Procedure message, final SessionContext session) throws AsynchronousExecution {
     return message.accept(_procedureVisitor, session);
   }
 

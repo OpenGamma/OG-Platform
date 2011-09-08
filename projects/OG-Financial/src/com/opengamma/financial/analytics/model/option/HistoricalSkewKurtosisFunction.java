@@ -73,10 +73,10 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final Security security = target.getSecurity();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries tsObject = historicalSource.getHistoricalTimeSeries(security.getIdentifiers(), _dataSource, _dataProvider, _field, _startDate, true, now
-        .toLocalDate(), false);
+    final HistoricalTimeSeries tsObject = historicalSource.getHistoricalTimeSeries(security.getExternalIdBundle(), _dataSource, _dataProvider,
+        _field, _startDate, true, now.toLocalDate(), true);
     if (tsObject == null) {
-      throw new NullPointerException("Could not get time series for " + security.getIdentifiers());
+      throw new NullPointerException("Could not get time series for " + security.getExternalIdBundle());
     }
     final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(tsObject.getTimeSeries());
     final double skew = _skewCalculator.evaluate(returnTS);

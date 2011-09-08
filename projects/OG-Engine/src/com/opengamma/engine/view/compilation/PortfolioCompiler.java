@@ -48,7 +48,7 @@ public final class PortfolioCompiler {
    * 
    * @param compilationContext  the context of the view definition compilation
    * @param versionCorrection  the version-correction at which to operate, not null
-   * @param forcePortfolioResolution  {@code true} if there are external portfolio targets, false otherwise
+   * @param forcePortfolioResolution  true if there are external portfolio targets, false otherwise
    * @return the fully-resolved portfolio structure if any portfolio targets were required, null otherwise.
    */
   protected static Portfolio execute(ViewCompilationContext compilationContext, VersionCorrection versionCorrection, boolean forcePortfolioResolution) {
@@ -111,8 +111,8 @@ public final class PortfolioCompiler {
   /**
    * Tests whether the view has portfolio outputs enabled.
    * 
-   * @param viewDefinition the view definition
-   * @return {@code true} if there is at least one portfolio target, {@code false} otherwise
+   * @param viewDefinition  the view definition
+   * @return true if there is at least one portfolio target
    */
   private static boolean isPortfolioOutputEnabled(ViewDefinition viewDefinition) {
     ResultModelDefinition resultModelDefinition = viewDefinition.getResultModelDefinition();

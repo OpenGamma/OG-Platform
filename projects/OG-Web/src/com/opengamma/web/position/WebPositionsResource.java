@@ -42,7 +42,7 @@ import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
-import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.PagingRequest;
 import com.opengamma.web.WebPaging;
 
 /**
@@ -67,39 +67,43 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("identifier") String identifier,
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr,
       @QueryParam("positionId") List<String> positionIdStrs,
       @QueryParam("tradeId") List<String> tradeIdStrs) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
     return getFreemarker().build("positions/positions.ftl", out);
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
+      @QueryParam("pgIdx") Integer pgIdx,
+      @QueryParam("pgNum") Integer pgNum,
+      @QueryParam("pgSze") Integer pgSze,
       @QueryParam("identifier") String identifier,
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr,
       @QueryParam("positionId") List<String> positionIdStrs,
       @QueryParam("tradeId") List<String> tradeIdStrs) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
+    PagingRequest pr = buildPagingRequest(pgIdx, pgNum, pgSze);
+    FlexiBean out = createSearchResultData(pr, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
     return getFreemarker().build("positions/jsonpositions.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String minQuantityStr,
+  private FlexiBean createSearchResultData(PagingRequest pr, String identifier, String minQuantityStr,
       String maxQuantityStr, List<String> positionIdStrs, List<String> tradeIdStrs) {
     minQuantityStr = StringUtils.defaultString(minQuantityStr).replace(",", "");
     maxQuantityStr = StringUtils.defaultString(maxQuantityStr).replace(",", "");
     FlexiBean out = createRootData();
     
     PositionSearchRequest searchRequest = new PositionSearchRequest();
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setPagingRequest(pr);
     searchRequest.setSecurityIdValue(StringUtils.trimToNull(identifier));
     if (NumberUtils.isNumber(minQuantityStr)) {
       searchRequest.setMinQuantity(NumberUtils.createBigDecimal(minQuantityStr));
@@ -194,7 +198,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
 
   private URI addPosition(BigDecimal quantity, UniqueId secUid) {
     SecurityDocument secDoc = data().getSecurityLoader().getSecurityMaster().get(secUid);
-    ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getIdentifiers());
+    ManageablePosition position = new ManageablePosition(quantity, secDoc.getSecurity().getExternalIdBundle());
     PositionDocument doc = new PositionDocument(position);
     doc = data().getPositionMaster().add(doc);
     data().setPosition(doc);

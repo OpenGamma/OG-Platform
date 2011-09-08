@@ -29,17 +29,9 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
     super(parameters);
   }
 
-  /**
-   * Temporary hack to expose {@link #invokeImpl} publicly.
-   * 
-   * @param sessionContext the session context
-   * @param parameters the function parameters
-   * @return the function result
-   * @deprecated This is to support an OpenGamma internal migration project, and may be removed at any time
-   */
-  @Deprecated
-  public Object invoke(final SessionContext sessionContext, final Object[] parameters) {
-    return invokeImpl(sessionContext, parameters);
+  @Override
+  protected List<MetaParameter> getParameters() {
+    return super.getParameters();
   }
 
   protected abstract Object invokeImpl(final SessionContext sessionContext, final Object[] parameters);

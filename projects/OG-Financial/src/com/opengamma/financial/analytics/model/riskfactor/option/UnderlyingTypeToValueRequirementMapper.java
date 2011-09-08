@@ -30,7 +30,7 @@ public class UnderlyingTypeToValueRequirementMapper {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          Security optionUnderlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingIdentifier()));
+          Security optionUnderlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
           return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueId());
         case SPOT_VOLATILITY:
           throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueId());

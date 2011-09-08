@@ -9,7 +9,7 @@
         <dependency name="og-core" rev="latest.integration" />
         
         <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
-        <dependency org="com.opengamma" name="region" rev="20110127"/>
+        <dependency org="com.opengamma" name="region" rev="20110908"/>
         
         <exclude org="org.apache.log4j" module="log4j" />
     </dependencies>

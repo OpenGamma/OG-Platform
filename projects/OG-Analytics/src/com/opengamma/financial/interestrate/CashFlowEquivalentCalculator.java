@@ -10,13 +10,16 @@ import java.util.TreeMap;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
@@ -112,6 +115,11 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
+  public AnnuityPaymentFixed visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
+    return visitGenericAnnuity(annuity, curves);
+  }
+
+  @Override
   public AnnuityPaymentFixed visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
@@ -137,6 +145,34 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
   @Override
   public AnnuityPaymentFixed visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
+  }
+
+  @Override
+  public AnnuityPaymentFixed visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
+  }
+
+  @Override
+  public AnnuityPaymentFixed visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bond);
+    Currency ccy = bond.getCurrency();
+    TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    AnnuityPaymentFixed cfeNom = visit(bond.getNominal(), curves);
+    AnnuityPaymentFixed cfeCpn = visit(bond.getCoupon(), curves);
+    for (final PaymentFixed p : cfeNom.getPayments()) {
+      flow.put(p.getPaymentTime(), p.getAmount());
+    }
+    for (final PaymentFixed p : cfeCpn.getPayments()) {
+      addcf(flow, p.getPaymentTime(), p.getAmount());
+    }
+    PaymentFixed[] agregatedCfe = new PaymentFixed[flow.size()];
+    int loopcf = 0;
+    for (double time : flow.keySet()) {
+      agregatedCfe[loopcf++] = new PaymentFixed(ccy, time, flow.get(time), cfeCpn.getDiscountCurve());
+    }
+    return new AnnuityPaymentFixed(agregatedCfe);
+
   }
 
   /**

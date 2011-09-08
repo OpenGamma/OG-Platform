@@ -11,14 +11,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
@@ -102,16 +101,15 @@ public class SwaptionBermudaFixedIborDefinition implements FixedIncomeInstrument
   public SwaptionBermudaFixedIbor toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final int nbExpiry = _expiryDate.length;
     final double[] expiryTime = new double[nbExpiry];
     final double[] settleTime = new double[nbExpiry];
     @SuppressWarnings("unchecked")
     final FixedCouponSwap<Coupon>[] expirySwap = new FixedCouponSwap[nbExpiry];
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
-      expiryTime[loopexp] = actAct.getDayCountFraction(date, _expiryDate[loopexp]);
+      expiryTime[loopexp] = TimeCalculator.getTimeBetween(date, _expiryDate[loopexp]);
       expirySwap[loopexp] = _underlyingSwap[loopexp].toDerivative(date, yieldCurveNames);
-      settleTime[loopexp] = actAct.getDayCountFraction(date, _underlyingSwap[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
+      settleTime[loopexp] = TimeCalculator.getTimeBetween(date, _underlyingSwap[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
     }
     return new SwaptionBermudaFixedIbor(expirySwap, _isLong, expiryTime, settleTime);
   }

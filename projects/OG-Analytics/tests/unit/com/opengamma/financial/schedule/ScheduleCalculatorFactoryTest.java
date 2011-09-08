@@ -6,9 +6,11 @@
 package com.opengamma.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.MonthOfYear;
+
+import org.testng.annotations.Test;
 
 /**
  * 

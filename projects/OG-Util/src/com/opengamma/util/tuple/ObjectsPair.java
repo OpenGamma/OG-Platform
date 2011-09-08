@@ -21,7 +21,7 @@ import java.io.Serializable;
  */
 public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable {
 
-  /** Serialization. */
+  /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /** The first element. */

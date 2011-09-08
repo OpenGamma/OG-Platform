@@ -274,18 +274,18 @@ public final class ResolutionFailure implements Cloneable {
    * Tests this resolution failure object with another for equality. Note that the caller must ensure that the monitor for
    * both is held, or a suitable exclusion lock is held at an outer level.
    * 
-   * @param o object to compare to
-   * @return {@code true} if the objects are equal, {@code false} otherwise
+   * @param obj  object to compare to
+   * @return true if the objects are equal
    */
   @Override
-  public boolean equals(final Object o) {
-    if (o == this) {
+  public boolean equals(final Object obj) {
+    if (obj == this) {
       return true;
     }
-    if (!(o instanceof ResolutionFailure)) {
+    if (!(obj instanceof ResolutionFailure)) {
       return false;
     }
-    final ResolutionFailure other = (ResolutionFailure) o;
+    final ResolutionFailure other = (ResolutionFailure) obj;
     return getValueRequirement().equals(other.getValueRequirement())
         && _events.equals(other._events);
   }
