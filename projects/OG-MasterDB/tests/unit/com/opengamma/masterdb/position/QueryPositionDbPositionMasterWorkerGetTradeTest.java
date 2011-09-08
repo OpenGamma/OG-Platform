@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
@@ -42,7 +41,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   public QueryPositionDbPositionMasterWorkerGetTradeTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
