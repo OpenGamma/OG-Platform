@@ -44,7 +44,7 @@ public abstract class PreemptiveCache<TKey, TValue> {
   private void refreshCache() {
     for (java.util.Map.Entry<TKey, Entry> entry : _cache.entrySet()) {
       //TODO: expire some keys
-      loadKey(entry.getKey(), entry.getValue());
+      loadKey(entry.getKey(), entry.getValue(), false);
     }
   }
   
@@ -78,14 +78,20 @@ public abstract class PreemptiveCache<TKey, TValue> {
   private Object _freshLoadKey = new Object();
   
   private Entry loadKey(TKey key, Entry previous) {
+    return loadKey(key, previous, true);
+  }
+
+  private Entry loadKey(TKey key, Entry previous, boolean skipIfValid) {
     Object lock = previous == null ? _freshLoadKey : previous;
     synchronized (lock) { //TODO: Stop a storm of request on the underlying by locking on previous?
-      //check for concurrent update and the work
-      Entry newOldEntry = _cache.get(key);
-      if (newOldEntry != null && isValid(newOldEntry)) {
-        return newOldEntry;
+      if (skipIfValid) {
+        //check for concurrent update and the work
+        Entry newOldEntry = _cache.get(key);
+        if (newOldEntry != null && isValid(newOldEntry)) {
+          return newOldEntry;
+        }
       }
-      s_logger.info("Loading key {}", key);
+      s_logger.debug("Loading key {}", key);
       return loadKeyImpl(key);
     }
   }
