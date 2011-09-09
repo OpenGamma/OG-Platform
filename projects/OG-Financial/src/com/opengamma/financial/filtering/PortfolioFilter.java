@@ -5,11 +5,7 @@
  */
 package com.opengamma.financial.filtering;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -27,25 +23,26 @@ public class PortfolioFilter implements FilteringFunction {
 
   private static final UniqueIdSupplier s_syntheticIdentifiers = new UniqueIdSupplier("PortfolioFilter");
 
-  private final List<FilteringFunction> _filteringFunctions;
+  private final FilteringFunction[] _filteringFunctions;
 
   public PortfolioFilter(final FilteringFunction filteringFunction) {
-    _filteringFunctions = Collections.singletonList(filteringFunction);
+    _filteringFunctions = new FilteringFunction[] {filteringFunction };
   }
 
   public PortfolioFilter(final FilteringFunction... filteringFunctions) {
-    _filteringFunctions = Arrays.asList(filteringFunctions);
+    _filteringFunctions = new FilteringFunction[filteringFunctions.length];
+    System.arraycopy(filteringFunctions, 0, _filteringFunctions, 0, filteringFunctions.length);
   }
 
   public PortfolioFilter(final Collection<FilteringFunction> filteringFunctions) {
-    _filteringFunctions = new ArrayList<FilteringFunction>(filteringFunctions);
+    _filteringFunctions = filteringFunctions.toArray(new FilteringFunction[filteringFunctions.size()]);
   }
 
   private static UniqueId createSyntheticIdentifier() {
     return s_syntheticIdentifiers.get();
   }
 
-  private List<FilteringFunction> getFilteringFunctions() {
+  private FilteringFunction[] getFilteringFunctions() {
     return _filteringFunctions;
   }
 

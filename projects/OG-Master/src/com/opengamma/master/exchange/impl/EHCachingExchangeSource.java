@@ -27,9 +27,9 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 public class EHCachingExchangeSource implements ExchangeSource {
 
   /**
-   * Cache key for holidays.
+   * Cache key for exhanges.
    */
-  private static final String EXCHANGE_EXTERNAL_ID_CACHE = "holiday.externalId";
+  private static final String EXCHANGE_EXTERNAL_ID_CACHE = "exchange.externalId";
 
   /**
    * The cache manager.
@@ -41,9 +41,9 @@ public class EHCachingExchangeSource implements ExchangeSource {
   private final Cache _exchangeExternalIdCache;
 
   private final ExchangeSource _underlying;
-  
+
   /**
-   * Creates the cache around an underlying holiday source.
+   * Creates the cache around an underlying exchange source.
    * 
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
@@ -85,7 +85,7 @@ public class EHCachingExchangeSource implements ExchangeSource {
     
     Exchange underlying = _underlying.getSingleExchange(identifier);
     element = new Element(identifier, underlying);
-    element.setTimeToLive(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
+    //element.setTimeToLive(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
     _exchangeExternalIdCache.put(element);
     return underlying;
   }

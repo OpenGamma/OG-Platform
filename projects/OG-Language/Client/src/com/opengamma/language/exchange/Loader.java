@@ -28,7 +28,7 @@ public class Loader extends ContextInitializationBean {
 
   private String _configurationEntry = "exchangeSource";
   private Configuration _configuration;
-  private CacheManager _cacheManager;
+  private CacheManager _cacheManager = CacheManager.getInstance();
   
   public void setConfiguration(final Configuration configuration) {
     ArgumentChecker.notNull(configuration, "configuration");
@@ -48,6 +48,15 @@ public class Loader extends ContextInitializationBean {
     return _configurationEntry;
   }
 
+  public void setCacheManager(final CacheManager cacheManager) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    _cacheManager = cacheManager;
+  }
+
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
   // ContextInitializationBean
 
   @Override
@@ -63,17 +72,8 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring exchange support");
-    RemoteExchangeSource remote = new RemoteExchangeSource(getConfiguration().getFudgeContext(), restTarget);
-    EHCachingExchangeSource caching = new EHCachingExchangeSource(remote, getCacheManager());
-    globalContext.setExchangeSource(caching);
+    globalContext.setExchangeSource(new EHCachingExchangeSource(new RemoteExchangeSource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
     // TODO:
   }
 
-  private CacheManager getCacheManager() {
-    return _cacheManager;
-  }
-
-  public void setCacheManager(CacheManager cacheManager) {
-    _cacheManager = cacheManager;
-  }
 }
