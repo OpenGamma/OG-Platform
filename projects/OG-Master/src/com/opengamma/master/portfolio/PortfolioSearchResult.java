@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.portfolio;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +126,27 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap());
+
+    @Override
+    protected Type documentsGenericType() {
+      return new ParameterizedType() {
+
+        @Override
+        public Type[] getActualTypeArguments() {
+          return new Type[] {PortfolioDocument.class };
+        }
+
+        @Override
+        public Type getOwnerType() {
+          return null;
+        }
+
+        @Override
+        public Type getRawType() {
+          return List.class;
+        }
+      };
+    }
 
     /**
      * Restricted constructor.
