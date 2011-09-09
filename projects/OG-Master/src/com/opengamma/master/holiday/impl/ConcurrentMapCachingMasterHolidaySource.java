@@ -5,31 +5,29 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.time.Duration;
 import javax.time.calendar.LocalDate;
+
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * PLAT-1015: A cache to optimize the results of {@code MasterHolidaySource}.
  */
 
-public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource {
+public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource implements Lifecycle {
 
-  /*
-   * NOTE: this is only attempted
-   */
   private final Duration _timeout = Duration.ofSeconds(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
-  private final long _timeoutMillis = _timeout.toMillisLong();
-  
+
+  private final PreemptiveCache<HolidaySearchRequest, HolidayDocument> _requestCache;
+  private final PreemptiveCache<Pair<HolidayType, ExternalIdBundle>, HolidayDocument> _typeBundleCache;
+
   /**
    * Creates the cache around an underlying holiday source.
    * 
@@ -37,71 +35,59 @@ public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource
    */
   public ConcurrentMapCachingMasterHolidaySource(final HolidayMaster underlying) {
     super(underlying);
-  }
+    //TODO stop these PreemptiveCache
+    _requestCache = new PreemptiveCache<HolidaySearchRequest, HolidayDocument>(_timeout) {
 
-  private class Entry {
-    final long expiry; // CSIGNORE //TODO this
-    final HolidayDocument value; // CSIGNORE
-    
-    public Entry(HolidayDocument value) {
-      this(System.currentTimeMillis() + _timeoutMillis, value);
-    }
-    
-    public Entry(long expiry, HolidayDocument value) {
-      super();
-      this.expiry = expiry;
-      this.value = value;
-    }
+      @Override
+      protected HolidayDocument getValueImpl(HolidaySearchRequest request) {
+        return getMaster().search(request).getFirstDocument();
+      }
+    };
+    _typeBundleCache = new PreemptiveCache<Pair<HolidayType, ExternalIdBundle>, HolidayDocument>(_timeout) {
+
+      @Override
+      protected HolidayDocument getValueImpl(Pair<HolidayType, ExternalIdBundle> request) {
+        HolidaySearchRequest searchRequest = getSearchRequest(request.getFirst(), request.getSecond());
+        return _requestCache.get(searchRequest);
+      }
+    };
   }
-  
-  //TODO: need to expire unused entries
-  private ConcurrentHashMap<HolidaySearchRequest, Entry> _cache = new ConcurrentHashMap<HolidaySearchRequest, Entry>();
-  private ConcurrentHashMap<Pair<HolidayType, ExternalIdBundle>, Entry> _cache2 = new ConcurrentHashMap<Pair<HolidayType, ExternalIdBundle>, Entry>();
 
   @Override
-  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
+  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
+      final ExternalIdBundle regionOrExchangeIds) {
     if (isWeekend(dateToCheck)) {
       return true;
     }
-    
     //PLAT-1015 : avoid cloning regionOrExchangeIds like the plague, we get nice cheap equals on hits then
-    ObjectsPair<HolidayType, ExternalIdBundle> cacheKey = Pair.of(holidayType, regionOrExchangeIds);
-    Entry loaded = _cache2.get(cacheKey);
-    if (loaded == null || !isValid(loaded)) {
-      HolidaySearchRequest searchRequest = getSearchRequest(holidayType, regionOrExchangeIds);
-      HolidayDocument newDoc = getDocCached(searchRequest);
-      Entry entry = new Entry(newDoc);
-      loaded = entry;
-      _cache2.put(cacheKey, entry);
-    }
-    return isHoliday(loaded.value, dateToCheck);
+    HolidayDocument doc = _typeBundleCache.get(Pair.of(holidayType, regionOrExchangeIds));
+    return isHoliday(doc, dateToCheck);
   }
-  
-    //-------------------------------------------------------------------------
+
+  //-------------------------------------------------------------------------
   @Override
   protected boolean isHoliday(final HolidaySearchRequest request, final LocalDate dateToCheck) {
     if (isWeekend(dateToCheck)) {
       return true;
     }
-    HolidayDocument doc = getDocCached(request);
+    HolidayDocument doc = _requestCache.get(request);
     return isHoliday(doc, dateToCheck);
   }
 
-  private HolidayDocument getDocCached(final HolidaySearchRequest request) {
-    Entry entry = _cache.get(request);
-    if (entry == null || !isValid(entry)) {
-      HolidayDocument doc = getMaster().search(request).getFirstDocument();
-
-      entry = new Entry(doc);
-      _cache.putIfAbsent(request, entry);
-    }
-    return entry.value;
+  @Override
+  public void start() {
+    //Caches started by default
   }
-  
-  private boolean isValid(Entry entry) {
-    //NOTE: when this returns false we can have several thread hitting the database at once, which is a bit stupid
-    long expiry = entry.expiry;
-    long allowed = System.currentTimeMillis();
-    return expiry <= allowed;
+
+  @Override
+  public void stop() {
+    _requestCache.stop();
+    _typeBundleCache.stop();
+  }
+
+  @Override
+  public boolean isRunning() {
+    //TODO this
+    return true;
   }
 }
