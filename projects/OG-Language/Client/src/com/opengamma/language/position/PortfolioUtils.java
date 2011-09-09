@@ -11,12 +11,16 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.GlobalContext;
+import com.opengamma.language.debug.Profiler;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Common utilities for working with portfolios.
  */
 public final class PortfolioUtils {
+
+  private static final Profiler s_profilerGet = Profiler.create(PortfolioUtils.class, "Get");
+  private static final Profiler s_profilerResolve = Profiler.create(PortfolioUtils.class, "Resolve");
 
   private final GlobalContext _context;
 
@@ -43,7 +47,12 @@ public final class PortfolioUtils {
     if (positionSource == null) {
       return null;
     }
-    return positionSource.getPortfolio(identifier);
+    s_profilerGet.begin();
+    try {
+      return positionSource.getPortfolio(identifier);
+    } finally {
+      s_profilerGet.end();
+    }
   }
 
   public Portfolio getResolvedPortfolio(final UniqueId identifier) {
@@ -58,7 +67,12 @@ public final class PortfolioUtils {
     if (context.getSecuritySource() == null) {
       return portfolio;
     }
-    return PortfolioCompiler.resolvePortfolio(portfolio, context.getSaturatingExecutor(), context.getSecuritySource());
+    s_profilerResolve.begin();
+    try {
+      return PortfolioCompiler.resolvePortfolio(portfolio, context.getSaturatingExecutor(), context.getSecuritySource());
+    } finally {
+      s_profilerResolve.end();
+    }
   }
 
   public Portfolio getPortfolio(final UniqueId identifier, final boolean resolveSecurities) {
