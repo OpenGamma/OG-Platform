@@ -166,24 +166,26 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
   }
 
   @SuppressWarnings("unchecked")
+  private Map<VersionCorrection, Security> getObjectIdCacheEntry(final ObjectId objectId) {
+    final Element e = _uidCache.get(objectId);
+    if (e != null) {
+      Serializable value = e.getValue();
+      if (value instanceof Map<?, ?>) {
+        return (Map<VersionCorrection, Security>) value;
+      }
+    }
+    return null;
+  }
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final Element e = _uidCache.get(objectId);
-    Map<VersionCorrection, Security> securities;
+    Map<VersionCorrection, Security> securities = getObjectIdCacheEntry(objectId);
     Security result;
-    if (e != null) {
-      Serializable value = e.getValue();
-      if (value instanceof Map<?, ?>) {
-        securities = (Map<VersionCorrection, Security>) value;
-        result = securities.get(versionCorrection);
-      } else {
-        securities = null;
-        result = null;
-      }
+    if (securities != null) {
+      result = securities.get(versionCorrection);
     } else {
-      securities = null;
       result = null;
     }
     if (result == null) {
@@ -192,11 +194,14 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
         _uidCache.put(new Element(result.getUniqueId(), result));
       }
       final Map<VersionCorrection, Security> newSecurities = new HashMap<VersionCorrection, Security>();
-      if (securities != null) {
-        newSecurities.putAll(securities);
+      synchronized (this) {
+        securities = getObjectIdCacheEntry(objectId);
+        if (securities != null) {
+          newSecurities.putAll(securities);
+        }
+        newSecurities.put(versionCorrection, result);
+        _uidCache.put(new Element(objectId, newSecurities));
       }
-      newSecurities.put(versionCorrection, result);
-      _uidCache.put(new Element(objectId, newSecurities));
     }
     return result;
   }
@@ -359,6 +364,7 @@ public class EHCachingFinancialSecuritySource implements FinancialSecuritySource
     // Only care where the unversioned ID has been cached since it now represents something else
     UniqueId latestId = id.toLatest();
     _uidCache.remove(latestId);
+    // Destroy all version/correction cached values for the object
     _uidCache.remove(id.getObjectId());
   }
 
