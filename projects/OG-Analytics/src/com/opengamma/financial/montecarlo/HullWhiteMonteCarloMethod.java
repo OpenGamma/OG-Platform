@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swaption.method.montecarlo;
+package com.opengamma.financial.montecarlo;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -181,7 +181,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
       for (int looppath = 0; looppath < nbPath; looppath++) {
         pD[looppath][loopjump] = new Double[nbCF];
         for (int loopcf = 0; loopcf < nbCF; loopcf++) {
-          pD[looppath][loopjump][loopcf] = initDiscountFactor[loopjump][loopcf] * Math.exp(h[loopjump][loopcf] * y[loopjump][looppath] - h2gamma[loopcf]);
+          pD[looppath][loopjump][loopcf] = initDiscountFactor[loopjump][loopcf] * Math.exp(-h[loopjump][loopcf] * y[loopjump][looppath] - h2gamma[loopcf]);
         }
       }
     }
