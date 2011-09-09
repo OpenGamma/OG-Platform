@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
@@ -61,8 +62,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /** Access controlled via _subscriptionLock */
   private final Set<Subscription> _currentlyActiveSubscriptions = new HashSet<Subscription>();
   
-  /** Access controlled via _subscriptionLock */
-  private final Map<String, Subscription> _securityUniqueId2Subscription = new HashMap<String, Subscription>();
+  /** _Write_ access controlled via _subscriptionLock */
+  private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<String, Subscription>();
   
   /** Access controlled via _subscriptionLock */
   private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<LiveDataSpecification, MarketDataDistributor>();
@@ -821,12 +822,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public boolean isSubscribedTo(String securityUniqueId) {
-    _subscriptionLock.lock();
-    try {
-      return _securityUniqueId2Subscription.containsKey(securityUniqueId);
-    } finally {
-      _subscriptionLock.unlock();
-    }
+    return _securityUniqueId2Subscription.containsKey(securityUniqueId);
   }
   
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
@@ -906,12 +902,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public Subscription getSubscription(String securityUniqueId) {
-    _subscriptionLock.lock();
-    try {
-      return _securityUniqueId2Subscription.get(securityUniqueId);
-    } finally {
-      _subscriptionLock.unlock();
-    }
+    //NOTE: don't need lock here, map is safe, and this operation isn't really atomic anyway
+    return _securityUniqueId2Subscription.get(securityUniqueId);
   }
   
   public MarketDataDistributor getMarketDataDistributor(DistributionSpecification distributionSpec) {

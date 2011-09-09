@@ -3,13 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.position.impl;
+package com.opengamma.master.region;
 
 import static org.testng.AssertJUnit.fail;
-
-import java.math.BigDecimal;
-
-import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -18,42 +14,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.core.region.RegionClassification;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Test {@link ManageableTrade} Fudge.
+ * Test Fudge.
  */
 @Test
-public class ManageableTradeFudgeEncodingTest {
+public class ManageableRegionFudgeEncodingTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ManageableTradeFudgeEncodingTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ManageableRegionFudgeEncodingTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void test() {
-    ManageableTrade obj = new ManageableTrade();
+    ManageableRegion obj = new ManageableRegion();
     obj.setUniqueId(UniqueId.of("U", "1"));
-    obj.setQuantity(BigDecimal.ONE);
-    obj.setSecurityLink(new ManageableSecurityLink(ExternalId.of("A", "B")));
-    obj.getSecurityLink().setObjectId(ObjectId.of("O", "1"));
-    obj.setTradeDate(LocalDate.of(2011, 6, 1));
-    obj.setCounterpartyExternalId(ExternalId.of("C", "D"));
+    obj.setExternalIdBundle(ExternalIdBundle.of("A", "B"));
+    obj.setClassification(RegionClassification.INDEPENDENT_STATE);
+    obj.setParentRegionIds(ImmutableSet.of(UniqueId.of("U", "1"), UniqueId.of("U", "2")));
+    obj.setName("Test");
+    obj.setFullName("Testland");
+    obj.getData().set("P1", "A");
+    obj.getData().set("P2", "B");
     testFudgeMessage(obj);
   }
 
-  private void testFudgeMessage(final ManageableTrade obj) {
+  private void testFudgeMessage(final ManageableRegion obj) {
     final FudgeSerializer serializer = new FudgeSerializer(s_fudgeContext);
     FudgeMsg msg = serializer.objectToFudgeMsg(obj);
-    s_logger.debug("ManageableTrade {}", obj);
+    s_logger.debug("ManageableRegion {}", obj);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);
     msg = s_fudgeContext.deserialize(bytes).getMessage();
     s_logger.debug("Serialised to {}", msg);
-    final ManageableTrade decoded = s_fudgeContext.fromFudgeMsg(ManageableTrade.class, msg);
+    final ManageableRegion decoded = s_fudgeContext.fromFudgeMsg(ManageableRegion.class, msg);
     s_logger.debug("Decoded to {}", decoded);
     if (!obj.equals(decoded)) {
       s_logger.warn("Expected {}", obj);
