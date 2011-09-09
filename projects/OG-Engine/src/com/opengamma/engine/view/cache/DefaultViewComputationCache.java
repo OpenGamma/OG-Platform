@@ -58,6 +58,15 @@ public class DefaultViewComputationCache implements ViewComputationCache,
    */
   private final Map<ValueSpecification, Integer> _valueSizeCache = Collections.synchronizedMap(new WeakHashMap<ValueSpecification, Integer>());
 
+  private void cacheValueSize(final ValueSpecification specification, int calculateMessageSize) {
+    //We get around 1/3rd repeated updates, and get scales much better
+    Integer prev = _valueSizeCache.get(specification);
+    if (prev == null || prev.intValue() != calculateMessageSize) {
+      _valueSizeCache.put(specification, calculateMessageSize);
+    }
+  }
+  
+  
   protected DefaultViewComputationCache(final IdentifierMap identifierMap, final FudgeMessageStore dataStore,
       final FudgeContext fudgeContext) {
     this(identifierMap, dataStore, dataStore, fudgeContext);
@@ -130,7 +139,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
       }
     }
     final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
-    _valueSizeCache.put(specification, FudgeSize.calculateMessageSize(data));
+    cacheValueSize(specification, FudgeSize.calculateMessageSize(data));
     return deserializeValue(deserializer, data);
   }
 
@@ -144,7 +153,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
       return null;
     }
     final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
-    _valueSizeCache.put(specification, FudgeSize.calculateMessageSize(data));
+    cacheValueSize(specification, FudgeSize.calculateMessageSize(data));
     return deserializeValue(deserializer, data);
   }
 
@@ -162,7 +171,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
         final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
         final FudgeMsg data = rawValues.get(identifier.getValue());
         if (data != null) {
-          _valueSizeCache.put(identifier.getKey(), FudgeSize.calculateMessageSize(data));
+          cacheValueSize(identifier.getKey(), FudgeSize.calculateMessageSize(data));
           returnValues.add(Pair.of(identifier.getKey(), deserializeValue(deserializer, data)));
           identifierIterator.remove();
         }
@@ -178,7 +187,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
         final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
         final FudgeMsg data = rawValues.get(identifier.getValue());
         if (data != null) {
-          _valueSizeCache.put(identifier.getKey(), FudgeSize.calculateMessageSize(data));
+          cacheValueSize(identifier.getKey(), FudgeSize.calculateMessageSize(data));
           returnValues.add(Pair.of(identifier.getKey(), deserializeValue(deserializer, data)));
           identifierIterator.remove();
         }
@@ -196,7 +205,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
           final Map.Entry<ValueSpecification, Long> identifier = identifierIterator.next();
           final FudgeMsg data = rawValues.get(identifier.getValue());
           if (data != null) {
-            _valueSizeCache.put(identifier.getKey(), FudgeSize.calculateMessageSize(data));
+            cacheValueSize(identifier.getKey(), FudgeSize.calculateMessageSize(data));
             returnValues.add(Pair.of(identifier.getKey(), deserializeValue(deserializer, data)));
           }
         }
@@ -247,7 +256,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
       final FudgeMsg data = rawValues.get(identifier.getValue());
       if (data != null) {
-        _valueSizeCache.put(identifier.getKey(), FudgeSize.calculateMessageSize(data));
+        cacheValueSize(identifier.getKey(), FudgeSize.calculateMessageSize(data));
         returnValues.add(Pair.of(identifier.getKey(), deserializeValue(deserializer, data)));
       } else {
         returnValues.add(Pair.of(identifier.getKey(), null));
@@ -261,7 +270,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     final FudgeMsg data = serializeValue(serializer, value.getValue());
-    _valueSizeCache.put(value.getSpecification(), FudgeSize.calculateMessageSize(data));
+    cacheValueSize(value.getSpecification(), FudgeSize.calculateMessageSize(data));
     dataStore.put(identifier, data);
   }
 
@@ -291,7 +300,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     for (ComputedValue value : values) {
       final FudgeMsg valueData = serializeValue(serializer, value.getValue());
-      _valueSizeCache.put(value.getSpecification(), FudgeSize.calculateMessageSize(valueData));
+      cacheValueSize(value.getSpecification(), FudgeSize.calculateMessageSize(valueData));
       data.put(identifiers.get(value.getSpecification()), valueData);
     }
     dataStore.put(data);
@@ -320,7 +329,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     Map<Long, FudgeMsg> sharedData = null;
     for (ComputedValue value : values) {
       final FudgeMsg valueData = serializeValue(serializer, value.getValue());
-      _valueSizeCache.put(value.getSpecification(), FudgeSize.calculateMessageSize(valueData));
+      cacheValueSize(value.getSpecification(), FudgeSize.calculateMessageSize(valueData));
       if (filter.isPrivateValue(value.getSpecification())) {
         if (privateData == null) {
           privateData = new HashMap<Long, FudgeMsg>();
