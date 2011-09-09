@@ -7,6 +7,7 @@ package com.opengamma.engine.value;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.text.StrBuilder;
 
@@ -123,9 +124,22 @@ public final class ValueRequirement implements Serializable {
     ArgumentChecker.notNull(valueName, "Value name");
     ArgumentChecker.notNull(targetSpecification, "Computation target specification");
     ArgumentChecker.notNull(constraints, "constraints");
-    _valueName = valueName.intern();
+    _valueName = getInterned(valueName);
     _targetSpecification = targetSpecification;
     _constraints = constraints;
+  }
+
+  private static final ConcurrentHashMap<String, String> s_interned = new ConcurrentHashMap<String, String>();
+  
+  public static String getInterned(String valueName) {
+    //This has been observed to be faster if a large proportion of valueNames are already interned and we have a large number of cores
+    String interned = s_interned.get(valueName);
+    if (interned != null) {
+      return interned;
+    }
+    interned = valueName.intern();
+    s_interned.putIfAbsent(interned, interned); //NOTE: use interned for keys too
+    return interned;
   }
 
   //-------------------------------------------------------------------------
