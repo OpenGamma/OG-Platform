@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swaption.method.montecarlo;
+package com.opengamma.financial.montecarlo;
 
 /**
  * The data bundle with the Monte Carlo discount factors and the reference amounts.
