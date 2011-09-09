@@ -6,6 +6,7 @@
 package com.opengamma.master;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -212,8 +213,9 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
      */
     private final MetaProperty<List<D>> _documents = documentsProperty();
 
-    protected Type documentsGenericType() {
-      return List.class;
+    @SuppressWarnings("unchecked")
+    protected Class<D> documentsGenericType() {
+      return (Class<D>) AbstractDocument.class;
     }
 
     @SuppressWarnings("unchecked")
@@ -221,7 +223,24 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
       final MetaProperty<List<D>> property = DirectMetaProperty.ofReadWrite(this, "documents", AbstractDocumentsResult.class, (Class) List.class);
       return new MetaProperty<List<D>>() {
 
-        private final Type _genericType = documentsGenericType();
+        private final Type[] _actualTypeArguments = new Type[] {documentsGenericType() };
+        private final Type _genericType = new ParameterizedType() {
+
+          @Override
+          public Type[] getActualTypeArguments() {
+            return _actualTypeArguments;
+          }
+
+          @Override
+          public Type getOwnerType() {
+            return null;
+          }
+
+          @Override
+          public Type getRawType() {
+            return List.class;
+          }
+        };
 
         @Override
         public <A extends Annotation> A annotation(Class<A> annotation) {

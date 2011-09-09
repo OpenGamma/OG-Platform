@@ -144,6 +144,11 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<ExchangeDocument> documentsGenericType() {
+      return ExchangeDocument.class;
+    }
+
     /**
      * The meta-properties.
      */
