@@ -111,7 +111,7 @@ public abstract class PreemptiveCache<TKey, TValue> {
     long current = System.currentTimeMillis();
     boolean valid = expiry >= current;
     if (!valid) {
-      s_logger.warn("Expired element current {} expiry {}", current, expiry);
+      s_logger.debug("Expired element current {} expiry {}", current, expiry);
     }
     return valid;
   }
