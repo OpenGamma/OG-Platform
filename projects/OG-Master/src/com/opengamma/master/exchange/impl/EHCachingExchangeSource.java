@@ -42,6 +42,8 @@ public class EHCachingExchangeSource implements ExchangeSource {
 
   private final ExchangeSource _underlying;
 
+  private Integer _ttl;
+
   /**
    * Creates the cache around an underlying exchange source.
    * 
@@ -56,7 +58,10 @@ public class EHCachingExchangeSource implements ExchangeSource {
     _exchangeExternalIdCache = EHCacheUtils.getCacheFromManager(cacheManager, EXCHANGE_EXTERNAL_ID_CACHE);
   }
 
-  //-------------------------------------------------------------------------
+  public void setTTL(final Integer ttl) {
+    _ttl = ttl;
+  }
+
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
@@ -85,7 +90,9 @@ public class EHCachingExchangeSource implements ExchangeSource {
     
     Exchange underlying = _underlying.getSingleExchange(identifier);
     element = new Element(identifier, underlying);
-    //element.setTimeToLive(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
+    if (_ttl != null) {
+      element.setTimeToLive(_ttl);
+    }
     _exchangeExternalIdCache.put(element);
     return underlying;
   }

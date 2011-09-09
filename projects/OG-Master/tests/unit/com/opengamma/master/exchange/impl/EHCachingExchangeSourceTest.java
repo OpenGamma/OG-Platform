@@ -18,6 +18,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.test.Timeout;
 
 public class EHCachingExchangeSourceTest {
 
@@ -55,7 +56,9 @@ public class EHCachingExchangeSourceTest {
         return null;
       }
     };
+    long ttl = Timeout.standardTimeoutSeconds();
     EHCachingExchangeSource source = new EHCachingExchangeSource(underlying, EHCacheUtils.createCacheManager());
+    source.setTTL((int) ttl);
     assertEquals(0, getCount.get());
     ExternalScheme scheme = ExternalScheme.of("Scheme");
     ExternalId id = ExternalId.of(scheme, "Value");
@@ -68,7 +71,7 @@ public class EHCachingExchangeSourceTest {
     assertEquals(1, getCount.get());
     assertTrue(get1 == get2);
     
-    Thread.sleep(20000);
+    Thread.sleep(ttl * 2000);
     
     Exchange get3 = source.getSingleExchange(id);
     assertEquals(2, getCount.get());
