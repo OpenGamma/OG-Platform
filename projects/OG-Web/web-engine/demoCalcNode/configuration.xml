@@ -154,18 +154,23 @@
   </bean>
   
   <!-- Exchange Source -->
-  <bean id="exchangeSource" class="com.opengamma.financial.exchange.rest.RemoteExchangeSource">
-    <constructor-arg ref="fudgeContext" />
+  <bean id="exchangeSource" class="com.opengamma.master.exchange.impl.EHCachingExchangeSource">
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.RestTarget">
+      <bean class="com.opengamma.financial.exchange.rest.RemoteExchangeSource">
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/exchangeSource" />
+          <bean class="com.opengamma.transport.jaxrs.RestTarget">
+            <constructor-arg ref="fudgeContext" />
+            <constructor-arg>
+              <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
+                <property name="uri" value="${opengamma.engine.configuration.url}/exchangeSource" />
+              </bean>
+            </constructor-arg>
           </bean>
         </constructor-arg>
       </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- Holiday Source -->
