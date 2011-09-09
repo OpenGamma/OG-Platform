@@ -12,7 +12,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.money.CurrencyAmount;
@@ -36,54 +36,36 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
    * The normal distribution.
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  /**
-   * The model used for the convexity adjustment computation.
-   */
-  private final HullWhiteOneFactorPiecewiseConstantParameters _data;
+
   /**
    * The Hull-White model.
    */
   private final HullWhiteOneFactorPiecewiseConstantInterestRateModel _model = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   /**
-   * Constructor from the model details.
-   * @param meanReversion The mean reversion speed (a) parameter.
-   * @param volatility The volatility parameters. 
-   * @param volatilityTime The times separating the constant volatility periods.
-   */
-  public CapFloorIborHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
-    Validate.notNull(volatility, "volatility time");
-    Validate.notNull(volatilityTime, "volatility time");
-    _data = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility, volatilityTime);
-  }
-
-  /**
    * Constructor from the model.
-   * @param data The Hull-White one factor model parameters.
    */
-  public CapFloorIborHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantParameters data) {
-    Validate.notNull(data, "data");
-    _data = data;
+  public CapFloorIborHullWhiteMethod() {
   }
 
   /**
    * Computes the present value of a cap/floor in the Hull-White one factor model.
    * @param cap The cap/floor.
-   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @param hwData The Hull-White parameters and the curves.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final CapFloorIbor cap, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final CapFloorIbor cap, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     double tp = cap.getPaymentTime();
     double t0 = cap.getFixingPeriodStartTime();
     double t1 = cap.getFixingPeriodEndTime();
     double deltaF = cap.getFixingYearFraction();
     double deltaP = cap.getPaymentYearFraction();
     double k = cap.getStrike();
-    double dfPay = curves.getCurve(cap.getFundingCurveName()).getDiscountFactor(tp);
-    double dfForwardT0 = curves.getCurve(cap.getForwardCurveName()).getDiscountFactor(t0);
-    double dfForwardT1 = curves.getCurve(cap.getForwardCurveName()).getDiscountFactor(t1);
-    double alpha0 = _model.alpha(0.0, cap.getFixingTime(), tp, t0, _data);
-    double alpha1 = _model.alpha(0.0, cap.getFixingTime(), tp, t1, _data);
+    double dfPay = hwData.getCurve(cap.getFundingCurveName()).getDiscountFactor(tp);
+    double dfForwardT0 = hwData.getCurve(cap.getForwardCurveName()).getDiscountFactor(t0);
+    double dfForwardT1 = hwData.getCurve(cap.getForwardCurveName()).getDiscountFactor(t1);
+    double alpha0 = _model.alpha(0.0, cap.getFixingTime(), tp, t0, hwData.getHullWhiteParameter());
+    double alpha1 = _model.alpha(0.0, cap.getFixingTime(), tp, t1, hwData.getHullWhiteParameter());
     double kappa = (Math.log((1 + deltaF * k) * dfForwardT1 / dfForwardT0) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
     double omega = (cap.isCap() ? 1.0 : -1.0);
     double price = deltaP / deltaF * dfPay * omega * (dfForwardT0 / dfForwardT1 * NORMAL.getCDF(omega * (-kappa - alpha0)) - (1.0 + deltaF * k) * NORMAL.getCDF(omega * (-kappa - alpha1)));
@@ -94,7 +76,8 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
   @Override
   public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorIbor, "Ibor Cap/floor");
-    return presentValue((CapFloorIbor) instrument, curves);
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    return presentValue((CapFloorIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
 }

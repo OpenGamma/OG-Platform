@@ -40,7 +40,6 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.financial.interestrate.swaption.method.montecarlo.HullWhiteMonteCarloMethod;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -48,6 +47,7 @@ import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorP
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -239,8 +239,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     CurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_PAYER_LONG, CUR, curve, BUNDLE_HW);
-    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(), pvPayerLongMC.getAmount(), 1.0E+5);
-    double pvMCPreviousRun = 5188076.7548;
+    assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(), pvPayerLongMC.getAmount(), 1.0E+4);
+    double pvMCPreviousRun = 5137844.655;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(), 1.0E-2);
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     CurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_PAYER_SHORT, CUR, curve, BUNDLE_HW);

@@ -41,7 +41,6 @@ import com.opengamma.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.financial.equity.future.pricing.EquityFuturesPricingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
@@ -70,7 +69,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
             || valueRequirementName.equals(ValueRequirementNames.PV01)
             || valueRequirementName.equals(ValueRequirementNames.VALUE_DELTA),
             "EquityFuturesFunction provides the following values PRESENT_VALUE, VALUE_DELTA, VALUE_RHO and PV01. Please choose one.");
-    //TODO produce all these results
+
     _valueRequirementName = valueRequirementName;
 
     Validate.isTrue(pricingMethodName.equals(EquityFuturePricerFactory.MARK_TO_MARKET)
@@ -96,7 +95,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    * @param target The ComputationTarget is a TradeImpl
    */
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    // TODO Is this the right signature?!
     // Build the analytic's version of the security - the derivative
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
@@ -126,32 +124,33 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         throw new OpenGammaRuntimeException("Unhandled pricingMethod");
     }
     // Call OG-Analytics
-    return getComputedValue(derivative, dataBundle, security);
+    return getComputedValue(derivative, dataBundle, trade);
   }
 
   /**
    * Given _valueRequirement and _pricingMethod supplied, this calls to OG-Analytics. 
    * @return Call to the Analytics to get the value required
    */
-  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, FinancialSecurity security) {
+  private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, SimpleTrade trade) {
 
+    final double nContracts = trade.getQuantity().doubleValue();
+    final double valueItself;
+
+    final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final ValueSpecification specification = getValueSpecification(_valueRequirementName, security);
 
     if (_valueRequirementName.equals(ValueRequirementNames.PRESENT_VALUE)) {
-      double presentValue = _pricer.presentValue(derivative, bundle);
-      return Collections.singleton(new ComputedValue(specification, presentValue));
+      valueItself = _pricer.presentValue(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_DELTA)) {
-      double spotDelta = _pricer.spotDelta(derivative, bundle);
-      return Collections.singleton(new ComputedValue(specification, spotDelta));
+      valueItself = _pricer.spotDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_RHO)) {
-      double ratesDelta = _pricer.presentValue(derivative, bundle);
-      return Collections.singleton(new ComputedValue(specification, ratesDelta));
+      valueItself = _pricer.ratesDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.PV01)) {
-      double pvbp = _pricer.PV01(derivative, bundle);
-      return Collections.singleton(new ComputedValue(specification, pvbp));
+      valueItself = _pricer.PV01(derivative, bundle);
     } else {
       throw new OpenGammaRuntimeException("_valueRequirementName," + _valueRequirementName + ", unexpected. Should have been recognized in the constructor.");
     }
+    return Collections.singleton(new ComputedValue(specification, nContracts * valueItself));
 
   }
 
@@ -261,7 +260,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Collections.singleton(getValueSpecification(_valueRequirementName, target.getSecurity()));
+    return Collections.singleton(getValueSpecification(_valueRequirementName, target.getTrade().getSecurity()));
   }
 
   /** Create a ValueSpecification, the meta data for the value itself.
