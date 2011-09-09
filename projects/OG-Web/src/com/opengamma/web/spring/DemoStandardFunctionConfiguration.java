@@ -448,6 +448,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
+    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
+    
+
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
     addValueGreekAndSummingFunction(functionConfigs, ValueRequirementNames.VALUE_SPEED);

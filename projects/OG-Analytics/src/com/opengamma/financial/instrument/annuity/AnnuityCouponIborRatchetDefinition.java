@@ -50,7 +50,7 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityDefinition<Coupon
   }
 
   /**
-   * Build a Ratchet Ibor annuity with fixed first coupon. All the ratchet coupons have teh same coeeficients.
+   * Build a Ratchet Ibor annuity with fixed first coupon. All the ratchet coupons have the same coefficients.
    * @param settlementDate The annuity settlement date.
    * @param annuityTenor The annuity tenor.
    * @param notional The notional.
@@ -70,6 +70,35 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityDefinition<Coupon
     double notionalSign = notional * (isPayer ? -1.0 : 1.0);
     coupons[0] = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0]),
         notionalSign, firstCouponFixedRate);
+    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
+      coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
+          paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], index.getCalendar(), -index.getSettlementDays()), index,
+          mainCoefficients, floorCoefficients, capCoefficients);
+    }
+    return new AnnuityCouponIborRatchetDefinition(coupons);
+  }
+
+  /**
+   * Build a Ratchet Ibor annuity with Ibor gearing first coupon. The factor and spread of the first coupon are the one of the main part of the Ratchet.
+   * All the Ratchet coupons have the same coefficients.
+   * @param settlementDate The annuity settlement date.
+   * @param annuityTenor The annuity tenor.
+   * @param notional The notional.
+   * @param index The Ibor index.
+   * @param isPayer The payer (true) / receiver (false) flag.
+   * @param mainCoefficients The coefficients of the main payment (before floor and cap). Array of length 3.
+   * @param floorCoefficients The coefficients of the floor. Array of length 3.
+   * @param capCoefficients The coefficients of the cap. Array of length 3.
+   * @return The annuity.
+   */
+  public static AnnuityCouponIborRatchetDefinition withFirstCouponIborGearing(final ZonedDateTime settlementDate, final Period annuityTenor, final double notional, final IborIndex index,
+      final boolean isPayer, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients) {
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, annuityTenor, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(),
+        index.isEndOfMonth());
+    CouponDefinition[] coupons = new CouponDefinition[paymentDates.length];
+    double notionalSign = notional * (isPayer ? -1.0 : 1.0);
+    coupons[0] = CouponIborGearingDefinition.from(settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate, paymentDates[0]), notionalSign, index, mainCoefficients[2],
+        mainCoefficients[1]);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponIborRatchetDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], index.getDayCount().getDayCountFraction(
           paymentDates[loopcpn - 1], paymentDates[loopcpn]), notionalSign, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], index.getCalendar(), -index.getSettlementDays()), index,

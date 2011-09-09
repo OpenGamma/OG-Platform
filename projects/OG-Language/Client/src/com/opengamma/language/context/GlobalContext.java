@@ -213,7 +213,7 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * @return true if the service runner is a debug build
    */
   public static boolean isDebug() {
-    return System.getProperty("system.debug") != null;
+    return System.getProperty("service.debug") != null;
   }
 
   public Properties getSystemSettings() {

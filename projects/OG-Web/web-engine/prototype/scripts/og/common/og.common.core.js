@@ -14,14 +14,18 @@
     var default_obj = {debug: window.location.hash.split('/').some(function (val) {return val === 'debug=true';})},
         check_dependencies,
         /** @private */
-        output = function () {
+        log = function () {
             if (this.debug && typeof console !== 'undefined' && console.log)
                 console.log.apply(console, Array.prototype.slice.call(arguments));
         },
+        /** @private */
+        warn = typeof console !== 'undefined' && console.warn ? function () {
+            console.warn.apply(console, Array.prototype.slice.call(arguments));
+        } : log.partial('[warning]'),
         top_level = window, default_module = {
             live_data_root: '/jax/', html_root: '/prototype/modules/', obj: function () {return default_obj;}
         };
-    $.extend(default_obj, {warn: output.partial('[warning]'), log: output});
+    $.extend(default_obj, {warn: warn, log: log});
     /** @private */
     check_dependencies = function (module) {
         if (!$.isArray(module.dependencies)) return default_obj.warn(module.name + ' does not define dependencies');
@@ -37,19 +41,16 @@
     };
     $.extend({
         outer: function (node) {
-            if (!node) return '';
-            var div = document.createElement('div');
-            div.appendChild(node);
-            return div.innerHTML;
+            if (!node) return ''; else var div = document.createElement('div');
+            return div.appendChild(node.cloneNode(true)), div.innerHTML;
         },
         register_module: function (module) {
             var self = 'register_module', name = module.name, new_module, levels, last, last_parent;
             if (!name) throw new TypeError(self + ': module name is undefined');
             check_dependencies(module);
             new_module = $.extend({}, default_module, module).obj();
-            levels = name.split('.');
             // initialize each tier and make sure it's an empty object if not already an object
-            levels.reduce(function (acc, val) {return acc[val] || (acc[val] = {});}, top_level);
+            (levels = name.split('.')).reduce(function (acc, val) {return acc[val] || (acc[val] = {});}, top_level);
             // drill down to the second-to-last level
             last = levels.pop();
             last_parent = levels.reduce(function (acc, val) {return acc[val];}, top_level);
