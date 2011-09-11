@@ -34,11 +34,11 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
   private static final String NO_CUR_MKT_CAP = "N/A";
   
-  private static final double NANO_CAP_UPPER_THRESHOLD = 10E6;
-  private static final double MICRO_CAP_UPPER_THRESHOLD = 100E6;
-  private static final double SMALL_CAP_UPPER_THRESHOLD = 1000E6;
-  private static final double MID_CAP_UPPER_THRESHOLD = 10E9;
-  private static final double LARGE_CAP_UPPER_THRESHOLD = 100E9;
+  private static final double NANO_CAP_UPPER_THRESHOLD = 10;
+  private static final double MICRO_CAP_UPPER_THRESHOLD = 100;
+  private static final double SMALL_CAP_UPPER_THRESHOLD = 1000;
+  private static final double MID_CAP_UPPER_THRESHOLD = 10E3;
+  private static final double LARGE_CAP_UPPER_THRESHOLD = 100E3;
   
   private static final String NANO_CAP = "E) Nano Cap";
   private static final String MICRO_CAP = "D) Micro Cap";
