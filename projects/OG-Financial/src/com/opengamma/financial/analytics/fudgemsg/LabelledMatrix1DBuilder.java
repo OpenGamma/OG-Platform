@@ -7,7 +7,9 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.calendar.LocalDate;
 
@@ -136,6 +138,8 @@ final class LabelledMatrix1DBuilder {
       message.add(MATRIX_FIELD_NAME, msg);
     }
 
+    private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<String, Class<?>>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
+    
     @Override
     public LocalDateLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
@@ -166,12 +170,7 @@ final class LabelledMatrix1DBuilder {
         if (!labelTypes.isEmpty() && !labelValues.isEmpty()) {
           // Have a type and a value, which can be consumed
           final String labelType = labelTypes.remove();
-          Class<?> labelClass;
-          try {
-            labelClass = Class.forName(labelType);
-          } catch (final ClassNotFoundException ex) {
-            throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
-          }
+          Class<?> labelClass = getClass(labelType);
           final FudgeField labelValue = labelValues.remove();
           final Object label = deserializer.fieldValueToObject(labelClass, labelValue);
           labels.add(label);
@@ -185,6 +184,20 @@ final class LabelledMatrix1DBuilder {
       labels.toArray(labelsArray);
       final double[] valuesArray = Doubles.toArray(values);
       return new LocalDateLabelledMatrix1D(keysArray, labelsArray, valuesArray);
+    }
+
+    private Class<?> getClass(final String labelType) {
+      Class<?> labelClass;
+      try {
+        labelClass = _loadedClasses.get(labelType);
+        if (labelClass == null) {
+          labelClass = Class.forName(labelType);
+          _loadedClasses.put(labelType, labelClass);
+        }
+      } catch (final ClassNotFoundException ex) {
+        throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
+      }
+      return labelClass;
     }
   }
 
