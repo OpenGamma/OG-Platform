@@ -3,7 +3,11 @@
 <beans> 
   <bean id="regionFileReader" class="com.opengamma.master.region.impl.RegionFileReader" factory-method="createPopulated" />
   <bean id="regionMaster" factory-bean="regionFileReader" factory-method="getRegionMaster" />
-  <bean id="regionSource" factory-bean="regionFileReader" factory-method="getRegionSource" />
+  <bean id="regionSourceUnderlying" factory-bean="regionFileReader" factory-method="getRegionSource" />
+  <bean id="regionSource" class="com.opengamma.master.region.impl.EHCachingRegionSource">
+    <constructor-arg ref="regionSourceUnderlying" />
+    <constructor-arg ref="cacheManager" />
+  </bean>
   
   <bean id="conventionBundleSource" class="com.opengamma.financial.convention.DefaultConventionBundleSource">
     <constructor-arg>

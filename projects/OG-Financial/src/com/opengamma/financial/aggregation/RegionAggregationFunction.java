@@ -77,12 +77,16 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
           ExternalId exchangeId = FinancialSecurityUtils.getExchange(security);
           if (exchangeId != null) {
             Exchange exchange = _exchangeSource.getSingleExchange(exchangeId);
-            Region highestLevelRegion = _regionSource.getHighestLevelRegion(exchange.getRegionIdBundle());
-            if (s_specialCountriesRegions.contains(highestLevelRegion.getName())) {
-              return highestLevelRegion.getName();
+            if (exchange.getRegionIdBundle() != null) {
+              Region highestLevelRegion = _regionSource.getHighestLevelRegion(exchange.getRegionIdBundle());
+              if (s_specialCountriesRegions.contains(highestLevelRegion.getName())) {
+                return highestLevelRegion.getName();
+              } else {
+                Set<UniqueId> parentRegionIds = highestLevelRegion.getParentRegionIds();
+                return findTopLevelRegion(parentRegionIds);
+              }
             } else {
-              Set<UniqueId> parentRegionIds = highestLevelRegion.getParentRegionIds();
-              return findTopLevelRegion(parentRegionIds);
+              return NO_REGION;
             }
           }
         } 
