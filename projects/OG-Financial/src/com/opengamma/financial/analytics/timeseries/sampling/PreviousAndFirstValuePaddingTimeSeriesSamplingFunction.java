@@ -6,8 +6,8 @@
 package com.opengamma.financial.analytics.timeseries.sampling;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.TreeSet;
 
 import javax.time.calendar.LocalDate;
 
@@ -30,12 +30,11 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
     final List<LocalDate> tsDates = localDateTS.times();
     final List<LocalDate> scheduledDates = new ArrayList<LocalDate>();
     final List<Double> scheduledData = new ArrayList<Double>();
-    final TreeSet<LocalDate> sortedTSDates = new TreeSet<LocalDate>(tsDates);
     final double firstValue = localDateTS.getEarliestValue();
     final LocalDate firstDate = localDateTS.getEarliestTime();
     for (final LocalDate localDate : schedule) {
       scheduledDates.add(localDate);
-      if (sortedTSDates.contains(localDate)) {
+      if (contains(tsDates, localDate)) {
         scheduledData.add(localDateTS.getValue(localDate));
       } else if (firstDate.isAfter(localDate)) {
         scheduledData.add(firstValue);
@@ -44,7 +43,7 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
         if (firstDate.isAfter(temp)) {
           scheduledData.add(firstValue);
         } else {
-          while (!sortedTSDates.contains(temp)) {
+          while (!contains(tsDates, temp)) {
             temp = temp.minusDays(1);
             if (temp.isBefore(schedule[0].toLocalDate()) || temp.isBefore(tsDates.get(0))) {
               scheduledData.add(firstValue);
@@ -56,5 +55,11 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunction implements T
       }
     }
     return new ArrayLocalDateDoubleTimeSeries(scheduledDates, scheduledData);
+  }
+
+  private boolean contains(List<LocalDate> tsDates, LocalDate localDate) {
+    //NOTE: presumes that tsDates is sorted
+    //TODO: could use cursor hint
+    return Collections.binarySearch(tsDates, localDate) >= 0;
   }
 }

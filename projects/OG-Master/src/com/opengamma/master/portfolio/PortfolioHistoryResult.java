@@ -117,6 +117,11 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<PortfolioDocument> documentsGenericType() {
+      return PortfolioDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

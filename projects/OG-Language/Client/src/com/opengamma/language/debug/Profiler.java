@@ -41,7 +41,7 @@ public final class Profiler {
   }
 
   public void begin() {
-    if (!s_enabled) {
+    if (!isEnabled()) {
       return;
     }
     do {
@@ -60,7 +60,7 @@ public final class Profiler {
   }
 
   public void end() {
-    if (!s_enabled) {
+    if (!isEnabled()) {
       return;
     }
     _time.addAndGet(System.nanoTime());
@@ -137,7 +137,7 @@ public final class Profiler {
   }
 
   public static synchronized void enable(final long period) {
-    if (s_enabled) {
+    if (isEnabled()) {
       s_logger.warn("Already enabled");
       return;
     }
@@ -158,6 +158,10 @@ public final class Profiler {
     t.setName(Profiler.class.getSimpleName());
     t.setDaemon(false);
     t.start();
+  }
+
+  public static boolean isEnabled() {
+    return s_enabled;
   }
 
 }

@@ -159,7 +159,7 @@ public final class PortfolioCompiler {
     try {
       new SecurityLinkResolver(compilationContext, versionCorrection).resolveSecurities(portfolio.getRootNode());
     } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to resolve all securities for portfolio " + portfolio.getName());
+      throw new OpenGammaRuntimeException("Unable to resolve all securities for portfolio " + portfolio.getName(), e);
     } finally {
       timer.finished();
     }

@@ -5,17 +5,23 @@
  */
 package com.opengamma.master;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -205,9 +211,109 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
     /**
      * The meta-property for the {@code documents} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<D>> _documents = DirectMetaProperty.ofReadWrite(
-        this, "documents", AbstractDocumentsResult.class, (Class) List.class);
+    private final MetaProperty<List<D>> _documents = documentsProperty();
+
+    @SuppressWarnings("unchecked")
+    protected Class<D> documentsGenericType() {
+      return (Class<D>) AbstractDocument.class;
+    }
+
+    @SuppressWarnings("unchecked")
+    private MetaProperty<List<D>> documentsProperty() {
+      final MetaProperty<List<D>> property = DirectMetaProperty.ofReadWrite(this, "documents", AbstractDocumentsResult.class, (Class) List.class);
+      return new MetaProperty<List<D>>() {
+
+        private final Type[] _actualTypeArguments = new Type[] {documentsGenericType() };
+        private final Type _genericType = new ParameterizedType() {
+
+          @Override
+          public Type[] getActualTypeArguments() {
+            return _actualTypeArguments;
+          }
+
+          @Override
+          public Type getOwnerType() {
+            return null;
+          }
+
+          @Override
+          public Type getRawType() {
+            return List.class;
+          }
+        };
+
+        @Override
+        public <A extends Annotation> A annotation(Class<A> annotation) {
+          return property.annotation(annotation);
+        }
+
+        @Override
+        public List<Annotation> annotations() {
+          return property.annotations();
+        }
+
+        @Override
+        public Property<List<D>> createProperty(Bean bean) {
+          return property.createProperty(bean);
+        }
+
+        @Override
+        public Class<?> declaringType() {
+          return property.declaringType();
+        }
+
+        @Override
+        public List<D> get(Bean bean) {
+          return property.get(bean);
+        }
+
+        @Override
+        public String getString(Bean bean) {
+          return property.getString(bean);
+        }
+
+        @Override
+        public MetaBean metaBean() {
+          return property.metaBean();
+        }
+
+        @Override
+        public String name() {
+          return property.name();
+        }
+
+        @Override
+        public Type propertyGenericType() {
+          return _genericType;
+        }
+
+        @Override
+        public Class<List<D>> propertyType() {
+          return property.propertyType();
+        }
+
+        @Override
+        public List<D> put(Bean bean, List<D> value) {
+          return property.put(bean, value);
+        }
+
+        @Override
+        public PropertyReadWrite readWrite() {
+          return property.readWrite();
+        }
+
+        @Override
+        public void set(Bean bean, List<D> value) {
+          property.set(bean, value);
+        }
+
+        @Override
+        public void setString(Bean bean, String value) {
+          property.setString(bean, value);
+        }
+      };
+    }
+
     /**
      * The meta-properties.
      */
