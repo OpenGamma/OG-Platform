@@ -146,11 +146,7 @@
   <!-- Vol Cubes service -->
   <bean id="volatilityCubeDefinitionSourceRestBean" class="com.opengamma.financial.analytics.volatility.cube.rest.VolatilityCubeDefinitionSourceService">
     <constructor-arg ref="fudgeContext" />
-    <property name="underlyingMap">
-      <map>
-        <entry key="0" value-ref="combinedVolatilityCubeDefinitionSource" />
-      </map>
-    </property>
+    <property name="underlying" ref="combinedVolatilityCubeDefinitionSource" />
   </bean>
   
   <!-- Users resource context -->
@@ -214,15 +210,27 @@
   <bean id="webExchangesRestBean" class="com.opengamma.web.exchange.WebExchangesResource" scope="request">
     <constructor-arg ref="dbExchangeMaster" />
   </bean>
+  <bean id="dataExchangesRestBean" class="com.opengamma.financial.exchange.rest.ExchangeSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="sharedExchangeSource" />
+  </bean>
   
   <!-- Holidays RESTful service -->
   <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
     <constructor-arg ref="dbHolidayMaster" />
   </bean>
+  <bean id="dataHolidaysRestBean" class="com.opengamma.financial.holiday.rest.HolidaySourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="sharedHolidaySource" />
+  </bean>
   
   <!-- Exchanges RESTful service -->
   <bean id="webRegionsRestBean" class="com.opengamma.web.region.WebRegionsResource" scope="request">
     <constructor-arg ref="regionMaster" />
+  </bean>
+  <bean id="dataRegionsRestBean" class="com.opengamma.financial.region.rest.RegionSourceService">
+    <constructor-arg ref="fudgeContext" />
+    <property name="underlying" ref="regionSource" />
   </bean>
   
   <!-- Distributed component configuration data -->
@@ -250,6 +258,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="exchangeSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/exchangeSource/0/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="functionRepositoryConfiguration">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/repositoryConfigurationSource/0/" />
@@ -259,7 +273,13 @@
             <entry key="historicalTimeSeriesSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/historicalTimeSeriesSource/0/" />
-                  <property name="port" value="${jetty.port}" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="holidaySource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/holidaySource/0/" />
+                <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
             <entry key="interpolatedYieldCurveDefinitionSource"> 
@@ -280,9 +300,21 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="pnlExplainProcessor">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/data/pnlExplainProcessor/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
             <entry key="positionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/positionSource/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="regionSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/regionSource/0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -332,12 +364,6 @@
             <entry key="viewProcessor">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="pnlExplainProcessor">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/pnlExplainProcessor/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

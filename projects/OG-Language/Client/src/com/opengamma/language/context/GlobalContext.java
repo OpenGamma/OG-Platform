@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 
+import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.function.AggregatingFunctionProvider;
@@ -44,6 +47,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   protected static final String SYSTEM_SETTINGS = "systemSettings";
 
   /**
+   * Name under which the exchange source is bound.
+   */
+  protected static final String EXCHANGE_SOURCE = "exchangeSource";
+
+  /**
    * Name under which the function definition filter is bound.
    */
   protected static final String FUNCTION_DEFINITION_FILTER = "functionDefinitionFilter";
@@ -62,6 +70,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which a historical time series source is bound.
    */
   protected static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
+
+  /**
+   * Name under which a holiday source is bound.
+   */
+  protected static final String HOLIDAY_SOURCE = "holidaySource";
 
   /**
    * Name under which the live data definition filter is bound.
@@ -102,6 +115,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the position source is bound.
    */
   protected static final String POSITION_SOURCE = "positionSource";
+
+  /**
+   * Name under which the region source is bound.
+   */
+  protected static final String REGION_SOURCE = "regionSource";
 
   /**
    * Name under which the generic result converter is bound.
@@ -195,7 +213,7 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * @return true if the service runner is a debug build
    */
   public static boolean isDebug() {
-    return System.getProperty("system.debug") != null;
+    return System.getProperty("service.debug") != null;
   }
 
   public Properties getSystemSettings() {
@@ -304,6 +322,18 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public ExecutorService getSaturatingExecutor() {
     return getValue(SATURATING_EXECUTOR);
+  }
+
+  public ExchangeSource getExchangeSource() {
+    return getValue(EXCHANGE_SOURCE);
+  }
+
+  public RegionSource getRegionSource() {
+    return getValue(REGION_SOURCE);
+  }
+
+  public HolidaySource getHolidaySource() {
+    return getValue(HOLIDAY_SOURCE);
   }
 
 }

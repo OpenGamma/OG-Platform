@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.equity.future.pricing;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given market price.
@@ -42,6 +42,7 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
   }
 
   /**
+   * Computes the ValueRequirement, ValueDelta
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The change in the present value given a unit value change in the underlying's spot value
@@ -53,6 +54,7 @@ public final class EquityFutureMarkToMarket implements EquityFuturesPricer {
   }
 
   /**
+   * Computes the ValueRequirement, ValueRho
    * @param future EquityFuture derivative
    * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The change in the present value given a unit value change in the discount rate

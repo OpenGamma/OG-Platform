@@ -117,6 +117,11 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<PositionDocument> documentsGenericType() {
+      return PositionDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

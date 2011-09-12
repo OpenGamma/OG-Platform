@@ -196,6 +196,10 @@ public class DefaultValueConverter extends ValueConverter {
         return conversionContext.setFail();
       }
     }
+    if (conversionContext.isFailedConversion(value, type)) {
+      s_logger.debug("Cached failure of {} to {}", value, type);
+      return conversionContext.setFail();
+    }
     s_logger.debug("Attempting class assignment from {} to {}", value.getClass(), type.getRawClass());
     if (type.getRawClass().isAssignableFrom(value.getClass())) {
       // TODO: if there are deep cast generic issues, the conversion will need to go deeper (e.g. Foo<X> to Foo<Y> where (? extends X)->Y is a well defined conversion for all values) 
@@ -233,8 +237,6 @@ public class DefaultValueConverter extends ValueConverter {
     s_logger.debug("Chain complete");
     return true;
   }
-
-  // TODO: the "already visited" record should be in the context as that may need to survive re-entrant calls
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
@@ -281,6 +283,10 @@ public class DefaultValueConverter extends ValueConverter {
               if (!explore.visited(alternativeType.getKey()) && consideredConverters.add(alternativeType.getKey())) {
                 final State nextState = new State(alternativeType.getKey(), converter, explore, alternativeType.getValue());
                 final Integer key = (Integer) nextState.getCost();
+                if (key > 80) {
+                  // Ignore expensive chains 
+                  continue;
+                }
                 Queue<State> states = searchStates.get(key);
                 if (states == null) {
                   states = new LinkedList<State>();
@@ -308,6 +314,7 @@ public class DefaultValueConverter extends ValueConverter {
               s_logger.debug("Conversion of {} to {} failed", value, type);
               break;
           }
+          conversionContext.recordFailedConversion(value, type);
           conversionContext.setFail();
           return;
         }
@@ -319,8 +326,8 @@ public class DefaultValueConverter extends ValueConverter {
         }
         statesLoaded++;
         s_logger.debug("Processing state {}", explore);
-        if (directConversion(conversionContext, value, explore.getTargetType())) {
-          s_logger.debug("Direct conversion ok");
+        if (directConversion(conversionContext, value, explore.getTargetType()) && !conversionContext.isFailed()) {
+          s_logger.debug("Direct conversion possible");
           if (stateConversion(conversionContext, explore)) {
             synchronized (conversionChains) {
               if (!conversionChains.contains(explore)) {

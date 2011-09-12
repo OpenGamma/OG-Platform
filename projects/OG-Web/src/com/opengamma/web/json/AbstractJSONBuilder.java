@@ -7,6 +7,9 @@ package com.opengamma.web.json;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.List;
+
+import javax.time.calendar.Period;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -18,10 +21,14 @@ import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.json.FudgeJSONStreamReader;
 import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.common.collect.Lists;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Partial implementation of {@link JSONBuilder}
@@ -81,4 +88,46 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     
     return new JSONObject(buf.toString());
   }
+  
+  protected void buildClassName(Class<?> clazz, JSONObject jsonObject) throws JSONException {
+    jsonObject.put("0", clazz.getName());
+  }
+
+  protected void buildUID(UniqueId uniqueId, JSONObject jsonObject) throws JSONException {
+    if (uniqueId != null) {
+      jsonObject.put(UNIQUE_ID_FIELD, uniqueId.toString());
+    }
+  }
+  
+  protected void buildTenors(List<Tenor> tenors, JSONObject jsonObject, String fieldName) throws JSONException {
+    if (!tenors.isEmpty()) {
+      JSONArray jsonArray = new JSONArray();
+      for (Tenor tenor : tenors) {
+        if (tenor != null) {
+          jsonArray.put(tenor.getPeriod().toString());
+        }
+      }
+      jsonObject.put(fieldName, jsonArray);
+    }
+  }
+  
+  protected List<Double> toDoubleList(JSONArray jsonArray) throws JSONException {
+    List<Double> doubleList = Lists.newArrayList();
+    for (int i = 0; i < jsonArray.length(); i++) {
+      doubleList.add(jsonArray.getDouble(i));
+    }
+    return doubleList;
+  }
+
+  protected List<Tenor> toTenorList(JSONArray jsonArray) throws JSONException {
+    List<Tenor> tenors = Lists.newArrayList();
+    for (int i = 0; i < jsonArray.length(); i++) {
+      String tenorStr = jsonArray.getString(i);
+      if (tenorStr != null) {
+        tenors.add(new Tenor(Period.parse(tenorStr)));
+      }
+    }
+    return tenors;
+  }
+  
 }

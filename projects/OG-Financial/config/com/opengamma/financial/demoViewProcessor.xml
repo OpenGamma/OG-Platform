@@ -70,13 +70,17 @@
   <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
     <constructor-arg ref="userFinancialSecurityMaster" />
   </bean>
-  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
+  <bean id="combinedSecuritySourceUnderlying" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
     <constructor-arg ref="sharedSecuritySource" />
     <constructor-arg>
       <map>
         <entry key="${opengamma.financial-user.db.securitymaster.scheme}" value-ref="userFinancialSecuritySource" />
       </map>
     </constructor-arg>
+  </bean>
+  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
+    <constructor-arg ref="combinedSecuritySourceUnderlying" />
+    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- User market data snapshots -->

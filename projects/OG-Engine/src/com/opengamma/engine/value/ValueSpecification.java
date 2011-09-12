@@ -210,7 +210,7 @@ public class ValueSpecification implements Serializable {
     ArgumentChecker.notNull(targetSpecification, "targetSpecification");
     ArgumentChecker.notNull(properties, "properties");
     ArgumentChecker.notNull(properties.getValues(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
-    _valueName = valueName.intern();
+    _valueName = ValueRequirement.getInterned(valueName);
     _targetSpecification = targetSpecification;
     _properties = properties;
   }

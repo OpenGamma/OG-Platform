@@ -23,6 +23,7 @@ import com.opengamma.math.rootfinding.RidderSingleRootFinder;
  * Specific calibration engine for the Hull-White one factor model with swaption.
  */
 public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
+
   /**
    * The list of calibration times.
    */

@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -144,20 +144,39 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
+    // TODO: check this is the behavior we want for the fixing day.
+    LocalDate dayDate = date.toLocalDate();
+    LocalDate dayFixing = getFixingDate().toLocalDate();
+    if (dayDate.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
-      //TODO this is a fudge because of data issues. The behaviour should be that if it's the fixing day but before the fixing time (e.g. 9 a.m.) 
-      // then the previous day can be used. Otherwise, the exception should be thrown. 
-      if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(),
-            getFixingDate().minusDays(1));
-        fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
-        if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-        }
+      if (fixedRate != null) {
+        return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
       }
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
     }
+    if (dayDate.isAfter(dayFixing)) { // The fixing is required
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      if (fixedRate == null) {
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+      } else {
+        return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
+      }
+    }
+
+    //    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
+    //      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+    //      //TODO this is a fudge because of data issues. The behaviour should be that if it's the fixing day but before the fixing time (e.g. 9 a.m.) 
+    //      // then the previous day can be used. Otherwise, the exception should be thrown. 
+    //      if (fixedRate == null) {
+    //        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(),
+    //            getFixingDate().minusDays(1));
+    //        fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
+    //        if (fixedRate == null) {
+    //          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+    //        }
+    //      }
+    //      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
+    //    }
+
     final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
