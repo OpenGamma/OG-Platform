@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -29,6 +30,9 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
+  
+  private static final Pattern s_codePattern = Pattern.compile("^[A-Z][A-Z][A-Z]$");
+  
   /**
    * A cache of instances.
    */
@@ -146,6 +150,11 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    */
   public static Currency of(String currencyCode) {
     ArgumentChecker.notNull(currencyCode, "currencyCode");
+    //Fast path first before matching
+    Currency previous = s_instanceMap.get(currencyCode);
+    if (previous != null) {
+      return previous;
+    }
     if (currencyCode.matches("[A-Z][A-Z][A-Z]") == false) {
       throw new IllegalArgumentException("Invalid currency code: " + currencyCode);
     }
