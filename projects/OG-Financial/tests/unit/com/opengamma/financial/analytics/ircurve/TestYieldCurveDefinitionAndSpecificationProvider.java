@@ -50,7 +50,7 @@ public class TestYieldCurveDefinitionAndSpecificationProvider {
     final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders, null, rateInstrumentProviders, null, futureInstrumentProviders, null, swapInstrumentProviders,
+    return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fraInstrumentProviders, null, rateInstrumentProviders, null, null, futureInstrumentProviders, null, swapInstrumentProviders,
         basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
   }
 
@@ -97,7 +97,7 @@ public class TestYieldCurveDefinitionAndSpecificationProvider {
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, null, futureInstrumentProviders, null,
-        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
+        null, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
   }
 
   public static CurveSpecificationBuilderConfiguration buildTestEURCurveConfiguration() {
@@ -156,6 +156,6 @@ public class TestYieldCurveDefinitionAndSpecificationProvider {
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, euriborInstrumentProviders,
-        futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
+        null, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
   }
 }

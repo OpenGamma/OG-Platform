@@ -37,6 +37,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
   private static final String RATE = "rateInstrumentProviders";
   private static final String LIBOR = "liborInstrumentProviders";
   private static final String EURIBOR = "euriborInstrumentProviders";
+  private static final String CDOR = "cdorInstrumentProviders";
   private static final String SWAP = "swapInstrumentProviders";
   private static final String SWAP_3M = "swap3MInstrumentProviders";
   private static final String SWAP_6M = "swap6MInstrumentProviders";
@@ -101,6 +102,14 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
         serializer.addToMessage(euriborInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
       }
       message.add(EURIBOR, euriborInstrumentProvidersMessage);
+    }
+
+    if (object.getCDORInstrumentProviders() != null) {
+      final MutableFudgeMsg cdorInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getCDORInstrumentProviders().entrySet()) {
+        serializer.addToMessage(cdorInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(CDOR, cdorInstrumentProvidersMessage);
     }
 
     if (object.getSwap3MInstrumentProviders() != null) {
@@ -230,6 +239,16 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
         euriborInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
     }
+    
+    Map<Tenor, CurveInstrumentProvider> cdorInstrumentProviders = null;
+    if (message.hasField(CDOR)) {
+      cdorInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      final FudgeMsg cdorInstrumentProvidersMessage = message.getMessage(CDOR);
+      for (final FudgeField field : cdorInstrumentProvidersMessage.getAllFields()) {
+        cdorInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+    
     if (message.hasField(SWAP) && message.hasField(SWAP_3M)) {
       throw new OpenGammaRuntimeException("Have message with old SWAP field and new SWAP_3M field: should not happen");
     }
@@ -291,6 +310,7 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
     }
 
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, euriborInstrumentProviders,
-        futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
+        cdorInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, 
+        oisSwapInstrumentProviders);
   }
 }

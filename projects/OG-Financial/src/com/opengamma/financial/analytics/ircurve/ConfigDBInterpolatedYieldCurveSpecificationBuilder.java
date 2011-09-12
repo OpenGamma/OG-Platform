@@ -83,6 +83,9 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case EURIBOR:
           identifier = builderConfig.getEuriborSecurity(curveDate, strip.getCurveNodePointTime());
           break;
+        case CDOR:
+          identifier = builderConfig.getCDORSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case SWAP_3M:
           identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;

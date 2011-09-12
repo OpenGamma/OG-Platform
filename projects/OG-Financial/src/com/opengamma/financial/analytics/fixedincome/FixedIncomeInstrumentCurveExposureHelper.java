@@ -23,8 +23,7 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   private FixedIncomeInstrumentCurveExposureHelper() {
   }
 
-  public static String[] getCurveNamesForFundingCurveInstrument(final StripInstrumentType type, final String fundingCurveName,
-      final String forwardCurveName) {
+  public static String[] getCurveNamesForFundingCurveInstrument(final StripInstrumentType type, final String fundingCurveName, final String forwardCurveName) {
     switch (type) {
       case SWAP_3M:
         return new String[] {fundingCurveName, forwardCurveName};
@@ -41,6 +40,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       case LIBOR:
         return new String[] {fundingCurveName};
       case EURIBOR:
+        return new String[] {fundingCurveName};
+      case CDOR:
         return new String[] {fundingCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, forwardCurveName, fundingCurveName};
@@ -51,8 +52,7 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
-  public static String[] getCurveNamesForForwardCurveInstrument(final StripInstrumentType type, final String fundingCurveName,
-      final String forwardCurveName) {
+  public static String[] getCurveNamesForForwardCurveInstrument(final StripInstrumentType type, final String fundingCurveName, final String forwardCurveName) {
     switch (type) {
       case SWAP_3M:
         return new String[] {fundingCurveName, forwardCurveName};
@@ -70,6 +70,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {forwardCurveName};
       case EURIBOR:
         return new String[] {forwardCurveName};
+      case CDOR:
+        return new String[] {forwardCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, fundingCurveName, forwardCurveName};
       case OIS_SWAP:
@@ -79,8 +81,7 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
-  public static String[] getCurveNamesForSecurity(final FinancialSecurity security, final String fundingCurveName,
-      final String forwardCurveName) {
+  public static String[] getCurveNamesForSecurity(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName) {
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     switch (type) {
       case SWAP_FIXED_IBOR:
@@ -102,16 +103,12 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
 
   public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final Builder properties) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    properties
-        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+    properties.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .with(ValuePropertyNames.CURRENCY, ccy.getCode());
     return properties.get();
   }
 
-  public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final String fundingCurveName,
-      final String forwardCurveName, final Builder properties) {
+  public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName, final Builder properties) {
     final String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
     for (final String name : curveNames) {

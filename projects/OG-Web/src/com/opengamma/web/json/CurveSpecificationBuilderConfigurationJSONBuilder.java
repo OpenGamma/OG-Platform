@@ -83,12 +83,14 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
       
       Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders = null;
       Map<Tenor, CurveInstrumentProvider> euriborInstrumentProviders = null;
+      Map<Tenor, CurveInstrumentProvider> cdorInstrumentProviders = null;
       JSONArray oldRateArray = configJSON.optJSONArray("rateInstrumentProviders");
       JSONArray liborArray = configJSON.optJSONArray("liborInstrumentProviders");
       JSONArray euriborArray = configJSON.optJSONArray("euriborInstrumentProviders");
+      JSONArray cdorArray = configJSON.optJSONArray("cdorInstrumentProviders");
       if (oldRateArray != null) {
         if (liborArray != null || euriborArray != null) {
-          throw new OpenGammaRuntimeException("Have JSON array with the old rate field but at least one of the new *ibor fields (libor or euribor");
+          throw new OpenGammaRuntimeException("Have JSON array with the old rate field but at least one of the new *ibor fields (libor, euribor or CDOR");
         }
         // Treat all old rates as libor
         s_logger.warn("Curve specification uses a RATE strip: assuming that it is a libor rate.");
@@ -96,6 +98,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
       } else {
         liborInstrumentProviders = processCurveInstrumentProvider(liborArray);
         euriborInstrumentProviders = processCurveInstrumentProvider(euriborArray);
+        cdorInstrumentProviders = processCurveInstrumentProvider(cdorArray);
       }
       
       Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders = null;
@@ -125,7 +128,8 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
                                                           fra3MInstrumentProviders, 
                                                           fra6MInstrumentProviders, 
                                                           liborInstrumentProviders, 
-                                                          euriborInstrumentProviders, 
+                                                          euriborInstrumentProviders,
+                                                          cdorInstrumentProviders,
                                                           futureInstrumentProviders, 
                                                           swap6MInstrumentProviders, 
                                                           swap3MInstrumentProviders, 
@@ -225,35 +229,51 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
       }
       
       if (object.getLiborInstrumentProviders() != null) {
-        List<JSONObject> rateInstrumentProviders = Lists.newArrayList();
+        List<JSONObject> liborInstrumentProviders = Lists.newArrayList();
         for (Entry<Tenor, CurveInstrumentProvider> entry : object.getLiborInstrumentProviders().entrySet()) {
           if (entry.getKey().getPeriod().toString() == null) {
             throw new OpenGammaRuntimeException(" tenor is null");
           }
-          JSONObject rateInstrumentProvidersMessage = new JSONObject();
-          rateInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
-          rateInstrumentProviders.add(rateInstrumentProvidersMessage);
+          JSONObject liborInstrumentProvidersMessage = new JSONObject();
+          liborInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          liborInstrumentProviders.add(liborInstrumentProvidersMessage);
         }
         allTenors.addAll(object.getLiborInstrumentProviders().keySet());
-        message.put("liborInstrumentProviders", rateInstrumentProviders);
+        message.put("liborInstrumentProviders", liborInstrumentProviders);
       } else {
         s_logger.debug("No libor instrument providers");
       }
 
       if (object.getEuriborInstrumentProviders() != null) {
-        List<JSONObject> rateInstrumentProviders = Lists.newArrayList();
+        List<JSONObject> euriborInstrumentProviders = Lists.newArrayList();
         for (Entry<Tenor, CurveInstrumentProvider> entry : object.getEuriborInstrumentProviders().entrySet()) {
           if (entry.getKey().getPeriod().toString() == null) {
             throw new OpenGammaRuntimeException(" tenor is null");
           }
-          JSONObject rateInstrumentProvidersMessage = new JSONObject();
-          rateInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
-          rateInstrumentProviders.add(rateInstrumentProvidersMessage);
+          JSONObject euriborInstrumentProvidersMessage = new JSONObject();
+          euriborInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          euriborInstrumentProviders.add(euriborInstrumentProvidersMessage);
         }
         allTenors.addAll(object.getEuriborInstrumentProviders().keySet());
-        message.put("euriborInstrumentProviders", rateInstrumentProviders);
+        message.put("euriborInstrumentProviders", euriborInstrumentProviders);
       } else {
         s_logger.debug("No euribor instrument providers");
+      }
+      
+      if (object.getCDORInstrumentProviders() != null) {
+        List<JSONObject> cdorInstrumentProviders = Lists.newArrayList();
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getCDORInstrumentProviders().entrySet()) {
+          if (entry.getKey().getPeriod().toString() == null) {
+            throw new OpenGammaRuntimeException(" tenor is null");
+          }
+          JSONObject cdorInstrumentProvidersMessage = new JSONObject();
+          cdorInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          cdorInstrumentProviders.add(cdorInstrumentProvidersMessage);
+        }
+        allTenors.addAll(object.getCDORInstrumentProviders().keySet());
+        message.put("cdorInstrumentProviders", cdorInstrumentProviders);
+      } else {
+        s_logger.debug("No CDOR instrument providers");
       }
 
       if (object.getSwap3MInstrumentProviders() != null) {

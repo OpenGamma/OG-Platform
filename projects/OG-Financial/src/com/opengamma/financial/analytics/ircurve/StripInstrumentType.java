@@ -17,6 +17,8 @@ public enum StripInstrumentType {
   FRA,
   /** Interest-rate future */
   FUTURE,
+  /** Bankers acceptance */
+  BANKERS_ACCEPTANCE,
   /** Swap rate */
   SWAP,
   /** Tenor swap */
@@ -34,5 +36,7 @@ public enum StripInstrumentType {
   /** Fixed / float swap (3m floating leg reset tenor) */
   SWAP_3M,
   /** Fixed / float swap (6m floating leg reset tenor) */
-  SWAP_6M
+  SWAP_6M,
+  /** CDOR */
+  CDOR
 }

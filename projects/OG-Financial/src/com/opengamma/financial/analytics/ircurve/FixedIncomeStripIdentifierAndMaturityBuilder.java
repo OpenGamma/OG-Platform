@@ -133,6 +133,18 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = rateSecurity;
           break;
         }
+        case CDOR: {
+          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+          if (rateSecurity == null) {
+            throw new OpenGammaRuntimeException("Could not resolve CDOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+          }
+          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+          TimeZone timeZone2 = region2.getTimeZone();
+          timeZone2 = ensureZone(timeZone2);
+          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+          security = rateSecurity;
+          break;
+        }
         case SWAP: {
           // In case there's any old curve definitions hanging around - assume that all swaps are 3m
           // TODO get defaults from convention? (e.g. USD = 3m, EUR = 6M)
