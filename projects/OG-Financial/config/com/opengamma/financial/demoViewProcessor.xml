@@ -364,6 +364,18 @@
     <property name="regionSource" ref="regionSource" />
     <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
+    <property name="portfolioAggregationFunctions">
+      <list>
+        <!-- TODO: share aggregation functions between Excel and engine -->
+        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+      </list>
+    </property>
+    <property name="valueTreeAggregationFunctions">
+      <list>
+        <bean class="com.opengamma.integration.pnlexplain.aggregation.PnlValueTreeTypeAggregationFunction" />
+      </list>
+    </property>
   </bean>
   
   <!-- Code fragment needed for work on ENG-199 & ENG-200 only -->
