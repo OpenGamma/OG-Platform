@@ -15,11 +15,13 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeSize;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ComputedValue;
@@ -384,6 +386,13 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   }
 
   protected static FudgeMsg serializeValue(final FudgeSerializer serializer, final Object value) {
+    if (value instanceof Double) {
+      //Make sure fudge doesn't faff around with reflection
+      MutableFudgeMsg newMessage = serializer.newMessage();
+      FudgeFieldType doubleFieldType = FudgeWireType.DOUBLE;
+      newMessage.add(null, NATIVE_FIELD_INDEX, doubleFieldType, (Double) value);
+      return newMessage;
+    }
     serializer.reset();
     final MutableFudgeMsg message = serializer.newMessage();
     serializer.addToMessageWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
