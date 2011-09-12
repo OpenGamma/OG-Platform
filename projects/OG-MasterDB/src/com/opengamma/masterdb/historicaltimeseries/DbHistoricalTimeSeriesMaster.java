@@ -304,7 +304,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     String selectFromWhereInner = "SELECT id FROM hts_document " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     
-    boolean isPostgres = this.getDbSource().getDialect().equals(PostgreSQLDbHelper.INSTANCE);
+    boolean isPostgres = this.getDbSource().getDialect() instanceof PostgreSQLDbHelper;
     if (isPostgres) {
       //TODO: this is a hack.  Query optimizer gives up on the mahoosive query.  If we split it manually it goes a fair bit faster
       String tempTable = "CREATE LOCAL TEMP TABLE ids ON COMMIT DROP as " + inner + ";\n";
