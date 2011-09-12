@@ -26,6 +26,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborRatchetDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRHullWhiteMonteCarloCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -38,6 +39,8 @@ import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.money.Currency;
@@ -67,10 +70,10 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final boolean IS_PAYER = false;
   private static final double NOTIONAL = 100000000; // 100m
-  private static final double[] MAIN_COEF = new double[] {0.4, 0.5, 0.0010};
-  private static final double[] FLOOR_COEF = new double[] {0.75, 0.00, 0.00};
-  private static final double[] CAP_COEF = new double[] {1.50, 1.00, 0.0050};
-  private static final double FIRST_CPN_RATE = 0.02;
+  private static final double[] MAIN_COEF = new double[] {0.20, 0.80, 0.0010};
+  private static final double[] FLOOR_COEF = new double[] {0.50, 0.00, 0.0200};
+  private static final double[] CAP_COEF = new double[] {1.00, 0.00, 0.0300};
+  private static final double FIRST_CPN_RATE = 0.04;
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
@@ -94,7 +97,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     CurrencyAmount pvMC = methodMC.presentValue(ANNUITY_RATCHET_FIXED, CUR, curve, BUNDLE_HW);
-    double pvMCPreviousRun = 6062861.494;
+    double pvMCPreviousRun = 8431517.192;
     assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
   }
 
@@ -107,7 +110,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     CurrencyAmount pvMC = methodMC.presentValue(annuityRatchetIbor, CUR, curve, BUNDLE_HW);
-    double pvMCPreviousRun = 5677163.669;
+    double pvMCPreviousRun = 8172059.762;
     assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
   }
 
@@ -131,7 +134,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
         FIRST_CPN_RATE, IS_PAYER);
     AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     double pvFixedExpected = PVC.visit(fixed, CURVES);
-    assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo - Degenerate in Fixed leg", pvFixedExpected, pvFixedMC.getAmount(), 1.0E+2);
+    assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo - Degenerate in Fixed leg", pvFixedExpected, pvFixedMC.getAmount(), 2.0E+2);
   }
 
   @Test(enabled = true)
@@ -264,6 +267,19 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv swaption Hull-White explicit method: " + (endTime - startTime) + " ms");
     // Performance note: HW MC price (12500 paths): 9-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 475 ms for 10 Ratchet (20 coupons).
+  }
+
+  @Test(enabled = true)
+  /**
+   * Tests the pricing with calibration to SABR cap/floor prices.
+   */
+  public void presentValueFixedWithCalibration() {
+    SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
+    PresentValueSABRHullWhiteMonteCarloCalculator calculatorMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    double pvMC = calculatorMC.visit(ANNUITY_RATCHET_FIXED, sabrBundle);
+    double pvMCPreviousRun = 8400036.210;// 12500path: 8402639.933;
+    assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC, 1.0E-2);
   }
 
 }
