@@ -55,6 +55,7 @@ import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -302,12 +303,21 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     
     String selectFromWhereInner = "SELECT id FROM hts_document " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    //TODO: this is a hack.  Query optimizer gives up on the mahoosive query.  If we split it manually it goes a fair bit faster
-    String tempTable = "CREATE LOCAL TEMP TABLE ids ON COMMIT DROP as " + inner + ";\n"; 
-    String search = tempTable + SELECT + FROM_PREFIX + " INNER JOIN ids ON ids.id = main.id" + FROM_POSTFIX
-        + " ORDER BY main.id" + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM hts_document " + where;
-    return new String[] {search, count};
+    
+    boolean isPostgres = this.getDbSource().getDialect().equals(PostgreSQLDbHelper.INSTANCE);
+    if (isPostgres) {
+      //TODO: this is a hack.  Query optimizer gives up on the mahoosive query.  If we split it manually it goes a fair bit faster
+      String tempTable = "CREATE LOCAL TEMP TABLE ids ON COMMIT DROP as " + inner + ";\n";
+      String search = tempTable + SELECT + FROM_PREFIX + " INNER JOIN ids ON ids.id = main.id" + FROM_POSTFIX
+          + " ORDER BY main.id" + sqlAdditionalOrderBy(false);
+      String count = "SELECT COUNT(*) FROM hts_document " + where;
+      return new String[] {search, count};
+    } else {
+      String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id"
+          + sqlAdditionalOrderBy(false);
+      String count = "SELECT COUNT(*) FROM hts_document " + where;
+      return new String[] {search, count};
+    }
   }
 
   /**
