@@ -5,6 +5,9 @@
  */
 package com.opengamma.masterdb;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.time.Instant;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.TransactionStatus;
@@ -355,7 +359,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     s_logger.debug("with args {}", args);
     final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (pagingRequest.equals(PagingRequest.ALL)) {
-      result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+      List<D> queried = queryWithPrecedingStatements(sql[0], args, extractor, namedJdbc);
+      result.getDocuments().addAll(queried);
       result.setPaging(Paging.of(pagingRequest, result.getDocuments()));
     } else {
       s_logger.debug("executing sql {}", sql[1]);
@@ -363,9 +368,40 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       result.setPaging(Paging.of(pagingRequest, count));
       if (count > 0 && pagingRequest.equals(PagingRequest.NONE) == false) {
         s_logger.debug("executing sql {}", sql[0]);
-        result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
+        List<D> queried = queryWithPrecedingStatements(sql[0], args, extractor, namedJdbc);
+        result.getDocuments().addAll(queried);
       }
     }
+  }
+
+  private List<D> queryWithPrecedingStatements(final String sql, final DbMapSqlParameterSource args,
+      final ResultSetExtractor<List<D>> extractor, final NamedParameterJdbcOperations namedJdbc) {
+    List<D> queried  = namedJdbc.execute(sql, args, new PreparedStatementCallback<List<D>>() {
+
+      @Override
+      public List<D> doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+        ps.execute();
+        //NOTE: only call getResultSet once for each
+        ResultSet resultSet = ps.getResultSet();
+        //Handle preceeding statements
+        while (resultSet == null) {
+          if (!ps.getMoreResults()) {
+            s_logger.warn("No more results");
+            break;
+          }
+          resultSet = ps.getResultSet();
+        }
+        try {
+          List<D> extractData = extractor.extractData(resultSet);
+          return extractData;
+        } finally {
+          if (resultSet != null) {
+            resultSet.close();
+          }
+        }
+      }
+    });
+    return queried;
   }
 
   //-------------------------------------------------------------------------
