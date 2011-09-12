@@ -23,6 +23,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.language.Data;
+import com.opengamma.language.DataUtils;
+import com.opengamma.language.Value;
+import com.opengamma.language.ValueUtils;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -31,6 +35,7 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.language.position.PortfolioUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Retrieves the identifiers of components that make up a portfolio. 
@@ -70,38 +75,42 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
     return _meta;
   }
 
-  private static void storeIdentifier(final List<String> result, final UniqueId identifier) {
-    result.add(identifier.toString());
+  private static void storeIdentifier(final List<Pair<String, String>> result, final UniqueId identifier) {
+    result.add(Pair.<String, String>of(identifier.toString(), null));
+  }
+  
+  private static void storeIdentifier(final List<Pair<String, String>> result, final ObjectId identifier) {
+    result.add(Pair.<String, String>of(identifier.toString(), null));
+  }
+  
+  private static void storeIdentifiers(final List<Pair<String, String>> result, final UniqueId uniqueId, final ExternalId externalId) {
+    result.add(Pair.of(uniqueId.toString(), externalId.toString()));
+  }
+  
+  private static void storeIdentifiers(final List<Pair<String, String>> result, final ObjectId objectId, final ExternalId externalId) {
+    result.add(Pair.of(objectId.toString(), externalId.toString()));
   }
 
-  private static void storeIdentifier(final List<String> result, final ObjectId identifier) {
-    result.add(identifier.toString());
-  }
-
-  private static void storeIdentifier(final List<String> result, final ExternalId identifier) {
-    result.add(identifier.toString());
-  }
-
-  private static void storeIdentifier(final List<String> result, final UniqueId identifier, final ExternalIdBundle identifiers, final ExternalSchemeRank rank) {
+  private static void storeIdentifiers(final List<Pair<String, String>> result, final UniqueId identifier, final ExternalIdBundle identifiers, final ExternalSchemeRank rank) {
     final ExternalId externalId = rank.getPreferredIdentifier(identifiers);
     if (externalId == null) {
       storeIdentifier(result, identifier);
     } else {
-      storeIdentifier(result, externalId);
+      storeIdentifiers(result, identifier, externalId);
     }
   }
 
-  private static void storeIdentifier(final List<String> result, final ObjectId identifier, final ExternalIdBundle identifiers, final ExternalSchemeRank rank) {
+  private static void storeIdentifiers(final List<Pair<String, String>> result, final ObjectId identifier, final ExternalIdBundle identifiers, final ExternalSchemeRank rank) {
     final ExternalId externalId = rank.getPreferredIdentifier(identifiers);
     if (externalId == null) {
       storeIdentifier(result, identifier);
     } else {
-      storeIdentifier(result, externalId);
+      storeIdentifiers(result, identifier, externalId);
     }
   }
 
   @Override
-  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
+  protected Data invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final UniqueId portfolioIdentifier = (UniqueId) parameters[0];
     final ExternalSchemeRank externalSchemeRank = (ExternalSchemeRank) parameters[1];
     final boolean includeSecurity = (Boolean) parameters[2];
@@ -110,37 +119,46 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
     final boolean includePortfolioNode = (Boolean) parameters[5];
     s_logger.info("invoke {}, {}", portfolioIdentifier, externalSchemeRank);
     final Portfolio portfolio = PortfolioUtils.getPortfolio(sessionContext.getGlobalContext(), portfolioIdentifier, includeSecurity);
-    final List<String> result = new LinkedList<String>();
+    final List<Pair<String, String>> componentIds = new LinkedList<Pair<String, String>>();
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
 
       @Override
       public void preOrderOperation(final PortfolioNode node) {
         if (includePortfolioNode) {
-          storeIdentifier(result, node.getUniqueId());
+          storeIdentifier(componentIds, node.getUniqueId());
         }
       }
 
       @Override
       public void preOrderOperation(final Position position) {
         if (includePosition) {
-          storeIdentifier(result, position.getUniqueId());
+          storeIdentifier(componentIds, position.getUniqueId());
         }
         if (includeTrade) {
           for (Trade trade : position.getTrades()) {
-            storeIdentifier(result, trade.getUniqueId());
+            storeIdentifier(componentIds, trade.getUniqueId());
           }
         }
         if (includeSecurity) {
           if (position.getSecurity() != null) {
-            storeIdentifier(result, position.getSecurity().getUniqueId(), position.getSecurity().getExternalIdBundle(), externalSchemeRank);
+            storeIdentifiers(componentIds, position.getSecurity().getUniqueId(), position.getSecurity().getExternalIdBundle(), externalSchemeRank);
           } else {
-            storeIdentifier(result, position.getSecurityLink().getObjectId(), position.getSecurityLink().getExternalId(), externalSchemeRank);
+            storeIdentifiers(componentIds, position.getSecurityLink().getObjectId(), position.getSecurityLink().getExternalId(), externalSchemeRank);
           }
         }
       }
 
     }).traverse(portfolio.getRootNode());
-    return result;
+    
+    int width = includeSecurity ? 2 : 1;
+    Value[][] values = new Value[componentIds.size()][width];
+    int i = 0;
+    for (Pair<String, String> portfolioComponent : componentIds) {
+      values[i][0] = portfolioComponent.getFirst() != null ? ValueUtils.of(portfolioComponent.getFirst()) : new Value();
+      values[i][1] = portfolioComponent.getSecond() != null ? ValueUtils.of(portfolioComponent.getSecond()) : new Value();
+      i++;
+    }
+    return DataUtils.of(values);
   }
 
 }
