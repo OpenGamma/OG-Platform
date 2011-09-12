@@ -169,22 +169,21 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var error_html = '\
-                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                        This position has been deleted\
-                                    </section>\
-                                ',
-                                $html = $.tmpl(template, json.template_data),
-                                layout = og.views.common.layout, header, content,
-                                html, id, json_id = json.identifiers,
-                                stop_loading = function () {
-                                    ui.message({location: '.ui-layout-inner-center', destroy: true});
-                                    layout.inner.resizeAll();
-                                };
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers,
+                                stop_loading; // functions
+                            error_html = '\
+                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                    This position has been deleted\
+                                </section>\
+                            ';
+                            $html = $.tmpl(template, json.template_data);
+                            stop_loading = function () {
+                                ui.message({location: '.ui-layout-inner-center', destroy: true});
+                                layout.inner.resizeAll();
+                            };
+                            // Initial html setup
+                            $('.ui-layout-inner-center .ui-layout-header').html($.outer($html.find('> header')[0]));
+                            $('.ui-layout-inner-center .ui-layout-content').html($.outer($html.find('> section')[0]));
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
@@ -195,14 +194,25 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            html = json_id.reduce(function (pre, cur) {
-                                return pre + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +'</td></tr>'
-                            }, '');
-                            $('.ui-layout-inner-center .og-js-identifiers').html(html);
-                            ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', json.timeseries.data);
+                            // Identifiers
+                            $('.ui-layout-inner-center .og-js-identifiers').html(
+                                json_id.reduce(function (acc, cur) {
+                                    return acc + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +'</td></tr>'
+                                }, '')
+                            );
+                            // Plot
+                            ui.render_plot({
+                                selector: '.OG-timeseries .og-js-timeseriesPlot',
+                                data: result, // sending the whole result to be in sync with future requested objects
+                                identifier: json.identifiers[0].value,
+                                init_data_field: json.template_data.data_field,
+                                init_ob_time: json.template_data.observation_time
+                            });
+                            // Data points
                             f.render_table('.OG-timeseries .og-js-table', {
                                 'fieldLabels': json.timeseries.fieldLabels, 'data': json.timeseries.data
                             }, stop_loading);
+                            // Hookup data download link
                             $('.og-js-timeSeriesCsv').click(function () {
                                 window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });

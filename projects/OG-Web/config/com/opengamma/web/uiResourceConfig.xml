@@ -87,7 +87,6 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
-    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-csb.css</fragment>
   </bundle>
@@ -157,6 +156,8 @@
     <fragment>/scripts/lib/jquery/flot/jquery.flot.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.selection.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.navigate.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.threshold.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.crosshair.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.core.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>

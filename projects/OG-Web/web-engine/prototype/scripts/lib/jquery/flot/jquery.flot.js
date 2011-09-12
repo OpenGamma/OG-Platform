@@ -1037,6 +1037,7 @@
             });
 
             if (showGrid) {
+
                 // determine from the placeholder the font size ~ height of font ~ 1 em
                 var fontDefaults = {
                     style: placeholder.css("font-style"),
@@ -1439,6 +1440,7 @@
         }
 
         function draw() {
+
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
             var grid = options.grid;
@@ -2216,6 +2218,7 @@
         }
 
         function insertLegend() {
+
             placeholder.find(".legend").remove();
 
             if (!options.legend.show)
@@ -2223,9 +2226,11 @@
 
             var fragments = [], rowStarted = false,
                 lf = options.legend.labelFormatter, s, label;
+
             for (var i = 0; i < series.length; ++i) {
                 s = series[i];
                 label = s.label;
+
                 if (!label)
                     continue;
 
@@ -2245,6 +2250,7 @@
             }
             if (rowStarted)
                 fragments.push('</tr>');
+
 
             if (fragments.length == 0)
                 return;
