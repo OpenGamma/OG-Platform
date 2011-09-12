@@ -36,6 +36,7 @@
         </property>
       </bean>
     </property>
+    <property name="maxThreadsPerClient" value="32" />
   </bean>
 	 <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
 	   <property name="globalContextEventHandler">

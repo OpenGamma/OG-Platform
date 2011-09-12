@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swaption.method;
+package com.opengamma.financial.interestrate.payments.method;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +15,14 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
-import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
- * Specific calibration engine for the Hull-White one factor model with swaption.
+ * Specific calibration engine for the Hull-White one factor model with cap/floor.
  */
-public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
+public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
 
   /**
    * The list of calibration times.
@@ -33,7 +33,7 @@ public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine exte
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
+  public CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
     super(calibrationObjective);
   }
 
@@ -44,11 +44,11 @@ public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine exte
    */
   @Override
   public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Calibration instruments should be swaptions");
+    Validate.isTrue(instrument instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
     getBasket().add(instrument);
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
-    _calibrationTimes.add(((SwaptionPhysicalFixedIbor) instrument).getTimeToExpiry());
+    _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
   }
 
   @Override
@@ -65,7 +65,7 @@ public class SwaptionPhysicalHullWhiteSuccessiveRootFinderCalibrationEngine exte
       final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());
       rootFinder.getRoot(getCalibrationObjective(), range[0], range[1]);
       if (loopins < nbInstruments - 1) {
-        ((SwaptionPhysicalHullWhiteCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
+        ((CapFloorHullWhiteCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
       }
     }
   }
