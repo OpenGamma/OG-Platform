@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -33,6 +34,8 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
   
   private JmsTemplate _jmsTemplate;
   
+  private FudgeContext _fudgeContext;
+  
   private final ExecutorService _executor;
 
   public JmsSenderFactory() {
@@ -40,6 +43,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
     final ThreadPoolExecutor executor = new ThreadPoolExecutor(threads, threads, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     executor.allowCoreThreadTimeOut(true);
     _executor = executor;
+    setFudgeContext(new FudgeContext());
   }
   
   public JmsSenderFactory(JmsTemplate jmsTemplate) {
@@ -58,6 +62,15 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
     _jmsTemplate = jmsTemplate;
   }
   
+  
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
+  public void setFudgeContext(FudgeContext fudgeContext) {
+    _fudgeContext = fudgeContext;
+  }
+
   public synchronized void transportInterrupted() {
     s_logger.warn("JMS transport interrupted; notifying {} senders", _allActiveSenders.size());
     for (final JmsSender sender : _allActiveSenders.keySet()) {
@@ -85,7 +98,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
   @Override
   public synchronized Collection<MarketDataSender> create(MarketDataDistributor distributor) {
     s_logger.debug("Created JmsSender for {}", distributor);
-    JmsSender sender = new JmsSender(_jmsTemplate, distributor);
+    JmsSender sender = new JmsSender(_jmsTemplate, distributor, getFudgeContext());
     _allActiveSenders.put(sender, new Object());
     return Collections.<MarketDataSender>singleton(sender);
   }

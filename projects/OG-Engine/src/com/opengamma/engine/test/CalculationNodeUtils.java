@@ -31,10 +31,9 @@ public class CalculationNodeUtils {
 
   public static TestCalculationNode getTestCalcNode(MockFunction mockFunction) {
     TestCalculationNode calcNode = new TestCalculationNode();
-
     InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepository();
     functionRepo.addFunction(mockFunction);
-
+    calcNode.getFunctionCompilationService().initialize();
     return calcNode;
   }
 

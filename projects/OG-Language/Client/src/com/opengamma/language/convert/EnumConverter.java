@@ -22,6 +22,11 @@ import com.opengamma.language.invoke.AbstractTypeConverter;
  */
 public final class EnumConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final EnumConverter INSTANCE = new EnumConverter();
+
   @SuppressWarnings("unchecked")
   private static final JavaTypeInfo<Enum> ENUM = JavaTypeInfo.builder(Enum.class).get();
   private static final JavaTypeInfo<String> STRING = JavaTypeInfo.builder(String.class).get();
@@ -29,6 +34,9 @@ public final class EnumConverter extends AbstractTypeConverter {
   private static final Map<JavaTypeInfo<?>, Integer> TO_ENUM = TypeMap.of(MINOR_LOSS, STRING);
 
   private final ConcurrentMap<Class<?>, Map<String, Enum<?>>> _enumValues = new ConcurrentHashMap<Class<?>, Map<String, Enum<?>>>();
+
+  protected EnumConverter() {
+  }
 
   @Override
   public synchronized boolean canConvertTo(final JavaTypeInfo<?> targetType) {

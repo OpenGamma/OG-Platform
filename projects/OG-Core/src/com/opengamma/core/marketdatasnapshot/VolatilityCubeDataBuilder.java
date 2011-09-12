@@ -26,13 +26,20 @@ import com.opengamma.util.tuple.Pair;
 @FudgeBuilderFor(VolatilityCubeData.class)
 public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeData> {
 
-  private static final String DATA_POINTS_FIELD_NAME = "dataPoints";
-  private static final String OTHER_DATA_FIELD_NAME = "otherData";
-  private static final String STRIKES_FIELD_NAME = "strikes";
-  private static final String ATM_VOLS_FIELD_NAME = "ATM volatilities";
-  private static final String SWAP_TENOR_FIELD_NAME = "swapTenor";
-  private static final String OPTION_EXPIRY_FIELD_NAME = "optionExpiry";
-  private static final String STRIKE_FIELD_NAME = "strike";
+  /** Field name. */
+  public static final String DATA_POINTS_FIELD_NAME = "dataPoints";
+  /** Field name. */
+  public static final String OTHER_DATA_FIELD_NAME = "otherData";
+  /** Field name. */
+  public static final String STRIKES_FIELD_NAME = "strikes";
+  /** Field name. */
+  public static final String ATM_VOLS_FIELD_NAME = "ATM volatilities";
+  /** Field name. */
+  public static final String SWAP_TENOR_FIELD_NAME = "swapTenor";
+  /** Field name. */
+  public static final String OPTION_EXPIRY_FIELD_NAME = "optionExpiry";
+  /** Field name. */
+  public static final String STRIKE_FIELD_NAME = "strike";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, VolatilityCubeData object) {

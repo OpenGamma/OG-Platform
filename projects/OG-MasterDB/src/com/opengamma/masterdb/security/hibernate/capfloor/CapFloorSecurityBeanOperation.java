@@ -43,17 +43,17 @@ public final class CapFloorSecurityBeanOperation extends AbstractSecurityBeanOpe
   public CapFloorSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CapFloorSecurity security) {
     final CapFloorSecurityBean bean = new CapFloorSecurityBean();
     
-    bean.setCap(security.getIsCap());
+    bean.setCap(security.isCap());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
     bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getConventionName()));
-    bean.setIbor(security.getIsIbor());
+    bean.setIbor(security.isIbor());
     bean.setMaturityDate(dateTimeWithZoneToZonedDateTimeBean(security.getMaturityDate()));
     bean.setNotional(security.getNotional());
-    bean.setPayer(security.getIsPayer());
+    bean.setPayer(security.isPayer());
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setStrike(security.getStrike());
-    bean.setUnderlyingIdentifier(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlyingIdentifier(externalIdToExternalIdBean(security.getUnderlyingId()));
     return bean;
   }
 

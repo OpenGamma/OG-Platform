@@ -30,7 +30,7 @@ public final class BondFutureNetBasisFromCurvesCalculator extends AbstractIntere
   public double[] visitBondFutureSecurity(final BondFutureSecurity bondFuture, final YieldCurveBundle curves) {
     Validate.notNull(bondFuture, "bond future");
     Validate.notNull(curves, "curves");
-    final double futurePrice = CALCULATOR.priceFromCurves(bondFuture, curves);
+    final double futurePrice = CALCULATOR.price(bondFuture, curves);
     return CALCULATOR.netBasisFromCurves(bondFuture, curves, futurePrice);
   }
 }

@@ -18,12 +18,23 @@ import com.opengamma.util.money.CurrencyAmount;
  * The delivery option is not taken into account.
  */
 public final class BondFutureTransactionDiscountingMethod extends BondFutureTransactionMethod {
+
+  /**
+   * Creates the method unique instance.
+   */
   private static final BondFutureTransactionDiscountingMethod INSTANCE = new BondFutureTransactionDiscountingMethod();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static BondFutureTransactionDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private BondFutureTransactionDiscountingMethod() {
   }
 
@@ -40,7 +51,7 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
    */
   public CurrencyAmount presentValue(final BondFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
-    final double futurePrice = METHOD_SECURITY.priceFromCurves(future.getUnderlyingFuture(), curves);
+    final double futurePrice = METHOD_SECURITY.price(future.getUnderlyingFuture(), curves);
     final double pv = presentValueFromPrice(future, futurePrice);
     return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
   }
@@ -60,7 +71,7 @@ public final class BondFutureTransactionDiscountingMethod extends BondFutureTran
   public PresentValueSensitivity presentValueCurveSensitivity(final BondFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     final PresentValueSensitivity priceSensitivity = METHOD_SECURITY.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
-    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity());
+    final PresentValueSensitivity transactionSensitivity = priceSensitivity.multiply(future.getQuantity() * future.getUnderlyingFuture().getNotional());
     return transactionSensitivity;
   }
 

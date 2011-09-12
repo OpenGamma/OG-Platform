@@ -76,7 +76,7 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     assertEquals(uniqueId, testSecurity.getUniqueId());
     assertEquals("TestSecurity", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    ExternalIdBundle idKey = security.getIdentifiers();
+    ExternalIdBundle idKey = security.getExternalIdBundle();
     assertNotNull(idKey);
     assertEquals(1, idKey.size());
     assertEquals(ExternalId.of("A", "B"), idKey.getExternalIds().iterator().next());

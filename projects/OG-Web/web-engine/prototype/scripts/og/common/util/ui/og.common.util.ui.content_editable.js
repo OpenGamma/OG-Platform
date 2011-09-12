@@ -99,8 +99,8 @@ $.register_module({
                  * Keyboard shortcuts
                  */
                 $this.keydown(function (e) {
-                    if (e.keyCode + "" === '13') update_field();
-                    if (e.keyCode + "" === '27') cancel_update();
+                    if ((e.keyCode === $.ui.keyCode.ENTER) || (e.keyCode === $.ui.keyCode.NUMPAD_ENTER)) update_field();
+                    if (e.keyCode === $.ui.keyCode.ESCAPE) cancel_update();
                 });
             });
 

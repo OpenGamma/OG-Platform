@@ -104,7 +104,7 @@ $.register_module({
                     $(form_id + ' [name=currency]').val(master.currency);
                     if (deleted || is_new)
                         $(form_id + ' .og-js-submit[value=save]').remove(), submit_type = 'save_as_new';
-                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').html('Save');
+                    if (is_new) $(form_id + ' .og-js-submit[value=save_as_new]').text('Save');
                     load_handler();
                 }},
                 {type: 'click', selector: '#' + form.id + ' .og-js-submit', handler: function (e) {

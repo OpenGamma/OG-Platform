@@ -44,8 +44,8 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
     final double notional = capFloorSecurity.getNotional();
     final ZonedDateTime fixingDate = capFloorSecurity.getStartDate(); //TODO is this right?
     final double strike = capFloorSecurity.getStrike();
-    final boolean isCap = capFloorSecurity.getIsCap();
-    final ExternalId underlyingId = capFloorSecurity.getUnderlyingIdentifier();
+    final boolean isCap = capFloorSecurity.isCap();
+    final ExternalId underlyingId = capFloorSecurity.getUnderlyingId();
     final Currency currency = capFloorSecurity.getCurrency();
     final Frequency tenor = capFloorSecurity.getFrequency();
     final ConventionBundle indexConvention = _conventionSource.getConventionBundle(underlyingId);

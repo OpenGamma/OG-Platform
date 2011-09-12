@@ -76,6 +76,9 @@ public class PortfolioAggregator {
   protected void aggregate(SimplePortfolioNode inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
     Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
+    for (Object entry : nextFunction.getRequiredEntries()) {
+      buckets.put(entry.toString(), new ArrayList<Position>());
+    }
     // drop into buckets - could drop straight into tree but this is easier because we can use faster lookups as we're going.
     for (Position position : flattenedPortfolio) {
       Object obj = nextFunction.classifyPosition(position);

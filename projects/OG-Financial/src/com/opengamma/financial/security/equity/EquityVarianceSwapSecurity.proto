@@ -1,0 +1,28 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.equity {
+
+  /**
+   * An equity variance swap security.
+   */
+  message EquityVarianceSwapSecurity extends FinancialSecurity {
+    required string securityType [default = "EQUITY VARIANCE SWAP"];
+    
+    required id.ExternalId spotUnderlyingIdentifier;
+    required com.opengamma.util.money.Currency currency;
+    required double strike;
+    required double notional;  
+    required boolean parameterizedAsVariance;
+    required double annualizationFactor;
+    required javax.time.calendar.ZonedDateTime firstObservationDate;
+    required javax.time.calendar.ZonedDateTime lastObservationDate;
+    required javax.time.calendar.ZonedDateTime settlementDate;
+    required id.ExternalId region;
+    required com.opengamma.financial.convention.frequency.Frequency observationFrequency;
+  }
+
+}

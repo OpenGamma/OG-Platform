@@ -46,7 +46,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     Validate.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final ConventionBundle iborConvention = _conventionSource.getConventionBundle(security.getUnderlyingIdentifier());
+    final ConventionBundle iborConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
     if (iborConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
     }

@@ -14,6 +14,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.language.async.AsynchronousExecution;
+import com.opengamma.language.async.AsynchronousResult;
+import com.opengamma.language.async.ResultListener;
 import com.opengamma.language.connector.ClientContext;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
@@ -91,20 +94,35 @@ public class DebugClientResource implements FudgeMessageReceiver {
     });
   }
   
-  @Override
-  public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    UserMessage userMessage = fudgeContext.fromFudgeMsg(UserMessage.class, msgEnvelope.getMessage());
-    s_logger.debug("User message received: {}", userMessage);
-    UserMessagePayload payload = userMessage.getPayload();
-    UserMessagePayload responsePayload = payload.accept(getClientContext().getMessageHandler(), getSessionContext());
+  private void sendResponse(final UserMessage userMessage, UserMessagePayload responsePayload) {
     if (responsePayload == null) {
       responsePayload = UserMessagePayload.EMPTY_PAYLOAD;
     }
-    UserMessage response = new UserMessage(responsePayload);
+    final UserMessage response = new UserMessage(responsePayload);
     response.setHandle(userMessage.getHandle());
     sendUserMessage(response);
   }
   
+  @Override
+  public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+    final UserMessage userMessage = fudgeContext.fromFudgeMsg(UserMessage.class, msgEnvelope.getMessage());
+    s_logger.debug("User message received: {}", userMessage);
+    final UserMessagePayload payload = userMessage.getPayload();
+    final UserMessagePayload responsePayload;
+    try {
+      responsePayload = payload.accept(getClientContext().getMessageHandler(), getSessionContext());
+    } catch (AsynchronousExecution e) {
+      e.setResultListener(new ResultListener<UserMessagePayload>() {
+        @Override
+        public void operationComplete(final AsynchronousResult<UserMessagePayload> result) {
+          sendResponse(userMessage, result.getResult());
+        }
+      });
+      return;
+    }
+    sendResponse(userMessage, responsePayload);
+  }
+
   protected void sendUserMessage(final UserMessage userMessage) {
     FudgeMsg fudgeMsg = userMessage.toFudgeMsg(new FudgeSerializer(getClientContext().getFudgeContext()));
     s_logger.debug("Sending user message {} as Fudge message {}", userMessage, fudgeMsg);

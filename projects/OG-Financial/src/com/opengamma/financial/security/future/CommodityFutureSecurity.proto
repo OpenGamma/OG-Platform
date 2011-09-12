@@ -10,41 +10,30 @@ namespace com.opengamma.financial.security.future {
    * Base for a commodity future.
    */
   abstract message CommodityFutureSecurity extends FutureSecurity {
-  
     required string commodityType;
     optional double unitNumber;
     optional string unitName;
-
   }
-  
+
+  /**
+   * An agriculture future security.
+   */
   message AgricultureFutureSecurity extends CommodityFutureSecurity {
-  
     // No additional fields
-    
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitAgricultureFutureSecurity (this); }";
-    }
-    
   }
-  
+
+  /**
+   * An energy future security.
+   */
   message EnergyFutureSecurity extends CommodityFutureSecurity {
-  
     optional id.ExternalId underlyingIdentifier;
-  
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEnergyFutureSecurity (this); }";
-    }
-
   }
-  
+
+  /**
+   * A metal future security.
+   */
   message MetalFutureSecurity extends CommodityFutureSecurity {
-
     optional id.ExternalId underlyingIdentifier;
-    
-    binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitMetalFutureSecurity (this); }";
-    }
-
   }
 
 }

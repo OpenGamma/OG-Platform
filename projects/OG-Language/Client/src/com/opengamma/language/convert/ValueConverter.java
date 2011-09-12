@@ -23,6 +23,11 @@ import com.opengamma.language.invoke.TypeConverter;
  */
 public final class ValueConverter extends AbstractTypeConverter {
 
+  /**
+   * Default instance.
+   */
+  public static final ValueConverter INSTANCE = new ValueConverter();
+
   private static final JavaTypeInfo<Value> VALUE_NOT_NULL = JavaTypeInfo.builder(Value.class).get();
   private static final JavaTypeInfo<Value> VALUE_NULL = JavaTypeInfo.builder(Value.class).allowNull().get();
   private static final JavaTypeInfo<Boolean> BOOLEAN_NOT_NULL = JavaTypeInfo.builder(Boolean.class).get();
@@ -40,6 +45,9 @@ public final class ValueConverter extends AbstractTypeConverter {
   private static final TypeMap TO_VALUE_ALLOW_NULL = TypeMap.of(ZERO_LOSS, BOOLEAN_NULL, INTEGER_NULL, DOUBLE_NULL, STRING_NULL, MESSAGE_NULL);
   private static final TypeMap FROM_VALUE_NOT_NULL = TypeMap.of(ZERO_LOSS, VALUE_NOT_NULL);
   private static final TypeMap FROM_VALUE_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUE_NULL);
+
+  protected ValueConverter() {
+  }
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {

@@ -5,7 +5,9 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorCompletionService;
@@ -33,7 +35,8 @@ public class CompiledFunctionService {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CompiledFunctionService.class);
 
-  private final FunctionRepository _functionRepository;
+  private final FunctionRepository _rawFunctionRepository;
+  private FunctionRepository _initializedFunctionRepository;
   private final FunctionRepositoryCompiler _functionRepositoryCompiler;
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<FunctionDefinition> _reinitializingFunctionDefinitions;
@@ -63,7 +66,7 @@ public class CompiledFunctionService {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
-    _functionRepository = functionRepository;
+    _rawFunctionRepository = functionRepository;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
     _localExecutorService = true;
@@ -90,9 +93,23 @@ public class CompiledFunctionService {
     }
   }
 
+  private static final class StaticFunctionRepository implements FunctionRepository {
+
+    private final Collection<FunctionDefinition> _functions;
+
+    private StaticFunctionRepository(final Collection<FunctionDefinition> functions) {
+      _functions = Collections.unmodifiableCollection(functions);
+    }
+
+    @Override
+    public Collection<FunctionDefinition> getAllFunctions() {
+      return _functions;
+    }
+
+  }
+
   protected void initializeImpl(final long initId, final Collection<FunctionDefinition> functions) {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing {} function definitions", functions.size());
-    // TODO kirk 2010-03-07 -- Better error handling.
     final ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
     int nFunctions = functions.size();
     getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
@@ -100,10 +117,16 @@ public class CompiledFunctionService {
       completionService.submit(new Runnable() {
         @Override
         public void run() {
-          definition.init(getFunctionCompilationContext());
+          try {
+            definition.init(getFunctionCompilationContext());
+          } catch (Exception e) {
+            s_logger.error("Couldn't initialize function {} id={}", definition.getShortName(), definition.getUniqueId());
+            throw new OpenGammaRuntimeException("Couldn't initialize function", e);
+          }
         }
       }, definition);
     }
+    final Collection<FunctionDefinition> initializedFunctions = new ArrayList<FunctionDefinition>(nFunctions);
     for (int i = 0; i < nFunctions; i++) {
       Future<FunctionDefinition> future = null;
       try {
@@ -114,12 +137,13 @@ public class CompiledFunctionService {
         throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
       }
       try {
-        future.get();
+        initializedFunctions.add(future.get());
       } catch (Exception e) {
-        s_logger.warn("Got exception check back on future for initializing FunctionDefinition. See above log entries", e);
-        throw new OpenGammaRuntimeException("Couldn't initialize function", e);
+        s_logger.warn("Couldn't initialize function", e);
+        // Don't take any further action - the error has been logged and the function is not in the "initialized" set
       }
     }
+    _initializedFunctionRepository = new StaticFunctionRepository(initializedFunctions);
     getFunctionCompilationContext().setFunctionReinitializer(null);
     getFunctionCompilationContext().setFunctionInitId(initId);
     timer.finished();
@@ -190,8 +214,24 @@ public class CompiledFunctionService {
     return _reinitializingFunctionRequirements;
   }
 
+  /**
+   * Returns the underlying (raw) function repository. Definitions in the repository may or may not be properly initialized. If
+   * functions are needed that can be reliably used, use {@link #getInitializedFunctionRepository} instead.
+   * 
+   * @return the function repository, not null
+   */
   public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
+    return _rawFunctionRepository;
+  }
+
+  /**
+   * Returns a repository of initialized functions. This may be a subset of the underlying (raw) repository if one or more threw
+   * exceptions during their {@link FunctionDefinition#init} calls.
+   * 
+   * @return the function repository, not null
+   */
+  public synchronized FunctionRepository getInitializedFunctionRepository() {
+    return _initializedFunctionRepository;
   }
 
   public FunctionRepositoryCompiler getFunctionRepositoryCompiler() {
@@ -203,11 +243,11 @@ public class CompiledFunctionService {
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
-    return getFunctionRepositoryCompiler().compile(getFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMillis(timestamp));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMillis(timestamp));
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final InstantProvider timestamp) {
-    return getFunctionRepositoryCompiler().compile(getFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
   }
 
   public ExecutorService getExecutorService() {

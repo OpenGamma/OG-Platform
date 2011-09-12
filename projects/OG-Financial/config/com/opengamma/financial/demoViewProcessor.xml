@@ -185,6 +185,12 @@
     </constructor-arg>
     <constructor-arg ref="demoFunctionCompilationContext" />
   </bean>
+  <bean id="demoAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
+    <constructor-arg ref="demoFunctionCompilation" />
+    <constructor-arg ref="combinedPositionSource" />
+    <constructor-arg ref="combinedSecuritySource" />
+    <constructor-arg value="*" />
+  </bean>
   
   <!-- Calculation nodes -->
   <!--
@@ -301,6 +307,7 @@
   <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="id" value="0" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
+    <property name="liveMarketDataSourceRegistry" ref="liveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />
@@ -342,6 +349,21 @@
         </bean>
       </set>
     </property>
+  </bean>
+  
+  <!-- Pnl Explain -->
+  <bean id="demoPnlExplainProcessor" class="com.opengamma.integration.pnlexplain.DefaultPnlExplainProcessorFactoryBean">
+    <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="executorService" ref="scheduler" />
+    <property name="availableOutputsProvider" ref="demoAvailableOutputsProvider" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="manageableViewDefinitionRepository" ref="userViewDefinitionRepository" />
+    <property name="conventionBundleSource" ref="conventionBundleSource" />
+    <property name="regionSource" ref="regionSource" />
+    <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
+    <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
   </bean>
   
   <!-- Code fragment needed for work on ENG-199 & ENG-200 only -->

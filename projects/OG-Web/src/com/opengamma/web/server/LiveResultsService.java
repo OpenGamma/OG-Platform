@@ -6,6 +6,8 @@
 package com.opengamma.web.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +29,15 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.ExecutionFlags;
+import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -43,10 +52,12 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
  */
 public class LiveResultsService extends BayeuxService implements ClientBayeuxListener {
 
+  private static final String DEFAULT_LIVE_MARKET_DATA_NAME = "Automatic";
+  
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
   private static final Pattern s_guidPattern = Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
-
-  private Map<String, WebView> _clientViews = new HashMap<String, WebView>();
+  
+  private final Map<String, WebView> _clientViews = new HashMap<String, WebView>();
   
   /**
    * The executor service used to call web clients back asynchronously.
@@ -57,21 +68,25 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final UserPrincipal _user;
   private final ResultConverterCache _resultConverterCache;
+  private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   
   public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
-      final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext) {
+      final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService, final FudgeContext fudgeContext, 
+      final LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
     super(bayeux, "processPortfolioRequest");
     ArgumentChecker.notNull(bayeux, "bayeux");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(executorService, "executorService");
+    ArgumentChecker.notNull(liveMarketDataSourceRegistry, "liveMarketDataSourceRegistry");
     
     _viewProcessor = viewProcessor;
     _snapshotMaster = snapshotMaster;
     _user = user;
     _executorService = executorService;
     _resultConverterCache = new ResultConverterCache(fudgeContext);
+    _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
     
     viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
 
@@ -115,11 +130,11 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
   }
 
-  private void initializeClientView(final Client remote, final String viewDefinitionName, final UniqueId snapshotId, final UserPrincipal user) {
+  private void initializeClientView(final Client remote, final String viewDefinitionName, final ViewExecutionOptions executionOptions, final UserPrincipal user) {
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(remote.getId());
       if (webView != null) {
-        if (webView.matches(viewDefinitionName, snapshotId)) {
+        if (webView.matches(viewDefinitionName, executionOptions)) {
           // Already initialized
           webView.reconnected();
           return;
@@ -131,7 +146,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
       try {
-        webView = new WebView(getClient(), remote, viewClient, viewDefinitionName, snapshotId, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(getClient(), remote, viewClient, viewDefinitionName, executionOptions, user, getExecutorService(), getResultConverterCache());
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
@@ -210,6 +225,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     reply.put("viewNames", availableViewNames);
     
     if (includeSnapshots) {
+      List<String> liveMarketDataSourceDetails = getLiveMarketDataSourceDetails();
+      reply.put("liveSources", liveMarketDataSourceDetails);
       Map<String, Map<String, String>> snapshotDetails = getSnapshotDetails();
       reply.put("snapshots", snapshotDetails);
     }
@@ -221,6 +238,19 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
     s_logger.debug("Available view names: " + availableViewNames);
     return new ArrayList<String>(availableViewNames);
+  }
+
+  private List<String> getLiveMarketDataSourceDetails() {
+    Collection<String> allDataSources = _liveMarketDataSourceRegistry.getDataSources();
+    List<String> filteredDataSources = new ArrayList<String>();
+    filteredDataSources.add(DEFAULT_LIVE_MARKET_DATA_NAME);
+    for (String dataSource : allDataSources) {
+      if (StringUtils.isBlank(dataSource)) {
+        continue;
+      }
+      filteredDataSources.add(dataSource);
+    }
+    return filteredDataSources;
   }
 
   private Map<String, Map<String, String>> getSnapshotDetails() {
@@ -258,10 +288,28 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   public void processChangeViewRequest(Client remote, Message message) {
     Map<String, Object> data = (Map<String, Object>) message.getData();
     String viewName = (String) data.get("viewName");
-    String snapshotIdString = (String) data.get("snapshotId");
-    UniqueId snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueId.parse(snapshotIdString) : null;
-    s_logger.info("Initializing view '{}' with snapshot '{}' for client '{}'", new Object[] {viewName, snapshotId, remote});
-    initializeClientView(remote, viewName, snapshotId, getUser(remote));
+    String marketDataType = (String) data.get("marketDataType");
+    MarketDataSpecification marketDataSpec;
+    EnumSet<ViewExecutionFlags> flags;
+    if ("snapshot".equals(marketDataType)) {
+      String snapshotIdString = (String) data.get("snapshotId");
+      UniqueId snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueId.parse(snapshotIdString) : null;
+      marketDataSpec = MarketData.user(snapshotId.toLatest());
+      flags = ExecutionFlags.none().triggerOnMarketData().get();
+    } else if ("live".equals(marketDataType)) {
+      String liveMarketDataProvider = (String) data.get("provider");
+      if (StringUtils.isBlank(liveMarketDataProvider) || DEFAULT_LIVE_MARKET_DATA_NAME.equals(liveMarketDataProvider)) {
+        marketDataSpec = MarketData.live();
+      } else {
+        marketDataSpec = MarketData.live(liveMarketDataProvider);
+      }
+      flags = ExecutionFlags.triggersEnabled().get();
+    } else {
+      throw new OpenGammaRuntimeException("Unknown market data type: " + marketDataType);
+    }
+    ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
+    s_logger.info("Initializing view '{}' with execution options '{}' for client '{}'", new Object[] {viewName, executionOptions, remote});
+    initializeClientView(remote, viewName, executionOptions, getUser(remote));
   }
   
   public void processPauseRequest(Client remote, Message message) {

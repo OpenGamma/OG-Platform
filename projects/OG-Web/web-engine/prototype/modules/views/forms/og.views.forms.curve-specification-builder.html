@@ -1,201 +1,3 @@
-<style type="text/css">
-  .OG-form .og-csb {
-    min-width: 600px;
-  }
-
-  .OG-form .og-csb .og-strip  {
-    cursor: default;
-    height: 23px;
-    padding-right: 30px;
-    white-space: nowrap;
-  }
-
-  .OG-form .og-csb .og-strip div {
-    border: 1px solid transparent;
-    display: inline-block;
-    float: left;
-    white-space: nowrap;
-    margin: -3px 0 0;
-    padding: 5px 4px 4px;
-    position: relative;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    width: 10%;
-  }
-
-  .OG-form .og-csb .og-strip div:last-child {
-    float: none;
-  }
-
-  .OG-form .og-csb .og-a-list-header {
-    padding: 0 35px 3px 5px;
-  }
-
-  .OG-form .og-csb .og-input {
-    border: 1px solid transparent!important;
-  }
-
-  .OG-form .og-csb .og-input input {
-    width: 90%;
-    margin: -5px 0 0 0;
-  }
-
-  /*
-   * awesome list
-   */
-  .OG-form .og-csb .og-awesome-list {
-    color: #999;
-    margin: 0 -10px;
-  }
-
-  .OG-form .og-csb .og-awesome-list .og-strip:hover {
-    color: #487287;
-  }
-
-  .OG-form .og-csb .og-awesome-list .og-strip div:hover {
-    border-left: 1px solid #eff5fa;
-    border-right: 1px solid #eff5fa;
-  }
-
-  /*
-   * footer
-   */
-  .OG-form .og-csb .og-footer {
-    background-color: #f6fafc;
-    margin: 10px -10px -10px -10px;
-    padding: 8px 5px 10px 5px;
-    border-top: 1px solid #ededed;
-  }
-
-  .OG-form .og-csb .og-footer .OG-link-add {
-    margin:  2px 0 0 14px;
-  }
-
-  /*
-   * standard cell items
-   */
-  .OG-form .og-csb .og-value {cursor: pointer;}
-  .OG-form .og-csb .og-value:hover span:last-child {
-    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
-    background-position: 0 -46px;
-    width: 14px;
-    height: 13px;
-    position: absolute;
-    top: 50%;
-    margin-top: -6px;
-    right: 0;
-    background-color: #d7e7f2;
-    cursor: default;
-    border-left: 5px solid #d7e7f2;
-    border-right: 2px solid #d7e7f2;
-    cursor: pointer;
-  }
-  .OG-form .og-csb .og-value:hover span:last-child:after {
-    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
-    content: '';
-    background-position: 0 -4px;
-    width: 4px;
-    height: 4px;
-    position: absolute;
-    bottom: -6px;
-    right: -2px;
-    display: block;
-  }
-
-  /*
-   * config cell items
-   */
-  .OG-form .og-csb .og-configure {
-    background-color: #f6fafc;
-    color: #487287;
-    position: relative;
-  }
-
-  .OG-form .og-csb .og-configure span {
-    border-bottom: 1px solid #bed4e3;
-    margin-left: 16px;
-    cursor: pointer;
-  }
-
-  .OG-form .og-csb .og-configure span:before {
-    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
-    content: '';
-    background-position: -14px -46px;
-    width: 14px;
-    height: 13px;
-    position: absolute;
-    top: 50%;
-    margin-top: -6px;
-    left: 4px;
-    cursor: default;
-  }
-
-  .OG-form .og-csb .og-configure:hover span {
-    border-bottom: 1px solid #487287;
-  }
-
-  /*
-   * active cell
-   */
-  .OG-form .og-csb .og-active {
-    background-color: #fff;
-    color: #555;
-    position: relative;
-    border-top-color: #dee3e6!important;
-    border-right-color: #dee3e6!important;
-    border-left-color: #dee3e6!important;
-    border-bottom-color: transparent;
-  }
-
-  .OG-form .og-csb .og-active span:last-child {
-    border-bottom: none;
-  }
-
-  .OG-form .og-csb .og-active span:last-child:after {
-    background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
-    content: '';
-    background-position: 0 -4px;
-    width: 4px;
-    height: 4px;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    display: block;
-  }
-
-  .OG-form .og-csb .og-active:hover span:last-child,
-  .OG-form .og-csb .og-active:hover span:last-child:after {
-    background: none;
-    border: none;
-  }
-
-  /*
-   * popup cell config
-   */
-  .OG-form .og-csb .og-config-popup {
-    width: 200px;
-    position: absolute;
-    border: 1px solid #fff;
-    border-top: 4px solid #fff;
-    background-color: #d7e7f2;
-    z-index: 2;
-    padding: 5px;
-  }
-
-  .OG-form .og-csb .og-config-popup label {
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .OG-form .og-csb .og-config-popup select,
-  .OG-form .og-csb .og-config-popup input {
-    width: 90%;
-  }
-
-  .OG-form .og-csb .og-config-popup .OG-link-cancel {
-    margin-left: 5px;
-  }
-</style>
 <div class="OG-details-container">
 <div class="og-details-content OG-config">
   <div class="OG-c10 og-grid-last OG-form">
@@ -218,19 +20,20 @@
           <div>Future</div>
           <div>OIS</div>
           <div>FRA</div>
-          <div>Tenor Swap</div>
-          <div>Basis Swap</div>
+          <div>Ten. Swap</div>
+          <div>Bas. Swap</div>
         </div>
       </h3>
       <div class="og-mod-content og-js-holder" style="position: relative;">
         {{html item_0}}
         <div class="og-footer">
-          <span class="OG-link-add">add row</span>
+          <span class="OG-link-add og-js-add">add row</span>
         </div>
       </div>
     </section>
     <section class="OG-mod-0">
-      <button type="submit">Save</button>
+      <button type="submit" value="save" class="og-js-submit">Save</button>
+      <button type="submit" value="save_as_new" class="og-js-submit">Save As New</button>
     </section>
   </div>
 </div>

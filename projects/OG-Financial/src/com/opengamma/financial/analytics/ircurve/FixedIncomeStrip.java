@@ -17,7 +17,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.fudgemsg.FixedIncomeStripBuilder;
+import com.opengamma.financial.fudgemsg.FixedIncomeStripFudgeBuilder;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -156,7 +156,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   //-------------------------------------------------------------------------
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
-    FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
+    FixedIncomeStripFudgeBuilder builder = new FixedIncomeStripFudgeBuilder();
     MutableFudgeMsg container = builder.buildMessage(serializer, this);
     for (FudgeField field : container.getAllFields()) {
       message.add(field);
@@ -165,7 +165,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
+    FixedIncomeStripFudgeBuilder builder = new FixedIncomeStripFudgeBuilder();
     return builder.buildObject(deserializer, message);
   }
 

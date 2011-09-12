@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -41,9 +42,10 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -134,7 +136,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity, final S data) {
+  public T visitForwardLiborAnnuity(final AnnuityCouponIbor annuityCouponIbor, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
   }
 
@@ -184,7 +186,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCouponOIS(final CouponOIS payment, final S data) {
+  public T visitZZZCouponOIS(final ZZZCouponOIS payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitContinuouslyMonitoredAverageRatePayment()");
   }
 
@@ -204,13 +206,18 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCapFloorIbor(final CapFloorIbor payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
+  public T visitCouponOIS(final CouponOIS payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
   }
 
   @Override
   public T visitCouponCMS(final CouponCMS payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
+  public T visitCapFloorIbor(final CapFloorIbor payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
   }
 
   @Override
@@ -231,6 +238,11 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   @Override
   public T visitGenericAnnuity(final GenericAnnuity<? extends Payment> genericAnnuity, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitGenericAnnuity()");
+  }
+
+  @Override
+  public T visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborRatchet()");
   }
 
   @Override
@@ -369,7 +381,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCouponOIS(final CouponOIS payment) {
+  public T visitZZZCouponOIS(final ZZZCouponOIS payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitContinuouslyMonitoredAverageRatePayment()");
   }
 
@@ -389,13 +401,18 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitCapFloorIbor(final CapFloorIbor payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
+  public T visitCouponOIS(final CouponOIS payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponOIS()");
   }
 
   @Override
   public T visitCouponCMS(final CouponCMS payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
+  public T visitCapFloorIbor(final CapFloorIbor payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCapFloorIbor()");
   }
 
   @Override
@@ -416,6 +433,11 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   @Override
   public T visitGenericAnnuity(final GenericAnnuity<? extends Payment> genericAnnuity) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitGenericAnnuity()");
+  }
+
+  @Override
+  public T visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborRatchet()");
   }
 
   @Override
