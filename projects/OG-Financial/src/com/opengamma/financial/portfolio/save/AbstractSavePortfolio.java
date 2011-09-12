@@ -8,9 +8,16 @@ package com.opengamma.financial.portfolio.save;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -20,6 +27,9 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
+import com.opengamma.core.position.impl.PortfolioNodeTraverser;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -35,6 +45,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Basic function to save a portfolio into a portfolio master and the positions contained into a position master.
@@ -43,16 +54,19 @@ public abstract class AbstractSavePortfolio {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractSavePortfolio.class);
 
+  private final ExecutorService _executor;
   private final PortfolioMaster _portfolios;
   private final PositionMaster _positions;
   private final Map<UniqueId, ObjectId> _positionMap = new HashMap<UniqueId, ObjectId>();
   private final boolean _rewriteExistingPositions;
 
-  protected AbstractSavePortfolio(final PortfolioMaster portfolios, final PositionMaster positions) {
-    this(portfolios, positions, false);
-  }
-  
-  protected AbstractSavePortfolio(final PortfolioMaster portfolios, final PositionMaster positions, final boolean rewriteExistingPositions) {
+  private static final ConcurrentMap<ExternalId, ObjectId> s_cache = new ConcurrentHashMap<ExternalId, ObjectId>();
+  private static final ObjectId MISSING = ObjectId.of("AbstractSavePortfolio", "MISSING_VALUE");
+
+  // TODO: cache this properly with EHCache or something or there may be a memory leak
+
+  protected AbstractSavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions, final boolean rewriteExistingPositions) {
+    _executor = executor;
     _portfolios = portfolios;
     _positions = positions;
     _rewriteExistingPositions = rewriteExistingPositions;
@@ -86,18 +100,78 @@ public abstract class AbstractSavePortfolio {
     return manageablePosition;
   }
 
+  private void populatePositionMapCache(final PortfolioNode node) {
+    final List<Future<Pair<UniqueId, ObjectId>>> futures = new LinkedList<Future<Pair<UniqueId, ObjectId>>>();
+    PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
+      @Override
+      public void preOrderOperation(final Position position) {
+        final ExternalId positionId = position.getUniqueId().toExternalId();
+        ObjectId id = s_cache.get(positionId);
+        if (id == null) {
+          final PositionSearchRequest searchRequest = new PositionSearchRequest();
+          searchRequest.setPositionProviderId(positionId);
+          final PositionSearchResult searchResult = _positions.search(searchRequest);
+          if (searchResult.getFirstPosition() != null) {
+            id = searchResult.getFirstPosition().getUniqueId().getObjectId();
+            s_logger.debug("Found position {} in master at {}", position, id);
+          }
+          if (id == null) {
+            s_cache.putIfAbsent(positionId, MISSING);
+          } else {
+            s_cache.putIfAbsent(positionId, id);
+          }
+          futures.add(_executor.submit(new Callable<Pair<UniqueId, ObjectId>>() {
+            @Override
+            public Pair<UniqueId, ObjectId> call() throws Exception {
+              final PositionSearchRequest searchRequest = new PositionSearchRequest();
+              searchRequest.setPositionProviderId(positionId);
+              final PositionSearchResult searchResult = _positions.search(searchRequest);
+              ObjectId id = null;
+              if (searchResult.getFirstPosition() != null) {
+                id = searchResult.getFirstPosition().getUniqueId().getObjectId();
+                s_logger.debug("Found position {} in master at {}", position, id);
+              }
+              if (id == null) {
+                s_cache.putIfAbsent(positionId, MISSING);
+              } else {
+                s_cache.putIfAbsent(positionId, id);
+              }
+              return Pair.of(position.getUniqueId(), id);
+            }
+          }));
+        } else if (id == MISSING) {
+        }
+      }
+    }).traverse(node);
+    if (futures.isEmpty()) {
+      return;
+    }
+    s_logger.info("{} operations to populate cache", futures.size());
+    Iterator<Future<Pair<UniqueId, ObjectId>>> futureItr = futures.iterator();
+    while (futureItr.hasNext()) {
+      final Future<Pair<UniqueId, ObjectId>> future = futureItr.next();
+      try {
+        final Pair<UniqueId, ObjectId> value = future.get();
+        futureItr.remove();
+        _positionMap.put(value.getFirst(), value.getSecond());
+      } catch (final InterruptedException e) {
+        s_logger.warn("Interrupted", e);
+        break;
+      } catch (final ExecutionException e) {
+        s_logger.warn("Exception", e);
+        break;
+      }
+    }
+    futureItr = futures.iterator();
+    while (futureItr.hasNext()) {
+      final Future<?> future = futureItr.next();
+      future.cancel(false);
+    }
+  }
+
   protected ObjectId mapPositionIdentifier(final Position position) {
     ObjectId id = _positionMap.get(position.getUniqueId());
     if (id == null) {
-      if (!_rewriteExistingPositions) {
-        final PositionSearchRequest searchRequest = new PositionSearchRequest();
-        searchRequest.setPositionProviderId(position.getUniqueId().toExternalId());
-        final PositionSearchResult searchResult = _positions.search(searchRequest);
-        if (searchResult.getFirstPosition() != null) {
-          id = searchResult.getFirstPosition().getUniqueId().getObjectId();
-          s_logger.debug("Found position {} in master at {}", position, id);
-        }
-      }
       if (id == null) {
         s_logger.debug("Adding position {} to master", position);
         id = _positions.add(new PositionDocument(createManageablePosition(position))).getUniqueId().getObjectId();
@@ -129,6 +203,9 @@ public abstract class AbstractSavePortfolio {
   }
 
   private ManageablePortfolio createManageablePortfolio(final Portfolio portfolio) {
+    if (!_rewriteExistingPositions) {
+      populatePositionMapCache(portfolio.getRootNode());
+    }
     final ManageablePortfolio manageablePortfolio = new ManageablePortfolio();
     manageablePortfolio.setName(getPortfolioName(portfolio));
     manageablePortfolio.setRootNode(createManageablePortfolioNode(portfolio.getRootNode()));
@@ -168,6 +245,11 @@ public abstract class AbstractSavePortfolio {
     PortfolioDocument document;
     if (updateMatchingName) {
       document = result.getFirstDocument();
+      final ManageablePortfolio resultPortfolio = document.getPortfolio();
+      if (nodesEqual(manageablePortfolio.getRootNode(), resultPortfolio.getRootNode())) {
+        s_logger.debug("Found existing match at {}", document.getUniqueId());
+        return document.getUniqueId();
+      }
     } else {
       document = null;
       for (PortfolioDocument resultDocument : result.getDocuments()) {
