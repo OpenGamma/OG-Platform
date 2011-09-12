@@ -65,6 +65,10 @@ public abstract class AbstractSavePortfolio {
 
   // TODO: cache this properly with EHCache or something or there may be a memory leak
 
+  protected AbstractSavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions) {
+    this(executor, portfolios, positions, false);
+  }
+  
   protected AbstractSavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions, final boolean rewriteExistingPositions) {
     _executor = executor;
     _portfolios = portfolios;
