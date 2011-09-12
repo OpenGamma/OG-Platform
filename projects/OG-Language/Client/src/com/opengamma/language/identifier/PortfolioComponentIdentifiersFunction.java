@@ -155,7 +155,9 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
     int i = 0;
     for (Pair<String, String> portfolioComponent : componentIds) {
       values[i][0] = portfolioComponent.getFirst() != null ? ValueUtils.of(portfolioComponent.getFirst()) : new Value();
-      values[i][1] = portfolioComponent.getSecond() != null ? ValueUtils.of(portfolioComponent.getSecond()) : new Value();
+      if (includeSecurity) {
+        values[i][1] = portfolioComponent.getSecond() != null ? ValueUtils.of(portfolioComponent.getSecond()) : new Value();
+      }
       i++;
     }
     return DataUtils.of(values);
