@@ -40,6 +40,10 @@ public class EHCachingRegionSource implements RegionSource {
    * The cache name.
    */
   private static final String CACHE_NAME = "RegionCache";
+  /**
+   * The cache manager.
+   */
+  private final CacheManager _cacheManager;
 
   /**
    * The underlying source.
@@ -50,6 +54,11 @@ public class EHCachingRegionSource implements RegionSource {
    */
   private final Cache _cache;
   
+  /**
+   * The time to live.
+   */
+  private Integer _ttl;
+
   /**
    * Creates an instance.
    * 
@@ -77,6 +86,7 @@ public class EHCachingRegionSource implements RegionSource {
     EHCacheUtils.addCache(cacheManager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
         eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
+    _cacheManager = cacheManager;
   }
 
   /**
@@ -91,6 +101,7 @@ public class EHCachingRegionSource implements RegionSource {
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, CACHE_NAME);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_NAME);
+    _cacheManager = cacheManager;
   }
 
   //-------------------------------------------------------------------------
@@ -112,20 +123,43 @@ public class EHCachingRegionSource implements RegionSource {
     return _cache.getCacheManager();
   }
   
+  /**
+   * Gets the ttl.
+   * @return the ttl
+   */
+  public Integer getTtl() {
+    return _ttl;
+  }
+
+  /**
+   * Sets the ttl.
+   * @param ttl  the ttl
+   */
+  public void setTtl(Integer ttl) {
+    _ttl = ttl;
+  }
+
   @Override
   public Region getRegion(UniqueId uniqueId) {
-    Element element = _cache.get(uniqueId);
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     Region result = null;
-    if (element != null) {
-      s_logger.debug("Cache hit on {}", uniqueId);
-      if (element.getValue() instanceof Region) {
-        result = (Region) element.getValue();
-      }
-    } else {
-      s_logger.debug("Cache miss on {}", uniqueId);
+    if (uniqueId.isLatest()) {
       result = _underlying.getRegion(uniqueId);
-      s_logger.debug("Caching regions {}", result);
+      s_logger.debug("Caching region {}", result);
       _cache.put(new Element(uniqueId, result));
+    } else {
+      Element element = _cache.get(uniqueId); 
+      if (element != null) {
+        s_logger.debug("Cache hit on {}", uniqueId);
+        if (element.getValue() instanceof Region) {
+          result = (Region) element.getValue();
+        }
+      } else {
+        s_logger.debug("Cache miss on {}", uniqueId);
+        result = _underlying.getRegion(uniqueId);
+        s_logger.debug("Caching region {}", result);
+        _cache.put(new Element(uniqueId, result));
+      }
     }
     return result;
   }
@@ -137,35 +171,47 @@ public class EHCachingRegionSource implements RegionSource {
     request.addObjectId(objectId);
     
     Region result = null;
-    Element e = _cache.get(request);
-    if (e != null) {
+    Element element = _cache.get(request);
+    if (element != null) {
       s_logger.debug("Cache hit on {}", request);
-      result = (Region) e.getValue();
+      result = (Region) element.getValue();
     } else {
       s_logger.debug("Cache miss on {}", request);
       result = _underlying.getRegion(objectId, versionCorrection);
       s_logger.debug("Caching regions {}", result);
       _cache.put(new Element(request, result));
+      if (result != null) {
+        _cache.put(new Element(result.getUniqueId(), result));
+      }
     }
     return result;
   }
 
-  
   @SuppressWarnings("unchecked")
   @Override
   public Collection<? extends Region> getRegions(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);
     request.setVersionCorrection(versionCorrection);
-    Element e = _cache.get(request);
+    
+    Element element = _cache.get(request);
     Collection<? extends Region> result = null;
-    if (e != null) {
+    if (element != null) {
       s_logger.debug("Cache hit on {}", request);
-      result = (Collection<? extends Region>) e.getValue();
+      result = (Collection<? extends Region>) element.getValue();
     } else {
       s_logger.debug("Cache miss on {}", request);
       result = _underlying.getRegions(bundle, versionCorrection);
       s_logger.debug("Caching regions {}", result);
-      _cache.put(new Element(request, result));
+      element = new Element(request, result);
+      if (_ttl != null) {
+        element.setTimeToLive(_ttl);
+      }
+      _cache.put(element);
+      if (result != null) {
+        for (Region region : result) {
+          _cache.put(new Element(region.getUniqueId(), region));
+        }
+      }
     }
     return result;
   }
@@ -177,19 +223,33 @@ public class EHCachingRegionSource implements RegionSource {
 
   @Override
   public Region getHighestLevelRegion(ExternalIdBundle bundle) {
-    RegionSearchRequest request = new RegionSearchRequest(bundle);
     Region result = null;
-    Element e = _cache.get(request);
-    if (e != null) {
-      s_logger.debug("Cache hit on {}", request);
-      result = (Region) e.getValue();
+    Element element = _cache.get(bundle);
+    if (element != null) {
+      s_logger.debug("Cache hit on {}", bundle);
+      result = (Region) element.getValue();
     } else {
-      s_logger.debug("Cache miss on {}", request);
+      s_logger.debug("Cache miss on {}", bundle);
       result = _underlying.getHighestLevelRegion(bundle);
       s_logger.debug("Caching regions {}", result);
-      _cache.put(new Element(request, result));
+      element = new Element(bundle, result);
+      if (_ttl != null) {
+        element.setTimeToLive(_ttl);
+      }
+      _cache.put(element);
+      if (result != null) {
+        _cache.put(new Element(result.getUniqueId(), result));
+      }
     }
     return result;
+  }
+  
+  /**
+   * Call this at the end of a unit test run to clear the state of EHCache.
+   * It should not be part of a generic lifecycle method.
+   */
+  protected void shutdown() {
+    _cacheManager.removeCache(CACHE_NAME);
   }
 
 }
