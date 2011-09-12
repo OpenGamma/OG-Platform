@@ -70,6 +70,7 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   public String classifyPosition(Position position) {
     if (s_useAttributes) {
       Map<String, String> attributes = position.getAttributes();
+      s_logger.warn("attributes on " + position + " = " + attributes.entrySet());
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());
       } else {
