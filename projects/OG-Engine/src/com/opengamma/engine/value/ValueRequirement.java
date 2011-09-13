@@ -50,6 +50,11 @@ public final class ValueRequirement implements Serializable {
   private final ValueProperties _constraints;
 
   /**
+   * The cached hash code.
+   */
+  private transient volatile int _hashCode;
+  
+  /**
    * Creates a requirement with no value constraints.
    * <p>
    * This builds a {@link ComputationTargetSpecification} from the target type and id.
@@ -234,12 +239,15 @@ public final class ValueRequirement implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _valueName.hashCode();
-    result = prime * result + _targetSpecification.hashCode();
-    result = prime * result + _constraints.hashCode();
-    return result;
+    if (_hashCode == 0) {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + _valueName.hashCode();
+      result = prime * result + _targetSpecification.hashCode();
+      result = prime * result + _constraints.hashCode();
+      _hashCode = result;
+    }
+    return _hashCode;
   }
 
   @Override
