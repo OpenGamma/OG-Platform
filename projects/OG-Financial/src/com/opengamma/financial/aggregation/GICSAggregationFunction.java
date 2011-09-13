@@ -8,6 +8,7 @@ package com.opengamma.financial.aggregation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.SecuritySource;
@@ -26,6 +27,7 @@ import com.opengamma.id.ExternalIdBundle;
 public class GICSAggregationFunction implements AggregationFunction<String> {
 
   private static final String UNKNOWN = "Unknown";
+  private static final boolean s_useAttributes = true;
 
   /**
    * Enumerated type representing how specific the GICS code should be interpreted.
@@ -86,13 +88,22 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   
   @Override
   public String classifyPosition(Position position) {
-    FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
-                                                                                            .equitySecurityVisitor(_equitySecurityVisitor)
-                                                                                            .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                            .create();
-    FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
-    String classification = security.accept(visitorAdapter);
-    return classification == null ? UNKNOWN : classification;
+    if (s_useAttributes) {
+      Map<String, String> attributes = position.getAttributes();
+      if (attributes.containsKey(getName())) {
+        return attributes.get(getName());
+      } else {
+        return UNKNOWN;
+      }
+    } else {
+      FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
+                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
+                                                                                              .create();
+      FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
+      String classification = security.accept(visitorAdapter);
+      return classification == null ? UNKNOWN : classification;
+    }
   }
 
   @Override

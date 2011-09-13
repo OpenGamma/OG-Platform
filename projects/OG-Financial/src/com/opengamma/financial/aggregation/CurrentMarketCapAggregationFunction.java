@@ -7,6 +7,7 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
@@ -29,6 +30,7 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class CurrentMarketCapAggregationFunction implements AggregationFunction<String> {
 
+  private static final boolean s_useAttributes = true;
   private static final String NAME = "Market Cap";
   private static final String FIELD = "CUR_MKT_CAP";
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
@@ -98,13 +100,22 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   
   @Override
   public String classifyPosition(Position position) {
-    FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
-                                                                                            .equitySecurityVisitor(_equitySecurityVisitor)
-                                                                                            .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                            .create();
-    FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
-    String classification = security.accept(visitorAdapter);
-    return classification == null ? NO_CUR_MKT_CAP : classification;
+    if (s_useAttributes) {
+      Map<String, String> attributes = position.getAttributes();
+      if (attributes.containsKey(getName())) {
+        return attributes.get(getName());
+      } else {
+        return NO_CUR_MKT_CAP;
+      }
+    } else {
+      FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
+                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
+                                                                                              .create();
+      FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
+      String classification = security.accept(visitorAdapter);
+      return classification == null ? NO_CUR_MKT_CAP : classification;
+    }
   }
 
   public String getName() {
