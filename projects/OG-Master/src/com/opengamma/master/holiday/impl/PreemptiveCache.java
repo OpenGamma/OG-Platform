@@ -69,7 +69,9 @@ public abstract class PreemptiveCache<TKey, TValue> {
   public TValue get(TKey key) {
     Entry entry = _cache.get(key);
     if (entry == null || !isValid(entry)) {
-      s_logger.warn("Blocking get to load {} previous {}", key, entry);
+      if (entry != null) {
+        s_logger.warn("Blocking get to reload {} previous {}", key, entry); //Shouldn't happen
+      }
       entry = loadKey(key, entry);
     }
     return entry.value;
@@ -98,12 +100,6 @@ public abstract class PreemptiveCache<TKey, TValue> {
 
   private Entry loadKeyImpl(TKey key) {
     TValue valueImpl = getValueImpl(key);
-    
-    //check for concurrent update and avoid the put call
-    Entry newOldEntry = _cache.get(key);
-    if (newOldEntry != null && isValid(newOldEntry)) {
-      return newOldEntry;
-    }
     Entry entry = new Entry(valueImpl);
     _cache.put(key, entry);
     return entry;
