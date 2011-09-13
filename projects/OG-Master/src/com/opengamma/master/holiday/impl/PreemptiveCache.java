@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.holiday.impl;
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,13 +16,17 @@ import javax.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 /**
  * PLAT-1015: A cache which refreshes values preemptively, to try and avoid _any_ blocking of the get threads
+ * Currently only checked for low cardinality.
  * @param <TKey> the key type
  * @param <TValue> the value type
  */
 public abstract class PreemptiveCache<TKey, TValue> {
   private static final Logger s_logger = LoggerFactory.getLogger(PreemptiveCache.class);
+  private static final double TIMEOUTS_BETWEEN_EVICTION = 20.0;
   
   /*
    * NOTE: this is only attempted
@@ -33,17 +39,43 @@ public abstract class PreemptiveCache<TKey, TValue> {
     _timeout = timeout;
     _timeoutMillis =  _timeout.toMillisLong();
     _timer = new Timer("PreemptiveCache refresh " + this.getClass().getName(), true);
+    
+    //TODO: As cardinality goes up may want to spread the reloads. See also expiry
     _timer.schedule(new TimerTask() {
       @Override
       public void run() {
+        evictElements();
         refreshCache();
+      }
+      
+      private final Random _r = new Random();
+      
+      private void evictElements() {
+        double expectedItemsToEvict = _cache.size() / (2.0 * TIMEOUTS_BETWEEN_EVICTION); // 2.0 from frequency of timer
+        double cutoff = _r.nextDouble();
+        if (cutoff < expectedItemsToEvict) {
+          if (expectedItemsToEvict > 1.0) {
+            s_logger.warn("In high cardinality cases eviction is broken, and refresh is suboptimal {}", _cache.size());
+          }
+          expireAKey();
+        }
+      }
+
+      private void expireAKey() {
+        ArrayList<TKey> keys = Lists.newArrayList(_cache.keySet());
+        if (keys.size() == 0) {
+          return;
+        }
+        int ki = _r.nextInt(keys.size());
+        TKey k = keys.remove(ki);
+        s_logger.debug("Evicted key {}", k);
+        _cache.remove(k);
       }
     }, _timeoutMillis, _timeoutMillis / 2); //try and avoid gets ever seeing stale values.
   }
   
   private void refreshCache() {
     for (java.util.Map.Entry<TKey, Entry> entry : _cache.entrySet()) {
-      //TODO: expire some keys
       loadKey(entry.getKey(), entry.getValue(), false);
     }
   }
@@ -69,7 +101,9 @@ public abstract class PreemptiveCache<TKey, TValue> {
   public TValue get(TKey key) {
     Entry entry = _cache.get(key);
     if (entry == null || !isValid(entry)) {
-      s_logger.warn("Blocking get to load {} previous {}", key, entry);
+      if (entry != null) {
+        s_logger.warn("Blocking get to reload {} previous {}", key, entry); //Shouldn't happen
+      }
       entry = loadKey(key, entry);
     }
     return entry.value;
@@ -98,12 +132,6 @@ public abstract class PreemptiveCache<TKey, TValue> {
 
   private Entry loadKeyImpl(TKey key) {
     TValue valueImpl = getValueImpl(key);
-    
-    //check for concurrent update and avoid the put call
-    Entry newOldEntry = _cache.get(key);
-    if (newOldEntry != null && isValid(newOldEntry)) {
-      return newOldEntry;
-    }
     Entry entry = new Entry(valueImpl);
     _cache.put(key, entry);
     return entry;

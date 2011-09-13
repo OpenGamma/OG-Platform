@@ -11,7 +11,6 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.joda.beans.BeanBuilder;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -43,12 +42,12 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
     addToMessage(serializer, msg, NOTIONAL_FIELD_NAME, object.getNotional(), Notional.class);
   }
 
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, BeanBuilder<? extends SwapLeg> object) {
-    object.set(SwapLeg.meta().dayCount().name(), msg.getValue(DayCount.class, DAY_COUNT_FIELD_NAME));
-    object.set(SwapLeg.meta().frequency().name(), msg.getValue(Frequency.class, FREQUENCY_FIELD_NAME));
-    object.set(SwapLeg.meta().regionId().name(), ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_IDENTIFIER_FIELD_NAME)));
-    object.set(SwapLeg.meta().businessDayConvention().name(), msg.getValue(BusinessDayConvention.class, BUSINESS_DAY_CONVENTION_FIELD_NAME));
-    object.set(SwapLeg.meta().notional().name(), deserializer.fudgeMsgToObject(Notional.class, msg.getMessage(NOTIONAL_FIELD_NAME)));
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, SwapLeg object) {
+    object.setDayCount(msg.getValue(DayCount.class, DAY_COUNT_FIELD_NAME));
+    object.setFrequency(msg.getValue(Frequency.class, FREQUENCY_FIELD_NAME));
+    object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_IDENTIFIER_FIELD_NAME)));
+    object.setBusinessDayConvention(msg.getValue(BusinessDayConvention.class, BUSINESS_DAY_CONVENTION_FIELD_NAME));
+    object.setNotional(deserializer.fudgeMsgToObject(Notional.class, msg.getMessage(NOTIONAL_FIELD_NAME)));
   }
 
   //-------------------------------------------------------------------------
@@ -70,10 +69,10 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
 
     @Override
     public FixedInterestRateLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      BeanBuilder<? extends FixedInterestRateLeg> builder = FixedInterestRateLeg.meta().builder();
-      SwapLegFudgeBuilder.fromFudgeMsg(deserializer, msg, builder);
-      builder.set(FixedInterestRateLeg.meta().rate().name(), msg.getDouble(RATE_FIELD_NAME));
-      return builder.build();
+      FixedInterestRateLeg floatingInterestRateLeg = new FixedInterestRateLeg();
+      SwapLegFudgeBuilder.fromFudgeMsg(deserializer, msg, floatingInterestRateLeg);
+      floatingInterestRateLeg.setRate(msg.getDouble(RATE_FIELD_NAME));
+      return floatingInterestRateLeg;
     }
   }
 
@@ -105,13 +104,15 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
 
     @Override
     public FloatingInterestRateLeg buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-      BeanBuilder<? extends FloatingInterestRateLeg> builder = FloatingInterestRateLeg.meta().builder();
-      SwapLegFudgeBuilder.fromFudgeMsg(deserializer, msg, builder);
-      builder.set(FloatingInterestRateLeg.meta().floatingReferenceRateId().name(), ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FLOATING_REFERENCE_RATE_IDENTIFIER_FIELD_NAME)));
-      builder.set(FloatingInterestRateLeg.meta().initialFloatingRate().name(), msg.getDouble(INITIAL_FLOATING_RATE_FIELD_NAME));
-      builder.set(FloatingInterestRateLeg.meta().spread().name(), msg.getDouble(SPREAD_FIELD_NAME));
-      builder.set(FloatingInterestRateLeg.meta().ibor().name(), msg.getBoolean(IS_IBOR_FIELD_NAME));
-      return builder.build();
+      FloatingInterestRateLeg floatingInterestRateLeg = new FloatingInterestRateLeg();
+      SwapLegFudgeBuilder.fromFudgeMsg(deserializer, msg, floatingInterestRateLeg);
+      floatingInterestRateLeg.setFloatingReferenceRateId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FLOATING_REFERENCE_RATE_IDENTIFIER_FIELD_NAME)));
+      
+      
+      floatingInterestRateLeg.setInitialFloatingRate(msg.getDouble(INITIAL_FLOATING_RATE_FIELD_NAME));
+      floatingInterestRateLeg.setSpread(msg.getDouble(SPREAD_FIELD_NAME));
+      floatingInterestRateLeg.setIbor(msg.getBoolean(IS_IBOR_FIELD_NAME));
+      return floatingInterestRateLeg;
     }
   }
 
