@@ -57,8 +57,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
   private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
-  private String _forwardCurveName;
-  private String _fundingCurveName;
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
 
   public InterestRateInstrumentFunction(final String forwardCurveName, final String fundingCurveName, final String valueRequirementName) {
     Validate.notNull(forwardCurveName, "forward curve name");

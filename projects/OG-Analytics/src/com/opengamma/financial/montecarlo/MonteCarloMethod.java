@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swaption.method.montecarlo;
+package com.opengamma.financial.montecarlo;
 
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.math.random.RandomNumberGenerator;

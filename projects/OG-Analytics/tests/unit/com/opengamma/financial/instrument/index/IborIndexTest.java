@@ -69,7 +69,7 @@ public class IborIndexTest {
     assertEquals(INDEX.getDayCount(), DAY_COUNT);
     assertEquals(INDEX.getBusinessDayConvention(), BUSINESS_DAY);
     assertEquals(INDEX.isEndOfMonth(), IS_EOM);
-    String name = CUR.toString() + TENOR.toString();
+    String name = "Ibor"; // CUR.toString() + TENOR.toString();
     assertEquals(name, INDEX.getName());
     assertEquals(name, INDEX.toString());
     Convention convention = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, "Ibor conventions");

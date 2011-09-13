@@ -144,6 +144,11 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<HolidayDocument> documentsGenericType() {
+      return HolidayDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

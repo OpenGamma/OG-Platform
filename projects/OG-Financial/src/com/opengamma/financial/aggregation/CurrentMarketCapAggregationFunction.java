@@ -7,6 +7,7 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
@@ -29,16 +30,17 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class CurrentMarketCapAggregationFunction implements AggregationFunction<String> {
 
+  private static final boolean s_useAttributes = true;
   private static final String NAME = "Market Cap";
   private static final String FIELD = "CUR_MKT_CAP";
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
   private static final String NO_CUR_MKT_CAP = "N/A";
   
-  private static final double NANO_CAP_UPPER_THRESHOLD = 10E6;
-  private static final double MICRO_CAP_UPPER_THRESHOLD = 100E6;
-  private static final double SMALL_CAP_UPPER_THRESHOLD = 1000E6;
-  private static final double MID_CAP_UPPER_THRESHOLD = 10E9;
-  private static final double LARGE_CAP_UPPER_THRESHOLD = 100E9;
+  private static final double NANO_CAP_UPPER_THRESHOLD = 10;
+  private static final double MICRO_CAP_UPPER_THRESHOLD = 100;
+  private static final double SMALL_CAP_UPPER_THRESHOLD = 1000;
+  private static final double MID_CAP_UPPER_THRESHOLD = 10E3;
+  private static final double LARGE_CAP_UPPER_THRESHOLD = 100E3;
   
   private static final String NANO_CAP = "E) Nano Cap";
   private static final String MICRO_CAP = "D) Micro Cap";
@@ -98,13 +100,22 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   
   @Override
   public String classifyPosition(Position position) {
-    FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
-                                                                                            .equitySecurityVisitor(_equitySecurityVisitor)
-                                                                                            .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                            .create();
-    FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
-    String classification = security.accept(visitorAdapter);
-    return classification == null ? NO_CUR_MKT_CAP : classification;
+    if (s_useAttributes) {
+      Map<String, String> attributes = position.getAttributes();
+      if (attributes.containsKey(getName())) {
+        return attributes.get(getName());
+      } else {
+        return NO_CUR_MKT_CAP;
+      }
+    } else {
+      FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
+                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
+                                                                                              .create();
+      FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
+      String classification = security.accept(visitorAdapter);
+      return classification == null ? NO_CUR_MKT_CAP : classification;
+    }
   }
 
   public String getName() {

@@ -16,6 +16,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -86,6 +87,24 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
         payment.getFundingCurveName());
     PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getNotional() + payment.getSpreadAmount()) * payment.getPaymentYearFraction()
         / payment.getFixingYearFraction(), payment.getFundingCurveName());
+    return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
+  }
+
+  @Override
+  public AnnuityPaymentFixed visitCouponIborGearing(final CouponIborGearing payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(payment.getForwardCurveName());
+    double fixingStartTime = payment.getFixingPeriodStartTime();
+    double fixingEndTime = payment.getFixingPeriodEndTime();
+    double paymentTime = payment.getPaymentTime();
+    final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
+        / discountingCurve.getDiscountFactor(fixingStartTime);
+    PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, payment.getFactor() * beta * payment.getNotional() * payment.getPaymentYearFraction()
+        / payment.getFixingAccrualFactor(), payment.getFundingCurveName());
+    PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getFactor() / payment.getFixingAccrualFactor() + payment.getSpread()) * payment.getPaymentYearFraction()
+        * payment.getNotional(), payment.getFundingCurveName());
     return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
   }
 
