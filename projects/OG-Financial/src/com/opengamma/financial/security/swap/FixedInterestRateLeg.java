@@ -40,7 +40,7 @@ public class FixedInterestRateLeg extends InterestRateLeg {
   /**
    * Creates an instance.
    */
-  private FixedInterestRateLeg() {
+  FixedInterestRateLeg() { //For builder
   }
 
   /**
