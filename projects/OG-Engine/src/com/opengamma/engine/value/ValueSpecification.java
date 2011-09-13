@@ -50,6 +50,11 @@ public class ValueSpecification implements Serializable {
    * This property set will satisfy the constraints of all {@link ValueRequirement}s satisfied by this specification.
    */
   private final ValueProperties _properties;
+  
+  /**
+   * The cached hash code.
+   */
+  private transient volatile int _hashCode;
 
   /**
    * Obtains a {@code ValueSpecification} from a target, building the target specification
@@ -319,15 +324,18 @@ public class ValueSpecification implements Serializable {
     }
     return false;
   }
-
+  
   @Override
   public int hashCode() {
-    final int prime = 37;
-    int result = 1;
-    result = (result * prime) + _valueName.hashCode();
-    result = (result * prime) + _targetSpecification.hashCode();
-    result = (result * prime) + _properties.hashCode();
-    return result;
+    if (_hashCode == 0) {
+      final int prime = 37;
+      int result = 1;
+      result = (result * prime) + _valueName.hashCode();
+      result = (result * prime) + _targetSpecification.hashCode();
+      result = (result * prime) + _properties.hashCode();
+      _hashCode = result;
+    }
+    return _hashCode;
   }
 
   @Override

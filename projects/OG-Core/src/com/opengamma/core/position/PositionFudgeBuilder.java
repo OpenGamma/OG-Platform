@@ -7,6 +7,7 @@ package com.opengamma.core.position;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Map.Entry;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -29,6 +30,8 @@ import com.opengamma.id.UniqueId;
 @GenericFudgeBuilderFor(Position.class)
 public class PositionFudgeBuilder implements FudgeBuilder<Position> {
 
+  /** Field name. */
+  public static final String ATTRIBUTES_FIELD_NAME = "attributes";
   /** Field name. */
   public static final String QUANTITY_FIELD_NAME = "quantity";
   /** Field name. */
@@ -66,8 +69,19 @@ public class PositionFudgeBuilder implements FudgeBuilder<Position> {
     if (position.getSecurityLink().getObjectId() != null) {
       serializer.addToMessage(message, SECURITY_ID_FIELD_NAME, null, position.getSecurityLink().getObjectId());
     }
+    if (haveAttributes(position)) {
+      final MutableFudgeMsg attributesMsg = serializer.newMessage();
+      for (Entry<String, String> entry : position.getAttributes().entrySet()) {
+        attributesMsg.add(entry.getKey(), entry.getValue());
+      }
+      serializer.addToMessage(message, ATTRIBUTES_FIELD_NAME, null, attributesMsg);
+    }
     encodeTrades(message, serializer, position.getTrades());
     return message;
+  }
+  
+  private static boolean haveAttributes(final Position position) {
+    return position.getAttributes() != null && !position.getAttributes().isEmpty();
   }
 
   @Override
@@ -116,6 +130,16 @@ public class PositionFudgeBuilder implements FudgeBuilder<Position> {
       FudgeField quantityField = message.getByName(QUANTITY_FIELD_NAME);
       if (quantityField != null) {
         position.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
+      }
+    }
+    if (message.hasField(ATTRIBUTES_FIELD_NAME)) {
+      FudgeMsg attributesMsg = message.getMessage(ATTRIBUTES_FIELD_NAME);
+      for (FudgeField fudgeField : attributesMsg) {
+        String key = fudgeField.getName();
+        Object value = fudgeField.getValue();
+        if (key != null && value != null) {
+          position.addAttribute(key, (String) value);
+        }
       }
     }
     readTrades(deserializer, message.getFieldValue(FudgeMsg.class, message.getByName(TRADES_FIELD_NAME)), position);
