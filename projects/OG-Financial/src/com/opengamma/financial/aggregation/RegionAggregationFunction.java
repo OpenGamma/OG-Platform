@@ -7,7 +7,11 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.exchange.Exchange;
@@ -26,7 +30,9 @@ import com.opengamma.id.UniqueId;
  *
  */
 public class RegionAggregationFunction implements AggregationFunction<String> {
-
+  private static final boolean s_useAttributes = true;
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(RegionAggregationFunction.class);
   private static final String NAME = "Region";
   private static final String OTHER = "Other";
   private static final String NO_REGION = "N/A";
@@ -62,44 +68,58 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   
   @Override
   public String classifyPosition(Position position) {
-    try {
-      Security security = position.getSecurityLink().resolve(_secSource);
-      ExternalId id = FinancialSecurityUtils.getRegion(security);
-      if (_regionSource != null) {
-        if (id != null) {
-          Region highestLevelRegion = _regionSource.getHighestLevelRegion(id);
-          if (highestLevelRegion != null) {
-            return highestLevelRegion.getName();
-          } else {
-            return id.getValue();
-          }
-        } else if (_exchangeSource != null) {
-          ExternalId exchangeId = FinancialSecurityUtils.getExchange(security);
-          if (exchangeId != null) {
-            Exchange exchange = _exchangeSource.getSingleExchange(exchangeId);
-            if (exchange.getRegionIdBundle() != null) {
-              Region highestLevelRegion = _regionSource.getHighestLevelRegion(exchange.getRegionIdBundle());
-              if (s_specialCountriesRegions.contains(highestLevelRegion.getName())) {
-                return highestLevelRegion.getName();
-              } else {
-                Set<UniqueId> parentRegionIds = highestLevelRegion.getParentRegionIds();
-                return findTopLevelRegion(parentRegionIds);
-              }
-            } else {
-              return NO_REGION;
-            }
-          }
-        } 
-        return NO_REGION;
+    if (s_useAttributes) {
+      Map<String, String> attributes = position.getAttributes();
+      s_logger.warn("attributes on " + position + " = " + attributes.entrySet());
+      if (attributes.containsKey(getName())) {
+        return attributes.get(getName());
       } else {
-        if (id != null) {
-          return id.getValue();
-        } else {
+        return NO_REGION;
+      }
+    } else {
+      try {
+        Security security = position.getSecurityLink().resolve(_secSource);
+        ExternalId id = FinancialSecurityUtils.getRegion(security);
+        if (_regionSource != null) {
+          if (id != null) {
+            Region highestLevelRegion = _regionSource.getHighestLevelRegion(id);
+            if (highestLevelRegion != null) {
+              return highestLevelRegion.getName();
+            } else {
+              return id.getValue();
+            }
+          } else if (_exchangeSource != null) {
+            ExternalId exchangeId = FinancialSecurityUtils.getExchange(security);
+            if (exchangeId != null) {
+              Exchange exchange = _exchangeSource.getSingleExchange(exchangeId);
+              if (exchange.getRegionIdBundle() != null) {
+                Region highestLevelRegion = _regionSource.getHighestLevelRegion(exchange.getRegionIdBundle());
+                if (s_specialCountriesRegions.contains(highestLevelRegion.getName())) {
+                  return highestLevelRegion.getName();
+                } else {
+                  Set<UniqueId> parentRegionIds = highestLevelRegion.getParentRegionIds();
+                  s_logger.info("got " + highestLevelRegion + ", looking for parent");
+                  String parent = findTopLevelRegion(parentRegionIds);
+                  s_logger.info("parent was " + parent);
+                  return parent;
+                }
+              } else {
+                s_logger.info("Exchange " + exchange.getName() + " region bundle was null");
+                return NO_REGION;
+              }
+            }
+          } 
           return NO_REGION;
-        }
-      }    
-    } catch (UnsupportedOperationException ex) {
-      return NO_REGION;
+        } else {
+          if (id != null) {
+            return id.getValue();
+          } else {
+            return NO_REGION;
+          }
+        }    
+      } catch (UnsupportedOperationException ex) {
+        return NO_REGION;
+      }
     }
   }
   

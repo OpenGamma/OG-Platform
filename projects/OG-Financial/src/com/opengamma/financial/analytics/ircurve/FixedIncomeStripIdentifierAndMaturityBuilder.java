@@ -43,6 +43,9 @@ import com.opengamma.util.time.Tenor;
  */
 public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private static final LocalTime CASH_EXPIRY_TIME = LocalTime.of(11, 00);
+  
+  private static  final ConventionBundleSource s_conventionBundleSource = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
+  
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionBundleSource;
   private final SecuritySource _secSource;
@@ -243,8 +246,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     int months = resetTenor.getPeriod().getMonths(); //TODO this isn't right - what if someone's used 1Y?
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
-    final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
-    final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
+    final ConventionBundleSource source = s_conventionBundleSource;
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
@@ -300,8 +302,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
-    final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
-    final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
+    final ConventionBundleSource source = s_conventionBundleSource;
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
@@ -361,8 +362,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
-    final InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
-    final ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
+    final ConventionBundleSource source = s_conventionBundleSource;
+    
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);

@@ -15,7 +15,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * PLAT-1015: A cache to optimize the results of {@code MasterHolidaySource}.
@@ -26,7 +26,7 @@ public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource
   private final Duration _timeout = Duration.ofSeconds(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
 
   private final PreemptiveCache<HolidaySearchRequest, HolidayDocument> _requestCache;
-  private final PreemptiveCache<Pair<HolidayType, ExternalIdBundle>, HolidayDocument> _typeBundleCache;
+  private final PreemptiveCache<ObjectsPair<HolidayType, ExternalIdBundle>, HolidayDocument> _typeBundleCache;
 
   /**
    * Creates the cache around an underlying holiday source.
@@ -43,10 +43,10 @@ public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource
         return getMaster().search(request).getFirstDocument();
       }
     };
-    _typeBundleCache = new PreemptiveCache<Pair<HolidayType, ExternalIdBundle>, HolidayDocument>(_timeout) {
+    _typeBundleCache = new PreemptiveCache<ObjectsPair<HolidayType, ExternalIdBundle>, HolidayDocument>(_timeout) {
 
       @Override
-      protected HolidayDocument getValueImpl(Pair<HolidayType, ExternalIdBundle> request) {
+      protected HolidayDocument getValueImpl(ObjectsPair<HolidayType, ExternalIdBundle> request) {
         HolidaySearchRequest searchRequest = getSearchRequest(request.getFirst(), request.getSecond());
         return _requestCache.get(searchRequest);
       }
@@ -60,7 +60,7 @@ public class ConcurrentMapCachingMasterHolidaySource extends MasterHolidaySource
       return true;
     }
     //PLAT-1015 : avoid cloning regionOrExchangeIds like the plague, we get nice cheap equals on hits then
-    HolidayDocument doc = _typeBundleCache.get(Pair.of(holidayType, regionOrExchangeIds));
+    HolidayDocument doc = _typeBundleCache.get(ObjectsPair.of(holidayType, regionOrExchangeIds));
     return isHoliday(doc, dateToCheck);
   }
 

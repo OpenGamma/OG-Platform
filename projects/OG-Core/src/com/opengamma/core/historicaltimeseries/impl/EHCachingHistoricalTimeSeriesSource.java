@@ -28,6 +28,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesSource}.
@@ -209,12 +211,79 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     return getHistoricalTimeSeries(dataField, identifierBundle, (LocalDate) null, resolutionKey, start, includeStart, end, includeEnd);
   }
 
+  /*
+   * PLAT-1589
+   */
+  private final class SubSeriesKey {
+    private final LocalDate _start;
+    private final boolean _includeStart;
+    private final LocalDate _end;
+    private final boolean _includeEnd;
+    
+    public SubSeriesKey(LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+      super();
+      this._start = start;
+      this._includeStart = includeStart;
+      this._end = end;
+      this._includeEnd = includeEnd;
+    }
+    
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + _end.hashCode();
+      result = prime * result + (_includeEnd ? 1231 : 1237);
+      result = prime * result + (_includeStart ? 1231 : 1237);
+      result = prime * result + _start.hashCode();
+      return result;
+    }
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null) {
+        return false;
+      }
+      SubSeriesKey other = (SubSeriesKey) obj;
+      if (_includeEnd != other._includeEnd) {
+        return false;
+      }
+      if (_includeStart != other._includeStart) {
+        return false;
+      }
+      if (!_end.equals(other._end)) {
+        return false;
+      }
+      if (!_start.equals(other._start)) {
+        return false;
+      }
+      return true;
+    }
+  }
+  
   @Override
-  public HistoricalTimeSeries getHistoricalTimeSeries(
-      String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, 
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle,
+      LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    HistoricalTimeSeries tsPair = getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey);
-    return getSubSeries(tsPair, start, includeStart, end, includeEnd);
+    
+    HistoricalTimeSeriesKey seriesKey = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
+    SubSeriesKey subseriesKey = new SubSeriesKey(start, includeStart, end, includeEnd);
+    ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = Pair.of(seriesKey, subseriesKey);
+    Element element = _cache.get(key);
+    if (element == null) {
+      //TODO: if we have the full series cached computing a subseries could be faster
+      //TODO: use the uid cache to make the underlying query easier?
+      HistoricalTimeSeries sub = _underlying.getHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, resolutionKey, start, includeStart, end, includeEnd);
+      if (sub != null) {
+        s_logger.debug("Caching sub time-series {}", sub);
+        //TODO should probably split all these caches out
+        element = new Element(key, sub);
+        _cache.put(element);
+      }
+    }
+    return element == null ? null : (HistoricalTimeSeries) element.getValue();
   }
 
   //-------------------------------------------------------------------------

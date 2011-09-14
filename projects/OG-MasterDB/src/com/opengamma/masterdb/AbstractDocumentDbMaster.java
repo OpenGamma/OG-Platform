@@ -680,7 +680,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     return "UPDATE " + mainTableName() + " " +
               "SET ver_to_instant = :ver_to_instant " +
             "WHERE id = :doc_id " +
-              "AND ver_to_instant = :max_instant ";
+              "AND ver_to_instant >= :max_instant ";
   }
 
   //-------------------------------------------------------------------------
