@@ -7,12 +7,10 @@ package com.opengamma.engine.view.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
@@ -59,7 +57,16 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   /**
    * The size of recent values that have gone into or come out of this cache.
    */
-  private final Map<ValueSpecification, Integer> _valueSizeCache = Collections.synchronizedMap(new WeakHashMap<ValueSpecification, Integer>());
+  private final ThreadLocal<Map<ValueSpecification, Integer>> _valueSizeCache = new ThreadLocal(); //NOTE: this being thread local is dangerous, but avoids blocking
+
+  private Map<ValueSpecification, Integer> getValueSizeCache() {
+    Map<ValueSpecification, Integer> c = _valueSizeCache.get();
+    if (c == null) {
+      c = new HashMap<ValueSpecification, Integer>();
+      _valueSizeCache.set(c);
+    }
+    return c;
+  }
   
   /**
    * The size of classes which will always have the same size
@@ -71,10 +78,9 @@ public class DefaultViewComputationCache implements ViewComputationCache,
       return;
     }
     int calculateMessageSize = FudgeSize.calculateMessageSize(data);
-    _valueSizeCache.put(specification, calculateMessageSize);
+    getValueSizeCache().put(specification, calculateMessageSize);
   }
-  
-  
+
   protected DefaultViewComputationCache(final IdentifierMap identifierMap, final FudgeMessageStore dataStore,
       final FudgeContext fudgeContext) {
     this(identifierMap, dataStore, dataStore, fudgeContext);
@@ -422,7 +428,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     if (classSize != null) {
       return classSize;
     }
-    return _valueSizeCache.get(value.getSpecification());
+    return getValueSizeCache().get(value.getSpecification());
   }
 
   @Override
@@ -436,7 +442,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
    * collection. 
    */
   public void delete() {
-    _valueSizeCache.clear();
+    _valueSizeCache.remove(); //TODO this is not right
     getPrivateDataStore().delete();
     if (getSharedDataStore() != getPrivateDataStore()) {
       getSharedDataStore().delete();
