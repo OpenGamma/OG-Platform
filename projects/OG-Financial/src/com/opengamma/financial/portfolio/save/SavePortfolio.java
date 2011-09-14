@@ -48,11 +48,11 @@ import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Basic function to save a portfolio into a portfolio master and the positions contained into a position master.
+ *  Utility to save a portfolio.
  */
-public abstract class AbstractSavePortfolio {
+public class SavePortfolio {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractSavePortfolio.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SavePortfolio.class);
 
   private final ExecutorService _executor;
   private final PortfolioMaster _portfolios;
@@ -61,15 +61,15 @@ public abstract class AbstractSavePortfolio {
   private final boolean _rewriteExistingPositions;
 
   private static final ConcurrentMap<ExternalId, ObjectId> s_cache = new ConcurrentHashMap<ExternalId, ObjectId>();
-  private static final ObjectId MISSING = ObjectId.of("AbstractSavePortfolio", "MISSING_VALUE");
+  private static final ObjectId MISSING = ObjectId.of("SavePortfolio", "MISSING_VALUE");
 
   // TODO: cache this properly with EHCache or something or there may be a memory leak
 
-  protected AbstractSavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions) {
+  public SavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions) {
     this(executor, portfolios, positions, false);
   }
   
-  protected AbstractSavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions, final boolean rewriteExistingPositions) {
+  protected SavePortfolio(final ExecutorService executor, final PortfolioMaster portfolios, final PositionMaster positions, final boolean rewriteExistingPositions) {
     _executor = executor;
     _portfolios = portfolios;
     _positions = positions;
