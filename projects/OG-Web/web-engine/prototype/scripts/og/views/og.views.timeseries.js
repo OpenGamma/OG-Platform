@@ -170,7 +170,7 @@ $.register_module({
                         });
                         api.text({module: module.name, handler: function (template) {
                             var $html, error_html, layout = og.views.common.layout, json_id = json.identifiers,
-                                stop_loading; // functions
+                                stop_loading, header, content; // functions
                             error_html = '\
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
@@ -182,8 +182,10 @@ $.register_module({
                                 layout.inner.resizeAll();
                             };
                             // Initial html setup
-                            $('.ui-layout-inner-center .ui-layout-header').html($.outer($html.find('> header')[0]));
-                            $('.ui-layout-inner-center .ui-layout-content').html($.outer($html.find('> section')[0]));
+                            header = $.outer($html.find('> header')[0]);
+                            content = $.outer($html.find('> section')[0]);
+                            $('.ui-layout-inner-center .ui-layout-header').html(header);
+                            $('.ui-layout-inner-center .ui-layout-content').html(content);
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);

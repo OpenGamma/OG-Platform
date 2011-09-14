@@ -232,30 +232,33 @@ $.register_module({
                             $form.find('select').val(state.field);
                             $.each(state.time, function (i, time) {
                                 $form.find('label span').contents().each(function (i, node) {
-                                    if (time === node.textContent) $(this).parent().prev().prop('checked', 'checked')
-                                        .parent().css({'color': '#fff', 'background-color': colors_arr[ctr]}), ctr += 1;
+                                    if (time === $(node).text())
+                                        $(this).parent().prev().prop('checked', 'checked').parent()
+                                            .css({'color': '#fff', 'background-color': colors_arr[ctr]}), ctr += 1;
                                 });
                             });
                             // attach handlers
                             $form.find('select, input').change(function (e) {
-                                var meta_sub_obj, data = [], is_select = $(e.currentTarget).is('select'),
+                                var meta_sub_obj, data = [], is_select = $(e.target).is('select'),
                                     handler = function (r) {
                                         var td = r.data.template_data, field = td.data_field,
                                             time = td.observation_time, t;
                                         state.field = field, meta[field][time] = r;
                                         if (is_select) state.time = [time],
                                                 data.push({data: r.data.timeseries.data, label: time});
-                                        else for (t in state.time)
+                                        else for (t in state.time) {
+                                            if (!meta[state.field][state.time[t]]) continue;
                                             data.push({
                                                 data: meta[state.field][state.time[t]].data.timeseries.data,
                                                 label: state.time[t]
                                             });
+                                        }
                                         load_plots(data);
                                         $plot_header.html(build_form());
                                 };
                                 if (is_select) {
                                     state.from = state.to = void 0;
-                                    meta_sub_obj = get_data_or_id(meta[e.currentTarget.value]);
+                                    meta_sub_obj = get_data_or_id(meta[$(e.target).val()]);
                                     if (typeof meta_sub_obj === 'object') handler(meta_sub_obj);
                                     else api.rest.timeseries.get({handler: function (r) {handler(r)}, id: meta_sub_obj});
                                 }
