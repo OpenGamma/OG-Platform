@@ -275,7 +275,7 @@ $.register_module({
                         $plot_header.html(build_form());
                     }());
                 },
-                loading: function () {console.log('loading...');},
+                loading: function () {},
                 identifier: identifier
             });
         }
