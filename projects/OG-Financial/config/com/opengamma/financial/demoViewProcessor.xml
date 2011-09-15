@@ -245,9 +245,7 @@
 				    <property name="computationTargetResolver" ref="demoTargetResolver" />
 				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
-				      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
-				        <property name="styleName" value="CACHED" />
-				      </bean>
+				      <bean class="com.opengamma.engine.view.cache.ThreadPerThreadExecutor" />
 				    </property>
 				    <property name="nodesPerCore" value="1" />
 				    <property name="nodeIdentifier" value="local" />
