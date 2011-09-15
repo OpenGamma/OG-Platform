@@ -27,6 +27,9 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.cache.DelayedViewComputationCache;
+import com.opengamma.engine.view.cache.NonDelayedViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.cache.WriteBehindViewComputationCache;
@@ -63,7 +66,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     ArgumentChecker.notNull(targetResolver, "Target Resolver");
     ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
     ArgumentChecker.notNull(nodeId, "Calculation node ID");
-    ArgumentChecker.notNull(writeBehindExecutorService, "Write behind Executor Service");
     ArgumentChecker.notNull(functionInvocationStatistics, "function invocation statistics");
 
     _cacheSource = cacheSource;
@@ -115,7 +117,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _nodeId = nodeId;
   }
 
-  protected List<CalculationJobResultItem> executeJobItems(final CalculationJob job, final WriteBehindViewComputationCache cache,
+  protected List<CalculationJobResultItem> executeJobItems(final CalculationJob job, final DelayedViewComputationCache cache,
       final CompiledFunctionRepository functions, final String calculationConfiguration) {
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
     for (CalculationJobItem jobItem : job.getJobItems()) {
@@ -147,11 +149,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
     getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
     final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
-    final WriteBehindViewComputationCache cache = new WriteBehindViewComputationCache(getCache(spec), job.getCacheSelectHint(), getWriteBehindExecutorService());
+    final DelayedViewComputationCache cache = getDelayedViewComputationCache(getCache(spec), job.getCacheSelectHint());
     long executionTime = System.nanoTime();
     final String calculationConfiguration = spec.getCalcConfigName();
     final List<CalculationJobResultItem> resultItems = executeJobItems(job, cache, functions, calculationConfiguration);
-    if ( resultItems == null ) {
+    if (resultItems == null) {
       return null;
     }
     cache.waitForPendingWrites();
@@ -161,13 +163,22 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return jobResult;
   }
 
+  private DelayedViewComputationCache getDelayedViewComputationCache(ViewComputationCache cache,
+      CacheSelectHint cacheSelectHint) {
+    if (getWriteBehindExecutorService() == null) {
+      return new NonDelayedViewComputationCache(cache, cacheSelectHint);
+    } else {
+      return new WriteBehindViewComputationCache(cache, cacheSelectHint, getWriteBehindExecutorService());
+    }
+  }
+
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
     ViewComputationCache cache = getCacheSource().getCache(spec.getViewCycleId(), spec.getCalcConfigName());
     return cache;
   }
 
-  private void invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final WriteBehindViewComputationCache cache, final DeferredInvocationStatistics statistics) {
+  private void invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final DelayedViewComputationCache cache, final DeferredInvocationStatistics statistics) {
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     final ComputationTarget target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
     if (target == null) {

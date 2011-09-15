@@ -513,8 +513,13 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     } else if (other instanceof FastIntDoubleTimeSeries) {
       return operate((FastIntDoubleTimeSeries) other, FIRST_OPERATOR);
     } else { // if (other instanceof FastLongDoubleTimeSeries) {
-      return operate((FastLongDoubleTimeSeries) other, FIRST_OPERATOR);
+      //PLAT-1590 : this one is optimized for some types
+      return intersectionFirstValueFast((FastLongDoubleTimeSeries) other);
     }
+  }
+
+  protected FastTimeSeries<T> intersectionFirstValueFast(FastLongDoubleTimeSeries other) {
+    return operate(other, FIRST_OPERATOR);
   }
 
   public FastTimeSeries<T> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other) {

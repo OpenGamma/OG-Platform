@@ -245,9 +245,7 @@
 				    <property name="computationTargetResolver" ref="demoTargetResolver" />
 				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
-				      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
-				        <property name="styleName" value="CACHED" />
-				      </bean>
+				      <null/> <!-- The demo cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
 				    </property>
 				    <property name="nodesPerCore" value="1" />
 				    <property name="nodeIdentifier" value="local" />

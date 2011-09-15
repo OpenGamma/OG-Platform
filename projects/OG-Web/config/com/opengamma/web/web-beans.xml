@@ -293,12 +293,6 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="pnlExplainProcessor">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/pnlExplainProcessor/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
             <entry key="positionSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/positionSource/" />

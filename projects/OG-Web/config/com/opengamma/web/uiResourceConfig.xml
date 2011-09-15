@@ -87,7 +87,6 @@
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-resolution-rule.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-awesome-list.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-yc-strips.css</fragment>
-    <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-cube-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-vol-surf-def.css</fragment>
     <fragment>/styles/common/forms/og.common.forms.OG-form.og-csb.css</fragment>
   </bundle>
@@ -137,7 +136,7 @@
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
-    <fragment>/scripts/lib/jquery/jquery-1.6.2.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-1.6.4.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>
@@ -157,6 +156,8 @@
     <fragment>/scripts/lib/jquery/flot/jquery.flot.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.selection.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.navigate.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.threshold.js</fragment>
+    <fragment>/scripts/lib/jquery/flot/jquery.flot.crosshair.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.core.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
@@ -228,7 +229,7 @@
     <fragment>/scripts/og/views/og.views.analytics.js</fragment>
   </bundle>
   <bundle id="ie.js">
-    <fragment>/scripts/lib/excanvas.min.js</fragment>
+    <fragment>/scripts/lib/excanvas.js</fragment>
     <fragment>/scripts/lib/jquery-innershiv.js</fragment>
   </bundle>
   <bundle id="og_common.js">
