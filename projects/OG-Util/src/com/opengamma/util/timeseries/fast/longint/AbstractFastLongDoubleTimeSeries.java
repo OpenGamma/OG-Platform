@@ -179,7 +179,7 @@ public abstract class AbstractFastLongDoubleTimeSeries
     }
     final double[] bValues = other.valuesArrayFast();
     int bCount = 0;
-    final long[] resTimes = new long[aTimes.length + bTimes.length];
+    final long[] resTimes = new long[Math.min(aTimes.length, bTimes.length)];
     final double[] resValues = new double[resTimes.length];
     int resCount = 0;
     while (aCount < aTimes.length && bCount < bTimes.length) {
@@ -194,6 +194,9 @@ public abstract class AbstractFastLongDoubleTimeSeries
       } else { // if (aTimes[aCount] > bTimes[bCount]) {
         bCount++;
       }
+    }
+    if (resTimes.length == resCount) {
+      return newInstanceFast(resTimes, resValues);
     }
     long[] trimmedTimes = new long[resCount];
     double[] trimmedValues = new double[resCount];
@@ -233,6 +236,9 @@ public abstract class AbstractFastLongDoubleTimeSeries
       } else { // if (aTimes[aCount] > bTimes[bCount]) {
         bCount++;
       }
+    }
+    if (resTimes.length == resCount) {
+      return newInstanceFast(resTimes, resValues);
     }
     long[] trimmedTimes = new long[resCount];
     double[] trimmedValues = new double[resCount];
