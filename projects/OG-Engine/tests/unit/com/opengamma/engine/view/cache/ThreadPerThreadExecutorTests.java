@@ -37,7 +37,7 @@ public class ThreadPerThreadExecutorTests {
   }
   
   @Test
-  public void TasksExecutedOnSameThread() throws Exception
+  public void tasksExecutedOnSameThread() throws Exception
   {
     ThreadPerThreadExecutor executor = new ThreadPerThreadExecutor();
     Callable<Thread> getThreadCallable = new Callable<Thread>() {
@@ -55,7 +55,7 @@ public class ThreadPerThreadExecutorTests {
   }
   
   @Test
-  public void TasksExecutedOnDifferentThreadIfQueuedOnDifferentThread() throws Exception
+  public void tasksExecutedOnDifferentThreadIfQueuedOnDifferentThread() throws Exception
   {
     ThreadPerThreadExecutor executor = new ThreadPerThreadExecutor();
     final Callable<Thread> getThreadCallable = new Callable<Thread>() {
@@ -80,5 +80,41 @@ public class ThreadPerThreadExecutorTests {
     singleThread.shutdown();
     assertTrue(executor.awaitTermination(100, TimeUnit.MILLISECONDS));
     assertTrue(singleThread.awaitTermination(100, TimeUnit.MILLISECONDS));
+  }
+  
+  @Test
+  public void notShuttingDownDoesntHang() throws Exception
+  {
+    ThreadPerThreadExecutor executor = new ThreadPerThreadExecutor();
+    Callable<Thread> getThreadCallable = new Callable<Thread>() {
+
+      @Override
+      public Thread call() throws Exception {
+        return Thread.currentThread();
+      }
+    };
+    Future<?> action1 = executor.submit(getThreadCallable);
+    action1.get(100, TimeUnit.MILLISECONDS);
+  }
+  
+  @Test
+  public void threadTimesOut() throws Exception
+  {
+    ThreadPerThreadExecutor executor = new ThreadPerThreadExecutor();
+    Callable<Thread> getThreadCallable = new Callable<Thread>() {
+
+      @Override
+      public Thread call() throws Exception {
+        return Thread.currentThread();
+      }
+    };
+    Future<?> action1 = executor.submit(getThreadCallable);
+    Object result1 = action1.get(100, TimeUnit.MILLISECONDS);
+    Thread.sleep(executor.getKeepAliveTimeMillis() * 2);
+    Future<?> action2 = executor.submit(getThreadCallable);
+    Object result2 = action2.get(100, TimeUnit.MILLISECONDS);
+    assertNotSame(result2, result1);
+    executor.shutdown();
+    assertTrue(executor.awaitTermination(100, TimeUnit.MILLISECONDS));
   }
 }
