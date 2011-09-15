@@ -44,14 +44,7 @@
     <constructor-arg ref="fudgeContext" />
   </bean>
   
-  <!-- PnL Explain service -->
-  <bean id="pnlExplainRestBean" class="com.opengamma.integration.pnlexplain.rest.DataPnlExplainProcessorResource">
-    <constructor-arg ref="demoPnlExplainProcessor" />
-    <constructor-arg ref="activeMQConnectionFactory" />
-    <constructor-arg ref="scheduler" />
-  </bean>
-  
-   <!-- Snapshotter service -->
+  <!-- Snapshotter service -->
   <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
     <constructor-arg name="processors" ref="viewProcessorRestBean" />
     <constructor-arg name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
