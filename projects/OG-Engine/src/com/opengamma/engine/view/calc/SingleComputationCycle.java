@@ -483,11 +483,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    for (Pair<ValueSpecification, Object> value : computationCache.getValues(depGraph.getOutputSpecifications(), CacheSelectHint.allShared())) {
+    
+    for (Pair<ValueSpecification, Object> value : computationCache.getValues(getOutputSpecificationsForResultModel(depGraph), CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
-        continue;
-      }
-      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(value.getFirst(), depGraph)) {
         continue;
       }
       if (value.getSecond() instanceof MissingMarketDataSentinel) {
@@ -495,6 +493,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
       getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
     }
+  }
+
+  private Set<ValueSpecification> getOutputSpecificationsForResultModel(DependencyGraph depGraph) {
+    Set<ValueSpecification> outputSpecifications = new HashSet<ValueSpecification>();
+    for (ValueSpecification valueSpecification : depGraph.getOutputSpecifications()) {
+      if (getViewDefinition().getResultModelDefinition().shouldOutputResult(valueSpecification, depGraph)) {
+        outputSpecifications.add(valueSpecification);
+      }
+    }
+    return outputSpecifications;
   }
 
   private DependencyGraph getDependencyGraph(String calcConfName) {
