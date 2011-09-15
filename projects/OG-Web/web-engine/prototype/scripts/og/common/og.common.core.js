@@ -41,7 +41,8 @@
     };
     $.extend({
         outer: function (node) {
-            if (!node) return ''; else var div = document.createElement('div');
+            if (!node) return '';
+            if (node.outerHTML) return node.outerHTML; else var div = document.createElement('div');
             return div.appendChild(node.cloneNode(true)), div.innerHTML;
         },
         register_module: function (module) {

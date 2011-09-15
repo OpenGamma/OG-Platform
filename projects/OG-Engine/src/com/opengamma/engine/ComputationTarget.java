@@ -36,6 +36,11 @@ public class ComputationTarget implements Serializable {
   private final Object _value;
 
   /**
+   * The cached hash code.
+   */
+  private transient volatile int _hashCode;
+  
+  /**
    * Creates a target for computation.
    * @param value  the target itself, may be null
    */
@@ -204,13 +209,16 @@ public class ComputationTarget implements Serializable {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _type.hashCode();
-    if (_value != null) {
-      result = prime * result + _value.hashCode();
+    if (_hashCode == 0) {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + _type.hashCode();
+      if (_value != null) {
+        result = prime * result + _value.hashCode();
+      }
+      _hashCode = result;
     }
-    return result;
+    return _hashCode;
   }
 
   @Override
