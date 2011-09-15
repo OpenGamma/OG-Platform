@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * A {@link ViewComputationCache} that supports a write behind update of the underlying cache.
  */
-public class WriteBehindViewComputationCache extends FilteredViewComputationCache {
+public class WriteBehindViewComputationCache extends DelayedViewComputationCache {
 
   private static final Logger s_logger = LoggerFactory.getLogger(WriteBehindViewComputationCache.class);
 
@@ -188,15 +188,13 @@ public class WriteBehindViewComputationCache extends FilteredViewComputationCach
     startWriterIfNotRunning();
   }
 
+  @Override
   public void putValues(final Collection<ComputedValue> values, final DeferredInvocationStatistics statistics) {
     _pendingStatistics.add(statistics);
     putValues(values);
   }
 
-  /**
-   * Block until all "write-behind" operations have completed. Do not call this concurrently with
-   * {@link #putValue} or {@link #putValues}.
-   */
+  @Override
   public void waitForPendingWrites() {
     final Future<?> valueWriter = _valueWriterFuture;
     _valueWriterFuture = null;

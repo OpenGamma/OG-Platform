@@ -130,7 +130,6 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
    * @param writeBehindExecutorService  the writeBehindExecutorService
    */
   public void setWriteBehindExecutorService(ExecutorService writeBehindExecutorService) {
-    ArgumentChecker.notNull(writeBehindExecutorService, "writeBehindExecutorService");
     _writeBehindExecutorService = writeBehindExecutorService;
   }
 
@@ -190,7 +189,6 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     ArgumentChecker.notNull(getFunctionExecutionContext(), "functionExecutionContext");
     ArgumentChecker.notNull(getComputationTargetResolver(), "computationTargetResolver");
     ArgumentChecker.notNull(getViewProcessorQuery(), "viewProcessorQuery");
-    ArgumentChecker.notNull(getWriteBehindExecutorService(), "writeBehindExecutorService");
     final int nodes;
     if (getNodeCount() == 0) {
       if (getNodesPerCore() == 0) {
