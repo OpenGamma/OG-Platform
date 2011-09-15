@@ -273,7 +273,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException(
-          "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
+          "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs, not " + freq.getConventionName());
     }
     return tenor;
   }
