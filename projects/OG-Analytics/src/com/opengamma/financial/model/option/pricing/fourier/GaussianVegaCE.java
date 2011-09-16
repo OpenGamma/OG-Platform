@@ -35,7 +35,6 @@ public class GaussianVegaCE implements MartingaleCharacteristicExponent {
     final Function1D<ComplexNumber, ComplexNumber> divFunc = _div.getFunction(t);
     return new Function1D<ComplexNumber, ComplexNumber>() {
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public ComplexNumber evaluate(final ComplexNumber u) {
         Validate.notNull(u, "u");

@@ -29,8 +29,6 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -48,7 +46,8 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   private static final Logger s_logger = LoggerFactory.getLogger(DemoCurveFunctionConfiguration.class);
 
   private ConfigMaster _configMaster;
-  private ConventionBundleSource _conventionBundleSource;
+  @SuppressWarnings("unused")
+  private ConventionBundleSource _conventionBundleSource; //TODO not sure if we'll need this in the future
 
   public void setConfigMaster(final ConfigMaster configMaster) {
     _configMaster = configMaster;

@@ -256,7 +256,10 @@ $.register_module({
                         ].join('');
                         configs.search(args);
                     },
-                    loading: function () {options.slickgrid.columns[0].name = 'loading';},
+                    loading: function () {
+                        options.slickgrid.columns[0].name = 'loading';
+                        ui.message({location: '.OG-js-search', message: {0: 'loading...', 3000: 'still loading...'}});
+                    },
                     cache_for: 15 * 1000
                 });
                 search.load($.extend(options.slickgrid, {url: args}));

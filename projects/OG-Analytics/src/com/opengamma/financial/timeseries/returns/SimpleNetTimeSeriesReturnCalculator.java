@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
+
+import cern.colt.Arrays;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
@@ -69,28 +69,31 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
       }
     }
     final int n = ts.size();
-    final long[] times = new long[n];
-    final double[] data = new double[n];
-    final Iterator<Map.Entry<Long, Double>> iter = ts.iterator();
-    Map.Entry<Long, Double> previousEntry = iter.next();
-    Map.Entry<Long, Double> entry;
+    long[] tsTimes = ts.timesArrayFast();
+    double[] tsValues = ts.valuesArrayFast();
+    
+    final long[] times = new long[n - 1];
+    final double[] data = new double[n - 1];
     double dividend;
     Double dividendTSData;
     int i = 0;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
-        times[i] = entry.getKey();
+    for (int j = 1; j < n; j++) {
+      double prevValue = tsValues[j - 1];
+      double value = tsValues[j];
+      long time = tsTimes[j];
+      
+      if (isValueNonZero(prevValue) && isValueNonZero(value)) {
+        times[i] = time;
         if (d == null) {
           dividend = 0;
         } else {
-          dividendTSData = d.getValue(entry.getKey());
+          dividendTSData = d.getValue(time);
           dividend = dividendTSData == null ? 0 : dividendTSData;
         }
-        data[i++] = (entry.getValue() + dividend) / previousEntry.getValue() - 1;
+        data[i++] = (value + dividend) / prevValue - 1;
       }
-      previousEntry = entry;
     }
-    return getSeries(ts, times, data, i);
+
+    return new FastArrayLongDoubleTimeSeries(ts.getEncoding(), Arrays.trimToCapacity(times, i), Arrays.trimToCapacity(data, i));
   }
 }

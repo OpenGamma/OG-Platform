@@ -30,7 +30,8 @@ public interface ConventionBundleMaster {
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
 
-  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM, ExternalId region);
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM, 
+      ExternalId region);
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays, double pointValue);
 

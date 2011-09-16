@@ -395,8 +395,9 @@ public class CurveSpecificationBuilderConfiguration {
         && ObjectUtils.equals(getLiborInstrumentProviders(), other.getLiborInstrumentProviders()) && ObjectUtils.equals(getEuriborInstrumentProviders(), other.getEuriborInstrumentProviders())
         && ObjectUtils.equals(getCiborInstrumentProviders(), other.getCiborInstrumentProviders()) && ObjectUtils.equals(getStiborInstrumentProviders(), other.getStiborInstrumentProviders())
         && ObjectUtils.equals(getCDORInstrumentProviders(), other.getCDORInstrumentProviders()) && ObjectUtils.equals(getSwap6MInstrumentProviders(), other.getSwap6MInstrumentProviders())
-        && ObjectUtils.equals(getSwap3MInstrumentProviders(), other.getSwap3MInstrumentProviders()) && ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders()) && ObjectUtils
-        .equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders())) && ObjectUtils.equals(getOISSwapInstrumentProviders(), other.getOISSwapInstrumentProviders());
+        && ObjectUtils.equals(getSwap3MInstrumentProviders(), other.getSwap3MInstrumentProviders()) && ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders()) 
+        && ObjectUtils.equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders())) 
+        && ObjectUtils.equals(getOISSwapInstrumentProviders(), other.getOISSwapInstrumentProviders());
   }
 
   @Override
