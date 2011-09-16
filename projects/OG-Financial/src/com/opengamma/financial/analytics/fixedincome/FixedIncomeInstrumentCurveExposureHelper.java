@@ -43,6 +43,10 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName};
       case CDOR:
         return new String[] {fundingCurveName};
+      case CIBOR:
+        return new String[] {fundingCurveName};
+      case STIBOR:
+        return new String[] {fundingCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, forwardCurveName, fundingCurveName};
       case OIS_SWAP:
@@ -71,6 +75,10 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       case EURIBOR:
         return new String[] {forwardCurveName};
       case CDOR:
+        return new String[] {forwardCurveName};
+      case CIBOR:
+        return new String[] {forwardCurveName};
+      case STIBOR:
         return new String[] {forwardCurveName};
       case TENOR_SWAP:
         return new String[] {fundingCurveName, fundingCurveName, forwardCurveName};

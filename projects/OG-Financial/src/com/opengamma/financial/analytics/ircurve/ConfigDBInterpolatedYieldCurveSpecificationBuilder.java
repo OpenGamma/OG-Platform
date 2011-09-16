@@ -56,8 +56,8 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
     for (final FixedIncomeStrip strip : curveDefinition.getStrips()) {
       final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + 
-            curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() + ", strip=" + strip);
+        throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() + ", strip="
+            + strip);
       }
       ExternalId identifier;
       switch (strip.getInstrumentType()) {
@@ -70,7 +70,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case FRA_6M:
           identifier = builderConfig.getFRA6MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
-        case FRA: 
+        case FRA:
           // assume that all old FRAs are 3m - shouldn't be used but just for consistency
           identifier = builderConfig.getFRA3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
@@ -86,13 +86,19 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case CDOR:
           identifier = builderConfig.getCDORSecurity(curveDate, strip.getCurveNodePointTime());
           break;
+        case CIBOR:
+          identifier = builderConfig.getCiborSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case STIBOR:
+          identifier = builderConfig.getStiborSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case SWAP_3M:
           identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case SWAP_6M:
           identifier = builderConfig.getSwap6MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
-        case SWAP: 
+        case SWAP:
           // assume that all old swaps are 3m - shouldn't be used but just for consistency
           identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;

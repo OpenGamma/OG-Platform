@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.CIBOR;
 import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.EURIBOR;
 import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.LIBOR;
+import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.STIBOR;
 import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.SWAP_3M;
 import static com.opengamma.financial.analytics.ircurve.StripInstrumentType.SWAP_6M;
 
@@ -141,7 +143,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
 
     final Currency sek = Currency.SEK;
     final ExternalId sekRegion = RegionUtils.countryRegionId(Country.SE);
-    singleDefinitions.put(sek, buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
+    singleDefinitions.put(sek, buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), STIBOR, SWAP_6M));
 
     final Currency nzd = Currency.NZD;
     final ExternalId nzdRegion = RegionUtils.countryRegionId(Country.NZ);
@@ -153,7 +155,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
 
     final Currency dkk = Currency.DKK;
     final ExternalId dkkRegion = RegionUtils.countryRegionId(Country.DK);
-    singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
+    singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), CIBOR, SWAP_6M));
 
     final Currency jpy = Currency.JPY;
     final ExternalId jpyRegion = RegionUtils.countryRegionId(Country.JP);
@@ -194,6 +196,8 @@ public class SecondaryCurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> euriborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> cdorInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> ciborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> stiborInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> swap6MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
@@ -213,6 +217,8 @@ public class SecondaryCurveDefinitionAndSpecifications {
       liborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.LIBOR, scheme));
       euriborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.EURIBOR, scheme));
       cdorInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.CDOR, scheme));
+      ciborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.CIBOR, scheme));
+      stiborInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.STIBOR, scheme));
       futureInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.FUTURE, scheme));
       tenorSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.TENOR_SWAP, scheme));
       swap3MInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.SWAP_3M, scheme));
@@ -221,8 +227,8 @@ public class SecondaryCurveDefinitionAndSpecifications {
       oisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.OIS_SWAP, scheme));
     }
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders,
-        liborInstrumentProviders, euriborInstrumentProviders, cdorInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders,
-        tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
+        liborInstrumentProviders, euriborInstrumentProviders, cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders,
+        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
     return config;
   }
 

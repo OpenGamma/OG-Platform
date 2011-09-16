@@ -53,6 +53,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     CHConventions.addFixedIncomeInstrumentConvnetions(this);
     CHConventions.addTreasuryBondConvention(this);
     CHConventions.addCorporateBondConvention(this);
+    DKConventions.addFixedIncomeInstrumentConventions(this);
     EUConventions.addFixedIncomeInstrumentConventions(this);
     GBConventions.addFixedIncomeInstrumentConventions(this);
     GBConventions.addTreasuryBondConvention(this);
@@ -69,7 +70,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addHUFixedIncomeInstruments();
     addITFixedIncomeInstruments();
     addDEFixedIncomeInstruments();
-    addDKFixedIncomeInstruments();
     addFRFixedIncomeInstruments();
     addSEFixedIncomeInstruments();
     addLUTreasuryBondConvention();
@@ -78,8 +78,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addBHCorporateBondConvention();
     addSETreasuryBondConvention();
     addSECorporateBondConvention();
-    addDKTreasuryBondConvention();
-    addDKCorporateBondConvention();
     addFRTreasuryBondConvention();
     addFRCorporateBondConvention();
     addPLTreasuryBondConvention();
@@ -147,6 +145,17 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
       final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
         swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion);
+    return add(bundle, convention);
+  }
+
+  @Override
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion,
+      final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final Boolean isEOM) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
+        swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion,
+        isEOM);
     return add(bundle, convention);
   }
 
@@ -321,40 +330,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DEMSWAPP60Y")), "DEMSWAPP80Y", thirty360, modified, Period.ofYears(80), 2, false, null);
   }
 
-  private void addDKFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    //Identifiers for external data 
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP1D")), "DKKCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP1M")), "DKKCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP2M")), "DKKCASHP2M", act360, modified, Period.ofMonths(2), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP3M")), "DKKCASHP3M", act360, modified, Period.ofMonths(3), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP4M")), "DKKCASHP4M", act360, modified, Period.ofMonths(4), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP5M")), "DKKCASHP5M", act360, modified, Period.ofMonths(5), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP6M")), "DKKCASHP6M", act360, modified, Period.ofMonths(6), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP7M")), "DKKCASHP7M", act360, modified, Period.ofMonths(7), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP8M")), "DKKCASHP8M", act360, modified, Period.ofMonths(8), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP9M")), "DKKCASHP9M", act360, modified, Period.ofMonths(9), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP10M")), "DKKCASHP10M", act360, modified, Period.ofMonths(10), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP11M")), "DKKCASHP11M", act360, modified, Period.ofMonths(11), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKCASHP12M")), "DKKCASHP12M", act360, modified, Period.ofMonths(12), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP2Y")), "DKKSWAPP2Y", act360, modified, Period.ofYears(2), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP3Y")), "DKKSWAPP3Y", act360, modified, Period.ofYears(3), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP4Y")), "DKKSWAPP4Y", act360, modified, Period.ofYears(4), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP5Y")), "DKKSWAPP5Y", act360, modified, Period.ofYears(5), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP6Y")), "DKKSWAPP6Y", act360, modified, Period.ofYears(6), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP7Y")), "DKKSWAPP7Y", act360, modified, Period.ofYears(7), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP8Y")), "DKKSWAPP8Y", act360, modified, Period.ofYears(8), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP9Y")), "DKKSWAPP9Y", act360, modified, Period.ofYears(9), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP10Y")), "DKKSWAPP10Y", act360, modified, Period.ofYears(10), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP12Y")), "DKKSWAPP12Y", act360, modified, Period.ofYears(12), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP15Y")), "DKKSWAPP15Y", act360, modified, Period.ofYears(15), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP20Y")), "DKKSWAPP20Y", act360, modified, Period.ofYears(20), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP25Y")), "DKKSWAPP25Y", act360, modified, Period.ofYears(25), 2, false, null);
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DKKSWAPP30Y")), "DKKSWAPP30Y", act360, modified, Period.ofYears(30), 2, false, null);
-  }
-
   private void addFRFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -477,18 +452,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   //TODO all of the conventions named treasury need to be changed
   private void addESCorporateBondConvention() {
     addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "ES_CORPORATE_BOND_CONVENTION")), "ES_CORPORATE_BOND_CONVENTION", true, true, 0, 3, true);
-  }
-
-  //TODO all of the conventions named treasury need to be changed
-  //TODO the ex-dividend days is wrong
-  private void addDKTreasuryBondConvention() {
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DK_TREASURY_BOND_CONVENTION")), "DK_TREASURY_BOND_CONVENTION", true, true, 30, 3, true);
-  }
-
-  //TODO all of the conventions named treasury need to be changed
-  //TODO the ex-dividend days is wrong
-  private void addDKCorporateBondConvention() {
-    addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DK_CORPORATE_BOND_CONVENTION")), "DK_CORPORATE_BOND_CONVENTION", true, true, 30, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed

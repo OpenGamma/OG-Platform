@@ -84,10 +84,14 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
       Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders = null;
       Map<Tenor, CurveInstrumentProvider> euriborInstrumentProviders = null;
       Map<Tenor, CurveInstrumentProvider> cdorInstrumentProviders = null;
+      Map<Tenor, CurveInstrumentProvider> ciborInstrumentProviders = null;
+      Map<Tenor, CurveInstrumentProvider> stiborInstrumentProviders = null;
       JSONArray oldRateArray = configJSON.optJSONArray("rateInstrumentProviders");
       JSONArray liborArray = configJSON.optJSONArray("liborInstrumentProviders");
       JSONArray euriborArray = configJSON.optJSONArray("euriborInstrumentProviders");
       JSONArray cdorArray = configJSON.optJSONArray("cdorInstrumentProviders");
+      JSONArray ciborArray = configJSON.optJSONArray("ciborInstrumentProviders");
+      JSONArray stiborArray = configJSON.optJSONArray("stiborInstrumentProviders");
       if (oldRateArray != null) {
         if (liborArray != null || euriborArray != null) {
           throw new OpenGammaRuntimeException("Have JSON array with the old rate field but at least one of the new *ibor fields (libor, euribor or CDOR");
@@ -99,6 +103,8 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
         liborInstrumentProviders = processCurveInstrumentProvider(liborArray);
         euriborInstrumentProviders = processCurveInstrumentProvider(euriborArray);
         cdorInstrumentProviders = processCurveInstrumentProvider(cdorArray);
+        ciborInstrumentProviders = processCurveInstrumentProvider(ciborArray);
+        stiborInstrumentProviders = processCurveInstrumentProvider(stiborArray);
       }
       
       Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders = null;
@@ -130,6 +136,8 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
                                                           liborInstrumentProviders, 
                                                           euriborInstrumentProviders,
                                                           cdorInstrumentProviders,
+                                                          ciborInstrumentProviders,
+                                                          stiborInstrumentProviders,
                                                           futureInstrumentProviders, 
                                                           swap6MInstrumentProviders, 
                                                           swap3MInstrumentProviders, 
@@ -276,6 +284,38 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
         s_logger.debug("No CDOR instrument providers");
       }
 
+      if (object.getCiborInstrumentProviders() != null) {
+        List<JSONObject> ciborInstrumentProviders = Lists.newArrayList();
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getCiborInstrumentProviders().entrySet()) {
+          if (entry.getKey().getPeriod().toString() == null) {
+            throw new OpenGammaRuntimeException(" tenor is null");
+          }
+          JSONObject ciborInstrumentProvidersMessage = new JSONObject();
+          ciborInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          ciborInstrumentProviders.add(ciborInstrumentProvidersMessage);
+        }
+        allTenors.addAll(object.getCiborInstrumentProviders().keySet());
+        message.put("ciborInstrumentProviders", ciborInstrumentProviders);
+      } else {
+        s_logger.debug("No cibor instrument providers");
+      }
+
+      if (object.getStiborInstrumentProviders() != null) {
+        List<JSONObject> stiborInstrumentProviders = Lists.newArrayList();
+        for (Entry<Tenor, CurveInstrumentProvider> entry : object.getStiborInstrumentProviders().entrySet()) {
+          if (entry.getKey().getPeriod().toString() == null) {
+            throw new OpenGammaRuntimeException(" tenor is null");
+          }
+          JSONObject stiborInstrumentProvidersMessage = new JSONObject();
+          stiborInstrumentProvidersMessage.put(entry.getKey().getPeriod().toString(), toJSONObject(entry.getValue()));
+          stiborInstrumentProviders.add(stiborInstrumentProvidersMessage);
+        }
+        allTenors.addAll(object.getEuriborInstrumentProviders().keySet());
+        message.put("stiborInstrumentProviders", stiborInstrumentProviders);
+      } else {
+        s_logger.debug("No stibor instrument providers");
+      }
+      
       if (object.getSwap3MInstrumentProviders() != null) {
         List<JSONObject> swapInstrumentProviders = Lists.newArrayList();
         for (Entry<Tenor, CurveInstrumentProvider> entry : object.getSwap3MInstrumentProviders().entrySet()) {

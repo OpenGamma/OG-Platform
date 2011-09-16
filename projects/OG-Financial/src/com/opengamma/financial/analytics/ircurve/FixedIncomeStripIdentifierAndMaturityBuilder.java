@@ -43,9 +43,9 @@ import com.opengamma.util.time.Tenor;
  */
 public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private static final LocalTime CASH_EXPIRY_TIME = LocalTime.of(11, 00);
-  
-  private static  final ConventionBundleSource s_conventionBundleSource = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
-  
+
+  private static final ConventionBundleSource s_conventionBundleSource = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
+
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionBundleSource;
   private final SecuritySource _secSource;
@@ -148,6 +148,30 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = rateSecurity;
           break;
         }
+        case CIBOR: {
+          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+          if (rateSecurity == null) {
+            throw new OpenGammaRuntimeException("Could not resolve CIBOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+          }
+          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+          TimeZone timeZone2 = region2.getTimeZone();
+          timeZone2 = ensureZone(timeZone2);
+          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+          security = rateSecurity;
+          break;
+        }
+        case STIBOR: {
+          final CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
+          if (rateSecurity == null) {
+            throw new OpenGammaRuntimeException("Could not resolve STIBOR curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification);
+          }
+          final Region region2 = _regionSource.getHighestLevelRegion(rateSecurity.getRegionId());
+          TimeZone timeZone2 = region2.getTimeZone();
+          timeZone2 = ensureZone(timeZone2);
+          maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(timeZone2);
+          security = rateSecurity;
+          break;
+        }
         case SWAP: {
           // In case there's any old curve definitions hanging around - assume that all swaps are 3m
           // TODO get defaults from convention? (e.g. USD = 3m, EUR = 6M)
@@ -158,7 +182,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           maturity = swapSecurity.getMaturityDate();
           security = swapSecurity;
           break;
-        }        
+        }
         case SWAP_3M: {
           final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.THREE_MONTHS);
           if (swapSecurity == null) {
@@ -167,7 +191,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           maturity = swapSecurity.getMaturityDate();
           security = swapSecurity;
           break;
-        }        
+        }
         case SWAP_6M: {
           final SwapSecurity swapSecurity = getSwap(curveSpecification, strip, marketValues, Tenor.SIX_MONTHS);
           if (swapSecurity == null) {
@@ -206,17 +230,16 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   }
 
   private CashSecurity getCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
-    Double rate = marketValues.get(strip.getSecurity());
+    final Double rate = marketValues.get(strip.getSecurity());
     if (rate == null) {
       throw new OpenGammaRuntimeException("No market data for " + strip.getSecurity());
     }
-    final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC),
-        rate, 1.0d);
+    final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC), rate, 1.0d);
     sec.setExternalIdBundle(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }
 
-  private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues, Tenor tenor) {
+  private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues, final Tenor tenor) {
     final LocalDate curveDate = spec.getCurveDate(); // quick hack
     // TODO emcleod this offset and start and end date calculations should not be done like this - it's consistent with what was there before but I'm not why it is that way.
     // It seems that getting the date right should use holidays and business day conventions
@@ -229,39 +252,37 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("Can only handle 3m or 6m FRAs");
     }
     final LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(offset));
-    final LocalDate endDate = startDate.plus(Period.ofMonths(offset)); 
+    final LocalDate endDate = startDate.plus(Period.ofMonths(offset));
     final ExternalId underlyingIdentifier = strip.getSecurity();
     //TODO this normalization should not be done here
-    return new FRASecurity(spec.getCurrency(), spec.getRegion(),
-        startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC), marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
+    return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC),
+        marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
   }
 
   private FutureSecurity getFuture(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip) {
     return (FutureSecurity) _secSource.getSecurity(ExternalIdBundle.of(strip.getSecurity()));
   }
 
-  private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
-      final Map<ExternalId, Double> marketValues, Tenor resetTenor) {
+  private SwapSecurity getSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues, final Tenor resetTenor) {
     final ExternalId swapIdentifier = strip.getSecurity();
-    int months = resetTenor.getPeriod().getMonths(); //TODO this isn't right - what if someone's used 1Y?
+    final int months = resetTenor.getPeriod().getMonths(); //TODO this isn't right - what if someone's used 1Y?
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
     final ConventionBundleSource source = s_conventionBundleSource;
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-    ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, 
-        spec.getCurrency().getCode() + "_" + months + "M_SWAP"));    
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_SWAP"));
     if (convention == null) {
       convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     }
     if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention for " + swapIdentifier + ": tried " + 
-          ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_SWAP")
-          + " and " + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
+      throw new OpenGammaRuntimeException("Could not get convention for " + swapIdentifier + ": tried "
+          + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_SWAP") + " and "
+          + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     }
     final String counterparty = "";
-    ExternalId floatingRateId = convention.getSwapFloatingLegInitialRate();
+    final ExternalId floatingRateId = convention.getSwapFloatingLegInitialRate();
     if (floatingRateId == null) {
       throw new OpenGammaRuntimeException("Could not get + " + floatingRateId + " from convention");
     }
@@ -273,32 +294,15 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-    final SwapSecurity swap = new SwapSecurity(tradeDate,
-                                          effectiveDate,
-                                          maturityDate,
-                                          counterparty,
-                                            new FloatingInterestRateLeg(
-                                                convention.getSwapFloatingLegDayCount(),
-                                                convention.getSwapFloatingLegFrequency(),
-                                                convention.getSwapFloatingLegRegion(),
-                                                convention.getSwapFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateBloombergTicker,
-                                                spread,
-                                                true),
-                                            new FixedInterestRateLeg(
-                                                convention.getSwapFixedLegDayCount(),
-                                                convention.getSwapFixedLegFrequency(),
-                                                convention.getSwapFixedLegRegion(),
-                                                convention.getSwapFixedLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                fixedRate));
+    final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
+        convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1),
+        floatRateBloombergTicker, spread, true), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
+        convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), fixedRate));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
 
-  private SwapSecurity getTenorSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
-      final Map<ExternalId, Double> marketValues) {
+  private SwapSecurity getTenorSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
     final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
@@ -318,30 +322,11 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final double spread = rate / 10000; //TODO this conversion should not be done here
     //double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-    final SwapSecurity swap = new SwapSecurity(tradeDate,
-                                          effectiveDate,
-                                          maturityDate,
-                                          counterparty,
-                                            new FloatingInterestRateLeg(
-                                                convention.getBasisSwapPayFloatingLegDayCount(),
-                                                convention.getBasisSwapPayFloatingLegFrequency(),
-                                                convention.getBasisSwapPayFloatingLegRegion(),
-                                                convention.getBasisSwapPayFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                payLegFloatRateBloombergTicker,
-                                                0.,
-                                                0,
-                                                true),
-                                            new FloatingInterestRateLeg(
-                                                convention.getBasisSwapReceiveFloatingLegDayCount(),
-                                                convention.getBasisSwapReceiveFloatingLegFrequency(),
-                                                convention.getBasisSwapReceiveFloatingLegRegion(),
-                                                convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                receiveLegFloatRateBloombergTicker,
-                                                0.,
-                                                spread,
-                                                true));
+    final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
+        convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
+            spec.getCurrency(), 1), payLegFloatRateBloombergTicker, 0., 0, true), new FloatingInterestRateLeg(convention.getBasisSwapReceiveFloatingLegDayCount(),
+        convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+        new InterestRateNotional(spec.getCurrency(), 1), receiveLegFloatRateBloombergTicker, 0., spread, true));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -357,13 +342,12 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     return cash;
   }
 
-  private SwapSecurity getOISSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip,
-      final Map<ExternalId, Double> marketValues) {
+  private SwapSecurity getOISSwap(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
     final ExternalId swapIdentifier = strip.getSecurity();
     final Double rate = marketValues.get(swapIdentifier);
     final LocalDate curveDate = spec.getCurveDate();
     final ConventionBundleSource source = s_conventionBundleSource;
-    
+
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
@@ -382,27 +366,10 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-    final SwapSecurity swap = new SwapSecurity(tradeDate,
-                                          effectiveDate,
-                                          maturityDate,
-                                          counterparty,
-                                            new FloatingInterestRateLeg(
-                                                convention.getSwapFloatingLegDayCount(),
-                                                convention.getSwapFloatingLegFrequency(),
-                                                convention.getSwapFloatingLegRegion(),
-                                                convention.getSwapFloatingLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                floatRateBloombergTicker,
-                                                0.,
-                                                0,
-                                                true),
-                                            new FixedInterestRateLeg(
-                                                convention.getSwapFixedLegDayCount(),
-                                                convention.getSwapFixedLegFrequency(),
-                                                convention.getSwapFixedLegRegion(),
-                                                convention.getSwapFixedLegBusinessDayConvention(),
-                                                new InterestRateNotional(spec.getCurrency(), 1),
-                                                fixedRate));
+    final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
+        convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1),
+        floatRateBloombergTicker, 0., 0, true), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
+        convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), fixedRate));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }

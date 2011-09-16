@@ -38,5 +38,9 @@ public enum StripInstrumentType {
   /** Fixed / float swap (6m floating leg reset tenor) */
   SWAP_6M,
   /** CDOR */
-  CDOR
+  CDOR,
+  /** Cibor */
+  CIBOR,
+  /** Stibor */
+  STIBOR
 }
