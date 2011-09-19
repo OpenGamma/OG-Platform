@@ -79,7 +79,7 @@ public final class EquityFutureCostOfCarry implements EquityFuturesPricer {
    * @return The change in the present value given a basis point change in the discount rate
    */
   @Override
-  public double PV01(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
+  public double pv01(final EquityFuture future, final EquityFutureDataBundle dataBundle) {
     return ratesDelta(future, dataBundle) / 10000;
   }
 }

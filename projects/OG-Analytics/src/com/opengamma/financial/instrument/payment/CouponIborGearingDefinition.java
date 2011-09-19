@@ -157,9 +157,8 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
       Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-      } else {
-        return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
-      }
+      } 
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _factor * fixedRate + _spread);
     }
 
     //    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {

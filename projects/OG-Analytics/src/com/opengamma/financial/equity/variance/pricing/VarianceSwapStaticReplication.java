@@ -215,10 +215,9 @@ public class VarianceSwapStaticReplication {
     final boolean forwardStarting = timeToFirstObs > A_FEW_WEEKS;
     if (!forwardStarting) {
       return varianceSpotEnd;
-    } else {
-      final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market);
-      return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
-    }
+    } 
+    final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market);
+    return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
   }
 
   /**
@@ -318,6 +317,7 @@ public class VarianceSwapStaticReplication {
       // 3. Define the hedging portfolio: The position to hold in each otmOption(k) = 2 / strike^2,
       //                                       where otmOption is a call if k > fwd and a put otherwise
       final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double strike) {
 
@@ -326,16 +326,13 @@ public class VarianceSwapStaticReplication {
           if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
             if (strike >= lowerBoundOfExtrapolator) {
               return leftExtrapolator.priceFromFixedStrike(strike) * weight;
-            } else {
-              return lowerBoundValue;
-            }
-          } else { // Interp/Extrap directly on volSurf
-            final double vol = volSurf.getVolatility(expiry, strike);
-            BlackFormula formula = new BlackFormula(fwd, strike, expiry, vol, null, isCall);
-            final double otmPrice = formula.computePrice();
-            return otmPrice * weight;
-          }
-
+            } 
+            return lowerBoundValue;
+          } // Interp/Extrap directly on volSurf
+          final double vol = volSurf.getVolatility(expiry, strike);
+          BlackFormula formula = new BlackFormula(fwd, strike, expiry, vol, null, isCall);
+          final double otmPrice = formula.computePrice();
+          return otmPrice * weight;
         }
       };
 
@@ -376,6 +373,7 @@ public class VarianceSwapStaticReplication {
       // 3. Define the hedging portfolio : The position to hold in each otmOption(k) = 2 / strike^2, 
       //                                    where otmOption is a call if k > fwd and a put otherwise
       final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double delta) {
 

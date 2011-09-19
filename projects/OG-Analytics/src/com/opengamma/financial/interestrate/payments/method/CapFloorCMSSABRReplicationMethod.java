@@ -115,7 +115,6 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
     final double strike = cmsCapFloor.getStrike();
-    @SuppressWarnings("synthetic-access")
     final double strikePart = discountFactor * integrant.k(strike) * integrant.g(forward) / integrant.h(forward) * integrant.bs(strike);
     final double absoluteTolerance = 1.0 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
     final double relativeTolerance = 1E-2;
@@ -207,7 +206,6 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to SABR parameters.
    */
-  @SuppressWarnings("synthetic-access")
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
@@ -423,6 +421,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       _nnp = nnp(forward);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
@@ -440,6 +439,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       return result;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double[] ggp(final double x) {
       final double[] result = new double[2];
       if (x >= getEps()) {
@@ -454,6 +454,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       return result;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double[] hhp(final double x) {
       final double[] result = new double[2];
       result[0] = Math.pow(1.0 + super._tau * x, super._eta);
@@ -466,6 +467,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param strike The strike.
      * @return The Black-Scholes formula and its derivative.
      */
+    @SuppressWarnings("synthetic-access")
     double[] bsbsp(final double strike) {
       final double[] result = new double[2];
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, super._timeToExpiry, super._isCall);
@@ -501,6 +503,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       this._parameterIndex = parameterIndex;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
@@ -516,6 +519,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
      * @param strike The strike.
      * @return The Black-Scholes formula derivative with respect to volatility.
      */
+    @SuppressWarnings("synthetic-access")
     @Override
     double bs(final double strike) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, super._timeToExpiry, super._isCall);

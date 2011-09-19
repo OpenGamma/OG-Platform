@@ -178,7 +178,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     } else if (_valueRequirementName.equals(ValueRequirementNames.VALUE_RHO)) {
       valueItself = _pricer.ratesDelta(derivative, bundle);
     } else if (_valueRequirementName.equals(ValueRequirementNames.PV01)) {
-      valueItself = _pricer.PV01(derivative, bundle);
+      valueItself = _pricer.pv01(derivative, bundle);
     } else {
       throw new OpenGammaRuntimeException("_valueRequirementName," + _valueRequirementName + ", unexpected. Should have been recognized in the constructor.");
     }
@@ -239,6 +239,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return new ValueRequirement(MarketDataRequirementNames.DIVIDEND_YIELD, id);
   }
 
+  @SuppressWarnings("unused")
   private Double getDividendYield(EquityFutureSecurity security, FunctionInputs inputs) {
     ValueRequirement dividendRequirement = getDividendYieldRequirement(security);
     final Object dividendObject = inputs.getValue(dividendRequirement);
