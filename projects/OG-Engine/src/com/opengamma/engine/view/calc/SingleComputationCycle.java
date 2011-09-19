@@ -16,11 +16,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Duration;
 import javax.time.Instant;
@@ -81,9 +81,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private volatile Instant _startTime;
   private volatile Instant _endTime;
 
-  private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
-  private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
-  private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _executedNodes = Collections.newSetFromMap(new ConcurrentHashMap<DependencyNode, Boolean>());
+  private final Set<DependencyNode> _failedNodes = Collections.newSetFromMap(new ConcurrentHashMap<DependencyNode, Boolean>());
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
 
   // Output
@@ -571,48 +570,27 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (node == null) {
       return true;
     }
-    _nodeExecutionLock.readLock().lock();
-    try {
-      return _executedNodes.contains(node);
-    } finally {
-      _nodeExecutionLock.readLock().unlock();
-    }
+    return _executedNodes.contains(node);
   }
 
   public void markExecuted(DependencyNode node) {
     if (node == null) {
       return;
     }
-    _nodeExecutionLock.writeLock().lock();
-    try {
-      _executedNodes.add(node);
-    } finally {
-      _nodeExecutionLock.writeLock().unlock();
-    }
+    _executedNodes.add(node);
   }
 
   public boolean isFailed(DependencyNode node) {
     if (node == null) {
       return true;
     }
-    _nodeExecutionLock.readLock().lock();
-    try {
-      return _failedNodes.contains(node);
-    } finally {
-      _nodeExecutionLock.readLock().unlock();
-    }
+    return _failedNodes.contains(node);
   }
 
   public void markFailed(DependencyNode node) {
     if (node == null) {
       return;
     }
-    _nodeExecutionLock.writeLock().lock();
-    try {
-      _failedNodes.add(node);
-    } finally {
-      _nodeExecutionLock.writeLock().unlock();
-    }
+    _failedNodes.add(node);
   }
-
 }
