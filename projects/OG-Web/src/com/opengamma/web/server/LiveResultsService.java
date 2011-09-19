@@ -9,7 +9,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 /**
  * Connects the REST interface to the engine.
+ * TODO REST interface for live market data source details - formerly pushlished over Cometd, see getLiveMarketDataSourceDetails from old versions of this file
  */
 public class LiveResultsService implements ViewportFactory {
 
@@ -72,7 +72,6 @@ public class LiveResultsService implements ViewportFactory {
 
   @Override
   public Viewport createViewport(String clientId, String viewportKey, ViewportDefinition viewportDefinition, AnalyticsListener listener) {
-    UniqueId snapshotId = viewportDefinition.getSnapshotId();
     String viewDefinitionName = viewportDefinition.getViewDefinitionName();
     synchronized (_lock) {
       String currentKey = _clientIdToViewportKey.remove(clientId);
@@ -82,7 +81,8 @@ public class LiveResultsService implements ViewportFactory {
       }
       // TODO is this relevant any more?
       if (webView != null) {
-        if (webView.matches(viewDefinitionName, snapshotId)) {
+        // TODO execution options need to be in the viewport def
+        if (webView.matches(viewDefinitionName, viewportDefinition.getExecutionOptions())) {
           // Already initialized
           // this used to deliver the grid structure to the client
           // TODO is there any possibility the WebView won't have a compiled view def at this point?
@@ -94,7 +94,7 @@ public class LiveResultsService implements ViewportFactory {
       }
       ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
-        webView = new WebView(viewClient, viewDefinitionName, snapshotId, _resultConverterCache, viewportDefinition, listener);
+        webView = new WebView(viewClient, viewDefinitionName, _resultConverterCache, viewportDefinition, listener);
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);

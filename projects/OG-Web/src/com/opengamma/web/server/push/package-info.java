@@ -51,11 +51,11 @@ package com.opengamma.web.server.push;
  * request to:</p>
  * <pre>
  *   /jax/viewports?clientId=...</pre>
- * <p>The response body will contain JSON with the URL for the newly-created viewport, e.g.</p>
+ * <p>The response will contain JSON with the URL for the newly-created viewport, e.g.</p>
  * <pre>
  *   {"viewportUrl": "/jax/viewports/567"}</pre>
  *
- * <p>The request body must contain JSON which defines the viewport:</p>
+ * <p>The request must contain JSON which defines the viewport:</p>
  * <pre>
  *   {"viewDefinitionName": ...
  *    "snapshotId": ...

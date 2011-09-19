@@ -12,7 +12,6 @@ import java.util.SortedMap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
@@ -33,6 +32,7 @@ public class ViewportDefinitionTest {
   public void fromJSON() throws IOException {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"snapshot\", " +
         "\"snapshotId\": \"Tst~123\", " +
         "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
@@ -115,13 +115,11 @@ public class ViewportDefinitionTest {
     assertEquals(3, prmCell3.getColumnId());
   }
 
-  // TODO dependencyGraphCells optional? or compulsory even when it's empty?
-  // TODO sanity check that the dep graph cells are all in the specified rows?
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void rowsMissing() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"snapshot\", " +
         "\"snapshotId\": \"Tst~123\", " +
         "\"portfolioViewport\": {" +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
@@ -134,6 +132,7 @@ public class ViewportDefinitionTest {
   public void depGraphCellsNotInRows() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"live\", " +
         "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
         "\"dependencyGraphCells\": [[3, 1], [6, 2], [4, 3]]" +
@@ -142,20 +141,11 @@ public class ViewportDefinitionTest {
     ViewportDefinition.fromJSON(json);
   }
 
-  @Test
-  public void nullSnapshotId() {
-    String json = "{" +
-        "\"viewDefinitionName\": \"testViewDefName\", " +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]}";
-    ViewportDefinition definition = ViewportDefinition.fromJSON(json);
-    assertNull(definition.getSnapshotId());
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void duplicateRowIds() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"live\", " +
         "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [3, 12345679], [5, 12345680]], " +
         "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
@@ -168,18 +158,79 @@ public class ViewportDefinitionTest {
   public void noDepGraphCells() {
     String json = "{" +
         "\"viewDefinitionName\": \"testViewDefName\", " +
-        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]]}";
+        "\"marketDataType\": \"live\", " +
+        "\"portfolioViewport\": {" +
+        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]]" +
+        "}" +
+        "}";
     ViewportDefinition definition = ViewportDefinition.fromJSON(json);
     List<WebGridCell> dependencyGraphCells = definition.getPortfolioDependencyGraphCells();
     assertNotNull(dependencyGraphCells);
     assertTrue(dependencyGraphCells.isEmpty());
   }
 
+  /**
+   * definition must include {@link ViewportDefinition#VIEW_DEFINITION_NAME}
+   */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void noViewDefName() {
     String json = "{" +
+        "\"marketDataType\": \"live\", " +
+        "\"portfolioViewport\": {" +
         "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
-        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]}";
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}" +
+        "}";
+    ViewportDefinition.fromJSON(json);
+  }
+
+  /**
+   * valid market data types are here: {@link ViewportDefinition.MarketDataType}
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void invalidMarketDataType() {
+    String json = "{" +
+        "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"foo\", " +
+        "\"portfolioViewport\": {" +
+        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}" +
+        "}";
+    ViewportDefinition.fromJSON(json);
+  }
+
+  /**
+   * If the market data type is "snapshot" the JSON must include {@link ViewportDefinition#SNAPSHOT_ID}
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void snapshotMarketDataTypeButNoSnapshot() {
+    String json = "{" +
+        "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"snapshot\", " +
+        "\"portfolioViewport\": {" +
+        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}" +
+        "}";
+    ViewportDefinition.fromJSON(json);
+  }
+
+  /**
+   * snapshot ID must be parseable as a {@link UniqueId}
+   * @see UniqueId#parse(String)
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void invalidSnapshotId() {
+    String json = "{" +
+        "\"viewDefinitionName\": \"testViewDefName\", " +
+        "\"marketDataType\": \"snapshot\", " +
+        "\"snapshotId\": \"not-a-UniqueId\", " +
+        "\"portfolioViewport\": {" +
+        "\"rows\": [[3, 12345678], [4, 12345679], [5, 12345680]], " +
+        "\"dependencyGraphCells\": [[3, 1], [3, 2], [4, 3]]" +
+        "}" +
+        "}";
     ViewportDefinition.fromJSON(json);
   }
 }

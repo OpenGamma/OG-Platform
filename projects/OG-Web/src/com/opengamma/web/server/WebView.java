@@ -7,18 +7,12 @@ package com.opengamma.web.server;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ExecutionFlags;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
@@ -31,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.time.Instant;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,7 +39,6 @@ public class WebView implements Viewport {
 
   private final ViewClient _viewClient;
   private final String _viewDefinitionName;
-  private final UniqueId _snapshotId;
   private final ResultConverterCache _resultConverterCache;
   private final Map<String,Object> _latestResults = new HashMap<String, Object>();
   private final Object _lock = new Object();
@@ -64,17 +56,14 @@ public class WebView implements Viewport {
 
   public WebView(ViewClient viewClient,
                  String viewDefinitionName,
-                 UniqueId snapshotId,
                  ResultConverterCache resultConverterCache,
                  ViewportDefinition viewportDefinition,
                  AnalyticsListener listener) {
     _viewClient = viewClient;
     _viewDefinitionName = viewDefinitionName;
-    _snapshotId = snapshotId;
     _resultConverterCache = resultConverterCache;
     _viewportDefinition = viewportDefinition;
     _listener = listener;
-
     _viewClient.setResultListener(new AbstractViewResultListener() {
       
       @Override
@@ -96,18 +85,7 @@ public class WebView implements Viewport {
       }
 
     });
-    
-    MarketDataSpecification marketDataSpec;
-    EnumSet<ViewExecutionFlags> flags;
-    if (snapshotId != null) {
-      marketDataSpec = MarketData.user(snapshotId.toLatest());
-      flags = ExecutionFlags.none().triggerOnMarketData().get();
-    } else {
-      marketDataSpec = MarketData.live();
-      flags = ExecutionFlags.triggersEnabled().get();
-    }
-    ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
-    _viewClient.attachToViewProcess(viewDefinitionName, executionOptions);
+    _viewClient.attachToViewProcess(viewDefinitionName, viewportDefinition.getExecutionOptions());
   }
 
   // TODO make sure an update event is published when the view defs compile?
@@ -163,9 +141,10 @@ public class WebView implements Viewport {
     }
   }
 
-  /* package */ boolean matches(String viewDefinitionName, UniqueId snapshotId) {
+  /* package */ boolean matches(String viewDefinitionName, ViewExecutionOptions executionOptions) {
     synchronized (_lock) {
-      return _viewDefinitionName.equals(viewDefinitionName) && ObjectUtils.equals(_snapshotId, snapshotId);
+      return _viewDefinitionName.equals(viewDefinitionName) &&
+          ObjectUtils.equals(_viewportDefinition.getExecutionOptions(), executionOptions);
     }
   }
 
