@@ -58,6 +58,8 @@ package com.opengamma.web.server.push;
  * <p>The request must contain JSON which defines the viewport:</p>
  * <pre>
  *   {"viewDefinitionName": ...
+ *    "marketDataType": ...
+ *    "marketDataProvider": ...
  *    "snapshotId": ...
  *    "portfolioViewport":
  *     {"rows": [[row, timestamp], [row, timestamp], ...],
@@ -67,7 +69,9 @@ package com.opengamma.web.server.push;
  *      "dependencyGraphCells": [[row, col], [row, col], ...]}</pre>
  * <ul>
  *   <li>{@code viewDefinitionName}: name of the view definition (see below)</li>
- *   <li>{@code snapshotId}: ID of the market data snapshot (see below).  Omit for live data.  <em>TODO No testing has
+ *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}</li>
+ *   <li>{@code marketDataProvider}: name of the market data provider.  Only relevant for live data.  Omit or {@code "Automatic"} for default provider</li>
+ *   <li>{@code snapshotId}: ID of the market data snapshot (see below).  Required if using a market data snapshot.  <em>TODO No testing has
  *   been done using snapshots yet, only live data</em></li>
  *   <li>{@code portfolioViewport / primitiveViewport}: viewport definition for the separate grids showing portfolio
  *   and primitive data</li>

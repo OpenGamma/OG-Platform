@@ -45,9 +45,7 @@ public class ViewportDefinition {
   private final List<WebGridCell> _portfolioDependencyGraphCells;
   private final List<WebGridCell> _primitiveDependencyGraphCells;
   private final String _viewDefinitionName;
-  // TODO market data interface / snapshot class / live data class, creates ExecutionOptions? or is that overkill?
-  // TODO ExecutionOptions field? do we ever need to know what the provider / type / ID was or can we create the options and discard that info?
-  private final UniqueId _snapshotId;
+  private final UniqueId _snapshotId; // TODO this isn't really required any more, only used for testing
   private final ViewExecutionOptions _executionOptions;
 
   public enum MarketDataType {
@@ -70,10 +68,15 @@ public class ViewportDefinition {
     _snapshotId = snapshotId;
     _portfolioRowTimstamps = portfolioRowTimstamps;
     _primitiveRowTimstamps = primitiveRowTimstamps;
+    _executionOptions = createExecutionOptions(marketDataType, snapshotId, marketDataProvider);
+  }
 
+  private static ViewExecutionOptions createExecutionOptions(MarketDataType marketDataType,
+                                                             UniqueId snapshotId,
+                                                             String marketDataProvider) {
     MarketDataSpecification marketDataSpec;
     EnumSet<ViewExecutionFlags> flags;
-    if (marketDataType == ViewportDefinition.MarketDataType.live) {
+    if (marketDataType == MarketDataType.live) {
       if (DEFAULT_LIVE_MARKET_DATA_NAME.equals(marketDataProvider)) {
         marketDataSpec = MarketData.live();
       } else {
@@ -84,11 +87,12 @@ public class ViewportDefinition {
       marketDataSpec = MarketData.user(snapshotId.toLatest());
       flags = ExecutionFlags.none().triggerOnMarketData().get();
     }
-    _executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
+    return ExecutionOptions.infinite(marketDataSpec, flags);
   }
 
   public static ViewportDefinition fromJSON(String json) {
     try {
+
       // TODO some of the validation should be in the constructor
       JSONObject jsonObject = new JSONObject(json);
 
@@ -103,6 +107,12 @@ public class ViewportDefinition {
                                                                   primitiveRows.keySet());
 
       String viewDefinitionName = jsonObject.getString(VIEW_DEFINITION_NAME);
+
+      /* TODO better data spec format?
+      marketData: {type: live, provider: ...}
+      marketData: {type: snapshot, snapshotId: ...}
+      no marketData = live data from default provider?
+      */
       MarketDataType marketDataType = MarketDataType.valueOf(jsonObject.getString(MARKET_DATA_TYPE));
       String marketDataProvider;
       UniqueId snapshotId;
@@ -220,7 +230,7 @@ public class ViewportDefinition {
   /**
    * @return The ID of the snapshot to use for the view data or {@code null} for live market data
    */
-  public UniqueId getSnapshotId() {
+  /* package */ UniqueId getSnapshotId() {
     return _snapshotId;
   }
 
