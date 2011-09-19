@@ -229,8 +229,8 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Returns the named calculation configuration.
    * 
-   * @param configurationName  the name of the calculation configuration, not {@code null}
-   * @return the calculation configuration, or {@code null} if no calculation configuration exists with that name.
+   * @param configurationName  the name of the calculation configuration, not null
+   * @return the calculation configuration, or null if no calculation configuration exists with that name.
    */
   public ViewCalculationConfiguration getCalculationConfiguration(String configurationName) {
     ArgumentChecker.notNull(configurationName, "configurationName");
@@ -241,7 +241,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Adds a new calculation configuration to the view definition. If there is already a configuration with that name it will
    * be replaced.
    * 
-   * @param calcConfig the new configuration, not {@code null}
+   * @param calcConfig the new configuration, not null
    */
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(calcConfig, "calculation configuration");
@@ -252,10 +252,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Add an output requirement to the view definition. This will become a terminal output when constructing dependency graphs for the view.
    * 
-   * @param calculationConfigurationName the configuration to add this as a requirement to, not {@code null}
-   * @param securityType the type of security for which an output should be produced, not {@code null}
-   * @param requirementName the value name to be produced, not {@code null}
-   * @param constraints additional constraints on the value produced, not {@code null}. For example this could be used to specify a currency
+   * @param calculationConfigurationName the configuration to add this as a requirement to, not null
+   * @param securityType the type of security for which an output should be produced, not null
+   * @param requirementName the value name to be produced, not null
+   * @param constraints additional constraints on the value produced, not null. For example this could be used to specify a currency
    * rather than use the view or portfolio default. 
    */
   public void addPortfolioRequirement(String calculationConfigurationName, String securityType, String requirementName, ValueProperties constraints) {
@@ -271,9 +271,9 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Add an output requirement to the view definition. This will become a terminal output when constructing dependency graphs for the view.
    * The value is added without any constraints.
    * 
-   * @param calculationConfigurationName the configuration to add this as a requirement to, not {@code null}
-   * @param securityType the type of security for which an output should be produced, not {@code null}
-   * @param requirementName the value name to be produced, not {@code null}
+   * @param calculationConfigurationName the configuration to add this as a requirement to, not null
+   * @param securityType the type of security for which an output should be produced, not null
+   * @param requirementName the value name to be produced, not null
    */
   public void addPortfolioRequirementName(final String calculationConfigurationName, final String securityType, final String requirementName) {
     addPortfolioRequirement(calculationConfigurationName, securityType, requirementName, ValueProperties.none());
