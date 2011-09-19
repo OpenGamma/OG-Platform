@@ -61,13 +61,13 @@ public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<FixedI
   // FIXME: convert frequency to period in a better way
   private Period getTenor(final Frequency freq) {
     Period tenor;
-    if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
+    if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(12);
-    } else if (freq.getConventionName() == Frequency.SEMI_ANNUAL_NAME) {
+    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(6);
-    } else if (freq.getConventionName() == Frequency.QUARTERLY_NAME) {
+    } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(3);
-    } else if (freq.getConventionName() == Frequency.MONTHLY_NAME) {
+    } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException(
