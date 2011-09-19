@@ -21,6 +21,7 @@ $.register_module({
         'og.views.configs.viewdefinition',
         'og.views.configs.yieldcurvedefinition',
         'og.views.configs.curvespecificationbuilderconfiguration',
+        'og.views.configs.volatilitycubedefinition',
         'og.views.configs.default'
     ],
     obj: function () {
@@ -107,7 +108,8 @@ $.register_module({
                 'default': og.views.configs['default'],
                 viewdefinition: og.views.configs.viewdefinition,
                 yieldcurvedefinition: og.views.configs.yieldcurvedefinition,
-                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration
+                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration,
+                volatilitycubedefinition: og.views.configs.volatilitycubedefinition
             },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);
