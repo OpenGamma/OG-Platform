@@ -243,6 +243,13 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
       @Override
       public void preOrderOperation(final PortfolioNode portfolioNode) {
+        if (portfolioNode.getUniqueId() == null) {
+          // Anonymous node in the portfolio means it cannot be referenced so no results can be produced on it.
+          // Being presented with a portfolio like this almost certainly implies a temporary portfolio for which
+          // node-level results are not required.
+          s_logger.debug("Ignoring portfolio node with no unique ID: {}", portfolioNode);
+          return;
+        }
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
         final Set<CompiledFunctionDefinition> visitedFunctions = new HashSet<CompiledFunctionDefinition>();
         for (CompiledFunctionDefinition function : functions) {

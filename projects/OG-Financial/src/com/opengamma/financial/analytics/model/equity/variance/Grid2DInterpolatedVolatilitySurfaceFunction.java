@@ -28,7 +28,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({"rawtypes", "unused" })
   private final GridInterpolator2D _interpolator;
 
   @SuppressWarnings({"unchecked", "rawtypes" })

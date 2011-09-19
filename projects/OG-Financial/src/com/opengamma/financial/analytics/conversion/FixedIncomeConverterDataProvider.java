@@ -88,8 +88,11 @@ public class FixedIncomeConverterDataProvider {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
+    if (length < 2) {
+      throw new OpenGammaRuntimeException("Price time series for " + id + " did not contain data for the last week - have they been updated?");
+    }
     final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2) / 100;
-    final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong need margin data and previous close for lastMarginPrice
+    final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong; need margin data and previous close for lastMarginPrice
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);
     return transactionDefinition.toDerivative(now, lastMarginPrice, curveNames);
   }
@@ -140,12 +143,21 @@ public class FixedIncomeConverterDataProvider {
     final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(
         InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartDate, now, dataSource);
     if (payLegTS != null) {
-      if (receiveLegTS != null) {
+      if (payLegTS.isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId());
+      }
+      if (receiveLegTS != null) {        
+        if (receiveLegTS.isEmpty()) {
+          throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
+        }
         return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS}, curveNames);
       }
       return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
     }
     if (receiveLegTS != null) {
+      if (receiveLegTS.isEmpty()) {
+        throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
+      }
       return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS}, curveNames);
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");

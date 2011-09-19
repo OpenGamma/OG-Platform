@@ -89,4 +89,15 @@ public interface MarketDataRequirementNames {
    * Market dirty price (MID) 
    */
   String DIRTY_PRICE_MID = "Market_DirtyPriceMid";  
+  
+  /**
+   * Market estimated annual dividend yield
+   */
+  String DIVIDEND_YIELD = "Market_DividendYield";
+  
+  /**
+   * Market estimated cost of carry, as continuous annual yield (interest - income)
+   */
+  String COST_OF_CARRY = "Market_CostOfCarry";
+  
 }

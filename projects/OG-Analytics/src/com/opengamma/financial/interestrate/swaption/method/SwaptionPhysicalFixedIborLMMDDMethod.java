@@ -76,7 +76,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
           if (cftInit[loopcf] - timeLMM[-indCFDate[loopcf] - 2] < TIME_TOLERANCE) {
             indCFDate[loopcf] = -indCFDate[loopcf] - 2;
           } else {
-            Validate.isTrue(true, "Instrument time incompatible with LMM");
+            Validate.isTrue(true, "Instrument time incompatible with LMM"); //TODO really?
           }
         }
       }

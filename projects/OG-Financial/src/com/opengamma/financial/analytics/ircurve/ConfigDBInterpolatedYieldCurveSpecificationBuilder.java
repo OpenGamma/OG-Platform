@@ -26,7 +26,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   // REVIEW: maybe we shouldn't cache these and rely on the repo doing that, but this prevents changes flowing through while we're running.
   private final Map<String, CurveSpecificationBuilderConfiguration> _specBuilderCache = new HashMap<String, CurveSpecificationBuilderConfiguration>();
 
-  public ConfigDBInterpolatedYieldCurveSpecificationBuilder(ConfigSource configSource) {
+  public ConfigDBInterpolatedYieldCurveSpecificationBuilder(final ConfigSource configSource) {
     _configSource = configSource;
   }
 
@@ -35,11 +35,11 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   }
 
   // this is factored out into a method so it's easier to remove if we want to disable caching.
-  private CurveSpecificationBuilderConfiguration getBuilderConfig(String conventionName) {
+  private CurveSpecificationBuilderConfiguration getBuilderConfig(final String conventionName) {
     if (_specBuilderCache.containsKey(conventionName)) {
       return _specBuilderCache.get(conventionName);
     } else {
-      CurveSpecificationBuilderConfiguration builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
+      final CurveSpecificationBuilderConfiguration builderSpecDoc = _configSource.getLatestByName(CurveSpecificationBuilderConfiguration.class, conventionName);
       if (builderSpecDoc != null) {
         _specBuilderCache.put(conventionName, builderSpecDoc);
         return builderSpecDoc;
@@ -50,27 +50,57 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
   }
 
   @Override
-  public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition) {
+  public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate, final YieldCurveDefinition curveDefinition) {
     clearConfigCache();
-    Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
-    for (FixedIncomeStrip strip : curveDefinition.getStrips()) {
-      CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
+    final Collection<FixedIncomeStripWithIdentifier> securities = new ArrayList<FixedIncomeStripWithIdentifier>();
+    for (final FixedIncomeStrip strip : curveDefinition.getStrips()) {
+      final CurveSpecificationBuilderConfiguration builderConfig = getBuilderConfig(strip.getConventionName() + "_" + curveDefinition.getCurrency().getCode());
+      if (builderConfig == null) {
+        throw new OpenGammaRuntimeException("Could not get specification builder configuration for curve=" + curveDefinition.getName() + ", currency=" + curveDefinition.getCurrency() + ", strip="
+            + strip);
+      }
       ExternalId identifier;
       switch (strip.getInstrumentType()) {
         case CASH:
           identifier = builderConfig.getCashSecurity(curveDate, strip.getCurveNodePointTime());
           break;
+        case FRA_3M:
+          identifier = builderConfig.getFRA3MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case FRA_6M:
+          identifier = builderConfig.getFRA6MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
         case FRA:
-          identifier = builderConfig.getFRASecurity(curveDate, strip.getCurveNodePointTime());
+          // assume that all old FRAs are 3m - shouldn't be used but just for consistency
+          identifier = builderConfig.getFRA3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case FUTURE:
           identifier = builderConfig.getFutureSecurity(curveDate, strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor());
           break;
-        case LIBOR:
-          identifier = builderConfig.getRateSecurity(curveDate, strip.getCurveNodePointTime());
+        case LIBOR: //TODO is this right? It seems that we should have a generic IBOR strip. We will need to think about how we deal with *ibor providers 
+          identifier = builderConfig.getLiborSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case EURIBOR:
+          identifier = builderConfig.getEuriborSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case CDOR:
+          identifier = builderConfig.getCDORSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case CIBOR:
+          identifier = builderConfig.getCiborSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case STIBOR:
+          identifier = builderConfig.getStiborSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case SWAP_3M:
+          identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case SWAP_6M:
+          identifier = builderConfig.getSwap6MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case SWAP:
-          identifier = builderConfig.getSwapSecurity(curveDate, strip.getCurveNodePointTime());
+          // assume that all old swaps are 3m - shouldn't be used but just for consistency
+          identifier = builderConfig.getSwap3MSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case BASIS_SWAP:
           identifier = builderConfig.getBasisSwapSecurity(curveDate, strip.getCurveNodePointTime());
@@ -84,13 +114,9 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
-      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor(), identifier));
-      } else {
-        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
-      }
+      securities.add(new FixedIncomeStripWithIdentifier(strip, identifier));
     }
-    Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
+    final Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
     return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegionId());
   }
 }

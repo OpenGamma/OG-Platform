@@ -12,6 +12,9 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -78,12 +81,32 @@ public class ThreadPerThreadExecutor extends AbstractExecutorService {
   public void execute(Runnable command) {
     ExecutorService executor = _threadExecutor.get();
     if (executor == null) {
-      executor = Executors.newSingleThreadExecutor(); //TODO: from pool?
+      executor = createExecutorService();
       _threadExecutor.set(executor);
       _delegatedExecutors.add(executor);
     }
     
     executor.execute(command);
+  }
+
+  private ExecutorService createExecutorService() {
+    ExecutorService executor;
+    //NOTE: this is quite like Executors.newSingleThreadExecutor(), except it times out
+    executor = new ThreadPoolExecutor(0, 1,
+        getKeepAliveTimeMillis(), TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<Runnable>(),
+        getThreadFactory());
+    return executor;
+  }
+
+  public long getKeepAliveTimeMillis() {
+    long keepAliveTimeMillis = 10000L;
+    return keepAliveTimeMillis;
+  }
+
+  private ThreadFactory getThreadFactory() {
+    ThreadFactory threadFactory = Executors.defaultThreadFactory(); //TODO: from pool?
+    return threadFactory;
   }
 
 }

@@ -269,6 +269,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     }
 
+    @SuppressWarnings({"unused", "synthetic-access" })
     private void solveByLU() {
       DoubleMatrix2D temp = new DoubleMatrix2D(_m);
       DecompositionResult res = DCOMP.evaluate(temp);
