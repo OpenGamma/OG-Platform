@@ -29,13 +29,20 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
     _type = type;
     _scheme = scheme;
   }
+  
   @Override
   public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
+    if (_type.equals(StripInstrumentType.SWAP_3M) || _type.equals(_type.equals(StripInstrumentType.SWAP_6M))) {
+      return ExternalId.of(_scheme, _ccy.getCode() + "SWAP" + tenor.getPeriod().toString());      
+    }
     return ExternalId.of(_scheme, _ccy.getCode() + _type.name() + tenor.getPeriod().toString());
   }
   
   @Override
   public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+    if (_type.equals(StripInstrumentType.SWAP_3M) || _type.equals(_type.equals(StripInstrumentType.SWAP_6M))) {
+      return ExternalId.of(_scheme, _ccy.getCode() + "SWAP" + tenor.getPeriod().toString());      
+    }
     return ExternalId.of(_scheme, _ccy.getCode() + _type.name() + tenor.getPeriod().toString());
   }
   

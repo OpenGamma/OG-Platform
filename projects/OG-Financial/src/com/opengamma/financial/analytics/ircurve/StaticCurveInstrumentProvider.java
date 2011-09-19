@@ -20,6 +20,7 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
   public StaticCurveInstrumentProvider(ExternalId identifier) {
     _identifier = identifier;
   }
+  
   @Override
   public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
     return _identifier;
@@ -30,6 +31,7 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
     throw new OpenGammaRuntimeException("futures not supported by this class");
   }
   
+  @Override
   public boolean equals(Object o) {
     if (o == null) {
       return false;
@@ -41,8 +43,13 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
     return _identifier.equals(other._identifier);
   }
   
+  @Override
   public int hashCode() {
     return _identifier.hashCode();
   }
   
+  @Override
+  public String toString() {
+    return "StaticCurveInstrumentProvider[" + _identifier.toString() + "]";
+  }
 }

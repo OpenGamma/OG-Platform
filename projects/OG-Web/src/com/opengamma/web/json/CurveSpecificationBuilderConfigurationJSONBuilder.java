@@ -215,7 +215,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           fraInstrumentProviders.add(fraInstrumentProvidersMessage);
         }
         allTenors.addAll(object.getFra6MInstrumentProviders().keySet());
-        message.put("fra3MInstrumentProviders", fraInstrumentProviders);
+        message.put("fra6MInstrumentProviders", fraInstrumentProviders);
       } else {
         s_logger.debug("No FRA 6M instrument providers");
       }
@@ -327,7 +327,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           swapInstrumentProviders.add(swapInstrumentProvidersMessage);
         }
         allTenors.addAll(object.getSwap3MInstrumentProviders().keySet());
-        message.put("swapInstrumentProviders", swapInstrumentProviders);
+        message.put("swap3MInstrumentProviders", swapInstrumentProviders);
       } else {
         s_logger.debug("No swap 3M instrument providers");
       }
@@ -343,7 +343,7 @@ public final class CurveSpecificationBuilderConfigurationJSONBuilder extends Abs
           swapInstrumentProviders.add(swapInstrumentProvidersMessage);
         }
         allTenors.addAll(object.getSwap6MInstrumentProviders().keySet());
-        message.put("swapInstrumentProviders", swapInstrumentProviders);
+        message.put("swap6MInstrumentProviders", swapInstrumentProviders);
       } else {
         s_logger.debug("No swap 6M instrument providers");
       }
