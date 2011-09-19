@@ -7,6 +7,9 @@ package com.opengamma.financial.convention;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -30,6 +33,10 @@ import com.opengamma.id.UniqueIdSupplier;
  */
 /* package */ class ExternalIdBundleMapper<T> {
 
+  private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock();
+  private final WriteLock _writeLock = _lock.writeLock();
+  private final ReadLock _readLock = _lock.readLock();
+  
   private final Multimap<ExternalId, T> _toMap = HashMultimap.create();
   private final Multimap<T, ExternalId> _fromMap = HashMultimap.create();
   private final BiMap<UniqueId, T> _uniqueIdMap = HashBiMap.create();
@@ -52,17 +59,22 @@ import com.opengamma.id.UniqueIdSupplier;
    * @param obj  the object being referred to, not null
    * @return the created unique identifier, not null
    */
-  synchronized UniqueId add(ExternalIdBundle bundle, T obj) {
-    _fromMap.putAll(obj, bundle.getExternalIds());
-    for (ExternalId identifier : bundle.getExternalIds()) {
-      _toMap.put(identifier, obj);
-    }
-    if (_uniqueIdMap.inverse().containsKey(obj)) {
-      return _uniqueIdMap.inverse().get(obj);
-    } else {
-      UniqueId uniqueId = _idSupplier.get();
-      _uniqueIdMap.put(uniqueId, obj);
-      return uniqueId;
+  UniqueId add(ExternalIdBundle bundle, T obj) {
+    _writeLock.lock();
+    try {
+      _fromMap.putAll(obj, bundle.getExternalIds());
+      for (ExternalId identifier : bundle.getExternalIds()) {
+        _toMap.put(identifier, obj);
+      }
+      if (_uniqueIdMap.inverse().containsKey(obj)) {
+        return _uniqueIdMap.inverse().get(obj);
+      } else {
+        UniqueId uniqueId = _idSupplier.get();
+        _uniqueIdMap.put(uniqueId, obj);
+        return uniqueId;
+      }
+    } finally {
+      _writeLock.unlock();
     }
   }
 
@@ -75,15 +87,20 @@ import com.opengamma.id.UniqueIdSupplier;
    * @param bundle  the bundle to search for, not null
    * @return the matching objects, not null
    */
-  synchronized Collection<T> get(ExternalIdBundle bundle) {
-    // TODO: semantics are wrong
-    Collection<T> results = new HashSet<T>();
-    for (ExternalId identifier : bundle) {
-      if (_toMap.containsKey(identifier)) {
-        results.addAll(_toMap.get(identifier));
+  Collection<T> get(ExternalIdBundle bundle) {
+    _readLock.lock();
+    try {
+      // TODO: semantics are wrong
+      Collection<T> results = new HashSet<T>();
+      for (ExternalId identifier : bundle) {
+        if (_toMap.containsKey(identifier)) {
+          results.addAll(_toMap.get(identifier));
+        }
       }
+      return results;
+    } finally {
+      _readLock.unlock();
     }
-    return results;
   }
 
   /**
@@ -92,8 +109,13 @@ import com.opengamma.id.UniqueIdSupplier;
    * @param externalId  the external identifier to search for, not null
    * @return the matching objects, not null
    */
-  synchronized Collection<T> get(ExternalId externalId) {
-    return _toMap.get(externalId);
+  Collection<T> get(ExternalId externalId) {
+    _readLock.lock();
+    try {
+      return _toMap.get(externalId);
+    } finally {
+      _readLock.unlock();
+    }
   }
 
   /**
@@ -102,8 +124,13 @@ import com.opengamma.id.UniqueIdSupplier;
    * @param uniqueId  the unique identifier to search for, not null
    * @return the matching objects, not null
    */
-  synchronized T get(UniqueId uniqueId) {
-    return _uniqueIdMap.get(uniqueId);
+  T get(UniqueId uniqueId) {
+    _readLock.lock();
+    try {
+      return _uniqueIdMap.get(uniqueId);
+    } finally {
+      _readLock.unlock();
+    }
   }
 
 }

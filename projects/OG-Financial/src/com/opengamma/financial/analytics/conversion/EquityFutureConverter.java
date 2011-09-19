@@ -34,7 +34,7 @@ public class EquityFutureConverter extends AbstractFutureSecurityVisitor<FixedIn
 
     // TODO Case 2011-5-27 Revisit use of trade._premium as a futures price (often simply be an index value). Ensure no payments are being automatically computed here.
     // What this futuresPrice represents is the last margin price, then when one computes pv, they get back the value expected if one unwinds the trade 
-    final double futuresPrice = 1189.0; // FIXME CASE! trade.getPremium();
+    final Double futuresPrice = trade.getPremium();
 
     /* FIXME Case 2011-05-27 Revisit holiday conventions for input dates 
     final ConventionBundle conventions = super.getConventionSource().getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_EQFUTURE"));

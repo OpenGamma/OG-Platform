@@ -35,7 +35,7 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
   @Override
   public abstract DoubleTimeSeries<?> evaluate(DoubleTimeSeries<?>... x);
 
-  protected boolean isValueNonZero(final Double value) {
+  protected boolean isValueNonZero(final double value) {
     if (CompareUtils.closeEquals(value, 0)) {
       if (_mode == CalculationMode.STRICT) {
         throw new TimeSeriesException("Cannot have zero in time series in strict mode");
