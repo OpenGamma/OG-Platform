@@ -69,7 +69,7 @@ public class FXOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _settlementDate;
   /**
-   * The expiry.
+   * The long flag.
    */
   @PropertyDefinition(get = "get")
   private boolean _isLong;
@@ -379,7 +379,7 @@ public class FXOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry.
+   * Gets the long flag.
    * @return the value of the property
    */
   public boolean getIsLong() {
@@ -387,7 +387,7 @@ public class FXOptionSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets the expiry.
+   * Sets the long flag.
    * @param isLong  the new value of the property
    */
   public void setIsLong(boolean isLong) {

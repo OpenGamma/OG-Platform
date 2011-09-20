@@ -6,6 +6,8 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
@@ -52,6 +54,15 @@ public interface ViewProcessor extends UniqueIdentifiable {
    */
   ViewProcess getViewProcess(UniqueId viewProcessId);
 
+  /** 
+   * Gets this view processor's live market data source registry containing the DataSource available for
+   * use with {@link LiveMarketDataSpecification}.
+   * 
+   * @return the view definition repository, not null
+   */
+  LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry();
+  
+  
   //-------------------------------------------------------------------------
   /**
    * Creates a {@link ViewClient}

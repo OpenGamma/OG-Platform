@@ -246,7 +246,7 @@ public class YieldCurveNodeSensitivitiesSummingFunction extends FilteringSumming
 
     @Override
     public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
-      final FXSecurity underlying = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingIdentifier()));
+      final FXSecurity underlying = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
       return Arrays.asList(underlying.getPayCurrency(), underlying.getReceiveCurrency());
     }
 

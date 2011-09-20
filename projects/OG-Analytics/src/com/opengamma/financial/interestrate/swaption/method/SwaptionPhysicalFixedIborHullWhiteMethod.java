@@ -30,7 +30,8 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model.
- * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model. International Journal of Theoretical and Applied Finance, 6(1):57--72.
+ * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model. 
+ * International Journal of Theoretical and Applied Finance, 6(1):57--72.
  */
 public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
 
@@ -42,6 +43,9 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
    * The cash flow equivalent calculator used in computations.
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
+  /**
+   * The cash flow equivalent curve sensitivity calculator used in computations.
+   */
   private static final CashFlowEquivalentCurveSensitivityCalculator CFECSC = CashFlowEquivalentCurveSensitivityCalculator.getInstance();
   /**
    * The normal distribution implementation.
@@ -165,7 +169,6 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     }
     //Backward sweep
     double pvBar = 1.0;
-    //    double kappaBar = 0.0;
     double[] discountedCashFlowBar = new double[cfe.getNumberOfPayments()];
     double[] dfBar = new double[cfe.getNumberOfPayments()];
     double[] cfeAmountBar = new double[cfe.getNumberOfPayments()];
@@ -189,4 +192,5 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     }
     return sensitivity;
   }
+
 }

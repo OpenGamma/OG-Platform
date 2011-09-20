@@ -29,6 +29,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
@@ -91,13 +92,16 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
   /**
    * Constructs a new output set.
    * 
-   * @param portfolio the portfolio (must be resolved), not null
-   * @param functionRepository the functions, not null
-   * @param anyValue value to use when composing a wild-card with a finite set of property values, or null to not compose
+   * @param portfolio  the portfolio (must be resolved), not null
+   * @param functionRepository  the functions, not null
+   * @param marketDataAvailabilityProvider  the market data availability provider, not null
+   * @param anyValue  value to use when composing a wild-card with a finite set of property values, or null to not compose
    */
-  public AvailablePortfolioOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository, final String anyValue) {
+  public AvailablePortfolioOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository,
+      final MarketDataAvailabilityProvider marketDataAvailabilityProvider, final String anyValue) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(functionRepository, "functions");
+    ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     _anyValue = anyValue;
     final Collection<CompiledFunctionDefinition> functions = removeDummyFunctions(functionRepository.getAllFunctions());
     final Map<UniqueId, Object> targetCache = new HashMap<UniqueId, Object>();
@@ -178,17 +182,22 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         for (ValueRequirement requirement : requirements) {
           final ComputationTargetSpecification targetSpec = requirement.getTargetSpecification();
           if (targetSpec.getUniqueId() != null) {
-            final Object requirementTarget = targetCache.get(targetSpec.getUniqueId());
-            if (requirementTarget != null) {
-              final Set<ValueSpecification> satisfied = satisfyRequirement(visited, new ComputationTarget(requirementTarget), requirement);
-              if (satisfied == null) {
-                s_logger.debug("Can't satisfy {} for function {}", requirement, function);
-                return null;
-              }
-              inputs.put(satisfied.iterator(), requirement);
+            if (marketDataAvailabilityProvider.isAvailable(requirement)) {
+              s_logger.debug("Requirement {} can be satisfied by market data", requirement);
+              inputs.put(Collections.singleton(new ValueSpecification(requirement, "marketdata")).iterator(), requirement);
             } else {
-              s_logger.debug("No target cached for {}, assuming ok", targetSpec);
-              inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
+              final Object requirementTarget = targetCache.get(targetSpec.getUniqueId());
+              if (requirementTarget != null) {
+                final Set<ValueSpecification> satisfied = satisfyRequirement(visited, new ComputationTarget(requirementTarget), requirement);
+                if (satisfied == null) {
+                  s_logger.debug("Can't satisfy {} for function {}", requirement, function);
+                  return null;
+                }
+                inputs.put(satisfied.iterator(), requirement);
+              } else {
+                s_logger.debug("No target cached for {}, assuming ok", targetSpec);
+                inputs.put(new SingleItem<ValueSpecification>(new ValueSpecification(requirement, "")), requirement);
+              }
             }
           } else {
             s_logger.debug("No unique ID for {}, assuming ok", targetSpec);
@@ -234,6 +243,13 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
       @Override
       public void preOrderOperation(final PortfolioNode portfolioNode) {
+        if (portfolioNode.getUniqueId() == null) {
+          // Anonymous node in the portfolio means it cannot be referenced so no results can be produced on it.
+          // Being presented with a portfolio like this almost certainly implies a temporary portfolio for which
+          // node-level results are not required.
+          s_logger.debug("Ignoring portfolio node with no unique ID: {}", portfolioNode);
+          return;
+        }
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
         final Set<CompiledFunctionDefinition> visitedFunctions = new HashSet<CompiledFunctionDefinition>();
         for (CompiledFunctionDefinition function : functions) {

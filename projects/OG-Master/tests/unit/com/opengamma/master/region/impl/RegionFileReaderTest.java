@@ -44,7 +44,7 @@ public class RegionFileReaderTest {
     int all = _regionMaster.search(request).getDocuments().size();
     request.setClassification(RegionClassification.MUNICIPALITY);
     int municipalities = _regionMaster.search(request).getDocuments().size();
-    assertEquals(279, all - municipalities);
+    assertEquals(283, all - municipalities);
   }
 
   public void test_search_name() {
@@ -58,7 +58,7 @@ public class RegionFileReaderTest {
     assertEquals(RegionClassification.INDEPENDENT_STATE, ukRegion.getClassification());
     assertEquals(Country.GB, ukRegion.getCountry());
     assertEquals(Currency.GBP, ukRegion.getCurrency());
-    assertEquals(2, ukRegion.getParentRegionIds().size());
+    assertEquals(3, ukRegion.getParentRegionIds().size());
     
     RegionDocument gotDoc = _regionMaster.get(doc.getUniqueId());
     assertEquals(doc, gotDoc);

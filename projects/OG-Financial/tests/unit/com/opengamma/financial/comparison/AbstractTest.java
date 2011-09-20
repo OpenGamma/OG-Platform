@@ -75,7 +75,7 @@ import com.opengamma.util.time.Expiry;
   }
 
   protected Position createPosition(final String uid, final int quantity, final Security security, final String attr1Value, final String attr2Value, final Trade trade1, final Trade trade2) {
-    final SimplePosition position = new SimplePosition(new BigDecimal(quantity), security.getIdentifiers());
+    final SimplePosition position = new SimplePosition(new BigDecimal(quantity), security.getExternalIdBundle());
     position.setParentNodeId(createUniqueId("Node"));
     position.setSecurityLink(SimpleSecurityLink.of(security));
     if (attr1Value != null) {
@@ -98,7 +98,7 @@ import com.opengamma.util.time.Expiry;
     final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     baos.write(data);
     final RawSecurity security = new RawSecurity("WOSSNAME", baos.toByteArray());
-    security.setIdentifiers(createExternalIdBundle());
+    security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
@@ -107,7 +107,7 @@ import com.opengamma.util.time.Expiry;
   protected Security createEquityOptionSecurity(final String name, final OptionType type, final double strike, final ExternalId underlying) {
     final EquityOptionSecurity security = new EquityOptionSecurity(type, strike, Currency.USD, underlying, new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2010, 10,
         10, 12, 0, 0, 0, TimeZone.UTC)), 0d, "EXCH");
-    security.setIdentifiers(createExternalIdBundle());
+    security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
@@ -115,7 +115,7 @@ import com.opengamma.util.time.Expiry;
 
   protected Security createSwaptionSecurity(final String name, final boolean isPayer, final Currency currency, final ExternalId underlying) {
     final SwaptionSecurity security = new SwaptionSecurity(isPayer, underlying, false, new Expiry(ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC)), false, currency);
-    security.setIdentifiers(createExternalIdBundle());
+    security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;
@@ -124,7 +124,7 @@ import com.opengamma.util.time.Expiry;
   protected Security createFRASecurity(final String name, final Currency currency, final double rate, final ExternalId underlying) {
     final FRASecurity security = new FRASecurity(currency, ExternalId.of("Region", "US"), ZonedDateTime.of(2010, 10, 10, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2012, 10, 10, 12, 0, 0, 0,
         TimeZone.UTC), rate, 0d, underlying);
-    security.setIdentifiers(createExternalIdBundle());
+    security.setExternalIdBundle(createExternalIdBundle());
     security.setName(name);
     security.setUniqueId(createUniqueId("Security"));
     return security;

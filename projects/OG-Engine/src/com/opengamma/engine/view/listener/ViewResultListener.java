@@ -24,7 +24,7 @@ public interface ViewResultListener {
   /**
    * Gets the user represented by this listener.
    * 
-   * @return the user represented by this listener, not {@code null}
+   * @return the user represented by this listener, not null
    */
   UserPrincipal getUser();
   

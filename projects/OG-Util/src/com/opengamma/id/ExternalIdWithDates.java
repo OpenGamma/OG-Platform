@@ -18,7 +18,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.ExternalIdWithDatesBuilder;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -223,7 +222,7 @@ public final class ExternalIdWithDates
    */
   @Deprecated
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ExternalIdWithDatesBuilder.toFudgeMsg(serializer, this, msg);
+    ExternalIdWithDatesFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
@@ -237,7 +236,7 @@ public final class ExternalIdWithDates
    */
   @Deprecated
   public static ExternalIdWithDates fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ExternalIdWithDatesBuilder.fromFudgeMsg(deserializer, msg);
+    return ExternalIdWithDatesFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

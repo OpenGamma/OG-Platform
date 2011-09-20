@@ -77,7 +77,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security), getUniqueId());
     
-    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(_fieldName, security.getIdentifiers(), _resolutionKey, _startDate, true, now, true);
+    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(_fieldName, security.getExternalIdBundle(), _resolutionKey, _startDate, true, now, true);
     if (tsPair == null) {
       throw new NullPointerException("Could not get identifier / price series pair for security " + security + " for " + _resolutionKey + "/" + _fieldName);
     }

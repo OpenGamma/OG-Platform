@@ -12,8 +12,8 @@ import com.opengamma.math.curve.Curve;
  */
 public class DiscountCurve extends YieldAndDiscountCurve {
 
-  public DiscountCurve(final Curve<Double, Double> yieldCurve) {
-    super(yieldCurve);
+  public DiscountCurve(final Curve<Double, Double> discountFactorCurve) {
+    super(discountFactorCurve);
   }
 
   @Override

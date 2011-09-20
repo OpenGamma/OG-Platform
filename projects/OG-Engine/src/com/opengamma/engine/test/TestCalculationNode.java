@@ -28,8 +28,15 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 public class TestCalculationNode extends AbstractCalculationNode {
 
+  private static CompiledFunctionService initializedCFS() {
+    final CompiledFunctionService cfs = new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    cfs.initialize();
+    return cfs;
+  }
+
   public TestCalculationNode() {
-    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext()), new FunctionExecutionContext(), new DefaultComputationTargetResolver(new MockSecuritySource(), new MockPositionSource()), new ViewProcessorQuerySender(
+    super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), new DefaultComputationTargetResolver(new MockSecuritySource(),
+        new MockPositionSource()), new ViewProcessorQuerySender(
         new FudgeRequestSender() {
 
           @Override

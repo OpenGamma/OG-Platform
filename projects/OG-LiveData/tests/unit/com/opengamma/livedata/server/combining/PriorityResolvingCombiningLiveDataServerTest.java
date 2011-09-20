@@ -2,6 +2,7 @@ package com.opengamma.livedata.server.combining;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -15,6 +16,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.MockDistributionSpecificationResolver;
 import com.opengamma.livedata.server.MockLiveDataServer;
@@ -45,7 +47,15 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC));
       _combiningServer.start();
       
+      assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
       _domainD = ExternalScheme.of("D");
+    }
+    
+    @AfterMethod
+    public void teardown() {
+      assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
+      _combiningServer.stop();
+      assertEquals(AbstractLiveDataServer.ConnectionStatus.NOT_CONNECTED, _combiningServer.getConnectionStatus());
     }
     
     @Test(expectedExceptions =  Throwable.class)

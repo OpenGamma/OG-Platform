@@ -143,7 +143,9 @@ public class RepositoryFactoryTest {
     assertTrue(definition instanceof MockEmptyFunction);
     assertNotNull(definition.getUniqueId());
 
-    final CompiledFunctionRepository compiledRepo = new CompiledFunctionService (repo, new CachingFunctionRepositoryCompiler (), new FunctionCompilationContext ()).compileFunctionRepository(System.currentTimeMillis ());
+    final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    cfs.initialize();
+    final CompiledFunctionRepository compiledRepo = cfs.compileFunctionRepository(System.currentTimeMillis());
     assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));
     FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueId());
     assertNotNull(invoker);

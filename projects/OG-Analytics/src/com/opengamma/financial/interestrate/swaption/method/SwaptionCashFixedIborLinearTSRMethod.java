@@ -67,6 +67,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
 
     LinearTSRIntegrant integrant = new LinearTSRIntegrant(swaption, sabrData.getSABRParameter(), forward, alpha);
 
+    @SuppressWarnings("synthetic-access")
     final double strikePart = integrant.k(strike) * integrant.bs(strike);
     final double absoluteTolerance = 1.0E-2;
     final double relativeTolerance = 1.0E-5;

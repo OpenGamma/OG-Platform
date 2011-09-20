@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -54,6 +55,12 @@ public class RemoteViewProcessor implements ViewProcessor {
     return new RemoteViewDefinitionRepository(uri);
   }
 
+  @Override
+  public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_LIVE_DATA_SOURCE_REGISTRY).build();
+    return new RemoteLiveMarketDataSourceRegistry(uri);
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public ViewProcess getViewProcess(UniqueId viewProcessId) {

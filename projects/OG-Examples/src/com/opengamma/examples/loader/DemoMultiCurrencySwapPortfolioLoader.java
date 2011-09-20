@@ -225,7 +225,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
       receiveLegDescription = fixedLegDescription;
     }
     SwapSecurity swap = new SwapSecurity(tradeDateTime, tradeDateTime, maturityDateTime, counterparty, payLeg, receiveLeg);
-    swap.addIdentifier(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap.setName("IR Swap " + ccy + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(notional) + " " +
         maturityDateTime.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     return swap;  
@@ -302,7 +302,14 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     if (curveSpecConfig == null) {
       throw new OpenGammaRuntimeException("No curve spec builder configuration for SECONDARY_" + ccy.getCode());
     }
-    ExternalId swapSecurity = curveSpecConfig.getSwapSecurity(tradeDate, tenor);
+    ExternalId swapSecurity;
+    if (ccy.equals(Currency.USD)) {
+        // Standard (i.e. matches convention) floating leg tenor for USD is 3M
+      swapSecurity = curveSpecConfig.getSwap3MSecurity(tradeDate, tenor);
+    } else {
+      // Standard (i.e. matches convention) floating leg tenor for CHF, JPY, GBP, EUR is 6M
+      swapSecurity = curveSpecConfig.getSwap6MSecurity(tradeDate, tenor);
+    }
     return swapSecurity;
   }
 
@@ -320,7 +327,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
       SecurityDocument swapToAddDoc = new SecurityDocument();
       swapToAddDoc.setSecurity(swap);
       securityMaster.add(swapToAddDoc);
-      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getIdentifiers());
+      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
       PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));
       rootNode.addPosition(addedDoc.getUniqueId());
     }

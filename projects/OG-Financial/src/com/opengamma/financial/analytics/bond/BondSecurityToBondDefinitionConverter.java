@@ -87,7 +87,7 @@ public class BondSecurityToBondDefinitionConverter {
     final LocalDate datedDate = security.getInterestAccrualDate().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     //TODO remove this when the definitions for USD treasuries are correct
-    final DayCount daycount = currency.equals(Currency.USD) ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCountConvention();
+    final DayCount daycount = currency.equals(Currency.USD) ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : security.getDayCount();
     final boolean isEOMConvention = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
     final LocalDate[] nominalDates = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);

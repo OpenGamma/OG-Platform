@@ -78,7 +78,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
-    if (!payLeg.getRegionIdentifier().equals(receiveLeg.getRegionIdentifier())) {
+    if (!payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
       throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
     }
     FixedInterestRateLeg fixedLeg;
@@ -97,7 +97,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     } else {
       throw new OpenGammaRuntimeException("Can only handle fixed-floating swaps");
     }
-    final ExternalId regionId = payLeg.getRegionIdentifier();
+    final ExternalId regionId = payLeg.getRegionId();
     final Calendar calendar = getCalendar(regionId);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));

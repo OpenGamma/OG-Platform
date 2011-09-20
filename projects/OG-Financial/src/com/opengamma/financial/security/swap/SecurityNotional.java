@@ -32,7 +32,7 @@ public class SecurityNotional extends Notional {
    * The identifier of the index or security.
    */
   @PropertyDefinition(validate = "notNull")
-  private UniqueId _notionalIdentifier;
+  private UniqueId _notionalId;
 
   /**
    * Creates an instance.
@@ -46,7 +46,7 @@ public class SecurityNotional extends Notional {
    * @param notionalIdentifier  the unique identifier, not null
    */
   public SecurityNotional(UniqueId notionalIdentifier) {
-    setNotionalIdentifier(notionalIdentifier);
+    setNotionalId(notionalIdentifier);
   }
 
   //-------------------------------------------------------------------------
@@ -76,8 +76,8 @@ public class SecurityNotional extends Notional {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -1106617335:  // notionalIdentifier
-        return getNotionalIdentifier();
+      case -917037957:  // notionalId
+        return getNotionalId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -85,8 +85,8 @@ public class SecurityNotional extends Notional {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -1106617335:  // notionalIdentifier
-        setNotionalIdentifier((UniqueId) newValue);
+      case -917037957:  // notionalId
+        setNotionalId((UniqueId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -94,7 +94,7 @@ public class SecurityNotional extends Notional {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_notionalIdentifier, "notionalIdentifier");
+    JodaBeanUtils.notNull(_notionalId, "notionalId");
     super.validate();
   }
 
@@ -105,7 +105,7 @@ public class SecurityNotional extends Notional {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SecurityNotional other = (SecurityNotional) obj;
-      return JodaBeanUtils.equal(getNotionalIdentifier(), other.getNotionalIdentifier()) &&
+      return JodaBeanUtils.equal(getNotionalId(), other.getNotionalId()) &&
           super.equals(obj);
     }
     return false;
@@ -114,7 +114,7 @@ public class SecurityNotional extends Notional {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalId());
     return hash ^ super.hashCode();
   }
 
@@ -123,25 +123,25 @@ public class SecurityNotional extends Notional {
    * Gets the identifier of the index or security.
    * @return the value of the property, not null
    */
-  public UniqueId getNotionalIdentifier() {
-    return _notionalIdentifier;
+  public UniqueId getNotionalId() {
+    return _notionalId;
   }
 
   /**
    * Sets the identifier of the index or security.
-   * @param notionalIdentifier  the new value of the property, not null
+   * @param notionalId  the new value of the property, not null
    */
-  public void setNotionalIdentifier(UniqueId notionalIdentifier) {
-    JodaBeanUtils.notNull(notionalIdentifier, "notionalIdentifier");
-    this._notionalIdentifier = notionalIdentifier;
+  public void setNotionalId(UniqueId notionalId) {
+    JodaBeanUtils.notNull(notionalId, "notionalId");
+    this._notionalId = notionalId;
   }
 
   /**
-   * Gets the the {@code notionalIdentifier} property.
+   * Gets the the {@code notionalId} property.
    * @return the property, not null
    */
-  public final Property<UniqueId> notionalIdentifier() {
-    return metaBean().notionalIdentifier().createProperty(this);
+  public final Property<UniqueId> notionalId() {
+    return metaBean().notionalId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -155,16 +155,16 @@ public class SecurityNotional extends Notional {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code notionalIdentifier} property.
+     * The meta-property for the {@code notionalId} property.
      */
-    private final MetaProperty<UniqueId> _notionalIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "notionalIdentifier", SecurityNotional.class, UniqueId.class);
+    private final MetaProperty<UniqueId> _notionalId = DirectMetaProperty.ofReadWrite(
+        this, "notionalId", SecurityNotional.class, UniqueId.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "notionalIdentifier");
+        "notionalId");
 
     /**
      * Restricted constructor.
@@ -175,8 +175,8 @@ public class SecurityNotional extends Notional {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -1106617335:  // notionalIdentifier
-          return _notionalIdentifier;
+        case -917037957:  // notionalId
+          return _notionalId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -198,11 +198,11 @@ public class SecurityNotional extends Notional {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code notionalIdentifier} property.
+     * The meta-property for the {@code notionalId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<UniqueId> notionalIdentifier() {
-      return _notionalIdentifier;
+    public final MetaProperty<UniqueId> notionalId() {
+      return _notionalId;
     }
 
   }

@@ -31,7 +31,7 @@ public abstract class AbstractTestResultListener {
       throw new OpenGammaRuntimeException("Timed out after " + timeoutMillis + " ms waiting for result");
     }
     if (!expectedResultType.equals(result.getClass())) {
-      throw new OpenGammaRuntimeException("Expected next call of type " + expectedResultType + " but was of type " + result.getClass());
+      throw new OpenGammaRuntimeException("Expected next call of type " + expectedResultType + " but was of type " + result.getClass() + ": " + result);
     }
     return (T) result;
   }

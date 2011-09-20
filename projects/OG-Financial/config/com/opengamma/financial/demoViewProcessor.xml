@@ -70,13 +70,17 @@
   <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
     <constructor-arg ref="userFinancialSecurityMaster" />
   </bean>
-  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
+  <bean id="combinedSecuritySourceUnderlying" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
     <constructor-arg ref="sharedSecuritySource" />
     <constructor-arg>
       <map>
         <entry key="${opengamma.financial-user.db.securitymaster.scheme}" value-ref="userFinancialSecuritySource" />
       </map>
     </constructor-arg>
+  </bean>
+  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
+    <constructor-arg ref="combinedSecuritySourceUnderlying" />
+    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- User market data snapshots -->
@@ -241,9 +245,7 @@
 				    <property name="computationTargetResolver" ref="demoTargetResolver" />
 				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
-				      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
-				        <property name="styleName" value="CACHED" />
-				      </bean>
+				      <null/> <!-- The demo cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
 				    </property>
 				    <property name="nodesPerCore" value="1" />
 				    <property name="nodeIdentifier" value="local" />
@@ -307,6 +309,7 @@
   <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="id" value="0" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
+    <property name="liveMarketDataSourceRegistry" ref="liveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />

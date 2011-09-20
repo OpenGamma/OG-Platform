@@ -6,15 +6,13 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.jms.ConnectionFactory;
-import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,7 +28,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisherExpiryJob;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
@@ -48,6 +46,7 @@ public class DataViewProcessorResource {
 
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
+  public static final String PATH_LIVE_DATA_SOURCE_REGISTRY = "liveDataSourceRegistry";
   public static final String PATH_UNIQUE_ID = "id";
   public static final String PATH_CLIENTS = "clients";
   public static final String PATH_PROCESSES = "processes";
@@ -66,6 +65,10 @@ public class DataViewProcessorResource {
    * The executor service.
    */
   private final ScheduledExecutorService _scheduler;
+  /**
+   * The stale view client expiry job. 
+   */
+  private final AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource> _expiryJob;
   /**
    * The cycle manager.
    */
@@ -88,31 +91,15 @@ public class DataViewProcessorResource {
     _connectionFactory = connectionFactory;
     _scheduler = scheduler;
     
-    Runnable runnable = new Runnable() {
+    _expiryJob = new AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource>(VIEW_CLIENT_TIMEOUT_MILLIS, scheduler) {
+
       @Override
-      public void run() {
-        shutdownStaleViewClients();
+      protected Collection<DataViewClientResource> getResources() {
+        return _createdViewClients.values();
       }
+      
     };
-    scheduler.scheduleAtFixedRate(runnable, VIEW_CLIENT_TIMEOUT_MILLIS, VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
   }
-
-  private void shutdownStaleViewClients() {
-    Instant timeoutBefore = Instant.now().minus(VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-    Iterator<DataViewClientResource> clientIterator = _createdViewClients.values().iterator();
-    while (clientIterator.hasNext()) {
-      DataViewClientResource clientResource = clientIterator.next();
-      if (clientResource.getViewClient().getState() == ViewClientState.TERMINATED) {
-        clientIterator.remove();
-        continue;
-      }
-      if (clientResource.getLastAccessed().isBefore(timeoutBefore)) {
-        clientIterator.remove();
-        clientResource.shutdown(); // PLAT-1213: must shutdown the rest interface in order to stop the publishing
-      }
-    }
-  }
-
   
   /**
    * Gets the viewProcessor field.
@@ -132,6 +119,11 @@ public class DataViewProcessorResource {
   @Path(PATH_DEFINITION_REPOSITORY)
   public DataViewDefinitionRepositoryResource getViewDefinitionRepository() {
     return new DataViewDefinitionRepositoryResource(_viewProcessor.getViewDefinitionRepository());
+  }
+  
+  @Path(PATH_LIVE_DATA_SOURCE_REGISTRY)
+  public LiveMarketDataSourceRegistryResource getLiveMarketDataSourceRegistry() {
+    return new LiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
   }
 
   //-------------------------------------------------------------------------

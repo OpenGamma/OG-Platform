@@ -62,11 +62,10 @@ public class ComplexMathUtils {
       final double dOverC = d / c;
       final double denom = c + d * dOverC;
       return new ComplexNumber((a + b * dOverC) / denom, (b - a * dOverC) / denom);
-    } else {
-      final double cOverD = c / d;
-      final double denom = c * cOverD + d;
-      return new ComplexNumber((a * cOverD + b) / denom, (b * cOverD - a) / denom);
-    }
+    } 
+    final double cOverD = c / d;
+    final double denom = c * cOverD + d;
+    return new ComplexNumber((a * cOverD + b) / denom, (b * cOverD - a) / denom);
   }
 
   public static ComplexNumber divide(final ComplexNumber z, final double x) {
@@ -82,11 +81,10 @@ public class ComplexMathUtils {
       final double dOverC = d / c;
       final double denom = c + d * dOverC;
       return new ComplexNumber(x / denom, -x * dOverC / denom);
-    } else {
-      final double cOverD = c / d;
-      final double denom = c * cOverD + d;
-      return new ComplexNumber(x * cOverD / denom, -x / denom);
-    }
+    } 
+    final double cOverD = c / d;
+    final double denom = c * cOverD + d;
+    return new ComplexNumber(x * cOverD / denom, -x / denom);
   }
 
   public static ComplexNumber exp(final ComplexNumber z) {
@@ -103,11 +101,10 @@ public class ComplexMathUtils {
       final double dOverC = d / c;
       final double denom = c + d * dOverC;
       return new ComplexNumber(1 / denom, -dOverC / denom);
-    } else {
-      final double cOverD = c / d;
-      final double denom = c * cOverD + d;
-      return new ComplexNumber(cOverD / denom, -1 / denom);
-    }
+    } 
+    final double cOverD = c / d;
+    final double denom = c * cOverD + d;
+    return new ComplexNumber(cOverD / denom, -1 / denom);
   }
 
   /**
@@ -191,14 +188,11 @@ public class ComplexMathUtils {
     }
     if (c >= 0.0) {
       return new ComplexNumber(w, d / 2 / w);
-    } else {
-      if (d >= 0.0) {
-        return new ComplexNumber(d / 2 / w, w);
-      } else {
-        return new ComplexNumber(-d / 2 / w, -w);
-      }
-    }
-    //return pow(z, 0.5);
+    } 
+    if (d >= 0.0) {
+      return new ComplexNumber(d / 2 / w, w);
+    } 
+    return new ComplexNumber(-d / 2 / w, -w);    
   }
 
   public static ComplexNumber subtract(final ComplexNumber z1, final ComplexNumber z2) {

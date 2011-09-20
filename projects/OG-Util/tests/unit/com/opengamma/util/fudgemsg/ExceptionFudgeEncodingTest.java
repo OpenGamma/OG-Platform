@@ -9,13 +9,13 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.
  */
 @Test
-public class ExceptionFudgeEncodingTest extends AbstractBuilderTestCase {
+public class ExceptionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_UTC() {
     Exception object = new IllegalArgumentException("Testing");

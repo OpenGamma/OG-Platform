@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-
 /**
  * Function to classify positions by Currency.
  *
@@ -27,5 +29,10 @@ public class CurrencyAggregationFunction implements AggregationFunction<String> 
 
   public String getName() {
     return NAME;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Collections.emptyList();
   }
 }

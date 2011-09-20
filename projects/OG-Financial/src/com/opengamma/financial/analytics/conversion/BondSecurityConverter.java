@@ -74,7 +74,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     final ZonedDateTime firstAccrualDate = security.getInterestAccrualDate();
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();
     final double rate = security.getCouponRate() / 100;
-    final DayCount dayCount = security.getDayCountConvention();
+    final DayCount dayCount = security.getDayCount();
     final boolean isEOM = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
     final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -90,13 +90,13 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
 
   private Period getTenor(final Frequency freq) {
     Period tenor;
-    if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
+    if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(12);
-    } else if (freq.getConventionName() == Frequency.SEMI_ANNUAL_NAME) {
+    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(6);
-    } else if (freq.getConventionName() == Frequency.QUARTERLY_NAME) {
+    } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(3);
-    } else if (freq.getConventionName() == Frequency.MONTHLY_NAME) {
+    } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException(

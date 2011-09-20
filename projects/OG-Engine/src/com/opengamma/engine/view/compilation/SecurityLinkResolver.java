@@ -7,7 +7,8 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,7 +19,6 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -35,6 +35,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Utility to resolve security links in bulk.
@@ -71,7 +72,7 @@ public final class SecurityLinkResolver {
     _securitySource = new CachedSecuritySource(securitySource);
     _versionCorrection = versionCorrection;
   }
-  
+
   /**
    * Creates an instance.
    * 
@@ -91,44 +92,78 @@ public final class SecurityLinkResolver {
    * @param securityLinks  the bundles to lookup, not null
    * @throws RuntimeException if unable to resolve all the securities
    */
+  @SuppressWarnings("unchecked")
   public void resolveSecurities(final Collection<SecurityLink> securityLinks) {
     ArgumentChecker.noNulls(securityLinks, "securityLinks");
-    final ExecutorCompletionService<SecurityLink> completionService = new ExecutorCompletionService<SecurityLink>(_executorService);
-    
-    final List<Future<SecurityLink>> submitted = Lists.newArrayListWithCapacity(securityLinks.size());
+    final ExecutorCompletionService<Pair<ObjectId, ExternalIdBundle>> completionService = new ExecutorCompletionService<Pair<ObjectId, ExternalIdBundle>>(_executorService);
+    // Filter the links down to collections of "identical" ones; resolving the same underlying.
+    final Map<Pair<ObjectId, ExternalIdBundle>, Object> securityLinkMap = new HashMap<Pair<ObjectId, ExternalIdBundle>, Object>();
     for (SecurityLink link : securityLinks) {
-      Security security = link.getTarget();
+      final Security security = link.getTarget();
       if (security == null) {
-        if (link.getObjectId() != null || link.getExternalId().size() > 0) {
-          SecurityResolutionJob task = new SecurityResolutionJob(link, _securitySource, _versionCorrection);
-          submitted.add(completionService.submit(task));
+        final Pair<ObjectId, ExternalIdBundle> key = Pair.of(link.getObjectId(), link.getExternalId());
+        if (securityLinkMap.containsKey(key)) {
+          final Object sameLinkObject = securityLinkMap.get(key);
+          if (sameLinkObject instanceof Collection<?>) {
+            final Collection<SecurityLink> sameLinks = (Collection<SecurityLink>) sameLinkObject;
+            for (SecurityLink sameLink : sameLinks) {
+              if (sameLink == link) {
+                link = null;
+                break;
+              }
+            }
+            if (link != null) {
+              sameLinks.add(link);
+            }
+          } else {
+            if (sameLinkObject != link) {
+              final Collection<SecurityLink> sameLinks = new ArrayList<SecurityLink>();
+              final SecurityLink sameLink = (SecurityLink) sameLinkObject;
+              sameLinks.add(sameLink);
+              sameLinks.add(link);
+              securityLinkMap.put(key, sameLinks);
+            }
+          }
         } else {
-          throw new OpenGammaRuntimeException("Unable to resolve empty security link");
+          securityLinkMap.put(key, link);
         }
       } else if (security.getUniqueId() != null) {
         _securitySource.addToCache(security);
       }
     }
-    
-    boolean failed = false;
-    for (int i = 0; i < submitted.size(); i++) {
+    s_logger.debug("Submitting {} resolution jobs for {} links", securityLinkMap.size(), securityLinks.size());
+    // Submit a job for each "unique" link. The job will serially resolve all "identical" links as they will
+    // be in the cache at that point.
+    for (Map.Entry<Pair<ObjectId, ExternalIdBundle>, Object> linkEntry : securityLinkMap.entrySet()) {
+      final Callable<Pair<ObjectId, ExternalIdBundle>> job;
+      if (linkEntry.getValue() instanceof Collection<?>) {
+        job = new MultipleSecurityResolutionJob(linkEntry.getKey(), (Collection<SecurityLink>) linkEntry.getValue(), _securitySource, _versionCorrection);
+      } else {
+        job = new SingleSecurityResolutionJob(linkEntry.getKey(), (SecurityLink) linkEntry.getValue(), _securitySource, _versionCorrection);
+      }
+      linkEntry.setValue(completionService.submit(job));
+    }
+    // Wait for the jobs to complete.
+    while (!securityLinkMap.isEmpty()) {
       try {
-        final Future<SecurityLink> future = completionService.take();
-        future.get();  // this ensures link is passed across concurrency boundary correctly
+        final Future<Pair<ObjectId, ExternalIdBundle>> future = completionService.take();
+        final Pair<ObjectId, ExternalIdBundle> key = future.get();
+        if (securityLinkMap.remove(key) == null) {
+          s_logger.warn("Completion key {} wasn't in the job map {}", key, securityLinkMap);
+          throw new OpenGammaRuntimeException("Internal error resolving securities");
+        }
       } catch (InterruptedException ex) {
         Thread.interrupted();
         s_logger.warn("Interrupted, so didn't finish resolution");
-        failed = true;
         break;
       } catch (Exception ex) {
         s_logger.warn("Unable to resolve security", ex);
-        failed = true;
         break;
       }
     }
-    if (failed) {
-      for (Future<SecurityLink> future : submitted) {
-        future.cancel(false);
+    if (!securityLinkMap.isEmpty()) {
+      for (Object future : securityLinkMap.values()) {
+        ((Future<SecurityLink>) future).cancel(false);
       }
       throw new OpenGammaRuntimeException("Unable to resolve all securities");
     }
@@ -193,22 +228,51 @@ public final class SecurityLinkResolver {
   /**
    * A small job that can be run in an executor to resolve a security against a security source.
    */
-  static class SecurityResolutionJob implements Callable<SecurityLink> {
+  private static final class SingleSecurityResolutionJob implements Callable<Pair<ObjectId, ExternalIdBundle>> {
+    private final Pair<ObjectId, ExternalIdBundle> _key;
     private final SecurityLink _link;
     private final SecuritySource _securitySource;
     private final VersionCorrection _versionCorrection;
 
-    SecurityResolutionJob(SecurityLink link, SecuritySource securitySource, VersionCorrection versionCorrection) {
+    private SingleSecurityResolutionJob(Pair<ObjectId, ExternalIdBundle> key, SecurityLink link, SecuritySource securitySource, VersionCorrection versionCorrection) {
+      _key = key;
       _securitySource = securitySource;
       _link = link;
       _versionCorrection = versionCorrection;
     }
 
     @Override
-    public SecurityLink call() {
+    public Pair<ObjectId, ExternalIdBundle> call() {
       _link.resolve(_securitySource, _versionCorrection);
-      return _link;
+      return _key;
     }
+  }
+
+  /**
+   * Resolves a sequence of links.
+   */
+  private static final class MultipleSecurityResolutionJob implements Callable<Pair<ObjectId, ExternalIdBundle>> {
+    private final Pair<ObjectId, ExternalIdBundle> _key;
+    private final Collection<SecurityLink> _links;
+    private final SecuritySource _securitySource;
+    private final VersionCorrection _versionCorrection;
+
+    private MultipleSecurityResolutionJob(final Pair<ObjectId, ExternalIdBundle> key, final Collection<SecurityLink> link, final SecuritySource securitySource,
+        final VersionCorrection versionCorrection) {
+      _key = key;
+      _links = link;
+      _securitySource = securitySource;
+      _versionCorrection = versionCorrection;
+    }
+
+    @Override
+    public Pair<ObjectId, ExternalIdBundle> call() {
+      for (SecurityLink link : _links) {
+        link.resolve(_securitySource, _versionCorrection);
+      }
+      return _key;
+    }
+
   }
 
   //-------------------------------------------------------------------------
@@ -242,7 +306,7 @@ public final class SecurityLinkResolver {
       }
       return security;
     }
-    
+
     @Override
     public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
       Security security = _objectIdCache.get(objectId);
@@ -257,7 +321,7 @@ public final class SecurityLinkResolver {
     public Collection<Security> getSecurities(ExternalIdBundle bundle) {
       return _underlying.getSecurities(bundle);
     }
-    
+
     @Override
     public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
       return _underlying.getSecurities(bundle, versionCorrection);
@@ -274,7 +338,7 @@ public final class SecurityLinkResolver {
       }
       return security;
     }
-    
+
     @Override
     public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
       Security security = _weakIdCache.get(bundle);

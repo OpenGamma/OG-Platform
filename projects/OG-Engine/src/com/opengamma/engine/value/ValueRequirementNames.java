@@ -312,5 +312,15 @@ public final class ValueRequirementNames {
   
   //Vega matrix
   public static final String VEGA_MATRIX = "Vega Matrix";
+  
+  //Historical Data values
+  public static final String DAILY_VOLUME = "Last Volume";
+//  public static final String DAILY_VOLUME_AVG_5D = "Last Volume Avg 5D";
+//  public static final String DAILY_VOLUME_AVG_10D = "Last Volume Avg 10D";
+//  public static final String DAILY_VOLUME_AVG_20D = "Last Volume Avg 20D";
+//  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
+  
+  public static final String DAILY_APPLIED_BETA = "Last Raw Beta";
+  public static final String DAILY_MARKET_CAP = "Last Market Cap";
   //CSON
 }

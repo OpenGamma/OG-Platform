@@ -31,6 +31,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -78,6 +79,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   // Injected inputs
   private final UniqueId _uniqueId;
   private final ViewDefinitionRepository _viewDefinitionRepository;
+  private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   private final SecuritySource _securitySource;
   private final PositionSource _positionSource;
   private final CachingComputationTargetResolver _computationTargetResolver;
@@ -113,6 +115,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   public ViewProcessorImpl(
       UniqueId uniqueId,
       ViewDefinitionRepository viewDefinitionRepository,
+      LiveMarketDataSourceRegistry liveMarketDataSourceRegistry,
       SecuritySource securitySource,
       PositionSource positionSource,
       CachingComputationTargetResolver computationTargetResolver,
@@ -127,6 +130,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewPermissionProvider viewPermissionProvider) {
     _uniqueId = uniqueId;
     _viewDefinitionRepository = viewDefinitionRepository;
+    _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
     _securitySource = securitySource;
     _positionSource = positionSource;
     _computationTargetResolver = computationTargetResolver;
@@ -152,6 +156,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     return _viewDefinitionRepository;
   }
   
+
+  @Override
+  public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
+    return _liveMarketDataSourceRegistry;
+  }
   //-------------------------------------------------------------------------
   @Override
   public Collection<ViewProcessImpl> getViewProcesses() {

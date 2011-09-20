@@ -13,6 +13,9 @@ package com.opengamma.language.view;
  */
 public abstract class UserViewClientBinding<T extends UserViewClientData> {
 
+  private static final UserViewClientData NULL = new UserViewClientData() {
+  };
+
   /**
    * Returns the binding association object. By default this is the binding instance; so a singleton pattern should be used
    * for constructing the binding instances. If there is object "churn", then the {@link #getClass} object could be used, or
@@ -36,23 +39,32 @@ public abstract class UserViewClientBinding<T extends UserViewClientData> {
    * Fetch the data associated with the view client through this binding, creating a new data object if there is none.
    * 
    * @param viewClient view client object to fetch data for
-   * @return the user data, not null
+   * @param blockAndCreate if the data hasn't been created yet, create it. Otherwise returns null immediately
+   * @return the user data, or null if {@code blockAndCreate} was false or an error previously occured
    */
   @SuppressWarnings("unchecked")
-  public final T get(final UserViewClient viewClient) {
+  public final T get(final UserViewClient viewClient, final boolean blockAndCreate) {
     T data = (T) viewClient.getData(getBindingObject());
-    if (data == null) {
+    if ((data == null) && blockAndCreate) {
       synchronized (this) {
         data = (T) viewClient.getData(getBindingObject());
         if (data != null) {
           return data;
         }
-        data = create(viewClient);
+        try {
+          data = create(viewClient);
+        } catch (RuntimeException e) {
+          viewClient.setData(getBindingObject(), NULL);
+          throw e;
+        }
         if (data == null) {
+          viewClient.setData(getBindingObject(), NULL);
           throw new NullPointerException();
         }
         viewClient.setData(getBindingObject(), data);
       }
+    } else if (data == NULL) {
+      return null;
     }
     return data;
   }

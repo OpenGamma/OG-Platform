@@ -110,7 +110,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
@@ -129,8 +129,8 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
       calibrationEngine.calibrate(SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Hull-White calibration to swaption: " + (endTime - startTime) + " ms");
-    // Performance note: calibration: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 100 calibration with 5 swaptions.
+    System.out.println(nbTest + " Hull-White calibration to swaption (5 swaptions): " + (endTime - startTime) + " ms");
+    // Performance note: calibration: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 415 ms for 100 calibration with 5 swaptions.
   }
 
 }

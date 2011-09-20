@@ -46,6 +46,28 @@ public class AnnuityCapFloorIborDefinition extends AnnuityDefinition<CapFloorIbo
   }
 
   /**
+   * Annuity builder from the conventions and common characteristics. The payments uses the index conventions and payment period. 
+   * The first caplet/floorlet (which is in practice immediately fixed) is not included.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param notional The notional.
+   * @param index The Ibor index.
+   * @param isPayer The payer flag.
+   * @param strike The common strike of all caplet.
+   * @param isCap The cap (true) / floor (false) flag.
+   * @return The Ibor annuity.
+   */
+  public static AnnuityCapFloorIborDefinition fromWithNoInitialCaplet(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final IborIndex index,
+      final boolean isPayer, final double strike, final boolean isCap) {
+    AnnuityCapFloorIborDefinition fullAnnuity = from(settlementDate, maturityDate, notional, index, isPayer, strike, isCap);
+    CapFloorIborDefinition[] cap = new CapFloorIborDefinition[fullAnnuity.getNumberOfPayments() - 1];
+    for (int loopcap = 1; loopcap < fullAnnuity.getNumberOfPayments(); loopcap++) {
+      cap[loopcap - 1] = fullAnnuity.getNthPayment(loopcap);
+    }
+    return new AnnuityCapFloorIborDefinition(cap);
+  }
+
+  /**
    * Annuity builder from the conventions and common characteristics. The payments index conventions and payment period are separated from the one of the underlying index.
    * @param settlementDate The settlement date.
    * @param maturityDate The annuity maturity date.

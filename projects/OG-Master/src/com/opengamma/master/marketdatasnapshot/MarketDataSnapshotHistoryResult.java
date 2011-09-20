@@ -146,6 +146,11 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<MarketDataSnapshotDocument> documentsGenericType() {
+      return MarketDataSnapshotDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

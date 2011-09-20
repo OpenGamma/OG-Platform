@@ -35,12 +35,12 @@ public final class FRASecurityBeanOperation extends AbstractSecurityBeanOperatio
   public FRASecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, FRASecurity security) {
     final FRASecurityBean bean = new FRASecurityBean();
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
-    bean.setRegion(externalIdToExternalIdBean(security.getRegion()));
+    bean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
     bean.setEndDate(dateTimeWithZoneToZonedDateTimeBean(security.getEndDate()));
     bean.setRate(security.getRate());
     bean.setAmount(security.getAmount());
-    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingIdentifier()));
+    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
     return bean;
   }
 

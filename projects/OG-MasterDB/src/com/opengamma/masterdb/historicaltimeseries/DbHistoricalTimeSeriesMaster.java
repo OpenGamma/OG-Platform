@@ -55,6 +55,7 @@ import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -108,18 +109,18 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "i.key_value AS key_value, " +
         "di.valid_from AS key_valid_from, " +
         "di.valid_to AS key_valid_to ";
+  
+  protected static final String FROM_PREFIX = "FROM hts_document main ";
+  protected static final String FROM_POSTFIX = " INNER JOIN hts_name nm ON main.name_id = nm.id  "
+      + "INNER JOIN hts_data_field df ON main.data_field_id = df.id  "
+      + "INNER JOIN hts_data_source ds ON main.data_source_id = ds.id  "
+      + "INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id  "
+      + "INNER JOIN hts_observation_time ot ON main.observation_time_id = ot.id  "
+      + "LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id) " + "LEFT JOIN hts_idkey i ON (di.idkey_id = i.id) ";
   /**
    * SQL from.
    */
-  protected static final String FROM =
-      "FROM hts_document main " +
-        "INNER JOIN hts_name nm ON main.name_id = nm.id  " +
-        "INNER JOIN hts_data_field df ON main.data_field_id = df.id  " +
-        "INNER JOIN hts_data_source ds ON main.data_source_id = ds.id  " +
-        "INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id  " +
-        "INNER JOIN hts_observation_time ot ON main.observation_time_id = ot.id  " +
-        "LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id) " +
-        "LEFT JOIN hts_idkey i ON (di.idkey_id = i.id) ";
+  protected static final String FROM = FROM_PREFIX +  FROM_POSTFIX;
 
   /**
    * Dimension table.
@@ -302,9 +303,21 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     
     String selectFromWhereInner = "SELECT id FROM hts_document " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
-    String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
-    String count = "SELECT COUNT(*) FROM hts_document " + where;
-    return new String[] {search, count};
+    
+    boolean isPostgres = this.getDbSource().getDialect() instanceof PostgreSQLDbHelper;
+    if (isPostgres) {
+      //TODO: this is a hack.  Query optimizer gives up on the mahoosive query.  If we split it manually it goes a fair bit faster
+      String tempTable = "CREATE LOCAL TEMP TABLE ids ON COMMIT DROP as " + inner + ";\n";
+      String search = tempTable + SELECT + FROM_PREFIX + " INNER JOIN ids ON ids.id = main.id" + FROM_POSTFIX
+          + " ORDER BY main.id" + sqlAdditionalOrderBy(false);
+      String count = "SELECT COUNT(*) FROM hts_document " + where;
+      return new String[] {search, count};
+    } else {
+      String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id"
+          + sqlAdditionalOrderBy(false);
+      String count = "SELECT COUNT(*) FROM hts_document " + where;
+      return new String[] {search, count};
+    }
   }
 
   /**

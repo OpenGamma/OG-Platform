@@ -43,7 +43,7 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
 
   /**
    * Sets the instrument to calibrate.
-   * @param instrument  The instrument.
+   * @param instrument The instrument.
    */
   public void setInstrument(InterestRateDerivative instrument) {
     _instrument = instrument;
@@ -51,7 +51,7 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
 
   /**
    * Sets the price of the instrument to calibrate.
-   * @param price  The price.
+   * @param price The price.
    */
   public void setPrice(double price) {
     _price = price;
@@ -142,11 +142,5 @@ public abstract class SuccessiveRootFinderCalibrationObjective extends Function1
    * @param curves The curves.
    */
   public abstract void setCurves(YieldCurveBundle curves);
-
-  /**
-   * Sets the calibration time for the next calibration.
-   * @param calibrationTime The calibration time.
-   */
-  public abstract void setNextCalibrationTime(double calibrationTime);
 
 }

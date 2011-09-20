@@ -37,7 +37,7 @@ public final class SwapLegBeanOperation {
         bean.setDayCount(secMasterSession.getOrCreateDayCountBean(swapLeg.getDayCount().getConventionName()));
         bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(swapLeg.getFrequency().getConventionName()));
         bean.setNotional(NotionalBeanOperation.createBean(secMasterSession, swapLeg.getNotional()));
-        bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionIdentifier()));
+        bean.setRegion(externalIdToExternalIdBean(swapLeg.getRegionId()));
         return bean;
       }
 
@@ -57,9 +57,9 @@ public final class SwapLegBeanOperation {
       public SwapLegBean visitFloatingInterestRateLeg(FloatingInterestRateLeg swapLeg) {
         final SwapLegBean bean = createInterestRateLegBean(swapLeg);
         bean.setRate(swapLeg.getInitialFloatingRate());
-        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateIdentifier()));
+        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getFloatingReferenceRateId()));
         bean.setSpread(swapLeg.getSpread());
-        bean.setIBOR(swapLeg.getIsIBOR());
+        bean.setIBOR(swapLeg.isIbor());
         return bean;
       }
     });

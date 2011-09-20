@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.util.ArgumentChecker;
@@ -62,5 +65,10 @@ public class PositionAttributeAggregationFunction implements AggregationFunction
 
   public String getName() {
     return _attribute;
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Collections.emptyList();
   }
 }

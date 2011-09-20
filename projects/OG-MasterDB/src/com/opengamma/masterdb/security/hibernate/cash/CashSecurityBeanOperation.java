@@ -37,7 +37,7 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
   @Override
   public CashSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CashSecurity security) {
     CurrencyBean currencyBean = secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode());
-    ExternalIdBean regionIdentifier = externalIdToExternalIdBean(security.getRegion());
+    ExternalIdBean regionIdentifier = externalIdToExternalIdBean(security.getRegionId());
     ZonedDateTimeBean maturityBean = dateTimeWithZoneToZonedDateTimeBean(security.getMaturity());
     final CashSecurityBean bean = new CashSecurityBean();
     bean.setCurrency(currencyBean);

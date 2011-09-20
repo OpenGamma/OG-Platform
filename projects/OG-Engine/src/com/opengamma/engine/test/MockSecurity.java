@@ -66,7 +66,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
     _securityType = securityType;
   }
 
-  public ExternalIdBundle getIdentifiers() {
+  public ExternalIdBundle getExternalIdBundle() {
     return _identifiers;
   }
 
@@ -75,7 +75,7 @@ public class MockSecurity implements Security, MutableUniqueIdentifiable, Serial
   }
 
   public void addIdentifier(final ExternalId identifier) {
-    setIdentifiers(getIdentifiers().withExternalId(identifier));
+    setIdentifiers(getExternalIdBundle().withExternalId(identifier));
   }
 
   //-------------------------------------------------------------------------

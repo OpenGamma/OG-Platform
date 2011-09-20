@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.equity.variance;
 
-import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.util.money.Currency;
@@ -30,29 +30,12 @@ public class VarianceSwapDefinitionTest {
   private final ZonedDateTime plus5y = now.plusYears(5);
   private final PeriodFrequency obsFreq = PeriodFrequency.DAILY;
   private final Currency ccy = Currency.EUR;
-  private static final Calendar WEEKENDCAL = new WeekendCalendar();
+  private static final Calendar WEEKENDCAL = new MondayToFridayCalendar("WEEKEND");
   private final double obsPerYear = 250;
   private final double volStrike = 0.25;
   private final double volNotional = 1.0E6;
 
   private final DoubleTimeSeries<LocalDate> emptyTimeSeries = new ArrayLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
-
-  private static class WeekendCalendar implements Calendar {
-
-    @Override
-    public String getConventionName() {
-      return "";
-    }
-
-    @Override
-    public boolean isWorkingDay(final LocalDate date) {
-      final DayOfWeek day = date.getDayOfWeek();
-      if (day.equals(DayOfWeek.SATURDAY) || day.equals(DayOfWeek.SUNDAY)) {
-        return false;
-      }
-      return true;
-    }
-  }
 
   @Test
   public void forwardStarting() {

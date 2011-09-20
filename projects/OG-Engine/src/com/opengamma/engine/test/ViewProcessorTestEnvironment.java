@@ -26,6 +26,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.marketdata.DefaultLiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -125,6 +126,7 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setComputationTargetResolver(generateCachingComputationTargetResolver(positionSource, securitySource));
     vpFactBean.setViewDefinitionRepository(viewDefinitionRepository);
     vpFactBean.setViewPermissionProvider(new DefaultViewPermissionProvider());
+    vpFactBean.setLiveMarketDataSourceRegistry(new DefaultLiveMarketDataSourceRegistry());
     _viewDefinitionRepository = viewDefinitionRepository;
 
     ViewProcessorQueryReceiver calcNodeQueryReceiver = new ViewProcessorQueryReceiver();

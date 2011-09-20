@@ -5,8 +5,11 @@
  */
 package com.opengamma.language.view;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,11 +34,18 @@ public final class UserViewClient implements UniqueIdentifiable {
 
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
+  private static interface ViewResultListenerEvent {
+
+    void callback(ViewResultListener listener);
+
+  }
+
   private final AtomicInteger _refCount = new AtomicInteger(1);
   private final UserContext _userContext;
   private final ViewClient _viewClient;
   private final ViewClientKey _viewClientKey;
   private final UniqueId _uniqueId;
+  private final List<ViewResultListenerEvent> _coreEvents = new LinkedList<ViewResultListenerEvent>();
   private volatile Map<Object, UserViewClientData> _data;
   private volatile ViewResultListener[] _listeners = EMPTY;
   private volatile boolean _attached;
@@ -63,28 +73,68 @@ public final class UserViewClient implements UniqueIdentifiable {
 
     @Override
     public void processCompleted() {
-      for (ViewResultListener listener : _listeners) {
+      ViewResultListener[] listeners;
+      synchronized (this) {
+        _coreEvents.add(new ViewResultListenerEvent() {
+          @Override
+          public void callback(final ViewResultListener listener) {
+            listener.processCompleted();
+          }
+        });
+        listeners = _listeners;
+      }
+      for (ViewResultListener listener : listeners) {
         listener.processCompleted();
       }
     }
 
     @Override
     public void processTerminated(final boolean executionInterrupted) {
-      for (ViewResultListener listener : _listeners) {
+      ViewResultListener[] listeners;
+      synchronized (this) {
+        _coreEvents.add(new ViewResultListenerEvent() {
+          @Override
+          public void callback(final ViewResultListener listener) {
+            listener.processTerminated(executionInterrupted);
+          }
+        });
+        listeners = _listeners;
+      }
+      for (ViewResultListener listener : listeners) {
         listener.processTerminated(executionInterrupted);
       }
     }
 
     @Override
     public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-      for (ViewResultListener listener : _listeners) {
+      ViewResultListener[] listeners;
+      synchronized (this) {
+        _coreEvents.add(new ViewResultListenerEvent() {
+          @Override
+          public void callback(final ViewResultListener listener) {
+            listener.viewDefinitionCompilationFailed(valuationTime, exception);
+          }
+        });
+        listeners = _listeners;
+      }
+      for (ViewResultListener listener : listeners) {
         listener.viewDefinitionCompilationFailed(valuationTime, exception);
       }
     }
 
     @Override
     public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      for (ViewResultListener listener : _listeners) {
+      ViewResultListener[] listeners;
+      synchronized (this) {
+        _coreEvents.add(new ViewResultListenerEvent() {
+          @Override
+          public void callback(final ViewResultListener listener) {
+            listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+          }
+        });
+        listeners = _listeners;
+      }
+      for (ViewResultListener listener : listeners) {
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       }
     }
@@ -97,6 +147,7 @@ public final class UserViewClient implements UniqueIdentifiable {
     _viewClientKey = viewClientKey;
     _uniqueId = viewClient.getUniqueId();
     _data = null;
+    _viewClient.setResultListener(_listener);
   }
 
   /**
@@ -140,7 +191,9 @@ public final class UserViewClient implements UniqueIdentifiable {
         data.destroy();
       }
     }
-    getViewClient().shutdown();
+    // Don't call getViewClient as that will attach to a remote process (probably not what we want)
+    _viewClient.setResultListener(null);
+    _viewClient.shutdown();
   }
 
   public UserContext getUserContext() {
@@ -169,8 +222,27 @@ public final class UserViewClient implements UniqueIdentifiable {
     return _viewClientKey;
   }
 
+  /**
+   * Returns the user data associated with the client. The first caller will create the user data. Other callers will be blocked
+   * until the data is available.
+   * 
+   * @param <T> user data type
+   * @param binding the data binding, not null
+   * @return the user data, null if there was previously an error
+   */
   public <T extends UserViewClientData> T getData(final UserViewClientBinding<T> binding) {
-    return binding.get(this);
+    return binding.get(this, true);
+  }
+
+  /**
+   * Returns the user data associated with the client if it is available.
+   * 
+   * @param <T> user data type
+   * @param binding the data binding, not null
+   * @return the user data, null if there was previously an error or the data hasn't been created yet.
+   */
+  public <T extends UserViewClientData> T tryAndGetData(final UserViewClientBinding<T> binding) {
+    return binding.get(this, false);
   }
 
   /**
@@ -210,20 +282,27 @@ public final class UserViewClient implements UniqueIdentifiable {
 
   /**
    * Adds a result listener to the client. The listener callbacks must not throw exceptions, or other sessions sharing
-   * the view client may break.
+   * the view client may break. After a listener is added, core state events are passed immediately to it.
    * 
    * @param resultListener the result listener to add, not null
    */
-  public synchronized void addResultListener(final ViewResultListener resultListener) {
-    if (_listeners == EMPTY) {
-      final ViewResultListener[] listeners = new ViewResultListener[] {resultListener };
-      _listeners = listeners;
-      _viewClient.setResultListener(_listener);
-    } else {
+  public void addResultListener(final ViewResultListener resultListener) {
+    final List<ViewResultListenerEvent> coreEvents;
+    synchronized (this) {
       final ViewResultListener[] listeners = new ViewResultListener[_listeners.length + 1];
       System.arraycopy(_listeners, 0, listeners, 1, _listeners.length);
       listeners[0] = resultListener;
-      _listeners = listeners;
+      synchronized (_listener) {
+        coreEvents = _coreEvents.isEmpty() ? null : new ArrayList<ViewResultListenerEvent>(_coreEvents);
+        _listeners = listeners;
+      }
+    }
+    // Note that a new event may be delivered to the listener before (or during) the core events. This is not a good
+    // state of affairs, but probably not a major problem.
+    if (coreEvents != null) {
+      for (ViewResultListenerEvent event : coreEvents) {
+        event.callback(resultListener);
+      }
     }
   }
 
@@ -236,7 +315,6 @@ public final class UserViewClient implements UniqueIdentifiable {
     for (int i = 0; i < _listeners.length; i++) {
       if (_listeners[i] == resultListener) {
         if (_listeners.length == 1) {
-          _viewClient.setResultListener(null);
           _listeners = EMPTY;
           return;
         }

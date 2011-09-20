@@ -72,7 +72,6 @@ public class Cash implements InterestRateDerivative {
 
   private void checkInputs(final double maturity, final double rate, final String yieldCurveName) {
     Validate.isTrue(maturity >= 0, "maturity is negative");
-    Validate.isTrue(rate >= 0, "rate is negative");
     Validate.notNull(yieldCurveName);
   }
 

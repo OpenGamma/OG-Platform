@@ -23,14 +23,14 @@
         <@rowout label="StartDate">${security.startDate.toLocalDate()} - ${security.startDate.zone}</@rowout>
         <@rowout label="EndDate">${security.endDate.toLocalDate()} - ${security.endDate.zone}</@rowout>
         <@rowout label="Rate">${security.rate}</@rowout>
-        <@rowout label="Region">${security.region?replace("_", " ")}</@rowout>
+        <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
       <#break>
       <#case "CASH">
         <@rowout label="Amount">${security.amount}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Maturity">${security.maturity.toLocalDate()} - ${security.maturity.zone}</@rowout>
         <@rowout label="Rate">${security.rate}</@rowout>
-        <@rowout label="Region">${security.region?replace("_", " ")}</@rowout>
+        <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
         <#break>
       <#case "EQUITY">
         <@rowout label="Short name">${security.shortName}</@rowout>
@@ -59,7 +59,7 @@
         <@rowout label="Coupon type">${security.couponType}</@rowout>
         <@rowout label="Coupon rate">${security.couponRate}</@rowout>
         <@rowout label="Coupon frequency">${security.couponFrequency.conventionName}</@rowout>
-        <@rowout label="Day count convention">${security.dayCountConvention.conventionName}</@rowout>
+        <@rowout label="Day count convention">${security.dayCount.conventionName}</@rowout>
         <#if security.businessDayConvention?has_content>
           <@rowout label="Business day convention">${security.businessDayConvention}</@rowout>
         </#if>  
@@ -89,7 +89,7 @@
               <@rowout label="">${key} - ${basket[key]}</@rowout>
             </#list>
         <#else>
-            <@rowout label="Underlying identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+            <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         </#if>
         
         <#break>
@@ -104,7 +104,7 @@
         <#if underlyingSecurity?has_content>
             <@rowout label="Underlying security"><a href="${uris.security(underlyingSecurity)}">${underlyingSecurity.name}</a></@rowout>
         <#else>
-            <@rowout label="Underlying identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+            <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         </#if>
         <#break>
       <#case "SWAP">
@@ -114,16 +114,16 @@
         <@rowout label="Counterparty">${security.counterparty}</@rowout>
         <@subsection title="Pay leg">
           <@rowout label="Day count">${security.payLeg.dayCount.conventionName}</@rowout>
-	      <@rowout label="Frequency">${security.payLeg.frequency.conventionName}</@rowout>
-	      <@rowout label="Region identifier">${security.payLeg.regionIdentifier}</@rowout>
-	      <@rowout label="Business day convention">${security.payLeg.businessDayConvention.conventionName}</@rowout>
-	      <@rowout label="Notional notional">${security.payLeg.notional.amount} ${security.payLeg.notional.currency}</@rowout>
+          <@rowout label="Frequency">${security.payLeg.frequency.conventionName}</@rowout>
+          <@rowout label="Region identifier">${security.payLeg.regionId}</@rowout>
+          <@rowout label="Business day convention">${security.payLeg.businessDayConvention.conventionName}</@rowout>
+          <@rowout label="Notional notional">${security.payLeg.notional.amount} ${security.payLeg.notional.currency}</@rowout>
 	      <#switch payLegType>
 	        <#case "FixedInterestRateLeg">
               <@rowout label="Interest rate leg">${security.payLeg.rate}</@rowout>
 	        <#break>
 	        <#case "FloatingInterestRateLeg">
-              <@rowout label="Floating reference rate id">${security.payLeg.floatingReferenceRateIdentifier}</@rowout>
+              <@rowout label="Floating reference rate id">${security.payLeg.floatingReferenceRateId}</@rowout>
               <@rowout label="Initial floating rate">${security.payLeg.initialFloatingRate}</@rowout>
               <@rowout label="Spread">${security.payLeg.spread}</@rowout>
 	        <#break>
@@ -131,16 +131,16 @@
         </@subsection>
         <@subsection title="Receive leg">
           <@rowout label="Day count">${security.receiveLeg.dayCount.conventionName}</@rowout>
-	      <@rowout label="Frequency">${security.receiveLeg.frequency.conventionName}</@rowout>
-	      <@rowout label="Region identifier">${security.receiveLeg.regionIdentifier}</@rowout>
-	      <@rowout label="Business day convention">${security.receiveLeg.businessDayConvention.conventionName}</@rowout>
-	      <@rowout label="Notional notional">${security.receiveLeg.notional.amount} ${security.payLeg.notional.currency}</@rowout>
-          <#switch payLegType>
+          <@rowout label="Frequency">${security.receiveLeg.frequency.conventionName}</@rowout>
+          <@rowout label="Region identifier">${security.receiveLeg.regionId}</@rowout>
+          <@rowout label="Business day convention">${security.receiveLeg.businessDayConvention.conventionName}</@rowout>
+          <@rowout label="Notional notional">${security.receiveLeg.notional.amount} ${security.payLeg.notional.currency}</@rowout>
+          <#switch receiveLegType>
             <#case "FixedInterestRateLeg">
               <@rowout label="Interest rate leg">${security.receiveLeg.rate}</@rowout>
             <#break>
             <#case "FloatingInterestRateLeg">
-              <@rowout label="Floating reference rate id">${security.receiveLeg.floatingReferenceRateIdentifier}</@rowout>
+              <@rowout label="Floating reference rate id">${security.receiveLeg.floatingReferenceRateId}</@rowout>
               <@rowout label="Initial floating rate">${security.receiveLeg.initialFloatingRate}</@rowout>
               <@rowout label="Spread">${security.receiveLeg.spread}</@rowout>
             <#break>
@@ -149,15 +149,15 @@
         <#break>
       <#case "FX FORWARD">
         <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
-        <@rowout label="Region Identifier">${security.region.scheme.name?replace("_", " ")} - ${security.region.value}</@rowout>
-        <@rowout label="Underlying Identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
       <#case "FX">
         <@rowout label="Pay Amount">${security.payAmount}</@rowout>
         <@rowout label="Pay Currency">${security.payCurrency}</@rowout>
         <@rowout label="Receive Amount">${security.receiveAmount}</@rowout>
         <@rowout label="Receive Currency">${security.receiveCurrency}</@rowout>
-        <@rowout label="Region">${security.region.scheme.name?replace("_", " ")} - ${security.region.value}</@rowout>
+        <@rowout label="Region">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
         <#break>
       <#case "FX_BARRIER_OPTION">
         <@rowout label="Barrier Direction">${security.barrierDirection}</@rowout>
@@ -190,30 +190,30 @@
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
-        <@rowout label="Underlying Identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
       <#case "SWAPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
-        <@rowout label="Is Cash Settled">${security.isCashSettled?string?upper_case}</@rowout>
+        <@rowout label="Is Cash Settled">${security.cashSettled?string?upper_case}</@rowout>
         <@rowout label="Is Long">${security.isLong?string?upper_case}</@rowout>
-        <@rowout label="Is Payer">${security.isPayer?string?upper_case}</@rowout>
-        <@rowout label="Underlying Identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        <@rowout label="Is Payer">${security.payer?string?upper_case}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
       <#case "IRFUTURE_OPTION">
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
         <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
-        <@rowout label="Is Margined">${security.isMargined?string?upper_case}</@rowout>
+        <@rowout label="Is Margined">${security.margined?string?upper_case}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>
-        <@rowout label="Underlying Identifier">${security.underlyingIdentifier.scheme.name?replace("_", " ")} - ${security.underlyingIdentifier.value}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
     </#switch>
 <@space />
-<#list security.identifiers.externalIds as item>
+<#list security.externalIdBundle.externalIds as item>
     <@rowout label="Identifier">${item.scheme.name?replace("_", " ")} - ${item.value}</@rowout>
 </#list>
 </@subsection>

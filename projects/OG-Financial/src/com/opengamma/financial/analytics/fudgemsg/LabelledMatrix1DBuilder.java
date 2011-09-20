@@ -7,7 +7,9 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.calendar.LocalDate;
 
@@ -32,7 +34,10 @@ import com.opengamma.util.money.Currency;
  * 
  */
 final class LabelledMatrix1DBuilder {
-  private static final String MATRIX_FIELD = "matrix";
+
+  /** Field name. */
+  private static final String MATRIX_FIELD_NAME = "matrix";
+
   private static final int LABEL_TYPE_ORDINAL = 0;
   private static final int KEY_ORDINAL = 1;
   private static final int LABEL_ORDINAL = 2;
@@ -41,8 +46,18 @@ final class LabelledMatrix1DBuilder {
   private LabelledMatrix1DBuilder() {
   }
 
+  private static Class<?> getLabelClass(final String labelType, Map<String, Class<?>> loadedClasses) throws ClassNotFoundException {
+    Class<?> labelClass;
+    labelClass = loadedClasses.get(labelType);
+    if (labelClass == null) {
+      labelClass = Class.forName(labelType);
+      loadedClasses.put(labelType, labelClass);
+    }
+    return labelClass;
+  }
+  
   @FudgeBuilderFor(DoubleLabelledMatrix1D.class)
-  public static final class DoubleLabelledMatrix1DBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix1D> {
+  public static final class DoubleLabelledMatrix1DFudgeBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix1D> {
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DoubleLabelledMatrix1D object) {
@@ -58,12 +73,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public DoubleLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -93,7 +108,7 @@ final class LabelledMatrix1DBuilder {
           final String labelType = labelTypes.remove();
           Class<?> labelClass;
           try {
-            labelClass = Class.forName(labelType);
+            labelClass = getLabelClass(labelType, _loadedClasses);
           } catch (final ClassNotFoundException ex) {
             throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
           }
@@ -111,6 +126,7 @@ final class LabelledMatrix1DBuilder {
       final double[] valuesArray = Doubles.toArray(values);
       return new DoubleLabelledMatrix1D(keysArray, labelsArray, valuesArray);
     }
+    private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<String, Class<?>>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
   @FudgeBuilderFor(LocalDateLabelledMatrix1D.class)
@@ -130,12 +146,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public LocalDateLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -163,12 +179,7 @@ final class LabelledMatrix1DBuilder {
         if (!labelTypes.isEmpty() && !labelValues.isEmpty()) {
           // Have a type and a value, which can be consumed
           final String labelType = labelTypes.remove();
-          Class<?> labelClass;
-          try {
-            labelClass = Class.forName(labelType);
-          } catch (final ClassNotFoundException ex) {
-            throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
-          }
+          Class<?> labelClass = getClass(labelType);
           final FudgeField labelValue = labelValues.remove();
           final Object label = deserializer.fieldValueToObject(labelClass, labelValue);
           labels.add(label);
@@ -183,6 +194,17 @@ final class LabelledMatrix1DBuilder {
       final double[] valuesArray = Doubles.toArray(values);
       return new LocalDateLabelledMatrix1D(keysArray, labelsArray, valuesArray);
     }
+
+    private Class<?> getClass(final String labelType) {
+      Class<?> labelClass;
+      try {
+        labelClass = LabelledMatrix1DBuilder.getLabelClass(labelType, _loadedClasses);
+      } catch (final ClassNotFoundException ex) {
+        throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
+      }
+      return labelClass;
+    }
+    private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<String, Class<?>>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
   //TODO add ZonedDateTime version
@@ -204,12 +226,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public CurrencyLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -239,7 +261,7 @@ final class LabelledMatrix1DBuilder {
           final String labelType = labelTypes.remove();
           Class<?> labelClass;
           try {
-            labelClass = Class.forName(labelType);
+            labelClass = LabelledMatrix1DBuilder.getLabelClass(labelType, _loadedClasses);
           } catch (final ClassNotFoundException ex) {
             throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
           }
@@ -258,6 +280,7 @@ final class LabelledMatrix1DBuilder {
       final double[] valuesArray = Doubles.toArray(values);
       return new CurrencyLabelledMatrix1D(keysArray, labelsArray, valuesArray);
     }
+    private final Map<String, Class<?>> _loadedClasses = new ConcurrentHashMap<String, Class<?>>(); //TODO: This should be expired at some point, but it's an insignificant leak at the moment
   }
 
   @FudgeBuilderFor(StringLabelledMatrix1D.class)
@@ -272,12 +295,12 @@ final class LabelledMatrix1DBuilder {
         msg.add(KEY_ORDINAL, keys[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
-      message.add(MATRIX_FIELD, msg);
+      message.add(MATRIX_FIELD_NAME, msg);
     }
 
     @Override
     public StringLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
       final List<String> keys = new LinkedList<String>();
       final List<Double> values = new LinkedList<Double>();
       for (final FudgeField field : msg) {

@@ -14,10 +14,10 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleFudgeBuilder;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.ExternalIdBundleBuilder;
 
 /**
  * Specifies what data you want, in what format.
@@ -71,7 +71,7 @@ public class LiveDataSpecification {
   
   public static LiveDataSpecification fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    ExternalIdBundle ids = ExternalIdBundleBuilder.fromFudgeMsg(deserializer, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
+    ExternalIdBundle ids = ExternalIdBundleFudgeBuilder.fromFudgeMsg(deserializer, fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   
@@ -79,7 +79,7 @@ public class LiveDataSpecification {
     ArgumentChecker.notNull(serializer, "FudgeSerializer");
     MutableFudgeMsg msg = serializer.newMessage();
     msg.add(NORMALIZATION_RULE_SET_ID_FIELD_NAME, _normalizationRuleSetId);
-    msg.add(DOMAIN_SPECIFIC_IDS_FIELD_NAME, ExternalIdBundleBuilder.toFudgeMsg(serializer, _externalIdBundle));
+    msg.add(DOMAIN_SPECIFIC_IDS_FIELD_NAME, ExternalIdBundleFudgeBuilder.toFudgeMsg(serializer, _externalIdBundle));
     return msg;
   }
   

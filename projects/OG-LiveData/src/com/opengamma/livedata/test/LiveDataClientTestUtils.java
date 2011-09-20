@@ -7,6 +7,7 @@ package com.opengamma.livedata.test;
 
 import javax.jms.ConnectionFactory;
 
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.client.DistributedLiveDataClient;
@@ -49,7 +50,7 @@ public class LiveDataClientTestUtils {
     ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
     ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     
-    ConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
+    ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtils.createTestConnectionFactory());
     
     JmsLiveDataClient liveDataClient = new JmsLiveDataClient(
         subscriptionRequestSender, 

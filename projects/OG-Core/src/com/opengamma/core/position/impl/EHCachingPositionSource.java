@@ -233,7 +233,6 @@ public class EHCachingPositionSource implements PositionSource {
     _cacheManager.removeCache(PORTFOLIONODE_CACHE);
     _cacheManager.removeCache(POSITION_CACHE);
     _cacheManager.removeCache(TRADE_CACHE);
-    _cacheManager.shutdown();
   }
 
   //-------------------------------------------------------------------------

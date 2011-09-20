@@ -94,7 +94,7 @@ public class FXBarrierOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private double _barrierLevel;
   /**
-   * The expiry.
+   * The long flag.
    */
   @PropertyDefinition(get = "get")
   private boolean _isLong;
@@ -580,7 +580,7 @@ public class FXBarrierOptionSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expiry.
+   * Gets the long flag.
    * @return the value of the property
    */
   public boolean getIsLong() {
@@ -588,7 +588,7 @@ public class FXBarrierOptionSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets the expiry.
+   * Sets the long flag.
    * @param isLong  the new value of the property
    */
   public void setIsLong(boolean isLong) {

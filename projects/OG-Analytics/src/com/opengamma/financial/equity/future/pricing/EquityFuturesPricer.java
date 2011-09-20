@@ -44,10 +44,10 @@ public interface EquityFuturesPricer {
                              final EquityFutureDataBundle dataBundle);
 
   /**
-   * @param future
-   * @param dataBundle
+   * @param future EquityFuture derivative
+   * @param dataBundle Contains funding curve, spot value and continuous dividend yield 
    * @return The change in the present value given a basis point change in the discount rate
    */
-  double PV01(EquityFuture future, EquityFutureDataBundle dataBundle);
+  double pv01(EquityFuture future, EquityFutureDataBundle dataBundle);
 
 }

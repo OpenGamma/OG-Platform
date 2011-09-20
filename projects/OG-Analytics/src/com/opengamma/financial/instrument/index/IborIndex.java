@@ -19,16 +19,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing an Ibor-like index.
  */
-public class IborIndex {
+public class IborIndex extends IndexDeposit {
 
-  /**
-   * Name of the index.
-   */
-  private final String _name;
-  /**
-   * The index currency.
-   */
-  private final Currency _currency;
   /**
    * Tenor of the index.
    */
@@ -53,24 +45,14 @@ public class IborIndex {
    * @param endOfMonth The end-of-month flag.
    */
   public IborIndex(Currency currency, Period tenor, int spotLag, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth) {
-    Validate.notNull(currency, "currency");
-    _currency = currency;
+    super("Ibor", currency, calendar); // currency.toString() + tenor.toString()
     Validate.notNull(tenor, "tenor");
-    this._tenor = tenor;
+    _tenor = tenor;
     Validate.notNull(calendar, "calendar");
     Validate.notNull(dayCount, "day count");
     Validate.notNull(businessDayConvention, "business day convention");
-    _name = _currency.toString() + _tenor.toString();
     _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, "Ibor conventions");
-    this._endOfMonth = endOfMonth;
-  }
-
-  /**
-   * Gets the _currency field.
-   * @return The currency
-   */
-  public Currency getCurrency() {
-    return _currency;
+    _endOfMonth = endOfMonth;
   }
 
   /**
@@ -93,6 +75,7 @@ public class IborIndex {
    * Gets the calendar field.
    * @return the calendar
    */
+  @Override
   public Calendar getCalendar() {
     return _convention.getWorkingDayCalendar();
   }
@@ -122,14 +105,6 @@ public class IborIndex {
   }
 
   /**
-   * Gets the _name field.
-   * @return The index name.
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
    * Gets the _convention field.
    * @return The index conventions
    */
@@ -139,17 +114,15 @@ public class IborIndex {
 
   @Override
   public String toString() {
-    return _name;
+    return getName();
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     result = prime * result + _convention.hashCode();
-    result = prime * result + _currency.hashCode();
     result = prime * result + (_endOfMonth ? 1231 : 1237);
-    result = prime * result + _name.hashCode();
     result = prime * result + _tenor.hashCode();
     return result;
   }
@@ -159,23 +132,20 @@ public class IborIndex {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!super.equals(obj)) {
       return false;
     }
     if (getClass() != obj.getClass()) {
       return false;
     }
     IborIndex other = (IborIndex) obj;
-    if (!ObjectUtils.equals(_currency, other._currency)) {
+    if (!ObjectUtils.equals(_convention, other._convention)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_tenor, other._tenor)) {
       return false;
     }
     if (_endOfMonth != other._endOfMonth) {
-      return false;
-    }
-    if (_tenor != other._tenor) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_convention, other._convention)) {
       return false;
     }
     return true;

@@ -77,11 +77,11 @@ public class RawSecurity extends ManageableSecurity {
    * @param uniqueId  the security unique identifier, may be null
    * @param name  the display name, not null
    * @param securityType  the security type, not null
-   * @param identifiers  the security identifiers, not null
+   * @param bundle  the security external identifier bundle, not null
    * @param rawData  the raw data, assigned, not null
    */
-  public RawSecurity(UniqueId uniqueId, String name, String securityType, ExternalIdBundle identifiers, byte[] rawData) {
-    super(uniqueId, name, securityType, identifiers);
+  public RawSecurity(UniqueId uniqueId, String name, String securityType, ExternalIdBundle bundle, byte[] rawData) {
+    super(uniqueId, name, securityType, bundle);
     setRawData(rawData);
   }
 

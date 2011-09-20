@@ -52,7 +52,7 @@ public final class NotionalBeanOperation {
       @Override
       public NotionalBean visitSecurityNotional(SecurityNotional notional) {
         final NotionalBean bean = createNotionalBean(notional);
-        bean.setIdentifier(uniqueIdToUniqueIdBean(notional.getNotionalIdentifier()));
+        bean.setIdentifier(uniqueIdToUniqueIdBean(notional.getNotionalId()));
         return bean;
       }
 

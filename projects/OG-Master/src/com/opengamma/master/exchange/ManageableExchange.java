@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.exchange;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,10 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableExchange extends DirectBean implements Exchange {
+public class ManageableExchange extends DirectBean implements Exchange, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The unique identifier of the exchange.

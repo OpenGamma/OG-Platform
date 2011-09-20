@@ -5,9 +5,13 @@
  */
 package com.opengamma.language.view;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.id.UniqueId;
+import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.UserContext;
 
 /**
@@ -16,6 +20,8 @@ import com.opengamma.language.context.UserContext;
  * retrieved by its {@link UniqueId}.
  */
 public class UserViewClients extends ViewClients<ViewClientKey, UserContext> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(UserViewClients.class);
 
   public UserViewClients(final UserContext userContext) {
     super(userContext);
@@ -75,9 +81,15 @@ public class UserViewClients extends ViewClients<ViewClientKey, UserContext> {
     viewClient.destroy();
   }
 
+  @Override
   protected void destroyAll() {
     super.destroyAll();
     // TODO: destroy anything in the graveyard
+  }
+
+  @Override
+  protected Logger getLogger() {
+    return s_logger;
   }
 
 }

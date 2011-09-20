@@ -131,6 +131,12 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
     @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Class<ConfigDocument<T>> documentsGenericType() {
+      return (Class<ConfigDocument<T>>) (Class<?>) ConfigDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

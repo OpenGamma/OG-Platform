@@ -115,8 +115,21 @@ public class CouponFixed extends Coupon {
     return _amount;
   }
 
+  /**
+   * Creates a new coupon with the same characteristics, except the rate which is 1.0.
+   * @return The new coupon.
+   */
   public CouponFixed withUnitCoupon() {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+  }
+
+  /**
+   * Creates a new coupon with the same characteristics, except the notional which is the one given.
+   * @param notional The notional of the new coupon.
+   * @return The new coupon.
+   */
+  public CouponFixed withNotional(double notional) {
+    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate());
   }
 
   /**

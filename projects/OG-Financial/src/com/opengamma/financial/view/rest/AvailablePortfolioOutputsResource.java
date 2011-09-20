@@ -70,7 +70,7 @@ public class AvailablePortfolioOutputsResource {
     @Path("{portfolio}")
     public FudgeFieldContainerBrowser portfolioOutputsByPortfolioId(@PathParam("portfolio") String portfolioUid) {
       try {
-        final AvailableOutputs outputs = _provider.getPortfolioOutputs(UniqueId.parse(portfolioUid), _instant);
+        final AvailableOutputs outputs = _provider.getPortfolioOutputs(UniqueId.parse(portfolioUid), _instant, _maxNodes, _maxPositions);
         final FudgeSerializer serializer = new FudgeSerializer(_fudgeContext);
         return new FudgeFieldContainerBrowser(serializer.objectToFudgeMsg(outputs));
       } catch (DataNotFoundException e) {
@@ -84,7 +84,7 @@ public class AvailablePortfolioOutputsResource {
     public FudgeMsg portfolioOutputsByPortfolio(Portfolio portfolio) {
       try {
         FudgeSerializer serializer = new FudgeSerializer(_fudgeContext);
-        AvailableOutputs availableOutputs = _provider.getPortfolioOutputs(portfolio, _instant);
+        AvailableOutputs availableOutputs = _provider.getPortfolioOutputs(portfolio, _instant, _maxNodes, _maxPositions);
         return serializer.objectToFudgeMsg(availableOutputs);
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);

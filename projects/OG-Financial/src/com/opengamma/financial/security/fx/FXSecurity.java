@@ -60,7 +60,7 @@ public class FXSecurity extends FinancialSecurity {
    * The region.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _region;
+  private ExternalId _regionId;
 
   /**
    * Creates an empty instance.
@@ -76,7 +76,7 @@ public class FXSecurity extends FinancialSecurity {
     setReceiveCurrency(receiveCurrency);
     setPayAmount(payAmount);
     setReceiveAmount(receiveAmount);
-    setRegion(region);
+    setRegionId(region);
   }
 
   //-------------------------------------------------------------------------
@@ -125,8 +125,8 @@ public class FXSecurity extends FinancialSecurity {
         return getPayAmount();
       case 984267035:  // receiveAmount
         return getReceiveAmount();
-      case -934795532:  // region
-        return getRegion();
+      case -690339025:  // regionId
+        return getRegionId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -146,8 +146,8 @@ public class FXSecurity extends FinancialSecurity {
       case 984267035:  // receiveAmount
         setReceiveAmount((Double) newValue);
         return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -157,7 +157,7 @@ public class FXSecurity extends FinancialSecurity {
   protected void validate() {
     JodaBeanUtils.notNull(_payCurrency, "payCurrency");
     JodaBeanUtils.notNull(_receiveCurrency, "receiveCurrency");
-    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     super.validate();
   }
 
@@ -172,7 +172,7 @@ public class FXSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
           JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
           JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           super.equals(obj);
     }
     return false;
@@ -185,7 +185,7 @@ public class FXSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     return hash ^ super.hashCode();
   }
 
@@ -296,25 +296,25 @@ public class FXSecurity extends FinancialSecurity {
    * Gets the region.
    * @return the value of the property, not null
    */
-  public ExternalId getRegion() {
-    return _region;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
    * Sets the region.
-   * @param region  the new value of the property, not null
+   * @param regionId  the new value of the property, not null
    */
-  public void setRegion(ExternalId region) {
-    JodaBeanUtils.notNull(region, "region");
-    this._region = region;
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code region} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> region() {
-    return metaBean().region().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -348,10 +348,10 @@ public class FXSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _receiveAmount = DirectMetaProperty.ofReadWrite(
         this, "receiveAmount", FXSecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", FXSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", FXSecurity.class, ExternalId.class);
     /**
      * The meta-properties.
      */
@@ -361,7 +361,7 @@ public class FXSecurity extends FinancialSecurity {
         "receiveCurrency",
         "payAmount",
         "receiveAmount",
-        "region");
+        "regionId");
 
     /**
      * Restricted constructor.
@@ -380,8 +380,8 @@ public class FXSecurity extends FinancialSecurity {
           return _payAmount;
         case 984267035:  // receiveAmount
           return _receiveAmount;
-        case -934795532:  // region
-          return _region;
+        case -690339025:  // regionId
+          return _regionId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -435,11 +435,11 @@ public class FXSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> region() {
-      return _region;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
   }

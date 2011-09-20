@@ -19,6 +19,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -51,9 +52,10 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -95,7 +97,7 @@ public class InterestRateDerivativeVisitorTest {
   private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(CUR, new double[] {1}, 0.05, CURVE_NAME, true);
   private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(CUR, new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME, true);
   private static final CouponFixed FCP = new CouponFixed(CUR, 1, CURVE_NAME, 1, 0.04);
-  private static final CouponOIS CM = new CouponOIS(CUR, 3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
+  private static final ZZZCouponOIS CM = new ZZZCouponOIS(CUR, 3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
   private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA_2);
   private static final SwaptionCashFixedIbor SWAPTION_CASH = SwaptionInstrumentsDescriptionDataSet.createSwaptionCashFixedIbor();
   private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIbor();
@@ -162,7 +164,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponOIS(final CouponOIS payment, final Object anything) {
+    public Class<?> visitZZZCouponOIS(final ZZZCouponOIS payment, final Object anything) {
       return visit(payment, anything);
     }
 
@@ -212,7 +214,7 @@ public class InterestRateDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitCouponOIS(final CouponOIS payment) {
+    public Class<?> visitZZZCouponOIS(final ZZZCouponOIS payment) {
       return visit(payment);
     }
 
@@ -560,6 +562,26 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitCouponInflationZeroCouponMonthlyGearing(CouponInflationZeroCouponMonthlyGearing coupon) {
       return null;
     }
+
+    @Override
+    public Class<?> visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitAnnuityCouponIborRatchet(AnnuityCouponIborRatchet annuity) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponOIS(CouponOIS payment, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCouponOIS(CouponOIS payment) {
+      return null;
+    }
   };
 
   @Test
@@ -580,7 +602,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLA.accept(VISITOR, curves), AnnuityCouponIbor.class);
     assertEquals(FCS.accept(VISITOR, curves), FixedCouponSwap.class);
     assertEquals(FCP.accept(VISITOR, curves), CouponFixed.class);
-    assertEquals(CM.accept(VISITOR, curves), CouponOIS.class);
+    assertEquals(CM.accept(VISITOR, curves), ZZZCouponOIS.class);
     assertEquals(GA.accept(VISITOR, curves), GenericAnnuity.class);
     assertEquals(FIXED_FIXED.accept(VISITOR, curves), Swap.class);
     assertEquals(VISITOR.visit(CASH), Cash.class);
@@ -599,7 +621,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLA.accept(VISITOR), AnnuityCouponIbor.class);
     assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
     assertEquals(FCP.accept(VISITOR), CouponFixed.class);
-    assertEquals(CM.accept(VISITOR), CouponOIS.class);
+    assertEquals(CM.accept(VISITOR), ZZZCouponOIS.class);
     assertEquals(IR_FUT_SECURITY.accept(VISITOR), InterestRateFutureSecurity.class);
     assertEquals(IR_FUT_TRANSACTION.accept(VISITOR), InterestRateFutureTransaction.class);
     assertEquals(BNDFUT_SECURITY.accept(VISITOR), BondFutureSecurity.class);

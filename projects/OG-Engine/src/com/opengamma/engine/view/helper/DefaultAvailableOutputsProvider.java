@@ -20,6 +20,8 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -32,13 +34,24 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
   private final CompiledFunctionService _compiledFunctions;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
+  private final MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private final String _wildcardIndicator;
   
-  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService, PositionSource positionSource, SecuritySource securitySource, String wildcardIndicator) {
+  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService,
+      PositionSource positionSource, SecuritySource securitySource, String wildcardIndicator) {
+    this(compiledFunctionService, new OptimisticMarketDataAvailabilityProvider(), positionSource, securitySource, wildcardIndicator);
+  }
+  
+  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService,
+      MarketDataAvailabilityProvider marketDataAvailabilityProvider, 
+      PositionSource positionSource, SecuritySource securitySource, String wildcardIndicator) {
     ArgumentChecker.notNull(compiledFunctionService, "compiledFunctionService");
+    ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
+
     _compiledFunctions = compiledFunctionService;
+    _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
     _positionSource = positionSource;
     _securitySource = securitySource;
     _wildcardIndicator = wildcardIndicator;
@@ -55,7 +68,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
     InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
     CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
-    return new AvailablePortfolioOutputs(portfolio, functionRepository, getWildcardIndicator());
+    return new AvailablePortfolioOutputs(portfolio, functionRepository, getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
 
   @Override
@@ -69,7 +82,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
     InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
     CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
-    return new AvailablePortfolioOutputs(portfolio, functionRepository, getWildcardIndicator());
+    return new AvailablePortfolioOutputs(portfolio, functionRepository, getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
   
   //------------------------------------------------------------------------
@@ -83,6 +96,10 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
   
   private SecuritySource getSecuritySource() {
     return _securitySource;
+  }
+  
+  private MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
+    return _marketDataAvailabilityProvider;
   }
   
   private String getWildcardIndicator() {

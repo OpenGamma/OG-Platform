@@ -84,7 +84,6 @@ public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRoo
    * Sets the calibration time for the next calibration.
    * @param calibrationTime The calibration time.
    */
-  @Override
   public void setNextCalibrationTime(double calibrationTime) {
     _hwParameters.addVolatility(_hwParameters.getLastVolatility(), calibrationTime);
   }

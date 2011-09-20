@@ -291,21 +291,21 @@ CJVM *CJVM::Create () {
 	}
 	JavaVM *pJVM;
 	JNIEnv *pEnv;
-	JavaVMOption option[3];
-	memset (&option, 0, sizeof (option));
-	option[0].optionString = _OptionClassPath (&settings);
-	option[1].optionString = _OptionFudgeAnnotationCache (&settings);
-#ifdef _DEBUG
-	option[2].optionString = (char*)"-Dservice.debug=true";
-#else
-	option[2].optionString = (char*)"-Dservice.ndebug=true";
-#endif
-	// TODO [PLAT-1116] additional option strings from registry
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
+	JavaVMOption option[4];
+	memset (&option, 0, sizeof (option));
 	args.options = option;
-	args.nOptions = 3;
+	option[args.nOptions++].optionString = _OptionClassPath (&settings);
+	option[args.nOptions++].optionString = _OptionFudgeAnnotationCache (&settings);
+#ifdef _DEBUG
+	option[args.nOptions++].optionString = (char*)"-Dservice.debug=true";
+#else
+	option[args.nOptions++].optionString = (char*)"-Dservice.ndebug=true";
+#endif
+	option[args.nOptions++].optionString = (char*)"-Dcom.sun.management.jmxremote";
+	// TODO [PLAT-1116] additional option strings from registry
 	LOGDEBUG (TEXT ("Creating JVM"));
 	jint err = procCreateVM (&pJVM, &pEnv, &args);
 	if (option[0].optionString) {

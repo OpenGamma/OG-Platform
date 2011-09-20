@@ -49,9 +49,9 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     final ZonedDateTime accrualEndDate = capFloorCMSSpreadSecurity.getMaturityDate(); //TODO check this
     final double accrualFactor = capFloorCMSSpreadSecurity.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
     final double strike = capFloorCMSSpreadSecurity.getStrike();
-    final boolean isCap = capFloorCMSSpreadSecurity.getIsCap();
-    final ExternalId longId = capFloorCMSSpreadSecurity.getLongIdentifier();
-    final ExternalId shortId = capFloorCMSSpreadSecurity.getShortIdentifier();
+    final boolean isCap = capFloorCMSSpreadSecurity.isCap();
+    final ExternalId longId = capFloorCMSSpreadSecurity.getLongId();
+    final ExternalId shortId = capFloorCMSSpreadSecurity.getShortId();
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
     final Frequency tenor = capFloorCMSSpreadSecurity.getFrequency();
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
@@ -75,13 +75,13 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
   // FIXME: convert frequency to period in a better way
   private Period getTenor(final Frequency freq) {
     Period tenor;
-    if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
+    if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(12);
-    } else if (freq.getConventionName() == Frequency.SEMI_ANNUAL_NAME) {
+    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(6);
-    } else if (freq.getConventionName() == Frequency.QUARTERLY_NAME) {
+    } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(3);
-    } else if (freq.getConventionName() == Frequency.MONTHLY_NAME) {
+    } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
       tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException(

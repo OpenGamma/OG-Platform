@@ -18,6 +18,7 @@
 MANIFEST.MF
 build.number
 .settings/
-/tests/
+tests/classes/
+tests/output/
 /version.h
 /_ReSharper*

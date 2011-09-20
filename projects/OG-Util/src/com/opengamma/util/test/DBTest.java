@@ -36,18 +36,18 @@ import com.opengamma.util.test.DBTool.TableCreationCallback;
  * Base DB test.
  */
 public abstract class DBTest implements TableCreationCallback {
- 
+
   private static final Logger s_logger = LoggerFactory.getLogger(DBTest.class);
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
   private static final Map<String, DbHelper> s_dbHelpers = new HashMap<String, DbHelper>();
-  
+
   private static final File SCRIPT_INSTALL_DIR = new File(DBTool.getWorkingDirectory(), "temp/" + DBTest.class.getSimpleName());
 
   static {
     addDbHelper("hsqldb", new HSQLDbHelper());
     addDbHelper("postgres", new PostgreSQLDbHelper());
   }
-  
+
   static {
     try {
       extractSQLScript();
@@ -56,11 +56,11 @@ public abstract class DBTest implements TableCreationCallback {
       throw new OpenGammaRuntimeException("problem with unzip publish sql script to " + SCRIPT_INSTALL_DIR, ex);
     }
   }
-  
+
   private final String _databaseType;
   private final String _databaseVersion;
   private final DBTool _dbtool;
-  
+
   protected DBTest(String databaseType, String databaseVersion) {
     ArgumentChecker.notNull(databaseType, "databaseType");
     _databaseType = databaseType;
@@ -73,7 +73,7 @@ public abstract class DBTest implements TableCreationCallback {
       _dbtool.addDbScriptDirectory(DBTool.getWorkingDirectory());
     }
   }
-  
+
   /**
    * Initialise the database to the required version. This tracks the last initialised version
    * in a static map to avoid duplicate DB operations on bigger test classes. This might not be
@@ -83,7 +83,7 @@ public abstract class DBTest implements TableCreationCallback {
   public void setUp() throws Exception {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
-      s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion ());
+      s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
       _dbtool.setCreateVersion(getDatabaseVersion());
       _dbtool.dropTestSchema();
       _dbtool.createTestSchema();
@@ -91,7 +91,7 @@ public abstract class DBTest implements TableCreationCallback {
     }
     _dbtool.clearTestTables();
   }
-  
+
   private static void extractSQLScript() throws IOException {
     if (isScriptPublished()) {
       cleanUp();
@@ -106,7 +106,7 @@ public abstract class DBTest implements TableCreationCallback {
   @SuppressWarnings("unchecked")
   private static void unzipSQLScripts() throws IOException {
     File zipScriptPath = new File(DBTool.getWorkingDirectory(), getZipPath());
-    for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[] {"zip"}, false)) {
+    for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[] {"zip" }, false)) {
       ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
     }
   }
@@ -115,13 +115,27 @@ public abstract class DBTest implements TableCreationCallback {
   public void tearDown() throws Exception {
     _dbtool.resetTestCatalog(); // avoids locking issues with Derby
   }
-  
+
   @AfterSuite
   public static void cleanUp() {
     FileUtils.deleteQuietly(SCRIPT_INSTALL_DIR);
   }
 
-  protected static Collection<Object[]> getParameters (final String databaseType, final int previousVersionCount) {
+  //-------------------------------------------------------------------------
+  public static Collection<Object[]> getParameters() {
+    int previousVersionCount = getPreviousVersionCount();
+    return getParameters(previousVersionCount);
+  }
+
+  protected static Collection<Object[]> getParameters(final int previousVersionCount) {
+    String databaseType = System.getProperty("test.database.type");
+    if (databaseType == null) {
+      databaseType = "all";
+    }
+    return getParameters(databaseType, previousVersionCount);
+  }
+
+  protected static Collection<Object[]> getParameters(final String databaseType, final int previousVersionCount) {
     ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
       final DBTool dbTool = TestProperties.getDbTool(db);
@@ -132,13 +146,15 @@ public abstract class DBTest implements TableCreationCallback {
       }
       final String[] versions = dbTool.getDatabaseCreatableVersions();
       for (int i = 0; i < versions.length; i++) {
-        returnValue.add (new Object[] { db, versions[i] });
-        if (i >= previousVersionCount) break;
+        returnValue.add(new Object[] {db, versions[i] });
+        if (i >= previousVersionCount) {
+          break;
+        }
       }
     }
     return returnValue;
   }
-  
+
   private static boolean isScriptPublished() {
     String zipPath = getZipPath();
     if (zipPath == null) {
@@ -148,23 +164,19 @@ public abstract class DBTest implements TableCreationCallback {
     boolean result = false;
     if (zipScriptPath.exists()) {
       @SuppressWarnings("rawtypes")
-      Collection zipfiles = FileUtils.listFiles(zipScriptPath, new String[] {"zip"}, false);
+      Collection zipfiles = FileUtils.listFiles(zipScriptPath, new String[] {"zip" }, false);
       result = !zipfiles.isEmpty();
     }
     return result;
   }
 
-  protected static Collection<Object[]> getParameters (final int previousVersionCount) {
-    String databaseType = System.getProperty("test.database.type");
-    if (databaseType == null) {
-      databaseType = "all";
-    }
-    return getParameters (databaseType, previousVersionCount);
-  }
-
-  public static Collection<Object[]> getParameters() {
-    int previousVersionCount = getPreviousVersionCount();
-    return getParameters (previousVersionCount);
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "localDatabase")
+  public static Object[][] data_localDatabase() {
+    Collection<Object[]> parameters = getParameters("hsqldb", 0);
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
   }
 
   @DataProvider(name = "databases")
@@ -189,42 +201,42 @@ public abstract class DBTest implements TableCreationCallback {
     if (previousVersionCountString == null) {
       previousVersionCount = 0; // If you run from Eclipse, use current version only
     } else {
-      previousVersionCount = Integer.parseInt (previousVersionCountString);
+      previousVersionCount = Integer.parseInt(previousVersionCountString);
     }
     return previousVersionCount;
   }
-  
+
   public DBTool getDbTool() {
     return _dbtool;
   }
-  
+
   public String getDatabaseType() {
     return _databaseType;
   }
-  
-  public String getDatabaseVersion () {
+
+  public String getDatabaseVersion() {
     return _databaseVersion;
   }
-  
+
   public DataSourceTransactionManager getTransactionManager() {
     return getDbTool().getTransactionManager();
   }
-  
+
   public DbSource getDbSource() {
     DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
     transactionDefinition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
     transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-
+    
     DbHelper dbHelper = s_dbHelpers.get(getDatabaseType());
     if (dbHelper == null) {
       throw new OpenGammaRuntimeException("config error - no DBHelper setup for " + getDatabaseType());
     }
-    
+
     DbSource dbSource = new DbSource("DBTest", getTransactionManager().getDataSource(),
         dbHelper, null, transactionDefinition, getTransactionManager());
     return dbSource;
   }
-  
+
   public static void addDbHelper(String dbType, DbHelper helper) {
     s_dbHelpers.put(dbType, helper);
   }
@@ -233,7 +245,7 @@ public abstract class DBTest implements TableCreationCallback {
    * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data
    * at a particular version to test the data transformations on the next version upgrades.
    */
-  public void tablesCreatedOrUpgraded (final String version) {
+  public void tablesCreatedOrUpgraded(final String version) {
     // No action 
   }
 

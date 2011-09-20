@@ -41,7 +41,7 @@ public class EquityVarianceSwapConverter {
 
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, security.getCurrency()); // TODO CASE - Review. Holidays currently specified by currency alone
 
-    if (security.getParameterizedAsVariance()) {
+    if (security.isParameterizedAsVariance()) {
       return VarianceSwapDefinition.fromVarianceParams(security.getFirstObservationDate(), security.getLastObservationDate(),
                                           security.getSettlementDate(), (PeriodFrequency) security.getObservationFrequency(),
                                           security.getCurrency(), calendar, security.getAnnualizationFactor(),

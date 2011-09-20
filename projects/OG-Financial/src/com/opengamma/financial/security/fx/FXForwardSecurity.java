@@ -41,7 +41,7 @@ public class FXForwardSecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
   /**
    * The forward date.
    */
@@ -51,7 +51,7 @@ public class FXForwardSecurity extends FinancialSecurity {
    * The region.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _region;
+  private ExternalId _regionId;
 
   /**
    * Creates an empty instance.
@@ -63,9 +63,9 @@ public class FXForwardSecurity extends FinancialSecurity {
 
   public FXForwardSecurity(ExternalId underlyingIdentifier, ZonedDateTime forwardDate, ExternalId region) {
     super(SECURITY_TYPE);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
     setForwardDate(forwardDate);
-    setRegion(region);
+    setRegionId(region);
   }
 
   //-------------------------------------------------------------------------
@@ -106,12 +106,12 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
       case 1652755475:  // forwardDate
         return getForwardDate();
-      case -934795532:  // region
-        return getRegion();
+      case -690339025:  // regionId
+        return getRegionId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -119,14 +119,14 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
       case 1652755475:  // forwardDate
         setForwardDate((ZonedDateTime) newValue);
         return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -134,9 +134,9 @@ public class FXForwardSecurity extends FinancialSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     JodaBeanUtils.notNull(_forwardDate, "forwardDate");
-    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     super.validate();
   }
 
@@ -147,9 +147,9 @@ public class FXForwardSecurity extends FinancialSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FXForwardSecurity other = (FXForwardSecurity) obj;
-      return JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           JodaBeanUtils.equal(getForwardDate(), other.getForwardDate()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           super.equals(obj);
     }
     return false;
@@ -158,9 +158,9 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     return hash ^ super.hashCode();
   }
 
@@ -169,25 +169,25 @@ public class FXForwardSecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -221,25 +221,25 @@ public class FXForwardSecurity extends FinancialSecurity {
    * Gets the region.
    * @return the value of the property, not null
    */
-  public ExternalId getRegion() {
-    return _region;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
    * Sets the region.
-   * @param region  the new value of the property, not null
+   * @param regionId  the new value of the property, not null
    */
-  public void setRegion(ExternalId region) {
-    JodaBeanUtils.notNull(region, "region");
-    this._region = region;
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code region} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> region() {
-    return metaBean().region().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -253,28 +253,28 @@ public class FXForwardSecurity extends FinancialSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", FXForwardSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", FXForwardSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code forwardDate} property.
      */
     private final MetaProperty<ZonedDateTime> _forwardDate = DirectMetaProperty.ofReadWrite(
         this, "forwardDate", FXForwardSecurity.class, ZonedDateTime.class);
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", FXForwardSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", FXForwardSecurity.class, ExternalId.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "underlyingIdentifier",
+        "underlyingId",
         "forwardDate",
-        "region");
+        "regionId");
 
     /**
      * Restricted constructor.
@@ -285,12 +285,12 @@ public class FXForwardSecurity extends FinancialSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
         case 1652755475:  // forwardDate
           return _forwardDate;
-        case -934795532:  // region
-          return _region;
+        case -690339025:  // regionId
+          return _regionId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -312,11 +312,11 @@ public class FXForwardSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
     /**
@@ -328,11 +328,11 @@ public class FXForwardSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> region() {
-      return _region;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
   }

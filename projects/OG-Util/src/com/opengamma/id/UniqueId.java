@@ -19,7 +19,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * An immutable unique identifier for an item within the OpenGamma installation.
@@ -394,7 +393,7 @@ public final class UniqueId
    */
   @Deprecated
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    UniqueIdBuilder.toFudgeMsg(serializer, this, msg);
+    UniqueIdFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
@@ -408,7 +407,7 @@ public final class UniqueId
    */
   @Deprecated
   public static UniqueId fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return UniqueIdBuilder.fromFudgeMsg(deserializer, msg);
+    return UniqueIdFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

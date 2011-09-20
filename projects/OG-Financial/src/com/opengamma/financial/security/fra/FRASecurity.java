@@ -47,7 +47,7 @@ public class FRASecurity extends FinancialSecurity {
    * The region.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _region;
+  private ExternalId _regionId;
   /**
    * The start date.
    */
@@ -72,7 +72,7 @@ public class FRASecurity extends FinancialSecurity {
    * The underlying identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIdentifier;
+  private ExternalId _underlyingId;
 
   /**
    * Creates an empty instance.
@@ -85,12 +85,12 @@ public class FRASecurity extends FinancialSecurity {
   public FRASecurity(Currency currency, ExternalId region, ZonedDateTime startDate, ZonedDateTime endDate, double rate, double amount, ExternalId underlyingIdentifier) {
     super(SECURITY_TYPE);
     setCurrency(currency);
-    setRegion(region);
+    setRegionId(region);
     setStartDate(startDate);
     setEndDate(endDate);
     setRate(rate);
     setAmount(amount);
-    setUnderlyingIdentifier(underlyingIdentifier);
+    setUnderlyingId(underlyingIdentifier);
   }
 
   //-------------------------------------------------------------------------
@@ -133,8 +133,8 @@ public class FRASecurity extends FinancialSecurity {
     switch (propertyName.hashCode()) {
       case 575402001:  // currency
         return getCurrency();
-      case -934795532:  // region
-        return getRegion();
+      case -690339025:  // regionId
+        return getRegionId();
       case -2129778896:  // startDate
         return getStartDate();
       case -1607727319:  // endDate
@@ -143,8 +143,8 @@ public class FRASecurity extends FinancialSecurity {
         return getRate();
       case -1413853096:  // amount
         return getAmount();
-      case 368639974:  // underlyingIdentifier
-        return getUnderlyingIdentifier();
+      case -771625640:  // underlyingId
+        return getUnderlyingId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -155,8 +155,8 @@ public class FRASecurity extends FinancialSecurity {
       case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
+      case -690339025:  // regionId
+        setRegionId((ExternalId) newValue);
         return;
       case -2129778896:  // startDate
         setStartDate((ZonedDateTime) newValue);
@@ -170,8 +170,8 @@ public class FRASecurity extends FinancialSecurity {
       case -1413853096:  // amount
         setAmount((Double) newValue);
         return;
-      case 368639974:  // underlyingIdentifier
-        setUnderlyingIdentifier((ExternalId) newValue);
+      case -771625640:  // underlyingId
+        setUnderlyingId((ExternalId) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -180,10 +180,10 @@ public class FRASecurity extends FinancialSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_region, "region");
+    JodaBeanUtils.notNull(_regionId, "regionId");
     JodaBeanUtils.notNull(_startDate, "startDate");
     JodaBeanUtils.notNull(_endDate, "endDate");
-    JodaBeanUtils.notNull(_underlyingIdentifier, "underlyingIdentifier");
+    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
     super.validate();
   }
 
@@ -195,12 +195,12 @@ public class FRASecurity extends FinancialSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       FRASecurity other = (FRASecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
-          JodaBeanUtils.equal(getUnderlyingIdentifier(), other.getUnderlyingIdentifier()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
           super.equals(obj);
     }
     return false;
@@ -210,12 +210,12 @@ public class FRASecurity extends FinancialSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
     return hash ^ super.hashCode();
   }
 
@@ -250,25 +250,25 @@ public class FRASecurity extends FinancialSecurity {
    * Gets the region.
    * @return the value of the property, not null
    */
-  public ExternalId getRegion() {
-    return _region;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   /**
    * Sets the region.
-   * @param region  the new value of the property, not null
+   * @param regionId  the new value of the property, not null
    */
-  public void setRegion(ExternalId region) {
-    JodaBeanUtils.notNull(region, "region");
-    this._region = region;
+  public void setRegionId(ExternalId regionId) {
+    JodaBeanUtils.notNull(regionId, "regionId");
+    this._regionId = regionId;
   }
 
   /**
-   * Gets the the {@code region} property.
+   * Gets the the {@code regionId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> region() {
-    return metaBean().region().createProperty(this);
+  public final Property<ExternalId> regionId() {
+    return metaBean().regionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -378,25 +378,25 @@ public class FRASecurity extends FinancialSecurity {
    * Gets the underlying identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIdentifier() {
-    return _underlyingIdentifier;
+  public ExternalId getUnderlyingId() {
+    return _underlyingId;
   }
 
   /**
    * Sets the underlying identifier.
-   * @param underlyingIdentifier  the new value of the property, not null
+   * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingIdentifier(ExternalId underlyingIdentifier) {
-    JodaBeanUtils.notNull(underlyingIdentifier, "underlyingIdentifier");
-    this._underlyingIdentifier = underlyingIdentifier;
+  public void setUnderlyingId(ExternalId underlyingId) {
+    JodaBeanUtils.notNull(underlyingId, "underlyingId");
+    this._underlyingId = underlyingId;
   }
 
   /**
-   * Gets the the {@code underlyingIdentifier} property.
+   * Gets the the {@code underlyingId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIdentifier() {
-    return metaBean().underlyingIdentifier().createProperty(this);
+  public final Property<ExternalId> underlyingId() {
+    return metaBean().underlyingId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -415,10 +415,10 @@ public class FRASecurity extends FinancialSecurity {
     private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
         this, "currency", FRASecurity.class, Currency.class);
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _region = DirectMetaProperty.ofReadWrite(
-        this, "region", FRASecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+        this, "regionId", FRASecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -440,22 +440,22 @@ public class FRASecurity extends FinancialSecurity {
     private final MetaProperty<Double> _amount = DirectMetaProperty.ofReadWrite(
         this, "amount", FRASecurity.class, Double.TYPE);
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIdentifier = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIdentifier", FRASecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingId", FRASecurity.class, ExternalId.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "currency",
-        "region",
+        "regionId",
         "startDate",
         "endDate",
         "rate",
         "amount",
-        "underlyingIdentifier");
+        "underlyingId");
 
     /**
      * Restricted constructor.
@@ -468,8 +468,8 @@ public class FRASecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return _currency;
-        case -934795532:  // region
-          return _region;
+        case -690339025:  // regionId
+          return _regionId;
         case -2129778896:  // startDate
           return _startDate;
         case -1607727319:  // endDate
@@ -478,8 +478,8 @@ public class FRASecurity extends FinancialSecurity {
           return _rate;
         case -1413853096:  // amount
           return _amount;
-        case 368639974:  // underlyingIdentifier
-          return _underlyingIdentifier;
+        case -771625640:  // underlyingId
+          return _underlyingId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -509,11 +509,11 @@ public class FRASecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code region} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> region() {
-      return _region;
+    public final MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**
@@ -549,11 +549,11 @@ public class FRASecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code underlyingIdentifier} property.
+     * The meta-property for the {@code underlyingId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIdentifier() {
-      return _underlyingIdentifier;
+    public final MetaProperty<ExternalId> underlyingId() {
+      return _underlyingId;
     }
 
   }

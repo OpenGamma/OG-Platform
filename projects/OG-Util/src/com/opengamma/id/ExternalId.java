@@ -16,7 +16,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.ExternalIdBuilder;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -255,7 +254,7 @@ public final class ExternalId
    */
   @Deprecated
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg msg) {
-    ExternalIdBuilder.toFudgeMsg(serializer, this, msg);
+    ExternalIdFudgeBuilder.toFudgeMsg(serializer, this, msg);
   }
 
   /**
@@ -269,7 +268,7 @@ public final class ExternalId
    */
   @Deprecated
   public static ExternalId fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return ExternalIdBuilder.fromFudgeMsg(deserializer, msg);
+    return ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg);
   }
 
 }

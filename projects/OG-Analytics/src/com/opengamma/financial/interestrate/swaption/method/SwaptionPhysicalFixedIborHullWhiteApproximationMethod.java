@@ -27,10 +27,6 @@ import com.opengamma.util.money.CurrencyAmount;
 public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements PricingMethod {
 
   /**
-   * The model used in computations.
-   */
-  //  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
-  /**
    * The cash flow equivalent calculator used in computations.
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
@@ -48,7 +44,6 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
     int nbCf = cfe.getNumberOfPayments();
     double a = hwData.getHullWhiteParameter().getMeanReversion();
     double[] sigma = hwData.getHullWhiteParameter().getVolatility();
-    //    double nbSigma = hwData.getHullWhiteParameter().getVolatilityTime().length;
     double[] s = hwData.getHullWhiteParameter().getVolatilityTime();
     double[] cfa = new double[nbCf];
     double[] t = new double[nbCf + 1];
@@ -109,8 +104,8 @@ public class SwaptionPhysicalFixedIborHullWhiteApproximationMethod implements Pr
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(b0, dfswap[0], sigmaK);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
-    final double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
-    return CurrencyAmount.of(swaption.getCurrency(), price);
+    final double pv = func.evaluate(dataBlack);
+    return CurrencyAmount.of(swaption.getUnderlyingSwap().getFirstLeg().getCurrency(), pv * (swaption.isLong() ? 1.0 : -1.0));
   }
 
   @Override

@@ -6,6 +6,8 @@
 package com.opengamma.language.test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.language.context.DefaultSessionContextEventHandler;
 import com.opengamma.language.context.DefaultUserContextEventHandler;
@@ -53,6 +55,8 @@ public class TestUtils {
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private TypeConverterProvider _typeConverters;
   private ViewProcessor _viewProcessor;
+  private SecuritySource _securitySource;
+  private PositionSource _positionSource;
 
   public TestUtils() {
   }
@@ -81,6 +85,22 @@ public class TestUtils {
     return _viewProcessor;
   }
 
+  public void setSecuritySource(final SecuritySource securitySource) {
+    _securitySource = securitySource;
+  }
+
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  public void setPositionSource(final PositionSource positionSource) {
+    _positionSource = positionSource;
+  }
+
+  public PositionSource getPositionSource() {
+    return _positionSource;
+  }
+
   protected GlobalContextEventHandler createGlobalContextEventHandler() {
     return new GlobalContextEventHandler() {
       @Override
@@ -93,6 +113,12 @@ public class TestUtils {
         }
         if (getViewProcessor() != null) {
           globalContext.setViewProcessor(getViewProcessor());
+        }
+        if (getSecuritySource() != null) {
+          globalContext.setSecuritySource(getSecuritySource());
+        }
+        if (getPositionSource() != null) {
+          globalContext.setPositionSource(getPositionSource());
         }
       }
     };

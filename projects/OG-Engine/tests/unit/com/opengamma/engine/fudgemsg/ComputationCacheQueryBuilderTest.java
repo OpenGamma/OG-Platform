@@ -16,9 +16,9 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.test.AbstractBuilderTestCase;
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
-public class ComputationCacheQueryBuilderTest extends AbstractBuilderTestCase {
+public class ComputationCacheQueryBuilderTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void testEmptyQuery() {

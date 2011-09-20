@@ -111,7 +111,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
   }
 
   private ValueRequirement getSpotRequirement(EquityVarianceSwapSecurity security) {
-    ExternalId id = security.getSpotUnderlyingIdentifier();
+    ExternalId id = security.getSpotUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue())); //TODO is this right?
   }
 
@@ -126,7 +126,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
                                                         .with(FORWARD_CALCULATION_METHOD, FORWARD_FROM_SPOT_AND_YIELD_CURVE)
                                                         .get();
-    ExternalId id = security.getSpotUnderlyingIdentifier();
+    ExternalId id = security.getSpotUnderlyingId();
     ValueRequirement requirement = new ValueRequirement(VALUE_REQUIREMENT, ComputationTargetType.SECURITY, UniqueId.of(id.getScheme().getName(), id.getValue()));
     return new ValueSpecification(requirement, properties);
   }

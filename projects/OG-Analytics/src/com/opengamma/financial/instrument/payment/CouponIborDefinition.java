@@ -135,24 +135,24 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   }
 
   /**
-   * Gets the fixing period start date.
-   * @return The fixing period start date.
+   * Gets the start date of the fixing period.
+   * @return The start date of the fixing period.
    */
   public ZonedDateTime getFixingPeriodStartDate() {
     return _fixingPeriodStartDate;
   }
 
   /**
-   * Gets the fixindPeriodEndDate field.
-   * @return the fixindPeriodEndDate
+   * Gets the end date of the fixing period.
+   * @return The end date of the fixing period.
    */
   public ZonedDateTime getFixingPeriodEndDate() {
     return _fixingPeriodEndDate;
   }
 
   /**
-   * Gets the fixingPeriodAccrualFactor field.
-   * @return the fixingPeriodAccrualFactor
+   * Gets the accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   * @return The accrual factor.
    */
   public double getFixingPeriodAccrualFactor() {
     return _fixingPeriodAccrualFactor;

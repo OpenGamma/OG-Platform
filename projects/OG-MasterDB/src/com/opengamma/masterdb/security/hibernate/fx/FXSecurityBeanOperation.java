@@ -36,7 +36,7 @@ public final class FXSecurityBeanOperation extends AbstractSecurityBeanOperation
     bean.setPayCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPayCurrency().getCode()));
     bean.setReceiveAmount(security.getReceiveAmount());
     bean.setReceiveCurrency(secMasterSession.getOrCreateCurrencyBean(security.getReceiveCurrency().getCode()));
-    bean.setRegion(externalIdToExternalIdBean(security.getRegion()));
+    bean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
     return bean;
   }
 

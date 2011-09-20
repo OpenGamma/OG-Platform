@@ -10,14 +10,17 @@ import java.util.TreeMap;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
@@ -88,6 +91,24 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
+  public AnnuityPaymentFixed visitCouponIborGearing(final CouponIborGearing payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(payment.getForwardCurveName());
+    double fixingStartTime = payment.getFixingPeriodStartTime();
+    double fixingEndTime = payment.getFixingPeriodEndTime();
+    double paymentTime = payment.getPaymentTime();
+    final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
+        / discountingCurve.getDiscountFactor(fixingStartTime);
+    PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, payment.getFactor() * beta * payment.getNotional() * payment.getPaymentYearFraction()
+        / payment.getFixingAccrualFactor(), payment.getFundingCurveName());
+    PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, (-payment.getFactor() / payment.getFixingAccrualFactor() + payment.getSpread()) * payment.getPaymentYearFraction()
+        * payment.getNotional(), payment.getFundingCurveName());
+    return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
+  }
+
+  @Override
   public AnnuityPaymentFixed visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(annuity);
@@ -109,6 +130,11 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
 
   @Override
   public AnnuityPaymentFixed visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
+    return visitGenericAnnuity(annuity, curves);
+  }
+
+  @Override
+  public AnnuityPaymentFixed visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
@@ -137,6 +163,11 @@ public class CashFlowEquivalentCalculator extends AbstractInterestRateDerivative
 
   @Override
   public AnnuityPaymentFixed visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
+  }
+
+  @Override
+  public AnnuityPaymentFixed visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 

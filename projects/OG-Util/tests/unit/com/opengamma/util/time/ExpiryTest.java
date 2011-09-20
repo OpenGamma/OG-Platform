@@ -20,7 +20,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.fudgemsg.ExpiryBuilder;
 
 /**
  * Test Expiry.
@@ -31,8 +30,8 @@ public class ExpiryTest {
   private static final FudgeContext s_fudgeContext = new FudgeContext();
 
   static {
-    s_fudgeContext.getTypeDictionary().addType(ExpiryBuilder.SECONDARY_TYPE_INSTANCE);
-    s_fudgeContext.getObjectDictionary().addBuilder(Expiry.class, new ExpiryBuilder());
+    s_fudgeContext.getTypeDictionary().addType(ExpiryFudgeBuilder.SECONDARY_TYPE_INSTANCE);
+    s_fudgeContext.getObjectDictionary().addBuilder(Expiry.class, new ExpiryFudgeBuilder());
   }
 
   private static FudgeMsg cycleMessage(final FudgeMsg message) {

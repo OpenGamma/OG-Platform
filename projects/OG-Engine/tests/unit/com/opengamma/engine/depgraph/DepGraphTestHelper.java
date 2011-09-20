@@ -157,6 +157,7 @@ public class DepGraphTestHelper {
       final FunctionCompilationContext context = new FunctionCompilationContext();
       _builder.setCompilationContext(context);
       final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
+      compilationService.initialize();
       final DefaultFunctionResolver resolver;
       if (prioritizer != null) {
         resolver = new DefaultFunctionResolver(compilationService, prioritizer);

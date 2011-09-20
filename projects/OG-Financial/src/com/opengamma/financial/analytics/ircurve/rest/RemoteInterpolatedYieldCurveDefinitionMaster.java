@@ -20,12 +20,12 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.UniqueIdBuilder;
 
 /**
  * 
@@ -63,7 +63,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
   }
 
   private UniqueId getIdentifier(FudgeMsg msg) {
-    return UniqueIdBuilder.fromFudgeMsg(getFudgeDeserializer(), msg.getMessage("uniqueId"));
+    return UniqueIdFudgeBuilder.fromFudgeMsg(getFudgeDeserializer(), msg.getMessage("uniqueId"));
   }
 
   public YieldCurveDefinitionDocument postDefinition(final YieldCurveDefinitionDocument document, final String path) {
