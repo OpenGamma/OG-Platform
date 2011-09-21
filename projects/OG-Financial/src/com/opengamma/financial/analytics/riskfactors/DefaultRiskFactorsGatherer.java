@@ -414,6 +414,9 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties constraints) {
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(constraints, "constraints");
+    if (getConfigProvider().getCurrencyOverride() != null) {
+      constraints.copy().with(ValuePropertyNames.CURRENCY, getConfigProvider().getCurrencyOverride().getCode()).get();
+    }
     return Pair.of(valueName, constraints);
   }
   

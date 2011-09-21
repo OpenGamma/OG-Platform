@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.riskfactors;
 
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -25,11 +23,8 @@ public class DefaultRiskFactorsConfigurationProvider implements RiskFactorsConfi
   }
 
   @Override
-  public ValueProperties processConstraints(ValueProperties constraints) {
-    if (_currencyOverride == null) {
-      return constraints;
-    }
-    return constraints.copy().with(ValuePropertyNames.CURRENCY, _currencyOverride.getCode()).get();
+  public Currency getCurrencyOverride() {
+    return _currencyOverride;
   }
 
   @Override

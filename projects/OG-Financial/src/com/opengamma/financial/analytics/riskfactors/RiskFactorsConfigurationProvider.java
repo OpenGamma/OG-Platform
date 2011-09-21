@@ -5,21 +5,22 @@
  */
 package com.opengamma.financial.analytics.riskfactors;
 
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Provides configuration to a {@link RiskFactorsGatherer}.
  */
 public interface RiskFactorsConfigurationProvider {
 
   /**
-   * Provides the opportunity to process the generated constraints.
+   * Gets the output currency override which should be applied to the risk factors.
+   * <p>
+   * If this is not set then risk factors should be generated in their default currency which could be different for
+   * each position.
    * 
-   * @param constraints  the constraints, not null
-   * @return the processed constraints, not null
+   * @return the output currency override, or null if not set
    */
-  ValueProperties processConstraints(ValueProperties constraints);
+  Currency getCurrencyOverride();
   
   /**
    * Gets the name of the funding curve to use where required.
