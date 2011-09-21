@@ -45,11 +45,11 @@ public class ViewProcessTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
-    assertEquals(env.getViewDefinition().getName(), viewProcess.getDefinitionName());
+    assertEquals(env.getViewDefinition().getUniqueId(), viewProcess.getDefinitionId());
     
     viewProcess.stop();
     assertFalse(client.isAttached());
@@ -63,7 +63,7 @@ public class ViewProcessTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -90,7 +90,7 @@ public class ViewProcessTest {
     
     assertEquals(client, vp.getViewClient(client.getUniqueId()));
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));    
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));    
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     viewProcess.stop();
     
@@ -116,7 +116,7 @@ public class ViewProcessTest {
     ViewCycleExecutionOptions defaultCycleOptions = new ViewCycleExecutionOptions(MarketData.live());
     final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0.plusMillis(10), time0.plusMillis(20), time0.plusMillis(30)), ExecutionFlags.none().get(), defaultCycleOptions);
         
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);

@@ -40,12 +40,12 @@ public class UserViewClientTest {
     }
 
     @Override
-    public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
+    public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newPrivateProcess) {
+    public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean newPrivateProcess) {
       throw new UnsupportedOperationException();
     }
 

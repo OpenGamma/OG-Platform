@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.user;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.core.change.ChangeManager;
@@ -20,7 +21,7 @@ import com.opengamma.id.UniqueId;
  */
 public class UserManageableViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
-  private static final String SCHEME = "View";
+//  private static final String SCHEME = "View";
 
   private final UserDataTrackerWrapper _tracker;
   private final ManageableViewDefinitionRepository _underlying;
@@ -34,7 +35,7 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   @Override
   public void addViewDefinition(AddViewDefinitionRequest request) {
     _underlying.addViewDefinition(request);
-    _tracker.created(UniqueId.of(SCHEME, request.getViewDefinition().getName()));
+    _tracker.created(request.getViewDefinition().getUniqueId());
   }
 
   @Override
@@ -43,9 +44,9 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   }
 
   @Override
-  public void removeViewDefinition(String name) {
-    _underlying.removeViewDefinition(name);
-    _tracker.deleted(UniqueId.of(SCHEME, name));
+  public void removeViewDefinition(UniqueId definitionId) {
+    _underlying.removeViewDefinition(definitionId);
+    _tracker.deleted(definitionId);
   }
 
   @Override
@@ -54,15 +55,25 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   }
 
   @Override
-  public ViewDefinition getDefinition(String definitionName) {
-    return _underlying.getDefinition(definitionName);
+  public ViewDefinition getDefinition(UniqueId definitionId) {
+    return _underlying.getDefinition(definitionId);
   }
 
   @Override
-  public Set<String> getDefinitionNames() {
-    return _underlying.getDefinitionNames();
+  public ViewDefinition getDefinition(String name) {
+    return _underlying.getDefinition(name);
   }
 
+  @Override
+  public Set<UniqueId> getDefinitionIds() {
+    return _underlying.getDefinitionIds();
+  }
+
+  @Override
+  public Map<UniqueId, String> getDefinitionEntries() {
+    return _underlying.getDefinitionEntries();
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {

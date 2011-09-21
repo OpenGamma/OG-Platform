@@ -56,12 +56,15 @@ public final class ViewClientDescriptor {
   private static final String TICKING = "Ticking";
 
   private final Type _type;
+//  private final UniqueId _viewId;
   private final String _viewName;
   private final ViewExecutionOptions _executionOptions;
   private final String _encoded;
 
+//  private ViewClientDescriptor(final Type type, final UniqueId descriptorId, final ViewExecutionOptions executionOptions, final String encoded) {
   private ViewClientDescriptor(final Type type, final String viewName, final ViewExecutionOptions executionOptions, final String encoded) {
     _type = type;
+//    _viewId = descriptorId;
     _viewName = viewName;
     _executionOptions = executionOptions;
     _encoded = encoded;
@@ -71,6 +74,10 @@ public final class ViewClientDescriptor {
     return _type;
   }
 
+//  public UniqueId getViewId() {
+//    return _viewId;
+//  }
+  
   public String getViewName() {
     return _viewName;
   }
@@ -180,7 +187,9 @@ public final class ViewClientDescriptor {
     return "ViewClientDescriptor[" + encode() + "]";
   }
 
+  //public static ViewClientDescriptor tickingMarketData(final UniqueId viewId) {
   public static ViewClientDescriptor tickingMarketData(final String viewName) {
+          
     return new ViewClientDescriptor(Type.TICKING_MARKET_DATA, viewName, ExecutionOptions.infinite(MarketData.live()), escape(viewName));
   }
 

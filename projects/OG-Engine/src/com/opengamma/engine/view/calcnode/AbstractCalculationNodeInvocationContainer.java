@@ -315,8 +315,8 @@ public abstract class AbstractCalculationNodeInvocationContainer {
    * retention of job status as we only need to track jobs that are still running or have failed which saves a lot
    * of housekeeping overhead.
    * 
-   * @param job job to run, not {@code null}
-   * @param receiver execution status receiver, not {@code null}
+   * @param job job to run, not null
+   * @param receiver execution status receiver, not null
    * @param node optional node to start a worker thread with
    */
   protected void addJob(final CalculationJob job, final ExecutionReceiver receiver, final AbstractCalculationNode node) {
@@ -423,8 +423,8 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   /**
    * Executes jobs from the runnable queue until it is empty.
    * 
-   * @param node Node to run on, not {@code null}
-   * @param jobexec The first job to run, not {@code null}
+   * @param node Node to run on, not null
+   * @param jobexec The first job to run, not null
    */
   private void executeJobs(final AbstractCalculationNode node, JobEntry jobexec) {
     do {

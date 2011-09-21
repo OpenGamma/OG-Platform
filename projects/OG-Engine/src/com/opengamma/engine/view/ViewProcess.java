@@ -30,11 +30,11 @@ public interface ViewProcess extends UniqueIdentifiable {
   UniqueId getUniqueId();
   
   /**
-   * Gets the name of the underlying view definition
+   * Gets the id of the underlying view definition
    * 
-   * @return the name of the underlying view definition
+   * @return the id of the underlying view definition
    */
-  String getDefinitionName();
+  UniqueId getDefinitionId();
   
   /**
    * A convenience method for obtaining the latest view definition. This is not necessarily the version in use by any
@@ -42,6 +42,7 @@ public interface ViewProcess extends UniqueIdentifiable {
    * 
    * @return the underlying view definition, not null
    */
+  
   ViewDefinition getLatestViewDefinition();
   
   /**

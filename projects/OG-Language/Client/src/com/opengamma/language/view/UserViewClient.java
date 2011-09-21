@@ -210,7 +210,12 @@ public final class UserViewClient implements UniqueIdentifiable {
       synchronized (this) {
         if (!_attached) {
           final ViewClientDescriptor vcd = getViewClientKey().getClientDescriptor();
-          _viewClient.attachToViewProcess(vcd.getViewName(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
+ //         _viewClient.attachToViewProcess(vcd.getViewId(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
+          _viewClient.attachToViewProcess(
+                  _viewClient.getViewProcessor().getViewDefinitionRepository().
+                          getDefinition(vcd.getViewName()).getUniqueId(), 
+                  vcd.getExecutionOptions(), 
+                  !getViewClientKey().isSharedProcess());
           _attached = true;
         }
       }

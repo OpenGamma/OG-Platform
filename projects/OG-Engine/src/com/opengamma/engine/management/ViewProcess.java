@@ -65,8 +65,8 @@ public class ViewProcess implements ViewProcessMBean {
   }
 
   @Override
-  public String getDefinitionName() {
-    return _viewProcess.getDefinitionName();
+  public UniqueId getDefinitionId() {
+    return _viewProcess.getDefinitionId();
   }
 
   @Override
