@@ -34,7 +34,6 @@ public class DbFunctionCostsMasterTest extends DBTest {
   public DbFunctionCostsMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod

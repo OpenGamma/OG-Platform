@@ -47,7 +47,6 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
   public DbMarketDataSnapshotMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod

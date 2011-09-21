@@ -19,6 +19,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * General purpose source of access to databases.
@@ -30,6 +31,10 @@ import com.opengamma.util.ArgumentChecker;
  * This class is usually configured using the associated factory bean.
  */
 public class DbSource {
+
+  static {
+    DateUtils.initTimeZone();
+  }
 
   /**
    * The configuration name.
