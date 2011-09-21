@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.riskfactors;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +21,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -60,25 +60,23 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Gathers the risk factors known to the function library for elements of a portfolio, producing a
- * {@link ValueRequirement} for each one.
+ * Default implementation of {@link RiskFactorsGatherer}.
  */
-public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
-    implements FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisitor<Set<Pair<String, ValueProperties>>> {
+public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
+    FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisitor<Set<Pair<String, ValueProperties>>> {
   
   private final SecuritySource _securities;
+  private final RiskFactorsConfigurationProvider _configProvider;
   
-  public RiskFactorGatherer(SecuritySource securities) {
+  public DefaultRiskFactorsGatherer(SecuritySource securities, RiskFactorsConfigurationProvider configProvider) {
+    ArgumentChecker.notNull(securities, "securities");
+    ArgumentChecker.notNull(configProvider, "configProvider");
     _securities = securities;
+    _configProvider = configProvider;
   }
   
-  /**
-   * Gets the risk factors for a single position.
-   * 
-   * @param position  the position, not null
-   * @return the risk factors, not null
-   */
-  public Set<ValueRequirement> getRiskFactors(Position position) {
+  @Override
+  public Set<ValueRequirement> getPositionRiskFactors(Position position) {
     ArgumentChecker.notNull(position, "position");
     Set<Pair<String, ValueProperties>> securityRiskFactors = ((FinancialSecurity) position.getSecurity()).accept(this);
     if (securityRiskFactors.isEmpty()) {
@@ -91,13 +89,15 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
     return results;
   }
   
+  @Override
   public Set<ValueRequirement> getPositionRiskFactors(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     RiskFactorPortfolioTraverser callback = new RiskFactorPortfolioTraverser();
     callback.traverse(portfolio.getRootNode());
     return callback.getRiskFactors();
   }
-  
+
+  @Override
   public void addPortfolioRiskFactors(Portfolio portfolio, ViewCalculationConfiguration calcConfig) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(calcConfig, "calcConfig");
@@ -106,7 +106,6 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   }
 
   //-------------------------------------------------------------------------
-
   private class RiskFactorPortfolioTraverser extends AbstractPortfolioNodeTraversalCallback {
   
     private final ViewCalculationConfiguration _calcConfig;
@@ -134,7 +133,7 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   
     @Override
     public void preOrderOperation(Position position) {
-      Set<ValueRequirement> riskFactorRequirements = RiskFactorGatherer.this.getRiskFactors(position);
+      Set<ValueRequirement> riskFactorRequirements = DefaultRiskFactorsGatherer.this.getPositionRiskFactors(position);
       _valueRequirements.addAll(riskFactorRequirements);
       if (_calcConfig != null) {
         for (ValueRequirement riskFactorRequirement : riskFactorRequirements) {
@@ -160,14 +159,16 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   @Override
   public Set<Pair<String, ValueProperties>> visitBondSecurity(BondSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(security.getCurrency()),
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
         getPresentValue(),
         getPV01());
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCashSecurity(CashSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()));
   }
 
   @Override
@@ -178,7 +179,8 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   @Override
   public Set<Pair<String, ValueProperties>> visitFRASecurity(FRASecurity security) {
     return ImmutableSet.of(
-      getYieldCurveNodeSensitivities(security.getCurrency()),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
       getPresentValue(),
       getPV01());
   }
@@ -194,19 +196,16 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   @Override
   public Set<Pair<String, ValueProperties>> visitSwapSecurity(SwapSecurity security) {
     ImmutableSet.Builder<Pair<String, ValueProperties>> builder = ImmutableSet.<Pair<String, ValueProperties>>builder();
+    
+    // At the moment pay and receive must be the same currency, so any one of them is sufficient
     Notional payNotional = security.getPayLeg().getNotional();
-    Currency payIrCcy = null;
-    if (payNotional instanceof InterestRateNotional) {
-      payIrCcy = ((InterestRateNotional) payNotional).getCurrency();
-      builder.add(getYieldCurveNodeSensitivities(payIrCcy));
+    Notional receiveNotional = security.getReceiveLeg().getNotional();
+    if (payNotional instanceof InterestRateNotional && receiveNotional instanceof InterestRateNotional) {
+      Currency ccy = ((InterestRateNotional) payNotional).getCurrency();
+      builder.add(getYieldCurveNodeSensitivities(getFundingCurve(), ccy));
+      builder.add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy));
     }
-    Notional receiveNotional = security.getPayLeg().getNotional();
-    if (receiveNotional instanceof InterestRateNotional) {
-      Currency receiveIrCcy = ((InterestRateNotional) receiveNotional).getCurrency();
-      if (!receiveIrCcy.equals(payIrCcy)) {
-        builder.add(getYieldCurveNodeSensitivities(receiveIrCcy));
-      }
-    }
+    
     builder.add(getPresentValue());
     builder.add(getPV01());
     return builder.build();
@@ -233,13 +232,15 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
       getFXPresentValue(),
       getFXCurrencyExposure(),
       getVegaMatrix(),
-      getYieldCurveNodeSensitivities(security.getCallCurrency()),
-      getYieldCurveNodeSensitivities(security.getPutCurrency()));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitSwaptionSecurity(SwaptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
         .addAll(getSabrSensitivities())
         .add(getPresentValue())
         .add(getVegaMatrix()).build();
@@ -257,12 +258,16 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
     return ImmutableSet.of(
       getFXPresentValue(),
-      getFXCurrencyExposure());
+      getFXCurrencyExposure(),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
   }
   
   @Override
   public Set<Pair<String, ValueProperties>> visitFXSecurity(FXSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()));
   }
 
   @Override
@@ -271,8 +276,8 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
     return ImmutableSet.of(
         getFXPresentValue(),
         getFXCurrencyExposure(),
-        getYieldCurveNodeSensitivities(underlying.getPayCurrency()),
-        getYieldCurveNodeSensitivities(underlying.getReceiveCurrency()));
+        getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getPayCurrency()),
+        getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getReceiveCurrency()));
   }
 
   @Override
@@ -306,7 +311,8 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
 
   @Override
   public Set<Pair<String, ValueProperties>> visitBondFutureSecurity(BondFutureSecurity security) {
-    return ImmutableSet.of();
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()));
   }
 
   @Override
@@ -326,7 +332,9 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
 
   @Override
   public Set<Pair<String, ValueProperties>> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-    return ImmutableSet.of(getYieldCurveNodeSensitivities(security.getCurrency()));
+    return ImmutableSet.of(
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()));
   }
 
   @Override
@@ -350,27 +358,10 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   }
 
   //-------------------------------------------------------------------------
-  private Pair<String, ValueProperties> getYieldCurveNodeSensitivities(Currency currency) {
-    String suffix;
-    if (currency.equals(Currency.USD)) { 
-      suffix = "3M";
-    } else {
-      suffix = "6M";
-    }
+  private Pair<String, ValueProperties> getYieldCurveNodeSensitivities(String curve, Currency currency) {
     ValueProperties constraints = ValueProperties
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
-        
-        .withOptional(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE, "FUNDING")
-        
-        .withOptional(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, "FORWARD_" + suffix)
-        
-        .withOptional(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, "FUNDING")
-        
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        
+        .with(ValuePropertyNames.CURVE, curve)
         .with(ValuePropertyNames.AGGREGATION, FilteringSummingFunction.AGGREGATION_STYLE)
         .withOptional(ValuePropertyNames.AGGREGATION).get();
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
@@ -431,8 +422,21 @@ public class RiskFactorGatherer extends AbstractPortfolioNodeTraversalCallback
   }
   
   //-------------------------------------------------------------------------
+  private String getFundingCurve() {
+    return getConfigProvider().getFundingCurve();
+  }
+  
+  private String getForwardCurve(Currency currency) {
+    return getConfigProvider().getForwardCurve(currency);
+  }
+  
+  //-------------------------------------------------------------------------
   private SecuritySource getSecuritySource() {
     return _securities;
+  }
+  
+  private RiskFactorsConfigurationProvider getConfigProvider() {
+    return _configProvider;
   }
 
 }
