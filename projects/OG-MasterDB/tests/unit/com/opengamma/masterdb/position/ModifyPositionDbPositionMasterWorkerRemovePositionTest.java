@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 
@@ -38,7 +37,6 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
   public ModifyPositionDbPositionMasterWorkerRemovePositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------
