@@ -8,7 +8,6 @@ package com.opengamma.masterdb.config;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
-import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,6 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   public QueryConfigDbConfigMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
   
   //-------------------------------------------------------------------------

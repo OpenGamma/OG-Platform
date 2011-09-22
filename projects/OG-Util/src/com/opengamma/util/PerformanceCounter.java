@@ -138,7 +138,7 @@ public class PerformanceCounter {
   /**
    * Stores a performance counter hit.
    */
-  public void hit() {
+  public synchronized void hit() {
     long timestamp = System.currentTimeMillis();
     hit(timestamp);
   }

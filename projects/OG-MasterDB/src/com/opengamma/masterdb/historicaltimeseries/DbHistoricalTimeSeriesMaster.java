@@ -712,7 +712,9 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
       if (series.getTimeAt(0).isBefore(maxDate)) {
-        throw new IllegalArgumentException("Unable to add time-series as it starts before the latest in the database");
+        throw new IllegalArgumentException("Unable to update data points of time-series " + uniqueId +
+            " as the update starts at " + series.getTimeAt(0) +
+            " which is before the latest data point in the database at " + maxDate);
       }
     }
   }
