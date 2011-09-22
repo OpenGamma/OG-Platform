@@ -20,6 +20,7 @@ CREATE TABLE hts_doc2idkey (
     CONSTRAINT hts_fk_htsidkey2idkey FOREIGN KEY (idkey_id) REFERENCES hts_idkey (id),
     CONSTRAINT hts_chk_doc2idkey UNIQUE (doc_id, idkey_id, valid_from, valid_to)
 );
+CREATE INDEX ix_hts_doc2idkey_idkey ON hts_doc2idkey(idkey_id, valid_from, valid_to);
 
 INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to)
     SELECT doc_id, idkey_id, valid_from, valid_to
