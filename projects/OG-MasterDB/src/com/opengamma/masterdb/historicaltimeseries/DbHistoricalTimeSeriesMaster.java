@@ -327,11 +327,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   protected String sqlSelectExternalIdValue(final String identifierValue, final LocalDate validityDate) {
     String select = "SELECT DISTINCT doc_id " +
-        "FROM hts_doc2idkey di, hts_document main " +
-        "WHERE doc_id = main.id " +
-        "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-        "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-        (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+        "FROM hts_doc2idkey, hts_document " +
+        "WHERE doc_id = hts_document.id " +
+        "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+        "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+        (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
         "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
@@ -368,20 +368,20 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT doc_id AS matched_doc_id, COUNT(doc_id) AS matched_count " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
       "GROUP BY doc_id " +
       "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
     String b = "SELECT doc_id AS total_doc_id, COUNT(doc_id) AS total_count " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "GROUP BY doc_id ";
     String select = "SELECT matched_doc_id AS doc_id " +
       "FROM (" + a + ") AS a, (" + b + ") AS b " +
@@ -401,11 +401,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // only return doc_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT doc_id " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
       "GROUP BY doc_id " +
       "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
@@ -423,11 +423,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT doc_id " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") ";
     return select;
   }
