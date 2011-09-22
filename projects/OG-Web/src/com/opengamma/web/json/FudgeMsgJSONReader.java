@@ -10,6 +10,8 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
@@ -20,7 +22,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.taxonomy.FudgeTaxonomy;
 import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.FudgeRuntimeIOException;
-import org.fudgemsg.wire.json.JSONSettings;
+import org.fudgemsg.wire.json.FudgeJSONSettings;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +49,7 @@ public class FudgeMsgJSONReader {
    */
   private static final int DEFAULT_MESSAGE_PROCESSING_DIRECTIVES = 0;
   
-  private final JSONSettings _settings;
+  private final FudgeJSONSettings _settings;
   private final FudgeContext _fudgeContext;
   private final Reader _underlying;
   private int _taxonomyId = DEFAULT_TAXONOMY_ID;
@@ -64,7 +66,7 @@ public class FudgeMsgJSONReader {
    * @param reader  the underlying reader, not null
    */
   public FudgeMsgJSONReader(final FudgeContext fudgeContext, final Reader reader) {
-    this(fudgeContext, reader, new JSONSettings());
+    this(fudgeContext, reader, new FudgeJSONSettings());
   }
 
   /**
@@ -74,7 +76,7 @@ public class FudgeMsgJSONReader {
    * @param reader  the underlying reader, not null
    * @param settings  the JSON settings to fine tune the read, not null
    */
-  public FudgeMsgJSONReader(final FudgeContext fudgeContext, final Reader reader, final JSONSettings settings) {
+  public FudgeMsgJSONReader(final FudgeContext fudgeContext, final Reader reader, final FudgeJSONSettings settings) {
     _fudgeContext = fudgeContext;
     _underlying = reader;
     _settings = settings;
@@ -86,7 +88,7 @@ public class FudgeMsgJSONReader {
     }
   }
 
-  private void init(FudgeContext fudgeContext, final JSONObject jsonObject, final JSONSettings settings) throws JSONException {
+  private void init(FudgeContext fudgeContext, final JSONObject jsonObject, final FudgeJSONSettings settings) throws JSONException {
     String processingDirectivesField = settings.getProcessingDirectivesField();
     if (jsonObject.has(processingDirectivesField)) {
       _processingDirectives = integerValue(jsonObject.get(processingDirectivesField));
@@ -127,7 +129,7 @@ public class FudgeMsgJSONReader {
    * Gets the settings.
    * @return the settings
    */
-  public JSONSettings getSettings() {
+  public FudgeJSONSettings getSettings() {
     return _settings;
   }
 
@@ -163,7 +165,9 @@ public class FudgeMsgJSONReader {
   public FudgeMsgEnvelope readMessageEnvelope() {
     FudgeMsgEnvelope msgEnv = null;
     try { 
-      MutableFudgeMsg msg = processFields(_jsonObject);
+      JSONObject meta = (JSONObject) _jsonObject.get("meta");
+      JSONObject data = (JSONObject) _jsonObject.get("data");
+      MutableFudgeMsg msg = processFields(data, meta);
       msgEnv = getFudgeMsgEnvelope(msg, _jsonObject);
     } catch (JSONException ex) {
       wrapException("reading message envelope", ex);
@@ -179,42 +183,80 @@ public class FudgeMsgJSONReader {
     if (o instanceof Number) {
       return ((Number) o).intValue();
     } else {
-      return 0;
+      throw new NumberFormatException(o + " is not a number");
     }
   }
-
-  private MutableFudgeMsg processFields(final JSONObject jsonObject) {
+  
+  private byte byteValue(final Object o) {
+    if (o instanceof Number) {
+      return ((Number) o).byteValue();
+    } else {
+      throw new NumberFormatException(o + " is not a number");
+    }
+  }
+  
+  private short shortValue(final Object o) {
+    if (o instanceof Number) {
+      return ((Number) o).shortValue();
+    } else {
+      throw new NumberFormatException(o + " is not a number");
+    }
+  }
+  
+  private double doubleValue(final Object o) {
+    if (o instanceof Number) {
+      return ((Number) o).doubleValue();
+    } else {
+      throw new NumberFormatException(o + " is not a number");
+    }
+  }
+  
+  private float floatValue(final Object o) {
+    if (o instanceof Number) {
+      return ((Number) o).floatValue();
+    } else {
+      throw new NumberFormatException(o + " is not a number");
+    }
+  }
+  
+  private MutableFudgeMsg processFields(final JSONObject data, final JSONObject meta) {
     MutableFudgeMsg fudgeMsg = getFudgeContext().newMessage();
     @SuppressWarnings("unchecked")
-    Iterator<String> keys = jsonObject.keys();
+    Iterator<String> keys = data.keys();
     while (keys.hasNext()) {
       final String fieldName = keys.next();
-      if (isValidField(fieldName)) {
-        final Object fieldValue = getFieldValue(jsonObject, fieldName);
-        if (fieldValue instanceof JSONObject) {
-          final MutableFudgeMsg subMsg = processFields((JSONObject) fieldValue);
-          addField(fudgeMsg, fieldName, FudgeWireType.SUB_MESSAGE, subMsg);
-        } else if (fieldValue instanceof JSONArray) {
-          final JSONArray jsonArray = (JSONArray) fieldValue;
-          if (jsonArray.length() > 0) {
-            if (isPrimitiveArray(jsonArray) && !isEncodedAsSubMessage(fieldName, jsonObject)) {
-              try {
-                final Object primitiveArray = jsonArrayToPrimitiveArray(jsonArray);
-                addField(fudgeMsg, fieldName, getFieldType(primitiveArray), primitiveArray);
-              } catch (JSONException e) {
-                wrapException("converting json array to primitive array", e);
-              }
-            } else {
-              //treat as repeated fields
-              addRepeatedFields(fudgeMsg, fieldName, jsonArray);
+      final Object dataValue = getFieldValue(data, fieldName);
+      final Object metaValue = getFieldValue(meta, fieldName);
+      if (dataValue instanceof JSONObject) {
+        final MutableFudgeMsg subMsg = processFields((JSONObject) dataValue, (JSONObject) metaValue);
+        addField(fudgeMsg, fieldName, FudgeWireType.SUB_MESSAGE, subMsg);
+      } else if (dataValue instanceof JSONArray) {
+        final JSONArray dataArray = (JSONArray) dataValue;
+        if (dataArray.length() > 0) {
+          if (isPrimitiveArray(metaValue)) {
+            try {
+              final Object primitiveArray = jsonArrayToPrimitiveArray(dataArray, (String) metaValue);
+              addField(fudgeMsg, fieldName, getFieldType((String) metaValue), primitiveArray);
+            } catch (JSONException e) {
+              wrapException("converting json array to primitive array", e);
             }
+          } else {
+            //treat as repeated fields
+            addRepeatedFields(fudgeMsg, fieldName, dataArray, (JSONArray) metaValue);
           }
-        } else {
-          addField(fudgeMsg, fieldName, getFieldType(fieldValue), fieldValue);
         }
+      } else {
+        addField(fudgeMsg, fieldName, getFieldType((String) metaValue), dataValue);
       }
     }
     return fudgeMsg;
+  }
+
+  private boolean isPrimitiveArray(Object metaValue) {
+    if (metaValue instanceof JSONArray) {
+      return false;
+    }
+    return true;
   }
 
   private void addField(MutableFudgeMsg fudgeMsg, final String fieldName, FudgeFieldType fieldType, final Object fieldValue) {
@@ -233,22 +275,49 @@ public class FudgeMsgJSONReader {
         }
       }
     }
-    fudgeMsg.add(name, ordinal, fieldType, fieldValue);
+    switch (fieldType.getTypeId()) {
+      case FudgeWireType.BYTE_TYPE_ID:
+        fudgeMsg.add(name, ordinal, fieldType, byteValue(fieldValue));
+        break;
+      case FudgeWireType.SHORT_TYPE_ID:
+        fudgeMsg.add(name, ordinal, fieldType, shortValue(fieldValue));
+        break;
+      case FudgeWireType.DOUBLE_TYPE_ID:
+        fudgeMsg.add(name, ordinal, fieldType, doubleValue(fieldValue));
+        break;
+      case FudgeWireType.FLOAT_TYPE_ID:
+        fudgeMsg.add(name, ordinal, fieldType, floatValue(fieldValue));
+        break;
+      case FudgeWireType.DATE_TYPE_ID:
+        fudgeMsg.add(name, ordinal, fieldType, toLocalDate(fieldValue));
+        break;
+      default:
+        fudgeMsg.add(name, ordinal, fieldType, fieldValue);
+        break;
+    }
   }
-  
+ 
+  private LocalDate toLocalDate(Object fieldValue) {
+    if (fieldValue != null) {
+      return LocalDate.parse((String) fieldValue);
+    }
+    return null;
+  }
+
   private boolean getPreserveFieldNames() {
     return getSettings().getPreserveFieldNames();
   }
 
-  private void addRepeatedFields(MutableFudgeMsg fudgeMsg, final String fieldName, final JSONArray jsonArray) {
+  private void addRepeatedFields(MutableFudgeMsg fudgeMsg, final String fieldName, final JSONArray dataArray, final JSONArray metaArray) {
     try {
-      for (int i = 0; i < jsonArray.length(); i++) {
-        final Object arrValue = jsonArray.get(i);
+      for (int i = 0; i < dataArray.length(); i++) {
+        final Object arrValue = dataArray.get(i);
+        final Object metaValue = metaArray.get(i);
         if (arrValue instanceof JSONObject) {
-          final MutableFudgeMsg subMsg = processFields((JSONObject) arrValue);
+          final MutableFudgeMsg subMsg = processFields((JSONObject) arrValue, (JSONObject) metaValue);
           addField(fudgeMsg, fieldName, FudgeWireType.SUB_MESSAGE, subMsg);
         } else {
-          addField(fudgeMsg, fieldName, getFieldType(arrValue), arrValue);
+          addField(fudgeMsg, fieldName, getFieldType((String) metaValue), arrValue);
         }
       }
     } catch (JSONException e) {
@@ -256,98 +325,64 @@ public class FudgeMsgJSONReader {
     }
   }
   
-  private FudgeFieldType getFieldType(final Object fieldValue) {
-    return getFudgeContext().getTypeDictionary().getByJavaType(fieldValue.getClass());
+  private FudgeFieldType getFieldType(final String typeValue) {
+    Integer typeId = getSettings().stringToFudgeTypeId(typeValue);
+    return getFudgeContext().getTypeDictionary().getByTypeId(typeId);
   }
   
-  private Object jsonArrayToPrimitiveArray(final JSONArray arr) throws JSONException {
-    boolean arrInt = true, arrDouble = true, arrLong = true;
-    for (int j = 0; j < arr.length(); j++) {
-      Object arrValue = arr.get(j);
-      if (JSONObject.NULL.equals(arrValue)) {
-        arrInt = false;
-        arrDouble = false;
-        break;
-      } else if (arrValue instanceof Number) {
-        if (arrValue instanceof Double) {
-          arrInt = false;
-          arrLong = false;
-        } else if (arrValue instanceof Long) {
-          arrInt = false;
-        } else {
-          if (!(arrValue instanceof Integer)) {
-            arrInt = false;
-            arrDouble = false;
-          }
+  private Object jsonArrayToPrimitiveArray(final JSONArray arr, final String metaType) throws JSONException {
+    FudgeFieldType fieldType = getFieldType(metaType);
+    switch (fieldType.getTypeId()) {
+      case FudgeWireType.BYTE_ARRAY_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_4_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_8_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_16_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_20_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_32_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_64_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_128_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_256_TYPE_ID:
+      case FudgeWireType.BYTE_ARRAY_512_TYPE_ID:
+        final byte[] byteArr = new byte[arr.length()];
+        for (int j = 0; j < byteArr.length; j++) {
+          byteArr[j] = ((Number) arr.get(j)).byteValue();
         }
-      } else if (arrValue instanceof JSONObject) {
-        arrInt = false;
-        arrDouble = false;
-        break;
-      } else if (arrValue instanceof JSONArray) {
-        arrInt = false;
-        arrDouble = false;
-        break;
-      }
-    }
-    if (arrInt) {
-      final int[] data = new int[arr.length()];
-      for (int j = 0; j < data.length; j++) {
-        data[j] = ((Number) arr.get(j)).intValue();
-      }
-      return data;
-    } else if (arrLong) {
-      final long[] data = new long[arr.length()];
-      for (int j = 0; j < data.length; j++) {
-        data[j] = ((Number) arr.get(j)).longValue();
-      }
-      return data;
-    } else if (arrDouble) {
-      final double[] data = new double[arr.length()];
-      for (int j = 0; j < data.length; j++) {
-        data[j] = ((Number) arr.get(j)).doubleValue();
-      }
-      return data;
-    } else {
-      return null;
-    }
-  }
-  
-  private boolean isPrimitiveArray(final JSONArray jsonArray) {
-    try {
-      for (int i = 0; i < jsonArray.length(); i++) {
-        Object arrValue = jsonArray.get(i);
-        if (!(arrValue instanceof Number)) {
-          return false;
+        return byteArr;
+      case FudgeWireType.SHORT_ARRAY_TYPE_ID:
+        final short[] shortArr = new short[arr.length()];
+        for (int j = 0; j < shortArr.length; j++) {
+          shortArr[j] = ((Number) arr.get(j)).shortValue();
         }
-      }
-    } catch (JSONException e) {
-      wrapException("is primitive array", e);
-    }
-    return true;
-  }
-  
-  private boolean isEncodedAsSubMessage(final String fieldName, final JSONObject jsonObject) {
-    try {
-      String typeSuffix = getSettings().getTypeSuffix();
-      if (typeSuffix != null) {
-        String typeName = fieldName + typeSuffix;
-        if (jsonObject.has(typeName)) {
-          Object typeValue = jsonObject.get(typeName);
-          if (typeValue instanceof Number) {
-            int typeValueInt = (Integer) typeValue;
-            if (typeValueInt == FudgeWireType.SUB_MESSAGE_TYPE_ID) {
-              return true;
-            }
-          }
+        return shortArr;
+      case FudgeWireType.INT_ARRAY_TYPE_ID:
+        final int[] intArr = new int[arr.length()];
+        for (int j = 0; j < intArr.length; j++) {
+          intArr[j] = ((Number) arr.get(j)).intValue();
         }
-      }
-    } catch (JSONException ex) {
-      wrapException("reading typ suffix", ex);
+        return intArr;
+      case FudgeWireType.LONG_ARRAY_TYPE_ID:
+        final long[] longArr = new long[arr.length()];
+        for (int j = 0; j < longArr.length; j++) {
+          longArr[j] = ((Number) arr.get(j)).longValue();
+        }
+        return longArr;
+      case FudgeWireType.DOUBLE_ARRAY_TYPE_ID:
+        final double[] doubleArr = new double[arr.length()];
+        for (int j = 0; j < doubleArr.length; j++) {
+          doubleArr[j] = ((Number) arr.get(j)).doubleValue();
+        }
+        return doubleArr;
+      case FudgeWireType.FLOAT_ARRAY_TYPE_ID:
+        final float[] floatArr = new float[arr.length()];
+        for (int j = 0; j < floatArr.length; j++) {
+          floatArr[j] = ((Number) arr.get(j)).floatValue();
+        }
+        return floatArr;
+      default:
+        return null;
     }
-    return false;
   }
-  
+    
   private Object getFieldValue(final JSONObject jsonObject, final String fieldName) {
     Object fieldValue = null;
     try {
@@ -359,14 +394,6 @@ public class FudgeMsgJSONReader {
       wrapException("reading field value", e);
     }
     return fieldValue;
-  }
-  
-  private boolean isValidField(final String fieldName) {
-    String typeSuffix = getSettings().getTypeSuffix();
-    if (!_envelopeAttibutesFields.contains(fieldName) && (typeSuffix != null && !fieldName.endsWith(typeSuffix))) {
-      return true;
-    } 
-    return false;
   }
 
 }
