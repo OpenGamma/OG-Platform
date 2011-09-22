@@ -12,7 +12,8 @@ $.register_module({
         'og.views.forms.Dropdown'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest;
+        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest,
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -232,12 +233,12 @@ $.register_module({
                 return new form.Block({module: 'og.views.forms.curve-specification-builder-strip', extras: extras});
             };
             transposed = field_names.reduce(function (acc, val) {
-                acc[val] = (master[fields[val]] || []).reduce(function (acc, val) {
+                acc[val] = (master[fields[val]] = arr(master[fields[val]])).reduce(function (acc, val) {
                     for (var tenor in val) if (val[has](tenor)) acc[tenor] = val[tenor];
                     return acc;
                 }, {});
                 // fill out sparse array, populating nulls
-                (master.tenors || (master.tenors = [])).forEach(function (tenor) {
+                (master.tenors = arr(master.tenors)).forEach(function (tenor) {
                     if (!acc[val][has](tenor)) acc[val][tenor] = null;
                 });
                 return acc;

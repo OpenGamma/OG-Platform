@@ -11,7 +11,8 @@ $.register_module({
         'og.views.forms.Dropdown'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest;
+        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest,
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -27,7 +28,7 @@ $.register_module({
                     selector: selector,
                     extras: {
                         name: master.name, currency: master.currency || (master.currency = 'USD'),
-                        region_scheme: master.region.Scheme,
+                        region_scheme: master.region['Scheme'],
                         interpolator: master[INTR]
                     },
                     processor: function (data) {
@@ -134,7 +135,7 @@ $.register_module({
                         $el.remove();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-add', handler: function (e) { // add a strip
-                    var block = new_strip({}, (master.strip || (master.strip = [])).push({}) - 1);
+                    var block = new_strip({}, master.strip.push({}) - 1);
                     block.html(function (html) {$(form_id + ' .og-js-strips').append($(html)), block.load();});
                 }}
             ]);
@@ -162,7 +163,8 @@ $.register_module({
                 }),
                 strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{html html}}</ul>'}) // item_1
             ];
-            if (master.strip) Array.prototype.push.apply(strips.children, master.strip.map(new_strip));
+            if ((master.strip = arr(master.strip)).length)
+                Array.prototype.push.apply(strips.children, master.strip.map(new_strip));
             form.dom();
         };
     }
