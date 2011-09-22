@@ -31,3 +31,6 @@ INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to)
 DROP TABLE hts_doc2idkey_old;
 
 COMMIT;
+
+CREATE INDEX ix_hts_key_schemevalue ON hts_idkey(key_scheme, key_value);
+DROP INDEX IF EXISTS ix_hts_key_scheme;
