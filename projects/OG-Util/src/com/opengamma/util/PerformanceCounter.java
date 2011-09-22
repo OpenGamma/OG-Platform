@@ -109,7 +109,7 @@ public class PerformanceCounter {
     return (int) (getSecondsSinceInception(timestamp) % _secondsOfHistoryToKeep);   
   }
 
-  synchronized void hit(long timestamp) {
+  private synchronized void hitMultiple(long timestamp, long count) {
     if (timestamp < _lastHitTimestamp) { // could happen if the system clock is played with 
       reset(timestamp);      
     }
@@ -131,16 +131,28 @@ public class PerformanceCounter {
         Arrays.fill(_hitsHistory, 0, index, _hits);
       }
     }
-    _hits++;
+    _hits += count;
     _lastHitTimestamp = timestamp;
+  }
+  
+  void hit(long timestamp) {
+    hitMultiple(timestamp, 1);
   }
 
   /**
    * Stores a performance counter hit.
    */
-  public synchronized void hit() {
+  public void hit() {
+    hitMultiple(1);
+  }
+  
+  /**
+   * Stores multiple performance counter hits.
+   * @param count The number of hits to register
+   */
+  public synchronized void hitMultiple(long count) {
     long timestamp = System.currentTimeMillis();
-    hit(timestamp);
+    hitMultiple(timestamp, count);
   }
 
   /**
