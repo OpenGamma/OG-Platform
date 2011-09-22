@@ -856,7 +856,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numMarketDataUpdatesReceived.incrementAndGet();
-    _performanceCounter.hit();
+    if (_performanceCounter != null) {
+      _performanceCounter.hit();
+    }
     
     Subscription subscription = getSubscription(securityUniqueId);
     if (subscription == null) {
