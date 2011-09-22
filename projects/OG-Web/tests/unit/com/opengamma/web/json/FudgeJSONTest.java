@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.StandardFudgeMessages;
 import org.fudgemsg.taxonomy.FudgeTaxonomy;
 import org.fudgemsg.taxonomy.ImmutableMapTaxonomyResolver;
 import org.fudgemsg.taxonomy.MapFudgeTaxonomy;
