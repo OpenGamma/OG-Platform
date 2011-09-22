@@ -29,7 +29,17 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This is a thread-safe static utility class.
  */
-public class DateUtils {
+public final class DateUtils {
+
+  /**
+   * The original JVM time-zone.
+   */
+  public static final TimeZone ORIGINAL_TIME_ZONE = Clock.systemDefaultZone().getZone();
+  static {
+    // essential that OpenGamm runs in a default time-zone that has no Daylight Savings
+    // UTC is desirable for many other reasons, so use it here
+    java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
+  }
 
   /**
    * The number of seconds in one day.
@@ -75,6 +85,31 @@ public class DateUtils {
         .toFormatter();
   }
 
+  /**
+   * Restricted constructor.
+   */
+  private DateUtils() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the default time-zone to UTC.
+   * <p>
+   * This method actually does nothing, as the code is in a static initializer.
+   */
+  public static void initTimeZone() {
+  }
+
+  /**
+   * Gets the original time-zone before it was set to UTC.
+   * 
+   * @return the original time-zone, not null
+   */
+  public static java.util.TimeZone originalTimeZone() {
+    return java.util.TimeZone.getTimeZone(ORIGINAL_TIME_ZONE.getID());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns endDate - startDate in years, where a year is defined as 365.25 days.
    * 
