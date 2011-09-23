@@ -8,8 +8,6 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -37,7 +35,6 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
   public ModifySecurityDbSecurityMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

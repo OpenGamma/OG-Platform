@@ -88,6 +88,9 @@ public class FixedIncomeConverterDataProvider {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
+    if (length < 2) {
+      throw new OpenGammaRuntimeException("Price time series for " + id + " did not contain data for the last week - have they been updated?");
+    }
     final double lastMarginPrice = ts.getTimeSeries().getValueAt(length - 2) / 100;
     final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong; need margin data and previous close for lastMarginPrice
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);

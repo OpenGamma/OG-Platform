@@ -24,7 +24,8 @@ $.register_module({
             REQS = 'portfolioRequirement',
             SECU = 'securityType',
             REQO = 'requiredOutput',
-            CONS = 'constraints';
+            CONS = 'constraints',
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -452,11 +453,14 @@ $.register_module({
                             })
                         ];
                         // column tabs
-                        if (set[COLS]) Array.prototype.push.apply(col_tabs.children, set[COLS].map(new_col_tab));
+                        if ((set[COLS] = arr(set[COLS])).length)
+                            Array.prototype.push.apply(col_tabs.children, set[COLS].map(new_col_tab));
                         // column values
-                        if (set[COLS]) Array.prototype.push.apply(col_vals.children, set[COLS].map(new_col_val));
+                        if ((set[COLS] = arr(set[COLS])).length)
+                            Array.prototype.push.apply(col_vals.children, set[COLS].map(new_col_val));
                         // additional values
-                        if (set[SPEC]) Array.prototype.push.apply(spec_vals.children, set[SPEC].map(new_spec_val));
+                        if ((set[SPEC] = arr(set[SPEC])).length)
+                            Array.prototype.push.apply(spec_vals.children, set[SPEC].map(new_spec_val));
                         return column_set;
                     };
                 form.children.push(
@@ -467,7 +471,7 @@ $.register_module({
                     new form.Block({ // form item_4
                         module: 'og.views.forms.view-definition-colset-tabs',
                         extras: {
-                            tabs: (master[SETS] || (master[SETS] = [])).reduce(function (acc, set, idx) {
+                            tabs: (master[SETS] = arr(master[SETS])).reduce(function (acc, set, idx) {
                                 return acc + '<li><a class="og-tab og-js-colset-tab' + (idx ? '' : ' og-active') + '"' +
                                     ' href="#"><div class="og-delete og-js-rem-colset"></div>' +
                                     '<span class="og-js-colset-tab-name">' + set.name + '</span></a></li>';

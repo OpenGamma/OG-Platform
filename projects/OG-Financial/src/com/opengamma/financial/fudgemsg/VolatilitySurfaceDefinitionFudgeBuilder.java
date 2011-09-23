@@ -36,10 +36,11 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
     // the following forces it not to use a secondary type if one is available.
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     if (object.getTarget() instanceof Currency) {
-      message.add("currency", object.getTarget());
+      Currency ccy = (Currency) object.getTarget();
+      message.add("currency", null, ccy.getCode());
     } else {
       // just for now...
-      message.add("currency", Currency.USD);
+      message.add("currency", null, Currency.USD.getCode());
     }
     message.add("name", object.getName());
     for (final Object x : object.getXs()) {
@@ -63,7 +64,9 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
   public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     UniqueIdentifiable target;
     if (!message.hasField("target")) {
-      target = deserializer.fieldValueToObject(Currency.class, message.getByName("currency")); 
+      String currencyCode = message.getString("currency");
+      target = Currency.of(currencyCode);
+//      target = deserializer.fieldValueToObject(Currency.class, message.getByName("currency")); 
     } else {
 //      try {
       target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));

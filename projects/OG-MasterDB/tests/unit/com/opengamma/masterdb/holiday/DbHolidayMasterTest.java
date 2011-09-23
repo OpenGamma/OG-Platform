@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
-import java.util.TimeZone;
 
 import javax.time.calendar.LocalDate;
 
@@ -40,7 +39,6 @@ public class DbHolidayMasterTest extends DBTest {
   public DbHolidayMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod
