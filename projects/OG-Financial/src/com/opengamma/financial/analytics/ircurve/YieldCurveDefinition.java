@@ -140,7 +140,6 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   public static YieldCurveDefinition.Meta meta() {
     return YieldCurveDefinition.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(YieldCurveDefinition.Meta.INSTANCE);
   }
@@ -151,19 +150,19 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212: // uniqueId
+      case -294460212:  // uniqueId
         return getUniqueId();
-      case 575402001: // currency
+      case 575402001:  // currency
         return getCurrency();
       case -690339025:  // regionId
         return getRegionId();
       case 3373707:  // name
         return getName();
-      case -1247314958: // interpolatorName
+      case -1247314958:  // interpolatorName
         return getInterpolatorName();
-      case -891985829: // strips
+      case -891985829:  // strips
         return getStrips();
     }
     return super.propertyGet(propertyName, quiet);
@@ -171,12 +170,12 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -294460212: // uniqueId
+      case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
         return;
-      case 575402001: // currency
+      case 575402001:  // currency
         if (quiet) {
           return;
         }
@@ -191,12 +190,12 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
           return;
         }
         throw new UnsupportedOperationException("Property cannot be written: name");
-      case -1247314958: // interpolatorName
+      case -1247314958:  // interpolatorName
         if (quiet) {
           return;
         }
         throw new UnsupportedOperationException("Property cannot be written: interpolatorName");
-      case -891985829: // strips
+      case -891985829:  // strips
         setStrips((SortedSet<FixedIncomeStrip>) newValue);
         return;
     }
@@ -204,12 +203,12 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final YieldCurveDefinition other = (YieldCurveDefinition) obj;
+      YieldCurveDefinition other = (YieldCurveDefinition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
@@ -237,7 +236,6 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Gets the unique identifier of the yield curve.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -246,8 +244,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Sets the unique identifier of the yield curve.
    * @param uniqueId  the new value of the property
    */
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -340,7 +337,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    * Sets the underlying strips.
    * @param strips  the new value of the property
    */
-  public void setStrips(final SortedSet<FixedIncomeStrip> strips) {
+  public void setStrips(SortedSet<FixedIncomeStrip> strips) {
     this._strips.clear();
     this._strips.addAll(strips);
   }
@@ -366,13 +363,13 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId",
-        YieldCurveDefinition.class, UniqueId.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", YieldCurveDefinition.class, UniqueId.class);
     /**
      * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency",
-        YieldCurveDefinition.class, Currency.class);
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", YieldCurveDefinition.class, Currency.class);
     /**
      * The meta-property for the {@code regionId} property.
      */
@@ -381,19 +378,19 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", YieldCurveDefinition.class,
-        String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", YieldCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code interpolatorName} property.
      */
-    private final MetaProperty<String> _interpolatorName = DirectMetaProperty.ofReadWrite(this, "interpolatorName",
-        YieldCurveDefinition.class, String.class);
+    private final MetaProperty<String> _interpolatorName = DirectMetaProperty.ofReadWrite(
+        this, "interpolatorName", YieldCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code strips} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSet<FixedIncomeStrip>> _strips = DirectMetaProperty.ofReadWrite(this, "strips",
-        YieldCurveDefinition.class, (Class) SortedSet.class);
+    private final MetaProperty<SortedSet<FixedIncomeStrip>> _strips = DirectMetaProperty.ofReadWrite(
+        this, "strips", YieldCurveDefinition.class, (Class) SortedSet.class);
     /**
      * The meta-properties.
      */
@@ -413,19 +410,19 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -294460212: // uniqueId
+        case -294460212:  // uniqueId
           return _uniqueId;
-        case 575402001: // currency
+        case 575402001:  // currency
           return _currency;
         case -690339025:  // regionId
           return _regionId;
         case 3373707:  // name
           return _name;
-        case -1247314958: // interpolatorName
+        case -1247314958:  // interpolatorName
           return _interpolatorName;
-        case -891985829: // strips
+        case -891985829:  // strips
           return _strips;
       }
       return super.metaPropertyGet(propertyName);

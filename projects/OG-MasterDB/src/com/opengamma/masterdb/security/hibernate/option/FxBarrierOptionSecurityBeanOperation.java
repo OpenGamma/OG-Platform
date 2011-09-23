@@ -47,7 +47,7 @@ public final class FxBarrierOptionSecurityBeanOperation extends AbstractSecurity
     bean.setMonitoringType(security.getMonitoringType());
     bean.setSamplingFrequency(security.getSamplingFrequency());
     bean.setBarrierLevel(security.getBarrierLevel());
-    bean.setLong(security.getIsLong());
+    bean.setLong(security.isLong());
     return bean;
   }
 
