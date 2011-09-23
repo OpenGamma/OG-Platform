@@ -170,16 +170,12 @@ public class FixedIncomeConverterDataProvider {
 
       final ExternalId indexID = floatingLeg.getFloatingReferenceRateId();
       final ExternalIdBundle id;
-      //if (!indexID.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateId());
       if (indexConvention == null) {
         //TODO remove this immediately
         indexConvention = _conventionSource.getConventionBundle(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, indexID.getValue()));
       }
       id = indexConvention.getIdentifiers();
-      //indexID = indexConvention.getIdentifiers().getIdentifier(SecurityUtils.BLOOMBERG_TICKER);
-
-      //final ExternalIdBundle id = indexID.toBundle();
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
       final HistoricalTimeSeries ts = dataSource
