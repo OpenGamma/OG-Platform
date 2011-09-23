@@ -7,7 +7,7 @@ package com.opengamma.livedata.server.distribution;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,7 +30,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
    * A {@code WeakHashMap} is used here so the senders can be garbage collected
    * automatically when they're no longer used.
    */
-  private final Map<JmsSender, Object> _allActiveSenders = new WeakHashMap<JmsSender, Object>();
+  private final Set<JmsSender> _allActiveSenders = Collections.newSetFromMap(new WeakHashMap<JmsSender, Boolean>());
   
   private JmsTemplate _jmsTemplate;
   
@@ -73,7 +73,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
 
   public synchronized void transportInterrupted() {
     s_logger.warn("JMS transport interrupted; notifying {} senders", _allActiveSenders.size());
-    for (final JmsSender sender : _allActiveSenders.keySet()) {
+    for (final JmsSender sender : _allActiveSenders) {
       _executor.execute(new Runnable() {
         @Override
         public void run() {
@@ -85,7 +85,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
 
   public synchronized void transportResumed() {
     s_logger.info("JMS transport resumed; notifying {} senders", _allActiveSenders.size());
-    for (final JmsSender sender : _allActiveSenders.keySet()) {
+    for (final JmsSender sender : _allActiveSenders) {
       _executor.execute(new Runnable() {
         @Override
         public void run() {
@@ -99,7 +99,7 @@ public class JmsSenderFactory implements MarketDataSenderFactory {
   public synchronized Collection<MarketDataSender> create(MarketDataDistributor distributor) {
     s_logger.debug("Created JmsSender for {}", distributor);
     JmsSender sender = new JmsSender(_jmsTemplate, distributor, getFudgeContext());
-    _allActiveSenders.put(sender, new Object());
+    _allActiveSenders.add(sender);
     return Collections.<MarketDataSender>singleton(sender);
   }
 
