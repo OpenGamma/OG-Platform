@@ -37,7 +37,7 @@ public class FieldNameChange implements NormalizationRule {
     if (field != null) {
       Object value = field.getValue();
       msg.remove(_from);
-      msg.add(_to, value);
+      msg.add(_to, null, field.getType(), value);
     }
     return msg;
     
