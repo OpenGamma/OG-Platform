@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
+import com.opengamma.financial.security.LongShort;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.ExpiryFudgeBuilder;
@@ -69,7 +70,7 @@ public class FXBarrierOptionSecurityFudgeBuilder extends AbstractFudgeBuilder im
     addToMessage(msg, MONITORING_TYPE_FIELD_NAME, object.getMonitoringType());
     addToMessage(msg, SAMPLING_FREQUENCY_FIELD_NAME, object.getSamplingFrequency());
     addToMessage(msg, BARRIER_LEVEL_FIELD_NAME, object.getBarrierLevel());
-    addToMessage(msg, IS_LONG_FIELD_NAME, object.getIsLong());
+    addToMessage(msg, IS_LONG_FIELD_NAME, object.isLong());
   }
 
   @Override
@@ -92,7 +93,7 @@ public class FXBarrierOptionSecurityFudgeBuilder extends AbstractFudgeBuilder im
     object.setMonitoringType(msg.getFieldValue(MonitoringType.class, msg.getByName(MONITORING_TYPE_FIELD_NAME)));
     object.setSamplingFrequency(msg.getFieldValue(SamplingFrequency.class, msg.getByName(SAMPLING_FREQUENCY_FIELD_NAME)));
     object.setBarrierLevel(msg.getDouble(BARRIER_LEVEL_FIELD_NAME));
-    object.setIsLong(msg.getBoolean(IS_LONG_FIELD_NAME));
+    object.setLongShort(LongShort.ofLong(msg.getBoolean(IS_LONG_FIELD_NAME)));
   }
 
 }
