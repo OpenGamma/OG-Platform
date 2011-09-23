@@ -182,6 +182,8 @@ public class FudgeMsgJSONReader {
   private int integerValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).intValue();
+    } else if (o instanceof String) {
+      return Integer.parseInt((String) o);
     } else {
       throw new NumberFormatException(o + " is not a number");
     }
@@ -190,6 +192,8 @@ public class FudgeMsgJSONReader {
   private byte byteValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).byteValue();
+    } else if (o instanceof String) {
+      return Byte.parseByte((String) o);
     } else {
       throw new NumberFormatException(o + " is not a number");
     }
@@ -198,6 +202,8 @@ public class FudgeMsgJSONReader {
   private short shortValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).shortValue();
+    } else if (o instanceof String) {
+      return Short.parseShort((String) o);
     } else {
       throw new NumberFormatException(o + " is not a number");
     }
@@ -206,6 +212,8 @@ public class FudgeMsgJSONReader {
   private double doubleValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).doubleValue();
+    } else if (o instanceof String) {
+      return Double.parseDouble((String) o);
     } else {
       throw new NumberFormatException(o + " is not a number");
     }
@@ -214,6 +222,8 @@ public class FudgeMsgJSONReader {
   private float floatValue(final Object o) {
     if (o instanceof Number) {
       return ((Number) o).floatValue();
+    } else if (o instanceof String) {
+      return Float.parseFloat((String) o);
     } else {
       throw new NumberFormatException(o + " is not a number");
     }
