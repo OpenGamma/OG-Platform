@@ -25,17 +25,64 @@ $.register_module({
             SECU = 'securityType',
             REQO = 'requiredOutput',
             CONS = 'constraints',
-            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
+            WITH = 'with',
+            WTHO = 'without',
+            INDX = '<INDEX>',
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
+            T_SHR = 'short',
+            T_STR = 'string';
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                id_count = 0, prefix = 'viewdef_', master = config.data.template_data.configJSON, column_set_tabs,
+                id_count = 0, prefix = 'viewdef_',
+                master = config.data.template_data.configJSON.data,
+                meta = config.data.template_data.configJSON.meta,
+                column_set_tabs,
+                meta_map = [
+                    ['0',                                                                           T_STR],
+                    [[SETS, INDX, DEFP, WITH, '*'].join('.'),                                       T_STR],
+                    [[SETS, INDX, DEFP, WITH, '*', '0'].join('.'),                                  T_STR],
+                    [[SETS, INDX, DEFP, WITH, '*', 'optional'].join('.'),                           T_STR],
+                    [[SETS, INDX, DEFP, WTHO].join('.'),                                            T_STR],
+                    [[SETS, INDX, 'name'].join('.'),                                                T_STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               T_STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', '0'].join('.'),          T_STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   T_STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO].join('.'),                    T_STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, REQO].join('.'),                          T_STR],
+                    [[SETS, INDX, COLS, INDX, SECU].join('.'),                                      T_STR],
+                    [[SETS, INDX, RLTR, '0'].join('.'),                                             T_STR],
+                    [[SETS, INDX, RLTR, '*'].join('.'),                                             T_STR],
+                    [[SETS, INDX, SPEC, INDX, SPCT].join('.'),                                      T_STR],
+                    [[SETS, INDX, SPEC, INDX, SPTT].join('.'),                                      T_STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*'].join('.'),                           T_STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', '0'].join('.'),                      T_STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', 'optional'].join('.'),               T_STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WTHO].join('.'),                                T_STR],
+                    [[SETS, INDX, SPEC, INDX, SPVN].join('.'),                                      T_STR],
+                    ['currency',                                                                    T_STR],
+                    ['identifier',                                                                  T_STR],
+                    ['maxDeltaCalcPeriod',                                                          T_SHR],
+                    ['maxFullCalcPeriod',                                                           T_SHR],
+                    ['minDeltaCalcPeriod',                                                          T_SHR],
+                    ['minFullCalcPeriod',                                                           T_SHR],
+                    ['name',                                                                        T_STR],
+                    [[RMDF, 'aggregatePositionOutputMode'].join('.'),                               T_STR],
+                    [[RMDF, 'positionOutputMode'].join('.'),                                        T_STR],
+                    [[RMDF, 'primitiveOutputMode'].join('.'),                                       T_STR],
+                    [[RMDF, 'securityOutputMode'].join('.'),                                        T_STR],
+                    [[RMDF, 'tradeOutputMode'].join('.'),                                           T_STR],
+                    ['uniqueId',                                                                    T_STR],
+                    [['user', 'ipAddress'].join('.'),                                               T_STR],
+                    [['user', 'userName'].join('.'),                                                T_STR]
+                ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
                 form = new ui.Form({
                     module: 'og.views.forms.view-definition',
                     data: master,
+                    meta: meta_map,
                     selector: selector,
                     extras: {name: master.name},
                     processor: function (data) { // remove undefineds that we added
@@ -54,17 +101,19 @@ $.register_module({
                     }
                 }),
                 form_id = '#' + form.id,
-                save_resource = function (data, as_new) {
+                save_resource = function (result, as_new) {
+                    var data = result.data, meta = result.meta;
                     if (!deleted && !is_new && as_new && (orig_name === data.name))
                         return window.alert('Please select a new name.');
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
-                        json: JSON.stringify(data),
+                        json: JSON.stringify({data: data, meta: meta}),
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
+            console.log('master', master);
             form.attach([
                 {type: 'form:load', handler: function () {
                     var header = '\
@@ -84,7 +133,7 @@ $.register_module({
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    save_resource(result.data, submit_type === 'save_as_new');
+                    save_resource(result, submit_type === 'save_as_new');
                 }},
                 {type: 'click', selector: form_id + ' .og-js-collapse-handle', handler: function (e) {
                     var $target = $(e.target), $handle = $target.is('.og-js-collapse-handle') ? $target
