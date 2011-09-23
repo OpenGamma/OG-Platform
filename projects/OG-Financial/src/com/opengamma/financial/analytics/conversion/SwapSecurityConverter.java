@@ -183,7 +183,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   private AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
       final Currency currency, final ConventionBundle conventions, final boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
-    final double fixedRate = fixedLeg.getRate() / 100; //TODO this should not be hard-coded here
+    final double fixedRate = fixedLeg.getRate(); //TODO this should not be hard-coded here
     try {
       if (conventions.isEOMConvention() == null) {
         throw new OpenGammaRuntimeException("Convention " + conventions.getName() + " for " + fixedLeg + " did not have a value set for isEOM()");
