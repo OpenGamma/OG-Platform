@@ -123,16 +123,26 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DBT
     template.update("INSERT INTO hts_idkey VALUES (?,?,?)",
         506, "NASDAQ", "V506");
     
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 101, 501, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 101, 502, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 102, 503, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 102, 504, DbDateUtils.toSqlDate(LocalDate.of(2011, 6, 30)), DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 201, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 201, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 202, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 202, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 203, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
-    template.update("INSERT INTO hts_doc2idkey VALUES (?,?,?,?)", 203, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        101, 501, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        101, 502, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        102, 503, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        102, 504, DbDateUtils.toSqlDate(LocalDate.of(2011, 6, 30)), DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        201, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        201, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        202, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        202, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        203, 505, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
+    template.update("INSERT INTO hts_doc2idkey (doc_id, idkey_id, valid_from, valid_to) VALUES (?,?,?,?)",
+        203, 506, DbDateUtils.MIN_SQL_DATE, DbDateUtils.MAX_SQL_DATE);
     
     template.update("INSERT INTO hts_point VALUES (?,?,?,?,?)",
         101, DbDateUtils.toSqlDate(LocalDate.of(2011, 1, 1)), toSqlTimestamp(_version1Instant), toSqlTimestamp(_version1Instant), 3.1d);

@@ -87,6 +87,8 @@ public class ExpirationManager implements SubscriptionListener {
     MarketDataDistributor distributor = _dataServer.getMarketDataDistributor(fullyQualifiedSpec);
     if (distributor != null) {
       distributor.extendExpiry(getTimeoutExtension());
+    } else {
+      s_logger.warn("Failed to find distributor for heartbeat on {} from {}", fullyQualifiedSpec, _dataServer);
     }
   }
 
