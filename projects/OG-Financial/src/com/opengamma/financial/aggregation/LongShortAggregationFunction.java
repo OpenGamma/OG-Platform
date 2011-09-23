@@ -103,12 +103,12 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   
         @Override
         public String visitFXOptionSecurity(FXOptionSecurity security) {
-          return security.getIsLong() ? LONG : SHORT;
+          return security.isLong() ? LONG : SHORT;
         }
   
         @Override
         public String visitSwaptionSecurity(SwaptionSecurity security) {
-          return security.getIsLong() ? LONG : SHORT;
+          return security.isLong() ? LONG : SHORT;
         }
   
         @Override
@@ -118,7 +118,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   
         @Override
         public String visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-          return security.getIsLong() ? LONG : SHORT;
+          return security.isLong() ? LONG : SHORT;
         }
   
         @Override
