@@ -220,6 +220,7 @@ CREATE TABLE sec_security2idkey (
     CONSTRAINT sec_fk_secidkey2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_secidkey2idkey FOREIGN KEY (idkey_id) REFERENCES sec_idkey (id)
 );
+CREATE INDEX ix_sec_sec2idkey_idkey ON sec_security2idkey(idkey_id);
 -- sec_security_idkey is fully dependent of sec_security
 
 -- Hibernate controlled tables
