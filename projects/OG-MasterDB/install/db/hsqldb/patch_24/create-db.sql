@@ -1466,7 +1466,7 @@ CREATE TABLE hts_idkey (
     PRIMARY KEY (id),
     CONSTRAINT hts_chk_idkey UNIQUE (key_scheme, key_value)
 );
-CREATE INDEX ix_hts_key_scheme ON hts_idkey(key_scheme);
+CREATE INDEX ix_hts_key_schemevalue ON hts_idkey(key_scheme, key_value);
 CREATE INDEX ix_hts_key_value ON hts_idkey(key_value);
 
 CREATE TABLE hts_doc2idkey (
@@ -1480,6 +1480,7 @@ CREATE TABLE hts_doc2idkey (
     CONSTRAINT hts_fk_htsidkey2idkey FOREIGN KEY (idkey_id) REFERENCES hts_idkey (id),
     CONSTRAINT hts_chk_doc2idkey UNIQUE (doc_id, idkey_id, valid_from, valid_to)
 );
+CREATE INDEX ix_hts_doc2idkey_idkey ON hts_doc2idkey(idkey_id, valid_from, valid_to);
 -- hts_doc2idkey is fully dependent of hts_document
 
 CREATE TABLE hts_point (

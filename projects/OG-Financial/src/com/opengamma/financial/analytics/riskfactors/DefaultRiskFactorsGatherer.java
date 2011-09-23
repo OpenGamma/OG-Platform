@@ -160,7 +160,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   public Set<Pair<String, ValueProperties>> visitBondSecurity(BondSecurity security) {
     return ImmutableSet.of(
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getPresentValue(),
+        getPresentValue(ValueProperties.builder()),
         getPV01());
   }
 
@@ -181,14 +181,14 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.of(
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
       getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
-      getPresentValue(),
+      getPresentValue(ValueProperties.builder()),
       getPV01());
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFutureSecurity(FutureSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-      .add(getPresentValue())
+      .add(getPresentValue(ValueProperties.builder()))
       .add(getPV01())
       .addAll(security.accept((FutureSecurityVisitor<Set<Pair<String, ValueProperties>>>) this)).build();
   }
@@ -206,7 +206,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       builder.add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy));
     }
     
-    builder.add(getPresentValue());
+    builder.add(getPresentValue(ValueProperties.builder()));
     builder.add(getPV01());
     return builder.build();
   }
@@ -215,15 +215,15 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   public Set<Pair<String, ValueProperties>> visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .addAll(getSabrSensitivities())
-        .add(getPresentValue()).build();
+        .add(getPresentValue(ValueProperties.builder())).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityOptionSecurity(EquityOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .addAll(getSabrSensitivities())
-        .add(getPresentValue())
-        .add(getVegaMatrix()).build();
+        .add(getPresentValue(ValueProperties.builder()))
+        .add(getVegaMatrix(ValueProperties.builder())).build();
   }
 
   @Override
@@ -231,7 +231,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.of(
       getFXPresentValue(),
       getFXCurrencyExposure(),
-      getVegaMatrix(),
+      getVegaMatrix(ValueProperties.builder()),
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
   }
@@ -242,16 +242,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
         .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
         .addAll(getSabrSensitivities())
-        .add(getPresentValue())
-        .add(getVegaMatrix()).build();
+        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+        .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .addAll(getSabrSensitivities())
-      .add(getPresentValue())
-      .add(getVegaMatrix()).build();
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+      .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
   }
 
   @Override
@@ -284,7 +284,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   public Set<Pair<String, ValueProperties>> visitCapFloorSecurity(CapFloorSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .addAll(getSabrSensitivities())
-        .add(getPresentValue())
+        .add(getPresentValue(ValueProperties.builder()))
         .build();
   }
 
@@ -292,7 +292,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   public Set<Pair<String, ValueProperties>> visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .addAll(getSabrSensitivities())
-        .add(getPresentValue())
+        .add(getPresentValue(ValueProperties.builder()))
         .build();
   }
   
@@ -359,16 +359,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getYieldCurveNodeSensitivities(String curve, Currency currency) {
-    ValueProperties constraints = ValueProperties
+    ValueProperties.Builder constraints = ValueProperties
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CURVE, curve)
         .with(ValuePropertyNames.AGGREGATION, FilteringSummingFunction.AGGREGATION_STYLE)
-        .withOptional(ValuePropertyNames.AGGREGATION).get();
+        .withOptional(ValuePropertyNames.AGGREGATION);
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }
   
-  private Pair<String, ValueProperties> getPresentValue() {
-    return getRiskFactor(ValueRequirementNames.PRESENT_VALUE);
+  private Pair<String, ValueProperties> getPresentValue(ValueProperties.Builder constraints) {
+    return getRiskFactor(ValueRequirementNames.PRESENT_VALUE, constraints);
   }
   
   private Pair<String, ValueProperties> getFXPresentValue() {
@@ -379,8 +379,8 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
   }
   
-  private Pair<String, ValueProperties> getVegaMatrix() {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX);
+  private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
+    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints);
   }
   
   private Pair<String, ValueProperties> getPV01() {
@@ -408,16 +408,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getRiskFactor(String valueName) {
-    return getRiskFactor(valueName, ValueProperties.none());
+    return getRiskFactor(valueName, ValueProperties.builder());
   }
   
-  private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties constraints) {
+  private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties.Builder constraints) {
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(constraints, "constraints");
     if (getConfigProvider().getCurrencyOverride() != null) {
-      constraints.copy().with(ValuePropertyNames.CURRENCY, getConfigProvider().getCurrencyOverride().getCode()).get();
+      constraints.with(ValuePropertyNames.CURRENCY, getConfigProvider().getCurrencyOverride().getCode());
     }
-    return Pair.of(valueName, constraints);
+    return Pair.of(valueName, constraints.get());
   }
   
   private ValueRequirement getValueRequirement(Position position, String valueName, ValueProperties constraints) {
