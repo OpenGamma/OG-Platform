@@ -8,7 +8,6 @@ package com.opengamma.masterdb.position;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
-import java.util.TimeZone;
 
 import javax.time.Instant;
 
@@ -38,7 +37,6 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
   public ModifyPositionDbPositionMasterWorkerCorrectPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

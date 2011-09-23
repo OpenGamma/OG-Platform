@@ -17,14 +17,21 @@ import javax.time.calendar.DateTimeProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
+import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeProvider;
+import javax.time.calendar.ZoneOffset;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Utility class for dates and their interaction with JDBC.
  */
 public class DbDateUtils {
+
+  static {
+    DateUtils.initTimeZone();
+  }
 
   /**
    * The maximum SQL date, used as far-future in the database.
@@ -66,10 +73,15 @@ public class DbDateUtils {
    */
   public static Timestamp toSqlTimestamp(InstantProvider instantProvider) {
     ArgumentChecker.notNull(instantProvider, "instantProvider");
-    Instant instant = Instant.of(instantProvider);
-    Timestamp timestamp = new Timestamp(instant.toEpochMillisLong());
-    timestamp.setNanos(instant.getNanoOfSecond());
-    return timestamp;
+//    Instant instant = Instant.of(instantProvider);
+    OffsetDateTime utc = OffsetDateTime.ofInstant(instantProvider, ZoneOffset.UTC);
+    return toSqlDateTime(utc);
+//    Timestamp timestamp = new Timestamp(utc.getYear() - 1900, utc.getMonthOfYear().getValue() - 1, utc.getDayOfMonth(),
+//        utc.getHourOfDay(), utc.getMinuteOfHour(), utc.getSecondOfMinute(), utc.getNanoOfSecond());
+//    
+////    Timestamp timestamp = new Timestamp(instant.toEpochMillisLong());
+////    timestamp.setNanos(instant.getNanoOfSecond());
+//    return timestamp;
   }
 
   /**
@@ -79,10 +91,13 @@ public class DbDateUtils {
    * @return the instant, null if far-future
    */
   public static Instant fromSqlTimestamp(Timestamp timestamp) {
-    ArgumentChecker.notNull(timestamp, "timestamp");
-    long seconds = timestamp.getTime() / 1000;
-    int nanos = timestamp.getNanos();
-    return Instant.ofEpochSeconds(seconds, nanos);
+    LocalDateTime ldt = fromSqlDateTime(timestamp);
+    return ldt.atOffset(ZoneOffset.UTC).toInstant();
+    
+//    ArgumentChecker.notNull(timestamp, "timestamp");
+//    long seconds = timestamp.getTime() / 1000;
+//    int nanos = timestamp.getNanos();
+//    return Instant.ofEpochSeconds(seconds, nanos);
   }
 
   /**

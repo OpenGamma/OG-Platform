@@ -31,6 +31,7 @@ import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.HSQLDbHelper;
 import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.test.DBTool.TableCreationCallback;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Base DB test.
@@ -44,6 +45,7 @@ public abstract class DBTest implements TableCreationCallback {
   private static final File SCRIPT_INSTALL_DIR = new File(DBTool.getWorkingDirectory(), "temp/" + DBTest.class.getSimpleName());
 
   static {
+    DateUtils.initTimeZone();
     addDbHelper("hsqldb", new HSQLDbHelper());
     addDbHelper("postgres", new PostgreSQLDbHelper());
   }
@@ -247,6 +249,12 @@ public abstract class DBTest implements TableCreationCallback {
    */
   public void tablesCreatedOrUpgraded(final String version) {
     // No action 
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getDatabaseType() + ":" + getDatabaseVersion();
   }
 
 }
