@@ -162,7 +162,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     Object configValue = null;
     if (json != null) {
-      configValue = parseJSON(json).getFirst();
+      configValue = fromJSON(json);
     } else if (xml != null) {
       configValue = parseXML(xml).getFirst();
     }
