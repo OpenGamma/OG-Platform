@@ -151,6 +151,7 @@ CREATE TABLE exg_exchange2idkey (
     CONSTRAINT exg_fk_exgidkey2exg FOREIGN KEY (exchange_id) REFERENCES exg_exchange (id),
     CONSTRAINT exg_fk_exgidkey2idkey FOREIGN KEY (idkey_id) REFERENCES exg_idkey (id)
 );
+CREATE INDEX ix_exg_exg2idkey_idkey ON exg_exchange2idkey(idkey_id);
 -- exg_exchange2idkey is fully dependent of exg_exchange
 
 
@@ -922,6 +923,7 @@ CREATE TABLE pos_position2idkey (
     CONSTRAINT pos_fk_posidkey2pos FOREIGN KEY (position_id) REFERENCES pos_position (id),
     CONSTRAINT pos_fk_posidkey2idkey FOREIGN KEY (idkey_id) REFERENCES pos_idkey (id)
 );
+CREATE INDEX ix_pos_pos2idkey_idkey ON pos_position2idkey(idkey_id);
 
 CREATE TABLE pos_trade2idkey (
     trade_id bigint NOT NULL,
@@ -930,6 +932,7 @@ CREATE TABLE pos_trade2idkey (
     CONSTRAINT pos_fk_tradeidkey2trade FOREIGN KEY (trade_id) REFERENCES pos_trade (id),
     CONSTRAINT pos_fk_tradeidkey2idkey FOREIGN KEY (idkey_id) REFERENCES pos_idkey (id)
 );
+CREATE INDEX ix_pos_trd2idkey_idkey ON pos_trade2idkey(idkey_id);
 
 -------------------------------------
 -- Static data

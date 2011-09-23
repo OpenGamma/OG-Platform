@@ -104,4 +104,5 @@ CREATE TABLE exg_exchange2idkey (
     CONSTRAINT exg_fk_exgidkey2exg FOREIGN KEY (exchange_id) REFERENCES exg_exchange (id),
     CONSTRAINT exg_fk_exgidkey2idkey FOREIGN KEY (idkey_id) REFERENCES exg_idkey (id)
 );
+CREATE INDEX ix_exg_exg2idkey_idkey ON exg_exchange2idkey(idkey_id);
 -- exg_exchange2idkey is fully dependent of exg_exchange
