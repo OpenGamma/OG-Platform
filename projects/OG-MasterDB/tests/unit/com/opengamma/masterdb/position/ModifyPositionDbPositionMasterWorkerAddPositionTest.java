@@ -197,10 +197,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
         
-    assertEquals(added, test);
+    assertEquals(added, fromDb);
   }
 
   @Test
@@ -255,9 +259,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
   
   @Test
@@ -284,9 +293,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
 
   @Test
@@ -301,10 +315,14 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-        
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
 
   @Test
@@ -319,11 +337,88 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     PositionDocument doc = new PositionDocument();
     doc.setPosition(position);
     PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
     
-    PositionDocument test = _posMaster.get(added.getUniqueId());
-    assertEquals(added, test);
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
   }
-
+  
+  @Test
+  public void test_addTradeDeal_add() {
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
+        
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
+    trade.addAttribute("TA1", "C");
+    trade.addAttribute("TA2", "D");
+    trade.setDeal(new MockDeal("propOne", "propTwo"));
+    position.getTrades().add(trade);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument test = _posMaster.add(doc);
+    
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbPos", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePosition testPosition = test.getPosition();
+    assertNotNull(testPosition);
+    assertEquals(uniqueId, testPosition.getUniqueId());
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    ExternalIdBundle secKey = testPosition.getSecurityLink().getExternalId();
+    assertEquals(1, secKey.size());
+    assertTrue(secKey.getExternalIds().contains(ExternalId.of("A", "B")));
+    
+    assertNotNull(testPosition.getTrades());
+    assertEquals(1, testPosition.getTrades().size());
+    ManageableTrade testTrade = testPosition.getTrades().get(0);
+    assertNotNull(testTrade);
+    assertEquals(BigDecimal.TEN, testTrade.getQuantity());
+    assertEquals(tradeDate, testTrade.getTradeDate());
+    assertEquals(tradeTime, testTrade.getTradeTime());
+    assertEquals(ExternalId.of("CPS", "CPV"), testTrade.getCounterpartyExternalId());
+    assertEquals(secKey, testTrade.getSecurityLink().getExternalId());
+  }
+  
+  @Test
+  public void test_addTradeDeal_addThenGet() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
+    trade.addAttribute("TA1", "C");
+    trade.addAttribute("TA2", "D");
+    trade.setDeal(new MockDeal("propOne", "propTwo"));
+    position.getTrades().add(trade);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument added = _posMaster.add(doc);
+    assertNotNull(added);
+    assertNotNull(added.getUniqueId());
+    
+    PositionDocument fromDb = _posMaster.get(added.getUniqueId());
+    assertNotNull(fromDb);
+    assertNotNull(fromDb.getUniqueId());
+    
+    assertEquals(added, fromDb);
+  }
+  
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {
