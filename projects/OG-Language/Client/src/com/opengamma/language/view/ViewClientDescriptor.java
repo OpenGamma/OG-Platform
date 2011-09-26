@@ -6,6 +6,7 @@
 package com.opengamma.language.view;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.Instant;
@@ -89,20 +90,24 @@ public final class ViewClientDescriptor {
         } else if (SNAPSHOT.equals(values.get(1))) {
           return staticSnapshot(values.get(0), UniqueId.parse(values.get(2)));
         } else {
-          throw new IllegalArgumentException(str);
+          // Not one of ours
+          return tickingMarketData(str);
         }
       case 4:
         if (SNAPSHOT.equals(values.get(1))) {
           if (TICKING.equals(values.get(3))) {
             return tickingSnapshot(values.get(0), UniqueId.parse(values.get(2)));
           } else {
-            throw new IllegalArgumentException(str);
+            // Not one of ours
+            return tickingMarketData(str);
           }
         } else {
-          throw new IllegalArgumentException(str);
+          // Not one of ours
+          return tickingMarketData(str);
         }
       default:
-        throw new IllegalArgumentException(str);
+        // Not one of ours
+        return tickingMarketData(str);
     }
   }
 
@@ -157,7 +162,11 @@ public final class ViewClientDescriptor {
         result.add(sb.toString());
         sb.delete(0, sb.length());
       } else if (c == ESCAPE_CHAR) {
-        sb.append(str.charAt(++i));
+        if ((++i) >= str.length()) {
+          return Collections.emptyList();
+        } else {
+          sb.append(str.charAt(i));
+        }
       } else {
         sb.append(c);
       }
