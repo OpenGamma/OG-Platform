@@ -23,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
@@ -40,6 +41,8 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMetaDataRequest;
@@ -50,9 +53,12 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
+import com.opengamma.web.json.FudgeMsgJSONReader;
 import com.opengamma.web.json.JSONBuilder;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 import com.opengamma.web.json.VolatilityCubeDefinitionJSONBuilder;
+import com.opengamma.web.json.VolatilitySurfaceDefinitionJSONBuilder;
+import com.opengamma.web.json.VolatilitySurfaceSpecificationJSONBuilder;
 import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
@@ -98,6 +104,8 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(CurveSpecificationBuilderConfiguration.class, CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(VolatilityCubeDefinition.class, VolatilityCubeDefinitionJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(VolatilitySurfaceDefinition.class, VolatilitySurfaceDefinitionJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(VolatilitySurfaceSpecification.class, VolatilitySurfaceSpecificationJSONBuilder.INSTANCE);
   }
 
   /**
@@ -189,6 +197,17 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
       throw new OpenGammaRuntimeException("Invalid logical class name in json " + json, ex);
     }
     return (Pair<Object, Class<?>>) (Pair<?, ?>) Pair.of(createConfig(json, clazz), clazz);
+  }
+  
+  /**
+   * Utility to deserialize JSON to java object via FudgeMsgJSONReader
+   * 
+   * @param json the config document in JSON
+   * @return the config object.
+   */
+  protected Object fromJSON(String json) {
+    FudgeMsgJSONReader fudgeJSONReader = new FudgeMsgJSONReader(FUDGE_CONTEXT, new StringReader(json));
+    return new FudgeDeserializer(FUDGE_CONTEXT).fudgeMsgToObject(fudgeJSONReader.readMessage());
   }
 
   private Object createConfig(String json, Class<?> configType) {

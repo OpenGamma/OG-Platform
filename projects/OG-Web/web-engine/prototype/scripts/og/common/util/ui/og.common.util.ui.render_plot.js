@@ -19,7 +19,7 @@ $.register_module({
                 $p2, p2_options, p2_selector = selector + ' .og-js-p2',
                 tenor = selector + ' .og-tenor',
                 $legend, hover_pos = null,
-                date_max, initial_preset,
+                x_max, y_min, y_max, initial_preset,
                 $plot_header = $('.OG-timeseries .og-plotHeader'),
                 load_plots, empty_plots, update_legend, get_legend, panning;
             $(selector).html(
@@ -46,10 +46,10 @@ $.register_module({
                 var d = data_arr, data = data_arr[0].data;
                 (function () { // set up presets
                     var max_obj, new_max_date_obj, _1m, _3m, _6m, _1y, _2y, _3y, counter = 0, presets = {};
-                    date_max = data[data.length-1][0];
-                    new_max_date_obj = function () {return new Date(date_max)};
-                    presets._1d = date_max - 86400 * 1000; // in milliseconds
-                    presets._1w = date_max - 7 * 86400 * 1000;
+                    x_max = data[data.length-1][0];
+                    new_max_date_obj = function () {return new Date(x_max)};
+                    presets._1d = x_max - 86400 * 1000; // in milliseconds
+                    presets._1w = x_max - 7 * 86400 * 1000;
                     _1m = new_max_date_obj(), _1m.setMonth(_1m.getMonth() - 1), presets._1m = +_1m;
                     _3m = new_max_date_obj(), _3m.setMonth(_3m.getMonth() - 3), presets._3m = +_3m;
                     _6m = new_max_date_obj(), _6m.setMonth(_6m.getMonth() - 6), presets._6m = +_6m;
@@ -76,14 +76,28 @@ $.register_module({
                         if ($elm.hasClass('OG-link-disabled') || !$elm.is('span')) return;
                         state.zoom = '_' + target.textContent;
                         $elm.siblings().removeClass('OG-link-active'), $elm.addClass('OG-link-active');
-                        state.from = from, state.to = date_max;
-                        $p2.setSelection({xaxis: {from: from , to: date_max}}, true);
+                        state.from = from, state.to = x_max;
+                        $p2.setSelection({xaxis: {from: from , to: x_max}}, true);
                         $p1 = $.plot($(p1_selector), d,
-                                $.extend(true, {}, p1_options, {xaxis: {min: from, max: date_max}}));
+                                $.extend(true, {}, p1_options, {xaxis: {min: from, max: x_max}}));
                         $legend = get_legend();
                         $legend.css({visibility: 'hidden'});
                     });
                     $(tenor).css({visibility: 'visible'});
+                }());
+                (function () { // set y_min, y_max
+                    var i = data_arr.length, k, data, cur;
+                    y_min = y_max = null;
+                    while (i--) {
+                        k = data_arr[i].data.length;
+                        data = data_arr[i].data;
+                        while(k--) {
+                            cur = data[k][1];
+                            y_min = y_min ? (cur < y_min ? y_min = cur : y_min) : cur;
+                            y_max = y_max ? (cur > y_max ? y_max = cur : y_max) : cur;
+                        }
+                    }
+                    y_min = Math.floor(y_min * 0.9), y_max = Math.ceil(y_max * 1.1); // add a buffer
                 }());
                 p1_options = {
                     colors: colors_arr,
@@ -94,16 +108,14 @@ $.register_module({
                     lines: {lineWidth: 1},
                     xaxis: {
                         ticks: 6, mode: 'time', panRange: [data[0][0], data[data.length-1][0]],
-                        min: initial_preset, max: date_max,
+                        min: initial_preset, max: x_max,
                         tickLength: 0, labelHeight: 26,
-
                         color: '#fff', // base color, labels, ticks
                         tickColor: null // possibly different color of ticks, e.g. "rgba(0,0,0,0.15)"
-
-
                     },
                     yaxis: {
-                        ticks: 5, position: 'right', panRange: false, tickLength: 10, labelWidth: 53, reserveSpace: true
+                        ticks: 5, position: 'right', panRange: false, tickLength: 10, labelWidth: 53,
+                        reserveSpace: true, min: y_min , max: y_max
                     },
                     grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3,
                         minBorderMargin: 30, hoverable: true},
@@ -117,12 +129,13 @@ $.register_module({
                     lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
                     xaxis: {ticks: 6, mode: 'time', tickLength: 10, labelHeight: 17},
                     yaxis: {
-                        show: false, ticks: 1, position: 'right', tickLength: 10, labelWidth: 53, reserveSpace: true
+                        show: false, ticks: 1, position: 'right', tickLength: 10, labelWidth: 53,
+                        reserveSpace: true, min: y_min , max: y_max
                     },
                     grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb', labelMargin: 3, minBorderMargin: 30},
                     selection: {mode: 'x', color: '#d7e7f2'}
                 };
-                if (!(state.from && state.to)) {state.from = initial_preset, state.to = date_max;}
+                if (!(state.from && state.to)) {state.from = initial_preset, state.to = x_max;}
                 // in xaxis, min/max sets the pan, from/to sets the selection
                 p1_options = $.extend(true, {}, p1_options, {xaxis: {min: state.from, max: state.to}});
                 p2_options = $.extend(true, {}, p2_options, {xaxis: {from: state.from, to: state.to}});

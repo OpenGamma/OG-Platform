@@ -42,7 +42,7 @@ public final class FxOptionSecurityBeanOperation extends AbstractSecurityBeanOpe
     bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
-    bean.setIsLong(security.getIsLong());
+    bean.setIsLong(security.isLong());
     return bean;
   }
 

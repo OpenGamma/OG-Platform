@@ -24,7 +24,7 @@ import org.fudgemsg.taxonomy.FudgeTaxonomy;
 import org.fudgemsg.types.SecondaryFieldTypeBase;
 import org.fudgemsg.wire.FudgeRuntimeIOException;
 import org.fudgemsg.wire.FudgeSize;
-import org.fudgemsg.wire.json.JSONSettings;
+import org.fudgemsg.wire.json.FudgeJSONSettings;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -65,7 +65,7 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
   /**
    * The JSON settings.
    */
-  private final JSONSettings _settings;
+  private final FudgeJSONSettings _settings;
   /**
    * The underlying writer.
    */
@@ -82,7 +82,7 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
    * @param writer  the underlying writer, not null
    */
   public FudgeMsgJSONWriter(final FudgeContext fudgeContext, final Writer writer) {
-    this(fudgeContext, writer, new JSONSettings());
+    this(fudgeContext, writer, new FudgeJSONSettings());
   }
 
   /**
@@ -93,7 +93,7 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
    * @param writer  the underlying writer, not null
    * @param settings  the JSON settings, not null
    */
-  public FudgeMsgJSONWriter(final FudgeContext fudgeContext, final Writer writer, final JSONSettings settings) {
+  public FudgeMsgJSONWriter(final FudgeContext fudgeContext, final Writer writer, final FudgeJSONSettings settings) {
     if (fudgeContext == null) {
       throw new NullPointerException("FudgeContext must not be null");
     }
@@ -129,7 +129,7 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
    * 
    * @return the JSON settings, not null
    */
-  public JSONSettings getSettings() {
+  public FudgeJSONSettings getSettings() {
     return _settings;
   }
 
@@ -211,11 +211,50 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
     }
     int messageSize = FudgeSize.calculateMessageEnvelopeSize(getTaxonomy(taxonomyId), envelope);
     writeEnvelopeHeader(envelope.getProcessingDirectives(), envelope.getVersion(), messageSize, taxonomyId);
-    writeFields(envelope.getMessage(), taxonomyId);
+    writeData(envelope.getMessage(), taxonomyId);
+    writeMeta(envelope.getMessage(), taxonomyId);
     envelopeComplete();
   }
 
-  private void writeFields(Iterable<FudgeField> fudgeMsg, final int taxonomyId) {
+  private void writeMeta(FudgeMsg message, int taxonomyId) {
+    try {
+      getWriter().key("meta");
+      getWriter().object();
+    } catch (JSONException e) {
+      wrapException("start of data", e);
+    }
+    writeFields(message, taxonomyId, true);
+    try {
+      getWriter().endObject();
+    } catch (JSONException e) {
+      wrapException("end of data", e);
+    }
+  }
+
+  private void writeData(FudgeMsg message, int taxonomyId) {
+    writeDataStart();
+    writeFields(message, taxonomyId, false);
+    writeDataEnd();
+  }
+  
+  private void writeDataEnd() {
+    try {
+      getWriter().endObject();
+    } catch (JSONException e) {
+      wrapException("end of data", e);
+    }
+  }
+
+  private void writeDataStart() {
+    try {
+      getWriter().key("data");
+      getWriter().object();
+    } catch (JSONException e) {
+      wrapException("start of data", e);
+    }
+  }
+
+  private void writeFields(Iterable<FudgeField> fudgeMsg, final int taxonomyId, boolean meta) {
     Map<String, List<FudgeField>> fieldName2Fields = new LinkedHashMap<String, List<FudgeField>>();
     for (FudgeField fudgeField : fudgeMsg) {
       if (fudgeField.getName() != null) {
@@ -235,15 +274,15 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
       if (!fields.isEmpty()) {
         if (fields.size() == 1) {
           FudgeField fudgeField = fields.get(0);
-          writeField(fudgeField.getName(), fudgeField.getOrdinal(), fudgeField.getType(), fudgeField.getValue(), taxonomyId);
+          writeField(fudgeField.getName(), fudgeField.getOrdinal(), fudgeField.getType(), fudgeField.getValue(), taxonomyId, meta);
         } else {
-          writeRepeatedFields(fields, taxonomyId);
+          writeRepeatedFields(fields, taxonomyId, meta);
         }
       }
     }
   }
   
-  private void writeRepeatedFields(final List<FudgeField> fields, int taxonomyId) {
+  private void writeRepeatedFields(final List<FudgeField> fields, int taxonomyId, boolean meta) {
     FudgeField firstField = fields.iterator().next();
     try {
       String key = fudgeFieldStart(firstField.getOrdinal(), firstField.getName(), taxonomyId);
@@ -252,87 +291,77 @@ public class FudgeMsgJSONWriter implements Flushable, Closeable {
         for (FudgeField fudgeField : fields) {
           if (fudgeField.getType().getTypeId() == FudgeWireType.SUB_MESSAGE_TYPE_ID) {
             fudgeSubMessageStart();
-            writeFields((FudgeMsg) fudgeField.getValue(), taxonomyId);
+            writeFields((FudgeMsg) fudgeField.getValue(), taxonomyId, meta);
             fudgeSubMessageEnd();
           } else {
-            fudgeFieldValue(fudgeField.getType(), fudgeField.getValue());
+            fudgeFieldValue(fudgeField.getType(), fudgeField.getValue(), meta);
           }
         }
         getWriter().endArray();
-        if (isPrimitives(fields)) {
-          String typeName = key + getSettings().getTypeSuffix();
-          if (fudgeFieldStart(null, typeName, taxonomyId) != null) {
-            fudgeFieldValue(FudgeWireType.SUB_MESSAGE, FudgeWireType.SUB_MESSAGE_TYPE_ID);
-          }
-        }
       }
     } catch (JSONException e) {
       wrapException("writing repeated fields", e);
     }
   }
-  
-  private boolean isPrimitives(final List<FudgeField> fields) {
-    for (FudgeField fudgeField : fields) {
-      if (!(fudgeField.getValue() instanceof Number)) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  private void writeField(String name, Integer ordinal, FudgeFieldType type, Object fieldValue, final int taxonomyId) {
+    
+  private void writeField(String name, Integer ordinal, FudgeFieldType type, Object fieldValue, final int taxonomyId, boolean meta) {
     if (fudgeFieldStart(ordinal, name, taxonomyId) != null) {
       if (type.getTypeId() == FudgeWireType.SUB_MESSAGE_TYPE_ID) {
         fudgeSubMessageStart();
         FudgeMsg subMsg = (FudgeMsg) fieldValue;
-        writeFields(subMsg, taxonomyId);
+        writeFields(subMsg, taxonomyId, meta);
         fudgeSubMessageEnd();
       } else {
-        fudgeFieldValue(type, fieldValue);
+        fudgeFieldValue(type, fieldValue, meta);
       }
     }
   }
   
   @SuppressWarnings("unchecked")
-  private void fudgeFieldValue(FudgeFieldType type, Object fieldValue) {
+  private void fudgeFieldValue(FudgeFieldType type, Object fieldValue, boolean meta) {
     try {
-      if (type instanceof SecondaryFieldTypeBase<?, ?, ?>) {
-        fieldValue = ((SecondaryFieldTypeBase<Object, Object, Object>) type).secondaryToPrimary(fieldValue);
-      }
-      switch (type.getTypeId()) {
-        case FudgeWireType.INDICATOR_TYPE_ID:
-          getWriter().value(null);
-          break;
-        case FudgeWireType.BYTE_ARRAY_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_4_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_8_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_16_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_20_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_32_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_64_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_128_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_256_TYPE_ID:
-        case FudgeWireType.BYTE_ARRAY_512_TYPE_ID:
-          writeArray((byte[]) fieldValue);
-          break;
-        case FudgeWireType.SHORT_ARRAY_TYPE_ID:
-          writeArray((short[]) fieldValue);
-          break;
-        case FudgeWireType.INT_ARRAY_TYPE_ID:
-          writeArray((int[]) fieldValue);
-          break;
-        case FudgeWireType.LONG_ARRAY_TYPE_ID:
-          writeArray((long[]) fieldValue);
-          break;
-        case FudgeWireType.FLOAT_ARRAY_TYPE_ID:
-          writeArray((float[]) fieldValue);
-          break;
-        case FudgeWireType.DOUBLE_ARRAY_TYPE_ID:
-          writeArray((double[]) fieldValue);
-          break;
-        default:
-          getWriter().value(fieldValue);
-          break;
+      if (meta) {
+        String typeIdToString = getSettings().fudgeTypeIdToString(type.getTypeId());
+        getWriter().value(typeIdToString);
+      } else {
+        if (type instanceof SecondaryFieldTypeBase<?, ?, ?>) {
+          fieldValue = ((SecondaryFieldTypeBase<Object, Object, Object>) type).secondaryToPrimary(fieldValue);
+        }
+        switch (type.getTypeId()) {
+          case FudgeWireType.INDICATOR_TYPE_ID:
+            getWriter().value(null);
+            break;
+          case FudgeWireType.BYTE_ARRAY_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_4_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_8_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_16_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_20_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_32_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_64_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_128_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_256_TYPE_ID:
+          case FudgeWireType.BYTE_ARRAY_512_TYPE_ID:
+            writeArray((byte[]) fieldValue);
+            break;
+          case FudgeWireType.SHORT_ARRAY_TYPE_ID:
+            writeArray((short[]) fieldValue);
+            break;
+          case FudgeWireType.INT_ARRAY_TYPE_ID:
+            writeArray((int[]) fieldValue);
+            break;
+          case FudgeWireType.LONG_ARRAY_TYPE_ID:
+            writeArray((long[]) fieldValue);
+            break;
+          case FudgeWireType.FLOAT_ARRAY_TYPE_ID:
+            writeArray((float[]) fieldValue);
+            break;
+          case FudgeWireType.DOUBLE_ARRAY_TYPE_ID:
+            writeArray((double[]) fieldValue);
+            break;
+          default:
+            getWriter().value(fieldValue);
+            break;
+        }
       }
     } catch (JSONException e) {
       wrapException("field value", e);

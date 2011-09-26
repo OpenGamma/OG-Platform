@@ -99,6 +99,31 @@ $.register_module({
                         results.push(typeof result === 'undefined' ? true : !!result);
                     });
                     if (results.length && !results.some(Boolean)) return false;
+                },
+                meta_map = config.meta || {},
+                find_in_meta_map = (function (memo) {
+                    var key, expr, len;
+                    for (key in meta_map) if (~key.indexOf('*')) {
+                        expr = key.replace(/\*/g, '[^\.]+').replace(/\./g, '\\.');
+                        memo.push({expr: new RegExp('^' + expr + '$'), value: meta_map[key]});
+                    }
+                    len = memo.length;
+                    return function (path) {
+                        for (var lcv = 0; lcv < len; lcv += 1) if (memo[lcv].expr.test(path)) return memo[lcv].value;
+                        return null
+                    };
+                })([]),
+                build_meta = function (data, path, warns) {
+                    var result = {}, key;
+                    if ($.isArray(data)) return data.map(function (val, idx) {
+                        return build_meta(val, path ? [path, '<INDEX>'].join('.') : idx, warns);
+                    });
+                    if (data === null || typeof data !== 'object') {
+                        if (!meta_map[path] && !find_in_meta_map(path)) return warns.push(path), 'UNDEFINED';
+                        return meta_map[path] || find_in_meta_map(path);
+                    }
+                    for (key in data) result[key] = build_meta(data[key], path ? [path, key].join('.') : key, warns);
+                    return result;
                 };
             form.attach = function (handlers) {
                 var self = 'attach';
@@ -117,7 +142,7 @@ $.register_module({
                 $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(function (e) {
-                    var self = 'onsubmit', raw = $form.serializeArray(),
+                    var self = 'onsubmit', raw = $form.serializeArray(), built_meta, meta_warns = [],
                         data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
                     if (data) raw.forEach(function (value) {
                         var hier = value.name.split('.'), last = hier.pop();
@@ -132,8 +157,18 @@ $.register_module({
                         }
                     });
                     form.process(data, errors);
-                    result = {raw: raw, data: data, errors: errors};
-                    return !!form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                    built_meta = build_meta(data, '', meta_warns);
+                    meta_warns.sort().reduce(function (acc, val) {
+                        return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
+                    }, []).join('\n');
+                    if (meta_warns.length) return !!og.dev.warn(klass + '#build_meta needs these first:\n', meta_warns);
+                    result = {raw: raw, data: data, errors: errors, meta: built_meta};
+                    try {
+                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                    } catch (error) {
+                        og.dev.warn(error);
+                    }
+                    return false;
                 });
             });
             form.Field = Field.partial(form);
