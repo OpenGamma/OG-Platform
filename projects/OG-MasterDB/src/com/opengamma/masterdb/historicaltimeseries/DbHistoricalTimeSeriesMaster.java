@@ -55,7 +55,6 @@ import com.opengamma.util.Paging;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -109,14 +108,22 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         "i.key_value AS key_value, " +
         "di.valid_from AS key_valid_from, " +
         "di.valid_to AS key_valid_to ";
-  
-  protected static final String FROM_PREFIX = "FROM hts_document main ";
-  protected static final String FROM_POSTFIX = " INNER JOIN hts_name nm ON main.name_id = nm.id  "
-      + "INNER JOIN hts_data_field df ON main.data_field_id = df.id  "
-      + "INNER JOIN hts_data_source ds ON main.data_source_id = ds.id  "
-      + "INNER JOIN hts_data_provider dp ON main.data_provider_id = dp.id  "
-      + "INNER JOIN hts_observation_time ot ON main.observation_time_id = ot.id  "
-      + "LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id) " + "LEFT JOIN hts_idkey i ON (di.idkey_id = i.id) ";
+  /**
+   * SQL from main.
+   */
+  protected static final String FROM_PREFIX =
+      "FROM hts_document main ";
+  /**
+   * SQL from others.
+   */
+  protected static final String FROM_POSTFIX =
+      "INNER JOIN hts_name nm ON (main.name_id = nm.id) " +
+      "INNER JOIN hts_data_field df ON (main.data_field_id = df.id) " +
+      "INNER JOIN hts_data_source ds ON (main.data_source_id = ds.id) " +
+      "INNER JOIN hts_data_provider dp ON (main.data_provider_id = dp.id) " +
+      "INNER JOIN hts_observation_time ot ON (main.observation_time_id = ot.id) " +
+      "LEFT JOIN hts_doc2idkey di ON (di.doc_id = main.id) " +
+      "LEFT JOIN hts_idkey i ON (di.idkey_id = i.id) ";
   /**
    * SQL from.
    */
@@ -304,20 +311,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     String selectFromWhereInner = "SELECT id FROM hts_document " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY id ", request.getPagingRequest());
     
-    boolean isPostgres = this.getDbSource().getDialect() instanceof PostgreSQLDbHelper;
-    if (isPostgres) {
-      //TODO: this is a hack.  Query optimizer gives up on the mahoosive query.  If we split it manually it goes a fair bit faster
-      String tempTable = "CREATE LOCAL TEMP TABLE ids ON COMMIT DROP as " + inner + ";\n";
-      String search = tempTable + SELECT + FROM_PREFIX + " INNER JOIN ids ON ids.id = main.id" + FROM_POSTFIX
-          + " ORDER BY main.id" + sqlAdditionalOrderBy(false);
-      String count = "SELECT COUNT(*) FROM hts_document " + where;
-      return new String[] {search, count};
-    } else {
-      String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id"
-          + sqlAdditionalOrderBy(false);
-      String count = "SELECT COUNT(*) FROM hts_document " + where;
-      return new String[] {search, count};
-    }
+    String cte = "WITH cte_docs AS (" + inner + ") ";
+    String search = cte + SELECT + FROM_PREFIX + "INNER JOIN cte_docs ON main.id = cte_docs.id " + FROM_POSTFIX
+        + "ORDER BY main.id" + sqlAdditionalOrderBy(false);
+    String count = "SELECT COUNT(*) FROM hts_document " + where;
+    return new String[] {search, count};
   }
 
   /**
@@ -329,11 +327,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   protected String sqlSelectExternalIdValue(final String identifierValue, final LocalDate validityDate) {
     String select = "SELECT DISTINCT doc_id " +
-        "FROM hts_doc2idkey di, hts_document main " +
-        "WHERE doc_id = main.id " +
-        "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-        "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-        (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+        "FROM hts_doc2idkey, hts_document " +
+        "WHERE doc_id = hts_document.id " +
+        "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+        "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+        (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
         "AND idkey_id IN ( SELECT id FROM hts_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
     return "AND id IN (" + select + ") ";
   }
@@ -370,20 +368,20 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // compare size of all matched to size in total
     // filter by dates to reduce search set
     String a = "SELECT doc_id AS matched_doc_id, COUNT(doc_id) AS matched_count " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
       "GROUP BY doc_id " +
       "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
     String b = "SELECT doc_id AS total_doc_id, COUNT(doc_id) AS total_count " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "GROUP BY doc_id ";
     String select = "SELECT matched_doc_id AS doc_id " +
       "FROM (" + a + ") AS a, (" + b + ") AS b " +
@@ -403,11 +401,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // only return doc_id when all requested ids match (having count >= size)
     // filter by dates to reduce search set
     String select = "SELECT doc_id " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") " +
       "GROUP BY doc_id " +
       "HAVING COUNT(doc_id) >= " + idSearch.size() + " ";
@@ -425,11 +423,11 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // optimized search for commons case of individual ORs
     // filter by dates to reduce search set
     String select = "SELECT DISTINCT doc_id " +
-      "FROM hts_doc2idkey di, hts_document main " +
-      "WHERE di.doc_id = main.id " +
-      "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
-      "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
-      (validityDate != null ? "AND di.valid_from <= :id_validity_date AND di.valid_to >= :id_validity_date " : "") +
+      "FROM hts_doc2idkey, hts_document " +
+      "WHERE hts_doc2idkey.doc_id = hts_document.id " +
+      "AND hts_document.ver_from_instant <= :version_as_of_instant AND hts_document.ver_to_instant > :version_as_of_instant " +
+      "AND hts_document.corr_from_instant <= :corrected_to_instant AND hts_document.corr_to_instant > :corrected_to_instant " +
+      (validityDate != null ? "AND hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date " : "") +
       "AND idkey_id IN (" + sqlSelectMatchingHistoricalTimeSeriesKeysOr(idSearch) + ") ";
     return select;
   }
@@ -712,7 +710,9 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
       if (series.getTimeAt(0).isBefore(maxDate)) {
-        throw new IllegalArgumentException("Unable to add time-series as it starts before the latest in the database");
+        throw new IllegalArgumentException("Unable to update data points of time-series " + uniqueId +
+            " as the update starts at " + series.getTimeAt(0) +
+            " which is before the latest data point in the database at " + maxDate);
       }
     }
   }

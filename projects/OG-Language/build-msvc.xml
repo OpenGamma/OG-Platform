@@ -64,7 +64,7 @@
 	<target name="compile-none" unless="cpptask.ok">
 		<echo>Can't build ${ant.project.name} - required header files and libraries missing</echo>
 	</target>
-	<target name="compile" depends="check-env,compile-none" description="--> compile project">
+	<target name="compile" depends="check-env,compile-none" description="Compiles the project">
 		<antcall target="compile-win32" />
 		<antcall target="compile-x64" />
 	</target>
@@ -138,12 +138,12 @@
 	<target name="tests-none" unless="cpptask.ok">
 		<echo>Can't run tests for ${ant.project.name} - required header files and libraries missing</echo>
 	</target>
-	<target name="tests" depends="check-env,tests-none" description="--> run the tests">
+	<target name="tests" depends="check-env,tests-none" description="Runs the tests">
 		<antcall target="tests-win32" />
 		<antcall target="tests-x64" />
 	</target>
 
-	<target name="clean" depends="clean-src" description="--> clean the output folders">
+	<target name="clean" depends="clean-src" description="Cleans the output folders">
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/DebugWin32" />
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debugx64" />
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/ReleaseWin32" />

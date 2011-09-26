@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.equity.futures;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -17,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -50,7 +50,6 @@ import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -58,6 +57,10 @@ import com.opengamma.util.money.Currency;
  * A trade may produce additional generic ones, e.g. date and number of contracts..  
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
+  private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Make DATA_SOURCE and DATA_PROVIDER inputs
+  private static final String DATA_PROVIDER = "UNKNOWN";
 
   private final String _valueRequirementName;
   private final EquityFuturesPricingMethod _pricingMethod;
@@ -107,10 +110,8 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
 
-    // !!! FAILING HERE UNTIL FUDGE ISSUE WITH WEBCLIENT LOADER FIXED
-    // final double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security);// TODO: Confirm LAST_PRICE or PX_LAST
-    final Double lastMarginPrice = 1000.0;
-    trade.setPremium(lastMarginPrice); // TODO CASE Important! Issue of futures and margining
+    final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle());
+    trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
 
     // Build the analytic's version of the security - the derivative    
     final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade);
@@ -130,7 +131,8 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         break;
       case DIVIDEND_YIELD:
         Double spot = getSpot(security, inputs);
-        Double dividendYield = 0.024; // !!! FIXME [PLAT-1594] getDividendYield(security, inputs); AND THEN, check scaling
+        Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()));
+        dividendYield /= 100.0;
         YieldAndDiscountCurve fundingCurve = getDiscountCurve(security, inputs);
         dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
         break;
@@ -140,23 +142,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     // Call OG-Analytics
     return getComputedValue(derivative, dataBundle, trade);
-  }
-
-  /**
-   *  From the FunctionExecutionContext, this returns the latest value 
-   *  from the historical time series keyed by Security ID and field.
-   */
-  Double getLatestValueFromTimeSeries(String field, FunctionExecutionContext executionContext, ManageableSecurity security) {
-
-    final LocalDate today = executionContext.getValuationClock().today();
-    final ExternalIdBundle id = security.getExternalIdBundle();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(field, id, null, null, null, true, today, false);
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get " + field + " time series for " + security);
-    }
-    return ts.getTimeSeries().getLatestValue();
   }
 
   /**
@@ -213,8 +198,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         return Sets.newHashSet(getSpotAssetRequirement(security), getCostOfCarryRequirement(security));
 
       case DIVIDEND_YIELD:
-        // return Sets.newHashSet(getSpotAssetRequirement(security), getDividendYieldRequirement(security), getDiscountCurveRequirement(security));
-        return Sets.newHashSet(getSpotAssetRequirement(security), getDiscountCurveRequirement(security)); // FIXME CASE: Check spot and discountcurve requirements, then revert [PLAT-1594]
+        return Sets.newHashSet(getSpotAssetRequirement(security), getDiscountCurveRequirement(security));
     }
 
     throw new OpenGammaRuntimeException("Unhandled _pricingMethod!");
@@ -288,6 +272,20 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
       throw new OpenGammaRuntimeException("Could not get " + marketPriceRequirement);
     }
     return (Double) marketPriceObject;
+  }
+
+  /**
+   *  Returns the latest value of the historical time series keyed by idBundle and field. 
+   */
+  Double getLatestValueFromTimeSeries(String field, FunctionExecutionContext executionContext, ExternalIdBundle idBundle) {
+
+    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(idBundle, DATA_SOURCE, DATA_PROVIDER, field);
+
+    if (ts == null) {
+      throw new OpenGammaRuntimeException("Could not get " + field + " time series for " + idBundle.toString());
+    }
+    return ts.getTimeSeries().getLatestValue();
   }
 
   @Override
