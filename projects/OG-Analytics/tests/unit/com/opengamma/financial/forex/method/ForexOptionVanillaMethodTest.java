@@ -424,4 +424,26 @@ public class ForexOptionVanillaMethodTest {
     }
   }
 
+  @Test
+  /**
+   * Tests present value volatility node sensitivity.
+   */
+  public void volatilityQuoteSensitivity() {
+    final PresentValueVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    double[][] sensiQuote = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE).quoteSensitivity();
+    double[][] sensiStrikeData = sensiStrike.getVega().getData();
+    double[] atm = new double[sensiQuote.length];
+    for (int loopexp = 0; loopexp < sensiQuote.length; loopexp++) {
+      for (int loopdelta = 0; loopdelta < DELTA.length; loopdelta++) {
+        assertEquals("Forex vanilla option: vega quote - RR", sensiQuote[loopexp][1 + loopdelta], -0.5 * sensiStrikeData[loopexp][loopdelta] + 0.5
+            * sensiStrikeData[loopexp][2 * DELTA.length - loopdelta], 1.0E-10);
+        assertEquals("Forex vanilla option: vega quote - Strangle", sensiQuote[loopexp][DELTA.length + 1 + loopdelta], sensiStrikeData[loopexp][loopdelta]
+            + sensiStrikeData[loopexp][2 * DELTA.length - loopdelta], 1.0E-10);
+        atm[loopexp] += sensiStrikeData[loopexp][loopdelta] + sensiStrikeData[loopexp][2 * DELTA.length - loopdelta];
+      }
+      atm[loopexp] += sensiStrikeData[loopexp][DELTA.length];
+      assertEquals("Forex vanilla option: vega quote", sensiQuote[loopexp][0], atm[loopexp], 1.0E-10); // ATM
+    }
+  }
+
 }
