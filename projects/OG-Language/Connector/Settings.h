@@ -17,6 +17,7 @@
 #define SETTINGS_LOG_CONFIGURATION			TEXT ("connectorLogConfiguration")
 #define SETTINGS_MAX_PIPE_ATTEMPTS			TEXT ("maxPipeAttempts")
 #define SETTINGS_OUTPUT_PIPE_PREFIX			TEXT ("outputPipePrefix")
+#define SETTINGS_REQUEST_TIMEOUT			TEXT ("requestTimeout")
 #define SETTINGS_SEND_TIMEOUT				TEXT ("sendTimeout")
 #define SETTINGS_SERVICE_EXECUTABLE			TEXT ("serviceExecutable")
 #define SETTINGS_SERVICE_NAME				SERVICE_SETTINGS_SERVICE_NAME
@@ -37,6 +38,7 @@ private:
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) const { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
 	int GetMaxPipeAttempts (int nDefault) const { return Get (SETTINGS_MAX_PIPE_ATTEMPTS, nDefault); }
 	const TCHAR *GetOutputPipePrefix (const TCHAR *pszDefault) const { return Get (SETTINGS_OUTPUT_PIPE_PREFIX, pszDefault); }
+	int GetRequestTimeout (int nDefault) const { return Get (SETTINGS_REQUEST_TIMEOUT, nDefault); }
 	int GetSendTimeout (int nDefault) const { return Get (SETTINGS_SEND_TIMEOUT, nDefault); }
 	const TCHAR *GetServiceExecutable (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_SERVICE_EXECUTABLE, poDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
@@ -52,6 +54,7 @@ public:
 	const TCHAR *GetLogConfiguration () const;
 	int GetMaxPipeAttempts () const;
 	const TCHAR *GetOutputPipePrefix () const;
+	int GetRequestTimeout () const;
 	int GetSendTimeout () const;
 	const TCHAR *GetServiceExecutable () const;
 	const TCHAR *GetServiceName () const;
