@@ -57,7 +57,7 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       final SwaptionCashFixedIborSABRMethod method = SwaptionCashFixedIborSABRMethod.getInstance();
-      return method.presentValue(swaption, sabr);
+      return method.presentValue(swaption, sabr).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateDataBundle as data.");
   }

@@ -43,12 +43,25 @@ public abstract class CalibrationEngine {
   /**
    * Add an instrument to the basket and the associated calculator.
    * @param instrument An interest rate derivative.
-   * @param method A calculator.
+   * @param method A pricing method.
    */
   public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
     _basket.add(instrument);
     _method.add(method);
     _calibrationPrice.add(0.0);
+  }
+
+  /**
+   * Add an array of instruments to the basket and the associated calculator. The same method is used for all the instruments.
+   * @param instrument An interest rate derivative array.
+   * @param method A pricing method.
+   */
+  public void addInstrument(final InterestRateDerivative[] instrument, final PricingMethod method) {
+    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
+      _basket.add(instrument[loopinstrument]);
+      _method.add(method);
+      _calibrationPrice.add(0.0);
+    }
   }
 
   /**

@@ -15,6 +15,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -62,6 +63,29 @@ public class DecisionScheduleCalculator extends AbstractInterestRateDerivativeVi
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       impactTime[0][loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       impactAmount[0][loopcf] = cfe.getNthPayment(loopcf).getAmount();
+    }
+    DecisionSchedule decision = new DecisionSchedule(decisionTime, impactTime, impactAmount);
+    return decision;
+  }
+
+  @Override
+  public DecisionSchedule visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+    double[] decisionTime = new double[] {swaption.getTimeToExpiry()};
+    AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), curves);
+    int nbCfeIbor = cfeIbor.getNumberOfPayments();
+    int nbCpnFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
+    double[][] impactTime = new double[1][nbCpnFixed + nbCfeIbor];
+    double[][] impactAmount = new double[1][nbCpnFixed + nbCfeIbor];
+    // Fixed leg
+    for (int loopcf = 0; loopcf < nbCpnFixed; loopcf++) {
+      impactTime[0][loopcf] = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime();
+      impactAmount[0][loopcf] = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction()
+          * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional();
+    }
+    // Ibor leg
+    for (int loopcf = 0; loopcf < nbCfeIbor; loopcf++) {
+      impactTime[0][nbCpnFixed + loopcf] = cfeIbor.getNthPayment(loopcf).getPaymentTime();
+      impactAmount[0][nbCpnFixed + loopcf] = cfeIbor.getNthPayment(loopcf).getAmount();
     }
     DecisionSchedule decision = new DecisionSchedule(decisionTime, impactTime, impactAmount);
     return decision;
