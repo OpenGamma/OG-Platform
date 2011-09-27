@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Monte Carlo pricing method for swaptions in the hull-White one factor model.
+ * Monte Carlo pricing method in the hull-White one factor model.
  * The Monte Carlo is on the solution of the discount factor (not on the equation of the short rate).
  */
 public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
@@ -49,12 +49,12 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
   }
 
   /**
-   * Computes the present value for European swaption in the Hull-White one factor model by Monte-Carlo.
+   * Computes the present value in the Hull-White one factor model by Monte-Carlo.
    * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
    * block price is the total price. 
    * @param instrument The swaption.
-   * @param ccy TODO
-   * @param dsc TODO
+   * @param ccy The currency
+   * @param dsc The discounting curve.
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The present value.
    */

@@ -18,7 +18,7 @@ import com.opengamma.math.function.Function1D;
  */
 public class LiborMarketModelDisplacedDiffusionTestsDataSet {
 
-  private static final double MEAN_REVERSION = 0.01;
+  private static final double MEAN_REVERSION = 0.001;
   private static final double DISPLACEMENT = 0.10;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
 
@@ -42,6 +42,30 @@ public class LiborMarketModelDisplacedDiffusionTestsDataSet {
     return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMM(shift));
   }
 
+  /**
+   * Create LMM parameters adapted to a given swap with the test data. The two factors weights are created from an "angle".
+   * @param modelDate The pricing date.
+   * @param swap The swap.
+   * @param angle The "angle" defining the weights. The two factors weights are cos(angle*t/20) and sin(angle*t/20).
+   * @return The LMM parameters.
+   */
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersAngle(final ZonedDateTime modelDate, final SwapFixedIborDefinition swap, final double angle) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMMAngle(angle));
+  }
+
+  /**
+   * Create LMM parameters adapted to a given swap with the test data. The displacement is provided. The two factors weights are created from an "angle".
+   * @param modelDate The pricing date.
+   * @param swap The swap.
+   * @param displacement The displacement (common to all periods).
+   * @param angle The "angle" defining the weights. The two factors weights are cos(angle*t/20) and sin(angle*t/20).
+   * @return The LMM parameters.
+   */
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersDisplacementAngle(final ZonedDateTime modelDate, final SwapFixedIborDefinition swap, final double displacement,
+      final double angle) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, displacement, MEAN_REVERSION, new VolatilityLMMAngle(angle));
+  }
+
 }
 
 class VolatilityLMM extends Function1D<Double, Double[]> {
@@ -59,8 +83,37 @@ class VolatilityLMM extends Function1D<Double, Double[]> {
   @Override
   public Double[] evaluate(Double x) {
     Double[] result = new Double[2];
-    result[0] = 0.02 + _shift;
-    result[1] = -0.02 + x * 0.002 + _shift;
+    result[0] = 0.06 + _shift;
+    result[1] = -0.06 + x * 0.006 + _shift;
+    return result;
+  }
+
+}
+
+class VolatilityLMMAngle extends Function1D<Double, Double[]> {
+
+  private final double _shift;
+  /**
+   * The angle between the factors: factor 1 weight is cos(angle*t/20) and factor 2 weight is sin(angle*t/20).
+   * For the angle = 0, there is only one factor. For angle = pi/2, the 0Y rate is independent of the 20Y rate.
+   */
+  private final double _angle;
+
+  public VolatilityLMMAngle(double angle) {
+    _shift = 0.0;
+    _angle = angle;
+  }
+
+  public VolatilityLMMAngle(double angle, double shift) {
+    _shift = shift;
+    _angle = angle;
+  }
+
+  @Override
+  public Double[] evaluate(Double x) {
+    Double[] result = new Double[2];
+    result[0] = 0.06 * Math.cos(x / 20.0 * _angle) + _shift;
+    result[1] = 0.06 * Math.sin(x / 20.0 * _angle) + _shift;
     return result;
   }
 

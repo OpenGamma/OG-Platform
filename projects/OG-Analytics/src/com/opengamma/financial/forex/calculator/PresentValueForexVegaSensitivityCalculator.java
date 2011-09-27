@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.forex.calculator;
 
+import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -14,12 +16,23 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
  * 
  */
 public final class PresentValueForexVegaSensitivityCalculator extends AbstractForexDerivativeVisitor<SmileDeltaTermStructureDataBundle, PresentValueVolatilityNodeSensitivityDataBundle> {
+
+  /**
+   * The unique instance of the calculator.
+   */
   private static final PresentValueForexVegaSensitivityCalculator INSTANCE = new PresentValueForexVegaSensitivityCalculator();
 
+  /**
+   * Gets the calculator instance.
+   * @return The calculator.
+   */
   public static PresentValueForexVegaSensitivityCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private PresentValueForexVegaSensitivityCalculator() {
   }
 
@@ -27,4 +40,10 @@ public final class PresentValueForexVegaSensitivityCalculator extends AbstractFo
   public PresentValueVolatilityNodeSensitivityDataBundle visitForexOptionVanilla(final ForexOptionVanilla option, final SmileDeltaTermStructureDataBundle data) {
     return ForexOptionVanillaBlackMethod.getInstance().presentValueVolatilityNodeSensitivity(option, data);
   }
+
+  @Override
+  public PresentValueVolatilityNodeSensitivityDataBundle visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final SmileDeltaTermStructureDataBundle data) {
+    return ForexOptionSingleBarrierBlackMethod.getInstance().presentValueVolatilityNodeSensitivity(option, data);
+  }
+
 }

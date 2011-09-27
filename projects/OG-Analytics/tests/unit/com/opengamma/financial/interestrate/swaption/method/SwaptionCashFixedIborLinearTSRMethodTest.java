@@ -126,7 +126,7 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
     double[] pvCashTSR = new double[nbStrike + 1];
     double[] pvPhysical = new double[nbStrike + 1];
     for (int loopstrike = 0; loopstrike < nbStrike + 1; loopstrike++) {
-      pvCashStandard[loopstrike] = METHOD_CASH_SABR.presentValue(swaptionCash[loopstrike], SABR_BUNDLE);
+      pvCashStandard[loopstrike] = METHOD_CASH_SABR.presentValue(swaptionCash[loopstrike], SABR_BUNDLE).getAmount();
       pvCashTSR[loopstrike] = METHOD_CASH_TSR.presentValue(swaptionCash[loopstrike], SABR_BUNDLE).getAmount();
       pvPhysical[loopstrike] = METHOD_PHYS_SABR.presentValue(swaptionPhys[loopstrike], SABR_BUNDLE).getAmount();
     }
