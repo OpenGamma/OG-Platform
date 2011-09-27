@@ -203,7 +203,7 @@ public class MarketDataSwapPVTest {
     final double pv1 = CALCULATOR.visit(SWAP, bundle1);
     final YieldCurveBundle bundle2 = new YieldCurveBundle(new String[] {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME }, new YieldAndDiscountCurve[] {FUNDING_CURVE, FORWARD_BUMPED_CURVE });
     final double pv2 = CALCULATOR.visit(SWAP, bundle2);
-    System.out.println(pv1 + " " + pv2);
+    //System.out.println(pv1 + " " + pv2);
     final LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curves.put(FUNDING_CURVE_NAME, FUNDING_CURVE);
     curves.put(FORWARD_CURVE_NAME, FORWARD_CURVE);
@@ -213,7 +213,7 @@ public class MarketDataSwapPVTest {
       // System.out.println(formatter.format(FUNDING_TIMES[i]) + "\t" + sensitivities.getEntry(i));
     }
     for (int i = FUNDING_TIMES.length; i < FORWARD_TIMES.length + FUNDING_TIMES.length; i++) {
-      System.out.println(formatter.format(FORWARD_TIMES[i - FUNDING_TIMES.length]) + "\t" + sensitivities.getEntry(i));
+     // System.out.println(formatter.format(FORWARD_TIMES[i - FUNDING_TIMES.length]) + "\t" + sensitivities.getEntry(i));
     }
   }
 

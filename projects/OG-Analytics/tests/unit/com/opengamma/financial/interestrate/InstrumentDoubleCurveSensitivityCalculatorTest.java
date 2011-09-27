@@ -218,7 +218,6 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedData, bumpedCurves);
       final double pv2 = calculator.visit(ird, allBumpedCurves);
       final double delta = pv2 - pv1;
-      //System.out.println(i + " " + delta + " " + sensitivities.getEntry(i) * eps);
       if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
         AssertJUnit.assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
       } else {
@@ -226,7 +225,6 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
         AssertJUnit.assertEquals(0, delta, 1e-3);
       }
     }
-    //System.err.println("-------------------------------------------");
   }
 
   private void testBumpedDataPVMethod(final InterestRateDerivative ird, final double notional, final double eps) {
@@ -246,7 +244,6 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedData, bumpedCurves);
       final double pv2 = calculator.visit(ird, allBumpedCurves);
       final double delta = pv2 - pv1;
-      //System.out.println(i + " " + delta + " " + sensitivities.getEntry(i) * eps);
       if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
         AssertJUnit.assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
       } else {
@@ -254,7 +251,6 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
         AssertJUnit.assertEquals(0, delta, 1e-3);
       }
     }
-    //System.err.println("-------------------------------------------");
   }
 
   private static YieldCurveBundle getAllCurves(final YieldCurveFittingTestDataBundle data, final LinkedHashMap<String, YieldAndDiscountCurve> curves) {
