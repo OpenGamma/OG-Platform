@@ -12,6 +12,7 @@
     <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource" />
     <property name="holidaySource" ref="sharedHolidaySource" />
+    <property name="securitySource" ref="sharedSecuritySource" />
   </bean>
 
 </beans>

@@ -15,6 +15,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -471,7 +473,8 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   @Override
   public String toString() {
-    return "ViewDefinition[" + getName() + "]";
+    //    return "ViewDefinition[" + getName() + "]";
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE, false);
   }
 
 }
