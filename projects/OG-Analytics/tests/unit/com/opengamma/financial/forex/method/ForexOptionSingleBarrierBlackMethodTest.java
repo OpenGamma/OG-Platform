@@ -12,6 +12,7 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -23,6 +24,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -78,6 +80,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}};
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}};
+  private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParameter SMILE_TERM = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   // Methods and curves
   private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
@@ -321,6 +324,63 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final PresentValueVolatilitySensitivityDataBundle pvvsMethod = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     final PresentValueVolatilitySensitivityDataBundle pvvsCalculator = PVVSC_BLACK.visit(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
+  }
+
+  @Test
+  /**
+   * Tests present value volatility node sensitivity.
+   */
+  public void volatilityNodeSensitivity() {
+    final PresentValueVolatilityNodeSensitivityDataBundle sensi = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
+    assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
+    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
+    assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
+    final PresentValueVolatilitySensitivityDataBundle pointSensitivity = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final double[][] nodeWeight = new double[NB_EXP + 1][NB_STRIKE];
+    final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE));
+    final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(ACT_ACT.getDayCountFraction(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
+    SMILE_TERM.getVolatilityAdjoint(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE, forward, nodeWeight);
+    final DoublesPair point = DoublesPair.of(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE);
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
+        assertEquals("Forex vanilla option: vega node", nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point), sensi.getVega().getData()[loopexp][loopstrike]);
+      }
+    }
+  }
+
+  @Test
+  /**
+   * Tests present value volatility quote sensitivity.
+   */
+  public void volatilityQuoteSensitivity() {
+    final PresentValueVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    double[][] sensiQuote = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
+    double[][] sensiStrikeData = sensiStrike.getVega().getData();
+    double[] atm = new double[sensiQuote.length];
+    for (int loopexp = 0; loopexp < sensiQuote.length; loopexp++) {
+      for (int loopdelta = 0; loopdelta < DELTA.length; loopdelta++) {
+        assertEquals("Forex vanilla option: vega quote - RR", sensiQuote[loopexp][1 + loopdelta], -0.5 * sensiStrikeData[loopexp][loopdelta] + 0.5
+            * sensiStrikeData[loopexp][2 * DELTA.length - loopdelta], 1.0E-10);
+        assertEquals("Forex vanilla option: vega quote - Strangle", sensiQuote[loopexp][DELTA.length + 1 + loopdelta], sensiStrikeData[loopexp][loopdelta]
+            + sensiStrikeData[loopexp][2 * DELTA.length - loopdelta], 1.0E-10);
+        atm[loopexp] += sensiStrikeData[loopexp][loopdelta] + sensiStrikeData[loopexp][2 * DELTA.length - loopdelta];
+      }
+      atm[loopexp] += sensiStrikeData[loopexp][DELTA.length];
+      assertEquals("Forex vanilla option: vega quote", sensiQuote[loopexp][0], atm[loopexp], 1.0E-10); // ATM
+    }
+  }
+
+  @Test
+  /**
+   * Tests present value volatility quote sensitivity: method vs calculator.
+   */
+  public void volatilityQuoteSensitivityMethodVsCalculator() {
+    double[][] sensiMethod = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
+    double[][] sensiCalculator = PresentValueForexVegaQuoteSensitivityCalculator.getInstance().visit(OPTION_BARRIER, SMILE_BUNDLE).getVega();
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      ArrayAsserts.assertArrayEquals("Forex option - quote sensitivity", sensiMethod[loopexp], sensiCalculator[loopexp], 1.0E-10);
+    }
   }
 
 }

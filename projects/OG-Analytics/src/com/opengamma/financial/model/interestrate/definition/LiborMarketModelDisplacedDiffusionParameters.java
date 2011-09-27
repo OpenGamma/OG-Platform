@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.interestrate.definition;
 
+import java.util.Arrays;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -16,6 +18,13 @@ import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Parameters related to a multi-factor Libor Market Model with separable displaced diffusion dynamic.
+ * The equations underlying the Libor Market Model in the probability space with numeraire  {@latex.inline $P(.,t_{j+1})$} are
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{equation*}
+ * dL_t^j = \\alpha(t) (L+a_{j}) \\gamma_{j} . dW_t^{j+1}
+ * \\end{equation*}
+ * }
+ * with {@latex.inline $\\alpha(t) = \\exp(a t)$}. The {@latex.inline $\\gamma_j$} are m-dimensional vectors.
  */
 public class LiborMarketModelDisplacedDiffusionParameters {
 
@@ -47,6 +56,11 @@ public class LiborMarketModelDisplacedDiffusionParameters {
    * The number of factors.
    */
   private final int _nbFactor;
+
+  /**
+   * The time tolerance between the dates given by the model and the dates of the instrument. To avoid rounding problems.
+   */
+  private static final double TIME_TOLERANCE = 1.0E-3;
 
   /**
    * Constructor from the model details.
@@ -162,6 +176,32 @@ public class LiborMarketModelDisplacedDiffusionParameters {
    */
   public int getNbFactor() {
     return _nbFactor;
+  }
+
+  public double getTimeTolerance() {
+    return TIME_TOLERANCE;
+  }
+
+  /**
+   * Return the index in the Ibor time list of a given time. The match does not need to be exact (to allow rounding effects and 1 day discrepancy).
+   * The allowed difference is set in the TIME_TOLERANCE variable.
+   * @param time The time.
+   * @return The index.
+   */
+  public int getTimeIndex(final double time) {
+    int index = Arrays.binarySearch(_iborTime, time);
+    if (index < 0) {
+      if (_iborTime[-index - 1] - time < TIME_TOLERANCE) {
+        index = -index - 1;
+      } else {
+        if (time - _iborTime[-index - 2] < TIME_TOLERANCE) {
+          index = -index - 2;
+        } else {
+          Validate.isTrue(true, "Instrument time incompatible with LMM");
+        }
+      }
+    }
+    return index;
   }
 
   /**
