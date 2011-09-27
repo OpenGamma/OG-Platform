@@ -14,12 +14,23 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
  * 
  */
 public final class PresentValueForexVegaSensitivityCalculator extends AbstractForexDerivativeVisitor<SmileDeltaTermStructureDataBundle, PresentValueVolatilityNodeSensitivityDataBundle> {
+
+  /**
+   * The unique instance of the calculator.
+   */
   private static final PresentValueForexVegaSensitivityCalculator INSTANCE = new PresentValueForexVegaSensitivityCalculator();
 
+  /**
+   * Gets the calculator instance.
+   * @return The calculator.
+   */
   public static PresentValueForexVegaSensitivityCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private PresentValueForexVegaSensitivityCalculator() {
   }
 

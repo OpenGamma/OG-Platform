@@ -99,7 +99,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
    * @return The volatility quote sensitivities. The sensitivity figures are in teh same currency as the node sensitivity.
    * The first dimension is the expiration and the second dimension the quotes: ATM, Risk Reversal, Strangle.
    */
-  double[][] quoteSensitivity() {
+  public PresentValueVolatilityQuoteSensitivityDataBundle quoteSensitivity() {
     double[][] vegaStrike = getVega().getData();
     int nbStrike = vegaStrike[0].length;
     double[][] result = new double[vegaStrike.length][nbStrike];
@@ -112,7 +112,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
         result[loopexp][0] += vegaStrike[loopexp][loopstrike] + vegaStrike[loopexp][nbStrike - 1 - loopstrike];
       }
     }
-    return result;
+    return new PresentValueVolatilityQuoteSensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond(), _expiries.getData(), _delta.getData(), result);
   }
 
   //TODO Add possibility to add a sensitivity?
