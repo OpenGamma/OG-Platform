@@ -12,6 +12,7 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -23,6 +24,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -426,11 +428,11 @@ public class ForexOptionVanillaMethodTest {
 
   @Test
   /**
-   * Tests present value volatility node sensitivity.
+   * Tests present value volatility quote sensitivity.
    */
   public void volatilityQuoteSensitivity() {
     final PresentValueVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
-    double[][] sensiQuote = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE).quoteSensitivity();
+    double[][] sensiQuote = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE).quoteSensitivity().getVega();
     double[][] sensiStrikeData = sensiStrike.getVega().getData();
     double[] atm = new double[sensiQuote.length];
     for (int loopexp = 0; loopexp < sensiQuote.length; loopexp++) {
@@ -443,6 +445,18 @@ public class ForexOptionVanillaMethodTest {
       }
       atm[loopexp] += sensiStrikeData[loopexp][DELTA.length];
       assertEquals("Forex vanilla option: vega quote", sensiQuote[loopexp][0], atm[loopexp], 1.0E-10); // ATM
+    }
+  }
+
+  @Test
+  /**
+   * Tests present value volatility quote sensitivity: method vs calculator.
+   */
+  public void volatilityQuoteSensitivityMethodVsCalculator() {
+    double[][] sensiMethod = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE).quoteSensitivity().getVega();
+    double[][] sensiCalculator = PresentValueForexVegaQuoteSensitivityCalculator.getInstance().visit(FOREX_CALL_OPTION, SMILE_BUNDLE).getVega();
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      ArrayAsserts.assertArrayEquals("Forex option - quote sensitivity", sensiMethod[loopexp], sensiCalculator[loopexp], 1.0E-10);
     }
   }
 
