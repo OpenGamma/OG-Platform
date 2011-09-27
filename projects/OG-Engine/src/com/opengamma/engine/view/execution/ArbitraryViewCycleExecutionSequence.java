@@ -31,7 +31,7 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   /**
    * Gets a sequence for a single cycle which relies on default cycle execution options.
    * 
-   * @return the sequence, not {@code null}
+   * @return the sequence, not null
    */
   public static ArbitraryViewCycleExecutionSequence single() {
     return new ArbitraryViewCycleExecutionSequence(Collections.singletonList(new ViewCycleExecutionOptions()));
@@ -40,8 +40,8 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   /**
    * Gets a sequence for a single cycle.
    * 
-   * @param executionOptions  the execution options for the single cycle, not {@code null}
-   * @return the sequence, not {@code null}
+   * @param executionOptions  the execution options for the single cycle, not null
+   * @return the sequence, not null
    */
   public static ArbitraryViewCycleExecutionSequence single(ViewCycleExecutionOptions executionOptions) {
     return new ArbitraryViewCycleExecutionSequence(Collections.singletonList(executionOptions));
@@ -50,8 +50,8 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   /**
    * Gets a sequence for a collection of valuation times.
    * 
-   * @param valuationTimeProviders  the valuation times, not {@code null}
-   * @return the sequence, not {@code null}
+   * @param valuationTimeProviders  the valuation times, not null
+   * @return the sequence, not null
    */
   public static ArbitraryViewCycleExecutionSequence of(InstantProvider... valuationTimeProviders) {
     return of(Arrays.asList(valuationTimeProviders));
@@ -60,8 +60,8 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   /**
    * Gets a sequence for a collection of valuation times.
    * 
-   * @param valuationTimeProviders  the valuation times, not {@code null}
-   * @return the sequence, not {@code null}
+   * @param valuationTimeProviders  the valuation times, not  null
+   * @return the sequence, not null
    */
   public static ArbitraryViewCycleExecutionSequence of(Collection<InstantProvider> valuationTimeProviders) {
     ArgumentChecker.notNull(valuationTimeProviders, "valuationTimeProviders");
@@ -76,8 +76,8 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
   /**
    * Gets a sequence for a collection of cycles.
    * 
-   * @param executionSequence the sequence, not {@code null}
-   * @return the sequence, not {@code null}
+   * @param executionSequence the sequence, not null
+   * @return the sequence, not null
    */
   public static ArbitraryViewCycleExecutionSequence of(ViewCycleExecutionOptions... executionSequence) {
     return new ArbitraryViewCycleExecutionSequence(Arrays.asList(executionSequence));
