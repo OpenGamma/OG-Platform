@@ -50,7 +50,7 @@ LiveData, change directory to projects/OG-Examples and run:
 
 wait for "END JETTY START" in the debug output and point your browser at http://localhost:8080.
 
-ant -p will give you all the targets available and they're pretty self explainatory.
+ant -p will give you all the targets available and they're pretty self explanatory.
 
 Eclipse
 -------
