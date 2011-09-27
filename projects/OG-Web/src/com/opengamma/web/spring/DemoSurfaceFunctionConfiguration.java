@@ -93,7 +93,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
       }
     }
     // Handle if it doesn't work and check system run mode so we don't bark warnings if not necessary.
-    RunMode runMode = RunMode.valueOf(System.getProperty(PlatformConfigUtils.RUN_MODE_PROPERTY_NAME));
+    RunMode runMode = RunMode.valueOf(System.getProperty(PlatformConfigUtils.RUN_MODE_PROPERTY_NAME).toUpperCase());
     switch (runMode) {
       case EXAMPLE:
         s_logger.debug("Not adding function for " + className + " with parameters " + Arrays.asList(params));
