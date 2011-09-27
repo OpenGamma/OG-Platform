@@ -59,7 +59,7 @@ import com.opengamma.util.money.Currency;
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
-  private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Hardcoded data source and provider
+  private static final String DATA_SOURCE = "BLOOMBERG"; // TODO Make DATA_SOURCE and DATA_PROVIDER inputs
   private static final String DATA_PROVIDER = "UNKNOWN";
 
   private final String _valueRequirementName;
@@ -280,7 +280,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   Double getLatestValueFromTimeSeries(String field, FunctionExecutionContext executionContext, ExternalIdBundle idBundle) {
 
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(idBundle, DATA_SOURCE, DATA_PROVIDER, field); // FIXME HACK!! Would like to get data provider/source from security itself 
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(idBundle, DATA_SOURCE, DATA_PROVIDER, field);
 
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get " + field + " time series for " + idBundle.toString());

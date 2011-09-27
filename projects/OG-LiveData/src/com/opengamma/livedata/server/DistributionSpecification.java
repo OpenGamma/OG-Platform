@@ -85,7 +85,7 @@ public class DistributionSpecification {
       return null;
     }
     
-    if (normalizedMsg.getAllFields().size() == 0) {
+    if (normalizedMsg.getNumFields() == 0) {
       return null;
     }
     return normalizedMsg;

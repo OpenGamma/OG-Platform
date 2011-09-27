@@ -113,7 +113,7 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
   }
 
   /**
-   * Computes the volatility and the volatility sensitivity with respect to the data points.
+   * Computes the volatility and the volatility sensitivity with respect to the volatility data points.
    * @param time The time to expiry.
    * @param strike The strike.
    * @param forward The forward.

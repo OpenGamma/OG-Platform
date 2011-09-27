@@ -179,7 +179,7 @@ public class Subscription {
   /*package*/ synchronized void liveDataReceived(FudgeMsg liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
-    for (MarketDataDistributor distributor : getDistributors()) {
+    for (MarketDataDistributor distributor : _distributors.values()) { //NOTE: this is only safe because we are synchronized
       distributor.distributeLiveData(liveDataFields);
     }
   }

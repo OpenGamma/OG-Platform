@@ -40,7 +40,7 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
   /**
    * Add an instrument to the basket and the associated calculator.
    * @param instrument An interest rate derivative.
-   * @param method A calculator.
+   * @param method A pricing method.
    */
   @Override
   public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
@@ -49,6 +49,22 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
     _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
+  }
+
+  /**
+   * Add an array of instruments to the basket and the associated calculator. The same method is used for all the instruments.
+   * @param instrument An interest rate derivative array.
+   * @param method A pricing method.
+   */
+  @Override
+  public void addInstrument(final InterestRateDerivative[] instrument, final PricingMethod method) {
+    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
+      Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+      getBasket().add(instrument[loopinstrument]);
+      getMethod().add(method);
+      getCalibrationPrice().add(0.0);
+      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
+    }
   }
 
   @Override
