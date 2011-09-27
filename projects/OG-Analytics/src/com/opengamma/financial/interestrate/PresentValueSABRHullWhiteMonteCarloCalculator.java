@@ -102,11 +102,10 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
     HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(DEFAULT_MEAN_REVERSION, new double[] {0.01}, new double[0]);
     CapFloorHullWhiteCalibrationObjective objective = new CapFloorHullWhiteCalibrationObjective(hwParameters);
     SuccessiveRootFinderCalibrationEngine calibrationEngine = new CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(objective);
+    // Calibration instruments
     InterestRateDerivative[] calibrationBasket = annuity.calibrationBasket(RatchetIborCalibrationType.FORWARD_COUPON, curves);
     //TODO: set a way to chose the calibration type.
-    for (int loopbasket = 0; loopbasket < calibrationBasket.length; loopbasket++) {
-      calibrationEngine.addInstrument(calibrationBasket[loopbasket], METHOD_CAP_SABR);
-    }
+    calibrationEngine.addInstrument(calibrationBasket, METHOD_CAP_SABR);
     // Calibration
     calibrationEngine.calibrate(curves);
     HullWhiteOneFactorPiecewiseConstantDataBundle hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(hwParameters, curves);
