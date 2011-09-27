@@ -23,7 +23,6 @@ public class ViewClientDescriptorTest {
 
   private void assertCycle(final ViewClientDescriptor viewClientDescriptor) {
     final String encoded = viewClientDescriptor.encode();
-    System.out.println(encoded);
     final ViewClientDescriptor decoded = ViewClientDescriptor.decode(encoded);
     assertEquals(decoded, viewClientDescriptor);
   }
@@ -49,6 +48,13 @@ public class ViewClientDescriptorTest {
   public void testStaticSnapshot() {
     for (String viewName : VIEW_NAMES) {
       assertCycle(ViewClientDescriptor.staticSnapshot(viewName, UniqueId.of("Foo", "Bar")));
+    }
+  }
+
+  public void testUnescapedViewName() {
+    for (String viewName : VIEW_NAMES) {
+      final ViewClientDescriptor decoded = ViewClientDescriptor.decode(viewName);
+      assertEquals(decoded, ViewClientDescriptor.tickingMarketData(viewName));
     }
   }
 
