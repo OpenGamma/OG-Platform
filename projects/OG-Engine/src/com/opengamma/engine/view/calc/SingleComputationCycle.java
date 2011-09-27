@@ -233,9 +233,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   /**
    * Synchronously runs the cycle.
    * 
-   * @param previousCycle  the previous cycle from which a delta cycle should be performed, or {@code null} to perform
+   * @param previousCycle  the previous cycle from which a delta cycle should be performed, or null to perform
    *                       a full cycle
-   * @param marketDataSnapshot  the market data snapshot with which to execute the cycle, not {@code null}
+   * @param marketDataSnapshot  the market data snapshot with which to execute the cycle, not null
    * @throws InterruptedException  if the thread is interrupted while waiting for the computation cycle to complete.
    *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
    *                               still must be called.

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments.method;
+package com.opengamma.financial.interestrate.swaption.method;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +15,14 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
-import com.opengamma.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
- * Specific calibration engine for the Hull-White one factor model with cap/floor.
+ * Specific calibration engine for the G2++ model with swaption.
  */
-public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
+public class SwaptionPhysicalG2ppSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
 
   /**
    * The list of calibration times.
@@ -33,38 +33,22 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
+  public SwaptionPhysicalG2ppSuccessiveRootFinderCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
     super(calibrationObjective);
   }
 
   /**
    * Add an instrument to the basket and the associated calculator.
    * @param instrument An interest rate derivative.
-   * @param method A pricing method.
+   * @param method A calculator.
    */
   @Override
   public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
-    Validate.isTrue(instrument instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Calibration instruments should be swaptions");
     getBasket().add(instrument);
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
-    _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
-  }
-
-  /**
-   * Add an array of instruments to the basket and the associated calculator. The same method is used for all the instruments.
-   * @param instrument An interest rate derivative array.
-   * @param method A pricing method.
-   */
-  @Override
-  public void addInstrument(final InterestRateDerivative[] instrument, final PricingMethod method) {
-    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
-      getBasket().add(instrument[loopinstrument]);
-      getMethod().add(method);
-      getCalibrationPrice().add(0.0);
-      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
-    }
+    _calibrationTimes.add(((SwaptionPhysicalFixedIbor) instrument).getTimeToExpiry());
   }
 
   @Override
@@ -81,7 +65,7 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
       final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());
       rootFinder.getRoot(getCalibrationObjective(), range[0], range[1]);
       if (loopins < nbInstruments - 1) {
-        ((CapFloorHullWhiteCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
+        ((SwaptionPhysicalG2ppCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
       }
     }
   }

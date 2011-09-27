@@ -44,8 +44,19 @@ public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements Pricing
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final G2ppPiecewiseConstantDataBundle g2Data) {
-    YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), g2Data);
+    return presentValue(swaption, cfe, g2Data);
+  }
+
+  /**
+   * Computes the present value of the Physical delivery swaption through approximation..
+   * @param swaption The swaption.
+   * @param cfe The swaption cash flow equiovalent.
+   * @param g2Data The G2++ parameters and the curves.
+   * @return The present value.
+   */
+  public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final G2ppPiecewiseConstantDataBundle g2Data) {
+    YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     int nbCf = cfe.getNumberOfPayments();
     double[] cfa = new double[nbCf];
     double[] t = new double[nbCf];

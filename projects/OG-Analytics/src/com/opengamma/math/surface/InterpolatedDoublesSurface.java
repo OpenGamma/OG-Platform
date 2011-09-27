@@ -198,6 +198,31 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
     return new InterpolatedDoublesSurface(xyzData, interpolator, name);
   }
 
+  /**
+   * Creates a surface based on a regular grid.
+   * @param xVector The x data of the grid. Not null.
+   * @param yVector The x data of the grid. Not null.
+   * @param zData The z data. Not null. Contains a number of entries which is the product of the number of entries of xVector and yVector.
+   * @param interpolator  The interpolator, not null
+   * @return An interpolated surface with automatically-generated name.
+   */
+  public static InterpolatedDoublesSurface fromGrid(final double[] xVector, final double[] yVector, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+    int nX = xVector.length;
+    int nY = yVector.length;
+    Validate.isTrue(zData.length == nX * nY, "Sizes not compatible");
+    double[] xData = new double[nX * nY];
+    double[] yData = new double[nX * nY];
+    for (int loopy = 0; loopy < nY; loopy++) {
+      System.arraycopy(xVector, 0, xData, loopy * nX, nX);
+    }
+    for (int loopx = 0; loopx < nX; loopx++) {
+      for (int loopy = 0; loopy < nY; loopy++) {
+        yData[loopx + loopy * nX] = yVector[loopy];
+      }
+    }
+    return from(xData, yData, zData, interpolator);
+  }
+
   @SuppressWarnings("rawtypes")
   private final GridInterpolator2D _interpolator;
   private Map<Double, ? extends Interpolator1DDataBundle> _data;
