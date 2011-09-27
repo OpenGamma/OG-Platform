@@ -63,7 +63,7 @@ public class FieldFilter implements NormalizationRule {
     // original message and check for containment in _fieldsToAccept as it's
     // faster for large messages.
     // It also supports multiple values with the same name.
-    for (FudgeField field : msg.getAllFields()) {
+    for (FudgeField field : msg) {
       if (field.getName() == null) {
         // Don't allow non-named fields.
         continue;
