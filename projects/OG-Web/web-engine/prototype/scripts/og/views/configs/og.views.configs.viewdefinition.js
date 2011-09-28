@@ -11,7 +11,7 @@ $.register_module({
         'og.views.forms.Dropdown'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest,
+        var Form = og.common.util.ui.Form, forms = og.views.forms, api = og.api.rest,
             RMDF = 'resultModelDefinition',
             SETS = 'calculationConfiguration',
             DEFP = 'defaultProperties',
@@ -28,9 +28,7 @@ $.register_module({
             WITH = 'with',
             WTHO = 'without',
             INDX = '<INDEX>',
-            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];},
-            T_SHR = 'short',
-            T_STR = 'string';
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -42,44 +40,47 @@ $.register_module({
                 meta = config.data.template_data.configJSON.meta,
                 column_set_tabs,
                 meta_map = [
-                    ['0',                                                                           T_STR],
-                    [[SETS, INDX, DEFP, WITH, '*'].join('.'),                                       T_STR],
-                    [[SETS, INDX, DEFP, WITH, '*', '0'].join('.'),                                  T_STR],
-                    [[SETS, INDX, DEFP, WITH, '*', 'optional'].join('.'),                           T_STR],
-                    [[SETS, INDX, DEFP, WTHO].join('.'),                                            T_STR],
-                    [[SETS, INDX, 'name'].join('.'),                                                T_STR],
-                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               T_STR],
-                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', '0'].join('.'),          T_STR],
-                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   T_STR],
-                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO].join('.'),                    T_STR],
-                    [[SETS, INDX, COLS, INDX, REQS, INDX, REQO].join('.'),                          T_STR],
-                    [[SETS, INDX, COLS, INDX, SECU].join('.'),                                      T_STR],
-                    [[SETS, INDX, RLTR, '0'].join('.'),                                             T_STR],
-                    [[SETS, INDX, RLTR, '*'].join('.'),                                             T_STR],
-                    [[SETS, INDX, SPEC, INDX, SPCT].join('.'),                                      T_STR],
-                    [[SETS, INDX, SPEC, INDX, SPTT].join('.'),                                      T_STR],
-                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*'].join('.'),                           T_STR],
-                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', '0'].join('.'),                      T_STR],
-                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', 'optional'].join('.'),               T_STR],
-                    [[SETS, INDX, SPEC, INDX, CONS, WTHO].join('.'),                                T_STR],
-                    [[SETS, INDX, SPEC, INDX, SPVN].join('.'),                                      T_STR],
-                    ['currency',                                                                    T_STR],
-                    ['identifier',                                                                  T_STR],
-                    ['maxDeltaCalcPeriod',                                                          T_SHR],
-                    ['maxFullCalcPeriod',                                                           T_SHR],
-                    ['minDeltaCalcPeriod',                                                          T_SHR],
-                    ['minFullCalcPeriod',                                                           T_SHR],
-                    ['name',                                                                        T_STR],
-                    [[RMDF, 'aggregatePositionOutputMode'].join('.'),                               T_STR],
-                    [[RMDF, 'positionOutputMode'].join('.'),                                        T_STR],
-                    [[RMDF, 'primitiveOutputMode'].join('.'),                                       T_STR],
-                    [[RMDF, 'securityOutputMode'].join('.'),                                        T_STR],
-                    [[RMDF, 'tradeOutputMode'].join('.'),                                           T_STR],
-                    ['uniqueId',                                                                    T_STR],
-                    [['user', 'ipAddress'].join('.'),                                               T_STR],
-                    [['user', 'userName'].join('.'),                                                T_STR]
+                    ['0',                                                                           Form.type.STR],
+                    [[SETS, INDX, DEFP, WITH, '*'].join('.'),                                       Form.type.IND],
+                    [[SETS, INDX, DEFP, WITH, '*', 'optional'].join('.'),                           Form.type.IND],
+                    [[SETS, INDX, DEFP, WITH, '*', '*'].join('.'),                                  Form.type.STR],
+                    [[SETS, INDX, DEFP, WTHO].join('.'),                                            Form.type.STR],
+                    [[SETS, INDX, DEFP, WTHO, '*'].join('.'),                                       Form.type.STR],
+                    [[SETS, INDX, 'name'].join('.'),                                                Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               Form.type.IND],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   Form.type.IND],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', '*'].join('.'),          Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO].join('.'),                    Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO, '*'].join('.'),               Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, REQO].join('.'),                          Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, SECU].join('.'),                                      Form.type.STR],
+                    [[SETS, INDX, RLTR, '0'].join('.'),                                             Form.type.STR],
+                    [[SETS, INDX, RLTR, '*'].join('.'),                                             Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, SPCT].join('.'),                                      Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, SPTT].join('.'),                                      Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*'].join('.'),                           Form.type.IND],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', 'optional'].join('.'),               Form.type.IND],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', '*'].join('.'),                      Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WTHO].join('.'),                                Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WTHO, '*'].join('.'),                           Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, SPVN].join('.'),                                      Form.type.STR],
+                    ['currency',                                                                    Form.type.STR],
+                    ['identifier',                                                                  Form.type.STR],
+                    ['maxDeltaCalcPeriod',                                                          Form.type.SHR],
+                    ['maxFullCalcPeriod',                                                           Form.type.SHR],
+                    ['minDeltaCalcPeriod',                                                          Form.type.SHR],
+                    ['minFullCalcPeriod',                                                           Form.type.SHR],
+                    ['name',                                                                        Form.type.STR],
+                    [[RMDF, 'aggregatePositionOutputMode'].join('.'),                               Form.type.STR],
+                    [[RMDF, 'positionOutputMode'].join('.'),                                        Form.type.STR],
+                    [[RMDF, 'primitiveOutputMode'].join('.'),                                       Form.type.STR],
+                    [[RMDF, 'securityOutputMode'].join('.'),                                        Form.type.STR],
+                    [[RMDF, 'tradeOutputMode'].join('.'),                                           Form.type.STR],
+                    ['uniqueId',                                                                    Form.type.STR],
+                    [['user', 'ipAddress'].join('.'),                                               Form.type.STR],
+                    [['user', 'userName'].join('.'),                                                Form.type.STR]
                 ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
-                form = new ui.Form({
+                form = new Form({
                     module: 'og.views.forms.view-definition',
                     data: master,
                     meta: meta_map,
@@ -105,6 +106,9 @@ $.register_module({
                     var data = result.data, meta = result.meta;
                     if (!deleted && !is_new && as_new && (orig_name === data.name))
                         return window.alert('Please select a new name.');
+                    console.log('result.data\n', JSON.stringify(result.data, null, 2));
+                    console.log('result.meta\n', JSON.stringify(result.meta, null, 2));
+                    delete result.data['uniqueId']; delete result.meta['uniqueId'];
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
@@ -113,7 +117,6 @@ $.register_module({
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
-            console.log('master', master);
             form.attach([
                 {type: 'form:load', handler: function () {
                     var header = '\
@@ -393,7 +396,8 @@ $.register_module({
                                 reqs_block = new form.Block({
                                     wrap: '<ul class="og-js-port-req">{{html html}}</ul>'
                                 });
-                            if (col[REQS]) Array.prototype.push.apply(reqs_block.children, col[REQS].map(new_port_req));
+                            if (col[REQS] = arr(col[REQS]))
+                                Array.prototype.push.apply(reqs_block.children, col[REQS].map(new_port_req));
                             return new form.Block({
                                 module: 'og.views.forms.view-definition-column-value',
                                 extras: {id: col_id},
