@@ -206,15 +206,15 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
    * @return the config object.
    */
   protected Object fromJSON(String json) {
-    s_logger.debug("convert JSON to java " + json);
+    s_logger.debug("converting JSON to java: " + json);
     FudgeMsgJSONReader fudgeJSONReader = new FudgeMsgJSONReader(FUDGE_CONTEXT, new StringReader(json));
     
     FudgeMsg fudgeMsg = fudgeJSONReader.readMessage();
-    s_logger.debug("converted FudgeMsg " + fudgeMsg);
+    s_logger.debug("converted FudgeMsg: " + fudgeMsg);
     
     Object javaObj = new FudgeDeserializer(FUDGE_CONTEXT).fudgeMsgToObject(fudgeMsg);
     
-    s_logger.debug("convert java obj " + javaObj.getClass() + " [" + javaObj.toString() + " ]");
+    s_logger.debug("converted javaObj: " + javaObj.getClass().getSimpleName() + " [" + javaObj.toString() + " ]");
     return javaObj;
   }
 
