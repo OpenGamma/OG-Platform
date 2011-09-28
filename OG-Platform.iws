@@ -2,23 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c3a1549-3431-4cad-b0ef-3a2851d396b9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.iml" afterPath="$PROJECT_DIR$/OG-Platform.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/projects/OG-Language/Client/src/com/opengamma/language/object/BeanFunctionProvider.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/projects/OG-Language/Client/src/com/opengamma/language/object/CreateBeanFunction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/projects/OG-Language/Client/tests/unit/com/opengamma/language/object/CreateBeanFunctionTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.ipr" afterPath="$PROJECT_DIR$/OG-Platform.ipr" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OG-Platform.iws" afterPath="$PROJECT_DIR$/OG-Platform.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" afterPath="$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" afterPath="$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" afterPath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" afterPath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" afterPath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" afterPath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" afterPath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" afterPath="$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" afterPath="$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Language/Client/src/com/opengamma/language/connector/Client.xml" afterPath="$PROJECT_DIR$/projects/OG-Language/Client/src/com/opengamma/language/connector/Client.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Master/OG-Master.iml" afterPath="$PROJECT_DIR$/projects/OG-Master/OG-Master.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-MasterDB/OG-MasterDB.iml" afterPath="$PROJECT_DIR$/projects/OG-MasterDB/OG-MasterDB.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Security/OG-Security.iml" afterPath="$PROJECT_DIR$/projects/OG-Security/OG-Security.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Util/OG-Util.iml" afterPath="$PROJECT_DIR$/projects/OG-Util/OG-Util.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/projects/OG-Web/OG-Web.iml" afterPath="$PROJECT_DIR$/projects/OG-Web/OG-Web.iml" />
     </list>
     <ignored path="OG-Platform.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -37,21 +32,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/projects/OG-Engine/tests/unit/com/opengamma/engine/view/calcnode/stats/DbMasterTestUtils.java" line="25" class="com.opengamma.engine.view.calcnode.stats.DbMasterTestUtils" package="com.opengamma.engine.view.calcnode.stats">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -95,7 +75,7 @@
       <file leaf-file-name="ExampleServer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.4764398">
+            <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.379694">
               <folding />
             </state>
           </provider>
@@ -159,6 +139,8 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -193,8 +175,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="Favorites" />
     </panes>
   </component>
@@ -212,11 +192,11 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
-  <component name="RunManager" selected="TestNG.OG-Analytics/com.opengamma.financial">
+  <component name="RunManager" selected="Application.ExampleServer">
     <configuration default="false" name="ExampleServer" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="com.opengamma.examples.startup.ExampleServer" />
       <option name="VM_PARAMETERS" value="" />
@@ -309,20 +289,17 @@
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="XSLT" factoryName="XSLT">
-      <option name="myOutputFile" />
-      <option name="myOpenOutputFile" value="false" />
-      <option name="myOpenInBrowser" value="false" />
-      <option name="mySmartErrorHandling" value="true" />
-      <option name="myRunnerPort" value="34873" />
-      <option name="myVmArguments" />
-      <option name="myWorkingDirectory" />
-      <option name="myModule" />
-      <option name="myJdk" />
-      <parameters />
-      <OutputType value="CONSOLE" save-to-file="false" />
-      <FileType name="XML" />
-      <JdkChoice value="FROM_MODULE" />
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -362,17 +339,20 @@
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
+    <configuration default="true" type="XSLT" factoryName="XSLT">
+      <option name="myOutputFile" />
+      <option name="myOpenOutputFile" value="false" />
+      <option name="myOpenInBrowser" value="false" />
+      <option name="mySmartErrorHandling" value="true" />
+      <option name="myRunnerPort" value="34873" />
+      <option name="myVmArguments" />
+      <option name="myWorkingDirectory" />
+      <option name="myModule" />
+      <option name="myJdk" />
+      <parameters />
+      <OutputType value="CONSOLE" save-to-file="false" />
+      <FileType name="XML" />
+      <JdkChoice value="FROM_MODULE" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -838,31 +818,31 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="311" y="22" width="1473" height="1164" extended-state="0" />
-    <editor active="false" />
+    <frame x="82" y="22" width="1819" height="1178" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.45255473" sideWeight="0.0" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Persistence" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32973945" sideWeight="0.0" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18625562" sideWeight="0.6732852" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="CheckStyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.18623024" sideWeight="0.6738545" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33122745" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IvyIDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32912534" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3266606" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32614556" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32851985" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28039354" sideWeight="0.33211678" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2799097" sideWeight="0.2785265" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32982457" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.6805054" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2799097" sideWeight="0.38454628" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28039354" sideWeight="0.2080292" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32664233" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32614556" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="CheckStyle" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819584" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Persistence" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.37262014" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="1921" y="0" width="928" height="876" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.6805054" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24819495" sideWeight="0.67087466" order="13" side_tool="false" content_ui="combo" x="199" y="471" width="1415" height="276" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -940,18 +920,13 @@
       <treeView value="false" />
       <verbose value="true" />
       <viewClosedWhenNoErrors value="false" />
-      <expanded value="false" />
+      <expanded value="true" />
     </buildFile>
   </component>
   <component name="editorHistoryManager">
     <entry file="jar://$USER_HOME$/.ivy2/cache-chris/org.testng/testng/sources/testng-sources-6.0.1.jar!/org/testng/internal/MethodInvocationHelper.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="75" column="0" selection-start="2988" selection-end="2988" vertical-scroll-proportion="0.21784037" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/projects/OG-Engine/tests/unit/com/opengamma/engine/view/calcnode/stats/DbMasterTestUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="1117" selection-end="1117" vertical-scroll-proportion="0.3617811" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-MasterDB/tests/unit/com/opengamma/masterdb/batch/CommandLineBatchResultWriterTest.java">
@@ -1041,7 +1016,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/projects/OG-Examples/src/com/opengamma/examples/startup/ExampleServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.4764398">
+        <state line="22" column="0" selection-start="656" selection-end="656" vertical-scroll-proportion="0.379694">
           <folding />
         </state>
       </provider>
@@ -1063,7 +1038,7 @@
       </state>
       <state key="FacetStructureConfigurable.UI">
         <settings>
-          <last-edited>EJB</last-edited>
+          <last-edited>Clojure</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -1098,7 +1073,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>OG-Web</last-edited>
+          <last-edited>OG-Platform</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
