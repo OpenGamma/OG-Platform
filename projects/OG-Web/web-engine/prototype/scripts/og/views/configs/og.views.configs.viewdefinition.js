@@ -106,9 +106,6 @@ $.register_module({
                     var data = result.data, meta = result.meta;
                     if (!deleted && !is_new && as_new && (orig_name === data.name))
                         return window.alert('Please select a new name.');
-                    console.log('result.data\n', JSON.stringify(result.data, null, 2));
-                    console.log('result.meta\n', JSON.stringify(result.meta, null, 2));
-                    delete result.data['uniqueId']; delete result.meta['uniqueId'];
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
