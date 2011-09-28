@@ -20,7 +20,7 @@ $.register_module({
                 $.each(bundle.conditions, function (index, val) {
                     var condition = false;
                     if (val.new_page && new_page) (condition = true) && val.new_page(args);
-                    if (val.new_value && (new_page || last[val.new_value] !== args[val.new_value]))
+                    if (val.new_value && (new_page || last.args[val.new_value] !== args[val.new_value]))
                         (condition = true) && val.method(args);
                     if (condition && val.stop) return false;
                 });
