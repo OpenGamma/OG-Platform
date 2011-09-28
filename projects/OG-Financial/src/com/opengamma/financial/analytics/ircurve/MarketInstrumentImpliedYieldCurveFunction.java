@@ -283,13 +283,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final double[] marketValues = new double[nFunding + nForward];
       int i = 0, fundingIndex = 0, forwardIndex = 0;
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
-
         final Double fundingMarketValue = fundingMarketDataMap.get(strip.getSecurityIdentifier());
         if (fundingMarketValue == null) {
           throw new NullPointerException("Could not get funding market data for " + strip);
         }
         final double marketValue = fundingMarketValue;
-
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
@@ -311,13 +309,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       }
 
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
-
         final Double forwardMarketValue = forwardMarketDataMap.get(strip.getSecurityIdentifier());
         if (forwardMarketValue == null) {
           throw new NullPointerException("Could not get funding market data for " + strip);
         }
         final double marketValue = forwardMarketValue;
-
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
         final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip
@@ -337,8 +333,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
         forwardIndex++;
       }
-      Arrays.sort(fundingNodeTimes);
-      Arrays.sort(forwardNodeTimes);
+      //Arrays.sort(fundingNodeTimes);
+      //Arrays.sort(forwardNodeTimes);
       // ParallelArrayBinarySort.parallelBinarySort(fundingNodeTimes, initialRatesGuess); //TODO will eventually need two sets of rates guesses
       // ParallelArrayBinarySort.parallelBinarySort(fundingNodeTimes, initialRatesGuess); //TODO will eventually need two sets of rates guesses
       final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
@@ -374,7 +370,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         try {
           s_logger.warn("Could not find root using LU decomposition and " + _calculationType + " method for curves " +
               _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName + "; trying SV. Error was: " + eLU.getMessage());
-          rootFinder = new BroydenVectorRootFinder(5e-4, 5e-4, 1000,
+          rootFinder = new BroydenVectorRootFinder(5e-3, 5e-3, 1000,
               DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
           yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess))
               .getData();

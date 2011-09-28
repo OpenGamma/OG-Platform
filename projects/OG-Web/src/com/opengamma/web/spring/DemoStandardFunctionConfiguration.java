@@ -285,6 +285,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_3M", "DEFAULT")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FORWARD_6M", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexVanillaOptionVegaFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING", "DEFAULT")));
