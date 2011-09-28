@@ -36,8 +36,11 @@ import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -129,6 +132,13 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
+  public Double visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(swap);
+    return visitSwap(swap, curves);
+  }
+
+  @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
@@ -207,6 +217,21 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   @Override
   public Double visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
     return METHOD_OIS.presentValue(payment, data).getAmount();
+  }
+
+  @Override
+  public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle data) {
+    double domesticValue = visitSwap(ccs.getDomesticLeg());
+    double foreignValue = visitSwap(ccs.getForeignLeg());
+    double fx = ccs.getSpotFX();
+    return domesticValue - fx * foreignValue;
+  }
+
+  @Override
+  public Double visitForexForward(final ForexForward fx, final YieldCurveBundle data) {
+    double leg1 = visitFixedPayment(fx.getPaymentCurrency1(), data);
+    double leg2 = visitFixedPayment(fx.getPaymentCurrency2(), data);
+    return leg1 + fx.getSpotForexRate() * leg2;
   }
 
   @Override

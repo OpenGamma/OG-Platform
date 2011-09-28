@@ -214,22 +214,6 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     return data;
   }
 
-  private double[] catMap(final HashMap<String, double[]> map) {
-    int nNodes = 0;
-    for (final double[] temp : map.values()) {
-      nNodes += temp.length;
-    }
-
-    final double[] temp = new double[nNodes];
-    int index = 0;
-    for (final double[] times : map.values()) {
-      for (final double t : times) {
-        temp[index++] = t;
-      }
-    }
-    Arrays.sort(temp);
-    return temp;
-  }
 
   private YieldCurveFittingTestDataBundle getDoubleCurveSetup() {
 
@@ -314,4 +298,5 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
     return data;
   }
+ 
 }

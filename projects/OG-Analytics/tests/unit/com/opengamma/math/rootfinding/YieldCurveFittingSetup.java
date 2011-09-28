@@ -25,6 +25,9 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -42,7 +45,11 @@ import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -58,6 +65,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -107,8 +115,8 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
-      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -335,6 +343,59 @@ public abstract class YieldCurveFittingSetup {
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
+  /**
+   * Sets up a simple Floating rate note to test the analytics 
+   * @param ccy
+   * @param notional
+   * @param nYears
+   * @param freq
+   * @param discountCurve
+   * @param indexCurve
+   * @param spread
+   * @return
+   */
+  protected static FloatingRateNote makeFRN(final CurrencyAmount notional, final int nYears, SimpleFrequency freq, final String discountCurve,
+      final String indexCurve, final double spread) {
+
+    int payments = (int) (nYears * freq.getPeriodsPerYear());
+    final double[] floatingPayments = new double[payments];
+    final double[] indexFixing = new double[payments];
+    final double[] indexMaturity = new double[payments];
+    final double[] yearFrac = new double[payments];
+
+    for (int i = 0; i < payments; i++) {
+      indexFixing[i] = i / freq.getPeriodsPerYear();
+      indexMaturity[i] = (i + 1) / freq.getPeriodsPerYear();
+      floatingPayments[i] = indexMaturity[i];
+      yearFrac[i] = 1 / freq.getPeriodsPerYear();
+    }
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(notional.getCurrency(), floatingPayments, indexFixing, indexMaturity, yearFrac, notional.getAmount(),
+        discountCurve, indexCurve, notional.getAmount() < 0.0).withSpread(spread);
+
+    PaymentFixed initialPayment = new PaymentFixed(notional.getCurrency(), 2.0 / 365, -notional.getAmount(), discountCurve);
+    PaymentFixed finalPayment = new PaymentFixed(notional.getCurrency(), nYears, notional.getAmount(), discountCurve);
+
+    return new FloatingRateNote(floatingLeg, initialPayment, finalPayment);
+  }
+
+  protected static CrossCurrencySwap makeCrossCurrencySwap(final CurrencyAmount domesticNotional, final CurrencyAmount foreignNotional, final int swapLength,
+      SimpleFrequency domesticPaymentFreq, SimpleFrequency foreignPaymentFreq, final String domesticDiscountCurve, final String domesticIndexCurve, final String foreignDiscountCurve,
+      final String foreignIndexCurve, final double spread) {
+
+    FloatingRateNote domesticFRN = makeFRN(domesticNotional, swapLength, domesticPaymentFreq, domesticDiscountCurve, domesticIndexCurve, 0.0);
+    FloatingRateNote foreignFRN = makeFRN(foreignNotional, swapLength, foreignPaymentFreq, foreignDiscountCurve, foreignIndexCurve, 0.0);
+
+    double spotFX = domesticNotional.getAmount() / foreignNotional.getAmount(); //assume the initial exchange of notionals cancels 
+    return new CrossCurrencySwap(domesticFRN, foreignFRN, spotFX);
+  }
+
+  protected static ForexForward makeForexForward(final CurrencyAmount domesticNotional, final CurrencyAmount foreignNotional, final double paymentTime, final double spotFX,
+      final String domesticDiscountCurve, final String foreignDiscountCurve) {
+    PaymentFixed p1 = new PaymentFixed(domesticNotional.getCurrency(), paymentTime, domesticNotional.getAmount(), domesticDiscountCurve);
+    PaymentFixed p2 = new PaymentFixed(foreignNotional.getCurrency(), paymentTime, foreignNotional.getAmount(), foreignDiscountCurve);
+    return new ForexForward(p1, p2, spotFX);
+  }
+
   protected static Bond makeBond(final double maturity, final String curveName, final double coupon) {
 
     final int n = (int) Math.ceil(maturity * 2.0);
@@ -346,6 +407,23 @@ public abstract class YieldCurveFittingSetup {
     final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
 
     return new Bond(CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
+  }
+
+  protected double[] catMap(final HashMap<String, double[]> map) {
+    int nNodes = 0;
+    for (final double[] temp : map.values()) {
+      nNodes += temp.length;
+    }
+
+    final double[] temp = new double[nNodes];
+    int index = 0;
+    for (final double[] times : map.values()) {
+      for (final double t : times) {
+        temp[index++] = t;
+      }
+    }
+    Arrays.sort(temp);
+    return temp;
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {
