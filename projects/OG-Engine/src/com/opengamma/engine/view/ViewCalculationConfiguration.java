@@ -14,9 +14,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.resolver.ComputationTargetFilter;
@@ -33,6 +34,8 @@ import com.opengamma.util.tuple.Pair;
  */
 @PublicAPI
 public class ViewCalculationConfiguration implements Serializable {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewCalculationConfiguration.class);
 
   /**
    * Dummy "security type" constant to request a value at the aggregate level only.
@@ -427,7 +430,11 @@ public class ViewCalculationConfiguration implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE, false);
+    if (s_logger.isDebugEnabled()) {
+      return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE, false);
+    } else {
+      return "ViewCalculationConfiguration[" + getName() + "]";
+    }
   }
   
 }
