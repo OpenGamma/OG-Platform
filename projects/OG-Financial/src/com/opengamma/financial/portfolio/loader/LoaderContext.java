@@ -7,6 +7,7 @@ package com.opengamma.financial.portfolio.loader;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -51,6 +52,10 @@ public class LoaderContext {
    * The holiday source.
    */
   private HolidaySource _holidaySource;
+  /**
+   * The security source.
+   */
+  private SecuritySource _securitySource;
   
   //-------------------------------------------------------------------------
   /**
@@ -181,4 +186,20 @@ public class LoaderContext {
     return _holidaySource;
   }
 
+  /**
+   * Gets the securitySource.
+   * @return the securitySource
+   */
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  /**
+   * Sets the securitySource.
+   * @param securitySource  the securitySource
+   */
+  public void setSecuritySource(final SecuritySource securitySource) {
+    _securitySource = securitySource;
+  }
+  
 }
