@@ -9,6 +9,8 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.language.context.AbstractGlobalContextEventHandler;
+import com.opengamma.language.context.DefaultGlobalContextEventHandler;
 import com.opengamma.language.context.DefaultSessionContextEventHandler;
 import com.opengamma.language.context.DefaultUserContextEventHandler;
 import com.opengamma.language.context.GlobalContextEventHandler;
@@ -102,9 +104,11 @@ public class TestUtils {
   }
 
   protected GlobalContextEventHandler createGlobalContextEventHandler() {
-    return new GlobalContextEventHandler() {
+    final DefaultGlobalContextEventHandler base = new DefaultGlobalContextEventHandler();
+    base.setSystemSettings(System.getProperties());
+    return new AbstractGlobalContextEventHandler(base) {
       @Override
-      public void initContext(final MutableGlobalContext globalContext) {
+      public void initContextImpl(final MutableGlobalContext globalContext) {
         if (getHistoricalTimeSeriesSource() != null) {
           globalContext.setHistoricalTimeSeriesSource(getHistoricalTimeSeriesSource());
         }

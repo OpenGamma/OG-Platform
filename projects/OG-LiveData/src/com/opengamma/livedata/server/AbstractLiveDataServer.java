@@ -69,7 +69,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<LiveDataSpecification, MarketDataDistributor>();
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
-  private final PerformanceCounter _performanceCounter = new PerformanceCounter(60);
+  private final PerformanceCounter _performanceCounter;
 
   private final Lock _subscriptionLock = new ReentrantLock();
 
@@ -78,6 +78,19 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
 
+  
+  protected AbstractLiveDataServer() {
+    this(true);
+  }
+
+  /**
+   * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
+   * @param isPerformanceCountingEnabled Whether to track the message rate here. See getNumLiveDataUpdatesSentPerSecondOverLastMinute
+   */
+  protected AbstractLiveDataServer(boolean isPerformanceCountingEnabled) {
+    _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
+  }
+  
   /**
    * @return the distributionSpecificationResolver
    */
@@ -843,7 +856,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numMarketDataUpdatesReceived.incrementAndGet();
-    _performanceCounter.hit();
+    if (_performanceCounter != null) {
+      _performanceCounter.hit();
+    }
     
     Subscription subscription = getSubscription(securityUniqueId);
     if (subscription == null) {
@@ -880,8 +895,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     return _numMarketDataUpdatesReceived.get();
   }
   
+  /**
+   * @return The approximate rate of live data updates received, or -1 if tracking is disabled  
+   */
   public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
-    return _performanceCounter.getHitsPerSecond();
+    return _performanceCounter == null ? -1.0 : _performanceCounter.getHitsPerSecond();
   }
 
   public Set<Subscription> getSubscriptions() {

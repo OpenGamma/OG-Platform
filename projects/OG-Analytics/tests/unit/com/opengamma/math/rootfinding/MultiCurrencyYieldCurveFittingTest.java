@@ -218,7 +218,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     //the domestic Libor instruments 
     for (final String name : domesticIndexMaturities.keySet()) {
       for (final double t : domesticIndexMaturities.get(name)) {
-        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(1), 0.0);
+        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(1), 0.0, DOMESTIC_NOTIONAL.getAmount());
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
         index++;
@@ -227,7 +227,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     //the foreign Libor instruments 
     for (final String name : foreignIndexMaturities.keySet()) {
       for (final double t : foreignIndexMaturities.get(name)) {
-        ird = makeIRD(name, t, curveNames.get(2), curveNames.get(3), 0.0);
+        ird = makeIRD(name, t, curveNames.get(2), curveNames.get(3), 0.0, FOREIGN_NOTIONAL.getAmount());
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
         index++;
