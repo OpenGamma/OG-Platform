@@ -130,6 +130,11 @@ public class CouponOIS extends Coupon {
   }
 
   @Override
+  public String toString() {
+    return super.toString() + ", period = [" + _fixingPeriodStartTime + ", " + _fixingPeriodEndTime + "-" + _fixingPeriodAccrualFactor + "]";
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
