@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationWorker.class);
 
   private final Map<ValueRequirement, ValueSpecification> _inputs = new HashMap<ValueRequirement, ValueSpecification>();
-  private final Map<ValueRequirement, Cancellable> _inputHandles = new HashMap<ValueRequirement, Cancellable>();
+  private final Map<ValueRequirement, Cancelable> _inputHandles = new HashMap<ValueRequirement, Cancelable>();
   private final Collection<ResolutionPump> _pumps = new ArrayList<ResolutionPump>();
   private int _pendingInputs;
   private int _validInputs;
@@ -81,7 +81,7 @@ import com.opengamma.engine.value.ValueSpecification;
   public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
     s_logger.debug("Resolution of {} failed at {}", value, this);
     final FunctionApplicationStep.PumpingState state;
-    final Collection<Cancellable> unsubscribes;
+    final Collection<Cancelable> unsubscribes;
     ResolutionFailure requirementFailure = null;
     synchronized (this) {
       _inputHandles.remove(value);
@@ -102,7 +102,7 @@ import com.opengamma.engine.value.ValueSpecification;
       if (_inputHandles.isEmpty()) {
         unsubscribes = null;
       } else {
-        unsubscribes = new ArrayList<Cancellable>(_inputHandles.values());
+        unsubscribes = new ArrayList<Cancelable>(_inputHandles.values());
       }
       state = _taskState;
       _taskState = null;
@@ -116,7 +116,7 @@ import com.opengamma.engine.value.ValueSpecification;
     // Unsubscribe from any inputs that are still valid
     if (unsubscribes != null) {
       s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
-      for (Cancellable handle : unsubscribes) {
+      for (Cancelable handle : unsubscribes) {
         if (handle != null) {
           handle.cancel(context);
         }
@@ -190,7 +190,7 @@ import com.opengamma.engine.value.ValueSpecification;
       _inputHandles.put(valueRequirement, null);
       _pendingInputs++;
     }
-    final Cancellable handle = inputProducer.addCallback(context, this);
+    final Cancelable handle = inputProducer.addCallback(context, this);
     synchronized (this) {
       if (handle != null) {
         // Only store the handle if the producer hasn't already failed

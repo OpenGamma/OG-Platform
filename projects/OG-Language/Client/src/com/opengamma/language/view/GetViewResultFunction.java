@@ -33,7 +33,7 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 
 /**
  * Returns the latest result from a calculating view
@@ -65,13 +65,13 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     this(new DefinitionAnnotater(GetViewResultFunction.class));
   }
 
-  private static final class Listener implements ViewResultListener, Cancellable {
+  private static final class Listener implements ViewResultListener, Cancelable {
 
     private final ViewClientHandle _viewClientHandle;
     private final ResultCallback<Object> _asyncResult;
     private final UniqueId _lastViewCycleId;
     private final AtomicBoolean _resultPosted = new AtomicBoolean();
-    private final Cancellable _timeout;
+    private final Cancelable _timeout;
 
     public Listener(final ViewClientHandle viewClientHandle, final ResultCallback<Object> asyncResult, final int timeoutMillis, final UniqueId lastViewCycleId) {
       _viewClientHandle = viewClientHandle;
