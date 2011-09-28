@@ -183,7 +183,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
+  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
     return visitCouponIbor(payment.toCouponIbor(), data);
   }
 

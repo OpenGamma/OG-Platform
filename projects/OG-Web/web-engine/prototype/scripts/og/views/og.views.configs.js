@@ -232,8 +232,10 @@ $.register_module({
                 search_filter();
             },
             load_configs: function (args) {
-                check_state({args: args, conditions: [{new_page: configs.load}]});
-                configs.details(args);
+                check_state({args: args, conditions: [
+                    {new_page: configs.load},
+                    {new_value: 'id', method: configs.details}
+                ]});
             },
             load_new: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});
