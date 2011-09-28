@@ -64,7 +64,6 @@ public class CreateBeanFunction<T extends Bean> implements PublishedFunction {
 
     @Override
     protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
-      ArgumentChecker.notNull(sessionContext, "sessionContext");
       ArgumentChecker.notNull(parameters, "parameters");
       if (parameters.length > _metaParameters.size()) {
         throw new IllegalArgumentException("Too many parameters received: " + parameters.length + ", expected: " +
