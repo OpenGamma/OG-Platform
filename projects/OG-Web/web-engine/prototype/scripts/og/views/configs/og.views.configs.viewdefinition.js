@@ -114,6 +114,7 @@ $.register_module({
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
+            master[SETS] = arr(master[SETS]); // initialize master[SETS]
             form.attach([
                 {type: 'form:load', handler: function () {
                     var header = '\
@@ -521,7 +522,8 @@ $.register_module({
                     new form.Block({ // form item_4
                         module: 'og.views.forms.view-definition-colset-tabs',
                         extras: {
-                            tabs: (master[SETS] = arr(master[SETS])).reduce(function (acc, set, idx) {
+                            tabs: master[SETS].reduce(function (acc, set, idx) {
+                                set.name = set.name || 'Set ' + (idx + 1);
                                 return acc + '<li><a class="og-tab og-js-colset-tab' + (idx ? '' : ' og-active') + '"' +
                                     ' href="#"><div class="og-delete og-js-rem-colset"></div>' +
                                     '<span class="og-js-colset-tab-name">' + set.name + '</span></a></li>';
@@ -548,10 +550,9 @@ $.register_module({
                                     $(form_id + ' .og-js-empty-colsets').hide();
                                     (function () {
                                         var $sec = $(form_id + ' section.og-js-colsets'),
-                                            block, set = {name: 'Set '};
+                                            block, set = {name: 'Set ' + (master[SETS].length + 1)};
                                         set[DEFP] = {};
-                                        if (!master[SETS]) master[SETS] = [set]; else master[SETS].push(set);
-                                        set.name += master[SETS].length;
+                                        master[SETS].push(set);
                                         column_sets.children.push(block = new_col_set(set, master[SETS].length - 1));
                                         block.html(function (html) {
                                             $sec.append($(html));
