@@ -62,6 +62,7 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -588,6 +589,16 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponOISSimplified(CouponOISSimplifiedDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponOIS(CouponOISDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponOIS(CouponOISDefinition payment) {
       return null;
     }
   }

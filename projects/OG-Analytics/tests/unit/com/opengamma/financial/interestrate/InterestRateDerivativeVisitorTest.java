@@ -56,9 +56,12 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
@@ -580,6 +583,36 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitCouponOIS(CouponOIS payment) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitOISSwap(OISSwap swap, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCrossCurrencySwap(CrossCurrencySwap ccs, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitFloatingRateNote(FloatingRateNote frn, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexForward(ForexForward fx, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitCrossCurrencySwap(CrossCurrencySwap ccs) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexForward(ForexForward fx) {
       return null;
     }
   };
