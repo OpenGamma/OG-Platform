@@ -73,9 +73,14 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
 
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
+    HolidaySearchRequest request = getSearchRequest(holidayType, regionOrExchangeIds);
+    return isHoliday(request, dateToCheck);
+  }
+
+  protected HolidaySearchRequest getSearchRequest(final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
     HolidaySearchRequest request = new HolidaySearchRequest(holidayType, regionOrExchangeIds);
     request.setVersionCorrection(getVersionCorrection());
-    return isHoliday(request, dateToCheck);
+    return request;
   }
 
   @Override

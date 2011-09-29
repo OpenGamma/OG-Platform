@@ -32,7 +32,7 @@ public class CouponIbor extends CouponFloating {
   /**
    * The fixing period year fraction (or accrual factor) in the fixing convention.
    */
-  private final double _fixingYearFraction;
+  private final double _fixingAccrualFactor;
   /**
    * The spread paid above Ibor.
    */
@@ -42,7 +42,7 @@ public class CouponIbor extends CouponFloating {
    */
   private final double _spreadAmount;
   /**
-   * The forward curve name used in to estimate the fixing index..
+   * The forward curve name used in to estimate the fixing index.
    */
   private final String _forwardCurveName;
 
@@ -56,8 +56,8 @@ public class CouponIbor extends CouponFloating {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
-   * @param fixingPeriodStartTime Time (in years) up to the start of the fixing period.
-   * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime The fixing period end time (in years).
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param spread The spread.
    * @param forwardCurveName Name of the forward (or estimation) curve.
@@ -70,7 +70,7 @@ public class CouponIbor extends CouponFloating {
     Validate.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
     _fixingPeriodEndTime = fixingPeriodEndTime;
     Validate.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
-    _fixingYearFraction = fixingYearFraction;
+    _fixingAccrualFactor = fixingYearFraction;
     Validate.notNull(forwardCurveName);
     _forwardCurveName = forwardCurveName;
     _spread = spread;
@@ -85,7 +85,7 @@ public class CouponIbor extends CouponFloating {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
-   * @param fixingPeriodStartTime Time (in years) up to the start of the fixing period.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
    * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param forwardCurveName Name of the forward (or estimation) curve.
@@ -96,27 +96,27 @@ public class CouponIbor extends CouponFloating {
   }
 
   /**
-   * Gets the _fixingPeriodStartTime field.
-   * @return the _fixingPeriodStartTime
+   * Gets the fixing period start time (in years).
+   * @return The fixing period start time.
    */
   public double getFixingPeriodStartTime() {
     return _fixingPeriodStartTime;
   }
 
   /**
-   * Gets the _fixingPeriodEndTime field.
-   * @return the _fixingPeriodEndTime
+   * Gets the fixing period end time (in years).
+   * @return The fixing period end time.
    */
   public double getFixingPeriodEndTime() {
     return _fixingPeriodEndTime;
   }
 
   /**
-   * Gets the _fixingYearFraction field.
-   * @return the _fixingYearFraction
+   * Gets the accrual factor for the fixing period.
+   * @return The accrual factor.
    */
   public double getFixingYearFraction() {
-    return _fixingYearFraction;
+    return _fixingAccrualFactor;
   }
 
   /**
@@ -136,8 +136,8 @@ public class CouponIbor extends CouponFloating {
   }
 
   /**
-   * Gets the _forwardCurveName field.
-   * @return the _forwardCurveName
+   * Gets the forward curve name.
+   * @return The name.
    */
   public String getForwardCurveName() {
     return _forwardCurveName;
@@ -162,7 +162,7 @@ public class CouponIbor extends CouponFloating {
 
   @Override
   public String toString() {
-    return super.toString() + ", fixing : [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingYearFraction + "], spread = " + _spread + ", forward curve = "
+    return super.toString() + ", fixing : [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingAccrualFactor + "], spread = " + _spread + ", forward curve = "
         + _forwardCurveName;
   }
 
@@ -175,7 +175,7 @@ public class CouponIbor extends CouponFloating {
     result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_fixingPeriodStartTime);
     result = prime * result + (int) (temp ^ temp >>> 32);
-    temp = Double.doubleToLongBits(_fixingYearFraction);
+    temp = Double.doubleToLongBits(_fixingAccrualFactor);
     result = prime * result + (int) (temp ^ temp >>> 32);
     result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     temp = Double.doubleToLongBits(_spread);
@@ -201,7 +201,7 @@ public class CouponIbor extends CouponFloating {
     if (Double.doubleToLongBits(_fixingPeriodStartTime) != Double.doubleToLongBits(other._fixingPeriodStartTime)) {
       return false;
     }
-    if (Double.doubleToLongBits(_fixingYearFraction) != Double.doubleToLongBits(other._fixingYearFraction)) {
+    if (Double.doubleToLongBits(_fixingAccrualFactor) != Double.doubleToLongBits(other._fixingAccrualFactor)) {
       return false;
     }
     if (!ObjectUtils.equals(_forwardCurveName, other._forwardCurveName)) {

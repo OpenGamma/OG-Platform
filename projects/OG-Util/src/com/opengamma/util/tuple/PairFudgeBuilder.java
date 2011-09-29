@@ -5,17 +5,13 @@
  */
 package com.opengamma.util.tuple;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldType;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
-import org.fudgemsg.wire.types.FudgeWireType;
 
 /**
  * Fudge builder for {@code DoublesPair}.
@@ -39,62 +35,19 @@ public final class PairFudgeBuilder implements FudgeBuilder<Pair<?, ?>> {
       msg.add("firstDouble", object.getFirst());
     } else {
       if (object.getFirst() != null) {
-        addToMessageWithClassHeaders(serializer, msg, FIRST_FIELD_NAME, object.getFirst());
+        serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
       }
     }
     if (object instanceof LongDoublePair || object instanceof IntDoublePair || object instanceof DoublesPair) {
       msg.add("secondDouble", object.getSecond());
     } else {
       if (object.getSecond() != null) {
-        addToMessageWithClassHeaders(serializer, msg, SECOND_FIELD_NAME, object.getSecond());
+        serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
       }
     }
     return msg;
   }
 
-  /**
-   * This does almost the same thing as {@link FudgeSerializer.addToMessageWithClassHeaders} except:
-   * - If a secondary type or a builder could be used then the builder will be used
-   * -- So that the class headers can be added
-   * @param serializer
-   * @param msg
-   * @param fieldName
-   * @param obj
-   */
-  private void addToMessageWithClassHeaders(FudgeSerializer serializer, MutableFudgeMsg msg, String fieldName,
-      Object obj) {
-    if (obj == null) {
-      return;
-    }
-    final Class<?> clazz = obj.getClass();
-    FudgeContext fudgeContext = serializer.getFudgeContext();
-    FudgeTypeDictionary typeDictionary = fudgeContext.getTypeDictionary();
-    final FudgeFieldType fieldType = typeDictionary.getByJavaType(clazz);
-    if (isNative(fieldType, obj, typeDictionary)) {
-      msg.add(fieldName, obj);
-      return;
-    }
-    MutableFudgeMsg valueMsg = serializer.objectToFudgeMsg(obj);
-    FudgeSerializer.addClassHeader(valueMsg, obj.getClass());
-    msg.add(fieldName, valueMsg);
-  }
-
-  /**
-   * Checks if the object is in the correct native format to send AND it isn't a secondary type
-   * 
-   * @param fieldType  the Fudge type, may be null
-   * @param object  the value to add, not null
-   * @return true if the object can be sent natively
-   */
-  private boolean isNative(final FudgeFieldType fieldType, final Object object, FudgeTypeDictionary dict) {
-    if (fieldType == null) {
-      return false;
-    }
-    boolean isNative = FudgeWireType.SUB_MESSAGE.equals(fieldType) == false ||
-            (FudgeWireType.SUB_MESSAGE.equals(fieldType) && object instanceof FudgeMsg);
-    return isNative && dict.getByTypeId(fieldType.getTypeId()) == fieldType;
-  }
-  
   @Override
   public Pair<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final Long firstLong = msg.getLong("firstLong");

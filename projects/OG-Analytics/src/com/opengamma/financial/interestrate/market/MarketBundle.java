@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexDeposit;
 import com.opengamma.financial.instrument.index.PriceIndex;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -29,7 +30,7 @@ public class MarketBundle {
   /**
    * A map with one (forward) curve by Ibor index.
    */
-  private final Map<IborIndex, YieldAndDiscountCurve> _forwardCurves;
+  private final Map<IndexDeposit, YieldAndDiscountCurve> _forwardCurves;
   /**
    * A map with one price curve by price index.
    */
@@ -44,7 +45,7 @@ public class MarketBundle {
    */
   public MarketBundle() {
     _discountingCurves = new HashMap<Currency, YieldAndDiscountCurve>();
-    _forwardCurves = new HashMap<IborIndex, YieldAndDiscountCurve>();
+    _forwardCurves = new HashMap<IndexDeposit, YieldAndDiscountCurve>();
     _priceIndexCurves = new HashMap<PriceIndex, PriceIndexCurve>();
     _issuerCurves = new HashMap<String, YieldAndDiscountCurve>();
   }
@@ -161,7 +162,7 @@ public class MarketBundle {
    * Gets the set of Ibor indexes defined in the market.
    * @return The set of index.
    */
-  public Set<IborIndex> getIborIndexes() {
+  public Set<IndexDeposit> getIborIndexes() {
     return _forwardCurves.keySet();
   }
 

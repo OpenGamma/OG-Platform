@@ -735,9 +735,6 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       while (rs.next()) {
         final long positionId = rs.getLong("POSITION_ID");
         if (_lastPositionId != positionId) {
-          if (_trade != null) {
-            fixupTrade();
-          }
           _lastPositionId = positionId;
           buildPosition(rs, positionId);
         }
@@ -783,34 +780,40 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           _trade.addAttribute(tradeAttrKey, tradeAttrValue);
         }
       }
+      fixupTrades(_documents);
       return _documents;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private void fixupTrade() {
-      String dealClass = _trade.getAttributes().remove(DEAL_CLASSNAME);
-      if (dealClass != null) {
-        Class<?> cls;
-        try {
-          cls = DbPositionMaster.class.getClassLoader().loadClass(dealClass);
-        } catch (ClassNotFoundException ex) {
-          throw new OpenGammaRuntimeException("Unable to load deal class", ex);
-        }
-        MetaBean metaBean = JodaBeanUtils.metaBean(cls);
-        Deal deal = (Deal) metaBean.builder().build();
-        for (Iterator<Entry<String, String>> it = _trade.getAttributes().entrySet().iterator(); it.hasNext(); ) {
-          Entry<String, String> entry = it.next();
-          if (entry.getKey().startsWith(DEAL_PREFIX)) {
-            MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(entry.getKey(), DEAL_PREFIX));
-            if (mp.propertyType() == LocalDate.class) {
-              ((MetaProperty) mp).set(deal, LocalDate.parse(entry.getValue()));
-            } else {
-              mp.setString(deal, entry.getValue());
+    private void fixupTrades(List<PositionDocument> documents) {
+      for (PositionDocument positionDocument : documents) {
+        ManageablePosition position = positionDocument.getPosition();
+        for (ManageableTrade trade : position.getTrades()) {
+          String dealClass = trade.getAttributes().remove(DEAL_CLASSNAME);
+          if (dealClass != null) {
+            Class<?> cls;
+            try {
+              cls = DbPositionMaster.class.getClassLoader().loadClass(dealClass);
+            } catch (ClassNotFoundException ex) {
+              throw new OpenGammaRuntimeException("Unable to load deal class", ex);
             }
-            it.remove();
+            MetaBean metaBean = JodaBeanUtils.metaBean(cls);
+            Deal deal = (Deal) metaBean.builder().build();
+            for (Iterator<Entry<String, String>> it = trade.getAttributes().entrySet().iterator(); it.hasNext(); ) {
+              Entry<String, String> entry = it.next();
+              if (entry.getKey().startsWith(DEAL_PREFIX)) {
+                MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(entry.getKey(), DEAL_PREFIX));
+                if (mp.propertyType() == LocalDate.class) {
+                  ((MetaProperty) mp).set(deal, LocalDate.parse(entry.getValue()));
+                } else {
+                  mp.setString(deal, entry.getValue());
+                }
+                it.remove();
+              }
+            }
+            trade.setDeal(deal);
           }
         }
-        _trade.setDeal(deal);
       }
     }
 

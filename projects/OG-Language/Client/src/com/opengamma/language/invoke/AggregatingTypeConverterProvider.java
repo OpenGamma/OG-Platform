@@ -39,15 +39,17 @@ public final class AggregatingTypeConverterProvider implements TypeConverterProv
   public List<TypeConverter> getTypeConverters() {
     if (_typeConverters == null) {
       synchronized (this) {
-        final Map<String, TypeConverter> typeConverters = new LinkedHashMap<String, TypeConverter>();
-        for (TypeConverterProvider typeConverterProvider : _typeConverterProviders) {
-          for (TypeConverter typeConverter : typeConverterProvider.getTypeConverters()) {
-            typeConverters.remove(typeConverter.getTypeConverterKey());
-            typeConverters.put(typeConverter.getTypeConverterKey(), typeConverter);
+        if (_typeConverters == null) {
+          final Map<String, TypeConverter> typeConverters = new LinkedHashMap<String, TypeConverter>();
+          for (TypeConverterProvider typeConverterProvider : _typeConverterProviders) {
+            for (TypeConverter typeConverter : typeConverterProvider.getTypeConverters()) {
+              typeConverters.remove(typeConverter.getTypeConverterKey());
+              typeConverters.put(typeConverter.getTypeConverterKey(), typeConverter);
+            }
           }
+          _typeConverterProviders = null;
+          _typeConverters = Collections.unmodifiableList(new ArrayList<TypeConverter>(typeConverters.values()));
         }
-        _typeConverterProviders = null;
-        _typeConverters = Collections.unmodifiableList(new ArrayList<TypeConverter>(typeConverters.values()));
       }
     }
     return _typeConverters;

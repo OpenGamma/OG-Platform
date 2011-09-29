@@ -37,6 +37,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -88,8 +89,9 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
     DoubleTimeSeries<?> riskFreeReturnTS = riskFreeRateTSObject.getTimeSeries().divide(100 * DAYS_PER_YEAR);
-    assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
-    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(assetReturnTS);
+    DoubleTimeSeries<?>[] series = TimeSeriesIntersector.intersect(riskFreeReturnTS, assetReturnTS);
+    riskFreeReturnTS = series[0];
+    assetReturnTS = series[1];
     final double ratio = _treynorRatio.evaluate(assetReturnTS, riskFreeReturnTS, beta);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TREYNOR_RATIO, positionOrNode), getUniqueId()), ratio));
   }

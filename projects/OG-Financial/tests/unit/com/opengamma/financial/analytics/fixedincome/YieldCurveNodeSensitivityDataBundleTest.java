@@ -22,7 +22,7 @@ public class YieldCurveNodeSensitivityDataBundleTest {
   private static final double[] X = new double[] {5, 6, 7, 8};
   private static final DoubleLabelledMatrix1D M = new DoubleLabelledMatrix1D(T, X);
   private static final Currency CCY = Currency.USD;
-  private static final String NAME = "SINGLE";
+  private static final String NAME = "FUNDING";
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {

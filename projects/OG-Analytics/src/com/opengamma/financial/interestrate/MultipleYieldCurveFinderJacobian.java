@@ -79,6 +79,9 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
           final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
           final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
           final List<DoublesPair> senseList = senseMap.get(name);
+          if (senseList.size() == 0) {
+            throw new IllegalArgumentException("Could not get any sensitivities for " + name);
+          }
           final double[][] sensitivity = new double[senseList.size()][];
           int k = 0;
           for (final DoublesPair timeAndDF : senseList) {

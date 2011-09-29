@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -20,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -87,7 +84,7 @@ public class LastHistoricalValueFunction extends PropertyPreservingFunction {
     //final Position position = target.getPosition();
     //final Security security = position.getSecurity();
     //final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId(), getInputConstraint(desiredValue));
-    return Collections.emptySet();//singleton(requirement);
+    return Collections.emptySet(); //singleton(requirement);
   }
 
   @Override

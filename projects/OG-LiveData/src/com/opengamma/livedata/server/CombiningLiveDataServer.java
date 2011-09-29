@@ -26,7 +26,6 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
-import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 
 /**
  * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer} 
@@ -146,13 +145,6 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
   protected void doDisconnect() {
     for (AbstractLiveDataServer server : _underlyings) {
       server.stop();
-    }
-  }
-
-  @Override
-  public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
-    for (AbstractLiveDataServer server : _underlyings) {
-      server.setMarketDataSenderFactory(marketDataSenderFactory);
     }
   }
 

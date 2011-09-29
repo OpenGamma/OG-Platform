@@ -38,6 +38,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -87,8 +88,9 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     final double fairValue = (Double) assetFairValueObject;
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
     DoubleTimeSeries<?> benchmarkReturnTS = _returnCalculator.evaluate(benchmarkTSObject.getTimeSeries());
-    assetReturnTS = assetReturnTS.intersectionFirstValue(benchmarkReturnTS);
-    benchmarkReturnTS = benchmarkReturnTS.intersectionFirstValue(assetReturnTS);
+    DoubleTimeSeries<?>[] series = TimeSeriesIntersector.intersect(assetReturnTS, benchmarkReturnTS);
+    assetReturnTS = series[0];
+    benchmarkReturnTS = series[1];
     final double ratio = _sharpeRatio.evaluate(assetReturnTS, benchmarkReturnTS);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SHARPE_RATIO, positionOrNode), getUniqueId()), ratio));
   }

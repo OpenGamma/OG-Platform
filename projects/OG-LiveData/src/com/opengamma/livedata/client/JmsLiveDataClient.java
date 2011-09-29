@@ -114,7 +114,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     }
     
     s_logger.info("Starting listening to tick distribution specification {}", tickDistributionSpecification);
-    ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(this);
+    ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(this, getFudgeContext());
     JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(fudgeReceiver);
     
     MessageConsumer messageConsumer;

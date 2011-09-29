@@ -7,8 +7,6 @@ package com.opengamma.masterdb.security;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -39,7 +37,6 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   public ModifySecurityDbSecurityMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   //-------------------------------------------------------------------------

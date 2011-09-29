@@ -28,10 +28,10 @@ public final class ObjectsPairFudgeBuilder implements FudgeBuilder<ObjectsPair<?
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ObjectsPair<?, ?> object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     if (object.getFirst() != null) {
-      serializer.addToMessageWithClassHeaders(msg, FIRST_FIELD_NAME, null, object.getFirst());
+      serializer.addToMessageObject(msg, FIRST_FIELD_NAME, null, object.getFirst(), Object.class);
     }
     if (object.getSecond() != null) {
-      serializer.addToMessageWithClassHeaders(msg, SECOND_FIELD_NAME, null, object.getSecond());
+      serializer.addToMessageObject(msg, SECOND_FIELD_NAME, null, object.getSecond(), Object.class);
     }
     return msg;
   }

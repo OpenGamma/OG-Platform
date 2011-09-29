@@ -101,8 +101,8 @@ public class PDEUtilityTools {
   }
 
   public static void printSurface(final String name, final PDEFullResults1D res) {
-      PrintStream out = System.out;
-      printSurface(name, res, out);
+    PrintStream out = System.out;
+    printSurface(name, res, out);
   }
 
   public static void printSurface(final String name, final PDEFullResults1D res, final PrintStream out) {

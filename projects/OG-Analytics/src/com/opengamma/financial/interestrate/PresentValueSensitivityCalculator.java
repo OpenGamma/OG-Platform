@@ -31,11 +31,13 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -51,6 +53,11 @@ import com.opengamma.util.tuple.DoublesPair;
 public class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
   //TODO Rename me to be consistent with descendants and the par rate calculators
+
+  /**
+   * The method used for OIS coupons.
+   */
+  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
 
@@ -223,6 +230,11 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+    return METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitZZZCouponOIS(final ZZZCouponOIS payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve fundingCurve = data.getCurve(payment.getFundingCurveName());
     //  final YieldAndDiscountCurve indexCurve = data.getCurve(payment.getIndexCurveName());
     final double ta = payment.getStartTime();

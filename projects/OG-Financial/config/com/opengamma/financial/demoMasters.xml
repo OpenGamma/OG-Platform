@@ -70,12 +70,9 @@
     <constructor-arg ref="cfgDbSource" />
     <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
-  <!-- <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource" depends-on="curveLoader,currencyMatrixLoader,surfaceLoader, cubeLoader"> -->
-  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource"><!-- depends-on="currencyMatrixLoader, swaptionSurfaceLoader, irFutureSurfaceLoader, fxVolatilitySurfaceLoader, equityOptionSurfaceLoader, cubeLoader"-->
-    <constructor-arg ref="sharedConfigMaster" />
-  </bean>
+
   <!-- Config loaders, should be commented out most of the time -->
-  <!--bean id="curveLoader" class="com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator">
+  <!-- bean id="curveLoader" class="com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <bean id="currencyMatrixLoader" class="com.opengamma.financial.currency.CurrencyMatrixConfigPopulator">
@@ -97,6 +94,10 @@
     <constructor-arg ref="sharedConfigMaster" />
   </bean-->
   
+  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
+    <constructor-arg ref="sharedConfigMaster" />
+  </bean>
+  
   <!-- ExchangeMaster -->
   <bean id="dbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="finDbSource" />
@@ -112,9 +113,8 @@
     <constructor-arg ref="finDbSource" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
   </bean>
-  <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySource">
+  <bean id="sharedHolidaySource" class="com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource">
     <constructor-arg ref="dbHolidayMaster"/>
-    <constructor-arg ref="cacheManager"/>
   </bean>
 
   <!-- SecurityMaster -->
@@ -123,6 +123,14 @@
     <constructor-arg ref="finDbSource" />
     <property name="changeManager" ref="securityMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
+    <property name="detailProvider">
+        <bean class="com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider" >
+                <constructor-arg>
+                  <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider" />
+                </constructor-arg>
+                <constructor-arg ref="cacheManager" />
+        </bean>
+    </property>
   </bean>
   <bean id="sharedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
     <constructor-arg>
@@ -231,7 +239,9 @@
           <property name="configMaster" ref="sharedConfigMaster" />
           <property name="conventionBundleSource" ref="conventionBundleSource" />
         </bean>
-        <bean class="com.opengamma.web.spring.DemoSurfaceFunctionConfiguration" />
+        <bean class="com.opengamma.web.spring.DemoSurfaceFunctionConfiguration">
+          <property name="configMaster" ref="sharedConfigMaster" />
+        </bean>
        </list>
     </constructor-arg>
   </bean>

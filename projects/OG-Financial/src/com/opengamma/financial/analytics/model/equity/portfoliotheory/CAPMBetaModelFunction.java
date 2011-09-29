@@ -38,6 +38,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
 import com.opengamma.math.statistics.descriptive.SampleCovarianceCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -77,8 +78,9 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
       final double fairValue = (Double) fairValueObject;
       DoubleTimeSeries<?> marketReturn = _returnCalculator.evaluate(marketTSObject.getTimeSeries());
       DoubleTimeSeries<?> assetReturn = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
-      assetReturn = assetReturn.intersectionFirstValue(marketReturn);
-      marketReturn = marketReturn.intersectionFirstValue(assetReturn);
+      DoubleTimeSeries<?>[] series = TimeSeriesIntersector.intersect(assetReturn, marketReturn);
+      assetReturn = series[0];
+      marketReturn = series[1];
       final double beta = _model.evaluate(assetReturn, marketReturn);
       return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode), getUniqueId()), beta));
     }

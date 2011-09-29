@@ -231,7 +231,7 @@ public final class JavaTypeInfo<T> {
       sb.append("not null");
     }
     if (isDefaultValue()) {
-      sb.append(", deafult = ").append(getDefaultValue());
+      sb.append(", default = ").append(getDefaultValue());
     }
     sb.append(']');
     return sb.toString();

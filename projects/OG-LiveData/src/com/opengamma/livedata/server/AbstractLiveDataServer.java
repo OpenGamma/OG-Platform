@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
@@ -61,14 +62,14 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /** Access controlled via _subscriptionLock */
   private final Set<Subscription> _currentlyActiveSubscriptions = new HashSet<Subscription>();
   
-  /** Access controlled via _subscriptionLock */
-  private final Map<String, Subscription> _securityUniqueId2Subscription = new HashMap<String, Subscription>();
+  /** _Write_ access controlled via _subscriptionLock */
+  private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<String, Subscription>();
   
   /** Access controlled via _subscriptionLock */
   private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<LiveDataSpecification, MarketDataDistributor>();
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
-  private final PerformanceCounter _performanceCounter = new PerformanceCounter(60);
+  private final PerformanceCounter _performanceCounter;
 
   private final Lock _subscriptionLock = new ReentrantLock();
 
@@ -77,6 +78,19 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
 
+  
+  protected AbstractLiveDataServer() {
+    this(true);
+  }
+
+  /**
+   * You may wish to disable performance counting if you expect a high rate of messages, or to process messages on several threads.
+   * @param isPerformanceCountingEnabled Whether to track the message rate here. See getNumLiveDataUpdatesSentPerSecondOverLastMinute
+   */
+  protected AbstractLiveDataServer(boolean isPerformanceCountingEnabled) {
+    _performanceCounter = isPerformanceCountingEnabled ? new PerformanceCounter(60) : null;
+  }
+  
   /**
    * @return the distributionSpecificationResolver
    */
@@ -362,6 +376,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // this is the only place where subscribe() can 'partially' fail
         DistributionSpecification distributionSpec;
         try {
+          //REVIEW simon 2011-09-06: If it weren't for caching doing this unbatched would be very bad. 
+          //    Doing it unbatched might get us an exception, although the comments say that null should be returned. 
           distributionSpec = getDistributionSpecificationResolver().resolve(specFromClient);
         } catch (RuntimeException e) {
           s_logger.info("Unable to work out distribution spec for specification " + specFromClient, e);
@@ -819,12 +835,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public boolean isSubscribedTo(String securityUniqueId) {
-    _subscriptionLock.lock();
-    try {
-      return _securityUniqueId2Subscription.containsKey(securityUniqueId);
-    } finally {
-      _subscriptionLock.unlock();
-    }
+    return _securityUniqueId2Subscription.containsKey(securityUniqueId);
   }
   
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
@@ -845,7 +856,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numMarketDataUpdatesReceived.incrementAndGet();
-    _performanceCounter.hit();
+    if (_performanceCounter != null) {
+      _performanceCounter.hit();
+    }
     
     Subscription subscription = getSubscription(securityUniqueId);
     if (subscription == null) {
@@ -882,8 +895,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     return _numMarketDataUpdatesReceived.get();
   }
   
+  /**
+   * @return The approximate rate of live data updates received, or -1 if tracking is disabled  
+   */
   public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
-    return _performanceCounter.getHitsPerSecond();
+    return _performanceCounter == null ? -1.0 : _performanceCounter.getHitsPerSecond();
   }
 
   public Set<Subscription> getSubscriptions() {
@@ -904,12 +920,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public Subscription getSubscription(String securityUniqueId) {
-    _subscriptionLock.lock();
-    try {
-      return _securityUniqueId2Subscription.get(securityUniqueId);
-    } finally {
-      _subscriptionLock.unlock();
-    }
+    //NOTE: don't need lock here, map is safe, and this operation isn't really atomic anyway
+    return _securityUniqueId2Subscription.get(securityUniqueId);
   }
   
   public MarketDataDistributor getMarketDataDistributor(DistributionSpecification distributionSpec) {

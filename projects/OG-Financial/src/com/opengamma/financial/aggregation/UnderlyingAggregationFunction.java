@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -31,7 +35,8 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * Abstract aggregation function for bucketing equities and equity options by GICS code of the underlying
  */
 public class UnderlyingAggregationFunction implements AggregationFunction<String> {
-
+  private static final boolean s_useAttributes = false;
+  
   private ExternalScheme _preferredScheme;
   private SecuritySource _secSource;;
   private static final String NOT_APPLICABLE = "N/A";
@@ -98,22 +103,36 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   
   @Override
   public String classifyPosition(Position position) {
-    FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
-                                                                                            .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
-                                                                                            .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                            .fxOptionVisitor(_fxOptionSecurityVisitor)
-                                                                                            .fxBarrierOptionVisitor(_fxBarrierOptionSecurityVisitor)
-                                                                                            .irfutureOptionVisitor(_irFutureOptionSecurityVisitor)
-                                                                                            .swaptionVisitor(_swaptionSecurityVisitor)
-                                                                                            .create();
-    FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
-    String classification = security.accept(visitorAdapter);
-    return classification == null ? NOT_APPLICABLE : classification;
+    if (s_useAttributes) {
+      Map<String, String> attributes = position.getAttributes();
+      if (attributes.containsKey(getName())) {
+        return attributes.get(getName());
+      } else {
+        return NOT_APPLICABLE;
+      } 
+    } else {
+      FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+                                                                                              .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
+                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
+                                                                                              .fxOptionVisitor(_fxOptionSecurityVisitor)
+                                                                                              .fxBarrierOptionVisitor(_fxBarrierOptionSecurityVisitor)
+                                                                                              .irfutureOptionVisitor(_irFutureOptionSecurityVisitor)
+                                                                                              .swaptionVisitor(_swaptionSecurityVisitor)
+                                                                                              .create();
+      FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
+      String classification = security.accept(visitorAdapter);
+      return classification == null ? NOT_APPLICABLE : classification;
+    }
   }
 
   @Override
   public String getName() {
     return "Underlying";
+  }
+
+  @Override
+  public Collection<String> getRequiredEntries() {
+    return Collections.emptyList();
   }
 
 }

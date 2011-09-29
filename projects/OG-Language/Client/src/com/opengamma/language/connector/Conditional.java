@@ -18,6 +18,39 @@ import com.opengamma.language.context.UserContext;
 public abstract class Conditional {
 
   /**
+   * Boolean constant condition.
+   * 
+   * @param constant conditional result
+   * @return a {@link Conditional} instance
+   */
+  public static Conditional booleanConstant(final boolean constant) {
+    return new Conditional() {
+      @Override
+      public boolean evaluate() {
+        return constant;
+      }
+    };
+  }
+
+  /**
+   * Always TRUE condition.
+   * 
+   * @return a {@link Conditional} instance
+   */
+  public static Conditional isTrue() {
+    return booleanConstant(true);
+  }
+
+  /**
+   * Always FALSE condition.
+   * 
+   * @return a {@link Conditional} instance
+   */
+  public static Conditional isFalse() {
+    return booleanConstant(false);
+  }
+
+  /**
    * Tests if it is debug mode for the either the client session or infrastructure stack.
    * 
    * @return a {@link Conditional} instance 

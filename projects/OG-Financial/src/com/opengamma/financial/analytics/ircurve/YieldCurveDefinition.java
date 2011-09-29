@@ -38,8 +38,8 @@ import com.opengamma.util.money.Currency;
  * This class is mutable.
  */
 @BeanDefinition
-public class YieldCurveDefinition extends DirectBean
-    implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
+public class YieldCurveDefinition extends DirectBean implements Serializable, UniqueIdentifiable,
+    MutableUniqueIdentifiable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -90,8 +90,8 @@ public class YieldCurveDefinition extends DirectBean
    * @param name  the display name, may be null
    * @param interpolatorName  the interpolator name, not null
    */
-  public YieldCurveDefinition(
-      Currency currency, ExternalId region, String name, String interpolatorName) {
+  public YieldCurveDefinition(final Currency currency, final ExternalId region, final String name,
+      final String interpolatorName) {
     this(currency, region, name, interpolatorName, Collections.<FixedIncomeStrip>emptySet());
   }
 
@@ -104,9 +104,8 @@ public class YieldCurveDefinition extends DirectBean
    * @param interpolatorName  the interpolator name, not null
    * @param strips  the underlying strips, null treated as empty list
    */
-  public YieldCurveDefinition(
-      Currency currency, ExternalId region, String name, String interpolatorName,
-      Iterable<? extends FixedIncomeStrip> strips) {
+  public YieldCurveDefinition(final Currency currency, final ExternalId region, final String name,
+      final String interpolatorName, final Iterable<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(interpolatorName, "interpolatorName");
     _currency = currency;
@@ -114,19 +113,20 @@ public class YieldCurveDefinition extends DirectBean
     _name = name;
     _interpolatorName = interpolatorName;
     if (strips != null) {
-      for (FixedIncomeStrip strip : strips) {
+      for (final FixedIncomeStrip strip : strips) {
         addStrip(strip);
       }
     }
   }
 
+  //TODO add a constructor that takes left and right interpolator names
   //-------------------------------------------------------------------------
   /**
    * Adds a strip to the yield curve definition.
    * 
    * @param strip  the strip to add, not null
    */
-  public void addStrip(FixedIncomeStrip strip) {
+  public void addStrip(final FixedIncomeStrip strip) {
     ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
   }

@@ -17,22 +17,37 @@ import com.opengamma.util.time.Tenor;
 public class FixedIncomeStripTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_nullType() {
+  public void test_constructor1_nullType() {
     new FixedIncomeStrip(null, new Tenor(Period.ofYears(5)), "Test");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_nullTenor() {
-    new FixedIncomeStrip(StripInstrumentType.SWAP, null, "Test");
+  public void test_constructor2_nullType() {
+    new FixedIncomeStrip(null, new Tenor(Period.ofYears(5)), 1, "Test");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_nullName() {
-    new FixedIncomeStrip(StripInstrumentType.SWAP, new Tenor(Period.ofYears(5)), null);
+  public void test_constructor1_nullTenor() {
+    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, null, "Test");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor3_future() {
+  public void test_constructor2_nullTenor() {
+    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, null, 3, "Test");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_constructor1_nullName() {
+    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, new Tenor(Period.ofYears(5)), null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_constructor2_nullName() {
+    new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, new Tenor(Period.ofYears(5)), 4, null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_constructor1_future() {
     new FixedIncomeStrip(StripInstrumentType.FUTURE, new Tenor(Period.ofYears(5)), "Test");
   }
 

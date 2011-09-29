@@ -116,6 +116,11 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<PositionDocument> documentsGenericType() {
+      return PositionDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

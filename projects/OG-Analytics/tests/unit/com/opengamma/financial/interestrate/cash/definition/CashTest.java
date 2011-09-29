@@ -45,16 +45,6 @@ public class CashTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeRate1() {
-    new Cash(CCY, T, NOTIONAL, -R, CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeRate2() {
-    new Cash(CCY, T, NOTIONAL, -R, TRADE_T, FRACTION, CURVE_NAME);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName1() {
     new Cash(CCY, T, NOTIONAL, R, null);
   }

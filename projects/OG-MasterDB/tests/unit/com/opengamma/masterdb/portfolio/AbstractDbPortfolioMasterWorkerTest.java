@@ -10,8 +10,6 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.TimeZone;
-
 import javax.time.Instant;
 import javax.time.TimeSource;
 import javax.time.calendar.OffsetDateTime;
@@ -48,7 +46,6 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DBTest {
   public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   @BeforeMethod

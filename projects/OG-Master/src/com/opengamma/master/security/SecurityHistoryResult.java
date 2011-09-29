@@ -145,6 +145,11 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<SecurityDocument> documentsGenericType() {
+      return SecurityDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

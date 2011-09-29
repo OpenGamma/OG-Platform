@@ -50,7 +50,7 @@ public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<FixedI
     }
     final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) underlyingSwap;
     final boolean isCashSettled = swaptionSecurity.isCashSettled();
-    final boolean isLong = swaptionSecurity.getIsLong();
+    final boolean isLong = swaptionSecurity.isLong();
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedFloat, isLong)
         : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedFloat, isLong);
   }

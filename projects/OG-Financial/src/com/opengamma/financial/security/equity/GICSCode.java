@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.equity;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 /**
@@ -169,6 +170,15 @@ public final class GICSCode implements Serializable {
     String description = GICSCodeDescription.INSTANCE.getDescription(getSectorCode());
     return description != null ? description : "Unknown";
   }
+  
+  /**
+   * Gets all the sectors.
+   * 
+   * @return a collection of all the sectors
+   */
+  public static Collection<String> getAllSectorDescriptions() {
+    return GICSCodeDescription.INSTANCE.getAllSectorDescriptions();
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -210,6 +220,15 @@ public final class GICSCode implements Serializable {
     }
     String description = GICSCodeDescription.INSTANCE.getDescription(getIndustryGroupCode());
     return description != null ? description : "Unknown";
+  }
+  
+  /**
+   * Gets all the industry group descriptions.
+   * 
+   * @return a collection of all the industry group descriptions
+   */
+  public static Collection<String> getAllIndustryGroupDescriptions() {
+    return GICSCodeDescription.INSTANCE.getAllIndustryGroupDescriptions();
   }
 
   //-------------------------------------------------------------------------
@@ -253,6 +272,15 @@ public final class GICSCode implements Serializable {
     String description = GICSCodeDescription.INSTANCE.getDescription(getIndustryCode());
     return description != null ? description : "Unknown";
   }
+  
+  /**
+   * Gets all the industry descriptions.
+   * 
+   * @return a collection of all the industry descriptions
+   */
+  public static Collection<String> getAllIndustryDescriptions() {
+    return GICSCodeDescription.INSTANCE.getAllIndustryDescriptions();
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -295,7 +323,16 @@ public final class GICSCode implements Serializable {
     String description = GICSCodeDescription.INSTANCE.getDescription(getSubIndustryCode());
     return description != null ? description : "Unknown";
   }
-
+  
+  /**
+   * Gets all the sub-industry descriptions.
+   * 
+   * @return a collection of all the sub-industry descriptions
+   */
+  public static Collection<String> getAllSubIndustryDescriptions() {
+    return GICSCodeDescription.INSTANCE.getAllSubIndustryDescriptions();
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Checks if the code is a complete 8 digit sub-industry code.

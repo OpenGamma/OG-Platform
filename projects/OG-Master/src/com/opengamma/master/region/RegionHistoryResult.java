@@ -145,6 +145,11 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
      */
     static final Meta INSTANCE = new Meta();
 
+    @Override
+    protected Class<RegionDocument> documentsGenericType() {
+      return RegionDocument.class;
+    }
+
     /**
      * The meta-properties.
      */

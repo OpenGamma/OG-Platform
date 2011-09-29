@@ -277,13 +277,13 @@ public class SwaptionCashFixedIborSABRMethodTest {
     pvsShortPayer.multiply(-1.0);
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
-    final double pvLongPayer = METHOD.presentValue(SWAPTION_LONG_PAYER, SABR_BUNDLE);
+    final double pvLongPayer = METHOD.presentValue(SWAPTION_LONG_PAYER, SABR_BUNDLE).getAmount();
     final double shift = 0.0001;
     final DoublesPair expectedExpiryTenor = new DoublesPair(SWAPTION_LONG_PAYER.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped();
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES);
-    final double pvLongPayerAlphaBumped = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundleAlphaBumped);
+    final double pvLongPayerAlphaBumped = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundleAlphaBumped).getAmount();
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pvLongPayer) / shift;
     assertEquals("Number of alpha sensitivity", pvsLongPayer.getAlpha().keySet().size(), 1);
     assertEquals("Alpha sensitivity expiry/tenor", pvsLongPayer.getAlpha().keySet().contains(expectedExpiryTenor), true);
@@ -291,7 +291,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     // Rho sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES);
-    final double pvLongPayerRhoBumped = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundleRhoBumped);
+    final double pvLongPayerRhoBumped = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundleRhoBumped).getAmount();
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pvLongPayer) / shift;
     assertEquals("Number of rho sensitivity", pvsLongPayer.getRho().keySet().size(), 1);
     assertEquals("Rho sensitivity expiry/tenor", pvsLongPayer.getRho().keySet().contains(expectedExpiryTenor), true);
@@ -299,7 +299,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped();
     final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, CURVES);
-    final double pvLongPayerNuBumped = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundleNuBumped);
+    final double pvLongPayerNuBumped = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundleNuBumped).getAmount();
     final double expectedNuSensi = (pvLongPayerNuBumped - pvLongPayer) / shift;
     assertEquals("Number of nu sensitivity", pvsLongPayer.getNu().keySet().size(), 1);
     assertEquals("Nu sensitivity expiry/tenor", pvsLongPayer.getNu().keySet().contains(expectedExpiryTenor), true);

@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.financial.interestrate.payments.CouponOIS;
+import com.opengamma.financial.interestrate.payments.ZZZCouponOIS;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -111,7 +111,7 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitCouponOIS(final CouponOIS payment) {
+  public Double visitZZZCouponOIS(final ZZZCouponOIS payment) {
     return payment.getPaymentTime();
   }
 

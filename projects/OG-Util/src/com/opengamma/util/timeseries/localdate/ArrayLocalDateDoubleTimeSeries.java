@@ -12,11 +12,13 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.ToStringHelper;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * @author jim
@@ -70,6 +72,46 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
   @Override
   public LocalDateDoubleTimeSeries newInstanceFast(final LocalDate[] dateTimes, final double[] values) {
     return new ArrayLocalDateDoubleTimeSeries(dateTimes, values);
+  }
+
+  @Override
+  protected FastBackedDoubleTimeSeries<LocalDate> intersectionFirstValueFast(FastLongDoubleTimeSeries other) {
+    //PLAT-1590
+    int[] aTimes = getFastSeries().timesArrayFast();
+    final double[] aValues = valuesArrayFast();
+    int aCount = 0;
+    final long[] bTimesLong = other.timesArrayFast();
+    final int[] bTimes = new int[bTimesLong.length];
+    
+    DateTimeNumericEncoding aEncoding = getFastSeries().getEncoding();
+    DateTimeNumericEncoding bEncoding = other.getEncoding();
+    for (int i = 0; i < bTimesLong.length; i++) {
+      bTimes[i] = bEncoding.convertToInt(bTimesLong[i], aEncoding);
+    }
+    
+    
+    int bCount = 0;
+    final int[] resTimes = new int[Math.min(aTimes.length, bTimes.length)];
+    final double[] resValues = new double[resTimes.length];
+    int resCount = 0;
+    while (aCount < aTimes.length && bCount < bTimes.length) {
+      if (aTimes[aCount] == bTimes[bCount]) {
+        resTimes[resCount] = aTimes[aCount];
+        resValues[resCount] = aValues[aCount];
+        resCount++;
+        aCount++;
+        bCount++;
+      } else if (aTimes[aCount] < bTimes[bCount]) {
+        aCount++;
+      } else { // if (aTimes[aCount] > bTimes[bCount]) {
+        bCount++;
+      }
+    }
+    int[] trimmedTimes = new int[resCount];
+    double[] trimmedValues = new double[resCount];
+    System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
+    System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
+    return new ArrayLocalDateDoubleTimeSeries(new FastArrayIntDoubleTimeSeries(getFastSeries().getEncoding(), trimmedTimes, trimmedValues));
   }
 
   @Override

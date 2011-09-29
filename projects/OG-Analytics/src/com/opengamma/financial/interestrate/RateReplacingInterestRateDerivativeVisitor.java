@@ -15,7 +15,11 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
@@ -88,6 +92,26 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   @Override
   public FixedFloatSwap visitFixedFloatSwap(final FixedFloatSwap swap, final Double rate) {
     return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
+  }
+
+  @Override
+  public FloatingRateNote visitFloatingRateNote(final FloatingRateNote frn, final Double spread) {
+    return new FloatingRateNote(frn.getFloatingLeg().withSpread(spread), frn.getFirstLeg().getNthPayment(0), frn.getFirstLeg().getNthPayment(1));
+  }
+
+  /**
+   * Sets a spread on the foreign ibor payments. Any existing spreads are removed. 
+   */
+  @Override
+  public CrossCurrencySwap visitCrossCurrencySwap(final CrossCurrencySwap ccs, final Double spread) {
+    return new CrossCurrencySwap(visitFloatingRateNote(ccs.getDomesticLeg(), 0.0), visitFloatingRateNote(ccs.getForeignLeg(), spread), ccs.getSpotFX());
+  }
+
+  @Override //TODO remove (or rethink) this ASAP
+  public ForexForward visitForexForward(final ForexForward fx, Double forwardFX) {
+    double x = -fx.getPaymentCurrency1().getAmount() / forwardFX;
+    PaymentFixed fp = new PaymentFixed(fx.getCurrency2(), fx.getPaymentTime(), x, fx.getPaymentCurrency2().getFundingCurveName());
+    return new ForexForward(fx.getPaymentCurrency1(), fp, fx.getSpotForexRate());
   }
 
   @Override

@@ -302,7 +302,14 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     if (curveSpecConfig == null) {
       throw new OpenGammaRuntimeException("No curve spec builder configuration for SECONDARY_" + ccy.getCode());
     }
-    ExternalId swapSecurity = curveSpecConfig.getSwapSecurity(tradeDate, tenor);
+    ExternalId swapSecurity;
+    if (ccy.equals(Currency.USD)) {
+        // Standard (i.e. matches convention) floating leg tenor for USD is 3M
+      swapSecurity = curveSpecConfig.getSwap3MSecurity(tradeDate, tenor);
+    } else {
+      // Standard (i.e. matches convention) floating leg tenor for CHF, JPY, GBP, EUR is 6M
+      swapSecurity = curveSpecConfig.getSwap6MSecurity(tradeDate, tenor);
+    }
     return swapSecurity;
   }
 

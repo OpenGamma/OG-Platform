@@ -38,6 +38,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesIntersector;
 
 /**
  * 
@@ -101,11 +102,10 @@ public abstract class TotalRiskAlphaFunction extends AbstractFunction.NonCompile
     DoubleTimeSeries<?> assetReturnTS = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
     DoubleTimeSeries<?> marketReturnTS = _returnCalculator.evaluate(marketTSObject.getTimeSeries());
     DoubleTimeSeries<?> riskFreeReturnTS = ((DoubleTimeSeries<?>) riskFreeTSObject.getTimeSeries()).divide(DAYS_PER_YEAR * 100);
-    assetReturnTS = assetReturnTS.intersectionFirstValue(marketReturnTS);
-    marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
-    riskFreeReturnTS = riskFreeReturnTS.intersectionFirstValue(riskFreeReturnTS);
-    assetReturnTS = assetReturnTS.intersectionFirstValue(riskFreeReturnTS);
-    marketReturnTS = marketReturnTS.intersectionFirstValue(assetReturnTS);
+    DoubleTimeSeries<?>[] series = TimeSeriesIntersector.intersect(assetReturnTS, marketReturnTS, riskFreeReturnTS);
+    assetReturnTS = series[0];
+    marketReturnTS = series[1];
+    riskFreeReturnTS = series[2];
     final double tra = _totalRiskAlpha.evaluate(assetReturnTS, riskFreeReturnTS, marketReturnTS);
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.TOTAL_RISK_ALPHA, positionOrNode), getUniqueId()), tra));
   }

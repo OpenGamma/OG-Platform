@@ -65,8 +65,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   private ExternalId _swapFloatingLegRegion;
 
   // bonds
-  private boolean _isEOMConvention;
-  private boolean _calculateScheduleFromMaturity;
+  private Boolean _isEOMConvention;
+  private Boolean _calculateScheduleFromMaturity;
   private int _exDividendDays;
   private YieldConvention _yieldConvention;
   private boolean _rollToSettlement;
@@ -86,8 +86,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // generic cash
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -121,8 +120,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // ibor indices that act as underlyings (e.g. floating reference rate for swaps)
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays, final boolean isEOMConvention) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final int settlementDays,
+      final boolean isEOMConvention) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -165,6 +164,30 @@ public class ConventionBundleImpl implements ConventionBundle {
     _swapFloatingLegSettlementDays = swapFloatingLegSettlementDays;
     _swapFloatingLegInitialRate = swapFloatingLegInitialRate;
     _swapFloatingLegRegion = swapFloatingLegRegion;
+  }
+
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
+      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
+      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final boolean isEOM) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = null;
+    _businessDayConvention = null;
+    _frequency = null;
+    _settlementDays = null;
+    _swapFixedLegDayCount = swapFixedLegDayCount;
+    _swapFixedLegBusinessDayConvention = swapFixedLegBusinessDayConvention;
+    _swapFixedLegFrequency = swapFixedLegFrequency;
+    _swapFixedLegSettlementDays = swapFixedLegSettlementDays;
+    _swapFixedLegRegion = swapFixedLegRegion;
+    _swapFloatingLegDayCount = swapFloatingLegDayCount;
+    _swapFloatingLegBusinessDayConvention = swapFloatingLegBusinessDayConvention;
+    _swapFloatingLegFrequency = swapFloatingLegFrequency;
+    _swapFloatingLegSettlementDays = swapFloatingLegSettlementDays;
+    _swapFloatingLegInitialRate = swapFloatingLegInitialRate;
+    _swapFloatingLegRegion = swapFloatingLegRegion;
+    _isEOMConvention = isEOM;
   }
 
   // basis swaps
@@ -473,12 +496,12 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public boolean isEOMConvention() {
+  public Boolean isEOMConvention() {
     return _isEOMConvention;
   }
 
   @Override
-  public boolean calculateScheduleFromMaturity() {
+  public Boolean calculateScheduleFromMaturity() {
     return _calculateScheduleFromMaturity;
   }
 

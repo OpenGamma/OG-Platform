@@ -9,6 +9,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +89,53 @@ final class GICSCodeDescription {
   String getDescription(String code) {
     String desc = DESCRIPTIONS.get(code);
     return Objects.firstNonNull(desc, "Unknown");
+  }
+  
+  /**
+   * Gets all the sector descriptions 
+   * @return a collection of all the sector description strings
+   */
+  Collection<String> getAllSectorDescriptions() {
+    return getAllDescriptions(2);
+  }
+  
+  /**
+   * Gets all the industry group descriptions 
+   * @return a collection of all the industry group description strings
+   */
+  Collection<String> getAllIndustryGroupDescriptions() {
+    return getAllDescriptions(4);
+  }
+  
+  /**
+   * Gets all the industry descriptions 
+   * @return a collection of all the industry description strings
+   */
+  Collection<String> getAllIndustryDescriptions() {
+    return getAllDescriptions(6);
+  }
+  
+  /**
+   * Gets all the sub-industry descriptions 
+   * @return a collection of all the sub-industry description strings
+   */
+  Collection<String> getAllSubIndustryDescriptions() {
+    return getAllDescriptions(8);
+  }
+  
+  /**
+   * Get all descriptions with a particular code length
+   * @param codeLength the number of digits in the code
+   * @return a collection of all the description strings
+   */
+  private Collection<String> getAllDescriptions(int codeLength) {
+    Collection<String> results = new ArrayList<String>();
+    for (Map.Entry<String, String> entry : DESCRIPTIONS.entrySet()) {
+      if (entry.getKey().length() == codeLength) {
+        results.add(entry.getValue());
+      }
+    }
+    return results;
   }
 
   //-------------------------------------------------------------------------

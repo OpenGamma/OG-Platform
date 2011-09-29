@@ -232,13 +232,13 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * In other words, if the maturity is on the last day of a month, are all other payments.
    * @return if the convention is EOM
    */
-  boolean isEOMConvention();
+  Boolean isEOMConvention();
 
   /**
    * Whether to calculate the payment schedule from maturity (i.e. backwards) or forward from the first coupon.
    * @return how to calculate the schedule
    */
-  boolean calculateScheduleFromMaturity();
+  Boolean calculateScheduleFromMaturity();
 
   /**
    * Gets the number of days that a bond is ex-dividend.

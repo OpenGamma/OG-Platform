@@ -12,6 +12,7 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -23,6 +24,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -60,7 +62,7 @@ public class ForexOptionVanillaMethodTest {
   // Smile data
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, CALENDAR, SETTLEMENT_DAYS);
@@ -76,10 +78,10 @@ public class ForexOptionVanillaMethodTest {
     }
   }
   private static final double SPOT = 1.40;
-  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16};
+  private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
   private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}};
-  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}};
+  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
+  private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParameter SMILE_TERM = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   // Methods and curves
@@ -421,6 +423,40 @@ public class ForexOptionVanillaMethodTest {
       for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
         assertEquals("Forex vanilla option: vega node", nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().get(point), sensi.getVega().getData()[loopexp][loopstrike]);
       }
+    }
+  }
+
+  @Test
+  /**
+   * Tests present value volatility quote sensitivity.
+   */
+  public void volatilityQuoteSensitivity() {
+    final PresentValueVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    double[][] sensiQuote = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE).quoteSensitivity().getVega();
+    double[][] sensiStrikeData = sensiStrike.getVega().getData();
+    double[] atm = new double[sensiQuote.length];
+    for (int loopexp = 0; loopexp < sensiQuote.length; loopexp++) {
+      for (int loopdelta = 0; loopdelta < DELTA.length; loopdelta++) {
+        assertEquals("Forex vanilla option: vega quote - RR", sensiQuote[loopexp][1 + loopdelta], -0.5 * sensiStrikeData[loopexp][loopdelta] + 0.5
+            * sensiStrikeData[loopexp][2 * DELTA.length - loopdelta], 1.0E-10);
+        assertEquals("Forex vanilla option: vega quote - Strangle", sensiQuote[loopexp][DELTA.length + 1 + loopdelta], sensiStrikeData[loopexp][loopdelta]
+            + sensiStrikeData[loopexp][2 * DELTA.length - loopdelta], 1.0E-10);
+        atm[loopexp] += sensiStrikeData[loopexp][loopdelta] + sensiStrikeData[loopexp][2 * DELTA.length - loopdelta];
+      }
+      atm[loopexp] += sensiStrikeData[loopexp][DELTA.length];
+      assertEquals("Forex vanilla option: vega quote", sensiQuote[loopexp][0], atm[loopexp], 1.0E-10); // ATM
+    }
+  }
+
+  @Test
+  /**
+   * Tests present value volatility quote sensitivity: method vs calculator.
+   */
+  public void volatilityQuoteSensitivityMethodVsCalculator() {
+    double[][] sensiMethod = METHOD_OPTION.presentValueVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE).quoteSensitivity().getVega();
+    double[][] sensiCalculator = PresentValueForexVegaQuoteSensitivityCalculator.getInstance().visit(FOREX_CALL_OPTION, SMILE_BUNDLE).getVega();
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      ArrayAsserts.assertArrayEquals("Forex option - quote sensitivity", sensiMethod[loopexp], sensiCalculator[loopexp], 1.0E-10);
     }
   }
 

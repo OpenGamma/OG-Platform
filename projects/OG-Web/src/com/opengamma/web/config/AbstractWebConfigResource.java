@@ -39,6 +39,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMetaDataRequest;
@@ -51,6 +52,7 @@ import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
 import com.opengamma.web.json.JSONBuilder;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
+import com.opengamma.web.json.VolatilityCubeDefinitionJSONBuilder;
 import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
@@ -95,6 +97,7 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     data().getJsonBuilderMap().put(ViewDefinition.class, ViewDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(YieldCurveDefinition.class, YieldCurveDefinitionJSONBuilder.INSTANCE);
     data().getJsonBuilderMap().put(CurveSpecificationBuilderConfiguration.class, CurveSpecificationBuilderConfigurationJSONBuilder.INSTANCE);
+    data().getJsonBuilderMap().put(VolatilityCubeDefinition.class, VolatilityCubeDefinitionJSONBuilder.INSTANCE);
   }
 
   /**

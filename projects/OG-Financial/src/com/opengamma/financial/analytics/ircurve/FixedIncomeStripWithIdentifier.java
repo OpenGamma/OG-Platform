@@ -17,25 +17,30 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStripWithIdentifier> {
-  private final StripInstrumentType _instrumentType;
-  private final Tenor _maturity;
-  private int _nthFutureFromTenor;
+  private final FixedIncomeStrip _strip;
   private final ExternalId _security;
 
   /**
-   * Gets the instrumentType field.
-   * @return the instrumentType
+   * Gets the fixed income strip.
+   * @return The fixed income strip
+   */
+  public FixedIncomeStrip getStrip() {
+    return _strip;
+  }
+  /**
+   * Gets the strip instrument type.
+   * @return the strip instrument type
    */
   public StripInstrumentType getInstrumentType() {
-    return _instrumentType;
+    return _strip.getInstrumentType();
   }
 
   /**
-   * Gets the years field.
-   * @return the years
+   * Gets the strip maturity.
+   * @return the strip maturity
    */
   public Tenor getMaturity() {
-    return _maturity;
+    return _strip.getCurveNodePointTime();
   }
 
   /**
@@ -50,35 +55,15 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
    * Get the number of the quarterly IR futures after the tenor to choose.  
    * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
    * @return number of futures after the tenor
-   * @throws IllegalStateException if called on a non-future strip
    */
   public int getNumberOfFuturesAfterTenor() {
-    if (_instrumentType != StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot get number of futures after tenor for a non future node " + toString());
-    }
-    return _nthFutureFromTenor;
+    return _strip.getNumberOfFuturesAfterTenor();
   }
 
-  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final int nthFutureFromTenor, final ExternalId security) {
-    _instrumentType = instrumentType;
-    if (_instrumentType != StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot set number of futures after tenor for a non future node, type=" + instrumentType + " maturity=" + maturity + " security=" + security);
-    }
-    _nthFutureFromTenor = nthFutureFromTenor;
-    Validate.notNull(maturity);
-    _maturity = maturity;
+  public FixedIncomeStripWithIdentifier(FixedIncomeStrip strip, final ExternalId security) {
+    Validate.notNull(strip);
     Validate.notNull(security);
-    _security = security;
-  }
-
-  public FixedIncomeStripWithIdentifier(final StripInstrumentType instrumentType, final Tenor maturity, final ExternalId security) {
-    _instrumentType = instrumentType;
-    if (_instrumentType == StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot create future node type without a nthFutureFromTenor parameter, type=" + instrumentType + " maturity=" + maturity + " security=" + security);
-    }
-    Validate.notNull(maturity);
-    _maturity = maturity;
-    Validate.notNull(security);
+    _strip = strip;
     _security = security;
   }
 
@@ -89,17 +74,15 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
     }
     if (obj instanceof FixedIncomeStripWithIdentifier) {
       final FixedIncomeStripWithIdentifier other = (FixedIncomeStripWithIdentifier) obj;
-      return ObjectUtils.equals(_maturity, other._maturity) &&
-             _nthFutureFromTenor == other._nthFutureFromTenor &&
-             ObjectUtils.equals(_security, other._security) &&
-             _instrumentType == other._instrumentType;
+      return ObjectUtils.equals(_strip, other._strip) &&
+             ObjectUtils.equals(_security, other._security);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return _maturity.hashCode();
+    return _strip.hashCode();
   }
 
   @Override
@@ -109,11 +92,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
 
   @Override
   public int compareTo(final FixedIncomeStripWithIdentifier o) {
-    int result = getMaturity().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(o.getMaturity().getPeriod().toPeriodFields().toEstimatedDuration());
-    if (result != 0) {
-      return result;
-    }
-    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal();
+    int result = getStrip().compareTo(o.getStrip());
     if (result != 0) {
       return result;
     }

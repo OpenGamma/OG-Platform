@@ -17,37 +17,36 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Builder for converting Region instances to/from Fudge messages.
+ * Builder for converting FixedIncomeStrip instances to/from Fudge messages.
  */
 @FudgeBuilderFor(FixedIncomeStrip.class)
 public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStrip> {
+  private static final String TYPE = "type";
+  private static final String TENOR = "tenor";
+  private static final String CONVENTION_NAME = "conventionName";
+  private static final String NUM_FUTURES = "numFutures";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FixedIncomeStrip object) {
-    MutableFudgeMsg message = serializer.newMessage();
-    //FudgeSerializer.addClassHeader(message, FixedIncomeStrip.class);
-    //message.add("type", object.getInstrumentType().name());
-    serializer.addToMessage(message, "type", null, object.getInstrumentType());
-    message.add("conventionName", object.getConventionName());
-    serializer.addToMessage(message, "tenor", null, object.getCurveNodePointTime());
-    //message.add("tenorAsPeriod", object.getCurveNodePointTime().getPeriod().toString());
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedIncomeStrip object) {
+    final MutableFudgeMsg message = serializer.newMessage();
+    serializer.addToMessage(message, TYPE, null, object.getInstrumentType());
+    message.add(CONVENTION_NAME, object.getConventionName());
+    serializer.addToMessage(message, TENOR, null, object.getCurveNodePointTime());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
-      message.add("numFutures", object.getNumberOfFuturesAfterTenor());
+      message.add(NUM_FUTURES, object.getNumberOfFuturesAfterTenor());
     }
-    return message; 
+    return message;
   }
 
   @Override
-  public FixedIncomeStrip buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    //StripInstrumentType type = StripInstrumentType.valueOf(message.getString("type"));
-    StripInstrumentType type = deserializer.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
-    String conventionName = message.getString("conventionName");
-    Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName("tenor"));
-    //Tenor tenor = new Tenor(Period.parse(message.getString("tenorAsPeriod")));
+  public FixedIncomeStrip buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final StripInstrumentType type = deserializer.fieldValueToObject(StripInstrumentType.class, message.getByName(TYPE));
+    final String conventionName = message.getString(CONVENTION_NAME);
+    final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(TENOR));
     if (type == StripInstrumentType.FUTURE) {
-      int numFutures = message.getInt("numFutures");
+      final int numFutures = message.getInt(NUM_FUTURES);
       return new FixedIncomeStrip(type, tenor, numFutures, conventionName);
-    } else { 
+    } else {
       return new FixedIncomeStrip(type, tenor, conventionName);
     }
   }

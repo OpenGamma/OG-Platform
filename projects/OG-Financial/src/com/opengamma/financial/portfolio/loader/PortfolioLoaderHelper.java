@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
@@ -30,7 +31,6 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
 
-
 /**
  * 
  */
@@ -39,12 +39,12 @@ public class PortfolioLoaderHelper {
    * Logger
    */
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderHelper.class);
-  
+
   /**
    * Raw security type for libor rates
    */
   private static final String LIBOR_RATE_SECURITY_TYPE = "LIBOR_RATE";
-  
+
   /** File name option flag */
   public static final String FILE_NAME_OPT = "f";
   /** Portfolio name option flag*/
@@ -63,7 +63,7 @@ public class PortfolioLoaderHelper {
   public static final DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
   /** Standard notional formatter */
   public static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
-  
+
   static {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("dd/MM/yyyy");
@@ -79,27 +79,27 @@ public class PortfolioLoaderHelper {
     Option filenameOption = new Option(FILE_NAME_OPT, "filename", true, "The path to the CSV file of cash details");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
-    
+
     Option portfolioNameOption = new Option(PORTFOLIO_NAME_OPT, "name", true, "The name of the portfolio");
     portfolioNameOption.setRequired(true);
     options.addOption(portfolioNameOption);
-    
+
     Option runModeOption = new Option(RUN_MODE_OPT, "runmode", true, "The run mode: shareddev, standalone");
     runModeOption.setRequired(true);
     options.addOption(runModeOption);
-    
+
     Option writeOption = new Option(WRITE_OPT, "write", false, "Actually persists the portfolio to the database");
     options.addOption(writeOption);
-    
+
     return options;
   }
-  
+
   public static void usage(String loaderName) {
     HelpFormatter helpFormatter = new HelpFormatter();
     helpFormatter.setWidth(100);
     helpFormatter.printHelp(loaderName, OPTIONS);
   }
-  
+
   public static void normaliseHeaders(String[] headers) {
     for (int i = 0; i < headers.length; i++) {
       headers[i] = headers[i].toLowerCase();
@@ -115,6 +115,12 @@ public class PortfolioLoaderHelper {
     return result;
   }
 
+  public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
+
+    return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
+
+  }
+
   public static AbstractApplicationContext getApplicationContext() {
     return new ClassPathXmlApplicationContext("com/opengamma/financial/portfolio/loader/loaderContext.xml");
   }
@@ -122,10 +128,10 @@ public class PortfolioLoaderHelper {
   public static LoaderContext getLoaderContext(AbstractApplicationContext context) {
     return (LoaderContext) context.getBean("loaderContext");
   }
-  
+
   public static void persistLiborRawSecurities(Set<Currency> currencies, LoaderContext loaderContext) {
     SecurityMaster securityMaster = loaderContext.getSecurityMaster();
-    byte[] rawData = new byte[] {0};
+    byte[] rawData = new byte[] {0 };
     StringBuilder sb = new StringBuilder();
     sb.append("Created ").append(currencies.size()).append(" libor securities:\n");
     for (Currency ccy : currencies) {
@@ -140,7 +146,7 @@ public class PortfolioLoaderHelper {
     }
     s_logger.info(sb.toString());
   }
-  
+
   private static ConventionBundle getSwapConventionBundle(Currency ccy, ConventionBundleSource conventionSource) {
     ConventionBundle swapConvention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
@@ -148,7 +154,7 @@ public class PortfolioLoaderHelper {
     }
     return swapConvention;
   }
-  
+
   private static ConventionBundle getLiborConventionBundle(ConventionBundle swapConvention, ConventionBundleSource conventionSource) {
     ConventionBundle liborConvention = conventionSource.getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {

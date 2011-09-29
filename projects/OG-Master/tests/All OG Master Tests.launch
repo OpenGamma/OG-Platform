@@ -9,13 +9,21 @@
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.master"/>
+<listEntry value="com.opengamma.master.config"/>
 <listEntry value="com.opengamma.master.config.impl"/>
+<listEntry value="com.opengamma.master.exchange"/>
 <listEntry value="com.opengamma.master.exchange.impl"/>
+<listEntry value="com.opengamma.master.historicaltimeseries"/>
 <listEntry value="com.opengamma.master.historicaltimeseries.impl"/>
+<listEntry value="com.opengamma.master.holiday"/>
 <listEntry value="com.opengamma.master.holiday.impl"/>
 <listEntry value="com.opengamma.master.listener"/>
+<listEntry value="com.opengamma.master.marketdatasnapshot"/>
 <listEntry value="com.opengamma.master.marketdatasnapshot.impl"/>
+<listEntry value="com.opengamma.master.position"/>
 <listEntry value="com.opengamma.master.position.impl"/>
+<listEntry value="com.opengamma.master.region"/>
 <listEntry value="com.opengamma.master.region.impl"/>
 <listEntry value="com.opengamma.master.security"/>
 <listEntry value="com.opengamma.master.security.impl"/>

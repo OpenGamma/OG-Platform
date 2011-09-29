@@ -7,10 +7,12 @@ package com.opengamma.util.fudgemsg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -76,7 +78,10 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
         if (prop.readWrite().isReadable()) {
           Object obj = prop.get(bean);
           if (obj instanceof List<?>) {
-            MutableFudgeMsg subMsg = buildMessageList(serializer, prop, (List<?>) obj);
+            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, (List<?>) obj);
+            msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
+          } else if (obj instanceof Set<?>) {
+            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, new ArrayList<Object>((Set<?>) obj));
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Map<?, ?>) {
             MutableFudgeMsg subMsg = buildMessageMap(serializer, prop, (Map<?, ?>) obj);
@@ -92,16 +97,16 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     }
   }
 
-  private MutableFudgeMsg buildMessageList(FudgeSerializer serializer, MetaProperty<Object> prop, List<?> list) {
-    Class<?> contentType = JodaBeanUtils.listType(prop);
+  private MutableFudgeMsg buildMessageCollection(FudgeSerializer serializer, MetaProperty<Object> prop, List<?> list) {
+    Class<?> contentType = JodaBeanUtils.collectionType(prop);
     MutableFudgeMsg msg = serializer.newMessage();
     for (Object entry : list) {
       if (entry == null) {
         msg.add(null, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-      } else if (contentType != null) {
+      } else if (contentType == null) {
         serializer.addToMessage(msg, null, null, entry);
       } else {
-        serializer.addToMessageWithClassHeaders(msg, null, null, entry);
+        serializer.addToMessageWithClassHeaders(msg, null, null, entry, contentType);
       }
     }
     return msg;
@@ -114,17 +119,17 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       if (entry.getKey() == null) {
         msg.add(null, 1, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-      } else if (keyType != null) {
+      } else if (keyType == null) {
         serializer.addToMessage(msg, null, 1, entry.getKey());
       } else {
-        serializer.addToMessageWithClassHeaders(msg, null, 1, entry.getKey());
+        serializer.addToMessageWithClassHeaders(msg, null, 1, entry.getKey(), keyType);
       }
       if (entry.getValue() == null) {
         msg.add(null, 2, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
-      } else if (valueType != null) {
+      } else if (valueType == null) {
         serializer.addToMessage(msg, null, 2, entry.getValue());
       } else {
-        serializer.addToMessageWithClassHeaders(msg, null, 2, entry.getValue());
+        serializer.addToMessageWithClassHeaders(msg, null, 2, entry.getValue(), valueType);
       }
     }
     return msg;
@@ -145,6 +150,11 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
               value = field.getValue();
               if (value instanceof FudgeMsg) {
                 value = buildObjectList(deserializer, mp, (FudgeMsg) value);
+              }
+            } else if (Set.class.isAssignableFrom(mp.propertyType())) {
+              value = field.getValue();
+              if (value instanceof FudgeMsg) {
+                value = buildObjectSet(deserializer, mp, (FudgeMsg) value);
               }
             } else if (Map.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
@@ -167,9 +177,9 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     }
   }
 
-  private Object buildObjectList(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
-    Class<?> contentType = JodaBeanUtils.listType(prop);
-    List<Object> list = new ArrayList<Object>();
+  private List<Object> buildObjectList(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
+    Class<?> contentType = JodaBeanUtils.collectionType(prop);
+    List<Object> list = new ArrayList<Object>();  // should be List<contentType>
     for (FudgeField field : msg) {
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
         throw new IllegalArgumentException("Sub-message doesn't contain a list (bad field " + field + ")");
@@ -180,10 +190,23 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return list;
   }
 
-  private Object buildObjectMap(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
+  private Set<Object> buildObjectSet(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
+    Class<?> contentType = JodaBeanUtils.collectionType(prop);
+    Set<Object> set = new LinkedHashSet<Object>();  // should be Set<contentType>
+    for (FudgeField field : msg) {
+      if (field.getOrdinal() != null && field.getOrdinal() != 1) {
+        throw new IllegalArgumentException("Sub-message doesn't contain a set (bad field " + field + ")");
+      }
+      Object obj = (contentType == null ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field));
+      set.add((obj instanceof IndicatorType) ? null : obj);
+    }
+    return set;
+  }
+
+  private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop);
     Class<?> valueType = JodaBeanUtils.mapValueType(prop);
-    Map<Object, Object> map = new HashMap<Object, Object>();
+    Map<Object, Object> map = new HashMap<Object, Object>();  // should be Map<keyType,contentType>
     Queue<Object> keys = new LinkedList<Object>();
     Queue<Object> values = new LinkedList<Object>();
     for (FudgeField field : msg) {

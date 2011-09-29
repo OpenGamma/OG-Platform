@@ -42,6 +42,7 @@ public class IntegratorRepeated2D extends Integrator2D<Double, Double> {
 
     return new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double y) {
 
