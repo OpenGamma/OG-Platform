@@ -171,7 +171,9 @@
     <ClInclude Include="com_opengamma_language_procedure_Available_Entry.h" />
     <ClInclude Include="com_opengamma_language_procedure_Custom.h" />
     <ClInclude Include="com_opengamma_language_procedure_Definition.h" />
+    <ClInclude Include="com_opengamma_language_procedure_Invoke.h" />
     <ClInclude Include="com_opengamma_language_procedure_QueryAvailable.h" />
+    <ClInclude Include="com_opengamma_language_procedure_Result.h" />
     <ClInclude Include="com_opengamma_language_Value.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="Functions.h" />
@@ -270,7 +272,13 @@
     <ClCompile Include="com_opengamma_language_procedure_Definition.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Invoke.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="com_opengamma_language_procedure_QueryAvailable.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Result.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_Value.c">
