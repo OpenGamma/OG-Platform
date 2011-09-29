@@ -159,12 +159,9 @@ $.register_module({
                             routes.go(routes.hash(module.rules.load_configs, args));
                         },
                         save_handler: function (result) {
-                            ui.message({location: '.ui-layout-inner-center', destroy: true});
                             if (result.error) return ui.dialog({type: 'error', message: result.message});
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                            setTimeout(function () {
-                                routes.handler();
-                            }, 300);
+                            setTimeout(function () {routes.handler(); details_page(args);}, 300);
                         },
                         handler: function () {
                             var json = details_json.template_data,
@@ -235,8 +232,10 @@ $.register_module({
                 search_filter();
             },
             load_configs: function (args) {
-                check_state({args: args, conditions: [{new_page: configs.load}]});
-                configs.details(args);
+                check_state({args: args, conditions: [
+                    {new_page: configs.load},
+                    {new_value: 'id', method: configs.details}
+                ]});
             },
             load_new: function (args) {
                 check_state({args: args, conditions: [{new_page: configs.load}]});

@@ -36,6 +36,10 @@ import com.opengamma.util.PublicAPI;
 public final class ValueRequirement implements Serializable {
 
   /**
+   * Default serial version ID
+   */
+  private static final long serialVersionUID = 1L;
+  /**
    * The name of the value being requested.
    */
   private final String _valueName;

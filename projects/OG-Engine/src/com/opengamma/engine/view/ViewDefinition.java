@@ -15,6 +15,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -34,6 +38,8 @@ import com.opengamma.util.tuple.Pair;
 @PublicAPI
 public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinition.class);
+  
   private static final long serialVersionUID = 1L;
   
   private UniqueId _uniqueIdentifier;
@@ -471,7 +477,11 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
 
   @Override
   public String toString() {
-    return "ViewDefinition[" + getName() + "]";
+    if (s_logger.isDebugEnabled()) {
+      return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE, false);
+    } else {
+      return "ViewDefinition[" + getName() + "]";
+    }
   }
 
 }

@@ -10,7 +10,7 @@ $.register_module({
         var stall = 500, item_prefix = 'item_', id_count = 0, dummy = '<p/>',
             form_template = '<form action="." id="${id}"><div class="OG-form">' +
                 '{{html html}}<input type="submit" style="display: none;"></div></form>',
-            api_text = og.api.text, api_rest = og.api.rest,
+            api_text = og.api.text, api_rest = og.api.rest, numbers = {},
             Form, Block, Field;
         /**
          * @class Block
@@ -88,7 +88,7 @@ $.register_module({
         /**
          * @class Form
          */
-        return Form = function (config) {
+        Form = function (config) {
             var form = new Block(null, config), selector = config.selector, $root = $(selector), $form, dom_events = {},
                 klass = 'Form', form_events = {'form:load': [], 'form:unload': [], 'form:submit': [], 'form:error': []},
                 delegator = function (e) {
@@ -99,6 +99,35 @@ $.register_module({
                         results.push(typeof result === 'undefined' ? true : !!result);
                     });
                     if (results.length && !results.some(Boolean)) return false;
+                },
+                meta_map = config.meta,
+                find_in_meta = (function (memo) {
+                    var key, len;
+                    for (key in meta_map) if (~key.indexOf('*')) memo.push({
+                        expr: new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '[^\.]+') + '$'),
+                        value: meta_map[key]
+                    });
+                    len = memo.length;
+                    return function (path) {
+                        for (var lcv = 0; lcv < len; lcv += 1) if (memo[lcv].expr.test(path)) return memo[lcv].value;
+                        return null
+                    };
+                })([]),
+                build_meta = function (data, path, warns) {
+                    var result = {}, key;
+                    if ($.isArray(data)) return data.map(function (val, idx) {
+                        var value = build_meta(val, path ? [path, '<INDEX>'].join('.') : idx, warns);
+                        if ((value === Form.type.IND) && (val !== null)) value = Form.type.STR;
+                        return value in numbers ? ((data[idx] = +data[idx]), value) : value;
+                    });
+                    if (data === null || typeof data !== 'object')
+                        return !(result = meta_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
+                    for (key in data) {
+                        if ((result[key] = build_meta(data[key], path ? [path, key].join('.') : key, warns)) in numbers)
+                            data[key] = +data[key];
+                        if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
+                    }
+                    return result;
                 };
             form.attach = function (handlers) {
                 var self = 'attach';
@@ -117,7 +146,7 @@ $.register_module({
                 $root.html($(dummy).append($.tmpl(form_template, {id: form.id, html: html})).html());
                 form_events['form:load'].forEach(function (val) {val.handler();});
                 ($form = $('#' + form.id)).unbind().submit(function (e) {
-                    var self = 'onsubmit', raw = $form.serializeArray(),
+                    var self = 'onsubmit', raw = $form.serializeArray(), built_meta, meta_warns = [],
                         data = config.data ? $.extend(true, {}, config.data) : null, errors = [], result;
                     if (data) raw.forEach(function (value) {
                         var hier = value.name.split('.'), last = hier.pop();
@@ -132,8 +161,19 @@ $.register_module({
                         }
                     });
                     form.process(data, errors);
-                    result = {raw: raw, data: data, errors: errors};
-                    return !!form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                    built_meta = meta_map ? build_meta(data, '', meta_warns) : null;
+                    meta_warns.sort().reduce(function (acc, val) {
+                        return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
+                    }, []).join('\n');
+                    if (meta_warns.length)
+                        return og.dev.warn(klass + '#build_meta needs these:\n', meta_warns.join('\n')), false;
+                    result = {raw: raw, data: data, errors: errors, meta: built_meta};
+                    try {
+                        form_events['form:submit'].forEach(function (val) {val.handler(result);});
+                    } catch (error) {
+                        og.dev.warn(klass + '#' + self + ' a form:submit handler failed with: ', error);
+                    }
+                    return false;
                 });
             });
             form.Field = Field.partial(form);
@@ -143,5 +183,8 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
+        Form.type =  {SHR: 'short', STR: 'string', IND: 'indicator'};
+        numbers[Form.type.SHR] = null;
+        return Form;
     }
 });

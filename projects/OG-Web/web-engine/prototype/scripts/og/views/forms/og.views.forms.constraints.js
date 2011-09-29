@@ -22,9 +22,13 @@ $.register_module({
                     return Array.prototype.join.call($.extend({length: length}, datum), ', ');
                 },
                 deconvert = function (datum, optional) {
-                    var array = datum.split(/,\s*/g), result;
-                    if (!optional && array.length === 1) return datum ? datum : null;
-                    result = array.reduce(function (acc, val, idx) {return val ? (acc[idx] = val, acc) : acc;}, {});
+                    var array = datum ? datum.split(/,\s*/g) : [], result, empty = true;
+                    if (!optional && !array.length) return null;
+                    result = array.reduce(function (acc, val, idx) {
+                        empty = false;
+                        return val ? (acc[idx] = val, acc) : acc;
+                    }, {});
+                    if (empty && !optional) return null;
                     if (optional) result.optional = null;
                     return result;
                 };
@@ -37,14 +41,15 @@ $.register_module({
                         $withouts = $('#' + ids.widget + ' .og-js-without');
                     if (!$('#' + ids.widget).length) return;
                     $withs.each(function (idx, el) {
-                        var $el = $(el), optional = $el.find('input[type=checkbox]').filter(':checked').length,
+                        var $el = $(el), optional = !!$el.find('input[type=checkbox]').filter(':checked').length,
                             key = $el.find('input.og-js-key').val();
                         if (!key) throw Error('Type in a with constraint must be defined.');
                         if (!result['with']) result['with'] = {};
                         result['with'][key] = deconvert($el.find('input.og-js-value').val(), optional);
                     });
                     $withouts.each(function (idx, el) {
-                        result.without = $(el).find('input.og-js-key').val() || {};
+                        var value = $(el).find('input.og-js-key').val();
+                        if (value) result.without = deconvert(value, false);
                     });
                     indices.reduce(function (acc, level) {
                         return acc[level] && typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
@@ -71,7 +76,7 @@ $.register_module({
                                 for (item in datum) add(item);
                             },
                             without: function (datum, $replace) {
-                                var $row = rows.without.clone(), $inputs = $row.find('input'), value = datum || '';
+                                var $row = rows.without.clone(), $inputs = $row.find('input'), value = convert(datum);
                                 $inputs[1].checked = 'checked', $inputs[2].value = value;
                                 if (!$replace) return $widget.append($row);
                                 $replace.replaceWith($row);
