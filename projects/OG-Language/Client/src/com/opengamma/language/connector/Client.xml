@@ -133,6 +133,7 @@
             </list>
           </property>
         </bean>
+        <!--<bean class="com.opengamma.language.object.BeanFunctionProvider"/>-->
       </list>
     </property>
   </bean>

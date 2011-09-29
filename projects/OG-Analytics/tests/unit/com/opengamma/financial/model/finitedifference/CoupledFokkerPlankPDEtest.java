@@ -76,7 +76,7 @@ public class CoupledFokkerPlankPDEtest {
   }
 
   //TODO quantitative test here (rather than printing surfaces)
-  @Test(enabled = false)
+  @Test(enabled=false)
   public void testDensity() {
     final ExtendedCoupledFiniteDifference solver = new ExtendedCoupledFiniteDifference(0.5);
     final int tNodes = 50;
