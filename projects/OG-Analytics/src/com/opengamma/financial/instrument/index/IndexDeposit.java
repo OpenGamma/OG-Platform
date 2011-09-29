@@ -36,9 +36,9 @@ public abstract class IndexDeposit {
    * @param calendar The calendar.
    */
   public IndexDeposit(String name, Currency currency, Calendar calendar) {
-    Validate.notNull(name, "OIS index: name");
-    Validate.notNull(currency, "OIS index: currency");
-    Validate.notNull(calendar, "OIS index: calendar");
+    Validate.notNull(name, "Index: name");
+    Validate.notNull(currency, "Index: currency");
+    Validate.notNull(calendar, "Index: calendar");
     _name = name;
     _currency = currency;
     _calendar = calendar;
