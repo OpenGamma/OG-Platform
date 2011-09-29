@@ -99,6 +99,12 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   }
 
   @Override
+  public CouponInflationZeroCouponMonthlyGearing withNotional(double notional) {
+    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue,
+        _referenceEndTime, _fixingEndTime, _payNotional, _factor);
+  }
+
+  @Override
   public double getFactor() {
     return _factor;
   }

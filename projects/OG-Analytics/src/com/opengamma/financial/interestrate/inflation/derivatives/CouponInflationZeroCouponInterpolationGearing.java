@@ -118,6 +118,12 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   }
 
   @Override
+  public CouponInflationZeroCouponInterpolationGearing withNotional(double notional) {
+    return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue,
+        _referenceEndTime, _weight, _fixingEndTime, _payNotional, _factor);
+  }
+
+  @Override
   public double getFactor() {
     return _factor;
   }

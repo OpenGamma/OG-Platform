@@ -123,6 +123,12 @@ public class ForwardRateAgreement extends CouponFloating {
   }
 
   @Override
+  public ForwardRateAgreement withNotional(double notional) {
+    return new ForwardRateAgreement(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, getFixingTime(), _fixingPeriodStartTime, _fixingPeriodEndTime,
+        _fixingYearFraction, _rate, _forwardCurveName);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
