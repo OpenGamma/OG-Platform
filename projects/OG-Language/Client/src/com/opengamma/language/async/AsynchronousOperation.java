@@ -12,7 +12,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
@@ -156,14 +156,14 @@ public class AsynchronousOperation<T> {
   }
 
   /**
-   * Declares a timeout on an asynchronous operation. The {@link Cancellable#cancel} callback is made after the timeout period
+   * Declares a timeout on an asynchronous operation. The {@link Cancelable#cancel} callback is made after the timeout period
    * unless the handle returned by the timeout is itself canceled.
    * 
    * @param cancelation the user callback, not null
    * @param timeoutMillis the timeout period in milliseconds
    * @return a cancellation handle for the timeout
    */
-  public static Cancellable timeout(final Cancellable cancelation, final int timeoutMillis) {
+  public static Cancelable timeout(final Cancelable cancelation, final int timeoutMillis) {
     ArgumentChecker.notNull(cancelation, "cancelation");
     ArgumentChecker.notNegativeOrZero(timeoutMillis, "timeoutMillis");
     final ScheduledFuture<?> future = s_timeouts.schedule(new Runnable() {
@@ -172,7 +172,7 @@ public class AsynchronousOperation<T> {
         cancelation.cancel(true);
       }
     }, (long) timeoutMillis, TimeUnit.MILLISECONDS);
-    return new Cancellable() {
+    return new Cancelable() {
       @Override
       public boolean cancel(final boolean mayInterruptIfRunning) {
         return future.cancel(mayInterruptIfRunning);
