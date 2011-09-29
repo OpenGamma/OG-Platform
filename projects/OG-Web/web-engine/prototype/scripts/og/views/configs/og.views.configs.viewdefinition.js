@@ -41,28 +41,34 @@ $.register_module({
                 column_set_tabs,
                 meta_map = [
                     ['0',                                                                           Form.type.STR],
+                    // <constraints>
                     [[SETS, INDX, DEFP, WITH, '*'].join('.'),                                       Form.type.IND],
                     [[SETS, INDX, DEFP, WITH, '*', 'optional'].join('.'),                           Form.type.IND],
                     [[SETS, INDX, DEFP, WITH, '*', '*'].join('.'),                                  Form.type.STR],
                     [[SETS, INDX, DEFP, WTHO].join('.'),                                            Form.type.STR],
                     [[SETS, INDX, DEFP, WTHO, '*'].join('.'),                                       Form.type.STR],
+                    // </constraints>
                     [[SETS, INDX, 'name'].join('.'),                                                Form.type.STR],
+                    // <constraints>
                     [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               Form.type.IND],
                     [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   Form.type.IND],
                     [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', '*'].join('.'),          Form.type.STR],
                     [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO].join('.'),                    Form.type.STR],
                     [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO, '*'].join('.'),               Form.type.STR],
+                    // </constraints>
                     [[SETS, INDX, COLS, INDX, REQS, INDX, REQO].join('.'),                          Form.type.STR],
                     [[SETS, INDX, COLS, INDX, SECU].join('.'),                                      Form.type.STR],
                     [[SETS, INDX, RLTR, '0'].join('.'),                                             Form.type.STR],
                     [[SETS, INDX, RLTR, '*'].join('.'),                                             Form.type.STR],
                     [[SETS, INDX, SPEC, INDX, SPCT].join('.'),                                      Form.type.STR],
                     [[SETS, INDX, SPEC, INDX, SPTT].join('.'),                                      Form.type.STR],
+                    // <constraints>
                     [[SETS, INDX, SPEC, INDX, CONS, WITH, '*'].join('.'),                           Form.type.IND],
                     [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', 'optional'].join('.'),               Form.type.IND],
                     [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', '*'].join('.'),                      Form.type.STR],
                     [[SETS, INDX, SPEC, INDX, CONS, WTHO].join('.'),                                Form.type.STR],
                     [[SETS, INDX, SPEC, INDX, CONS, WTHO, '*'].join('.'),                           Form.type.STR],
+                    // </constraints>
                     [[SETS, INDX, SPEC, INDX, SPVN].join('.'),                                      Form.type.STR],
                     ['currency',                                                                    Form.type.STR],
                     ['identifier',                                                                  Form.type.STR],
