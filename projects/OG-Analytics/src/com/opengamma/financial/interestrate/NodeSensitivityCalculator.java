@@ -95,18 +95,24 @@ public abstract class NodeSensitivityCalculator {
         sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, false);
       }
       final List<DoublesPair> sensitivityList = curveSensitivities.get(name);
-      final double[][] sensitivity = new double[sensitivityList.size()][];
-      int k = 0;
-      for (final DoublesPair timeAndDF : sensitivityList) {
-        sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
-      }
-      for (int j = 0; j < sensitivity[0].length; j++) {
-        double temp = 0.0;
-        k = 0;
+      if (sensitivityList != null) {
+        final double[][] sensitivity = new double[sensitivityList.size()][];
+        int k = 0;
         for (final DoublesPair timeAndDF : sensitivityList) {
-          temp += timeAndDF.getSecond() * sensitivity[k++][j];
+          sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
         }
-        result.add(temp);
+        for (int j = 0; j < sensitivity[0].length; j++) {
+          double temp = 0.0;
+          k = 0;
+          for (final DoublesPair timeAndDF : sensitivityList) {
+            temp += timeAndDF.getSecond() * sensitivity[k++][j];
+          }
+          result.add(temp);
+        }
+      } else {
+        for (int i = 0; i < interpolatedCurve.size(); i++) {
+          result.add(0.);
+        }
       }
     }
     return new DoubleMatrix1D(result.toArray(new Double[0]));

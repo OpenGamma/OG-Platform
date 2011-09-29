@@ -37,6 +37,7 @@ public class Forex implements ForexDerivative {
     Validate.notNull(paymentCurrency2, "Payment 2");
     Validate.isTrue(paymentCurrency1.getPaymentTime() == paymentCurrency2.getPaymentTime(), "Payments on different time");
     Validate.isTrue((paymentCurrency1.getAmount() * paymentCurrency2.getAmount()) <= 0, "Payments with same sign");
+    Validate.isTrue(paymentCurrency1.getCurrency() !=   paymentCurrency2.getCurrency(), "same currency");
     this._paymentCurrency1 = paymentCurrency1;
     this._paymentCurrency2 = paymentCurrency2;
   }

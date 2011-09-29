@@ -5,10 +5,15 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.util.money.Currency;
 
 //TODO: rewrite the FRN from scratch.
 /**
@@ -16,18 +21,41 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
  */
 public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
 
-  public FloatingRateNote(final GenericAnnuity<CouponIbor> forwardLiborAnnuity) {
-    super(setUpFixedLeg(forwardLiborAnnuity), forwardLiborAnnuity);
+  public FloatingRateNote(final GenericAnnuity<CouponIbor> forwardLiborAnnuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
+    super(setUpFixedLeg(forwardLiborAnnuity, initalPayment, finalPayment), forwardLiborAnnuity);
   }
 
-  private static GenericAnnuity<PaymentFixed> setUpFixedLeg(final GenericAnnuity<CouponIbor> annuity) {
-    final String curveName = annuity.getNthPayment(0).getFundingCurveName();
-    final double notional = annuity.getNthPayment(0).getNotional();
+  private static GenericAnnuity<PaymentFixed> setUpFixedLeg(final GenericAnnuity<CouponIbor> annuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
+
+    final String curveName = annuity.getDiscountCurve();
+    //consistency checks on the inputs
+    Validate.isTrue(initalPayment.getCurrency() == finalPayment.getCurrency(), "initial and final payments in different currencies");
+    Validate.isTrue(initalPayment.getCurrency() == annuity.getCurrency(), "flaoting and fixed payments in different currencies");
+    Validate.isTrue(initalPayment.getPaymentTime() < finalPayment.getPaymentTime(), "initial payment after final payment");
+    Validate.isTrue(initalPayment.getPaymentTime() <= annuity.getNthPayment(0).getPaymentTime(), "initial payment after first floating payments");
+    Validate.isTrue(curveName == initalPayment.getFundingCurveName(), "inital payment discounted off different curve to floating payments");
+    Validate.isTrue(curveName == finalPayment.getFundingCurveName(), "final payment discounted off different curve to floating payments");
+    Validate.isTrue(initalPayment.getAmount() * finalPayment.getAmount() < 0, "inital payment should be oposite sign to final");
+    Validate.isTrue((annuity.isPayer() && initalPayment.getAmount() > 0.0) || (!annuity.isPayer() && initalPayment.getAmount() < 0.0), "initial payment should be oposite sign to Ibor coupons");
+
     final PaymentFixed[] fixedPayments = new PaymentFixed[2];
-    fixedPayments[0] = new PaymentFixed(annuity.getCurrency(), 0, notional, curveName);
-    fixedPayments[1] = new PaymentFixed(annuity.getCurrency(), annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
+
+    fixedPayments[0] = initalPayment;
+    fixedPayments[1] = finalPayment;
 
     return new GenericAnnuity<PaymentFixed>(fixedPayments);
+  }
+
+  public AnnuityCouponIbor getFloatingLeg() {
+    return (AnnuityCouponIbor) getSecondLeg();
+  }
+
+  /**
+   * Return the currency of the annuity. 
+   * @return The currency
+   */
+  public Currency getCurrency() {
+    return getFirstLeg().getCurrency();
   }
 
   @Override
