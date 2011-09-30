@@ -79,21 +79,20 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
           final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
           final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
           final List<DoublesPair> senseList = senseMap.get(name);
-          if (senseList.size() == 0) {
-            throw new IllegalArgumentException("Could not get any sensitivities for " + name);
-          }
-          final double[][] sensitivity = new double[senseList.size()][];
-          int k = 0;
-          for (final DoublesPair timeAndDF : senseList) {
-            sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
-          }
-          for (int j = 0; j < sensitivity[0].length; j++) {
-            double temp = 0.0;
-            k = 0;
+          if (senseList.size() != 0) {
+            final double[][] sensitivity = new double[senseList.size()][];
+            int k = 0;
             for (final DoublesPair timeAndDF : senseList) {
-              temp += timeAndDF.getSecond() * sensitivity[k++][j];
+              sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
             }
-            res[i][j + offset] = temp;
+            for (int j = 0; j < sensitivity[0].length; j++) {
+              double temp = 0.0;
+              k = 0;
+              for (final DoublesPair timeAndDF : senseList) {
+                temp += timeAndDF.getSecond() * sensitivity[k++][j];
+              }
+              res[i][j + offset] = temp;
+            }
           }
         }
         offset += _data.getCurveNodePointsForCurve(name).length;
