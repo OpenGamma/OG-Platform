@@ -272,7 +272,7 @@ static char *_OptionBaseDir (const CSettings *pSettings) {
 		return NULL;
 	}
 #ifdef _UNICODE
-	StringCbPrintf (pszOption, cchPath, "-Dlanguage.ext.path=%ws", pszPath);
+	StringCbPrintfA (pszOption, cchPath, "-Dlanguage.ext.path=%ws", pszPath);
 #else /* ifdef _UNICODE */
 	StringCbPrintf (pszOption, cchPath, "-Dlanguage.ext.path=%s", pszPath);
 #endif /* ifdef _UNICODE */
