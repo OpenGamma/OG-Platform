@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.model.forex;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -36,19 +38,16 @@ public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBar
   @Override
   protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
-    final int n = result.size();
-    final Currency[] keys = new Currency[n];
-    final double[] values = new double[n];
-    int i = 0;
-    for (final CurrencyAmount ca : result) {
-      keys[i] = ca.getCurrency();
-      values[i++] = ca.getAmount();
-    }
+    Validate.isTrue(result.size() == 1);
+    CurrencyAmount ca = result.getCurrencyAmounts()[0];
+    Currency ccy = ca.getCurrency();
+    double amount = ca.getAmount();
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
         .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+        .with(ValuePropertyNames.SURFACE, getSurfaceName())
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, new CurrencyLabelledMatrix1D(keys, values)));
+    return Collections.singleton(new ComputedValue(spec, amount));
   }
 
 }
