@@ -253,6 +253,32 @@ static char *_OptionClassPath (const CSettings *pSettings) {
 	return pszOption;
 }
 
+/// Creates a JVM parameter for the base dir to use. This is the JarPath returned by the settings object
+/// used to construct the class path.
+/// 
+/// @param[in] pSettings the current settings
+/// @return the option string
+static char *_OptionBaseDir (const CSettings *pSettings) {
+	const TCHAR *pszPath = pSettings->GetExtPath ();
+	if (!pszPath) {
+		LOGWARN (TEXT ("No JAR folder available"));
+		return NULL;
+	}
+	LOGINFO (TEXT ("Using EXT path ") << pszPath);
+	size_t cchPath = _tcslen (pszPath) + 21;
+	char *pszOption = new char[cchPath];
+	if (!pszOption) {
+		LOGFATAL (TEXT ("Out of memory"));
+		return NULL;
+	}
+#ifdef _UNICODE
+	StringCbPrintf (pszOption, cchPath, "-Dlanguage.ext.path=%ws", pszPath);
+#else /* ifdef _UNICODE */
+	StringCbPrintf (pszOption, cchPath, "-Dlanguage.ext.path=%s", pszPath);
+#endif /* ifdef _UNICODE */
+	return pszOption;
+}
+
 /// Implementation of the notifyStop method in the Main class.
 ///
 /// @param pEnv see Java documentation
@@ -294,11 +320,12 @@ CJVM *CJVM::Create () {
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;
-	JavaVMOption option[4];
+	JavaVMOption option[5];
 	memset (&option, 0, sizeof (option));
 	args.options = option;
 	option[args.nOptions++].optionString = _OptionClassPath (&settings);
 	option[args.nOptions++].optionString = _OptionFudgeAnnotationCache (&settings);
+	option[args.nOptions++].optionString = _OptionBaseDir (&settings);
 #ifdef _DEBUG
 	option[args.nOptions++].optionString = (char*)"-Dservice.debug=true";
 #else

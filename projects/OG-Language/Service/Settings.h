@@ -13,6 +13,7 @@
 #define SETTINGS_BUSY_TIMEOUT				TEXT ("busyTimeout")
 #define SETTINGS_CONNECTION_PIPE			SERVICE_SETTINGS_CONNECTION_PIPE
 #define SETTINGS_CONNECTION_TIMEOUT			TEXT ("connectionTimeout")
+#define SETTINGS_EXT_PATH					TEXT ("exts")
 #define SETTINGS_IDLE_TIMEOUT				TEXT ("idleTimeout")
 #define SETTINGS_JAR_PATH					TEXT ("jars")
 #ifdef _WIN32
@@ -33,6 +34,7 @@ private:
 	unsigned long GetBusyTimeout (unsigned long dwDefault) const { return Get (SETTINGS_BUSY_TIMEOUT, dwDefault); }
 	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) const { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
 	unsigned long GetConnectionTimeout (unsigned long dwDefault) const { return Get (SETTINGS_CONNECTION_TIMEOUT, dwDefault); }
+	const TCHAR *GetExtPath (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_EXT_PATH, poDefault); }
 	unsigned long GetIdleTimeout (unsigned long dwDefault) const { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
 	const TCHAR *GetJarPath (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JAR_PATH, poDefault); }
 	const TCHAR *GetJvmLibrary (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
@@ -46,6 +48,7 @@ public:
 	unsigned  long GetBusyTimeout () const;
 	const TCHAR *GetConnectionPipe () const;
 	unsigned long GetConnectionTimeout () const;
+	const TCHAR *GetExtPath () const;
 	unsigned long GetIdleTimeout () const;
 	const TCHAR *GetJarPath () const;
 	const TCHAR *GetJvmLibrary () const;
