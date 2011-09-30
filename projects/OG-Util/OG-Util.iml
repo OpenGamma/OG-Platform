@@ -122,7 +122,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.derby/derby/jars/derbyLocale_ja_JP-10.6.1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc3-8.4-701.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc4-8.4-701.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/jars/hsqldb-2.0.1-rc3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/jars/mockito-all-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/jars/mockito-core-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hamcrest/hamcrest/jars/hamcrest-core-1.1.jar!/" />
@@ -133,8 +132,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/jars/fastutil-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/jars/mongo-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/jars/scannotation-1.0.2.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/jars/joda-convert-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/jars/joda-beans-0.4.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/jars/hsqldb-2.2.5.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
@@ -145,7 +145,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/javadocs/commons-codec-javadoc-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.ant/ant/javadocs/ant-javadoc-1.7.1.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/javadocs/joda-beans-javadoc-0.4.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.testng/testng/javadocs/testng-javadoc-6.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.beust/jcommander/javadocs/jcommander-javadoc-1.17.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aopalliance/aopalliance/javadocs/aopalliance-javadoc-1.0.zip!/" />
@@ -160,7 +159,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/javadocs/ehcache-javadoc-1.6.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/javadocs/javadoc-1.6.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/javadocs/fastutil-javadoc-6.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/javadocs/joda-beans-javadoc-0.4.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/javadocs/joda-beans-javadoc-0.4.4.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
@@ -173,7 +172,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/sources/commons-logging-src-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/sources/commons-codec-src-1.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.jcip/jcip-annotations/sources/jcip-annotations-src-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.4.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.testng/testng/sources/testng-sources-6.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.beust/jcommander/sources/jcommander-sources-1.17.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.slf4j/slf4j/sources/slf4j-api-src-1.5.11.jar!/" />
@@ -222,12 +220,12 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jboss/javassist/sources/javassist-src-3.9.0.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.ehcache/ehcache/sources/ehcache-src-1.6.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/sources/source-8.4-701.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/sources/source-2.0.1-rc3.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.objenesis/objenesis/sources/source-1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/sources/fastutil-src-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/sources/mongo-src-2.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.4.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-convert/sources/joda-convert-sources-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.joda/joda-beans/sources/joda-beans-sources-0.4.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/sources/hsqldb-src-2.2.5.zip!/" />
         </SOURCES>
       </library>
     </orderEntry>

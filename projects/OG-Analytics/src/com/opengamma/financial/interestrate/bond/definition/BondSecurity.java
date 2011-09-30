@@ -39,25 +39,25 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   /**
    * The name of the curve used for settlement amount discounting.
    */
-  private final String _repoCurveName;
+  private final String _discountingCurveName;
 
   /**
    * Bond constructor from the bond nominal and coupon.
    * @param nominal The notional payments.
    * @param coupon The bond coupons.
    * @param settlementTime The time (in years) to settlement date. 
-   * @param repoCurveName The name of the curve used for settlement amount discounting.
+   * @param discountingCurveName The name of the curve used for settlement amount discounting.
    * @param issuer The bond issuer name.
    */
-  public BondSecurity(GenericAnnuity<N> nominal, GenericAnnuity<C> coupon, double settlementTime, String repoCurveName, String issuer) {
+  public BondSecurity(GenericAnnuity<N> nominal, GenericAnnuity<C> coupon, double settlementTime, String discountingCurveName, String issuer) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
-    Validate.notNull(repoCurveName, "Repo curve name");
+    Validate.notNull(discountingCurveName, "Repo curve name");
     Validate.notNull(issuer, "Issuer");
     _nominal = nominal;
     _coupon = coupon;
     _settlementTime = settlementTime;
-    _repoCurveName = repoCurveName;
+    _discountingCurveName = discountingCurveName;
     _issuer = issuer;
   }
 
@@ -98,7 +98,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * @return The curve name.
    */
   public String getRepoCurveName() {
-    return _repoCurveName;
+    return _discountingCurveName;
   }
 
   /**

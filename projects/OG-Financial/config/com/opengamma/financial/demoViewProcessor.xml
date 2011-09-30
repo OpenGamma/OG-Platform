@@ -84,10 +84,13 @@
   </bean>
   
   <!-- User market data snapshots -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+    <bean id="userSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
+    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg value="userSnapshotMasterChangeManager" />
+  </bean>
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
-    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <property name="changeManager" ref="userSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>
   <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
