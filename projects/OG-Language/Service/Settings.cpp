@@ -297,6 +297,38 @@ const TCHAR *CSettings::GetJarPath () const {
 	return GetJarPath (&g_oJarPathDefault);
 }
 
+/// Locates the ext folder by searching for the client.jar
+class CExtPathDefault : public CAbstractSettingProvider {
+protected:
+	TCHAR *CalculateString () const {
+		const TCHAR *pszJarPath = g_oJarPathDefault.GetString ();
+		if (!pszJarPath) {
+			LOGERROR (TEXT ("No JAR path to base EXT from"));
+			return NULL;
+		}
+		size_t cchJarPath = _tcslen (pszJarPath);
+		TCHAR *pszExtPath = new TCHAR[cchJarPath + 5];
+		if (!pszExtPath) {
+			LOGFATAL (TEXT ("Out of memory"));
+			return NULL;
+		}
+		memcpy (pszExtPath, pszJarPath, cchJarPath * sizeof (TCHAR));
+		memcpy (pszExtPath + cchJarPath, TEXT (PATH_CHAR_STR) TEXT ("ext"), 5 * sizeof (TCHAR));
+		LOGINFO (TEXT ("Found EXT path ") << pszExtPath);
+		return pszExtPath;
+	}
+};
+
+/// Instance of the provider to get the default path for the EXT resources.
+static CExtPathDefault g_oExtPathDefault;
+
+/// Returns the path containing the language binding resources.
+///
+/// @return the path
+const TCHAR *CSettings::GetExtPath () const {
+	return GetExtPath (&g_oExtPathDefault);
+}
+
 /// Returns the path where Fudge annotation cache files should be written. The default is the JAR path, but this
 /// may not be writable in some installations.
 ///

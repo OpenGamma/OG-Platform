@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -421,7 +421,7 @@ public class JobDispatcherTest {
     jobDispatcher.setMaxJobExecutionTime(2 * TIMEOUT);
     jobDispatcher.setMaxJobAttempts(1);
     final TestJobResultReceiver result = new TestJobResultReceiver();
-    Cancellable job = jobDispatcher.dispatchJob(createTestJob(), result);
+    Cancelable job = jobDispatcher.dispatchJob(createTestJob(), result);
     assertNotNull(job);
     assertNull(result.getResult());
     final BlockingJobInvoker blockingInvoker = new BlockingJobInvoker(TIMEOUT);

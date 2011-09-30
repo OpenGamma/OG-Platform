@@ -109,6 +109,7 @@ public class Loader extends ContextInitializationBean {
     globalContext.getFunctionProvider().addProvider(new AbstractFunctionProvider() {
       @Override
       protected void loadDefinitions(final Collection<MetaFunction> definitions) {
+        definitions.add(GetViewResultFunction.INSTANCE.getMetaFunction());
         definitions.add(ViewClientFunction.INSTANCE.getMetaFunction());
       }
     });
