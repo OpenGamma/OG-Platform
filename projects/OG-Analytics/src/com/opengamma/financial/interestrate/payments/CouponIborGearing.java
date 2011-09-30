@@ -147,6 +147,12 @@ public class CouponIborGearing extends CouponFloating {
   }
 
   @Override
+  public CouponIborGearing withNotional(double notional) {
+    return new CouponIborGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+        _fixingAccrualFactor, _spread, _factor, _forwardCurveName);
+  }
+
+  @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborGearing(this, data);
   }
