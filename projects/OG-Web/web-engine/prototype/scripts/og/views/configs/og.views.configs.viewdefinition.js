@@ -37,7 +37,6 @@ $.register_module({
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 id_count = 0, prefix = 'viewdef_',
                 master = config.data.template_data.configJSON.data,
-                meta = config.data.template_data.configJSON.meta,
                 column_set_tabs,
                 meta_map = [
                     ['0',                                                                           Form.type.STR],

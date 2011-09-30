@@ -162,11 +162,11 @@ $.register_module({
                     });
                     form.process(data, errors);
                     built_meta = meta_map ? build_meta(data, '', meta_warns) : null;
-                    meta_warns.sort().reduce(function (acc, val) {
+                    meta_warns = meta_warns.sort().reduce(function (acc, val) {
                         return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
                     }, []).join('\n');
                     if (meta_warns.length)
-                        return og.dev.warn(klass + '#build_meta needs these:\n', meta_warns.join('\n')), false;
+                        return og.dev.warn(klass + '#build_meta needs these:\n', meta_warns), false;
                     result = {raw: raw, data: data, errors: errors, meta: built_meta};
                     try {
                         form_events['form:submit'].forEach(function (val) {val.handler(result);});
@@ -183,8 +183,8 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
-        Form.type =  {SHR: 'short', STR: 'string', IND: 'indicator'};
-        numbers[Form.type.SHR] = null;
+        Form.type =  {SHR: 'short', BYT: 'byte', STR: 'string', IND: 'indicator'};
+        numbers[Form.type.SHR] = null; numbers[Form.type.BYT] = null;
         return Form;
     }
 });
