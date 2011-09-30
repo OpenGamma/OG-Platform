@@ -247,10 +247,13 @@
   </bean>
   
   <!-- MarketDataSnapshotMaster -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+  <bean id="dbSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
+    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg value="dbSnapshotMasterChangeManager" />
+  </bean>
   <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <property name="changeManager" ref="dbSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
   </bean>
   

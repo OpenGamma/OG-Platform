@@ -59,6 +59,19 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
   }
 
   /**
+   * Creates a new annuity with the same characteristics, except that the notional all coupons is the one given.
+   * @param notional The notional.
+   * @return The new annuity.
+   */
+  public AnnuityCouponFixed withNotional(double notional) {
+    CouponFixed[] cpn = new CouponFixed[getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
+      cpn[loopcpn] = getNthPayment(loopcpn).withNotional(notional);
+    }
+    return new AnnuityCouponFixed(cpn);
+  }
+
+  /**
    * Remove the payments paying on or before the given time.
    * @param trimTime The time.
    * @return The trimmed annuity.
@@ -68,6 +81,22 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
     List<CouponFixed> list = new ArrayList<CouponFixed>();
     for (CouponFixed payment : getPayments()) {
       if (payment.getPaymentTime() > trimTime) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
+  }
+
+  /**
+   * Remove the payments paying strictly after before the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  @Override
+  public AnnuityCouponFixed trimAfter(double trimTime) {
+    List<CouponFixed> list = new ArrayList<CouponFixed>();
+    for (CouponFixed payment : getPayments()) {
+      if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
     }
