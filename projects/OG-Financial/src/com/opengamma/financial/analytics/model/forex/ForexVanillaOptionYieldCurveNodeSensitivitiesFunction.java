@@ -138,8 +138,8 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, putCurveName, putCurveName));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callCurveName, callCurveName));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency));
     result.add(getCurveSensitivitiesRequirement(target, putCurveName, callCurveName));
     result.add(spotRequirement);
     result.add(fxVolatilitySurface);
