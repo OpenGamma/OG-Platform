@@ -374,7 +374,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getFXPresentValue() {
-    return getRiskFactor(ValueRequirementNames.FX_PRESENT_VALUE, false);
+    return getRiskFactor(ValueRequirementNames.FX_PRESENT_VALUE);
   }
   
   private Pair<String, ValueProperties> getFXCurrencyExposure() {
