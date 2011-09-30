@@ -9,6 +9,15 @@
       <value>classpath:demoMasters-${opengamma.platform.runmode}.properties</value>
     </property>
   </bean>
+  
+  <!-- Active MQ -->
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <constructor-arg value="${activeMQ.brokerURL}" />
+    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
+  </bean>
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <constructor-arg ref="activeMQConnectionFactory"/>
+  </bean>
 
   <import resource="classpath:com/opengamma/financial/common.xml" />
 
