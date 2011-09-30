@@ -189,7 +189,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
         throw new OpenGammaRuntimeException("Convention " + conventions.getName() + " for " + fixedLeg + " did not have a value set for isEOM()");
       }
     } catch (final Exception e) {
-      throw new OpenGammaRuntimeException("----------------------- " + conventions.getName());
     }
     final BusinessDayConvention businessDay = fixedLeg.getBusinessDayConvention();
     final boolean isEOM = conventions.isEOMConvention();
