@@ -231,9 +231,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.of(
       getFXPresentValue(),
       getFXCurrencyExposure(),
-      getVegaMatrix(ValueProperties.builder()),
-      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
-      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
+      getVegaMatrix(ValueProperties.builder()));
+    
+      // YCNS doesn't seem to work
+      // getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
+      // getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
   }
 
   @Override
@@ -372,11 +374,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getFXPresentValue() {
-    return getRiskFactor(ValueRequirementNames.FX_PRESENT_VALUE);
+    return getRiskFactor(ValueRequirementNames.FX_PRESENT_VALUE, false);
   }
   
   private Pair<String, ValueProperties> getFXCurrencyExposure() {
-    return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE, false);
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
@@ -408,13 +410,21 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getRiskFactor(String valueName) {
-    return getRiskFactor(valueName, ValueProperties.builder());
+    return getRiskFactor(valueName, ValueProperties.builder(), true);
+  }
+  
+  private Pair<String, ValueProperties> getRiskFactor(String valueName, boolean allowCurrencyOverride) {
+    return getRiskFactor(valueName, ValueProperties.builder(), allowCurrencyOverride);
   }
   
   private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties.Builder constraints) {
+    return getRiskFactor(valueName, constraints, true);
+  }
+  
+  private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties.Builder constraints, boolean allowCurrencyOverride) {
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(constraints, "constraints");
-    if (getConfigProvider().getCurrencyOverride() != null) {
+    if (allowCurrencyOverride && getConfigProvider().getCurrencyOverride() != null) {
       constraints.with(ValuePropertyNames.CURRENCY, getConfigProvider().getCurrencyOverride().getCode());
     }
     return Pair.of(valueName, constraints.get());
