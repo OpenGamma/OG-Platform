@@ -74,6 +74,11 @@ public class CouponCMS extends CouponFloating {
   }
 
   @Override
+  public CouponCMS withNotional(double notional) {
+    return new CouponCMS(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap, _settlementTime);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();

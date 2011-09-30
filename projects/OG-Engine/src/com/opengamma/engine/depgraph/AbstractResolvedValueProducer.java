@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck
 
-  private final class Callback implements ResolutionPump, Cancellable {
+  private final class Callback implements ResolutionPump, Cancelable {
 
     private final int _objectId = s_nextObjectId.getAndIncrement();
     private final ResolvedValueCallback _callback;
@@ -138,7 +138,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
+  public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
     addRef();
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;

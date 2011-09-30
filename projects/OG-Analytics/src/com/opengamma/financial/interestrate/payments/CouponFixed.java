@@ -123,13 +123,9 @@ public class CouponFixed extends Coupon {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
   }
 
-  /**
-   * Creates a new coupon with the same characteristics, except the notional which is the one given.
-   * @param notional The notional of the new coupon.
-   * @return The new coupon.
-   */
+  @Override
   public CouponFixed withNotional(double notional) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate());
+    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
   /**

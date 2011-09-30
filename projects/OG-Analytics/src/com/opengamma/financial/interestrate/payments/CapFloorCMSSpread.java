@@ -67,9 +67,8 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param fundingCurveName The discounting curve name. Should be compatible with the swaps dicsounting curve.
    */
   public CapFloorCMSSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
-      final FixedCouponSwap<? extends Payment> underlyingSwap1,
-      final CMSIndex cmsIndex1, final FixedCouponSwap<? extends Payment> underlyingSwap2, final CMSIndex cmsIndex2, final double settlementTime, final double strike, final boolean isCap,
-      final String fundingCurveName) {
+      final FixedCouponSwap<? extends Payment> underlyingSwap1, final CMSIndex cmsIndex1, final FixedCouponSwap<? extends Payment> underlyingSwap2, final CMSIndex cmsIndex2,
+      final double settlementTime, final double strike, final boolean isCap, final String fundingCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.notNull(underlyingSwap1, "underlying swap");
     Validate.isTrue(underlyingSwap1.isIborOrFixed(), "underlying swap not of vanilla type");
@@ -98,9 +97,8 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS spread cap/floor.
    */
-  public static CapFloorCMSSpread from(final CouponFloating coupon, final FixedCouponSwap<Payment> underlyingSwap1, final CMSIndex cmsIndex1, final FixedCouponSwap<Payment> underlyingSwap2,
-      final CMSIndex cmsIndex2,
-      final double settlementTime, final double strike, final boolean isCap) {
+  public static CapFloorCMSSpread from(final CouponFloating coupon, final FixedCouponSwap<Coupon> underlyingSwap1, final CMSIndex cmsIndex1, final FixedCouponSwap<Coupon> underlyingSwap2,
+      final CMSIndex cmsIndex2, final double settlementTime, final double strike, final boolean isCap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.isTrue(coupon.getFundingCurveName() == underlyingSwap2.getFixedLeg().getDiscountCurve(), "coherence in pricing");
     return new CapFloorCMSSpread(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap1, cmsIndex1,
@@ -164,6 +162,12 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   public double payOff(final double fixing) {
     final double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
+  }
+
+  @Override
+  public CapFloorCMSSpread withNotional(double notional) {
+    return new CapFloorCMSSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap1, _cmsIndex1, _underlyingSwap2, _cmsIndex2, _settlementTime,
+        _strike, _isCap, getFundingCurveName());
   }
 
   @Override

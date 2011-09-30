@@ -39,7 +39,7 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
+    public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
       final AtomicReference<ResolvedValueCallback> callbackRef = new AtomicReference<ResolvedValueCallback>(callback);
       context.resolved(callback, _valueRequirement, _resolvedValue, new ResolutionPump() {
 
@@ -58,7 +58,7 @@ import com.opengamma.util.tuple.Pair;
         }
 
       });
-      return new Cancellable() {
+      return new Cancelable() {
         @Override
         public boolean cancel(final GraphBuildingContext context) {
           return callbackRef.getAndSet(null) != null;

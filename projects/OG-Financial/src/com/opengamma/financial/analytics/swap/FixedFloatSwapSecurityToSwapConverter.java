@@ -26,10 +26,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -70,7 +69,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
   }
 
-  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final double initialRate,
+  public FixedCouponSwap<Coupon> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final double initialRate,
       final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");
@@ -102,12 +101,12 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
-    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar, isPayer), getFloatLeg(floatLeg, now, effectiveDate,
+    return new FixedCouponSwap<Coupon>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar, isPayer), getFloatLeg(floatLeg, now, effectiveDate,
         maturityDate, fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays(), !isPayer));
 
   }
 
-  public GenericAnnuity<Payment> getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+  public GenericAnnuity<Coupon> getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
       final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double initialRate, final int settlementDays, boolean isPayer) {
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
@@ -126,7 +125,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
     if (n >= paymentTimes.length) {
       //all payments are in the past - return a dummy annuity with zero notional a one payment (of zero) at zero and zero spread 
       //TODO may want to handle this case differently 
-      return new GenericAnnuity<Payment>(new Payment[] {new PaymentFixed(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), 0, 0, fundingCurveName)});
+      return new GenericAnnuity<Coupon>(new Coupon[] {new CouponFixed(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), 0.0, fundingCurveName, 0.0, notional, 0.0)});
+      //                    PaymentFixed(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), 0, 0, fundingCurveName)});
     }
 
     if (n > 0) {
@@ -138,7 +138,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final double[] spreads = new double[paymentTimes.length];
     Arrays.fill(spreads, spread);
 
-    final Payment[] payments = new Payment[paymentTimes.length];
+    final Coupon[] payments = new Coupon[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
       if (resetTimes[i] < 0.0) {
         payments[i] = new CouponFixed(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional,
@@ -150,7 +150,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
 
     //TODO need to handle paymentYearFraction differently from forwardYearFraction 
-    return new GenericAnnuity<Payment>(payments);
+    return new GenericAnnuity<Coupon>(payments);
   }
 
   public AnnuityCouponFixed getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final double marketRate,

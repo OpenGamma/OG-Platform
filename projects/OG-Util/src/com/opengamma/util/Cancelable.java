@@ -6,9 +6,9 @@
 package com.opengamma.util;
 
 /**
- * Defines an object that may be cancelled.
+ * Defines an object that may be canceled.
  */
-public interface Cancellable {
+public interface Cancelable {
 
   /**
    * Attempts to cancel the operation.
