@@ -11,16 +11,17 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -50,4 +51,22 @@ public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBar
     return Collections.singleton(new ComputedValue(spec, amount));
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    FXBarrierOptionSecurity security = (FXBarrierOptionSecurity) target.getSecurity();
+    Currency putCurrency = security.getPutCurrency();
+    Currency callCurrency = security.getCallCurrency();
+    Currency ccy;
+    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      ccy = callCurrency;
+    } else {
+      ccy = putCurrency;
+    }
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
+        .with(ValuePropertyNames.SURFACE, getSurfaceName())
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
+  }
 }

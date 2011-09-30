@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -20,6 +21,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -47,5 +52,18 @@ public class ForexForwardPresentValueFunction extends ForexForwardFunction {
         .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, amount));
+  }
+  
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
+    final ExternalId underlyingIdentifier = security.getUnderlyingId();
+    final FXSecurity fxSecurity = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalIdBundle.of(underlyingIdentifier)));
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, getPayCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveCurveName())
+        .with(ValuePropertyNames.CURRENCY, fxSecurity.getReceiveCurrency().getCode()).get();
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
   }
 }
