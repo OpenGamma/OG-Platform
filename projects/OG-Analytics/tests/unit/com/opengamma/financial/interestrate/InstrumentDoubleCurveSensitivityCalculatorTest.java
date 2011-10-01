@@ -160,7 +160,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   }
 
   @Test
-  public void testwithPV() {
+  public void testWithPV() {
     // PresentValueCouponSensitivityCalculator is sensitivity to change in the
     // coupon rate for that instrument - what we calculate here is the
     // (hypothetical) change of PV of the instrument with a fixed coupon when
@@ -176,11 +176,13 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       }
     }
   }
-
+ 
   @Test
   public void testBumpedData() {
     final double notional = 10394850;
     final double eps = 1e-4;
+    final InterestRateDerivative cash = makeIRD("cash", 1.5, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
+    testBumpedDataParRateMethod(cash, notional, eps);
     final InterestRateDerivative libor = makeIRD("libor", 1.5, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
     testBumpedDataParRateMethod(libor, notional, eps);
     testBumpedDataPVMethod(libor, notional, eps);
@@ -348,24 +350,11 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final List<double[]> curveKnots = new ArrayList<double[]>();
     curveKnots.add(getNodes(maturities.get(CURVE_NAMES.get(0))));
     curveKnots.add(getNodes(maturities.get(CURVE_NAMES.get(1))));
-    final List<double[]> yields = new ArrayList<double[]>();
-    double[] temp = new double[curveKnots.get(0).length];
-    int index = 0;
-    for (final double t : curveKnots.get(0)) {
-      temp[index++] = DUMMY_CURVE.evaluate(t);
-    }
-    yields.add(temp);
-    temp = new double[curveKnots.get(1).length];
-    index = 0;
-    for (final double t : curveKnots.get(1)) {
-      temp[index++] = DUMMY_CURVE.evaluate(t) + DUMMY_SPREAD_CURVE.evaluate(t);
-    }
-    yields.add(temp);
     final int nNodes = curveKnots.get(0).length + curveKnots.get(1).length;
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
     InterestRateDerivative ird;
     final double[] marketValuesArray = new double[nNodes];
-    index = 0;
+    int index = 0;
     for (final String curveName : maturities.keySet()) {
       final Map<String, double[]> marketValuesForCurve = marketValues.get(curveName);
       for (final String instrumentType : marketValuesForCurve.keySet()) {
@@ -390,7 +379,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES, calculator,
-        sensitivityCalculator, marketValuesArray, startPosition, yields);
+        sensitivityCalculator, marketValuesArray, startPosition, null);
     return data;
   }
 
