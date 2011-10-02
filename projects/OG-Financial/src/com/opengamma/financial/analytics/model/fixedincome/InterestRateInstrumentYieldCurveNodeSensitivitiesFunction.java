@@ -279,9 +279,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, _curveCalculationType)
         .with(ValuePropertyNames.CURVE, _forwardCurveName)
         .get();
-    if (_forwardCurveName.equals(_fundingCurveName)) {
-      return Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
-    }
     final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
     result.add(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
     resultProperties = createValueProperties()

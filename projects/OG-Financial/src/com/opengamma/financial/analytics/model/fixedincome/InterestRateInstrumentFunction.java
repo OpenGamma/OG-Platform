@@ -74,7 +74,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-        .getConventionBundleSource(context);
+    .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
@@ -85,10 +85,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
-            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(futureConverter)
-            .bondSecurityVisitor(bondConverter).create();
+      FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>>builder()
+        .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter)
+        .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -123,10 +123,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     }
     final InterestRateDerivative derivative = _definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
         _fundingCurveName, _forwardCurveName), dataSource);
-    return getComputedValues(derivative, bundle, security);
+    return getComputedValues(derivative, bundle, security, target);
   }
 
-  public abstract Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security);
+  public abstract Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security, ComputationTarget target);
 
   @Override
   public ComputationTargetType getTargetType() {
