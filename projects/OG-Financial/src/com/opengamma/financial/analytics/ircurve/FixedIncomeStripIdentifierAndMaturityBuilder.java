@@ -256,7 +256,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ExternalId underlyingIdentifier = strip.getSecurity();
     //TODO this normalization should not be done here
     return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate.atTime(11, 00).atZone(TimeZone.UTC), endDate.atTime(11, 00).atZone(TimeZone.UTC),
-        marketValues.get(strip.getSecurity()) / 100, 1.0d, underlyingIdentifier);
+        marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier);
   }
 
   private FutureSecurity getFuture(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip) {

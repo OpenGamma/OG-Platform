@@ -389,14 +389,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes,
           forwardYields, _forwardInterpolator));
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
-      //TODO separate out the jacobians for each curve
       final Set<ComputedValue> result = Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve),
                                                         new ComputedValue(_forwardCurveResult, forwardCurve),
                                                         new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
                                                         new ComputedValue(_fundingCurveSpecResult, fundingCurveSpecificationWithSecurities),
                                                         new ComputedValue(_forwardCurveSpecResult, forwardCurveSpecificationWithSecurities));
       if (_calculationType.equals(PRESENT_VALUE_STRING)) {
-        //TODO separate out the sensitivities for different curves
         if (_couponSensitivityCalculator == null) {
           throw new OpenGammaRuntimeException("Should never happen - coupon sensitivity calculator was null but requested calculation method was present value");
         }

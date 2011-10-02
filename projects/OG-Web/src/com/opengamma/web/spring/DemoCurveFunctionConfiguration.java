@@ -87,21 +87,21 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final Set<String> curveNames = currencyCurves.getValue();
         if (curveNames.contains("SECONDARY")) {
           addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
-       //   addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "SECONDARY", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
         }
         if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD_3M")) {
-         // addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
           addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
         } else if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD_6M")) {
-        //  addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+          addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
           addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
         }
       }
     } else {
       //       [PLAT-1094] This is the wrong approach and should be disposed of at the earliest opportunity
       s_logger.warn("[PLAT-1094] Using hardcoded curve definitions");
-   //   addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-   //   addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
       addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD_3M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
       addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD_6M", MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING);
     }
