@@ -105,8 +105,8 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     }
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, currency, conventions, payFixed);
 
-    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency,
-        !payFixed) : getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
+    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed)
+        : getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
     return new SwapFixedIborDefinition(fixedLegDefinition, floatingLegDefinition);
   }
 
@@ -183,7 +183,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   private AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
       final Currency currency, final ConventionBundle conventions, final boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
-    final double fixedRate = fixedLeg.getRate(); //TODO this should not be hard-coded here
     try {
       if (conventions.isEOMConvention() == null) {
         throw new OpenGammaRuntimeException("Convention " + conventions.getName() + " for " + fixedLeg + " did not have a value set for isEOM()");
@@ -193,7 +192,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     final BusinessDayConvention businessDay = fixedLeg.getBusinessDayConvention();
     final boolean isEOM = conventions.isEOMConvention();
     return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, maturityDate, fixedLeg.getFrequency(), calendar, fixedLeg.getDayCount(),
-        businessDay, isEOM, notional, fixedRate, isPayer);
+        businessDay, isEOM, notional, fixedLeg.getRate(), isPayer);
   }
 
   private AnnuityCouponIborDefinition getIborSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg, final Calendar calendar,
