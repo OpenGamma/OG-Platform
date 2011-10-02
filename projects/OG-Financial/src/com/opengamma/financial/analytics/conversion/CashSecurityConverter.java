@@ -30,8 +30,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
-  public CashSecurityConverter(final HolidaySource holidaySource,
-      final ConventionBundleSource conventionSource) {
+  public CashSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     _holidaySource = holidaySource;
@@ -56,9 +55,8 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
     }
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
     final ZonedDateTime maturityDate = security.getMaturity();
-    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
-        conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
-    return new CashDefinition(currency, maturityDate, security.getAmount(), security.getRate() / 100, convention);
+    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
+    return new CashDefinition(currency, maturityDate, security.getAmount(), security.getRate(), convention);
   }
 
 }

@@ -143,7 +143,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
       final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
       final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(swaption, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
       final DoubleLabelledMatrix1D resultMatrix = getSensitivitiesForCurve(target, _forwardCurveName, bundle, result, currency, forwardCurveSpec);
-      return Sets.newHashSet(new ComputedValue(getSingleSpec(target, currency, _forwardCurveName), resultMatrix));
+      return Sets.newHashSet(new ComputedValue(getForwardSpec(target, currency, _forwardCurveName), resultMatrix));
     }
     final Object fundingCurveObject = inputs.getValue(getFundingCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (fundingCurveObject == null) {
@@ -156,9 +156,9 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    interpolatedCurves.put(_forwardCurveName, forwardCurve);
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     interpolatedCurves.put(_fundingCurveName, fundingCurve);
+    interpolatedCurves.put(_forwardCurveName, forwardCurve);
     final YieldCurveBundle bundle = new YieldCurveBundle(interpolatedCurves);
     final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivitiesObject;
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
@@ -166,8 +166,8 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(swaption, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
     final int nForward = forwardCurve.getCurve().size();
     final int nFunding = fundingCurve.getCurve().size();
-    final DoubleMatrix1D forwardCurveResult = new DoubleMatrix1D(Arrays.copyOfRange(result.toArray(), 0, nForward));
-    final DoubleMatrix1D fundingCurveResult = new DoubleMatrix1D(Arrays.copyOfRange(result.toArray(), nForward, nFunding + 1));
+    final DoubleMatrix1D forwardCurveResult = new DoubleMatrix1D(Arrays.copyOfRange(result.toArray(), 0, nFunding));
+    final DoubleMatrix1D fundingCurveResult = new DoubleMatrix1D(Arrays.copyOfRange(result.toArray(), nFunding, nFunding + nForward));
     final DoubleLabelledMatrix1D forwardCurveMatrix = getSensitivitiesForCurve(target, _forwardCurveName, bundle, forwardCurveResult, currency, forwardCurveSpec);
     final DoubleLabelledMatrix1D fundingCurveMatrix = getSensitivitiesForCurve(target, _fundingCurveName, bundle, fundingCurveResult, currency, fundingCurveSpec);
     return Sets.newHashSet(new ComputedValue(getForwardSpec(target, currency, _forwardCurveName), forwardCurveMatrix),
@@ -211,9 +211,6 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final SwaptionSecurity swaption = (SwaptionSecurity) target.getSecurity();
     final Currency currency = swaption.getCurrency();
-    if (_forwardCurveName.equals(_fundingCurveName)) {
-      return Sets.newHashSet(getSingleSpec(target, currency, _forwardCurveName));
-    }
     return Sets.newHashSet(getForwardSpec(target, currency, _forwardCurveName), getFundingSpec(target, currency, _fundingCurveName));
   }
 
@@ -249,22 +246,10 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
     return YieldCurveFunction.getJacobianRequirement(currency, forwardCurveDefinitionName, fundingCurveDefinitionName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
   }
 
-  private ValueSpecification getSingleSpec(final ComputationTarget target, final Currency currency, final String curveDefinitionName) {
-    //TODO not sure what to do here
-    final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, currency.getCode())
-            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-            .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-            .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
-            .with(ValuePropertyNames.CURVE, curveDefinitionName)
-            .get();
-    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
-  }
-
   private ValueSpecification getForwardSpec(final ComputationTarget target, final Currency currency, final String forwardCurveDefinitionName) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveDefinitionName)
+        .with(ValuePropertyNames.CURVE, forwardCurveDefinitionName)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
         .get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
@@ -273,7 +258,7 @@ public class SwaptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFun
   private ValueSpecification getFundingSpec(final ComputationTarget target, final Currency currency, final String fundingCurveDefinitionName) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveDefinitionName)
+        .with(ValuePropertyNames.CURVE, fundingCurveDefinitionName)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode()).get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
