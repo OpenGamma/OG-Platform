@@ -311,7 +311,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
         final Double forwardMarketValue = forwardMarketDataMap.get(strip.getSecurityIdentifier());
         if (forwardMarketValue == null) {
-          throw new NullPointerException("Could not get funding market data for " + strip);
+          throw new NullPointerException("Could not get forward market data for " + strip);
         }
         final double marketValue = forwardMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
