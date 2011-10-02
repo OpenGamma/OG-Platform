@@ -424,7 +424,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     functionConfigs.add(new StaticFunctionConfiguration(PresentValueSummingFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PV01SummingFunction.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_PRESENT_VALUE)));
+    addSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.FX_CURRENCY_EXPOSURE)));
     functionConfigs.add(new StaticFunctionConfiguration(VegaMatrixSummingFunction.class.getName()));
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);

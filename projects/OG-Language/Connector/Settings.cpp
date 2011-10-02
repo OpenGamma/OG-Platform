@@ -34,6 +34,7 @@ LOGGING (com.opengamma.language.connector.Settings);
 #define DEFAULT_LOG_CONFIGURATION	NULL
 #define DEFAULT_MAX_PIPE_ATTEMPTS	3
 #define DEFAULT_OUTPUT_PIPE_PREFIX	DEFAULT_PIPE_PREFIX TEXT ("Output-")
+#define DEFAULT_REQUEST_TIMEOUT		2		/* 2x send timeout */
 #define DEFAULT_SEND_TIMEOUT		1500	/* 1.5s default */
 #ifdef _WIN32
 # define DEFAULT_SERVICE_EXECUTABLE	TEXT ("ServiceRunner.exe")
@@ -103,6 +104,13 @@ int CSettings::GetMaxPipeAttempts () const {
 /// @return the pipe prefix
 const TCHAR *CSettings::GetOutputPipePrefix () const {
 	return GetOutputPipePrefix (DEFAULT_OUTPUT_PIPE_PREFIX);
+}
+
+/// Returns the timeout for a request to the Java stack in milliseconds.
+///
+/// @return the timeout in milliseconds
+int CSettings::GetRequestTimeout () const {
+	return GetRequestTimeout (DEFAULT_REQUEST_TIMEOUT * GetSendTimeout ());
 }
 
 /// Returns the timeout for sending messages to the Java stack in milliseconds.

@@ -78,7 +78,7 @@ long CRequestBuilder::GetDefaultTimeout () {
 	static long volatile s_lDefaultTimeout = 0;
 	if (!s_lDefaultTimeout) {
 		CSettings oSettings;
-		s_lDefaultTimeout = oSettings.GetSendTimeout () * 2;
+		s_lDefaultTimeout = oSettings.GetRequestTimeout ();
 	}
 	return s_lDefaultTimeout;
 }

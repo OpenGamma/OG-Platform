@@ -172,14 +172,14 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     DoubleMatrix1D sensitivitiesForCurves;
     if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)) {
-      sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, interpolatedCurves, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
+      sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, bundle, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     } else {
       final Object couponSensitivityObject = inputs.getValue(getCouponSensitivityRequirement(target));
       if (couponSensitivityObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       }
       final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
-      sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, interpolatedCurves, couponSensitivity, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
+      sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, bundle, couponSensitivity, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (_fundingCurveName.equals(_forwardCurveName)) {

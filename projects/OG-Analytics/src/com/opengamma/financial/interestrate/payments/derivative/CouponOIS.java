@@ -120,6 +120,12 @@ public class CouponOIS extends Coupon {
   }
 
   @Override
+  public CouponOIS withNotional(double notional) {
+    return new CouponOIS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime, _fixingPeriodAccrualFactor,
+        _notionalAccrued / getNotional() * notional, _forwardCurveName);
+  }
+
+  @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCouponOIS(this, data);
   }

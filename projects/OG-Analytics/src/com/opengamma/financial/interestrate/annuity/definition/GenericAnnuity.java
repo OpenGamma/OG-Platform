@@ -110,18 +110,36 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   /**
-   * Remove the payments paying on or before the given time.
+   * Create a new annuity with the payments of the original one paying strictly after the given time.
    * @param trimTime The time.
    * @return The trimmed annuity.
    */
+  @SuppressWarnings("unchecked")
   public GenericAnnuity<P> trimBefore(double trimTime) {
     List<P> list = new ArrayList<P>();
+    list.clear();
     for (P payment : _payments) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
       }
     }
-    return new GenericAnnuity<P>(list.toArray(_payments));
+    return new GenericAnnuity<P>(list.toArray((P[]) new Payment[0]));
+  }
+
+  /**
+   * Create a new annuity with the payments of the original one paying before or on the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  @SuppressWarnings("unchecked")
+  public GenericAnnuity<P> trimAfter(double trimTime) {
+    List<P> list = new ArrayList<P>();
+    for (P payment : _payments) {
+      if (payment.getPaymentTime() <= trimTime) {
+        list.add(payment);
+      }
+    }
+    return new GenericAnnuity<P>(list.toArray((P[]) new Payment[0]));
   }
 
   @Override

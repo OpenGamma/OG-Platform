@@ -54,6 +54,13 @@ public abstract class Coupon extends Payment {
     return _notional;
   }
 
+  /**
+   * Creates a new coupon with the same characteristics, except the notional which is the one given.
+   * @param notional The notional of the new coupon.
+   * @return The new coupon.
+   */
+  public abstract Coupon withNotional(double notional);
+
   @Override
   public double getReferenceAmount() {
     return _notional;

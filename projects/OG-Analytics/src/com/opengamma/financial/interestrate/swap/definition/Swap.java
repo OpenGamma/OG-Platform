@@ -38,6 +38,15 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InterestRat
     return _secondLeg;
   }
 
+  /**
+   * Create a new swap with the payments of both legs of the original one paying before or on the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  public Swap<P1, P2> trimAfter(double trimTime) {
+    return new Swap<P1, P2>(_firstLeg.trimAfter(trimTime), _secondLeg.trimAfter(trimTime));
+  }
+
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitSwap(this, data);

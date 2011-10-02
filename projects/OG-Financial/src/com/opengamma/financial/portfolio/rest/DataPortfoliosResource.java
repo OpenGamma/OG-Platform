@@ -20,6 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
+import com.opengamma.financial.rest.ChangeManagerResource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -77,6 +78,11 @@ public class DataPortfoliosResource extends AbstractDataResource {
     return Response.ok(result).build();
   }
 
+  @Path("changeManager")
+  public ChangeManagerResource getChangeManager() {
+    return new ChangeManagerResource(getPortfolioMaster().changeManager());
+  }
+  
   @POST
   @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioDocument request) {
