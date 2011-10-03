@@ -73,7 +73,7 @@ public class DemoViewsPopulater {
 
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
     ObjectId portfolioOid = getPortfolioObjectId(portfolioName);
-    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
+    ViewDefinition equityViewDefinition = new ViewDefinition(null, portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
     equityViewDefinition.setDefaultCurrency(Currency.USD);
     equityViewDefinition.setMaxFullCalculationPeriod(30000L);
     equityViewDefinition.setMinFullCalculationPeriod(500L);
@@ -101,7 +101,7 @@ public class DemoViewsPopulater {
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
     ObjectId portfolioOid = getPortfolioObjectId(portfolioName);
-    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
+    ViewDefinition viewDefinition = new ViewDefinition(null, portfolioName + " View", portfolioOid, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -132,7 +132,7 @@ public class DemoViewsPopulater {
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
     ObjectId portfolioOid = getPortfolioObjectId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioOid, UserPrincipal.getTestUser());
+    ViewDefinition viewDefinition = new ViewDefinition(null, DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioOid, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);

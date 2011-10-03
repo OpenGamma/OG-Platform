@@ -167,7 +167,6 @@ public class FixedIncomeConverterDataProvider {
       final ZonedDateTime swapStartDate, final ZonedDateTime now, final HistoricalTimeSeriesSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
-
       final ExternalId indexID = floatingLeg.getFloatingReferenceRateId();
       final ExternalIdBundle id;
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLeg.getFloatingReferenceRateId());

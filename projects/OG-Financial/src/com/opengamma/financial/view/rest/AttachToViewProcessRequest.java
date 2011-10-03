@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.id.UniqueId;
 
 /**
  * Represents a view process attachment request
@@ -31,7 +32,7 @@ public class AttachToViewProcessRequest extends DirectBean {
    * The view definition name
    */
   @PropertyDefinition
-  private String _viewDefinitionName;
+  private UniqueId _viewDefinitionId;
   
   /**
    * The view execution options
@@ -68,7 +69,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -10926973:  // viewDefinitionName
-        return getViewDefinitionName();
+        return getViewDefinitionId();
       case -1448089498:  // executionOptions
         return getExecutionOptions();
       case -1977436267:  // newBatchProcess
@@ -81,7 +82,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -10926973:  // viewDefinitionName
-        setViewDefinitionName((String) newValue);
+        setViewDefinitionId(UniqueId.parse((String) newValue));
         return;
       case -1448089498:  // executionOptions
         setExecutionOptions((ViewExecutionOptions) newValue);
@@ -100,7 +101,7 @@ public class AttachToViewProcessRequest extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       AttachToViewProcessRequest other = (AttachToViewProcessRequest) obj;
-      return JodaBeanUtils.equal(getViewDefinitionName(), other.getViewDefinitionName()) &&
+      return JodaBeanUtils.equal(getViewDefinitionId(), other.getViewDefinitionId()) &&
           JodaBeanUtils.equal(getExecutionOptions(), other.getExecutionOptions()) &&
           JodaBeanUtils.equal(isNewBatchProcess(), other.isNewBatchProcess());
     }
@@ -110,7 +111,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionOptions());
     hash += hash * 31 + JodaBeanUtils.hashCode(isNewBatchProcess());
     return hash;
@@ -121,16 +122,16 @@ public class AttachToViewProcessRequest extends DirectBean {
    * Gets the view definition name
    * @return the value of the property
    */
-  public String getViewDefinitionName() {
-    return _viewDefinitionName;
+  public UniqueId getViewDefinitionId() {
+    return _viewDefinitionId;
   }
 
   /**
    * Sets the view definition name
-   * @param viewDefinitionName  the new value of the property
+   * @param viewDefinitionId  the new value of the property
    */
-  public void setViewDefinitionName(String viewDefinitionName) {
-    this._viewDefinitionName = viewDefinitionName;
+  public void setViewDefinitionId(UniqueId viewDefinitionId) {
+    this._viewDefinitionId = viewDefinitionId;
   }
 
   /**

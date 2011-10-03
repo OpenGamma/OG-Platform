@@ -136,11 +136,11 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
 
   @Override
   public int compareTo(final FixedIncomeStripWithSecurity o) {
-    int result = getStrip().compareTo(o.getStrip());
+    int result = getResolvedTenor().compareTo(o.getResolvedTenor());
     if (result != 0) {
       return result;
     }
-    result = getMaturity().compareTo(o.getMaturity());
+    result = getStrip().compareTo(o.getStrip());
     if (result != 0) {
       return result;
     }

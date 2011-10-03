@@ -32,6 +32,7 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -130,11 +131,11 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
   }
 
-  private void initializeClientView(final Client remote, final String viewDefinitionName, final ViewExecutionOptions executionOptions, final UserPrincipal user) {
+  private void initializeClientView(final Client remote, final UniqueId definitionId, final ViewExecutionOptions executionOptions, final UserPrincipal user) {
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(remote.getId());
       if (webView != null) {
-        if (webView.matches(viewDefinitionName, executionOptions)) {
+        if (webView.matches(definitionId, executionOptions)) {
           // Already initialized
           webView.reconnected();
           return;
@@ -146,10 +147,10 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
       try {
-        webView = new WebView(getClient(), remote, viewClient, viewDefinitionName, executionOptions, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(getClient(), remote, viewClient, definitionId, executionOptions, user, getExecutorService(), getResultConverterCache());
       } catch (Exception e) {
         viewClient.shutdown();
-        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
+        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + definitionId + "'", e);  //// should this print out view definition name rather than Id?
       }
       _clientViews.put(remote.getId(), webView);
     }
@@ -235,9 +236,18 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   }
 
   private List<String> getViewNames() {
-    Set<String> availableViewNames = _viewProcessor.getViewDefinitionRepository().getDefinitionNames();
-    s_logger.debug("Available view names: " + availableViewNames);
-    return new ArrayList<String>(availableViewNames);
+    
+    List<String> result = new ArrayList<String>();
+    
+    Map<UniqueId, String> availableViewEntries = _viewProcessor.getViewDefinitionRepository().getDefinitionEntries();
+    s_logger.debug("Available view entries: " + availableViewEntries);
+    
+    for (Map.Entry<UniqueId, String> entry : availableViewEntries.entrySet()) {
+//      result.add(entry.getValue() + "(" + entry.getKey().toString() + ")");
+      result.add(entry.getValue());
+    }
+    
+    return result;
   }
 
   private List<String> getLiveMarketDataSourceDetails() {
@@ -287,7 +297,9 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   @SuppressWarnings("unchecked")
   public void processChangeViewRequest(Client remote, Message message) {
     Map<String, Object> data = (Map<String, Object>) message.getData();
-    String viewName = (String) data.get("viewName");
+    
+    ViewDefinition view = _viewProcessor.getViewDefinitionRepository().getDefinition((String) data.get("viewName"));
+    
     String marketDataType = (String) data.get("marketDataType");
     MarketDataSpecification marketDataSpec;
     EnumSet<ViewExecutionFlags> flags;
@@ -308,8 +320,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       throw new OpenGammaRuntimeException("Unknown market data type: " + marketDataType);
     }
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
-    s_logger.info("Initializing view '{}' with execution options '{}' for client '{}'", new Object[] {viewName, executionOptions, remote});
-    initializeClientView(remote, viewName, executionOptions, getUser(remote));
+    s_logger.info("Initializing view '{}' with execution options '{}' for client '{}'", new Object[] {view.getName(), executionOptions, remote});
+    initializeClientView(remote, view.getUniqueId(), executionOptions, getUser(remote));
   }
   
   public void processPauseRequest(Client remote, Message message) {
