@@ -1098,6 +1098,11 @@ public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_y5() {
 }
 
 @Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,new DoubleMatrix1D(y5)),tmp_alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
 public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_D1D_y5() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),new DoubleMatrix1D(y5)),tmp_alpha_times_A5x5_times_x5_plus_y5));
 }
@@ -1110,6 +1115,11 @@ public void testDGEMV_ans_eq_alpha_times_A5x5T_times_x5_plus_y5() {
 @Test
 public void testDGEMV_ans_eq_alpha_times_A5x5T_times_D1D_x5_plus_y5() {
   assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5),tmp_alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5T_times_x5_plus_D1D_y5() {
+  assertTrue(Arrays.equals(BLAS2.dgemvTransposed(alpha,aMatrix5by5,x5,new DoubleMatrix1D(y5)),tmp_alpha_times_A5x5T_times_x5_plus_y5));
 }
 
 @Test
@@ -1128,6 +1138,11 @@ public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_y5_interfaced_no
 }
 
 @Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_y5_D1D_interfaced_normal() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,new DoubleMatrix1D(y5),BLAS2.orientation.normal),tmp_alpha_times_A5x5_times_x5_plus_y5));
+}
+
+@Test
 public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_D1D_y5_interfaced_normal() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5), new DoubleMatrix1D(y5),BLAS2.orientation.normal),tmp_alpha_times_A5x5_times_x5_plus_y5));
 }
@@ -1140,6 +1155,11 @@ public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_y5_interfaced_transp
 @Test
 public void testDGEMV_ans_eq_alpha_times_A5x5_times_D1D_x5_plus_y5_interfaced_transposed() {
   assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,new DoubleMatrix1D(x5),y5,BLAS2.orientation.transposed),tmp_alpha_times_A5x5T_times_x5_plus_y5));
+}
+
+@Test
+public void testDGEMV_ans_eq_alpha_times_A5x5_times_x5_plus_y5_D1D_interfaced_transposed() {
+  assertTrue(Arrays.equals(BLAS2.dgemv(alpha,aMatrix5by5,x5,new DoubleMatrix1D(y5),BLAS2.orientation.transposed),tmp_alpha_times_A5x5T_times_x5_plus_y5));
 }
 
 @Test
