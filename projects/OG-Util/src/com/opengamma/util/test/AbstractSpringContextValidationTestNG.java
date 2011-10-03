@@ -97,6 +97,21 @@ public abstract class AbstractSpringContextValidationTestNG {
     }
   }
 
+  /**
+   * Populates the Spring context from multiple XML configuration files.  The file paths must have a prefix to
+   * indicate what kind of resource they are, e.g. {@code file:} or {@code classpath:}.
+   */
+  protected void loadResources(final String opengammaPlatformRunmode, final String... filePaths) {
+    PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
+
+    GenericApplicationContext springContext = createSpringContext();
+    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
+    for (String path : filePaths) {
+      xmlReader.loadBeanDefinitions(path);
+    }
+    springContext.refresh();
+  }
+
   @AfterMethod
   public void runAfter() {
     getSpringContext().close();
