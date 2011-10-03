@@ -6,13 +6,23 @@
 package com.opengamma.language.connector;
 
 import static org.testng.AssertJUnit.assertTrue;
+
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestProperties;
 
 /**
  * Simulates the Main class being loaded up within the JVM service wrapper. This is
  * equivalent to JVMTest.cpp/TestStartStop
  */
 public class MainTest {
+
+  @BeforeClass
+  public void setExtFolder() {
+    final String path = TestProperties.getTestProperties().getProperty(LanguageSpringContext.LANGUAGE_EXT_PATH);
+    System.setProperty(LanguageSpringContext.LANGUAGE_EXT_PATH, path);
+  }
 
   @Test
   public void testStartStop() {
