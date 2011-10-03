@@ -17,6 +17,9 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  */
 public class BLAS1 {
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DAXPY /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
   /**
    * DAXPY performs the following vector operation
    *
@@ -320,6 +323,117 @@ public class BLAS1 {
   public void daxpyInplace(double alpha, DoubleMatrix1D x, DoubleMatrix1D y) {
     daxpyInplace(alpha, x.getData(), y.getData());
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////// DSCAL /////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * DSCAL performs the following vector operation
+   *
+   *  x := alpha*x
+   *
+   *  where alpha is scalar, x is a vector.
+   *
+   *  For speed, the method is overloaded such that simplified calls can be
+   *  made when different parts of the DSCAL operation are not needed.
+   *
+   */
+
+  /** Stateless versions */
+
+  /**
+   * DAXPY: returns:=alpha*x
+   * @param alpha double
+   * @param x a double[] vector
+   * @return tmp a double[] vector
+   */
+  public double[] dscal(double alpha, double[] x) {
+    final int n = x.length;
+    double[] tmp = new double[n];
+    final int extra = n - n % 16;
+    final int ub = ((n / 16) * 16) - 1;
+    // the induction (variable + loop unwind) common subexpression is actually spotted by the JIT and so
+    // doesn't need to be spelled out which is a nice change
+    for (int i = 0; i < ub; i += 16) {
+      tmp[i] = alpha * x[i];
+      tmp[i + 1] = alpha * x[i + 1];
+      tmp[i + 2] = alpha * x[i + 2];
+      tmp[i + 3] = alpha * x[i + 3];
+      tmp[i + 4] = alpha * x[i + 4];
+      tmp[i + 5] = alpha * x[i + 5];
+      tmp[i + 6] = alpha * x[i + 6];
+      tmp[i + 7] = alpha * x[i + 7];
+      tmp[i + 8] = alpha * x[i + 8];
+      tmp[i + 9] = alpha * x[i + 9];
+      tmp[i + 10] = alpha * x[i + 10];
+      tmp[i + 11] = alpha * x[i + 11];
+      tmp[i + 12] = alpha * x[i + 12];
+      tmp[i + 13] = alpha * x[i + 13];
+      tmp[i + 14] = alpha * x[i + 14];
+      tmp[i + 15] = alpha * x[i + 15];
+    }
+    for (int i = extra; i < n; i++) {
+      tmp[i] = alpha * x[i];
+    }
+    return tmp;
+  }
+
+  /**
+   * DAXPY: returns:=alpha*x
+   * @param alpha double
+   * @param x a DoubleMatrix1D vector
+   * @return a double[] vector
+   */
+  public double[] dscal(double alpha, DoubleMatrix1D x) {
+    return dscal(alpha, x.getData());
+  }
+
+  /** Stateful versions */
+
+  /**
+   * DAXPY: x:=alpha*x
+   * @param alpha double
+   * @param x a double[] vector
+   */
+  public void dscalInplace(double alpha, double[] x) {
+    final int n = x.length;
+    final int extra = n - n % 16;
+    final int ub = ((n / 16) * 16) - 1;
+    // the induction (variable + loop unwind) common subexpression is actually spotted by the JIT and so
+    // doesn't need to be spelled out which is a nice change
+    for (int i = 0; i < ub; i += 16) {
+      x[i] *= alpha;
+      x[i + 1] *= alpha;
+      x[i + 2] *= alpha;
+      x[i + 3] *= alpha;
+      x[i + 4] *= alpha;
+      x[i + 5] *= alpha;
+      x[i + 6] *= alpha;
+      x[i + 7] *= alpha;
+      x[i + 8] *= alpha;
+      x[i + 9] *= alpha;
+      x[i + 10] *= alpha;
+      x[i + 11] *= alpha;
+      x[i + 12] *= alpha;
+      x[i + 13] *= alpha;
+      x[i + 14] *= alpha;
+      x[i + 15] *= alpha;
+    }
+    for (int i = extra; i < n; i++) {
+      x[i] *= alpha;
+    }
+  }
+
+  /**
+   * DAXPY: x:=alpha*x
+   * @param alpha double
+   * @param x a DoubleMatrix1D vector
+   */
+  public void dscalInplace(double alpha, DoubleMatrix1D x) {
+    dscalInplace(alpha, x.getData());
+  }
+
 
 } // class end
 

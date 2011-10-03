@@ -23,23 +23,30 @@ public class BLAS1Test {
   double[] y1 = {10};
   double[] x1_plus_y1={11};
   double[] alpha_times_x1_plus_y1={17};
+  double[] alpha_times_x1={7};
 
   // hits loop unwind max
   double[] x16 = range(1,16);
   double[] y16 = range(10,160,10);
   double[] x16_plus_y16 = {11,22,33,44,55,66,77,88,99,110,121,132,143,154,165,176};
   double[] alpha_times_x16_plus_y16 = {17,34,51,68,85,102,119,136,153,170,187,204,221,238,255,272};
+  double[] alpha_times_x16 = {7,14,21,28,35,42,49,56,63,70,77,84,91,98,105,112};
 
   // trips loop unwinds to hit clean up code
   double[] x37 = range(1,37);
   double[] y37 = range(10,370,10);
   double[] x37_plus_y37 = {11,22,33,44,55,66,77,88,99,110,121,132,143,154,165,176,187,198,209,220,231,242,253,264,275,286,297,308,319,330,341,352,363,374,385,396,407};
   double[] alpha_times_x37_plus_y37 = {17,34,51,68,85,102,119,136,153,170,187,204,221,238,255,272,289,306,323,340,357,374,391,408,425,442,459,476,493,510,527,544,561,578,595,612,629};
+  double[] alpha_times_x37 = {7,14,21,28,35,42,49,56,63,70,77,84,91,98,105,112,119,126,133,140,147,154,161,168,175,182,189,196,203,210,217,224,231,238,245,252,259};
 
   // scalar
   double alpha = 7;
 
   BLAS1 blas1 = new BLAS1();
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////// DAXPY /////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 /** test the sanity checker */
 @Test(expectedExceptions = AssertionError.class)
@@ -467,7 +474,98 @@ public void testDAXPY_y37_eq_alpha_times_x37_plus_y37() {
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////// DSCAL /////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
 
+// test stateless
+
+//Test DSCAL double[] interface
+@Test
+public void testDSCAL_ans_eq_alpha_times_x1() {
+  double[] tmp = blas1.dscal(alpha, x1);
+  assertTrue(Arrays.equals(alpha_times_x1, tmp));
+}
+
+@Test
+public void testDSCAL_ans_eq_alpha_times_x16() {
+  double[] tmp = blas1.dscal(alpha, x16);
+  assertTrue(Arrays.equals(alpha_times_x16, tmp));
+}
+
+@Test
+public void testDSCAL_ans_eq_alpha_times_x37() {
+  double[] tmp = blas1.dscal(alpha, x37);
+  assertTrue(Arrays.equals(alpha_times_x37, tmp));
+}
+
+//Test DSCAL DoubleMatrix1D interface
+@Test
+public void testDSCAL_ans_eq_alpha_times_D1D_x1() {
+  double[] tmp = blas1.dscal(alpha, new DoubleMatrix1D(x1));
+  assertTrue(Arrays.equals(alpha_times_x1, tmp));
+}
+
+@Test
+public void testDSCAL_ans_eq_alpha_times_D1D_x16() {
+  double[] tmp = blas1.dscal(alpha, new DoubleMatrix1D(x16));
+  assertTrue(Arrays.equals(alpha_times_x16, tmp));
+}
+
+@Test
+public void testDSCAL_ans_eq_alpha_times_D1D_x37() {
+  double[] tmp = blas1.dscal(alpha, new DoubleMatrix1D(x37));
+  assertTrue(Arrays.equals(alpha_times_x37, tmp));
+}
+
+// test stateful
+
+// test DSCAL double[] interface
+@Test
+public void testDSCAL_x1_eq_alpha_times_x1() {
+  double[] tmp = new double[x1.length];
+  System.arraycopy(x1, 0, tmp, 0, x1.length);
+  blas1.dscalInplace(alpha, tmp);
+  assertTrue(Arrays.equals(alpha_times_x1, tmp));
+}
+
+@Test
+public void testDSCAL_x16_eq_alpha_times_x16() {
+  double[] tmp = new double[x16.length];
+  System.arraycopy(x16, 0, tmp, 0, x16.length);
+  blas1.dscalInplace(alpha, tmp);
+  assertTrue(Arrays.equals(alpha_times_x16, tmp));
+}
+
+@Test
+public void testDSCAL_x37_eq_alpha_times_x37() {
+  double[] tmp = new double[x37.length];
+  System.arraycopy(x37, 0, tmp, 0, x37.length);
+  blas1.dscalInplace(alpha, tmp);
+  assertTrue(Arrays.equals(alpha_times_x37, tmp));
+}
+
+//test DSCAL DoubleMatrix1D interface
+@Test
+public void testDSCAL_D1D_x1_eq_alpha_times_D1D_x1() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(x1);
+  blas1.dscalInplace(alpha, tmp);
+  assertTrue(Arrays.equals(alpha_times_x1, tmp.getData()));
+}
+
+@Test
+public void testDSCAL_D1D_x16_eq_alpha_times_D1D_x16() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(x16);
+  blas1.dscalInplace(alpha, tmp);
+  assertTrue(Arrays.equals(alpha_times_x16, tmp.getData()));
+}
+
+@Test
+public void testDSCAL_D1D_x37_eq_alpha_times_D1D_x37() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(x37);
+  blas1.dscalInplace(alpha, tmp);
+  assertTrue(Arrays.equals(alpha_times_x37, tmp.getData()));
+}
 
 
 
