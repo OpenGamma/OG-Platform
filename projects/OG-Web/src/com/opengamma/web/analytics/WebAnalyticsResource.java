@@ -46,7 +46,7 @@ public class WebAnalyticsResource {
     Pair<Instant, String> csvResult = clientView.getGridContentsAsCsv(gridName);
     Instant valuationTime = csvResult.getFirst();
     String csv = csvResult.getSecond();
-    String filename = clientView.getViewDefinitionName() + " - " + gridName + " - " + valuationTime + ".csv";
+    String filename = clientView.getViewDefinitionId() + " - " + gridName + " - " + valuationTime + ".csv";
     return Response.ok(csv).header("content-disposition", "attachment; filename=\"" + filename + "\"").build();
   }
   

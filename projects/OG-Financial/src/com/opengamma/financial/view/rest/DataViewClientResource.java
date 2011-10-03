@@ -128,10 +128,10 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   @Path(PATH_ATTACH_SEARCH)
   public Response attachToViewProcess(AttachToViewProcessRequest request) {
     updateLastAccessed();
-    ArgumentChecker.notNull(request.getViewDefinitionName(), "viewDefinitionName");
+    ArgumentChecker.notNull(request.getViewDefinitionId(), "viewDefinitionId");
     ArgumentChecker.notNull(request.getExecutionOptions(), "executionOptions");
     ArgumentChecker.notNull(request.isNewBatchProcess(), "isNewBatchProcess");
-    getViewClient().attachToViewProcess(request.getViewDefinitionName(), request.getExecutionOptions(), request.isNewBatchProcess());
+    getViewClient().attachToViewProcess(request.getViewDefinitionId(), request.getExecutionOptions(), request.isNewBatchProcess());
     return Response.ok().build();
   }
   

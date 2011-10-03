@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 
 /**
@@ -40,13 +41,19 @@ public class DataManageableViewDefinitionRepositoryResource extends DataViewDefi
     addRequest.checkValid();
     _repository.addViewDefinition(addRequest);
     return Response.created(
-        DataViewDefinitionRepositoryResource.uriDefinition(
+        DataViewDefinitionRepositoryResource.uriDefinitionName(
             uriInfo.getBaseUri(), addRequest.getViewDefinition().getName())).build();
   }
-  
-  @Path("{definitionName}")
-  public DataViewDefinitionResource getViewDefinition(@PathParam("definitionName") String definitionName) {
-    return new DataManageableViewDefinitionResource(definitionName, _repository);
+
+  @Path(PATH_VIEWDEFINITION_NAME + "/{viewDefinitionName}")
+  public DataViewDefinitionResource getDefinitionByName(@PathParam("viewDefinitionName") String viewDefinitionName) {
+    return new DataManageableViewDefinitionResource(viewDefinitionName, _repository);
+  }
+
+  @Path(PATH_VIEWDEFINITION_UNIQUE_ID + "/{viewDefinitionId}")
+  public DataViewDefinitionResource getDefinitionById(@PathParam("viewDefinitionId") String viewDefinitionIdString) {
+    UniqueId viewDefinitionId = UniqueId.parse(viewDefinitionIdString);
+    return new DataManageableViewDefinitionResource(viewDefinitionId, _repository);
   }
   
 }

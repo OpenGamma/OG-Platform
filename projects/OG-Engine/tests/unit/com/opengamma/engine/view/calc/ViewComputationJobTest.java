@@ -80,7 +80,8 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess("Something random", ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    client.attachToViewProcess(UniqueId.of("boo", "far"), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
+    //client.attachToViewProcess(client.getViewProcessor().getViewDefinitionRepository().getDefinition("Something random").getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
   }
   
   @Test
@@ -97,7 +98,7 @@ public class ViewComputationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.infinite(MarketData.live()));
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
     
     // Consume the initial result
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
@@ -134,7 +135,7 @@ public class ViewComputationJobTest {
     ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().awaitMarketData().get();
     ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     
@@ -180,7 +181,7 @@ public class ViewComputationJobTest {
     ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(Instant.now(), MarketData.live());
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
@@ -212,7 +213,7 @@ public class ViewComputationJobTest {
     ViewCycleExecutionOptions cycle2 = new ViewCycleExecutionOptions(valuationTime, MarketData.live(SOURCE_2_NAME));
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().runAsFastAsPossible().get();
     ViewExecutionOptions executionOptions = ExecutionOptions.of(ArbitraryViewCycleExecutionSequence.of(cycle1, cycle2), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleCompleted(TIMEOUT);
@@ -235,7 +236,7 @@ public class ViewComputationJobTest {
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), viewExecutionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
     
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
@@ -261,7 +262,7 @@ public class ViewComputationJobTest {
     client.setResultListener(resultListener);
     EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().get();
     ViewExecutionOptions viewExecutionOptions = ExecutionOptions.infinite(MarketData.live(), flags);
-    client.attachToViewProcess(env.getViewDefinition().getName(), viewExecutionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), viewExecutionOptions);
     
     ViewComputationJob computationJob = env.getCurrentComputationJob(env.getViewProcess(vp, client.getUniqueId()));
     
@@ -269,7 +270,7 @@ public class ViewComputationJobTest {
     resultListener.assertCycleCompleted(TIMEOUT);
     computationJob.triggerCycle();
     resultListener.assertCycleCompleted(TIMEOUT);
-    UniqueId viewDefinitionId = UniqueId.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
+    final UniqueId viewDefinitionId = UniqueId.of("AnyScheme", ViewProcessorTestEnvironment.TEST_VIEW_DEFINITION_NAME);
     env.getViewDefinitionRepository().changeManager().entityChanged(ChangeType.UPDATED, viewDefinitionId, viewDefinitionId, Instant.now());
     computationJob.triggerCycle();
     resultListener.assertViewDefinitionCompiled(TIMEOUT);

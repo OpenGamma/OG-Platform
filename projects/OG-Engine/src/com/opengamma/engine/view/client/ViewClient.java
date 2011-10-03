@@ -94,11 +94,11 @@ public interface ViewClient extends UniqueIdentifiable {
    * As part of this call, the client is updated with the latest state of the view process which may result in
    * listeners being invoked, depending on the state of the client.
    * 
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param definitionId  the unique ID of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions);
+  void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions);
   
   /**
    * Attaches the client to a view process, which might involve creating a new process.
@@ -106,12 +106,12 @@ public interface ViewClient extends UniqueIdentifiable {
    * As part of this call, the client is updated with the latest state of the view process which may result in
    * listeners being invoked, depending on the state of the client.
    * 
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param definitionId  the unique ID of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @param newPrivateProcess  true to attach to a new process, false to attach to a shared process
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
+  void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
   
   /**
    * Attaches the client to a specific, existing view process.

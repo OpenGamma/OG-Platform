@@ -85,7 +85,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       String name = viewJSON.getString(NAME_FIELD);
       UserPrincipal liveDataUser = convertJsonToObject(UserPrincipal.class, viewJSON.getJSONObject(USER_FIELD));
       ResultModelDefinition resultModelDefinition = convertJsonToObject(ResultModelDefinition.class, viewJSON.getJSONObject(RESULT_MODEL_DEFINITION_FIELD));
-      viewDefinition = new ViewDefinition(name, portfolioOid, liveDataUser, resultModelDefinition);
+      viewDefinition = new ViewDefinition(null, name, portfolioOid, liveDataUser, resultModelDefinition);
       
       if (viewJSON.opt(CURRENCY_FIELD) != null) {
         String isoCode = viewJSON.getString(CURRENCY_FIELD);
@@ -252,7 +252,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   }
 
   private static ViewDefinition getDummyView() {
-    ViewDefinition dummy = new ViewDefinition("", new UserPrincipal("", ""));
+    ViewDefinition dummy = new ViewDefinition(null, "", new UserPrincipal("", ""));
     dummy.setDefaultCurrency(Currency.GBP);
     dummy.setMaxDeltaCalculationPeriod(0L);
     dummy.setMaxFullCalculationPeriod(0L);

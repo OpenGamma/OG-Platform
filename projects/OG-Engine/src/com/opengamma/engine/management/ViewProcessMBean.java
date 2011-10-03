@@ -33,7 +33,7 @@ public interface ViewProcessMBean {
    * 
    * @return the name of the underlying view definition
    */
-  String getDefinitionName();
+  UniqueId getDefinitionId();
   
   /**
    * Gets the state of the view process.

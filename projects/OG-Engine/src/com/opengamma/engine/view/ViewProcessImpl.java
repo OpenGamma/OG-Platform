@@ -46,7 +46,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
   
   private final UniqueId _viewProcessId;
-  private final String _viewDefinitionName;
+  private final UniqueId _viewDefinitionId;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ObjectId _cycleObjectId;
@@ -76,24 +76,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * Constructs an instance.
    * 
    * @param viewProcessId  the unique identifier of the view process, not null
-   * @param viewDefinitionName  the name of the view definition, not null
+   * @param viewDefinitionId  the name of the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @param viewProcessContext  the process context, not null
    * @param cycleManager  the view cycle manager, not null
    * @param cycleObjectId  the object identifier of cycles, not null
    */
-  public ViewProcessImpl(UniqueId viewProcessId, String viewDefinitionName, ViewExecutionOptions executionOptions,
+  public ViewProcessImpl(UniqueId viewProcessId, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
       ViewProcessContext viewProcessContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager,
       ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
-    ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
+    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(cycleManager, "cycleManager");
     ArgumentChecker.notNull(cycleObjectId, "cycleObjectId");
 
     _viewProcessId = viewProcessId;
-    _viewDefinitionName = viewDefinitionName;
+    _viewDefinitionId = viewDefinitionId;
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
     _cycleManager = cycleManager;
@@ -107,13 +107,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
   
   @Override
-  public String getDefinitionName() {
-    return _viewDefinitionName;
+  public UniqueId getDefinitionId() {
+    return _viewDefinitionId;
   }
   
   @Override
   public ViewDefinition getLatestViewDefinition() {
-    return getProcessContext().getViewDefinitionRepository().getDefinition(getDefinitionName());
+    return getProcessContext().getViewDefinitionRepository().getDefinition(getDefinitionId());
   }
   
   @Override
@@ -193,7 +193,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "ViewProcess[" + getUniqueId() + " on " + getDefinitionName() + "]";
+    return "ViewProcess[" + getUniqueId() + " on " + getDefinitionId() + "]";
   }
 
   //-------------------------------------------------------------------------
