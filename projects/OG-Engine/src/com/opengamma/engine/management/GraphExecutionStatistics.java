@@ -27,7 +27,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   
   private final UniqueId _viewProcessId;
   
-  private final String _viewDefinitionName;
+  private final UniqueId _viewDefinitionId;
   
   private final String _calcConfigName;
 
@@ -47,7 +47,7 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
     ArgumentChecker.notNull(viewProcess, "View Process");
     ArgumentChecker.notNull(calcConfigName, "calcConfig Name");
     _viewProcessId = viewProcess.getUniqueId();
-    _viewDefinitionName = viewProcess.getDefinitionName();
+    _viewDefinitionId = viewProcess.getDefinitionId();
     _objectName = createObjectName(viewProcessorId, _viewProcessId, calcConfigName);
     _calcConfigName = calcConfigName;
     _statisticsProvider = statisticsProvider;
@@ -73,8 +73,8 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   }
   
   @Override
-  public String getViewDefinitionName() {
-    return _viewDefinitionName;
+  public UniqueId getViewDefinitionId() {
+    return _viewDefinitionId;
   }
 
   @Override

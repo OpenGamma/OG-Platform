@@ -5,17 +5,23 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import com.google.common.collect.Sets;
-
+/**
+ * A {@code DateAdjuster} that moves the date to the next March/June/September/December.
+ */
 class NextQuarterAdjuster implements DateAdjuster {
-  private final Set<MonthOfYear> _futureQuarters = Sets.newHashSet(MonthOfYear.MARCH, MonthOfYear.JUNE, 
-                                                                   MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+
+  /**
+   * The expiry months.
+   */
+  private final Set<MonthOfYear> _futureQuarters = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+
   @Override
   public LocalDate adjustDate(LocalDate date) {
     LocalDate result = date;
@@ -24,4 +30,5 @@ class NextQuarterAdjuster implements DateAdjuster {
     } while (!_futureQuarters.contains(result.getMonthOfYear()));
     return result;
   }
+
 }

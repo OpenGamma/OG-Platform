@@ -16,15 +16,6 @@
   <import resource="classpath:com/opengamma/financial/common.xml" />
   <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
-  <!-- Active MQ -->
-  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
-  </bean>
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-    <constructor-arg ref="activeMQConnectionFactory"/>
-  </bean>
-  
   <!-- User supplied data storage -->
   <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.financial-user.jdbc.driver}" />

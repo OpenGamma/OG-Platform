@@ -16,7 +16,7 @@ public interface GraphExecutionStatisticsMBean {
 
   UniqueId getViewProcessId();
   
-  String getViewDefinitionName();
+  UniqueId getViewDefinitionId();
 
   String getCalcConfigName();
 

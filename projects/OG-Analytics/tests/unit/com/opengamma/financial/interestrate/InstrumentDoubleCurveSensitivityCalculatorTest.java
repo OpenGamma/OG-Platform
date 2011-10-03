@@ -90,9 +90,9 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   private static final DoubleMatrix1D PAR_RATE_YIELD_CURVE_NODES;
   private static final DoubleMatrix2D PAR_RATE_JACOBIAN;
   private static final DoubleMatrix1D PV_COUPON_SENSITIVITY;
-  private static final LinkedHashMap<String, YieldAndDiscountCurve> PV_CURVES;
+  private static final YieldCurveBundle PV_CURVES;
   private static final YieldCurveBundle PV_ALL_CURVES;
-  private static final LinkedHashMap<String, YieldAndDiscountCurve> PAR_RATE_CURVES;
+  private static final YieldCurveBundle PAR_RATE_CURVES;
   private static final YieldCurveBundle PAR_RATE_ALL_CURVES;
   private static final InstrumentSensitivityCalculator ISC = InstrumentSensitivityCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PVCS = PresentValueCouponSensitivityCalculator.getInstance();
@@ -160,7 +160,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   }
 
   @Test
-  public void testwithPV() {
+  public void testWithPV() {
     // PresentValueCouponSensitivityCalculator is sensitivity to change in the
     // coupon rate for that instrument - what we calculate here is the
     // (hypothetical) change of PV of the instrument with a fixed coupon when
@@ -176,11 +176,13 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       }
     }
   }
-
+ 
   @Test
   public void testBumpedData() {
     final double notional = 10394850;
     final double eps = 1e-4;
+    final InterestRateDerivative cash = makeIRD("cash", 1.5, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
+    testBumpedDataParRateMethod(cash, notional, eps);
     final InterestRateDerivative libor = makeIRD("libor", 1.5, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
     testBumpedDataParRateMethod(libor, notional, eps);
     testBumpedDataPVMethod(libor, notional, eps);
@@ -206,7 +208,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PAR_RATE_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
-      final int firstCurveSize = PAR_RATE_CURVES.get(CURVE_NAMES.get(0)).getCurve().size();
+      final int firstCurveSize = PAR_RATE_CURVES.getCurve(CURVE_NAMES.get(0)).getCurve().size();
       final String curveName = i < firstCurveSize ? CURVE_NAMES.get(0) : CURVE_NAMES.get(1);
       final int indexToBump = i < firstCurveSize ? i : i - firstCurveSize;
       final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), MATURITIES,
@@ -214,7 +216,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedData, bumpedData.getMarketValueCalculator());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedData, bumpedData.getMarketValueSensitivityCalculator());
       final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedData.getStartPosition());
-      final LinkedHashMap<String, YieldAndDiscountCurve> bumpedCurves = getYieldCurveMap(bumpedData, bumpedNodes);
+      final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedData, bumpedNodes);
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedData, bumpedCurves);
       final double pv2 = calculator.visit(ird, allBumpedCurves);
       final double delta = pv2 - pv1;
@@ -232,7 +234,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PV_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
-      final int firstCurveSize = PV_CURVES.get(CURVE_NAMES.get(0)).getCurve().size();
+      final int firstCurveSize = PV_CURVES.getCurve(CURVE_NAMES.get(0)).getCurve().size();
       final String curveName = i < firstCurveSize ? CURVE_NAMES.get(0) : CURVE_NAMES.get(1);
       final int indexToBump = i < firstCurveSize ? i : i - firstCurveSize;
       final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES,
@@ -240,7 +242,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedData, bumpedData.getMarketValueCalculator());
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedData, bumpedData.getMarketValueSensitivityCalculator());
       final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedData.getStartPosition());
-      final LinkedHashMap<String, YieldAndDiscountCurve> bumpedCurves = getYieldCurveMap(bumpedData, bumpedNodes);
+      final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedData, bumpedNodes);
       final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedData, bumpedCurves);
       final double pv2 = calculator.visit(ird, allBumpedCurves);
       final double delta = pv2 - pv1;
@@ -253,7 +255,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
   }
 
-  private static YieldCurveBundle getAllCurves(final YieldCurveFittingTestDataBundle data, final LinkedHashMap<String, YieldAndDiscountCurve> curves) {
+  private static YieldCurveBundle getAllCurves(final YieldCurveFittingTestDataBundle data, final YieldCurveBundle curves) {
     final YieldCurveBundle allCurves = new YieldCurveBundle(curves);
     if (data.getKnownCurves() != null) {
       allCurves.addAll(data.getKnownCurves());
@@ -261,14 +263,14 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     return allCurves;
   }
 
-  private static LinkedHashMap<String, YieldAndDiscountCurve> getYieldCurveMap(final YieldCurveFittingTestDataBundle data, final DoubleMatrix1D yieldCurveNodes) {
+  private static YieldCurveBundle getYieldCurveMap(final YieldCurveFittingTestDataBundle data, final DoubleMatrix1D yieldCurveNodes) {
     final HashMap<String, double[]> yields = unpackYieldVector(data, yieldCurveNodes);
     final LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     for (final String name : data.getCurveNames()) {
       final YieldAndDiscountCurve curve = makeYieldCurve(yields.get(name), data.getCurveNodePointsForCurve(name), data.getInterpolatorForCurve(name));
       curves.put(name, curve);
     }
-    return curves;
+    return new YieldCurveBundle(curves);
   }
 
   private static Map<String, Map<String, double[]>> getBumpedData(final String curveName, final int n, final double eps) {
@@ -348,24 +350,11 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final List<double[]> curveKnots = new ArrayList<double[]>();
     curveKnots.add(getNodes(maturities.get(CURVE_NAMES.get(0))));
     curveKnots.add(getNodes(maturities.get(CURVE_NAMES.get(1))));
-    final List<double[]> yields = new ArrayList<double[]>();
-    double[] temp = new double[curveKnots.get(0).length];
-    int index = 0;
-    for (final double t : curveKnots.get(0)) {
-      temp[index++] = DUMMY_CURVE.evaluate(t);
-    }
-    yields.add(temp);
-    temp = new double[curveKnots.get(1).length];
-    index = 0;
-    for (final double t : curveKnots.get(1)) {
-      temp[index++] = DUMMY_CURVE.evaluate(t) + DUMMY_SPREAD_CURVE.evaluate(t);
-    }
-    yields.add(temp);
     final int nNodes = curveKnots.get(0).length + curveKnots.get(1).length;
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
     InterestRateDerivative ird;
     final double[] marketValuesArray = new double[nNodes];
-    index = 0;
+    int index = 0;
     for (final String curveName : maturities.keySet()) {
       final Map<String, double[]> marketValuesForCurve = marketValues.get(curveName);
       for (final String instrumentType : marketValuesForCurve.keySet()) {
@@ -390,7 +379,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES, calculator,
-        sensitivityCalculator, marketValuesArray, startPosition, yields);
+        sensitivityCalculator, marketValuesArray, startPosition, null);
     return data;
   }
 

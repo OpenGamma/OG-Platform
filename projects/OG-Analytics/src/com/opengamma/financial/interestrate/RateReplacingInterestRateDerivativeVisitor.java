@@ -100,7 +100,10 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   /**
-   * Sets a spread on the foreign ibor payments. Any existing spreads are removed. 
+   * Sets a spread on the foreign ibor payments. Any existing spreads are removed.
+   * @param ccs The swap
+   * @param spread The spread
+   * @return A cross-currency swap with a different FX rate 
    */
   @Override
   public CrossCurrencySwap visitCrossCurrencySwap(final CrossCurrencySwap ccs, final Double spread) {

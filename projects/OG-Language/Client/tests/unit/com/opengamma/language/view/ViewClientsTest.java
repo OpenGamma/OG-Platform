@@ -11,10 +11,13 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -50,14 +53,58 @@ import com.opengamma.livedata.UserPrincipal;
 public class ViewClientsTest {
 
   private static final String VIEW_NAME = "Test View";
+  private static final UniqueId VIEW_ID = UniqueId.of("abc", "def");
+  
+  private static class MockViewDefinitionRepository implements ViewDefinitionRepository {
+    
+    private ViewDefinition _vd;
+    
+    public MockViewDefinitionRepository(ViewDefinition vd) {
+      _vd = vd;
+    }
+    
+    @Override
+    public ChangeManager changeManager() {
+      throw new UnsupportedOperationException();
+    }
+     
+    @Override
+    public ViewDefinition getDefinition(String viewName) {
+      return _vd;
+    }
+
+    @Override
+    public ViewDefinition getDefinition(UniqueId viewId) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<UniqueId> getDefinitionIds() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<UniqueId, String> getDefinitionEntries() {
+      throw new UnsupportedOperationException();
+    }
+    
+  }
   
   private static class MockViewProcessor implements ViewProcessor {
 
     private final AtomicInteger _nextId = new AtomicInteger();
-
+    private ViewDefinitionRepository _viewDefinitionRepository;
+    
+    
+    public MockViewProcessor(ViewDefinitionRepository vdr) {
+      _viewDefinitionRepository = vdr;
+    }
+    
     @Override
     public ViewClient createViewClient(final UserPrincipal clientUser) {
-      return new MockViewClient(UniqueId.of("Test", Integer.toString(_nextId.getAndIncrement())));
+      MockViewClient mvc = new MockViewClient(UniqueId.of("Test", Integer.toString(_nextId.getAndIncrement())));
+      mvc.setViewProcessor(this);
+      return mvc;
     }
 
     @Override
@@ -77,7 +124,7 @@ public class ViewClientsTest {
 
     @Override
     public ViewDefinitionRepository getViewDefinitionRepository() {
-      throw new UnsupportedOperationException();
+      return _viewDefinitionRepository;
     }
 
     @Override
@@ -90,19 +137,20 @@ public class ViewClientsTest {
       throw new UnsupportedOperationException();
     }
   }
-  
+    
   private static class MockViewClient implements ViewClient {
 
+    private ViewProcessor _viewProcessor;
     private final UniqueId _identifier;
-    private String _attachedViewDefinitionName;
+    private UniqueId _attachedViewDefinitionId;
     private boolean _shutdown;
 
     public MockViewClient(final UniqueId identifier) {
       _identifier = identifier;
     }
 
-    public String getAttachedViewDefinitionName() {
-      return _attachedViewDefinitionName;
+    public UniqueId getAttachedViewDefinitionId() {
+      return _attachedViewDefinitionId;
     }
 
     public boolean isShutdown() {
@@ -110,13 +158,13 @@ public class ViewClientsTest {
     }
 
     @Override
-    public void attachToViewProcess(final String viewDefinitionName, final ViewExecutionOptions executionOptions) {
+    public void attachToViewProcess(final UniqueId definitionId, final ViewExecutionOptions executionOptions) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void attachToViewProcess(final String viewDefinitionName, final ViewExecutionOptions executionOptions, final boolean newPrivateProcess) {
-      _attachedViewDefinitionName = viewDefinitionName;
+    public void attachToViewProcess(final UniqueId definitionId, final ViewExecutionOptions executionOptions, final boolean newPrivateProcess) {
+      _attachedViewDefinitionId = definitionId;
     }
 
     @Override
@@ -184,9 +232,14 @@ public class ViewClientsTest {
       throw new UnsupportedOperationException();
     }
 
+    public void setViewProcessor(ViewProcessor vp) {
+      _viewProcessor = vp;
+    }
+    
     @Override
     public ViewProcessor getViewProcessor() {
-      throw new UnsupportedOperationException();
+      //throw new UnsupportedOperationException();
+      return _viewProcessor;
     }
 
     @Override
@@ -294,20 +347,34 @@ public class ViewClientsTest {
       }
       
     };
-    testUtils.setViewProcessor(new MockViewProcessor ());
+    MockViewProcessor mvp = new MockViewProcessor(new MockViewDefinitionRepository(new ViewDefinition(VIEW_ID, VIEW_NAME, "")));
+    testUtils.setViewProcessor(mvp);
+    
     return testUtils;
   }
   
   public void testLockView () {
+
     final SessionContext context = createTestUtils().createSessionContext();
-    final ViewClientHandle handle1 = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_NAME, true));
+    
+    final ViewClientKey vck = new ViewClientKey(VIEW_NAME, true);
+    
+    final ViewClientHandle handle1 = 
+        context.getUserContext().getViewClients().lockViewClient(vck);
+
+    
     final MockViewClient viewClient1 = (MockViewClient) handle1.get().getViewClient();
-    assertEquals(viewClient1.getAttachedViewDefinitionName(), VIEW_NAME);
-    final ViewClientHandle handle2 = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_NAME, true));
+
+    assertEquals(viewClient1.getAttachedViewDefinitionId(), VIEW_ID);
+    
+    final ViewClientHandle handle2 = 
+        context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_NAME, true));
     final MockViewClient viewClient2 = (MockViewClient) handle2.get().getViewClient();
     assertSame(viewClient2, viewClient1);
+    
     handle1.unlock();
     assertFalse(viewClient1.isShutdown());
+    
     handle2.unlock();
     assertTrue(viewClient1.isShutdown());
   }
@@ -329,20 +396,30 @@ public class ViewClientsTest {
   }
 
   public void testDetachView() {
+    
     final SessionContext context = createTestUtils().createSessionContext();
-    final ViewClientHandle handle1 = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_NAME, true));
+    
+    final ViewClientKey vck = new ViewClientKey(VIEW_NAME, true);
+    
+    final ViewClientHandle handle1 = context.getUserContext().getViewClients().lockViewClient(vck);
+    
     final MockViewClient viewClient1 = (MockViewClient) handle1.get().getViewClient();
-    assertEquals(viewClient1.getAttachedViewDefinitionName(), VIEW_NAME);
+    assertEquals(viewClient1.getAttachedViewDefinitionId(), VIEW_ID);
+
     final UniqueId uid = handle1.detachAndUnlock(context);
     assertFalse(viewClient1.isShutdown());
+
     final ViewClientHandle handle2 = context.getViewClients().lockViewClient(uid);
     final MockViewClient viewClient2 = (MockViewClient) handle2.get().getViewClient();
     assertSame(viewClient1, viewClient2);
+
     handle2.unlock();
     assertFalse(viewClient1.isShutdown());
+ 
     final DetachedViewClientHandle handle3 = context.getViewClients().lockViewClient(uid);
     handle3.attachAndUnlock();
     assertTrue(viewClient1.isShutdown());
+
     final DetachedViewClientHandle handle4 = context.getViewClients().lockViewClient(uid);
     assertNull(handle4);
   }

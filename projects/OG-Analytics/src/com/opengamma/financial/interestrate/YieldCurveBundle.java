@@ -48,7 +48,7 @@ public class YieldCurveBundle {
    */
   public YieldCurveBundle(YieldCurveBundle bundle) {
     Validate.notNull(bundle);
-    _curves = bundle._curves;
+    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>(bundle._curves);
   }
 
   public YieldCurveBundle() {

@@ -66,12 +66,12 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final Currency callCurrency = fx.getCurrency2();
     final String putCurveName = getPutCurveName() + "_" + putCurrency.getCode();
     final String callCurveName = getCallCurveName() + "_" + callCurrency.getCode();
-    final Object putJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(putCurrency, getPutCurveName(), getPutCurveName(),
+    final Object putJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(putCurrency,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (putJacobianObject == null) {
       throw new OpenGammaRuntimeException("Put currency curve Jacobian was null");
     }
-    final Object receiveJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(callCurrency, getCallCurveName(), getCallCurveName(),
+    final Object receiveJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(callCurrency,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (receiveJacobianObject == null) {
       throw new OpenGammaRuntimeException("Call currency curve Jacobian was null");
@@ -80,11 +80,11 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     if (curveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Curve sensitivities were null");
     }
-    final Object putCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, getPutCurveName(), getPutCurveName()));
+    final Object putCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency));
     if (putCouponSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Put curve coupon sensitivities were null");
     }
-    final Object receiveCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, getCallCurveName(), getCallCurveName()));
+    final Object receiveCouponSensitivitiesObject = inputs.getValue(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency));
     if (receiveCouponSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Call curve coupon sensitivities were null");
     }
@@ -136,10 +136,10 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putCurveName, putCurveName, putCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callCurveName, callCurveName, callCurveName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, putCurveName, putCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, callCurveName, callCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, putCurveName, putCurveName));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callCurveName, callCurveName));
+    result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency));
+    result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency));
     result.add(getCurveSensitivitiesRequirement(target, putCurveName, callCurveName));
     result.add(spotRequirement);
     result.add(fxVolatilitySurface);

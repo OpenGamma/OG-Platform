@@ -25,7 +25,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsPerConfiguration;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 
 /* package */class GraphFragmentContext implements JobResultReceiver {
 
@@ -38,7 +38,7 @@ import com.opengamma.util.Cancellable;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
   private final FunctionCostsPerConfiguration _functionCost;
-  private final Map<CalculationJobSpecification, Cancellable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancellable>();
+  private final Map<CalculationJobSpecification, Cancelable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancelable>();
   private Map<ValueSpecification, Boolean> _sharedCacheValues;
   private Map<CalculationJobSpecification, GraphFragment> _job2fragment;
   private volatile boolean _cancelled;
@@ -167,7 +167,7 @@ import com.opengamma.util.Cancellable;
    */
   public void cancelAll(final boolean mayInterrupt) {
     _cancelled = true;
-    for (Cancellable cancel : _cancels.values()) {
+    for (Cancelable cancel : _cancels.values()) {
       cancel.cancel(mayInterrupt);
     }
   }

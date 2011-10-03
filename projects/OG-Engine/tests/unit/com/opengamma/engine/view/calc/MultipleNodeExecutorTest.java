@@ -36,7 +36,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
@@ -132,9 +132,9 @@ public class MultipleNodeExecutorTest {
       }
 
       @Override
-      protected Cancellable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
+      protected Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
         // No action - we're just testing graph construction
-        return new Cancellable() {
+        return new Cancelable() {
           @Override
           public boolean cancel(final boolean mayInterrupt) {
             return false;

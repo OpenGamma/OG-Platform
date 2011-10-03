@@ -16,8 +16,8 @@ import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 public class OISSwap extends Swap<CouponFixed, CouponOIS> {
 
   /**
-   * @param firstLeg
-   * @param secondLeg
+   * @param firstLeg The fixed leg
+   * @param secondLeg The OIS leg
    */
   public OISSwap(GenericAnnuity<CouponFixed> firstLeg, GenericAnnuity<CouponOIS> secondLeg) {
     super(firstLeg, secondLeg);

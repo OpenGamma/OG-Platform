@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,9 +22,15 @@ import com.opengamma.util.ArgumentChecker;
 public final class UpdateViewDefinitionRequest {
 
   /**
+   * The view definition Id
+   */
+  private UniqueId _viewId;
+  
+  /*
    * The view definition name
    */
-  private String _name;
+  private String _viewName;
+  
   /**
    * The view definition
    */
@@ -50,7 +57,11 @@ public final class UpdateViewDefinitionRequest {
    * @return the name
    */
   public String getName() {
-    return _name;
+    return _viewName;
+  }
+
+  public UniqueId getId() {
+    return _viewId;
   }
 
   /**
@@ -58,8 +69,13 @@ public final class UpdateViewDefinitionRequest {
    * @param name  the name
    */
   public void setName(String name) {
-    ArgumentChecker.notNull(name, "name");
-    _name = name;
+    ArgumentChecker.notNull(name, NAME_FIELD_NAME);
+    _viewName = name;
+  }
+
+  public void setId(UniqueId id) {
+    ArgumentChecker.notNull(id, VIEWID_FIELD_NAME);
+    _viewId = id;
   }
 
   //-------------------------------------------------------------------------
@@ -86,6 +102,7 @@ public final class UpdateViewDefinitionRequest {
    */
   public void checkValid() {
     ArgumentChecker.notNull(getName(), "Name must not be null");
+    ArgumentChecker.notNull(getId(), "Id must not be null");
     ArgumentChecker.notNull(getViewDefinition(), "View definition must not be null");
   }
 
@@ -97,9 +114,11 @@ public final class UpdateViewDefinitionRequest {
   
   //-------------------------------------------------------------------------
   /** Field name. */
-  private static final String NAME_FIELD_NAME = "name";
+  private static final String NAME_FIELD_NAME = "viewName";
   /** Field name. */
   private static final String VIEW_DEFINITION_FIELD_NAME = "viewDefinition";
+  /** Field name. */
+  private static final String VIEWID_FIELD_NAME = "viewId";
 
   /**
    * Serializes to a Fudge message.
@@ -108,8 +127,11 @@ public final class UpdateViewDefinitionRequest {
    */
   public FudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    if (_name != null) {
-      msg.add(NAME_FIELD_NAME, _name);
+    if (_viewId != null) {
+      msg.add(VIEWID_FIELD_NAME, _viewId.toString());
+    }
+    if (_viewName != null) {
+      msg.add(NAME_FIELD_NAME, _viewName);
     }
     if (_viewDefinition != null) {
       serializer.addToMessage(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
@@ -125,6 +147,9 @@ public final class UpdateViewDefinitionRequest {
    */
   public static UpdateViewDefinitionRequest fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     UpdateViewDefinitionRequest req = new UpdateViewDefinitionRequest();
+    if (msg.hasField(VIEWID_FIELD_NAME)) {
+      req.setId(UniqueId.parse(msg.getString(VIEWID_FIELD_NAME)));
+    }
     if (msg.hasField(NAME_FIELD_NAME)) {
       req.setName(msg.getString(NAME_FIELD_NAME));
     }

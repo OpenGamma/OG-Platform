@@ -25,7 +25,7 @@ public class DataViewProcessResource {
   
   //CSOFF: just constants
   public static final String PATH_UNIQUE_ID = "id";
-  public static final String PATH_DEFINITION_NAME = "definitionName";
+  public static final String PATH_DEFINITION_ID = "definitionId";
   public static final String PATH_DEFINITION = "definition";
   public static final String PATH_STATE = "state";
   public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "liveDataOverrideInjector";
@@ -49,9 +49,9 @@ public class DataViewProcessResource {
   }
   
   @GET
-  @Path(PATH_DEFINITION_NAME)
+  @Path(PATH_DEFINITION_ID)
   public Response getDefinitionName() {
-    return Response.ok(_viewProcess.getDefinitionName()).type(MediaType.TEXT_PLAIN).build();
+    return Response.ok(_viewProcess.getDefinitionId()).type(MediaType.TEXT_PLAIN).build();
   }
   
   @GET

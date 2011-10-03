@@ -41,7 +41,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancellable;
+import com.opengamma.util.Cancelable;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given
@@ -339,7 +339,7 @@ public final class DependencyGraphBuilderPLAT1049 {
           private int _refCount = 1;
 
           @Override
-          public Cancellable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
+          public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
             context.failed(callback, requirement, ResolutionFailure.recursiveRequirement(requirement));
             return null;
           }
@@ -803,7 +803,7 @@ public final class DependencyGraphBuilderPLAT1049 {
   /**
    * Job running thread.
    */
-  protected final class Job implements Runnable, Cancellable {
+  protected final class Job implements Runnable, Cancelable {
 
     private volatile boolean _poison;
 
