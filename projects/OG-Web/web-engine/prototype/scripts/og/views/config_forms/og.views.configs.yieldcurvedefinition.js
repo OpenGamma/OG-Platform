@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.yieldcurvedefinition',
+    name: 'og.views.config_forms.yieldcurvedefinition',
     dependencies: [
         'og.api.rest',
         'og.common.util.ui',

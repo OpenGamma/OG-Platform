@@ -18,11 +18,11 @@ $.register_module({
         'og.views.common.versions',
         'og.views.common.state',
         'og.views.common.default_details',
-        'og.views.configs.viewdefinition',
-        'og.views.configs.yieldcurvedefinition',
-        'og.views.configs.curvespecificationbuilderconfiguration',
-        'og.views.configs.volatilitycubedefinition',
-        'og.views.configs.default'
+        'og.views.config_forms.viewdefinition',
+        'og.views.config_forms.yieldcurvedefinition',
+        'og.views.config_forms.curvespecificationbuilderconfiguration',
+        'og.views.config_forms.volatilitycubedefinition',
+        'og.views.config_forms.default'
     ],
     obj: function () {
         var api = og.api,
@@ -138,7 +138,7 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
-                    (og.views.configs[config_type] || og.views.configs['default'])({
+                    (og.views.config_forms[config_type] || og.views.config_forms['default'])({
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
@@ -180,7 +180,7 @@ $.register_module({
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
-                    if (!og.views.configs[config_type])
+                    if (!og.views.config_forms[config_type])
                         og.dev.warn('using default config template for config type: ' + config_type);
                 };
                 rest_options = {

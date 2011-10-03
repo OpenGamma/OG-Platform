@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.curvespecificationbuilderconfiguration',
+    name: 'og.views.config_forms.curvespecificationbuilderconfiguration',
     dependencies: [
         'og.api.text',
         'og.api.rest',

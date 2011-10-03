@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.default',
+    name: 'og.views.config_forms.default',
     dependencies: [
         'og.api',
         'og.common.util.ui'

@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.volatilitycubedefinition',
+    name: 'og.views.config_forms.volatilitycubedefinition',
     dependencies: [
         'og.api.text',
         'og.api.rest',
