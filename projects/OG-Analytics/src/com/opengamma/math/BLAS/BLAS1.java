@@ -221,7 +221,7 @@ public class BLAS1 {
       y[i + 15] += x[i + 15];
     }
     for (int i = extra; i < n; i++) {
-      y[i] = +x[i];
+      y[i] += x[i];
     }
   }
 
@@ -287,7 +287,7 @@ public class BLAS1 {
       y[i + 15] += alpha * x[i + 15];
     }
     for (int i = extra; i < n; i++) {
-      y[i] = +alpha * x[i];
+      y[i] += alpha * x[i];
     }
   }
 
@@ -298,7 +298,7 @@ public class BLAS1 {
    * @param y a DoubleMatrix1D vector
    */
   public void daxpyInplace(double alpha, double[] x, DoubleMatrix1D y) {
-    daxpyInplace(x, y.getData());
+    daxpyInplace(alpha, x, y.getData());
   }
 
   /**
@@ -308,7 +308,7 @@ public class BLAS1 {
    * @param y a double[] vector
    */
   public void daxpyInplace(double alpha, DoubleMatrix1D x, double[] y) {
-    daxpyInplace(x.getData(), y);
+    daxpyInplace(alpha, x.getData(), y);
   }
 
   /**
@@ -318,7 +318,7 @@ public class BLAS1 {
    * @param y a DoubleMatrix1D vector
    */
   public void daxpyInplace(double alpha, DoubleMatrix1D x, DoubleMatrix1D y) {
-    daxpyInplace(x.getData(), y.getData());
+    daxpyInplace(alpha, x.getData(), y.getData());
   }
 
 } // class end

@@ -63,7 +63,7 @@ public void testDAXPYsanityCheckerLengths() {
   blas1.daxpy(tmp1, tmp2);
 }
 
-/** y:=x+y */
+/** Stateless y:=x+y */
 // Test DAXPY double[] double[] interface
 
 @Test
@@ -154,7 +154,6 @@ public void testDAXPY_ans_eq_alpha_x1_plus_y1() {
 @Test
 public void testDAXPY_ans_eq_alpha_x16_plus_y16() {
   double[] tmp = blas1.daxpy(alpha, x16, y16);
-  System.out.println(new DoubleMatrix1D(tmp).toString());
   assertTrue(Arrays.equals(alpha_times_x16_plus_y16, tmp));
 }
 
@@ -241,7 +240,237 @@ public void testDAXPY_ans_eq_alphaZERO_x37_plus_y37() {
   assertTrue(Arrays.equals(y37, tmp));
 }
 
-/** Test the inplaces */
+/** Test the in places */
+/** Statefull: y:=x+y */
+//Test DAXPY double[] double[] interface
+@Test
+public void testDAXPY_y1_eq_x1_plus_y1() {
+double[] tmp = new double[y1.length];
+System.arraycopy(y1, 0, tmp, 0, y1.length);
+blas1.daxpyInplace(x1, tmp);
+assertTrue(Arrays.equals(x1_plus_y1, tmp));
+}
+
+@Test
+public void testDAXPY_y16_eq_x16_plus_y16() {
+double[] tmp = new double[y16.length];
+System.arraycopy(y16, 0, tmp, 0, y16.length);
+blas1.daxpyInplace(x16, tmp);
+assertTrue(Arrays.equals(x16_plus_y16, tmp));
+}
+
+@Test
+public void testDAXPY_y37_eq_x37_plus_y37() {
+double[] tmp = new double[y37.length];
+System.arraycopy(y37, 0, tmp, 0, y37.length);
+blas1.daxpyInplace(x37, tmp);
+assertTrue(Arrays.equals(x37_plus_y37, tmp));
+}
+
+//Test DAXPY DoubleMatrix1D double[] interface
+@Test
+public void testDAXPY_D1D_y1_eq_x1_plus_D1D_y1() {
+DoubleMatrix1D tmp = new DoubleMatrix1D(y1);
+blas1.daxpyInplace(x1, tmp);
+assertTrue(Arrays.equals(x1_plus_y1, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y16_eq_x16_plus_D1D_y16() {
+DoubleMatrix1D tmp = new DoubleMatrix1D(y16);
+blas1.daxpyInplace(x16, tmp);
+assertTrue(Arrays.equals(x16_plus_y16, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y37_eq_x37_plus_D1D_y37() {
+DoubleMatrix1D tmp = new DoubleMatrix1D(y37);
+blas1.daxpyInplace(x37, tmp);
+assertTrue(Arrays.equals(x37_plus_y37, tmp.getData()));
+}
+
+//Test DAXPY double[] DoubleMatrix1D interface
+@Test
+public void testDAXPY_y1_eq_D1D_x1_plus_y1() {
+double[] tmp = new double[y1.length];
+System.arraycopy(y1, 0, tmp, 0, y1.length);
+blas1.daxpyInplace(new DoubleMatrix1D(x1), tmp);
+assertTrue(Arrays.equals(x1_plus_y1, tmp));
+}
+
+@Test
+public void testDAXPY_y16_eq_D1D_x16_plus_y16() {
+double[] tmp = new double[y16.length];
+System.arraycopy(y16, 0, tmp, 0, y16.length);
+blas1.daxpyInplace(new DoubleMatrix1D(x16), tmp);
+assertTrue(Arrays.equals(x16_plus_y16, tmp));
+}
+
+@Test
+public void testDAXPY_y37_eq_D1D_x37_plus_y37() {
+double[] tmp = new double[y37.length];
+System.arraycopy(y37, 0, tmp, 0, y37.length);
+blas1.daxpyInplace(new DoubleMatrix1D(x37), tmp);
+assertTrue(Arrays.equals(x37_plus_y37, tmp));
+}
+
+
+//Test DAXPY DoubleMatrix1D DoubleMatrix1D interface
+@Test
+public void testDAXPY_D1D_y1_eq_D1D_x1_plus_D1D_y1() {
+DoubleMatrix1D tmp = new DoubleMatrix1D(y1);
+DoubleMatrix1D tmp2 = new DoubleMatrix1D(x1);
+blas1.daxpyInplace(tmp2, tmp);
+assertTrue(Arrays.equals(x1_plus_y1, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y16_eq_D1D_x16_plus_D1D_y16() {
+DoubleMatrix1D tmp = new DoubleMatrix1D(y16);
+DoubleMatrix1D tmp2 = new DoubleMatrix1D(x16);
+blas1.daxpyInplace(tmp2, tmp);
+assertTrue(Arrays.equals(x16_plus_y16, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y37_eq_D1D_x37_plus_D1D_y37() {
+DoubleMatrix1D tmp = new DoubleMatrix1D(y37);
+DoubleMatrix1D tmp2 = new DoubleMatrix1D(x37);
+blas1.daxpyInplace(tmp2, tmp);
+assertTrue(Arrays.equals(x37_plus_y37, tmp.getData()));
+}
+
+
+/** Statefull y:=alpha*x+y */
+//Test DAXPY double[] double[] interface
+@Test
+public void testDAXPY_y1_eq_alphaZERO_times_x1_plus_y1() {
+  double[] tmp = new double[y1.length];
+  System.arraycopy(y1, 0, tmp, 0, y1.length);
+  blas1.daxpyInplace(0, x1, tmp);
+  assertTrue(Arrays.equals(y1, tmp));
+}
+
+@Test
+public void testDAXPY_y16_eq_alphaZERO_times_x16_plus_y16() {
+  double[] tmp = new double[y16.length];
+  System.arraycopy(y16, 0, tmp, 0, y16.length);
+  blas1.daxpyInplace(0, x16, tmp);
+  assertTrue(Arrays.equals(y16, tmp));
+}
+
+@Test
+public void testDAXPY_y37_eq_alphaZERO_times_x37_plus_y37() {
+  double[] tmp = new double[y37.length];
+  System.arraycopy(y37, 0, tmp, 0, y37.length);
+  blas1.daxpyInplace(0, x37, tmp);
+  assertTrue(Arrays.equals(y37, tmp));
+}
+
+//Test DAXPY DoubleMatrix1D double[] interface
+@Test
+public void testDAXPY_D1D_y1_eq_alpha_times_x1_plus_D1D_y1() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(y1);
+  blas1.daxpyInplace(alpha, x1, tmp);
+  assertTrue(Arrays.equals(alpha_times_x1_plus_y1, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y16_eq_alpha_times_x16_plus_D1D_y16() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(y16);
+  blas1.daxpyInplace(alpha, x16, tmp);
+  assertTrue(Arrays.equals(alpha_times_x16_plus_y16, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y37_eq_alpha_times_x37_plus_D1D_y37() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(y37);
+  blas1.daxpyInplace(alpha, x37, tmp);
+  assertTrue(Arrays.equals(alpha_times_x37_plus_y37, tmp.getData()));
+}
+
+//Test DAXPY double[] DoubleMatrix1D interface
+@Test
+public void testDAXPY_y1_eq_alpha_times_D1D_x1_plus_y1() {
+  double[] tmp = new double[y1.length];
+  System.arraycopy(y1, 0, tmp, 0, y1.length);
+  blas1.daxpyInplace(alpha, new DoubleMatrix1D(x1), tmp);
+  assertTrue(Arrays.equals(alpha_times_x1_plus_y1, tmp));
+}
+
+@Test
+public void testDAXPY_y16_eq_alpha_times_D1D_x16_plus_y16() {
+  double[] tmp = new double[y16.length];
+  System.arraycopy(y16, 0, tmp, 0, y16.length);
+  blas1.daxpyInplace(alpha, new DoubleMatrix1D(x16), tmp);
+  assertTrue(Arrays.equals(alpha_times_x16_plus_y16, tmp));
+}
+
+@Test
+public void testDAXPY_y37_eq_alpha_times_D1D_x37_plus_y37() {
+  double[] tmp = new double[y37.length];
+  System.arraycopy(y37, 0, tmp, 0, y37.length);
+  blas1.daxpyInplace(alpha, new DoubleMatrix1D(x37), tmp);
+  assertTrue(Arrays.equals(alpha_times_x37_plus_y37, tmp));
+}
+
+
+//Test DAXPY DoubleMatrix1D DoubleMatrix1D interface
+@Test
+public void testDAXPY_D1D_y1_eq_alpha_times_D1D_x1_plus_D1D_y1() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(y1);
+  DoubleMatrix1D tmp2 = new DoubleMatrix1D(x1);
+  blas1.daxpyInplace(alpha, tmp2, tmp);
+  assertTrue(Arrays.equals(alpha_times_x1_plus_y1, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y16_eq_alpha_times_D1D_x16_plus_D1D_y16() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(y16);
+  DoubleMatrix1D tmp2 = new DoubleMatrix1D(x16);
+  blas1.daxpyInplace(alpha, tmp2, tmp);
+  assertTrue(Arrays.equals(alpha_times_x16_plus_y16, tmp.getData()));
+}
+
+@Test
+public void testDAXPY_D1D_y37_eq_alpha_times_D1D_x37_plus_D1D_y37() {
+  DoubleMatrix1D tmp = new DoubleMatrix1D(y37);
+  DoubleMatrix1D tmp2 = new DoubleMatrix1D(x37);
+  blas1.daxpyInplace(alpha, tmp2, tmp);
+  assertTrue(Arrays.equals(alpha_times_x37_plus_y37, tmp.getData()));
+}
+
+//test fall through if(alpha==0)
+@Test
+public void testDAXPY_y1_eq_alpha_times_x1_plus_y1() {
+  double[] tmp = new double[y1.length];
+  System.arraycopy(y1, 0, tmp, 0, y1.length);
+  blas1.daxpyInplace(alpha, x1, tmp);
+  assertTrue(Arrays.equals(alpha_times_x1_plus_y1, tmp));
+}
+
+@Test
+public void testDAXPY_y16_eq_alpha_times_x16_plus_y16() {
+  double[] tmp = new double[y16.length];
+  System.arraycopy(y16, 0, tmp, 0, y16.length);
+  blas1.daxpyInplace(alpha, x16, tmp);
+  assertTrue(Arrays.equals(alpha_times_x16_plus_y16, tmp));
+}
+
+@Test
+public void testDAXPY_y37_eq_alpha_times_x37_plus_y37() {
+  double[] tmp = new double[y37.length];
+  System.arraycopy(y37, 0, tmp, 0, y37.length);
+  blas1.daxpyInplace(alpha, x37, tmp);
+  assertTrue(Arrays.equals(alpha_times_x37_plus_y37, tmp));
+}
+
+
+
+
+
+
+
 
 
 /** helper functions to generate number ranges */
