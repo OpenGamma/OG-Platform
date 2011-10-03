@@ -6,7 +6,6 @@
 package com.opengamma.financial.equity.variance;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplica
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.interestrate.NodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStrikeSurface;
@@ -165,8 +165,8 @@ public final class VarianceSwapRatesSensitivityCalculator {
     // 2nd arg = LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves
     final YieldAndDiscountCurve discCrv = market.getDiscountCurve();
     final String discCrvName = discCrv.getCurve().getName();
-    final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    interpolatedCurves.put(discCrvName, discCrv);
+    final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
+    interpolatedCurves.setCurve(discCrvName, discCrv);
 
     // 1st arg = Map<String, List<DoublesPair>> curveSensitivities = <curveName, List<(maturity,sensitivity)>> 
     final double settlement = swap.getTimeToSettlement();

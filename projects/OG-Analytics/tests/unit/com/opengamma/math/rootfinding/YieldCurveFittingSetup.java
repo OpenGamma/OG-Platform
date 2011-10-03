@@ -25,8 +25,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -373,17 +371,6 @@ public abstract class YieldCurveFittingSetup {
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
-  /**
-   * Sets up a simple Floating rate note to test the analytics 
-   * @param ccy
-   * @param notional
-   * @param nYears
-   * @param freq
-   * @param discountCurve
-   * @param indexCurve
-   * @param spread
-   * @return
-   */
   protected static FloatingRateNote makeFRN(final CurrencyAmount notional, final int nYears, SimpleFrequency freq, final String discountCurve,
       final String indexCurve, final double spread) {
 

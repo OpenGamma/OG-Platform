@@ -19,8 +19,8 @@ public class ForexForward extends Forex implements InterestRateDerivative {
 
   /**
    * 
-   * @param paymentCurrency1
-   * @param paymentCurrency2
+   * @param paymentCurrency1 The first payment currency
+   * @param paymentCurrency2 The second payment currency
    * @param spotFX fxRate is defined such that ccy1 = fx*ccy2 
    */
   public ForexForward(PaymentFixed paymentCurrency1, PaymentFixed paymentCurrency2, double spotFX) {
