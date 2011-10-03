@@ -117,6 +117,9 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
     @SuppressWarnings("unchecked")
     final FuturePriceCurveData<Double> futurePriceData = (FuturePriceCurveData<Double>) objectFuturePriceData;
     //assumes that the sorting is first x, then y
+    if (volatilitySurfaceData.size() == 0) {
+      throw new OpenGammaRuntimeException("Interest rate future option volatility surface definition name=" + _definitionName + " contains no data");
+    }
     final Double[] x = volatilitySurfaceData.getXs();
     final Double[] y = volatilitySurfaceData.getYs();
     DoubleArrayList strikeList = new DoubleArrayList();
