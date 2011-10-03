@@ -6,6 +6,7 @@
 package com.opengamma.engine.marketdata;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 
@@ -15,20 +16,32 @@ import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 public class UserMarketDataProviderFactory implements MarketDataProviderFactory {
 
   private final MarketDataSnapshotSource _snapshotSource;
+  private final MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
   
   public UserMarketDataProviderFactory(MarketDataSnapshotSource snapshotSource) {
+    this(snapshotSource, null);
+  }
+  
+  public UserMarketDataProviderFactory(MarketDataSnapshotSource snapshotSource, MarketDataAvailabilityProvider baseMarketDataAvailabilityProvider) {
     _snapshotSource = snapshotSource;
+    _baseMarketDataAvailabilityProvider = baseMarketDataAvailabilityProvider;
   }
   
   @Override
   public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
     UserMarketDataSpecification userMarketDataSpec = (UserMarketDataSpecification) marketDataSpec;
-    return new UserMarketDataProvider(getSnapshotSource(), userMarketDataSpec.getUserSnapshotId());
+    UserMarketDataProvider marketDataProvider = new UserMarketDataProvider(getSnapshotSource(), userMarketDataSpec.getUserSnapshotId());
+    marketDataProvider.setBaseMarketDataAvailabilityProvider(getBaseMarketDataAvailabilityProvider());
+    return marketDataProvider;
   }
   
   //-------------------------------------------------------------------------
   private MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
+  }
+  
+  private MarketDataAvailabilityProvider getBaseMarketDataAvailabilityProvider() {
+    return _baseMarketDataAvailabilityProvider;
   }
 
 }
