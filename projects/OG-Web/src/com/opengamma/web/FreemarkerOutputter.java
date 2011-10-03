@@ -49,6 +49,7 @@ public class FreemarkerOutputter {
    */
   public FlexiBean createRootData() {
     FlexiBean data = new FlexiBean();
+    // TODO: TIMEZONE
     data.put("now", ZonedDateTime.now());
     return data;
   }
