@@ -52,19 +52,7 @@ public class LanguageSpringContext {
   private final Map<String, Pair<ClientFactory, SessionContextFactory>> _languageFactories = new HashMap<String, Pair<ClientFactory, SessionContextFactory>>();
 
   public LanguageSpringContext() {
-    _springContext = new GenericApplicationContext();
-    s_logger.debug("Reading {} from the classpath", CLIENT_XML);
-    final XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(_springContext);
-    xmlReader.loadBeanDefinitions(new ClassPathResource(CLIENT_XML));
-    s_logger.debug("Finished loading core bean definitions");
-    String[] xmlFiles = findSpringXmlConfig();
-    s_logger.debug("Loading language bean definitions from {}", StringUtils.join(xmlFiles, ", "));
-    xmlReader.loadBeanDefinitions(xmlFiles);
-    _springContext.refresh();
-    s_logger.info("Starting application context");
-    _springContext.start();
-    s_logger.info("Application context started");
-    
+    _springContext = createSpringContext();
     Properties systemSettings = getBean(StringUtils.uncapitalize(SYSTEM_SETTINGS), Properties.class);
     String clientFactoryClassName = systemSettings.getProperty(CLIENT_FACTORY_CLASS_PROPERTY);
     if (!StringUtils.isBlank(clientFactoryClassName)) {
@@ -90,6 +78,29 @@ public class LanguageSpringContext {
     if (_defaultSessionContextFactory == null) {
       s_logger.info("No default session context factory");
     }
+  }
+
+  /**
+   * Creates a Spring context from the base configuration file in OG-Language and any other Spring XML configuration
+   * files found in the configuration directory.  The directory must be specified using the system property named
+   * {@link #LANGUAGE_EXT_PATH}.
+   * @return A Spring context built from all the XML config files.
+   */
+  public static GenericApplicationContext createSpringContext() {
+    s_logger.info("Starting OpenGamma language integration service");
+    GenericApplicationContext context = new GenericApplicationContext();
+    s_logger.debug("Reading {} from the classpath", CLIENT_XML);
+    final XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(context);
+    xmlReader.loadBeanDefinitions(new ClassPathResource(CLIENT_XML));
+    s_logger.debug("Finished loading core bean definitions");
+    String[] xmlFiles = findSpringXmlConfig();
+    s_logger.debug("Loading language bean definitions from {}", StringUtils.join(xmlFiles, ", "));
+    xmlReader.loadBeanDefinitions(xmlFiles);
+    context.refresh();
+    s_logger.info("Starting application context");
+    context.start();
+    s_logger.info("Application context started");
+    return context;
   }
 
   /**
