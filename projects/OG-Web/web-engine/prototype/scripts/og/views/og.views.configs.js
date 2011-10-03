@@ -104,13 +104,6 @@ $.register_module({
                     }
                 }
             },
-            form_generators = {
-                'default': og.views.configs['default'],
-                viewdefinition: og.views.configs.viewdefinition,
-                yieldcurvedefinition: og.views.configs.yieldcurvedefinition,
-                curvespecificationbuilderconfiguration: og.views.configs.curvespecificationbuilderconfiguration,
-                volatilitycubedefinition: og.views.configs.volatilitycubedefinition
-            },
             toolbar = function (type) {
                 ui.toolbar(options.toolbar[type]);
                 if (config_types.length) return; // if we already have config_types, return
@@ -145,7 +138,7 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
-                    (form_generators[config_type] || form_generators['default'])({
+                    (og.views.configs[config_type] || og.views.configs['default'])({
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
@@ -187,7 +180,7 @@ $.register_module({
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
                     });
-                    if (!(config_type in form_generators))
+                    if (!og.views.configs[config_type])
                         og.dev.warn('using default config template for config type: ' + config_type);
                 };
                 rest_options = {

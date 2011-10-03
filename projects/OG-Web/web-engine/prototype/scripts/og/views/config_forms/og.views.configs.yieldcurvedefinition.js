@@ -23,7 +23,7 @@ $.register_module({
                 CONV = 'conventionName', NUMF = 'numFutures',
                 CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
                 INDX = '<INDEX>',
-                region_prefix = 'ISO_COUNTRY_ALPHA2', sep = '~',
+                sep = '~',
                 meta_map = [
                     [['0', INDX].join('.'),                 Form.type.STR],
                     ['currency',                            Form.type.STR],
@@ -34,7 +34,7 @@ $.register_module({
                     [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
                     [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
                     [['strip', INDX, 'type'].join('.'),     Form.type.STR],
-                    ['uniqueId', Form.type.STR],
+                    ['uniqueId',                            Form.type.STR],
                 ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
                 form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
@@ -158,10 +158,10 @@ $.register_module({
                     handler(template);
                 }}),
                 new forms.Dropdown({ // item_1
-                    form: form, value: (master.region || (master.region = region_prefix + sep + 'US')).split(sep)[1],
+                    form: form, value: master.region.split(sep)[1],
                     resource: 'regions', placeholder: 'Please select...',
                     processor: function (selector, data, errors) {
-                        data.region = region_prefix + sep + $(selector).val();
+                        data.region = master.region.split(sep)[0] + sep + $(selector).val();
                     },
                     data_generator: function (handler) {
                         api.regions.get({
