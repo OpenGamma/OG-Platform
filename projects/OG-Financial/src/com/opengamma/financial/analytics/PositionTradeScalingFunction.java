@@ -51,7 +51,8 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
         ValuePropertyNames.CURVE_CALCULATION_METHOD,
-        ValuePropertyNames.CALCULATION_METHOD);
+        ValuePropertyNames.CALCULATION_METHOD,
+        ValuePropertyNames.SURFACE);
   }
 
   @Override
