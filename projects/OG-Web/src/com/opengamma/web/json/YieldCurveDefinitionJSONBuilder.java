@@ -10,6 +10,7 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -74,7 +75,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
 //  }
 
   private static YieldCurveDefinition getDummyYieldCurveDefinition() {
-    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, RegionUtils.currencyRegionId(Currency.USD), "", "");
+    YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.US), "", "");
     dummy.addStrip(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.DAY, ""));
     return dummy;
   }
