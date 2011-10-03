@@ -13,6 +13,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.TimeCalculator;
 
@@ -61,6 +62,16 @@ public class LiborMarketModelDisplacedDiffusionParameters {
    * The time tolerance between the dates given by the model and the dates of the instrument. To avoid rounding problems.
    */
   private static final double TIME_TOLERANCE = 1.0E-3;
+
+  public LiborMarketModelDisplacedDiffusionParameters() {
+    _nbPeriod = 0;
+    _iborTime = new double[1];
+    _accrualFactor = new double[0];
+    _displacement = new double[0];
+    _volatility = new double[0][0];
+    _meanReversion = 0.0;
+    _nbFactor = 0;
+  }
 
   /**
    * Constructor from the model details.
@@ -112,6 +123,27 @@ public class LiborMarketModelDisplacedDiffusionParameters {
       iborDate[loopcf + 1] = swap.getIborLeg().getNthPayment(loopcf).getPaymentDate();
       iborTime[loopcf + 1] = TimeCalculator.getTimeBetween(modelDate, iborDate[loopcf + 1]);
       accrualFactor[loopcf] = dayCount.getDayCountFraction(iborDate[loopcf], iborDate[loopcf + 1]);
+      d[loopcf] = displacement;
+      //TODO: better conversion to double[]
+      Double[] tmp2 = volatilityFunction.evaluate(iborTime[loopcf]);
+      for (int looptmp = 0; looptmp < tmp2.length; looptmp++) {
+        vol[loopcf][looptmp] = tmp2[looptmp];
+      }
+    }
+    return new LiborMarketModelDisplacedDiffusionParameters(iborTime, accrualFactor, d, vol, meanReversion);
+  }
+
+  public static LiborMarketModelDisplacedDiffusionParameters from(SwaptionPhysicalFixedIbor swaption, double displacement, double meanReversion, Function1D<Double, Double[]> volatilityFunction) {
+    int nbPeriod = swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments();
+    double[] iborTime = new double[nbPeriod + 1];
+    double[] accrualFactor = new double[nbPeriod];
+    double[] d = new double[nbPeriod];
+    Double[] tmp = volatilityFunction.evaluate(0.0);
+    double[][] vol = new double[nbPeriod][tmp.length];
+    iborTime[0] = swaption.getSettlementTime();
+    for (int loopcf = 0; loopcf < nbPeriod; loopcf++) {
+      iborTime[loopcf + 1] = swaption.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcf).getPaymentTime();
+      accrualFactor[loopcf] = swaption.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcf).getPaymentYearFraction();
       d[loopcf] = displacement;
       //TODO: better conversion to double[]
       Double[] tmp2 = volatilityFunction.evaluate(iborTime[loopcf]);
@@ -181,6 +213,44 @@ public class LiborMarketModelDisplacedDiffusionParameters {
   public double getTimeTolerance() {
     return TIME_TOLERANCE;
   }
+
+  //  public void setParameters(double[] iborTime, double[] accrualFactor, double[] displacement, double[][] volatility, double meanReversion) {
+  //    Validate.notNull(iborTime, "LMM Libor times");
+  //    Validate.notNull(accrualFactor, "LMM accrual factors");
+  //    Validate.notNull(displacement, "LMM displacements");
+  //    Validate.notNull(volatility, "LMM volatility");
+  //    _nbPeriod = accrualFactor.length;
+  //    Validate.isTrue(iborTime.length == _nbPeriod + 1, "LMM data: Dimension");
+  //    Validate.isTrue(_nbPeriod == displacement.length, "LMM data: Dimension");
+  //    Validate.isTrue(_nbPeriod == volatility.length, "LMM data: Dimension");
+  //    _iborTime = iborTime;
+  //    _accrualFactor = accrualFactor;
+  //    _displacement = displacement;
+  //    _volatility = volatility;
+  //    _meanReversion = meanReversion;
+  //    _nbFactor = volatility[0].length;
+  //  }
+
+  //  public void setParameters(SwaptionPhysicalFixedIbor swaption, double displacement, double meanReversion, Function1D<Double, Double[]> volatilityFunction) {
+  //    int nbPeriod = swaption.getUnderlyingSwap().getSecondLeg().getNumberOfPayments();
+  //    double[] iborTime = new double[nbPeriod + 1];
+  //    double[] accrualFactor = new double[nbPeriod];
+  //    double[] d = new double[nbPeriod];
+  //    Double[] tmp = volatilityFunction.evaluate(0.0);
+  //    double[][] vol = new double[nbPeriod][tmp.length];
+  //    iborTime[0] = swaption.getSettlementTime();
+  //    for (int loopcf = 0; loopcf < nbPeriod; loopcf++) {
+  //      iborTime[loopcf + 1] = swaption.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcf).getPaymentTime();
+  //      accrualFactor[loopcf] = swaption.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcf).getPaymentYearFraction();
+  //      d[loopcf] = displacement;
+  //      //TODO: better conversion to double[]
+  //      Double[] tmp2 = volatilityFunction.evaluate(iborTime[loopcf]);
+  //      for (int looptmp = 0; looptmp < tmp2.length; looptmp++) {
+  //        vol[loopcf][looptmp] = tmp2[looptmp];
+  //      }
+  //    }
+  //    setParameters(iborTime, accrualFactor, d, vol, meanReversion);
+  //  }
 
   /**
    * Return the index in the Ibor time list of a given time. The match does not need to be exact (to allow rounding effects and 1 day discrepancy).
