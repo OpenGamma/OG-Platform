@@ -8,6 +8,8 @@ package com.opengamma.financial.interestrate.method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
@@ -57,10 +59,9 @@ public abstract class CalibrationEngine {
    * @param method A pricing method.
    */
   public void addInstrument(final InterestRateDerivative[] instrument, final PricingMethod method) {
-    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      _basket.add(instrument[loopinstrument]);
-      _method.add(method);
-      _calibrationPrice.add(0.0);
+    Validate.notNull(instrument, "Instrument");
+    for (int loopins = 0; loopins < instrument.length; loopins++) {
+      addInstrument(instrument[loopins], method);
     }
   }
 

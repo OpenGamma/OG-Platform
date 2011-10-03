@@ -166,20 +166,20 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
             _fundingCurveName, _forwardCurveName), dataSource);
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    interpolatedCurves.put(_forwardCurveName, forwardCurve);
     interpolatedCurves.put(_fundingCurveName, fundingCurve);
+    interpolatedCurves.put(_forwardCurveName, forwardCurve);
     final YieldCurveBundle bundle = new YieldCurveBundle(interpolatedCurves);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     DoubleMatrix1D sensitivitiesForCurves;
     if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)) {
-      sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, interpolatedCurves, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
+      sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, bundle, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     } else {
       final Object couponSensitivityObject = inputs.getValue(getCouponSensitivityRequirement(target));
       if (couponSensitivityObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       }
       final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
-      sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, interpolatedCurves, couponSensitivity, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
+      sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, bundle, couponSensitivity, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (_fundingCurveName.equals(_forwardCurveName)) {
@@ -220,8 +220,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final int nForward = bundle.getCurve(_forwardCurveName).getCurve().size();
     final int nFunding = bundle.getCurve(_fundingCurveName).getCurve().size();
     final Map<String, DoubleMatrix1D> sensitivities = new HashMap<String, DoubleMatrix1D>();
-    sensitivities.put(_forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nForward)));
-    sensitivities.put(_fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nForward, nForward + nFunding)));
+    sensitivities.put(_fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
+    sensitivities.put(_forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
     final String[] relevantCurvesForDerivative = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
         _fundingCurveName, _forwardCurveName);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
@@ -279,9 +279,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, _curveCalculationType)
         .with(ValuePropertyNames.CURVE, _forwardCurveName)
         .get();
-    if (_forwardCurveName.equals(_fundingCurveName)) {
-      return Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
-    }
     final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
     result.add(new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), resultProperties));
     resultProperties = createValueProperties()

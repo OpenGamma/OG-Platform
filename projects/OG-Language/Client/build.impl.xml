@@ -1,37 +1,39 @@
 <project name="client-impl">
 
-	<property file="build.properties"/>
-	<import file="${common.dir}/common.xml"/>
+  <property file="build.properties"/>
+  <import file="${common.dir}/common.xml"/>
 
-	<target name="proto-c" description="--> generates the C/C++ header files for the Fudge messages" unless="proto.c.disabled">
-		<java classname="org.fudgemsg.proto.CommandLine" classpathref="run.path.id" fork="true">
-			<arg value="-d${project.dir}/Connector" />
-			<arg value="-lC" />
-			<arg value="-Xinclude=stdafx.h" />
-			<arg value="-s${src.dir}" />
-			<arg value="${src.dir}/com/opengamma/language/Data.proto" />
-			<arg value="${src.dir}/com/opengamma/language/connector/Custom.proto" />
-			<arg value="${src.dir}/com/opengamma/language/connector/ConnectorMessage.proto" />
-			<arg value="${src.dir}/com/opengamma/language/connector/UserMessage.proto" />
-			<arg value="${src.dir}/com/opengamma/language/connector/Test.proto" />
-			<arg value="${src.dir}/com/opengamma/language/function/Available.proto" />
-			<arg value="${src.dir}/com/opengamma/language/function/Custom.proto" />
-			<arg value="${src.dir}/com/opengamma/language/function/Invoke.proto" />
-			<arg value="${src.dir}/com/opengamma/language/function/QueryAvailable.proto" />
-			<arg value="${src.dir}/com/opengamma/language/function/Result.proto" />
-			<arg value="${src.dir}/com/opengamma/language/livedata/Available.proto" />
-			<arg value="${src.dir}/com/opengamma/language/livedata/Custom.proto" />
-			<arg value="${src.dir}/com/opengamma/language/livedata/QueryAvailable.proto" />
-			<arg value="${src.dir}/com/opengamma/language/procedure/Available.proto" />
-			<arg value="${src.dir}/com/opengamma/language/procedure/Custom.proto" />
-			<arg value="${src.dir}/com/opengamma/language/procedure/QueryAvailable.proto" />
-		</java>
-	</target>
+  <target name="proto-c" description="--> generates the C/C++ header files for the Fudge messages" unless="proto.c.disabled">
+    <java classname="org.fudgemsg.proto.CommandLine" classpathref="run.path.id" fork="true">
+      <arg value="-d${project.dir}/Connector" />
+      <arg value="-lC" />
+      <arg value="-Xinclude=stdafx.h" />
+      <arg value="-s${src.dir}" />
+      <arg value="${src.dir}/com/opengamma/language/Data.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/ConnectorMessage.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/UserMessage.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/Test.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Available.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Invoke.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/QueryAvailable.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Result.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Available.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/QueryAvailable.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Available.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Invoke.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/QueryAvailable.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Result.proto" />
+    </java>
+  </target>
 
-	<target name="deploy" depends="jar,proto-c" description="--> generates files into C++ project folders" />
+  <target name="deploy" depends="jar,proto-c" description="--> generates files into C++ project folders" />
 
-	<target name="dist">
-		<copy file="${build.dir}/client.jar" tofile="${dist.dir}/og-language-client.jar" />
-	</target>
+  <target name="dist">
+    <copy file="${build.dir}/client.jar" tofile="${dist.dir}/og-language-client.jar" />
+  </target>
 
 </project>

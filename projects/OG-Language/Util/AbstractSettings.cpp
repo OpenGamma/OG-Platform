@@ -353,8 +353,18 @@ const TCHAR *CAbstractSettingProvider::GetString () const {
 	s_oMutex.Enter ();
 	if (!m_bCalculated) {
 		LOGDEBUG (TEXT ("Calculating default setting value"));
-		m_pszValue = CalculateString ();
-		m_bCalculated = true;
+		s_oMutex.Leave ();
+		TCHAR *pszValue = CalculateString ();
+		s_oMutex.Enter ();
+		if (!m_bCalculated) {
+			m_pszValue = pszValue;
+			m_bCalculated = true;
+		} else {
+			LOGDEBUG (TEXT ("Another thread calculated the string"));
+			if (pszValue) {
+				delete pszValue;
+			}
+		}
 	}
 	s_oMutex.Leave ();
 	return m_pszValue;

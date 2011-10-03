@@ -8,6 +8,7 @@ package com.opengamma.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import javax.time.CalendricalException;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
@@ -29,12 +30,12 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
     return CALCULATOR;
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = CalendricalException.class)
   public void testNegativeDay() {
     new AnnualScheduleOnDayAndMonthCalculator(-DAY_OF_MONTH, MONTH_OF_YEAR);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = CalendricalException.class)
   public void testBadDay() {
     new AnnualScheduleOnDayAndMonthCalculator(31, MonthOfYear.FEBRUARY);
   }

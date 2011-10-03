@@ -6,8 +6,14 @@
 package com.opengamma.language.async;
 
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Cancelable;
+import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
  * Represents the production of a result by another thread and potentially allow the original calling thread to
@@ -17,8 +23,18 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AsynchronousOperation<T> {
 
+  private static final ScheduledExecutorService s_timeouts = createTimeoutExecutor();
+
   private AsynchronousResult<T> _result;
   private ResultListener<T> _listener;
+
+  private static ScheduledExecutorService createTimeoutExecutor() {
+    final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    executor.setKeepAliveTime(60, TimeUnit.SECONDS);
+    executor.allowCoreThreadTimeOut(true);
+    executor.setThreadFactory(new NamedThreadPoolFactory("AsynchronousOperation-Timeout"));
+    return executor;
+  }
 
   /**
    * Creates a new instance.
@@ -137,6 +153,31 @@ public class AsynchronousOperation<T> {
     } else {
       return result.getResult();
     }
+  }
+
+  /**
+   * Declares a timeout on an asynchronous operation. The {@link Cancelable#cancel} callback is made after the timeout period
+   * unless the handle returned by the timeout is itself canceled.
+   * 
+   * @param cancelation the user callback, not null
+   * @param timeoutMillis the timeout period in milliseconds
+   * @return a cancellation handle for the timeout
+   */
+  public static Cancelable timeout(final Cancelable cancelation, final int timeoutMillis) {
+    ArgumentChecker.notNull(cancelation, "cancelation");
+    ArgumentChecker.notNegativeOrZero(timeoutMillis, "timeoutMillis");
+    final ScheduledFuture<?> future = s_timeouts.schedule(new Runnable() {
+      @Override
+      public void run() {
+        cancelation.cancel(true);
+      }
+    }, (long) timeoutMillis, TimeUnit.MILLISECONDS);
+    return new Cancelable() {
+      @Override
+      public boolean cancel(final boolean mayInterruptIfRunning) {
+        return future.cancel(mayInterruptIfRunning);
+      }
+    };
   }
 
 }
