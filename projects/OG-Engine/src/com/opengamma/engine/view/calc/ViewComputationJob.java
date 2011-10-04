@@ -504,17 +504,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
     return getCycleManager().manage(cycle);
   }
-  
+
   private VersionCorrection getResolvedVersionCorrection() {
     VersionCorrection versionCorrection = getExecutionOptions().getVersionCorrection();
     if (!versionCorrection.containsLatest()) {
       return versionCorrection;
     }
-    Instant now = Instant.now();
-    return VersionCorrection.of(versionCorrection.getVersionAsOf() != null ? versionCorrection.getVersionAsOf() : now,
-        versionCorrection.getCorrectedTo() != null ? versionCorrection.getCorrectedTo() : now);
+    return versionCorrection.withLatestFixed(Instant.now());
   }
-  
+
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime, VersionCorrection versionCorrection) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;

@@ -185,6 +185,16 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   }
 
   @Test
+  public void test_search_twoKeys_Any_2_oneMatches() {
+    HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
+    request.addExternalIds(ExternalId.of("TICKER", "V501"), ExternalId.of("TICKER", "RUBBISH"));
+    HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+  }
+
+  @Test
   public void test_search_twoKeys_Any_2_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalIds(ExternalId.of("E", "H"), ExternalId.of("A", "D"));
@@ -193,6 +203,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     assertEquals(0, test.getDocuments().size());
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_search_identifier() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
