@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
@@ -112,14 +110,20 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     return _conventionName;
   }
 
+  /**
+   * Calculates the tenor of a strip. For all instruments except futures, this is the same as that entered on construction.
+   * For futures, this is the start tenor + (3 * future number)
+   * @return The effectove tenor of the strip
+   */
+  public Tenor getEffectiveTenor() {
+    return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ? 
+        getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod());    
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
-    Period effectivePeriod = getInstrumentType() == StripInstrumentType.FUTURE ? 
-        getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod();
-    Period otherEffectivePeriod = other.getInstrumentType() == StripInstrumentType.FUTURE ? 
-        other.getCurveNodePointTime().getPeriod().plusMonths(3 * other.getNumberOfFuturesAfterTenor()) : other.getCurveNodePointTime().getPeriod();
-    int result = effectivePeriod.toPeriodFields().toEstimatedDuration().compareTo(otherEffectivePeriod.toPeriodFields().toEstimatedDuration());
+    int result = getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration());
     if (result != 0) {
       return result;
     }

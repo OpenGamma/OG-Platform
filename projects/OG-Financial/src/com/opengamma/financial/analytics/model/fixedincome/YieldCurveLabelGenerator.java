@@ -23,26 +23,10 @@ public class YieldCurveLabelGenerator {
     final Object[] labels = new Object[n];
     int i = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
-      labels[i++] = strip.getTenor();
+      labels[i++] = strip.getStrip().getEffectiveTenor();
     }
     Arrays.sort(labels);
     return labels;
   }
-  //
-  //  public static Object[] getLabels(final InterpolatedYieldCurveDefinitionSource definitionSource, final Currency currency, final String curveName) {
-  //    final YieldCurveDefinition definition = definitionSource.getDefinition(currency, curveName);
-  //    if (definition == null) {
-  //      throw new NullPointerException("Could not get definition for currency " + currency + ", name " + curveName);
-  //    }
-  //    final Set<FixedIncomeStrip> strips = definition.getStrips();
-  //    final int n = strips.size();
-  //    final Object[] labels = new Object[n];
-  //    int i = 0;
-  //    for (final FixedIncomeStrip strip : strips) {
-  //      labels[i++] = strip.getCurveNodePointTime();
-  //    }
-  //    Arrays.sort(labels);
-  //    return labels;
-  //
-  //  }
+
 }
