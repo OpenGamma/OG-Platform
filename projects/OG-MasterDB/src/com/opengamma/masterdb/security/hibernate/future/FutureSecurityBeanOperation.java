@@ -52,7 +52,7 @@ public final class FutureSecurityBeanOperation extends
   public static final FutureSecurityBeanOperation INSTANCE = new FutureSecurityBeanOperation();
 
   private FutureSecurityBeanOperation() {
-    super("FUTURE", FutureSecurity.class, FutureSecurityBean.class);
+    super(FutureSecurity.SECURITY_TYPE, FutureSecurity.class, FutureSecurityBean.class);
   }
 
   private static BondFutureDeliverable futureBundleBeanToBondFutureDeliverable(

@@ -254,7 +254,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
         final Double fundingMarketValue = fundingMarketDataMap.get(strip.getSecurityIdentifier());
         if (fundingMarketValue == null) {
-          throw new NullPointerException("Could not get funding market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get funding market data for " + strip);
         }
         final double marketValue = fundingMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
@@ -264,7 +264,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
-          throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+          throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
         }
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
@@ -280,7 +280,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
         final Double forwardMarketValue = forwardMarketDataMap.get(strip.getSecurityIdentifier());
         if (forwardMarketValue == null) {
-          throw new NullPointerException("Could not get forward market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get forward market data for " + strip);
         }
         final double marketValue = forwardMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
@@ -290,7 +290,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
-          throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+          throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
         }
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
