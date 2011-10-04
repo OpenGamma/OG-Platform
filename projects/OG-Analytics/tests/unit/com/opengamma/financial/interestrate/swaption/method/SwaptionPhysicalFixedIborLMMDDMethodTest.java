@@ -412,11 +412,12 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double shiftCurve = 0.0000001;
     YieldAndDiscountCurve curve5Shift = new YieldCurve(ConstantDoublesCurve.from(0.05 + shiftCurve));
     YieldAndDiscountCurve curve4Shift = new YieldCurve(ConstantDoublesCurve.from(0.04 + shiftCurve));
-    YieldCurveBundle curvesShift = new YieldCurveBundle();
-    curvesShift.setCurve(FUNDING_CURVE_NAME, curve5Shift);
-    curvesShift.setCurve(FORWARD_CURVE_NAME, CURVES.getCurve(FORWARD_CURVE_NAME));
-    SABRInterestRateDataBundle sabrBundleCurveShift = new SABRInterestRateDataBundle(sabrParameter, curvesShift);
-    CurrencyAmount pvAmortizedShiftCurveDsc = method.presentValue(swaptionAmortized, sabrBundleCurveShift);
+
+    YieldCurveBundle curvesDscShift = new YieldCurveBundle();
+    curvesDscShift.setCurve(FUNDING_CURVE_NAME, curve5Shift);
+    curvesDscShift.setCurve(FORWARD_CURVE_NAME, CURVES.getCurve(FORWARD_CURVE_NAME));
+    SABRInterestRateDataBundle sabrBundleCurveDscShift = new SABRInterestRateDataBundle(sabrParameter, curvesDscShift);
+    CurrencyAmount pvAmortizedShiftCurveDsc = method.presentValue(swaptionAmortized, sabrBundleCurveDscShift);
     double dscDeltaTotalExpected = (pvAmortizedShiftCurveDsc.getAmount() - pvAmortized.getAmount()) / shiftCurve;
     double dscDeltaTotal = 0.0;
     final List<DoublesPair> dscSensi = pvcs.getSensitivities().get(FUNDING_CURVE_NAME);
@@ -424,9 +425,12 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
       dscDeltaTotal += dscSensi.get(looppay).second;
     }
     assertEquals("Curve DSC sensitivity value", dscDeltaTotalExpected, dscDeltaTotal, 5.0E+1);
-    curvesShift.replaceCurve(FUNDING_CURVE_NAME, CURVES.getCurve(FUNDING_CURVE_NAME));
-    curvesShift.replaceCurve(FORWARD_CURVE_NAME, curve4Shift);
-    CurrencyAmount pvAmortizedShiftCurveFwd = method.presentValue(swaptionAmortized, sabrBundleCurveShift);
+
+    YieldCurveBundle curvesFwdShift = new YieldCurveBundle();
+    curvesFwdShift.setCurve(FUNDING_CURVE_NAME, CURVES.getCurve(FUNDING_CURVE_NAME));
+    curvesFwdShift.setCurve(FORWARD_CURVE_NAME, curve4Shift);
+    SABRInterestRateDataBundle sabrBundleCurveFwdShift = new SABRInterestRateDataBundle(sabrParameter, curvesFwdShift);
+    CurrencyAmount pvAmortizedShiftCurveFwd = method.presentValue(swaptionAmortized, sabrBundleCurveFwdShift);
     double fwdDeltaTotalExpected = (pvAmortizedShiftCurveFwd.getAmount() - pvAmortized.getAmount()) / shiftCurve;
     double fwdDeltaTotal = 0.0;
     final List<DoublesPair> fwdSensi = pvcs.getSensitivities().get(FORWARD_CURVE_NAME);

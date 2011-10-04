@@ -42,8 +42,8 @@
         <include name="build-*.xml" />
       </fileset>
     </copy>
-    <mkdir dir="${dist.dir}/build/ext" />
-    <copy todir="${dist.dir}/build/ext">
+    <mkdir dir="${dist.dir}/build/config" />
+    <copy todir="${dist.dir}/build/config">
       <fileset dir="${basedir}/config">
         <include name="0${ant.project.name}.xml" />
       </fileset>
