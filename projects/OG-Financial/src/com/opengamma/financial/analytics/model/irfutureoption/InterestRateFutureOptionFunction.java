@@ -142,7 +142,6 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     }
     requirements.add(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
     requirements.add(getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
-    requirements.add(getSurfaceRequirement(target));
     return requirements;
   }
 

@@ -128,7 +128,7 @@ public class SimplePositionTest {
   //-------------------------------------------------------------------------
   public void test_construction_UniqueId_BigDecimal_Security() {
     SimpleSecurity sec = new SimpleSecurity("A");
-    sec.setIdentifiers(ExternalIdBundle.of(ExternalId.of("A", "B")));
+    sec.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B")));
     SimplePosition test = new SimplePosition(UniqueId.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueId.of("B", "C"), test.getUniqueId());
     assertEquals(BigDecimal.ONE, test.getQuantity());
