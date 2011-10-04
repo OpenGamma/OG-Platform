@@ -27,8 +27,7 @@ public class CreateBeanFunctionTest {
   @Test
   public void invoke() {
     String testFunctionName = "testFunctionName";
-    CreateBeanFunction<FXForwardSecurity> function =
-        new CreateBeanFunction<FXForwardSecurity>(testFunctionName, FXForwardSecurity.class);
+    CreateBeanFunction function = new CreateBeanFunction(testFunctionName, FXForwardSecurity.class);
 
     UniqueId uniqueId = UniqueId.of("Tst", "uid");
     ExternalId regionId = ExternalId.of("Tst", "region");
