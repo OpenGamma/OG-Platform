@@ -43,36 +43,38 @@ public class BatchJobParameters {
   /**
    * Date-time format: yyyyMMddHHmmss[Z]
    */
-  private static final DateTimeFormatter s_dateTimeFormatter = DateTimeFormatters.pattern("yyyyMMddHHmmss[Z]");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatters.pattern("yyyyMMddHHmmss[Z]");
   /**
    * Date-time format: yyyyMMdd
    */
-  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatters.pattern("yyyyMMdd");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatters.pattern("yyyyMMdd");
 
-  /* package */static OffsetDateTime parseDateTime(String dateTime) {
-    if (dateTime == null) {
+  /* package */static OffsetDateTime parseDateTime(String dateTimeStr) {
+    if (dateTimeStr == null) {
       return null;
     }
+    // TODO: JSR-310, parse a or b
+    // TODO: TIMEZONE
     try {
-      // try first to parse as if time zone explicitly provided, e.g., 20100621162200+0000
-      return s_dateTimeFormatter.parse(dateTime, OffsetDateTime.rule());
+      // try first to parse as if offset explicitly provided, e.g., 20100621162200+0000
+      return OffsetDateTime.parse(dateTimeStr,  DATE_TIME_FORMATTER);
     } catch (CalendricalParseException e) {
-      // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone.
-      LocalDateTime localDateTime = s_dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
-      return OffsetDateTime.of(localDateTime, OffsetDateTime.now().getOffset());
+      // try to parse as if no offset provided, e.g. 20100621162200. Use the system time zone.
+      LocalDateTime localDateTime = LocalDateTime.parse(dateTimeStr, DATE_TIME_FORMATTER);
+      return localDateTime.atOffset(OffsetDateTime.now().getOffset());
     }
   }
 
   /* package */static String formatDateTime(OffsetDateTime dateTime) {
-    return dateTime.toString(s_dateTimeFormatter);
+    return dateTime.toString(DATE_TIME_FORMATTER);
   }
 
   /* package */static LocalDate parseDate(String date) {
-    return LocalDate.parse(date, s_dateFormatter);
+    return LocalDate.parse(date, DATE_FORMATTER);
   }
 
   /* package */static String formatDate(LocalDate date) {
-    return s_dateFormatter.print(date);   
+    return DATE_FORMATTER.print(date);   
   }
 
   /* package */static LocalTime parseTime(String time) {

@@ -85,6 +85,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
       futureOptionExpiry = (futureOptionExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
     }
     futureOptionCode.append(s_monthCode.get(futureOptionExpiry.getMonthOfYear()));
+    // TODO: TIMEZONE
     final LocalDate today = LocalDate.now();
     if (futureOptionExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
       final int yearsNum = futureOptionExpiry.getYear() % 100;
