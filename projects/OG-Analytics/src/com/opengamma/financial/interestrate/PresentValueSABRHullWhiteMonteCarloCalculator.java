@@ -68,7 +68,7 @@ public class PresentValueSABRHullWhiteMonteCarloCalculator extends PresentValueC
 
   @Override
   /**
-   * The calculator is for test purposes only! It calibrate a Hull-White on a swaption priced with SABR and then price the same swaption in the Hull-White model by Monte Carlo.
+   * The calculator is for test purposes only! It calibrates a Hull-White on a swaption priced with SABR and then price the same swaption in the Hull-White model by Monte Carlo.
    * Do not use this calculator in production.
    */
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {

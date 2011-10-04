@@ -36,4 +36,8 @@
     <copy file="${build.dir}/client.jar" tofile="${dist.dir}/og-language-client.jar" />
   </target>
 
+  <target name="compile-tests" depends="common.compile-tests">
+    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${build.dir}/ext</echo>
+  </target>
+
 </project>

@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -231,7 +232,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.of(
       getFXPresentValue(),
       getFXCurrencyExposure(),
-      getVegaMatrix(ValueProperties.builder()));
+      getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")));
     
       // YCNS doesn't seem to work
       // getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
@@ -382,7 +383,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints);
+    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
   }
   
   private Pair<String, ValueProperties> getPV01() {

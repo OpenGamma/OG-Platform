@@ -5,11 +5,14 @@
  */
 package com.opengamma.language.connector;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +32,20 @@ import com.opengamma.util.tuple.Pair;
  */
 public class LanguageSpringContext {
 
+  /** Location on the classpath of the main Spring configuration file. */
+  public static final String CLIENT_XML = "/com/opengamma/language/connector/Client.xml";
+
+  /** Name of the system property specifying the location of the Spring XML config. */
+  public static final String LANGUAGE_EXT_PATH = "language.ext.path";
+
   private static final String CLIENT_FACTORY_CLASS_PROPERTY = "language.client.factory";
   private static final String CLIENT_FACTORY_METHOD = "getFactory";
-  
   private static final String SYSTEM_SETTINGS = "SystemSettings";
   private static final String SESSION_CONTEXT_FACTORY = "SessionContextFactory";
   private static final String CLIENT_CONTEXT_FACTORY = "ClientContextFactory";
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(LanguageSpringContext.class);
-  
+
   private GenericApplicationContext _springContext;
   private ClientFactoryFactory _clientFactories;
   private ClientFactory _defaultClientFactory;
@@ -46,17 +54,7 @@ public class LanguageSpringContext {
   private final Map<String, Pair<ClientFactory, SessionContextFactory>> _languageFactories = new HashMap<String, Pair<ClientFactory, SessionContextFactory>>();
 
   public LanguageSpringContext() {
-    _springContext = new GenericApplicationContext();
-    s_logger.debug("Reading OpenGamma.xml");
-    final XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(_springContext);
-    xmlReader.loadBeanDefinitions(new ClassPathResource("OpenGamma.xml"));
-    s_logger.debug("Finished loading core bean definitions");
-    _springContext.refresh();
-    // TODO: load other .xml files from the ext/ folder
-    s_logger.info("Starting application context");
-    _springContext.start();
-    s_logger.info("Application context started");
-    
+    _springContext = createSpringContext();
     Properties systemSettings = getBean(StringUtils.uncapitalize(SYSTEM_SETTINGS), Properties.class);
     String clientFactoryClassName = systemSettings.getProperty(CLIENT_FACTORY_CLASS_PROPERTY);
     if (!StringUtils.isBlank(clientFactoryClassName)) {
@@ -83,7 +81,56 @@ public class LanguageSpringContext {
       s_logger.info("No default session context factory");
     }
   }
-  
+
+  /**
+   * Creates a Spring context from the base configuration file in OG-Language and any other Spring XML configuration
+   * files found in the configuration directory.  The directory must be specified using the system property named
+   * {@link #LANGUAGE_EXT_PATH}.
+   * @return A Spring context built from all the XML config files.
+   */
+  public static GenericApplicationContext createSpringContext() {
+    s_logger.info("Starting OpenGamma language integration service");
+    GenericApplicationContext context = new GenericApplicationContext();
+    s_logger.debug("Reading {} from the classpath", CLIENT_XML);
+    final XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(context);
+    xmlReader.loadBeanDefinitions(new ClassPathResource(CLIENT_XML));
+    s_logger.debug("Finished loading core bean definitions");
+    String[] xmlFiles = findSpringXmlConfig();
+    s_logger.debug("Loading language bean definitions from {}", StringUtils.join(xmlFiles, ", "));
+    xmlReader.loadBeanDefinitions(xmlFiles);
+    context.refresh();
+    s_logger.info("Starting application context");
+    context.start();
+    s_logger.info("Application context started");
+    return context;
+  }
+
+  /**
+   * Searches the configuration directory for Spring XML files to load.  The directory must be specified using the
+   * system property named {@link #LANGUAGE_EXT_PATH}.
+   * @return Names of all the XML files in the configuration directory with {@code file:} prepended (so Spring knows
+   * they are filesystem resources and not classpath resources)
+   */
+  private static String[] findSpringXmlConfig() {
+    String extPath = System.getProperty(LANGUAGE_EXT_PATH);
+    if (StringUtils.isEmpty(extPath)) {
+      throw new OpenGammaRuntimeException("The directory containing the Spring XML config files for language support" +
+                                              "must be specified in the system property " + LANGUAGE_EXT_PATH);
+    }
+    File extDir = new File(extPath);
+    s_logger.debug("Scanning '{}' for Spring XML config files to load", extDir.getAbsolutePath());
+    @SuppressWarnings({"unchecked"}) // listFiles always returns a collection of files but isn't generified
+    Collection<File> xmlFiles = FileUtils.listFiles(extDir, new String[]{"xml"}, false);
+    String[] xmlFileNames = new String[xmlFiles.size()];
+    int i = 0;
+    for (File xmlFile : xmlFiles) {
+      String xmlPath = xmlFile.getAbsolutePath();
+      s_logger.debug("Found XML file: '{}'", xmlPath);
+      xmlFileNames[i++] = "file:" + xmlPath;
+    }
+    return xmlFileNames;
+  }
+
   public void stop() {
     _springContext.stop();
   }
