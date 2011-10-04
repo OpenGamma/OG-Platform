@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,7 +40,10 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
       final FinancialSecurity security, final ComputationTarget target) {
     final Map<String, Double> pv01 = CALCULATOR.visit(derivative, bundle);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    return Sets.newHashSet(new ComputedValue(getFundingCurveSpec(ccy, target), pv01.get(getFundingCurveName())), new ComputedValue(getForwardCurveSpec(ccy, target), pv01.get(getForwardCurveName())));
+    Set<ComputedValue> result = new HashSet<ComputedValue>();
+    result.add(new ComputedValue(getFundingCurveSpec(ccy, target), pv01.containsKey(getFundingCurveName()) ? pv01.get(getFundingCurveName()) : 0));
+    result.add(new ComputedValue(getForwardCurveSpec(ccy, target), pv01.containsKey(getForwardCurveName()) ? pv01.get(getForwardCurveName()) : 0));
+    return result;
   }
 
   @Override
