@@ -328,7 +328,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       double[] yields = null;
       // TODO have the decomposition as an optional input [FIN-146]
       try {
-        rootFinder = new BroydenVectorRootFinder(1e-5, 1e-5, 10000, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
+        rootFinder = new BroydenVectorRootFinder(1e-4, 1e-4, 10000, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
       } catch (final Exception eSV) {
         s_logger.warn("Could not find root using SV decomposition and " + _calculationType + " method for curves " + _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName
