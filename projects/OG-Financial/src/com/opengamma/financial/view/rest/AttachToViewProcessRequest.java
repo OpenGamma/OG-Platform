@@ -68,7 +68,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -10926973:  // viewDefinitionName
+      case -545262317:  // viewDefinitionId
         return getViewDefinitionId();
       case -1448089498:  // executionOptions
         return getExecutionOptions();
@@ -81,8 +81,8 @@ public class AttachToViewProcessRequest extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -10926973:  // viewDefinitionName
-        setViewDefinitionId(UniqueId.parse((String) newValue));
+      case -545262317:  // viewDefinitionId
+        setViewDefinitionId((UniqueId) newValue);
         return;
       case -1448089498:  // executionOptions
         setExecutionOptions((ViewExecutionOptions) newValue);
@@ -135,11 +135,11 @@ public class AttachToViewProcessRequest extends DirectBean {
   }
 
   /**
-   * Gets the the {@code viewDefinitionName} property.
+   * Gets the the {@code viewDefinitionId} property.
    * @return the property, not null
    */
-  public final Property<String> viewDefinitionName() {
-    return metaBean().viewDefinitionName().createProperty(this);
+  public final Property<UniqueId> viewDefinitionId() {
+    return metaBean().viewDefinitionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -206,10 +206,10 @@ public class AttachToViewProcessRequest extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code viewDefinitionName} property.
+     * The meta-property for the {@code viewDefinitionId} property.
      */
-    private final MetaProperty<String> _viewDefinitionName = DirectMetaProperty.ofReadWrite(
-        this, "viewDefinitionName", AttachToViewProcessRequest.class, String.class);
+    private final MetaProperty<UniqueId> _viewDefinitionId = DirectMetaProperty.ofReadWrite(
+        this, "viewDefinitionId", AttachToViewProcessRequest.class, UniqueId.class);
     /**
      * The meta-property for the {@code executionOptions} property.
      */
@@ -225,7 +225,7 @@ public class AttachToViewProcessRequest extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
-        "viewDefinitionName",
+        "viewDefinitionId",
         "executionOptions",
         "newBatchProcess");
 
@@ -238,8 +238,8 @@ public class AttachToViewProcessRequest extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -10926973:  // viewDefinitionName
-          return _viewDefinitionName;
+        case -545262317:  // viewDefinitionId
+          return _viewDefinitionId;
         case -1448089498:  // executionOptions
           return _executionOptions;
         case -1977436267:  // newBatchProcess
@@ -265,11 +265,11 @@ public class AttachToViewProcessRequest extends DirectBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code viewDefinitionName} property.
+     * The meta-property for the {@code viewDefinitionId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> viewDefinitionName() {
-      return _viewDefinitionName;
+    public final MetaProperty<UniqueId> viewDefinitionId() {
+      return _viewDefinitionId;
     }
 
     /**
