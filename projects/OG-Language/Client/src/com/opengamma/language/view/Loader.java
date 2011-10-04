@@ -111,6 +111,7 @@ public class Loader extends ContextInitializationBean {
       protected void loadDefinitions(final Collection<MetaFunction> definitions) {
         definitions.add(GetViewResultFunction.INSTANCE.getMetaFunction());
         definitions.add(ViewClientFunction.INSTANCE.getMetaFunction());
+        definitions.add(ViewsFunction.INSTANCE.getMetaFunction());
       }
     });
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new AbstractTypeConverterProvider() {
