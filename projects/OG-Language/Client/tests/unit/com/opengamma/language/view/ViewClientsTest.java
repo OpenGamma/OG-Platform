@@ -32,7 +32,7 @@ public class ViewClientsTest {
   private static final UniqueId VIEW_ID = UniqueId.of("abc", "def");
 
   private TestUtils createTestUtils() {
-    return new TestUtils() {
+    final TestUtils testUtils = new TestUtils() {
 
       @Override
       protected UserContextEventHandler createUserContextEventHandler() {
@@ -69,6 +69,8 @@ public class ViewClientsTest {
       }
 
     };
+    testUtils.setViewProcessor(new MockViewProcessor());
+    return testUtils;
   }
 
   public void testLockView() {

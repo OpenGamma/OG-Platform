@@ -23,11 +23,6 @@ import com.opengamma.livedata.UserPrincipal;
 /* package */class MockViewProcessor implements ViewProcessor {
 
   private final AtomicInteger _nextId = new AtomicInteger();
-  private ViewDefinitionRepository _viewDefinitionRepository;
-
-  public MockViewProcessor(ViewDefinitionRepository vdr) {
-    _viewDefinitionRepository = vdr;
-  }
 
   @Override
   public ViewClient createViewClient(final UserPrincipal clientUser) {
@@ -53,7 +48,7 @@ import com.opengamma.livedata.UserPrincipal;
 
   @Override
   public ViewDefinitionRepository getViewDefinitionRepository() {
-    return _viewDefinitionRepository;
+    throw new UnsupportedOperationException();
   }
 
   @Override
