@@ -5,9 +5,13 @@
  */
 package com.opengamma.language.connector;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.language.context.SessionContextFactory;
-import com.opengamma.util.tuple.Pair;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -17,12 +21,9 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.language.context.SessionContextFactory;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Reads OG-Language-oriented Spring configuration files, and interprets any language-specific extensions.
@@ -35,7 +36,8 @@ public class LanguageSpringContext {
   public static final String CLIENT_XML = "/com/opengamma/language/connector/Client.xml";
 
   /** Name of the system property specifying the location of the Spring XML config. */
-  private static final String LANGUAGE_EXT_PATH = "language.ext.path";
+  public static final String LANGUAGE_EXT_PATH = "language.ext.path";
+
   private static final String CLIENT_FACTORY_CLASS_PROPERTY = "language.client.factory";
   private static final String CLIENT_FACTORY_METHOD = "getFactory";
   private static final String SYSTEM_SETTINGS = "SystemSettings";
@@ -110,7 +112,7 @@ public class LanguageSpringContext {
    * they are filesystem resources and not classpath resources)
    */
   private static String[] findSpringXmlConfig() {
-    String extPath = System.getProperty("language.ext.path");
+    String extPath = System.getProperty(LANGUAGE_EXT_PATH);
     if (StringUtils.isEmpty(extPath)) {
       throw new OpenGammaRuntimeException("The directory containing the Spring XML config files for language support" +
                                               "must be specified in the system property " + LANGUAGE_EXT_PATH);

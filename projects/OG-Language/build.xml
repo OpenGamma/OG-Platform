@@ -23,8 +23,9 @@
   <import file="${basedir}/build-suffix.xml" />
 
   <target name="deploy-jars" depends="build-suffix.deploy-jars,fetch-config">
+    <mkdir dir="${build.dir}/ext" />
     <copy file="${basedir}/config/OpenGamma.properties" todir="${build.dir}" failonerror="true" />
-    <copy file="${basedir}/config/OpenGamma.xml" todir="${build.dir}" failonerror="true" />
+    <copy file="${basedir}/config/0${ant.project.name}.xml" todir="${build.dir}/ext" failonerror="true" />
     <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
   </target>
 
@@ -39,6 +40,12 @@
     <copy todir="${dist.dir}/build">
       <fileset dir="${basedir}">
         <include name="build-*.xml" />
+      </fileset>
+    </copy>
+    <mkdir dir="${dist.dir}/build/ext" />
+    <copy todir="${dist.dir}/build/ext">
+      <fileset dir="${basedir}/config">
+        <include name="0${ant.project.name}.xml" />
       </fileset>
     </copy>
   </target>

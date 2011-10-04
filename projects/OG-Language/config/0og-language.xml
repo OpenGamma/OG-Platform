@@ -3,12 +3,10 @@
 <beans>
 
   <!--
-    A language bound implementation should provide its own OpenGamma.xml & OpenGamma.properties in the classpath
-    which describe how to connect to the local OpenGamma infrastructure, and define language specific
-    extensions.
+    A language bound implementation should provide its own <language>.xml in the ext/ folder of the
+    OG-Language installation it is installed into. Generic properties go in OpenGamma.properties; anything
+    specific to a language should go in <language>.properties (also in ext/)
   -->
-  
-  <import resource="classpath:/com/opengamma/language/connector/Client.xml" />
   
   <!-- Use ActiveMQ for JMS -->
   <bean id="defaultJMSConnectionFactory" class="com.opengamma.language.jms.ActiveMQConnectionFactoryFactoryBean">
@@ -33,10 +31,6 @@
       registry.register (MessageClass2.class, myMessageClass2Handler);
       //...
     }
-  -->
-
-  <!--
-    TODO: scan the ext/ folder for language extension .xml files rather than require them go in here
   -->
   
 </beans>

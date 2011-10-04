@@ -1,6 +1,5 @@
 package com.opengamma.language.object;
 
-import com.opengamma.id.UniqueId;
 import com.opengamma.language.Data;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -9,44 +8,51 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyReadWrite;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO export documentation?
+ * A function that can create instances of a Joda {@link Bean} class.  The function's parameters are derived from
+ * the bean's writable properties in the order they appear in its {@link Bean#metaBean() meta} class.
  */
 public class CreateBeanFunction<T extends Bean> implements PublishedFunction {
 
-  private final String _functionName;
   private final MetaBean _metaBean;
+  private final MetaFunction _metaFunction;
+  private final String _paramDescription;
 
-  /*public CreateBeanFunction(Class<T> beanClass) {
-    this(beanClass.getSimpleName(), beanClass);
-  }*/
-
-  public CreateBeanFunction(String functionName, Class<T> beanClass) {
-    _functionName = functionName;
+  /**
+   * @param functionName The name of the function
+   * @param beanClass The class of object that the function will create
+   */
+  public <T extends Bean> CreateBeanFunction(String functionName, Class<T> beanClass) {
     _metaBean = JodaBeanUtils.metaBean(beanClass);
-  }
-
-  @Override
-  public MetaFunction getMetaFunction() {
     final List<MetaParameter> metaParameters = new ArrayList<MetaParameter>();
+    List<String> paramDescriptions = new ArrayList<String>();
     for (MetaProperty<Object> metaProperty : _metaBean.metaPropertyIterable()) {
       Class<Object> propertyType = metaProperty.propertyType();
-      // it makes no sense for the user to specify the unique ID in the function
-      if (!UniqueId.class.equals(propertyType)) {
+      PropertyReadWrite readWrite = metaProperty.readWrite();
+      if (readWrite == PropertyReadWrite.READ_WRITE || readWrite == PropertyReadWrite.WRITE_ONLY) {
+        paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
         JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).get();
         metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
       }
     }
-    return new MetaFunction(_functionName, metaParameters, new Invoker(metaParameters));
+    _paramDescription = StringUtils.join(paramDescriptions, ", ");
+    _metaFunction = new MetaFunction(functionName, metaParameters, new Invoker(metaParameters));
+  }
+
+  @Override
+  public MetaFunction getMetaFunction() {
+    return _metaFunction;
   }
 
   /**
@@ -77,5 +83,10 @@ public class CreateBeanFunction<T extends Bean> implements PublishedFunction {
       }
       return builder.build();
     }
+  }
+
+  @Override
+  public String toString() {
+    return "CreateBeanFunction{" + _metaFunction.getName() + "(" + _paramDescription + ")}";
   }
 }
