@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
@@ -25,7 +24,6 @@ public class YieldCurveLabelGenerator {
     for (final FixedIncomeStripWithSecurity strip : strips) {
       labels[i++] = strip.getStrip().getEffectiveTenor();
     }
-    Arrays.sort(labels);
     return labels;
   }
 
