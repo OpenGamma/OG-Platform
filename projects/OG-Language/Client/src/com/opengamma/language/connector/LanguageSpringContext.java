@@ -7,8 +7,11 @@ package com.opengamma.language.connector;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -68,7 +71,7 @@ public class LanguageSpringContext {
     } else {
       _clientFactories = ClientFactory.getFactory();
     }
-    
+
     final ClientContextFactory clientContextFactory = getBean(StringUtils.uncapitalize(CLIENT_CONTEXT_FACTORY), ClientContextFactory.class);
     if (clientContextFactory != null) {
       _defaultClientFactory = _clientFactories.createClientFactory(clientContextFactory.createClientContext());
@@ -91,13 +94,11 @@ public class LanguageSpringContext {
   public static GenericApplicationContext createSpringContext() {
     s_logger.info("Starting OpenGamma language integration service");
     GenericApplicationContext context = new GenericApplicationContext();
-    s_logger.debug("Reading {} from the classpath", CLIENT_XML);
     final XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(context);
     xmlReader.loadBeanDefinitions(new ClassPathResource(CLIENT_XML));
-    s_logger.debug("Finished loading core bean definitions");
     String[] xmlFiles = findSpringXmlConfig();
-    s_logger.debug("Loading language bean definitions from {}", StringUtils.join(xmlFiles, ", "));
     xmlReader.loadBeanDefinitions(xmlFiles);
+    s_logger.info("Creating context beans");
     context.refresh();
     s_logger.info("Starting application context");
     context.start();
@@ -107,7 +108,8 @@ public class LanguageSpringContext {
 
   /**
    * Searches the configuration directory for Spring XML files to load.  The directory must be specified using the
-   * system property named {@link #LANGUAGE_EXT_PATH}.
+   * system property named {@link #LANGUAGE_EXT_PATH}. The files are returned in filename alphabetical order (case
+   * insensitive) so that load order is deterministic.
    * @return Names of all the XML files in the configuration directory with {@code file:} prepended (so Spring knows
    * they are filesystem resources and not classpath resources)
    */
@@ -119,8 +121,15 @@ public class LanguageSpringContext {
     }
     File extDir = new File(extPath);
     s_logger.debug("Scanning '{}' for Spring XML config files to load", extDir.getAbsolutePath());
-    @SuppressWarnings({"unchecked"}) // listFiles always returns a collection of files but isn't generified
-    Collection<File> xmlFiles = FileUtils.listFiles(extDir, new String[]{"xml"}, false);
+    @SuppressWarnings({"unchecked" })
+    // listFiles always returns a collection of files but isn't generified
+    List<File> xmlFiles = new ArrayList<File>(FileUtils.listFiles(extDir, new String[] {"xml" }, false));
+    Collections.sort(xmlFiles, new Comparator<File>() {
+      @Override
+      public int compare(final File o1, final File o2) {
+        return o1.getName().compareToIgnoreCase(o2.getName());
+      }
+    });
     String[] xmlFileNames = new String[xmlFiles.size()];
     int i = 0;
     for (File xmlFile : xmlFiles) {
@@ -134,7 +143,7 @@ public class LanguageSpringContext {
   public void stop() {
     _springContext.stop();
   }
-  
+
   /**
    * Returns the factories for a bound language. By default "clientContextFactory" and "sessionContextFactory" are used
    * and should generally be extended in a language agnostic fashion, or use custom message filters with an explicit hierarchy
@@ -175,7 +184,7 @@ public class LanguageSpringContext {
     }
     return factories;
   }
-  
+
   private <T> T getBean(final String beanName, final Class<T> clazz) {
     try {
       s_logger.debug("Trying {}", beanName);
@@ -185,5 +194,5 @@ public class LanguageSpringContext {
       return null;
     }
   }
-  
+
 }
