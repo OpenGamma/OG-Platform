@@ -25,10 +25,9 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexOIS;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -44,12 +43,15 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -78,10 +80,11 @@ public abstract class YieldCurveFittingSetup {
   /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor
       .getInstance();
-  private static final Currency CUR = Currency.USD;
-  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"),
+  private static final Currency DUMMY_CUR = Currency.USD;
+  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"),
       DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  private static final IndexOIS DUMMY_OIS_INDEX = new IndexOIS("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 
   /** Accuracy */
   protected static final double EPS = 1e-8;
@@ -179,6 +182,9 @@ public abstract class YieldCurveFittingSetup {
 
     }
 
+//DoubleMatrix2D startJac = jac.evaluate(data.getStartPosition());
+//    System.out.print(startJac);
+
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jac, data.getStartPosition());
     final DoubleMatrix1D modelMarketValueDiff = func.evaluate(yieldCurveNodes);
 
@@ -187,6 +193,11 @@ public abstract class YieldCurveFittingSetup {
     }
 
     checkResult(yieldCurveNodes, data);
+
+ //   DoubleMatrix2D endJac = jac.evaluate(yieldCurveNodes);
+
+//    System.out.print("\n");
+//    System.out.print(endJac);
   }
 
   protected void checkResult(final DoubleMatrix1D yieldCurveNodes, final YieldCurveFittingTestDataBundle data) {
@@ -270,20 +281,21 @@ public abstract class YieldCurveFittingSetup {
         old.getUnknownCurveNodeSensitivityCalculators());
   }
 
-  protected static InterestRateDerivative makeIRD(final String type, final double maturity, final String fundCurveName,
-      final String indexCurveName, final double rate,
-      final double notional) {
+  protected static InterestRateDerivative makeSingleCurrencyIRD(final String type, final double maturity, final SimpleFrequency paymentFreq, final String fundCurveName,
+      final String indexCurveName, final double rate, final double notional) {
     if ("cash".equals(type)) {
       return makeCash(maturity, fundCurveName, rate, notional);
     } else if ("libor".equals(type)) {
       return makeLibor(maturity, indexCurveName, rate, notional);
     } else if ("fra".equals(type)) {
-      return makeFRA(maturity, fundCurveName, indexCurveName, rate, notional);
+      return makeFRA(maturity, paymentFreq, fundCurveName, indexCurveName, rate, notional);
     } else if ("future".equals(type)) {
-      return makeFuture(maturity, fundCurveName, indexCurveName, rate, (int) notional);
+      return makeFuture(maturity, paymentFreq, fundCurveName, indexCurveName, rate, (int) notional);
     } else if ("swap".equals(type)) {
-      return makeSwap(maturity, fundCurveName, indexCurveName, rate, notional);
-    } else if ("basisSwap".equals(type)) {
+      return makeSwap(maturity, paymentFreq, fundCurveName, indexCurveName, rate, notional);
+    } else if ("OIS".equals(type)) {
+      return makeOISSwap(maturity, paymentFreq, fundCurveName, fundCurveName, rate, notional); //the OIS curve is the funding curve    
+    } else if ("basisSwap".equals(type)) { //TODO remove basis swap from here  
       return makeBasisSwap(maturity, fundCurveName, indexCurveName, rate, notional);
     }
     throw new IllegalArgumentException("unknown IRD type " + type);
@@ -291,32 +303,45 @@ public abstract class YieldCurveFittingSetup {
 
   protected static InterestRateDerivative makeCash(final double time, final String fundCurveName, final double rate,
       final double notional) {
-    return new Cash(CUR, time, notional, rate, fundCurveName);
+    return new Cash(DUMMY_CUR, time, notional, rate, fundCurveName);
   }
 
   protected static InterestRateDerivative makeLibor(final double time, final String indexCurveName, final double rate,
       final double notional) {
-    return new Cash(CUR, time, notional, rate, indexCurveName);
+    return new Cash(DUMMY_CUR, time, notional, rate, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFRA(final double time, final String fundCurveName,
+  /**
+   * makes a very simple FRA with  payment time, fixing time and fixing period start being identical and an amount tau before fixing period end. The payment and fixing year fractions are
+   * Identically equal to tau.   
+   * @param time The fixing period end (the last relevant date for the FRA)
+   * @param paymentFreq for a 3M FRA the payment freq is quarterly 
+   * @param fundCurveName Name of funding curve
+   * @param indexCurveName Name of index curve 
+   * @param rate The FRA rate
+   * @param notional the notional amount 
+   * @return A FRA
+   */
+  protected static InterestRateDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName,
       final String indexCurveName, final double rate, final double notional) {
-    return new ForwardRateAgreement(CUR, time - 0.25, fundCurveName, 0.25, notional, INDEX, time - 0.25, time - 0.25,
-        time, 0.25, rate, indexCurveName);
+    double tau = 1. / paymentFreq.getPeriodsPerYear();
+    return new ForwardRateAgreement(DUMMY_CUR, time - tau, fundCurveName, tau, notional, DUMMY_INDEX, time - tau, time - tau,
+        time, tau, rate, indexCurveName);
   }
 
-  protected static InterestRateDerivative makeFuture(final double time, final String fundCurveName,
+  protected static InterestRateDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName,
       final String indexCurveName, final double rate, final int contracts) {
-    final InterestRateFutureSecurity underlyingFuture = new InterestRateFutureSecurity(time, INDEX, time, time + 0.25,
-        0.25, 1, 0.25, "N", fundCurveName, indexCurveName);
+    double tau = 1. / paymentFreq.getPeriodsPerYear();
+    final InterestRateFutureSecurity underlyingFuture = new InterestRateFutureSecurity(time, DUMMY_INDEX, time, time + tau,
+        tau, 1, tau, "N", fundCurveName, indexCurveName);
     return new InterestRateFutureTransaction(underlyingFuture, contracts, rate);
   }
 
-  protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String liborCurveName,
-      final double rate, final double notional) {
-    final int index = (int) Math.round(2 * time);
-    return makeSwap(index, fundCurveName, liborCurveName, rate, notional);
-  }
+  //  protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String indexCurveName,
+  //      final double rate, final double notional) {
+  //    final int index = (int) Math.round(2 * time);
+  //    return makeSwap(index, fundCurveName, indexCurveName, rate, notional);
+  //  }
 
   protected static TenorSwap<CouponIbor> makeBasisSwap(final double time, final String fundCurveName,
       final String liborCurveName, final double rate, final double notional) {
@@ -335,54 +360,162 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, notional, fundCurveName,
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, notional, fundCurveName,
         fundCurveName, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing,
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, indexFixing, indexFixing,
         indexMaturity, yearFracs, yearFracs, spreads, notional,
         fundCurveName, liborCurveName, false);
     return new TenorSwap<CouponIbor>(payLeg, receiveLeg);
   }
 
-  protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
+  protected static OISSwap makeOISSwap(final double time, SimpleFrequency paymentFreq, final String fundingCurveName,
+      final String indexCurveName, final double rate, final double notional) {
+
+    if (time < 1.0) {
+      return makeSinglePaymentOISSwap(time, fundingCurveName, indexCurveName, rate, notional);
+    }
+
+    paymentFreq = SimpleFrequency.ANNUAL;
+
+    final int index = (int) (time * paymentFreq.getPeriodsPerYear());
+    final double[] paymentTimes = new double[index];
+    double tau = 1. / paymentFreq.getPeriodsPerYear();
+
+    final CouponOIS[] oisCoupons = new CouponOIS[index];
+    for (int i = 0; i < index; i++) {
+      paymentTimes[i] = tau * (i + 1);
+      oisCoupons[i] = new CouponOIS(DUMMY_CUR, paymentTimes[i], fundingCurveName, tau, notional, DUMMY_OIS_INDEX, paymentTimes[i] - tau, paymentTimes[i], tau, notional, indexCurveName);
+    }
+
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, paymentTimes, notional, rate, fundingCurveName, true);
+    final GenericAnnuity<CouponOIS> payLeg = new GenericAnnuity<CouponOIS>(oisCoupons);
+
+    return new OISSwap(fixedLeg, payLeg);
+  }
+
+  protected static OISSwap makeSinglePaymentOISSwap(final double time, final String fundingCurveName,
+      final String indexCurveName, final double rate, final double notional) {
+
+    CouponOIS oisCoupon = new CouponOIS(DUMMY_CUR, time, fundingCurveName, time, notional, DUMMY_OIS_INDEX, 0, time, time, notional, indexCurveName);
+
+    CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
+
+    AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon });
+    return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon }));
+  }
+
+  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName,
       final String liborCurveName, final double rate, final double notional) {
 
-    final double[] fixed = new double[payments];
-    final double[] floating = new double[2 * payments];
-    final double[] indexFixing = new double[2 * payments];
-    final double[] indexMaturity = new double[2 * payments];
-    final double[] yearFrac = new double[2 * payments];
+    int floatPayments = (int) (time * floatLegFreq.getPeriodsPerYear());
+    Validate.isTrue(floatPayments % 2 == 0, "need even number of float payments as fixed payments at half frequency");
+    int fixedPayments = floatPayments / 2;
 
+    double tauFloat = 1. / floatLegFreq.getPeriodsPerYear();
+    double tauFixed = 2 * tauFloat;
+
+    final double[] fixed = new double[fixedPayments];
+    final double[] floating = new double[floatPayments];
+    final double[] indexFixing = new double[floatPayments];
+    final double[] indexMaturity = new double[floatPayments];
+    final double[] yearFrac = new double[floatPayments];
+
+    //turn on to randomised fixing/reset/payment dates 
     final double sigma = 0.0 / 365.0;
 
-    for (int i = 0; i < payments; i++) {
-      fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-      floating[2 * i + 1] = fixed[i];
+    for (int i = 0; i < fixedPayments; i++) {
+      fixed[i] = tauFixed * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    for (int i = 0; i < 2 * payments; i++) {
-      if (i % 2 == 0) {
-        floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-      }
-      yearFrac[i] = 0.25 + sigma * (RANDOM.nextDouble() - 0.5);
-      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
-      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+    for (int i = 0; i < floatPayments; i++) {
+      floating[i] = tauFloat * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+      yearFrac[i] = tauFloat + sigma * (RANDOM.nextDouble() - 0.5);
+      indexFixing[i] = tauFloat * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
+      indexMaturity[i] = tauFloat * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(CUR, fixed, notional, rate, fundingCurveName, true);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, fixed, notional, rate, fundingCurveName, true);
 
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(CUR, floating, indexFixing, indexMaturity, yearFrac,
-        notional, fundingCurveName, liborCurveName, false);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(DUMMY_CUR, floating, indexFixing, indexMaturity, yearFrac,
+            notional, fundingCurveName, liborCurveName, false);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
+  @SuppressWarnings("unused")
+  private static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final SimpleFrequency fixedLegFreq, final String fundingCurveName,
+      final String liborCurveName, final double rate, final double notional) {
+
+    int floatPayments = (int) (time * floatLegFreq.getPeriodsPerYear());
+    int fixedPayments = (int) (time * fixedLegFreq.getPeriodsPerYear());
+
+    double tauFloat = 1. / floatLegFreq.getPeriodsPerYear();
+    double tauFixed = 1. / fixedLegFreq.getPeriodsPerYear();
+
+    Validate.isTrue(tauFloat * floatPayments == time, "float payments will not finish on time");
+    Validate.isTrue(tauFixed * fixedPayments == time, "fixed payments will not finish on time");
+
+    final double[] fixed = new double[fixedPayments];
+    final double[] floating = new double[floatPayments];
+    final double[] indexFixing = new double[floatPayments];
+    final double[] indexMaturity = new double[floatPayments];
+    final double[] yearFrac = new double[floatPayments];
+
+    //turn on to randomised fixing/reset/payment dates 
+    final double sigma = 0.0 / 365.0;
+
+    for (int i = 0; i < fixedPayments; i++) {
+      fixed[i] = tauFixed * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+    }
+    for (int i = 0; i < floatPayments; i++) {
+      floating[i] = tauFloat * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+      yearFrac[i] = tauFloat + sigma * (RANDOM.nextDouble() - 0.5);
+      indexFixing[i] = tauFloat * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
+      indexMaturity[i] = tauFloat * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+    }
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, fixed, notional, rate, fundingCurveName, true);
+
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(DUMMY_CUR, floating, indexFixing, indexMaturity, yearFrac,
+            notional, fundingCurveName, liborCurveName, false);
+    return new FixedFloatSwap(fixedLeg, floatingLeg);
+  }
+
+  //  protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
+  //        final String liborCurveName, final double rate, final double notional) {
+  //
+  //    final double[] fixed = new double[payments];
+  //    final double[] floating = new double[2 * payments];
+  //    final double[] indexFixing = new double[2 * payments];
+  //    final double[] indexMaturity = new double[2 * payments];
+  //    final double[] yearFrac = new double[2 * payments];
+  //
+  //    final double sigma = 0.0 / 365.0;
+  //
+  //    for (int i = 0; i < payments; i++) {
+  //      fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+  //      floating[2 * i + 1] = fixed[i];
+  //    }
+  //    for (int i = 0; i < 2 * payments; i++) {
+  //      if (i % 2 == 0) {
+  //        floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+  //      }
+  //      yearFrac[i] = 0.25 + sigma * (RANDOM.nextDouble() - 0.5);
+  //      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
+  //      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
+  //    }
+  //    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, fixed, notional, rate, fundingCurveName, true);
+  //
+  //    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(DUMMY_CUR, floating, indexFixing, indexMaturity, yearFrac,
+  //          notional, fundingCurveName, liborCurveName, false);
+  //    return new FixedFloatSwap(fixedLeg, floatingLeg);
+  //  }
+
   /**
    * Sets up a simple Floating rate note to test the analytics 
-   * @param ccy
-   * @param notional
-   * @param nYears
-   * @param freq
-   * @param discountCurve
-   * @param indexCurve
-   * @param spread
-   * @return
+   * @param notional An amount in a currency
+   * @param nYears time to maturity in years
+   * @param freq Frequency of payments 
+   * @param discountCurve Name of discount curve
+   * @param indexCurve Name of index curve
+   * @param spread the spread paid
+   * @return A FRN
    */
   protected static FloatingRateNote makeFRN(final CurrencyAmount notional, final int nYears, SimpleFrequency freq, final String discountCurve,
       final String indexCurve, final double spread) {
@@ -436,7 +569,7 @@ public abstract class YieldCurveFittingSetup {
     }
     final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
 
-    return new Bond(CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
+    return new Bond(DUMMY_CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
   }
 
   protected double[] catMap(final HashMap<String, double[]> map) {

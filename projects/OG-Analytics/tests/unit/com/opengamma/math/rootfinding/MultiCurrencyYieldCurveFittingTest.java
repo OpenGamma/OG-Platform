@@ -24,9 +24,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -66,7 +63,6 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     return BENCHMARK_CYCLES;
   }
 
-  
   private static final Currency DOMESTIC_CCY = Currency.USD;
   private static final Currency FOREIGN_CCY = Currency.JPY;
   private static final double spotFX = 1. / 76.335;
@@ -130,12 +126,14 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
 
     YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
-    data.setTestType(TestType.FD_JACOBIAN); //can't do analytic Jacobian for CCS yet 
+    data.setTestType(TestType.ANALYTIC_JACOBIAN); //can't do analytic Jacobian for CCS yet 
 
     doHotSpot(rootFinder, data, "Double curve, Libor, cash, FRA, swaps, basis swaps. Root finder: Newton");
   }
 
   private YieldCurveFittingTestDataBundle getMultiCurveSetup() {
+    
+    final SimpleFrequency paymentFreq = SimpleFrequency.QUARTERLY;
 
     final List<String> curveNames = new ArrayList<String>();
     curveNames.add("domestic funding curve");
@@ -152,26 +150,31 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
+    final HashMap<String, double[]> domesticFundingMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> domesticIndexMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> foreignFundingMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> foreignIndexMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> foreignMaturities = new LinkedHashMap<String, double[]>();
 
-    //domestic funding (OIS) curve assumed known, need instruments to find index (3M Libor) curve
+    //domestic OIS instrument  - funding is assumed at OIS rate, so funding curve found from these along
+    domesticFundingMaturities.put("OIS", new double[] { 1./365, 1./12 , 3./12, 6./12, 1.0, 2.0, 5.0, 10, 15.0, 20., 30.});
+     
+    //need instruments to find domestic index (3M Libor) curve
     domesticIndexMaturities.put("libor", new double[] {3. / 12 }); //3M spot Libor
     domesticIndexMaturities.put("fra", new double[] {0.5, 0.75 });
     domesticIndexMaturities.put("swap", new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
 
     //foreign funding and index curves must be found together from Libor instruments (spot libor, FRAs & swaps) and Forex instruments (Forward FX and Cross Currency Swaps (CCS))
-    foreignFundingMaturities.put("ForexFwd", new double[] {1. / 52, 2. / 52., 1. / 12, 3. / 12, 6. / 12, 1.0 });
-    foreignFundingMaturities.put("CCS", new double[] {2., 3., 5., 7., 10., 15, 20., 30. });
     foreignIndexMaturities.put("libor", new double[] {3. / 12 });
     foreignIndexMaturities.put("fra", new double[] {0.5, 0.75 });
     foreignIndexMaturities.put("swap", new double[] {2.0, 4.0, 7.0, 10., 15., 20., 25., 30. });
+    foreignFundingMaturities.put("ForexFwd", new double[] {1. / 52, 2. / 52., 1. / 12, 3. / 12, 6. / 12, 1.0 });
+    foreignFundingMaturities.put("CCS", new double[] {2., 3., 5., 7., 10., 15, 20., 30. });   
     foreignMaturities.putAll(foreignFundingMaturities);
     foreignMaturities.putAll(foreignIndexMaturities);
 
     final List<double[]> curveKnots = new ArrayList<double[]>();
+    curveKnots.add(catMap(domesticFundingMaturities));
     curveKnots.add(catMap(domesticIndexMaturities));
     curveKnots.add(catMap(foreignFundingMaturities));
     curveKnots.add(catMap(foreignIndexMaturities));
@@ -181,44 +184,58 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     double[] temp = new double[curveKnots.get(0).length];
     int index = 0;
     for (final double t : curveKnots.get(0)) {
-      temp[index++] = DOMESIC_DISCOUNT_CURVE.evaluate(t) + DOMESIC_SPREAD_CURVE.evaluate(t);
+      temp[index++] = DOMESIC_DISCOUNT_CURVE.evaluate(t);
     }
     yields.add(temp);
     temp = new double[curveKnots.get(1).length];
-    index = 0;
+    index=0;
     for (final double t : curveKnots.get(1)) {
-      temp[index++] = FOREIGN_DISCOUNT_CURVE.evaluate(t);
+      temp[index++] = DOMESIC_DISCOUNT_CURVE.evaluate(t) + DOMESIC_SPREAD_CURVE.evaluate(t);
     }
     yields.add(temp);
     temp = new double[curveKnots.get(2).length];
     index = 0;
     for (final double t : curveKnots.get(2)) {
+      temp[index++] = FOREIGN_DISCOUNT_CURVE.evaluate(t);
+    }
+    yields.add(temp);
+    temp = new double[curveKnots.get(3).length];
+    index = 0;
+    for (final double t : curveKnots.get(3)) {
       temp[index++] = FOREIGN_DISCOUNT_CURVE.evaluate(t) + FOREIGN_SPREAD_CURVE.evaluate(t);
     }
     yields.add(temp);
 
     // now get market prices
-    final int nNodes = curveKnots.get(0).length + curveKnots.get(1).length + curveKnots.get(2).length;
+    final int nNodes = curveKnots.get(0).length + curveKnots.get(1).length + curveKnots.get(2).length + curveKnots.get(3).length;
     final double[] marketValues = new double[nNodes];
 
     final YieldCurveBundle bundle = new YieldCurveBundle();
-    //domestic discount curve is known (//TODO replace with (in a different test) making from OIS swaps 
-    YieldAndDiscountCurve domesticDiscountCurve = new YieldCurve(FunctionalDoublesCurve.from(DOMESIC_DISCOUNT_CURVE));
-    bundle.setCurve(curveNames.get(0), domesticDiscountCurve);
-
+  
     for (int i = 0; i < yields.size(); i++) {
       if (curveKnots.get(i).length > 0) {
-        bundle.setCurve(curveNames.get(i + 1), makeYieldCurve(yields.get(i), curveKnots.get(i), extrapolator));
+        bundle.setCurve(curveNames.get(i), makeYieldCurve(yields.get(i), curveKnots.get(i), extrapolator));
       }
     }
 
     final List<InterestRateDerivative> instruments = new ArrayList<InterestRateDerivative>();
     InterestRateDerivative ird = null;
     index = 0;
+    
+    //the domestic funding curve instruments 
+    for (final String name : domesticFundingMaturities.keySet()) {
+      for (final double t : domesticFundingMaturities.get(name)) {
+        ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(0), 0.0, DOMESTIC_NOTIONAL.getAmount());
+        marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
+        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+        index++;
+      }
+    }
+    
     //the domestic Libor instruments 
     for (final String name : domesticIndexMaturities.keySet()) {
       for (final double t : domesticIndexMaturities.get(name)) {
-        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(1), 0.0, DOMESTIC_NOTIONAL.getAmount());
+        ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(1), 0.0, DOMESTIC_NOTIONAL.getAmount());
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
         index++;
@@ -227,7 +244,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     //the foreign Libor instruments 
     for (final String name : foreignIndexMaturities.keySet()) {
       for (final double t : foreignIndexMaturities.get(name)) {
-        ird = makeIRD(name, t, curveNames.get(2), curveNames.get(3), 0.0, FOREIGN_NOTIONAL.getAmount());
+        ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(2), curveNames.get(3), 0.0, FOREIGN_NOTIONAL.getAmount());
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
         index++;
@@ -247,6 +264,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
 
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+       // marketValues[index] = 0.0; //for PV cal
         index++;
       }
     }
@@ -257,16 +275,12 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-    YieldCurveBundle knownCurves = new YieldCurveBundle();
-    knownCurves.setCurve(curveNames.get(0), domesticDiscountCurve);
-    curveNames.remove(0);//remove the "domestic funding curve" as this in in knownCurves
 
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator, extrapolatorWithSense, calculator,
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, extrapolatorWithSense, calculator,
         sensitivityCalculator,
         marketValues, startPosition, yields);
 
     return data;
   }
-
 
 }

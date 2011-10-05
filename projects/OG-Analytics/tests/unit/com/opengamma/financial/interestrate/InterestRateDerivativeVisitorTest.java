@@ -615,6 +615,11 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitForexForward(ForexForward fx) {
       return null;
     }
+
+    @Override
+    public Class<?> visitOISSwap(OISSwap swap) {
+      return null;
+    }
   };
 
   @Test

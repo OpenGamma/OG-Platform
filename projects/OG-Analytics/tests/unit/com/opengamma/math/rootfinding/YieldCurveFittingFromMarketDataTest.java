@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -155,7 +156,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
       final double[] rates = marketRates.get(name);
       Validate.isTrue(times.length == rates.length);
       for (int i = 0; i < times.length; i++) {
-        ird = makeIRD(name, times[i], curveNames.get(0), curveNames.get(0), rates[i], 1);
+        ird = makeSingleCurrencyIRD(name,  times[i], SimpleFrequency.QUARTERLY, curveNames.get(0), curveNames.get(0), rates[i], 1);
         instruments.add(ird);
         marketValues[index] = rates[i];
         index++;

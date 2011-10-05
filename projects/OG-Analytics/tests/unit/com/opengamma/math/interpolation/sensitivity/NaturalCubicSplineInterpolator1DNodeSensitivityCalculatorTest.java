@@ -28,7 +28,8 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Interpolator1D<Interpolator1DCubicSplineDataBundle> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
+  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = 
+    new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
       INTERPOLATOR);
   private static final Interpolator1DCubicSplineDataBundle DATA1;
   private static final double EPS = 1e-7;
