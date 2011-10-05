@@ -194,6 +194,44 @@ public class CouponOISDiscountingMethodTest {
 
   @Test
   /**
+   * Tests the present value rate sensitivity: two curves identical.
+   */
+  public void presentValueCurveSensitivityOneCurveNotStarted() {
+    CouponOIS eoniaCouponNotStartedOneCurve = new CouponOIS(EUR_CUR, PAYMENT_TIME_1, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_ACCRUAL_TIME_1, END_ACCRUAL_TIME_1,
+        FIXING_YEAR_FRACTION, NOTIONAL, CURVES_NAMES[0]);
+    final PresentValueSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(eoniaCouponNotStartedOneCurve, CURVES);
+    pvcs.clean();
+    final double deltaTolerancePrice = 1.0E+2;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
+    final double deltaShift = 1.0E-6;
+    //    // 1. Forward curve sensitivity
+    final String bumpedCurveName = "Bumped Curve";
+    //    final Payment couponBumpedForward = EONIA_COUPON_DEFINITION.toDerivative(REFERENCE_DATE_1, new String[] {CURVES_NAMES[0], bumpedCurveName});
+    //    final double[] nodeTimesForward = new double[] {EONIA_COUPON_NOTSTARTED.getFixingPeriodStartTime(), EONIA_COUPON_NOTSTARTED.getFixingPeriodEndTime()};
+    //    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD_OIS);
+    //    assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
+    //    final List<DoublesPair> sensiPvForward = pvcs.getSensitivities().get(CURVES_NAMES[1]);
+    //    for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
+    //      final DoublesPair pairPv = sensiPvForward.get(loopnode);
+    //      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
+    //      assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
+    //    }
+    // Unique curve sensitivity
+    final Payment couponBumpedDisc = EONIA_COUPON_DEFINITION.toDerivative(REFERENCE_DATE_1, new String[] {bumpedCurveName, bumpedCurveName});
+    final double[] nodeTimesDisc = new double[] {EONIA_COUPON_NOTSTARTED.getFixingPeriodStartTime(), EONIA_COUPON_NOTSTARTED.getFixingPeriodEndTime(), EONIA_COUPON_NOTSTARTED.getPaymentTime()};
+    final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedDisc, CURVES, CURVES_NAMES[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_OIS);
+    final List<DoublesPair> sensiPvDisc = pvcs.getSensitivities().get(CURVES_NAMES[0]);
+    assertEquals("Sensitivity finite difference method: number of node", 3, sensiPvDisc.size());
+    assertEquals("Sensitivity coupon pv to forward curve", nodeTimesDisc[0], sensiPvDisc.get(1).first, 1E-8);
+    assertEquals("Sensitivity coupon pv to forward curve", nodeTimesDisc[1], sensiPvDisc.get(2).first, 1E-8);
+    assertEquals("Sensitivity coupon pv to forward curve", nodeTimesDisc[2], sensiPvDisc.get(0).first, 1E-8);
+    assertEquals("Sensitivity finite difference method: node sensitivity", sensiDiscMethod[0], sensiPvDisc.get(1).second, deltaTolerancePrice);
+    assertEquals("Sensitivity finite difference method: node sensitivity", sensiDiscMethod[1], sensiPvDisc.get(2).second, deltaTolerancePrice);
+    assertEquals("Sensitivity finite difference method: node sensitivity", sensiDiscMethod[2], sensiPvDisc.get(0).second, deltaTolerancePrice);
+  }
+
+  @Test
+  /**
    * Tests the present value rate sensitivity.
    */
   public void presentValueCurveSensitivityNotStartedMethodVsCalculator() {

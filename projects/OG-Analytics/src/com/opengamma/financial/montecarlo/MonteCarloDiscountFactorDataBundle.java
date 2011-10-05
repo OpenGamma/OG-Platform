@@ -13,11 +13,11 @@ public class MonteCarloDiscountFactorDataBundle {
   /**
    * The paths discount factors. The dimensions are path/step/cash-flow.
    */
-  private final Double[][][] _pathDiscountingFactors;
+  private Double[][][] _pathDiscountingFactors;
   /**
    * The reference amounts at the impact dates. The dimensions are step/cash-flow.
    */
-  private final double[][] _impactAmount;
+  private double[][] _impactAmount;
 
   /**
    * Constructor.
@@ -44,6 +44,22 @@ public class MonteCarloDiscountFactorDataBundle {
    */
   public double[][] getImpactAmount() {
     return _impactAmount;
+  }
+
+  /**
+   * Sets the _pathDiscountingFactors field.
+   * @param pathDiscountingFactors  the _pathDiscountingFactors
+   */
+  public void setPathDiscountingFactors(Double[][][] pathDiscountingFactors) {
+    _pathDiscountingFactors = pathDiscountingFactors;
+  }
+
+  /**
+   * Sets the _impactAmount field.
+   * @param impactAmount  the _impactAmount
+   */
+  public void setImpactAmount(double[][] impactAmount) {
+    _impactAmount = impactAmount;
   }
 
 }
