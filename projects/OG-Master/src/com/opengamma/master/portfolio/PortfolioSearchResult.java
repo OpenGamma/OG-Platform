@@ -119,11 +119,6 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
      */
     static final Meta INSTANCE = new Meta();
 
-    @Override
-    protected Class<PortfolioDocument> documentsGenericType() {
-      return PortfolioDocument.class;
-    }
-
     /**
      * The meta-properties.
      */

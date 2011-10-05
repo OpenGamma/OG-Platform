@@ -144,11 +144,6 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
      */
     static final Meta INSTANCE = new Meta();
 
-    @Override
-    protected Class<RegionDocument> documentsGenericType() {
-      return RegionDocument.class;
-    }
-
     /**
      * The meta-properties.
      */
