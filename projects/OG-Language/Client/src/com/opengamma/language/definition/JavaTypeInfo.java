@@ -90,7 +90,11 @@ public final class JavaTypeInfo<T> {
     public JavaTypeInfo<T> get() {
       final JavaTypeInfo<?>[] parameter;
       if (_rawClass.isArray()) {
-        parameter = new JavaTypeInfo<?>[] {builder(_rawClass.getComponentType()).get() };
+        final Builder<?> type = builder(_rawClass.getComponentType());
+        if (_allowNull) {
+          type.allowNull();
+        }
+        parameter = new JavaTypeInfo<?>[] {type.get() };
       } else {
         if (_parameter != null) {
           parameter = _parameter.toArray(new JavaTypeInfo<?>[_parameter.size()]);

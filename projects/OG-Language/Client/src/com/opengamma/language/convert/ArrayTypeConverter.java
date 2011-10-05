@@ -50,12 +50,19 @@ public class ArrayTypeConverter extends AbstractTypeConverter {
     final Object result = Array.newInstance(element.getRawClass(), length);
     for (int i = 0; i < length; i++) {
       final Object sourceValue = Array.get(value, i);
-      conversionContext.convertValue(sourceValue, element);
-      if (conversionContext.isFailed()) {
-        conversionContext.setFail();
-        return;
+      if (sourceValue != null) {
+        conversionContext.convertValue(sourceValue, element);
+        if (conversionContext.isFailed()) {
+          conversionContext.setFail();
+          return;
+        }
+        Array.set(result, i, conversionContext.getResult());
+      } else {
+        if (!element.isAllowNull()) {
+          conversionContext.setFail();
+          return;
+        }
       }
-      Array.set(result, i, conversionContext.getResult());
     }
     conversionContext.setResult(result);
   }

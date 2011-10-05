@@ -43,6 +43,10 @@ public class ArrayDepthConverter extends AbstractTypeConverter {
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
+    if (value == null) {
+      conversionContext.setFail();
+      return;
+    }
     final int targetDimensions = type.getArrayDimension();
     final int sourceDimensions = getArrayDimension(value.getClass());
     if (targetDimensions == sourceDimensions + 1) {
