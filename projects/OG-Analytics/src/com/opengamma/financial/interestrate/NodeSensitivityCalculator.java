@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -41,15 +42,16 @@ public abstract class NodeSensitivityCalculator {
     Validate.notNull(ird, "null InterestRateDerivative");
     Validate.notNull(calculator, "null calculator");
     Validate.notNull(interpolatedCurves, "interpolated curves");
-    final YieldCurveBundle allCurves = new YieldCurveBundle(interpolatedCurves);
+    final YieldCurveBundle allCurves = (interpolatedCurves instanceof SABRInterestRateDataBundle) ? new SABRInterestRateDataBundle((SABRInterestRateDataBundle) interpolatedCurves)
+        : new YieldCurveBundle(interpolatedCurves);
     if (fixedCurves != null) {
       for (final String name : interpolatedCurves.getAllNames()) {
         Validate.isTrue(!fixedCurves.containsName(name), "fixed curves contain a name that is also in interpolated curves");
       }
       allCurves.addAll(fixedCurves);
     }
-    final Map<String, List<DoublesPair>> senseMap = calculator.visit(ird, allCurves);
-    return curveToNodeSensitivities(senseMap, interpolatedCurves);
+    final Map<String, List<DoublesPair>> sensitivityMap = calculator.visit(ird, allCurves);
+    return curveToNodeSensitivities(sensitivityMap, interpolatedCurves);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })

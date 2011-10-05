@@ -454,7 +454,9 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   }
   
   private static void initDoubleCurveBumpedCurveData(double[] marketRates, List<InterestRateDerivative> instruments, List<double[]> curveNodes, int n, double eps) {
+    @SuppressWarnings("synthetic-access")
     Function1D<Double, Double> dummyCurve = new DummyCurve1();
+    @SuppressWarnings("synthetic-access")
     Function1D<Double, Double> spreadCurve = new DummySpreadCurve2();
     double[] fundingNodes = new double[10];
     double[] forwardNodes = new double[18];
