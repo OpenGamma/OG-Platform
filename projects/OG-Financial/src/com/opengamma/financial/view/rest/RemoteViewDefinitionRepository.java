@@ -6,16 +6,30 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+
+import javax.ws.rs.core.UriBuilder;
+
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeRuntimeException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
+import com.sun.jersey.api.client.WebResource;
 
 /**
  * Remote implementation of {@link ViewDefinitionRepository}.
@@ -31,16 +45,30 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
     _client = FudgeRestClient.create();
     _changeManager = new BasicChangeManager();
   }
-  
+   
   @SuppressWarnings("unchecked")
   @Override
-  public Set<String> getDefinitionNames() {
-    return _client.access(_baseUri).get(Set.class);
+  public Set<UniqueId> getDefinitionIds() {
+    final URI uri = UriBuilder.fromUri(_baseUri).segment(DataViewDefinitionRepositoryResource.PATH_VIEWDEFINITION_GETIDS).build();
+
+    // Hack to convert returned results to UniqueIds, as fudge might return them as Strings instead...
+    Set<UniqueId> result = new TreeSet<UniqueId>();
+    Set<UniqueId> receivedIds = _client.access(uri).get((Set.class));    
+    for (Object uid : receivedIds) {
+      result.add((uid.getClass() == UniqueId.class) ? ((UniqueId) uid).getUniqueId() : UniqueId.parse((String) uid));
+    }
+    return result;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ViewDefinition getDefinition(String definitionName) {
-    URI uri = DataViewDefinitionRepositoryResource.uriDefinition(_baseUri, definitionName);
+  public Map<UniqueId, String> getDefinitionEntries() {
+    return _client.access(_baseUri).get((Map.class));
+  }
+  
+  @Override
+  public ViewDefinition getDefinition(UniqueId definitionId) {
+    final URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(_baseUri, definitionId);
     try {
       return _client.access(uri).get(ViewDefinition.class);
     } catch (UniformInterfaceException e) {
@@ -51,6 +79,23 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
         throw new OpenGammaRuntimeException("Underlying transport exception", e);
       }
     }
+  }
+  
+  @Override
+  public ViewDefinition getDefinition(String definitionName) {
+    URI uri = DataViewDefinitionRepositoryResource.uriDefinitionName(_baseUri, definitionName);
+    
+    try {      
+      return _client.access(uri).get(ViewDefinition.class);
+    } catch (UniformInterfaceException e) {
+      // Translate 404s to a null return. Otherwise rethrow the underlying exception.
+      if (e.getResponse().getClientResponseStatus() == ClientResponse.Status.NOT_FOUND) {
+        return null;
+      } else {
+        throw new OpenGammaRuntimeException("Underlying transport exception", e);
+      }
+    }
+
   }
   
   //-------------------------------------------------------------------------

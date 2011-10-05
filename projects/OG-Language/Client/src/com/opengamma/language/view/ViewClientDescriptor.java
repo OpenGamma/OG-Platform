@@ -39,30 +39,36 @@ public final class ViewClientDescriptor {
      */
     STATIC_MARKET_DATA,
     /**
+     * Created by {@link #sampleMarketData}.
+     */
+    SAMPLE_MARKET_DATA,
+    /**
      * Created by {@link #tickingSnapshot}.
      */
     TICKING_SNAPSHOT,
     /**
      * Created by {@link #staticSnapshot}.
      */
-    STATIC_SNAPSHOT
+    STATIC_SNAPSHOT;
   }
 
   private static final char SEPARATOR = '~';
   private static final char ESCAPE_CHAR = '$';
 
-  private static final String STATIC = "Static";
-  private static final String SNAPSHOT = "Snapshot";
+  private static final String MARKET_DATA_LIVE = "LiveMarketData";
+  private static final String MARKET_DATA_USER = "UserMarketData";
   private static final String TICKING = "Ticking";
 
+  private static final int DEFAULT_SAMPLE_PERIOD = 86400;
+
   private final Type _type;
-  private final String _viewName;
+  private final UniqueId _viewId;
   private final ViewExecutionOptions _executionOptions;
   private final String _encoded;
 
-  private ViewClientDescriptor(final Type type, final String viewName, final ViewExecutionOptions executionOptions, final String encoded) {
+  private ViewClientDescriptor(final Type type, final UniqueId descriptorId, final ViewExecutionOptions executionOptions, final String encoded) {
     _type = type;
-    _viewName = viewName;
+    _viewId = descriptorId;
     _executionOptions = executionOptions;
     _encoded = encoded;
   }
@@ -71,8 +77,8 @@ public final class ViewClientDescriptor {
     return _type;
   }
 
-  public String getViewName() {
-    return _viewName;
+  public UniqueId getViewId() {
+    return _viewId;
   }
   
   public ViewExecutionOptions getExecutionOptions() {
@@ -81,34 +87,41 @@ public final class ViewClientDescriptor {
 
   protected static ViewClientDescriptor decode(final String str) {
     final List<String> values = split(str);
-    switch (values.size()) {
-      case 1:
-        return tickingMarketData(values.get(0));
-      case 3:
-        if (STATIC.equals(values.get(1))) {
-          return staticMarketData(values.get(0), Instant.ofEpochSeconds(Long.parseLong(values.get(2))));
-        } else if (SNAPSHOT.equals(values.get(1))) {
-          return staticSnapshot(values.get(0), UniqueId.parse(values.get(2)));
-        } else {
-          // Not one of ours
-          return tickingMarketData(str);
-        }
-      case 4:
-        if (SNAPSHOT.equals(values.get(1))) {
-          if (TICKING.equals(values.get(3))) {
-            return tickingSnapshot(values.get(0), UniqueId.parse(values.get(2)));
-          } else {
-            // Not one of ours
-            return tickingMarketData(str);
+    try {
+      switch (values.size()) {
+        case 1:
+          return tickingMarketData(UniqueId.parse(values.get(0)));
+        case 2:
+          if (MARKET_DATA_LIVE.equals(values.get(0))) {
+            return tickingMarketData(UniqueId.parse(values.get(1)));
           }
-        } else {
-          // Not one of ours
-          return tickingMarketData(str);
-        }
-      default:
-        // Not one of ours
-        return tickingMarketData(str);
+          break;
+        case 3:
+          if (MARKET_DATA_LIVE.equals(values.get(0))) {
+            return staticMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))));
+          } else if (MARKET_DATA_USER.equals(values.get(0))) {
+            return staticSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
+          }
+          break;
+        case 4:
+          if (MARKET_DATA_LIVE.equals(values.get(0))) {
+            return sampleMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))), DEFAULT_SAMPLE_PERIOD);
+          } else if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
+            return tickingSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
+          }
+          break;
+        case 5:
+          if (MARKET_DATA_LIVE.equals(values.get(0))) {
+            return sampleMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
+                Integer.parseInt(values.get(4)));
+          }
+          break;
+      }
+    } catch (IllegalArgumentException e) {
+      // Ignore; drop through to try the "normal" unique identifier below
     }
+    // Nothing recognized; assume it's a normal unique identifier and not one of our decorated ones
+    return tickingMarketData(UniqueId.parse(str));
   }
 
   public String encode() {
@@ -141,6 +154,22 @@ public final class ViewClientDescriptor {
       }
     }
     return sb;
+  }
+
+  private static StringBuilder append(final StringBuilder sb, final UniqueId id) {
+    return append(sb, id.toString());
+  }
+
+  private static StringBuilder append(final StringBuilder sb, final int value) {
+    return append(sb, Integer.toString(value));
+  }
+
+  private static StringBuilder append(final StringBuilder sb, final long value) {
+    return append(sb, Long.toString(value));
+  }
+
+  private static StringBuilder append(final StringBuilder sb, final Instant instant) {
+    return append(sb, instant.toEpochMillisLong() / 1000L);
   }
 
   private static String escape(final String str) {
@@ -180,33 +209,54 @@ public final class ViewClientDescriptor {
     return "ViewClientDescriptor[" + encode() + "]";
   }
 
-  public static ViewClientDescriptor tickingMarketData(final String viewName) {
-    return new ViewClientDescriptor(Type.TICKING_MARKET_DATA, viewName, ExecutionOptions.infinite(MarketData.live()), escape(viewName));
+  public static ViewClientDescriptor tickingMarketData(final UniqueId viewId) {
+    String encoded = viewId.toString();
+    // Only encode if normal representation could be confused for an encoded form
+    if (encoded.startsWith(MARKET_DATA_LIVE) || encoded.startsWith(MARKET_DATA_USER)) {
+      encoded = escape(encoded);
+    }
+    return new ViewClientDescriptor(Type.TICKING_MARKET_DATA, viewId, ExecutionOptions.infinite(MarketData.live()), encoded);
   }
 
-  public static ViewClientDescriptor staticMarketData(final String viewName, final InstantProvider valuationTime) {
+  public static ViewClientDescriptor staticMarketData(final UniqueId viewId, final InstantProvider valuationTime) {
     final Instant valuationTimeValue = Instant.of(valuationTime);
     final ViewExecutionOptions options = ExecutionOptions.singleCycle(valuationTimeValue, MarketData.live());
-    final String encoded = append(append(append(new StringBuilder(), viewName), STATIC), Long.toString(valuationTimeValue.toEpochMillisLong() / 1000L)).toString();
-    return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewName, options, encoded);
+    final String encoded = append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), valuationTimeValue).toString();
+    return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded);
   }
 
-  public static ViewClientDescriptor tickingSnapshot(final String viewName, final UniqueId snapshotId) {
+  public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod) {
+    final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
+    final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
+    // TODO: want a batch of execution for the valuation sample period
+    final ViewExecutionOptions options = ExecutionOptions.singleCycle(firstValuationTimeValue, MarketData.live());
+    StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), firstValuationTimeValue), lastValuationTimeValue);
+    if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
+      encoded = append(encoded, samplePeriod);
+    }
+    return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded.toString());
+  }
+
+  public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime) {
+    return sampleMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD);
+  }
+
+  public static ViewClientDescriptor tickingSnapshot(final UniqueId viewId, final UniqueId snapshotId) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));
     final ExecutionFlags flags = ExecutionFlags.none().triggerOnMarketData();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
-    final String encoded = append(append(append(append(new StringBuilder(), viewName), SNAPSHOT), snapshotId.toString()), TICKING).toString();
-    return new ViewClientDescriptor(Type.TICKING_SNAPSHOT, viewName, options, encoded);
+    final String encoded = append(append(append(new StringBuilder(MARKET_DATA_USER), viewId), snapshotId), TICKING).toString();
+    return new ViewClientDescriptor(Type.TICKING_SNAPSHOT, viewId, options, encoded);
   }
 
-  public static ViewClientDescriptor staticSnapshot(final String viewName, final UniqueId snapshotId) {
+  public static ViewClientDescriptor staticSnapshot(final UniqueId viewId, final UniqueId snapshotId) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));
     final ExecutionFlags flags = ExecutionFlags.none();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
-    final String encoded = append(append(append(new StringBuilder(), viewName), SNAPSHOT), snapshotId.toString()).toString();
-    return new ViewClientDescriptor(Type.STATIC_SNAPSHOT, viewName, options, encoded);
+    final String encoded = append(append(new StringBuilder(MARKET_DATA_USER), viewId), snapshotId).toString();
+    return new ViewClientDescriptor(Type.STATIC_SNAPSHOT, viewId, options, encoded);
   }
 
   @Override

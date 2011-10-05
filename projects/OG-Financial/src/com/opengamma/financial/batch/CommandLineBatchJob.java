@@ -171,6 +171,7 @@ public class CommandLineBatchJob {
 
   public CommandLineBatchJob() {
     _user = UserPrincipal.getLocalUser();
+    // TODO: TIMEZONE
     _creationTime = ZonedDateTime.now();  // used later to obtain local date/time and zone
   }
 
@@ -519,7 +520,7 @@ public class CommandLineBatchJob {
               MarketData.historical(run.getSnapshotObservationDate(), getHistoricalMarketDataProvider().getDataSource(),
                 getHistoricalMarketDataProvider().getDataProvider(), getHistoricalMarketDataProvider().getDataField());
         ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(run.getValuationTime(), marketDataSpec);
-        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), null), true);
+        client.attachToViewProcess(run.getViewDefinition().getUniqueId(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), null), true);
         client.waitForCompletion();
 
         _batchMaster.endBatch(run);

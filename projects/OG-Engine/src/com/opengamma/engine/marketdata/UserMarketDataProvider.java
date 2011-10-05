@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -13,6 +14,7 @@ import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataSnapshotAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -34,6 +36,8 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
   private final Object _listenerLock = new Object();
+  
+  private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
   public UserMarketDataProvider(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
@@ -98,7 +102,16 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
     MarketDataSnapshot snapshot = snapshot();
     snapshot.init();
-    return new MarketDataSnapshotAvailabilityProvider(snapshot);
+    MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(snapshot);
+    
+    if (getBaseMarketDataAvailabilityProvider() == null) {
+      return snapshotAvailabilityProvider;
+    } else {
+      // [PLAT-1459] 2011-10-03 -- missing values in the snapshot will prevent the dep graph from building even though
+      // it builds in the live case where the availability provider is more optimistic. Using a union of the two works
+      // around this problem.
+      return new UnionMarketDataAvailabilityProvider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshotAvailabilityProvider));      
+    }
   }
 
   @Override
@@ -134,4 +147,13 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     return _snapshotId;
   }
 
+  //-------------------------------------------------------------------------
+  public MarketDataAvailabilityProvider getBaseMarketDataAvailabilityProvider() {
+    return _baseMarketDataAvailabilityProvider;
+  }
+  
+  public void setBaseMarketDataAvailabilityProvider(MarketDataAvailabilityProvider baseMarketDataAvailabilityProvider) {
+    _baseMarketDataAvailabilityProvider = baseMarketDataAvailabilityProvider;
+  }
+  
 }

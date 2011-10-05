@@ -6,10 +6,8 @@
 package com.opengamma.financial.interestrate;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -36,16 +34,14 @@ public final class ParRateParallelSensitivityCalculator extends AbstractInterest
    */
   @Override
   public Map<String, Double> visit(final InterestRateDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, List<DoublesPair>> sense = _prcsc.visit(ird, curves);
-    final Map<String, Double> res = new HashMap<String, Double>();
-    final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();
-    while (iterator.hasNext()) {
-      final Entry<String, List<DoublesPair>> entry = iterator.next();
+    final Map<String, List<DoublesPair>> sensitivities = _prcsc.visit(ird, curves);
+    final Map<String, Double> result = new HashMap<String, Double>();
+    for (final Map.Entry<String, List<DoublesPair>> entry : sensitivities.entrySet()) {
       final String name = entry.getKey();
       final double temp = sumListPair(entry.getValue());
-      res.put(name, temp);
+      result.put(name, temp);
     }
-    return res;
+    return result;
   }
 
   private double sumListPair(final List<DoublesPair> list) {

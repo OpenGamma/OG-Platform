@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -231,9 +232,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.of(
       getFXPresentValue(),
       getFXCurrencyExposure(),
-      getVegaMatrix(ValueProperties.builder()),
-      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
-      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
+      getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")));
+    
+      // YCNS doesn't seem to work
+      // getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
+      // getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
   }
 
   @Override
@@ -376,11 +379,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getFXCurrencyExposure() {
-    return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE, false);
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints);
+    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
   }
   
   private Pair<String, ValueProperties> getPV01() {
@@ -408,13 +411,21 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getRiskFactor(String valueName) {
-    return getRiskFactor(valueName, ValueProperties.builder());
+    return getRiskFactor(valueName, ValueProperties.builder(), true);
+  }
+  
+  private Pair<String, ValueProperties> getRiskFactor(String valueName, boolean allowCurrencyOverride) {
+    return getRiskFactor(valueName, ValueProperties.builder(), allowCurrencyOverride);
   }
   
   private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties.Builder constraints) {
+    return getRiskFactor(valueName, constraints, true);
+  }
+  
+  private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties.Builder constraints, boolean allowCurrencyOverride) {
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(constraints, "constraints");
-    if (getConfigProvider().getCurrencyOverride() != null) {
+    if (allowCurrencyOverride && getConfigProvider().getCurrencyOverride() != null) {
       constraints.with(ValuePropertyNames.CURRENCY, getConfigProvider().getCurrencyOverride().getCode());
     }
     return Pair.of(valueName, constraints.get());

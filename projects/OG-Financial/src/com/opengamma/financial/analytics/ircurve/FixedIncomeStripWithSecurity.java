@@ -140,7 +140,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
     if (result != 0) {
       return result;
     }
-    result = getMaturity().compareTo(o.getMaturity());
+    result = getResolvedTenor().compareTo(o.getResolvedTenor());
     if (result != 0) {
       return result;
     }

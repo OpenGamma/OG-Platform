@@ -31,7 +31,7 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultUsersTracker.class);
 
   private final ConcurrentMap<String, Set<String>> _username2clients = new ConcurrentHashMap<String, Set<String>>();
-  private final ConcurrentMap<ExternalId, Set<String>> _viewDefinitionNames = new ConcurrentHashMap<ExternalId, Set<String>>();
+  private final ConcurrentMap<ExternalId, Set<UniqueId>> _viewDefinitionIds = new ConcurrentHashMap<ExternalId, Set<UniqueId>>();
   private final ConcurrentMap<ExternalId, Set<UniqueId>> _marketDataSnapShots = new ConcurrentHashMap<ExternalId, Set<UniqueId>>();
   private final UsersResourceContext _context;
  
@@ -79,12 +79,12 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
   }
 
   private void trackCreatedViewDefinition(String userName, String clientName, UniqueId identifier) {
-    ConcurrentSkipListSet<String> freshDefinitions = new ConcurrentSkipListSet<String>();
-    Set<String> viewDefinitions = _viewDefinitionNames.putIfAbsent(ExternalId.of(userName, clientName), freshDefinitions);
+    ConcurrentSkipListSet<UniqueId> freshDefinitions = new ConcurrentSkipListSet<UniqueId>();
+    Set<UniqueId> viewDefinitions = _viewDefinitionIds.putIfAbsent(ExternalId.of(userName, clientName), freshDefinitions);
     if (viewDefinitions == null) {
       viewDefinitions = freshDefinitions;
     }
-    viewDefinitions.add(identifier.getValue());
+    viewDefinitions.add(identifier);
     s_logger.debug("{} view created by {}", identifier, userName);
   }
 
@@ -184,15 +184,15 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
       if (viewDefinitionRepository != null) {
-        Iterator<Entry<ExternalId, Set<String>>> iterator = _viewDefinitionNames.entrySet().iterator();
+        Iterator<Entry<ExternalId, Set<UniqueId>>> iterator = _viewDefinitionIds.entrySet().iterator();
         while (iterator.hasNext()) {
-          Entry<ExternalId, Set<String>> entry = iterator.next();
+          Entry<ExternalId, Set<UniqueId>> entry = iterator.next();
           ExternalId identifier = entry.getKey();
           if (identifier.getScheme().getName().equals(userName)) {
-            Set<String> viewDefinitions = entry.getValue();
-            for (String viewDefinitionName : viewDefinitions) {
-              viewDefinitionRepository.removeViewDefinition(viewDefinitionName);
-              s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionName, userName, identifier.getValue()});
+            Set<UniqueId> viewDefinitions = entry.getValue();
+            for (UniqueId viewDefinitionId : viewDefinitions) {
+              viewDefinitionRepository.removeViewDefinition(viewDefinitionId);
+              s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionId, userName, identifier.getValue()});
             }
             iterator.remove();
           }
@@ -205,10 +205,10 @@ public class DefaultUsersTracker implements UserDataTracker, ClientTracker {
     if (getContext() != null) {
       ManageableViewDefinitionRepository viewDefinitionRepository = getContext().getViewDefinitionRepository();
       if (viewDefinitionRepository != null) {
-        Set<String> viewDefinitions = _viewDefinitionNames.remove(ExternalId.of(userName, clientName));
-        for (String viewDefinitionName : viewDefinitions) {
-          viewDefinitionRepository.removeViewDefinition(viewDefinitionName);
-          s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionName, userName, clientName});
+        Set<UniqueId> viewDefinitions = _viewDefinitionIds.remove(ExternalId.of(userName, clientName));
+        for (UniqueId viewDefinitionId : viewDefinitions) {
+          viewDefinitionRepository.removeViewDefinition(viewDefinitionId);
+          s_logger.debug("View definition {} discarded for {}/{}", new Object[] {viewDefinitionId, userName, clientName});
         }
       }
     }

@@ -57,7 +57,7 @@
     </property>
     <property name="userContextFactory" ref="userContextFactory" />
   </bean>
-  
+
   <!-- Remote configuration parameters -->
   <bean id="defaultConfiguration" class="com.opengamma.language.config.ConfigurationFactoryBean">
     <property name="configurationURI" value="${opengamma.configuration.url}" />
@@ -133,6 +133,7 @@
             </list>
           </property>
         </bean>
+        <!--<bean class="com.opengamma.language.object.BeanFunctionProvider"/>-->
       </list>
     </property>
   </bean>

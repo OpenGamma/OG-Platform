@@ -46,13 +46,10 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine extends 
     return _instrumentIndex;
   }
 
-  /**
-   * Add an instrument to the basket and the associated calculator.
-   * @param instrument An interest rate derivative.
-   * @param method A calculator.
-   */
   @Override
   public void addInstrument(final InterestRateDerivative instrument, final PricingMethod method) {
+    Validate.notNull(instrument, "Instrument");
+    Validate.notNull(method, "Method");
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Calibration instruments should be swaptions");
     SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
     getBasket().add(instrument);

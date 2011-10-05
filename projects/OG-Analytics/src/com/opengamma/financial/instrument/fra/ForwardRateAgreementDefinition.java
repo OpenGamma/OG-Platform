@@ -163,7 +163,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     Validate.notNull(date, "date");
     Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curve names are required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];

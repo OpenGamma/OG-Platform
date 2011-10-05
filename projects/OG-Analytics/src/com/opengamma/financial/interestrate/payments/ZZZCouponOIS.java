@@ -21,8 +21,8 @@ public class ZZZCouponOIS extends Coupon {
   private final double _spread;
   private final String _indexCurveName;
 
-  public ZZZCouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
-      double startTime, double endTime, double spread, String indexCurveName) {
+  public ZZZCouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction, double startTime, double endTime,
+      double spread, String indexCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(startTime >= 0, "startTime < 0");
     Validate.isTrue(endTime > startTime && endTime <= paymentTime, "endTime < startTime or endTime > paymentTime");
@@ -72,6 +72,11 @@ public class ZZZCouponOIS extends Coupon {
    */
   public String getIndexCurveName() {
     return _indexCurveName;
+  }
+
+  @Override
+  public ZZZCouponOIS withNotional(double notional) {
+    return new ZZZCouponOIS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getRateYearFraction(), _startTime, _endTime, _spread, getIndexCurveName());
   }
 
   @Override

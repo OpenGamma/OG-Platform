@@ -231,17 +231,18 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
       }
 
       private double getTime(final Number x, final ZonedDateTime now) {
+        final LocalDate today = now.toLocalDate();
         final int n = x.intValue();
         if (n == 1) {
-          final LocalDate nextExpiry = NEXT_EXPIRY_ADJUSTER.adjustDate(now.toLocalDate());
+          final LocalDate nextExpiry = today.with(NEXT_EXPIRY_ADJUSTER);
           final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
-          return DateUtils.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?          
+          return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?          
         }
-        final LocalDate date = FIRST_OF_MONTH_ADJUSTER.adjustDate(now.toLocalDate());
+        final LocalDate date = today.with(FIRST_OF_MONTH_ADJUSTER);
         final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly
-        final LocalDate thirdWednesday = NEXT_EXPIRY_ADJUSTER.adjustDate(plusMonths);
+        final LocalDate thirdWednesday = plusMonths.with(NEXT_EXPIRY_ADJUSTER);
         final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
-        return DateUtils.getDaysBetween(now.toLocalDate(), previousMonday) / 365.; //TODO or use daycount?
+        return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
       }
 
       private double getRate(final double quote) {

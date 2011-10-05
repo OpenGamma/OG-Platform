@@ -48,8 +48,8 @@ public class BusinessDayDateUtils {
       mult = -1;
     }
     int result = includeStart ? 1 : 0;
-    while (!convention.adjustDate(date).equals(localEndDate)) {
-      date = convention.adjustDate(date);
+    while (!date.with(convention).equals(localEndDate)) {
+      date = date.with(convention);
       result++;
     }
     return mult * (includeEnd ? result : result - 1);

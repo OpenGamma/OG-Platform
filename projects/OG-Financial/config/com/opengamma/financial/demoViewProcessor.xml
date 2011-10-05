@@ -16,15 +16,6 @@
   <import resource="classpath:com/opengamma/financial/common.xml" />
   <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
-  <!-- Active MQ -->
-  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
-  </bean>
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-    <constructor-arg ref="activeMQConnectionFactory"/>
-  </bean>
-  
   <!-- User supplied data storage -->
   <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${opengamma.financial-user.jdbc.driver}" />
@@ -84,10 +75,13 @@
   </bean>
   
   <!-- User market data snapshots -->
-  <bean id="snapshotMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+    <bean id="userSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
+    <constructor-arg ref="jmsConnectionFactory" />
+    <constructor-arg value="userSnapshotMasterChangeManager" />
+  </bean>
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
-    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <property name="changeManager" ref="userSnapshotMasterChangeManager" />
     <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>
   <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">

@@ -92,6 +92,12 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
   }
 
   @Override
+  public CouponInflationZeroCouponMonthly withNotional(double notional) {
+    return new CouponInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
+        _fixingEndTime, _payNotional);
+  }
+
+  @Override
   public double estimatedIndex(MarketBundle market) {
     double estimatedIndex = market.getPriceIndex(getPriceIndex(), _referenceEndTime);
     return estimatedIndex;

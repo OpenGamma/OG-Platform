@@ -150,11 +150,7 @@ public class CouponIbor extends CouponFloating {
     return withSpread(0.0);
   }
 
-  /**
-   * Creates a new coupon with the same characteristics, except the notional which is the one given.
-   * @param notional The notional of the new coupon.
-   * @return The new coupon.
-   */
+  @Override
   public CouponIbor withNotional(double notional) {
     return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), getFixingPeriodStartTime(), getFixingPeriodEndTime(),
         getFixingYearFraction(), getSpread(), getForwardCurveName());

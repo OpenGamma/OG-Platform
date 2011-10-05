@@ -6,6 +6,7 @@
 
 package com.opengamma.language.function;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 
 /**
@@ -25,7 +26,7 @@ public abstract class WrappedAbstractFunctionInvoker extends AbstractFunctionInv
   }
 
   @Override
-  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
+  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
     return getWrapped().invokeImpl(sessionContext, parameters);
   }
 
