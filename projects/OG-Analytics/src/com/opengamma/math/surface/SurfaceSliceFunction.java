@@ -12,7 +12,6 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -26,7 +25,7 @@ public class SurfaceSliceFunction {
     return ConstantDoublesCurve.from(surface.getZValue(null, null));
   }
 
-  public static Curve<Double, Double> cut(final Surface<Double, Double, Double> surface, final Axis axis, final Double at, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static Curve<Double, Double> cut(final Surface<Double, Double, Double> surface, final Axis axis, final Double at, final Interpolator1D interpolator) {
     Validate.notNull(surface, "surface");
     Validate.notNull(axis, "axis");
     Validate.notNull(at, "at");

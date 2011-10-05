@@ -14,7 +14,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
@@ -44,7 +43,7 @@ public class MultipleYieldCurveFinderFunction extends Function1D<DoubleMatrix1D,
     int index = 0;
     final List<String> curveNames = _data.getCurveNames();
     for (final String name : curveNames) {
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = _data.getInterpolatorForCurve(name);
+      final Interpolator1D interpolator = _data.getInterpolatorForCurve(name);
       final double[] nodes = _data.getCurveNodePointsForCurve(name);
       final double[] yields = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
       index += nodes.length;

@@ -13,7 +13,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class LinearInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> {
+public class LinearInterpolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator {
 
   @Override
   public double[] calculate(final Interpolator1DDataBundle data, final double value) {

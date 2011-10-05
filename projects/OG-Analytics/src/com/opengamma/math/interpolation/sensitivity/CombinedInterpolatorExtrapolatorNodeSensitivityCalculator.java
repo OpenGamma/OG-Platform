@@ -11,22 +11,22 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
- * @param <T>
+ * 
  */
-public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends Interpolator1DDataBundle> implements Interpolator1DNodeSensitivityCalculator<T> {
-  private final Interpolator1DNodeSensitivityCalculator<T> _sensitivityCalculator;
-  private final Interpolator1DNodeSensitivityCalculator<T> _leftSensitivityCalculator;
-  private final Interpolator1DNodeSensitivityCalculator<T> _rightSensitivityCalculator;
+public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator {
+  private final Interpolator1DNodeSensitivityCalculator _sensitivityCalculator;
+  private final Interpolator1DNodeSensitivityCalculator _leftSensitivityCalculator;
+  private final Interpolator1DNodeSensitivityCalculator _rightSensitivityCalculator;
 
-  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> sensitivityCalculator) {
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator sensitivityCalculator) {
     Validate.notNull(sensitivityCalculator, "sensitivity calculator");
     _sensitivityCalculator = sensitivityCalculator;
     _leftSensitivityCalculator = null;
     _rightSensitivityCalculator = null;
   }
 
-  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> sensitivityCalculator,
-      final Interpolator1DNodeSensitivityCalculator<T> leftAndRightSensitivityCalculator) {
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator sensitivityCalculator,
+      final Interpolator1DNodeSensitivityCalculator leftAndRightSensitivityCalculator) {
     Validate.notNull(sensitivityCalculator, "sensitivity calculator");
     Validate.notNull(leftAndRightSensitivityCalculator, "left and right sensitivity calculators");
     _sensitivityCalculator = sensitivityCalculator;
@@ -34,8 +34,8 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends
     _rightSensitivityCalculator = leftAndRightSensitivityCalculator;
   }
 
-  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> sensitivityCalculator,
-      final Interpolator1DNodeSensitivityCalculator<T> leftSensitivityCalculator, final Interpolator1DNodeSensitivityCalculator<T> rightSensitivityCalculator) {
+  public CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator sensitivityCalculator,
+      final Interpolator1DNodeSensitivityCalculator leftSensitivityCalculator, final Interpolator1DNodeSensitivityCalculator rightSensitivityCalculator) {
     Validate.notNull(sensitivityCalculator, "sensitivity calculator");
     Validate.notNull(leftSensitivityCalculator, "left sensitivity calculator");
     Validate.notNull(rightSensitivityCalculator, "right sensitivity calculator");
@@ -45,7 +45,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends
   }
 
   @Override
-  public double[] calculate(final T data, final double value) {
+  public double[] calculate(final Interpolator1DDataBundle data, final double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
     if (value < data.firstKey()) {
@@ -60,15 +60,15 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<T extends
     return _sensitivityCalculator.calculate(data, value);
   }
 
-  public Interpolator1DNodeSensitivityCalculator<T> getSensitivityCalculator() {
+  public Interpolator1DNodeSensitivityCalculator getSensitivityCalculator() {
     return _sensitivityCalculator;
   }
 
-  public Interpolator1DNodeSensitivityCalculator<T> getLeftSensitivityCalculator() {
+  public Interpolator1DNodeSensitivityCalculator getLeftSensitivityCalculator() {
     return _leftSensitivityCalculator;
   }
 
-  public Interpolator1DNodeSensitivityCalculator<T> getRightSensitivityCalculator() {
+  public Interpolator1DNodeSensitivityCalculator getRightSensitivityCalculator() {
     return _rightSensitivityCalculator;
   }
 

@@ -12,9 +12,8 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * A base class for two-dimensional interpolation.
- * @param <T>
  */
-public abstract class Interpolator2D<T extends Interpolator1DDataBundle> implements Interpolator<Map<Double, T>, DoublesPair> {
+public abstract class Interpolator2D implements Interpolator<Map<Double, Interpolator1DDataBundle>, DoublesPair> {
 
   /**
    * @param dataBundle
@@ -25,5 +24,5 @@ public abstract class Interpolator2D<T extends Interpolator1DDataBundle> impleme
    * @return The value of z
    */
   @Override
-  public abstract Double interpolate(Map<Double, T> dataBundle, DoublesPair value);
+  public abstract Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value);
 }

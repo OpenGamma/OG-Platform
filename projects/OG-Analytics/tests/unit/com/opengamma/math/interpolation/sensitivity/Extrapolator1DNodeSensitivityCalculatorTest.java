@@ -17,7 +17,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -26,13 +25,10 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final NaturalCubicSplineInterpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
-      INTERPOLATOR);
-  private static final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> FLAT_CALCULATOR = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
-  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> LINEAR_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
-      CALCULATOR);
-  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> LINEAR_FD_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
-      FD_CALCULATOR);
+  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(INTERPOLATOR);
+  private static final FlatExtrapolator1DNodeSensitivityCalculator FLAT_CALCULATOR = new FlatExtrapolator1DNodeSensitivityCalculator();
+  private static final LinearExtrapolator1DNodeSensitivityCalculator LINEAR_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator(CALCULATOR);
+  private static final LinearExtrapolator1DNodeSensitivityCalculator LINEAR_FD_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator(FD_CALCULATOR);
   private static final Interpolator1DCubicSplineDataBundle DATA;
   private static final double EPS = 1e-4;
 
@@ -55,13 +51,12 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     for (int i = 0; i < n; i++) {
       r[i] = FUNCTION.evaluate(t[i]);
     }
-    //TODO 
     DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
+    new LinearExtrapolator1DNodeSensitivityCalculator(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

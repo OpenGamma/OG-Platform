@@ -54,7 +54,6 @@ public abstract class NodeSensitivityCalculator {
     return curveToNodeSensitivities(sensitivityMap, interpolatedCurves);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
     final List<Double> result = new ArrayList<Double>();
     for (final String name : interpolatedCurves.getAllNames()) { // loop over all curves (by name)
@@ -63,7 +62,7 @@ public abstract class NodeSensitivityCalculator {
         throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
       }
       final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve.getCurve();
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = interpolatedCurve.getInterpolator();
+      final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
       final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
       Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
       // TODO move this logic into a factory
@@ -101,14 +100,13 @@ public abstract class NodeSensitivityCalculator {
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSensitivities, final YieldAndDiscountCurve yieldCurve) {
     if (!(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
     }
     final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
     final double[] res = new double[interpolatedCurve.size()];
-    final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = interpolatedCurve.getInterpolator();
+    final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
     final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
     Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
     // TODO move this logic into a factory

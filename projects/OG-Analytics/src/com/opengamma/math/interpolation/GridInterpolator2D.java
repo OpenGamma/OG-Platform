@@ -17,16 +17,15 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 
 /**
- * @param <S> The type of the data needed for interpolation in the x-direction
- * @param <T> The type of the data needed for interpolation in the y-direction
+ * 
  */
-public class GridInterpolator2D<S extends Interpolator1DDataBundle, T extends Interpolator1DDataBundle> extends Interpolator2D<T> {
+public class GridInterpolator2D extends Interpolator2D {
   //TODO this is really inefficient - needs to be changed in a similar way to 1D interpolation
-  private final Interpolator1D<S> _xInterpolator;
-  private final Interpolator1D<T> _yInterpolator;
+  private final Interpolator1D _xInterpolator;
+  private final Interpolator1D _yInterpolator;
   private final FirstThenSecondPairComparator<Double, Double> _comparator;
 
-  public GridInterpolator2D(final Interpolator1D<S> xInterpolator, final Interpolator1D<T> yInterpolator) {
+  public GridInterpolator2D(final Interpolator1D xInterpolator, final Interpolator1D yInterpolator) {
     Validate.notNull(xInterpolator);
     Validate.notNull(yInterpolator);
     _xInterpolator = xInterpolator;
@@ -34,32 +33,32 @@ public class GridInterpolator2D<S extends Interpolator1DDataBundle, T extends In
     _comparator = FirstThenSecondPairComparator.INSTANCE_DOUBLES;
   }
 
-  public GridInterpolator2D(final Interpolator1D<S> xInterpolator, final Interpolator1D<T> yInterpolator, final Interpolator1D<S> xExtrapolator, final Interpolator1D<T> yExtrapolator) {
+  public GridInterpolator2D(final Interpolator1D xInterpolator, final Interpolator1D yInterpolator, final Interpolator1D xExtrapolator, final Interpolator1D yExtrapolator) {
     Validate.notNull(xInterpolator);
     Validate.notNull(yInterpolator);
-    _xInterpolator = new CombinedInterpolatorExtrapolator<S>(xInterpolator, xExtrapolator);
-    _yInterpolator = new CombinedInterpolatorExtrapolator<T>(yInterpolator, yExtrapolator);
+    _xInterpolator = new CombinedInterpolatorExtrapolator(xInterpolator, xExtrapolator);
+    _yInterpolator = new CombinedInterpolatorExtrapolator(yInterpolator, yExtrapolator);
     _comparator = FirstThenSecondPairComparator.INSTANCE_DOUBLES;
   }
 
-  public Map<Double, T> getDataBundle(final Map<DoublesPair, Double> data) {
+  public Map<Double, Interpolator1DDataBundle> getDataBundle(final Map<DoublesPair, Double> data) {
     Validate.notNull(data, "data");
     return testData(data);
   }
 
   @Override
-  public Double interpolate(final Map<Double, T> dataBundle, final DoublesPair value) {
+  public Double interpolate(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value) {
     Validate.notNull(value);
     Validate.notNull(dataBundle, "data bundle");
     final Map<Double, Double> xData = new HashMap<Double, Double>();
-    for (final Map.Entry<Double, T> entry : dataBundle.entrySet()) {
+    for (final Map.Entry<Double, Interpolator1DDataBundle> entry : dataBundle.entrySet()) {
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
     return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getKey());
   }
 
-  private Map<Double, T> testData(final Map<DoublesPair, Double> data) {
-    final Map<Double, T> result = new TreeMap<Double, T>();
+  private Map<Double, Interpolator1DDataBundle> testData(final Map<DoublesPair, Double> data) {
+    final Map<Double, Interpolator1DDataBundle> result = new TreeMap<Double, Interpolator1DDataBundle>();
     final TreeMap<DoublesPair, Double> sorted = new TreeMap<DoublesPair, Double>(_comparator);
     sorted.putAll(data);
     final Iterator<Map.Entry<DoublesPair, Double>> iterator = sorted.entrySet().iterator();
@@ -71,7 +70,7 @@ public class GridInterpolator2D<S extends Interpolator1DDataBundle, T extends In
       final Map.Entry<DoublesPair, Double> nextEntry = iterator.next();
       final double newX = nextEntry.getKey().first;
       if (Double.doubleToLongBits(newX) != Double.doubleToLongBits(x)) {
-        final T interpolatorData = _yInterpolator.getDataBundle(yzValues);
+        final Interpolator1DDataBundle interpolatorData = _yInterpolator.getDataBundle(yzValues);
         result.put(x, interpolatorData);
         yzValues = new TreeMap<Double, Double>();
         yzValues.put(nextEntry.getKey().second, nextEntry.getValue());
@@ -81,22 +80,21 @@ public class GridInterpolator2D<S extends Interpolator1DDataBundle, T extends In
       }
       if (!iterator.hasNext()) {
         yzValues.put(nextEntry.getKey().second, nextEntry.getValue());
-        final T interpolatorData = _yInterpolator.getDataBundle(yzValues);
+        final Interpolator1DDataBundle interpolatorData = _yInterpolator.getDataBundle(yzValues);
         result.put(x, interpolatorData);
       }
     }
     return result;
   }
 
-  public Interpolator1D<S> getXInterpolator() {
+  public Interpolator1D getXInterpolator() {
     return _xInterpolator;
   }
 
-  public Interpolator1D<T> getYInterpolator() {
+  public Interpolator1D getYInterpolator() {
     return _yInterpolator;
   }
 
-  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(final Object o) {
     if (o == null) {

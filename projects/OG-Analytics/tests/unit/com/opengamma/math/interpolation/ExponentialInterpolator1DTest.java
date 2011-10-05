@@ -13,13 +13,12 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
  */
 public class ExponentialInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new ExponentialInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
 
   @Test(expectedExceptions = IllegalArgumentException.class)

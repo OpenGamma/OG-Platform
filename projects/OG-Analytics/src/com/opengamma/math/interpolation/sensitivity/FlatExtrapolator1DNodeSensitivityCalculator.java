@@ -10,12 +10,12 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * @param <T>
+ * 
  */
-public class FlatExtrapolator1DNodeSensitivityCalculator<T extends Interpolator1DDataBundle> implements Interpolator1DNodeSensitivityCalculator<T> {
+public class FlatExtrapolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator {
 
   @Override
-  public double[] calculate(final T data, final double value) {
+  public double[] calculate(final Interpolator1DDataBundle data, final double value) {
     Validate.notNull(data, "data");
     final int n = data.size();
     if (value < data.firstKey()) {

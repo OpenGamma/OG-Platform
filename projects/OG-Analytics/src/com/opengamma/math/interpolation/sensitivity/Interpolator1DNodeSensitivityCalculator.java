@@ -9,10 +9,9 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
- * @param <T> Type of the data bundle
  */
-public interface Interpolator1DNodeSensitivityCalculator<T extends Interpolator1DDataBundle> {
+public interface Interpolator1DNodeSensitivityCalculator {
 
-  double[] calculate(T data, double value);
+  double[] calculate(Interpolator1DDataBundle data, double value);
 
 }

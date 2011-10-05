@@ -17,8 +17,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class FiniteDifferenceInterpolator1DNodeSensitivityCalculatorTest {
   private static final StepInterpolator1D STEP_INTERPOLATOR = new StepInterpolator1D();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(
-      STEP_INTERPOLATOR);
+  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(STEP_INTERPOLATOR);
   private static final Interpolator1DDataBundle DATA;
 
   static {
@@ -34,7 +33,7 @@ public class FiniteDifferenceInterpolator1DNodeSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator() {
-    new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
+    new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

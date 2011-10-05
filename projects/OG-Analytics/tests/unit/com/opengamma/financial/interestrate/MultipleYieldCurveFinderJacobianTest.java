@@ -27,7 +27,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -47,8 +46,8 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final List<InterestRateDerivative> MIXED_INSTRUMENT;
   private static final double[] FORWARD_NODES;
   private static final double[] FUNDING_NODES;
-  private static final Interpolator1D<? extends Interpolator1DDataBundle> EXTRAPOLATOR;
-  private static final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> EXTRAPOLATING_SENSITIVITY_CALCULATOR;
+  private static final Interpolator1D EXTRAPOLATOR;
+  private static final Interpolator1DNodeSensitivityCalculator EXTRAPOLATING_SENSITIVITY_CALCULATOR;
   private static final DoubleMatrix1D XN;
   private static final DoubleMatrix1D XM;
   private static final DoubleMatrix1D XNM;
@@ -58,12 +57,12 @@ public class MultipleYieldCurveFinderJacobianTest {
   private static final LinkedHashMap<String, double[]> CASH_NODES;
   private static final LinkedHashMap<String, double[]> FRA_NODES;
   private static final LinkedHashMap<String, double[]> MIXED_NODES;
-  private static final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> CASH_INTERPOLATORS;
-  private static final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> FRA_INTERPOLATORS;
-  private static final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> MIXED_INTERPOLATORS;
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> CASH_SENSITIVITY_CALCULATOR;
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> FRA_SENSITIVITY_CALCULATOR;
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> MIXED_SENSITIVITY_CALCULATOR;
+  private static final LinkedHashMap<String, Interpolator1D> CASH_INTERPOLATORS;
+  private static final LinkedHashMap<String, Interpolator1D> FRA_INTERPOLATORS;
+  private static final LinkedHashMap<String, Interpolator1D> MIXED_INTERPOLATORS;
+  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> CASH_SENSITIVITY_CALCULATOR;
+  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> FRA_SENSITIVITY_CALCULATOR;
+  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> MIXED_SENSITIVITY_CALCULATOR;
 
   private static final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
@@ -109,18 +108,18 @@ public class MultipleYieldCurveFinderJacobianTest {
     MIXED_NODES = new LinkedHashMap<String, double[]>();
     MIXED_NODES.put(FORWARD_CURVE_NAME, FORWARD_NODES);
     MIXED_NODES.put(FUNDING_CURVE_NAME, FUNDING_NODES);
-    CASH_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+    CASH_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
     CASH_INTERPOLATORS.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
-    FRA_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+    FRA_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
     FRA_INTERPOLATORS.put(FORWARD_CURVE_NAME, EXTRAPOLATOR);
-    MIXED_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+    MIXED_INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
     MIXED_INTERPOLATORS.put(FORWARD_CURVE_NAME, EXTRAPOLATOR);
     MIXED_INTERPOLATORS.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
-    CASH_SENSITIVITY_CALCULATOR = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    CASH_SENSITIVITY_CALCULATOR = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     CASH_SENSITIVITY_CALCULATOR.put(FUNDING_CURVE_NAME, EXTRAPOLATING_SENSITIVITY_CALCULATOR);
-    FRA_SENSITIVITY_CALCULATOR = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    FRA_SENSITIVITY_CALCULATOR = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     FRA_SENSITIVITY_CALCULATOR.put(FORWARD_CURVE_NAME, EXTRAPOLATING_SENSITIVITY_CALCULATOR);
-    MIXED_SENSITIVITY_CALCULATOR = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    MIXED_SENSITIVITY_CALCULATOR = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     MIXED_SENSITIVITY_CALCULATOR.put(FORWARD_CURVE_NAME, EXTRAPOLATING_SENSITIVITY_CALCULATOR);
     MIXED_SENSITIVITY_CALCULATOR.put(FUNDING_CURVE_NAME, EXTRAPOLATING_SENSITIVITY_CALCULATOR);
 
