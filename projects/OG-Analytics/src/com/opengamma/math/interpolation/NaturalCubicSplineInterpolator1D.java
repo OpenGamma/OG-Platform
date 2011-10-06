@@ -10,17 +10,20 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.MathException;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
  */
-public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolator1DCubicSplineDataBundle> {
+public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public Double interpolate(final Interpolator1DCubicSplineDataBundle data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
+    Validate.isTrue(data instanceof Interpolator1DCubicSplineDataBundle);
+    Interpolator1DCubicSplineDataBundle splineData = (Interpolator1DCubicSplineDataBundle) data;
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = data.size() - 1;
@@ -35,17 +38,17 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolato
     }
     final double a = (xData[high] - value) / delta;
     final double b = (value - xData[low]) / delta;
-    final double[] y2 = data.getSecondDerivatives();
+    final double[] y2 = splineData.getSecondDerivatives();
     return a * yData[low] + b * yData[high] + (a * (a * a - 1) * y2[low] + b * (b * b - 1) * y2[high]) * delta * delta / 6.;
   }
 
   @Override
-  public Interpolator1DCubicSplineDataBundle getDataBundle(final double[] x, final double[] y) {
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));
   }
 
   @Override
-  public Interpolator1DCubicSplineDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y, true));
   }
 }

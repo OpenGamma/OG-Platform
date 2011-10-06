@@ -6,6 +6,7 @@
 
 package com.opengamma.language.invoke;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -14,6 +15,17 @@ import java.util.Collection;
 public class TypeConverterProviderBean extends AbstractTypeConverterProvider {
 
   private Collection<? extends TypeConverter> _converters;
+
+  public TypeConverterProviderBean(final Collection<TypeConverter> converters) {
+    setConverters(converters);
+  }
+
+  public TypeConverterProviderBean(final TypeConverter... converters) {
+    setConverters(Arrays.asList(converters));
+  }
+
+  public TypeConverterProviderBean() {
+  }
 
   public void setConverters(final Collection<? extends TypeConverter> converters) {
     _converters = converters;

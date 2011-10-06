@@ -5,7 +5,6 @@
  */
 package com.opengamma.math.interpolation;
 
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -15,47 +14,47 @@ public final class CombinedInterpolatorExtrapolatorFactory {
   private CombinedInterpolatorExtrapolatorFactory() {
   }
 
-  public static <T extends Interpolator1DDataBundle> CombinedInterpolatorExtrapolator<T> getInterpolator(final String interpolatorName) {
-    final Interpolator1D<T> interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
-    return new CombinedInterpolatorExtrapolator<T>(interpolator);
+  public static CombinedInterpolatorExtrapolator getInterpolator(final String interpolatorName) {
+    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
+    return new CombinedInterpolatorExtrapolator(interpolator);
   }
 
-  public static <T extends Interpolator1DDataBundle> CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> getInterpolator(final String interpolatorName,
+  public static CombinedInterpolatorExtrapolator getInterpolator(final String interpolatorName,
       final String extrapolatorName) {
-    final Interpolator1D<T> interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
+    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
     if (extrapolatorName == null || extrapolatorName.isEmpty()) {
-      return new CombinedInterpolatorExtrapolator<T>(interpolator);
+      return new CombinedInterpolatorExtrapolator(interpolator);
     }
-    final Interpolator1D<T> extrapolator = getExtrapolator(extrapolatorName, interpolator);
-    return new CombinedInterpolatorExtrapolator<T>(interpolator, extrapolator, extrapolator);
+    final Interpolator1D extrapolator = getExtrapolator(extrapolatorName, interpolator);
+    return new CombinedInterpolatorExtrapolator(interpolator, extrapolator, extrapolator);
   }
 
   // REVIEW emcleod 4-8-2010 not sure if this is how people will want to construct the combined interpolator - should it be more strict?
   // Also see CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-  public static <T extends Interpolator1DDataBundle> CombinedInterpolatorExtrapolator<T> getInterpolator(final String interpolatorName, final String leftExtrapolatorName,
+  public static CombinedInterpolatorExtrapolator getInterpolator(final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName) {
-    final Interpolator1D<T> interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
+    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(interpolatorName);
     if (leftExtrapolatorName == null || leftExtrapolatorName.isEmpty()) {
       if (rightExtrapolatorName == null || rightExtrapolatorName.isEmpty()) {
-        return new CombinedInterpolatorExtrapolator<T>(interpolator);
+        return new CombinedInterpolatorExtrapolator(interpolator);
       }
-      final Interpolator1D<T> extrapolator = getExtrapolator(rightExtrapolatorName, interpolator);
-      return new CombinedInterpolatorExtrapolator<T>(interpolator, extrapolator);
+      final Interpolator1D extrapolator = getExtrapolator(rightExtrapolatorName, interpolator);
+      return new CombinedInterpolatorExtrapolator(interpolator, extrapolator);
     }
     if (rightExtrapolatorName == null || rightExtrapolatorName.isEmpty()) {
-      final Interpolator1D<T> extrapolator = getExtrapolator(leftExtrapolatorName, interpolator);
-      return new CombinedInterpolatorExtrapolator<T>(interpolator, extrapolator);
+      final Interpolator1D extrapolator = getExtrapolator(leftExtrapolatorName, interpolator);
+      return new CombinedInterpolatorExtrapolator(interpolator, extrapolator);
     }
-    final Interpolator1D<T> leftExtrapolator = getExtrapolator(leftExtrapolatorName, interpolator);
-    final Interpolator1D<T> rightExtrapolator = getExtrapolator(rightExtrapolatorName, interpolator);
-    return new CombinedInterpolatorExtrapolator<T>(interpolator, leftExtrapolator, rightExtrapolator);
+    final Interpolator1D leftExtrapolator = getExtrapolator(leftExtrapolatorName, interpolator);
+    final Interpolator1D rightExtrapolator = getExtrapolator(rightExtrapolatorName, interpolator);
+    return new CombinedInterpolatorExtrapolator(interpolator, leftExtrapolator, rightExtrapolator);
   }
 
-  private static <T extends Interpolator1DDataBundle> Interpolator1D<T> getExtrapolator(final String extrapolatorName, final Interpolator1D<T> interpolator) {
+  private static Interpolator1D getExtrapolator(final String extrapolatorName, final Interpolator1D interpolator) {
     if (extrapolatorName.equals(Interpolator1DFactory.FLAT_EXTRAPOLATOR)) {
-      return new FlatExtrapolator1D<T>();
+      return new FlatExtrapolator1D();
     } else if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
-      return new LinearExtrapolator1D<T>(interpolator);
+      return new LinearExtrapolator1D(interpolator);
     }
     throw new IllegalArgumentException("Cannot get extrapolator " + extrapolatorName);
   }

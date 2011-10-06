@@ -69,7 +69,6 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
@@ -116,10 +115,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private YieldCurveDefinition _fundingCurveDefinition;
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
-  private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _fundingInterpolator;
-  private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _forwardInterpolator;
-  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _fundingSensitivityCalculator;
-  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
+  private CombinedInterpolatorExtrapolator _fundingInterpolator;
+  private CombinedInterpolatorExtrapolator _forwardInterpolator;
+  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator _fundingSensitivityCalculator;
+  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator _forwardSensitivityCalculator;
   private final String _calculationType;
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String calculatorType) {
@@ -310,9 +309,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveKnots.put(_fundingCurveDefinitionName, fundingNodeTimes);
       curveKnots.put(_forwardCurveDefinitionName, forwardNodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> sensitivityCalculators = 
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
       curveNodes.put(_fundingCurveDefinitionName, fundingNodeTimes);
       interpolators.put(_fundingCurveDefinitionName, _fundingInterpolator);
       curveNodes.put(_forwardCurveDefinitionName, forwardNodeTimes);
@@ -428,9 +427,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
       curveKnots.put(_fundingCurveDefinitionName, nodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> sensitivityCalculators = 
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
       curveNodes.put(_fundingCurveDefinitionName, nodeTimes);
       interpolators.put(_fundingCurveDefinitionName, _fundingInterpolator);
       // TODO have use finite difference or not as an input [FIN-147]

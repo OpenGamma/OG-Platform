@@ -16,7 +16,6 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.StepInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -24,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
   private static final LinearInterpolator1D INTERPOLATOR_1D = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final Interpolator2D<Interpolator1DDataBundle> INTERPOLATOR = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+  private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(XYZ_LIST, INTERPOLATOR);
 
   @Test
@@ -40,7 +39,7 @@ public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
     other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Y_PRIMITIVE, INTERPOLATOR, NAME);
     assertFalse(other.equals(surface));
     other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE,
-        new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, new StepInterpolator1D()), NAME);
+        new GridInterpolator2D(INTERPOLATOR_1D, new StepInterpolator1D()), NAME);
     assertFalse(other.equals(surface));
     other = new InterpolatedDoublesSurface(X_PRIMITIVE, Y_PRIMITIVE, Z_PRIMITIVE, INTERPOLATOR, "P");
     assertFalse(other.equals(surface));

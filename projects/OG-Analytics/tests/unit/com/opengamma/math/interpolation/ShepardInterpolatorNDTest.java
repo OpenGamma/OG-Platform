@@ -7,13 +7,11 @@ package com.opengamma.math.interpolation;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
-
 /**
  * 
  */
 public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
-  private static final InterpolatorND<InterpolatorNDDataBundle> INTERPOLATOR = new ShepardInterpolatorND(3.0);
+  private static final InterpolatorND INTERPOLATOR = new ShepardInterpolatorND(3.0);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {

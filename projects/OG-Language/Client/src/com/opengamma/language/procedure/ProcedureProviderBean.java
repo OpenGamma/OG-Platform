@@ -7,6 +7,7 @@
 package com.opengamma.language.procedure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -21,6 +22,17 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class ProcedureProviderBean extends AbstractProcedureProvider implements InitializingBean {
 
   private Collection<PublishedProcedure> _procedures;
+
+  public ProcedureProviderBean(final Collection<PublishedProcedure> procedures) {
+    setProcedures(procedures);
+  }
+
+  public ProcedureProviderBean(final PublishedProcedure... procedures) {
+    setProcedures(Arrays.asList(procedures));
+  }
+
+  public ProcedureProviderBean() {
+  }
 
   public void setProcedures(final Collection<PublishedProcedure> procedures) {
     ArgumentChecker.notNull(procedures, "procedures");
