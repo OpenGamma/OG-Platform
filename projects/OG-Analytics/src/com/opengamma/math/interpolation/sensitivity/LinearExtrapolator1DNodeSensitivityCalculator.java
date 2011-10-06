@@ -11,19 +11,19 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
- * @param <T>
+ * 
  */
-public class LinearExtrapolator1DNodeSensitivityCalculator<T extends Interpolator1DDataBundle> implements Interpolator1DNodeSensitivityCalculator<T> {
+public class LinearExtrapolator1DNodeSensitivityCalculator implements Interpolator1DNodeSensitivityCalculator {
   private static final double EPS = 1e-6;
-  private final Interpolator1DNodeSensitivityCalculator<T> _calculator;
+  private final Interpolator1DNodeSensitivityCalculator _calculator;
 
-  public LinearExtrapolator1DNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator<T> calculator) {
+  public LinearExtrapolator1DNodeSensitivityCalculator(final Interpolator1DNodeSensitivityCalculator calculator) {
     Validate.notNull(calculator, "calculator");
     _calculator = calculator;
   }
 
   @Override
-  public double[] calculate(final T data, final double value) {
+  public double[] calculate(final Interpolator1DDataBundle data, final double value) {
     Validate.notNull(data, "data");
     if (value < data.firstKey()) {
       return getLeftSensitivities(data, value);
@@ -33,7 +33,7 @@ public class LinearExtrapolator1DNodeSensitivityCalculator<T extends Interpolato
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  private double[] getLeftSensitivities(final T data, final double value) {
+  private double[] getLeftSensitivities(final Interpolator1DDataBundle data, final double value) {
     final double eps = EPS * (data.lastKey() - data.firstKey());
     final double x = data.firstKey();
     final double[] result = _calculator.calculate(data, x + eps);
@@ -45,7 +45,7 @@ public class LinearExtrapolator1DNodeSensitivityCalculator<T extends Interpolato
     return result;
   }
 
-  private double[] getRightSensitivities(final T data, final Double value) {
+  private double[] getRightSensitivities(final Interpolator1DDataBundle data, final Double value) {
     final double eps = EPS * (data.lastKey() - data.firstKey());
     final double x = data.lastKey();
     final double[] result = _calculator.calculate(data, x - eps);

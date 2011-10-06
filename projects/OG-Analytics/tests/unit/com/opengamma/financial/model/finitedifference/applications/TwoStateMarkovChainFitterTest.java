@@ -23,7 +23,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.monitor.OperationTimer;
@@ -37,9 +37,7 @@ import com.opengamma.util.tuple.Pair;
 public class TwoStateMarkovChainFitterTest {
 
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(
-      INTERPOLATOR_1D,
-      INTERPOLATOR_1D);
+  private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
   private static final double THETA = 0.55;
 
@@ -57,7 +55,7 @@ public class TwoStateMarkovChainFitterTest {
   private static final TwoStateMarkovChainDataBundle MARKOV_CHAIN_DATA;
   private static final PDEFullResults1D PDE_RESULTS;
   private static final Map<DoublesPair, Double> DATA;
-  private static Map<Double, Interpolator1DDoubleQuadraticDataBundle> DATABUNDLE;
+  private static Map<Double, Interpolator1DDataBundle> DATABUNDLE;
 
   private static final List<Pair<double[], Double>> MARKET_VOLS;
 

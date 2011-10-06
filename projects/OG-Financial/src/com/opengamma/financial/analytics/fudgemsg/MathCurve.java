@@ -65,7 +65,6 @@ final class MathCurve {
       serializer.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public InterpolatedDoublesCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] x = deserializer.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));

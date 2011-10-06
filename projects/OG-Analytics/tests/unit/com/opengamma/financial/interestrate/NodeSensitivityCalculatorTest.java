@@ -52,7 +52,7 @@ public abstract class NodeSensitivityCalculatorTest {
     final double[] liborCurveNodes = new double[] {1, 1.5, 1.9, 3., 4.0, 6.0};
     final double[] liborCurveYields = new double[] {0.041, 0.043, 0.048, 0.41, 0.0362, 0.032};
 
-    CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+    CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
         LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
 
     FUNDING_CURVE = new YieldCurve(InterpolatedDoublesCurve.fromSorted(fundingCurveNodes, fundingCurveYields, extrapolator));

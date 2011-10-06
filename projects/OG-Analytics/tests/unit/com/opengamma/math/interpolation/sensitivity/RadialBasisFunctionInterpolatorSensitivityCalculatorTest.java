@@ -16,7 +16,7 @@ import com.opengamma.math.interpolation.InterpolatorND;
 import com.opengamma.math.interpolation.InterpolatorNDTestCase;
 import com.opengamma.math.interpolation.InverseMultiquadraticRadialBasisFunction;
 import com.opengamma.math.interpolation.RadialBasisFunctionInterpolatorND;
-import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 
 /**
  * 
@@ -28,9 +28,9 @@ public class RadialBasisFunctionInterpolatorSensitivityCalculatorTest extends In
   @Test
   public void testFlat() {
     double r0 = 1.0;
-    InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> interpolator = new RadialBasisFunctionInterpolatorND(new GaussianRadialBasisFunction(r0), false);
+    InterpolatorND interpolator = new RadialBasisFunctionInterpolatorND(new GaussianRadialBasisFunction(r0), false);
     
-    RadialBasisFunctionInterpolatorDataBundle dataBundle = interpolator.getDataBundle(FLAT_DATA);
+    InterpolatorNDDataBundle dataBundle = interpolator.getDataBundle(FLAT_DATA);
     double[] point = FLAT_DATA.get(5).getFirst();
     Map<double[], Double> res = CAL.calculate(dataBundle, point);
     assertEquals(1.0,res.get(point),0.0);
@@ -44,8 +44,8 @@ public class RadialBasisFunctionInterpolatorSensitivityCalculatorTest extends In
   @Test
   public void testInverseMultiquadraticRadialBasisFunction() {
     final double r0 = 2;
-    final InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> interpolator = new RadialBasisFunctionInterpolatorND(new InverseMultiquadraticRadialBasisFunction(r0), true);
-    RadialBasisFunctionInterpolatorDataBundle dataBundle = interpolator.getDataBundle(COS_EXP_DATA);
+    final InterpolatorND interpolator = new RadialBasisFunctionInterpolatorND(new InverseMultiquadraticRadialBasisFunction(r0), true);
+    InterpolatorNDDataBundle dataBundle = interpolator.getDataBundle(COS_EXP_DATA);
     double[] point = COS_EXP_DATA.get(3).getFirst();
  //   System.out.println(point[0]+" "+point[1]);
     Map<double[], Double> res = CAL.calculate(dataBundle, point);

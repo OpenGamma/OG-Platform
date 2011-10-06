@@ -36,9 +36,8 @@ public class GridInterpolator2DTest {
     }
 
   };
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR_1D = new LinearInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR_2D = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(
-      INTERPOLATOR_1D, INTERPOLATOR_1D);
+  private static final Interpolator1D INTERPOLATOR_1D = new LinearInterpolator1D();
+  private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final Map<Double, Interpolator1DDataBundle> FLAT_DATA_BUNDLE;
   private static final double EPS = 1e-9;
 
@@ -60,12 +59,12 @@ public class GridInterpolator2DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullXInterpolator() {
-    new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(null, INTERPOLATOR_1D);
+    new GridInterpolator2D(null, INTERPOLATOR_1D);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYInterpolator() {
-    new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, null);
+    new GridInterpolator2D(INTERPOLATOR_1D, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -89,12 +88,12 @@ public class GridInterpolator2DTest {
   public void testObject() {
     assertEquals(INTERPOLATOR_2D.getXInterpolator(), INTERPOLATOR_1D);
     assertEquals(INTERPOLATOR_2D.getYInterpolator(), INTERPOLATOR_1D);
-    GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> other = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+    GridInterpolator2D other = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
     assertEquals(INTERPOLATOR_2D, other);
     assertEquals(INTERPOLATOR_2D.hashCode(), other.hashCode());
-    other = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(Interpolator1DFactory.LOG_LINEAR_INSTANCE, INTERPOLATOR_1D);
+    other = new GridInterpolator2D(Interpolator1DFactory.LOG_LINEAR_INSTANCE, INTERPOLATOR_1D);
     assertFalse(INTERPOLATOR_2D.equals(other));
-    other = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(INTERPOLATOR_1D, Interpolator1DFactory.LOG_LINEAR_INSTANCE);
+    other = new GridInterpolator2D(INTERPOLATOR_1D, Interpolator1DFactory.LOG_LINEAR_INSTANCE);
     assertFalse(INTERPOLATOR_2D.equals(other));
   }
 

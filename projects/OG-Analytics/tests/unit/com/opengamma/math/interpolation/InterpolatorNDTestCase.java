@@ -57,10 +57,10 @@ public abstract class InterpolatorNDTestCase {
     SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15}, 0.162));
   }
 
-  protected <T extends InterpolatorNDDataBundle> void assertFlat(final InterpolatorND<T> interpolator, final double tol) {
+  protected void assertFlat(final InterpolatorND interpolator, final double tol) {
     double x1, x2, x3;
     double[] x;
-    T dataBundle = interpolator.getDataBundle(FLAT_DATA);
+    InterpolatorNDDataBundle dataBundle = interpolator.getDataBundle(FLAT_DATA);
     for (int i = 0; i < 10; i++) {
       x1 = 10 * RANDOM.nextDouble();
       x2 = 10 * RANDOM.nextDouble();
@@ -73,10 +73,10 @@ public abstract class InterpolatorNDTestCase {
     
   }
 
-  protected <T extends InterpolatorNDDataBundle> void assertCosExp(final InterpolatorND<T> interpolator, final double tol) {
+  protected void assertCosExp(final InterpolatorND interpolator, final double tol) {
     double x1, x2;
     double[] x;
-    final T dataBundle = interpolator.getDataBundle(COS_EXP_DATA);
+    final InterpolatorNDDataBundle dataBundle = interpolator.getDataBundle(COS_EXP_DATA);
     for (int i = 0; i < 10; i++) {
       x1 = 10 * RANDOM.nextDouble();
       x2 = 10 * RANDOM.nextDouble();

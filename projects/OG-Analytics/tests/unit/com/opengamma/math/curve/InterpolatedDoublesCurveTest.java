@@ -15,15 +15,14 @@ import com.opengamma.math.interpolation.ExponentialInterpolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.StepInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
  */
 public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
-  private static final Interpolator1D<Interpolator1DDataBundle> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D<Interpolator1DDataBundle> STEP = new StepInterpolator1D();
-  private static final Interpolator1D<Interpolator1DDataBundle> EXPONENTIAL = new ExponentialInterpolator1D();
+  private static final Interpolator1D LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D STEP = new StepInterpolator1D();
+  private static final Interpolator1D EXPONENTIAL = new ExponentialInterpolator1D();
   private static final double EPS = 1e-15;
 
   @Test

@@ -18,7 +18,7 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -51,8 +51,7 @@ public class CoupledFokkerPlankPDEtest {
   private static final ExtendedCoupledPDEDataBundle DATA2;
 
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
-    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+  private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
   static {
 
@@ -125,7 +124,7 @@ public class CoupledFokkerPlankPDEtest {
       }
     }
 
-    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(localVolData);
+    final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(localVolData);
 
     final Function<Double, Double> localVolFunction = new Function<Double, Double>() {
 

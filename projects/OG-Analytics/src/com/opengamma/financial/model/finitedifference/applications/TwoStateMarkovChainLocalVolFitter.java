@@ -25,7 +25,7 @@ import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.surface.ConstantDoublesSurface;
@@ -38,9 +38,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class TwoStateMarkovChainLocalVolFitter {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
-    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
-
+  private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final TwoStateMarkovChainFitter CHAIN_FITTER = new TwoStateMarkovChainFitter();
   private static final DupireLocalVolatilityCalculator LOCAL_VOL_CALC = new DupireLocalVolatilityCalculator();
   private static final TwoStateMarkovChainLocalVolCalculator MC_LOCAL_VOL_CALC = new TwoStateMarkovChainLocalVolCalculator();
@@ -192,7 +190,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     final TwoStateMarkovChainPricer pricer = new TwoStateMarkovChainPricer(forward, chainData, lvOverlay);
     final PDEFullResults1D res = pricer.solve(grid, 1.0);
     final Map<DoublesPair, Double> modelVols = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
-    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> volData = GRID_INTERPOLATOR2D.getDataBundle(modelVols);
+    final Map<Double, Interpolator1DDataBundle> volData = GRID_INTERPOLATOR2D.getDataBundle(modelVols);
 
     final Iterator<Entry<DoublesPair, Double>> iter = marketVolsMap.entrySet().iterator();
     while (iter.hasNext()) {
