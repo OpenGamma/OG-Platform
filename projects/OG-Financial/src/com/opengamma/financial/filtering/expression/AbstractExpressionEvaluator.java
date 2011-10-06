@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.filtering.expression;
 
+import java.math.BigDecimal;
+
 /**
  * Implementation of a visitor to evaluate expressions. Only the basic constructs are handled
  * as the meaning of identifiers will vary depending on how an expression is used. For example
@@ -74,7 +76,16 @@ public abstract class AbstractExpressionEvaluator<D> implements UserExpressionVi
       } else if (sourceValue instanceof Number) {
         return ((Number) sourceValue).doubleValue();
       }
+    } else if (targetClass == BigDecimal.class) {
+      if (sourceValue instanceof String) {
+        return BigDecimal.valueOf(Double.parseDouble((String) sourceValue)); //TODO parse properly
+      } else if (sourceValue instanceof Integer || sourceValue instanceof Long) {
+        return BigDecimal.valueOf(((Number) sourceValue).longValue());
+      } else if (sourceValue instanceof Double || sourceValue instanceof Float) {
+        return BigDecimal.valueOf(((Number) sourceValue).doubleValue());
+      }
     }
+    
     return sourceValue;
   }
 
