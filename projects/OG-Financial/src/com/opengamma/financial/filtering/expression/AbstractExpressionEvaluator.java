@@ -155,7 +155,7 @@ public abstract class AbstractExpressionEvaluator<D> implements UserExpressionVi
     if (leftValue == null) {
       return false;
     }
-    final Comparable rightValue = evaluate(Comparable.class, right, data);
+    final Object rightValue = coerce(leftValue, right.accept(this, data));
     if (rightValue == null) {
       return false;
     }
@@ -169,7 +169,7 @@ public abstract class AbstractExpressionEvaluator<D> implements UserExpressionVi
     if (leftValue == null) {
       return false;
     }
-    final Comparable rightValue = evaluate(Comparable.class, right, data);
+    final Object rightValue = coerce(leftValue, right.accept(this, data));
     if (rightValue == null) {
       return false;
     }
