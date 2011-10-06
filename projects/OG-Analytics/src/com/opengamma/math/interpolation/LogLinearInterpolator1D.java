@@ -49,4 +49,9 @@ public class LogLinearInterpolator1D extends Interpolator1D {
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y, true);
   }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
+  }
 }

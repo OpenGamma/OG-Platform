@@ -17,12 +17,12 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class RationalFunctionInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
   private final int _degree;
+  private final double _eps;
 
-  public RationalFunctionInterpolator1D(final int degree) {
-    if (degree < 1) {
-      throw new IllegalArgumentException("Need a degree of at least one to perform rational function interpolation");
-    }
+  public RationalFunctionInterpolator1D(final int degree, double eps) {
+    Validate.isTrue(degree > 0, "Need a degree of at least one to perform rational function interpolation");
     _degree = degree;
+    _eps = eps;
   }
 
   @Override
@@ -40,7 +40,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
       return yArray[n];
     }
     double diff = Math.abs(value - xArray[0]);
-    if (Math.abs(diff) < getEPS()) {
+    if (Math.abs(diff) < _eps) {
       return yArray[0];
     }
     double diff1;
@@ -49,14 +49,14 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
     int ns = 0;
     for (int i = 0; i < m; i++) {
       diff1 = Math.abs(value - xArray[i]);
-      if (diff < getEPS()) {
+      if (diff < _eps) {
         return yArray[i];
       } else if (diff1 < diff) {
         ns = i;
         diff = diff1;
       }
       c[i] = yArray[i];
-      d[i] = yArray[i] + getEPS();
+      d[i] = yArray[i] + _eps;
     }
     double y = yArray[ns--];
     double w, t, dd;
@@ -66,7 +66,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
         diff = xArray[i + j] - value;
         t = (xArray[j] - value) * d[j] / diff;
         dd = t - c[j + 1];
-        if (Math.abs(dd) < getEPS()) {
+        if (Math.abs(dd) < _eps) {
           throw new MathException("Interpolating function has a pole at x = " + value);
         }
         dd = w / dd;
@@ -106,5 +106,10 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
   @Override
   public int hashCode() {
     return getClass().hashCode() * 17 + _degree;
+  }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
   }
 }

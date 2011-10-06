@@ -29,8 +29,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.YieldCurveFittingSetup;
@@ -51,8 +49,6 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
   private static final SimpleFrequency FRQ = SimpleFrequency.QUARTERLY;
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator INTERPOLATOR_SENSITIVITIES = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-      .getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
   private static final NewtonVectorRootFinder ROOT_FINDER = new BroydenVectorRootFinder(EPS, EPS, STEPS);
   private static final Map<String, double[]> MARKET_DATA = getSingleCurveMarketData();
   private static final Map<String, double[]> MATURITIES = getSingleCurveMaturities();
@@ -200,26 +196,26 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
   }
 
   private void testBumpedDataPVMethod(final InterestRateDerivative ird, final double notional, final double eps) {
-//    final DoubleMatrix1D sensitivities = ISC.calculateFromPresentValue(ird, null, PV_CURVES, PV_COUPON_SENSITIVITY, PV_JACOBIAN, PVNS);
-//    final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
-//    final double pv1 = calculator.visit(ird, PV_ALL_CURVES);
-//    for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
-//      final YieldCurveFittingTestDataBundle bumpedData = getSingleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES, getBumpedData(i, eps),
-//          true);
-//      final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedData, bumpedData.getMarketValueCalculator());
-//      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedData, bumpedData.getMarketValueSensitivityCalculator());
-//      final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedData.getStartPosition());
-//      final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedData, bumpedNodes);
-//      final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedData, bumpedCurves);
-//      final double pv2 = calculator.visit(ird, allBumpedCurves);
-//      final double delta = pv2 - pv1;
-//      if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
-//        assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
-//      } else {
-//        assertEquals(0, sensitivities.getEntry(i), 1e-4);
-//        assertEquals(0, delta, 1e-4);
-//      }
-//    }
+    final DoubleMatrix1D sensitivities = ISC.calculateFromPresentValue(ird, null, PV_CURVES, PV_COUPON_SENSITIVITY, PV_JACOBIAN, PVNS);
+    final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
+    final double pv1 = calculator.visit(ird, PV_ALL_CURVES);
+    for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
+      final YieldCurveFittingTestDataBundle bumpedData = getSingleCurveSetup(PresentValueCalculator.getInstance(), PresentValueSensitivityCalculator.getInstance(), MATURITIES, getBumpedData(i, eps),
+          true);
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> f = new MultipleYieldCurveFinderFunction(bumpedData, bumpedData.getMarketValueCalculator());
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jf = new MultipleYieldCurveFinderJacobian(bumpedData, bumpedData.getMarketValueSensitivityCalculator());
+      final DoubleMatrix1D bumpedNodes = ROOT_FINDER.getRoot(f, jf, bumpedData.getStartPosition());
+      final YieldCurveBundle bumpedCurves = getYieldCurveMap(bumpedData, bumpedNodes);
+      final YieldCurveBundle allBumpedCurves = getAllCurves(bumpedData, bumpedCurves);
+      final double pv2 = calculator.visit(ird, allBumpedCurves);
+      final double delta = pv2 - pv1;
+      if (Math.abs(sensitivities.getEntry(i)) > 1e-3) {
+        assertEquals(0, (delta - sensitivities.getEntry(i) * eps) / sensitivities.getEntry(i), eps);
+      } else {
+        assertEquals(0, sensitivities.getEntry(i), 1e-4);
+        assertEquals(0, delta, 1e-4);
+      }
+    }
   }
 
   private static YieldCurveBundle getAllCurves(final YieldCurveFittingTestDataBundle data, final YieldCurveBundle curves) {
@@ -316,8 +312,8 @@ public class InstrumentSingleCurveSensitivityCalculatorTest extends YieldCurveFi
     }
     rates[0] = 0.02;
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES,
-        calculator, sensitivityCalculator, marketValues, startPosition, null);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, INTERPOLATOR,
+        calculator, sensitivityCalculator, marketValues, startPosition, null, false);
     return data;
   }
 

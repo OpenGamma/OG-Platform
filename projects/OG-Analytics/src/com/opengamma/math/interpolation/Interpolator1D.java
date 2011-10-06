@@ -20,23 +20,39 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 public abstract class Interpolator1D implements Interpolator<Interpolator1DDataBundle, Double>, Serializable {
   private static final long serialVersionUID = 1L;
-  /**
-   * Default accuracy
-   */
-  private final double _eps;
+  private static final double EPS = 1e-6;
 
-  public Interpolator1D() {
-    _eps = 1e-12;
+  @Override
+  public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
+
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, boolean useFiniteDifferenceSensitivities) {
+    return useFiniteDifferenceSensitivities ? getFiniteDifferenceSensitivities(data, value) : getNodeSensitivitiesForValue(data, value);
   }
-
-  public Interpolator1D(final double eps) {
-    _eps = eps;
+  
+  public abstract double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value);
+  
+  protected double[] getFiniteDifferenceSensitivities(Interpolator1DDataBundle data, Double value) {
+    Validate.notNull(data, "data");
+    final double[] x = data.getKeys();
+    final double[] y = data.getValues();
+    final int n = x.length;
+    final double[] result = new double[n];
+    final Interpolator1DDataBundle dataUp = getDataBundleFromSortedArrays(x, y);
+    final Interpolator1DDataBundle dataDown = getDataBundleFromSortedArrays(x, y);
+    for (int i = 0; i < n; i++) {
+      if (i != 0) {
+        dataUp.setYValueAtIndex(i - 1, y[i - 1]);
+        dataDown.setYValueAtIndex(i - 1, y[i - 1]);
+      }
+      dataUp.setYValueAtIndex(i, y[i] + EPS);
+      dataDown.setYValueAtIndex(i, y[i] - EPS);
+      final double up = interpolate(dataUp, value);
+      final double down = interpolate(dataDown, value);
+      result[i] = (up - down) / 2 / EPS;
+    }
+    return result;
   }
-
-  public double getEPS() {
-    return _eps;
-  }
-
+  
   public abstract Interpolator1DDataBundle getDataBundle(double[] x, double[] y);
 
   public abstract Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y);
@@ -81,10 +97,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
     }
     return true;
   }
-
-  @Override
-  public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
-
+  
   protected boolean classEquals(final Object o) {
     if (o == null) {
       return false;
