@@ -485,17 +485,29 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper.compile(context, atInstant);
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper.compile(context, atInstant);
-    final InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
-    final InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());
+    final InstantProvider earliest = earlyBound(forwardCompile.getFirst(), fundingCompile.getFirst());
+    final InstantProvider latest = lateBound(forwardCompile.getSecond(), fundingCompile.getSecond());
     return new CompiledImpl(earliest, latest, fundingCompile.getThird(), forwardCompile.getThird());
   }
 
-  private InstantProvider max(final InstantProvider a, final InstantProvider b) {
-    return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
+  private InstantProvider earlyBound(final InstantProvider a, final InstantProvider b) {
+    if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    } else {
+      return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
+    }
   }
 
-  private InstantProvider min(final InstantProvider a, final InstantProvider b) {
-    return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+  private InstantProvider lateBound(final InstantProvider a, final InstantProvider b) {
+    if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    } else {
+      return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+    }
   }
 
   public int getPriority() {
