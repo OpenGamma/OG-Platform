@@ -10,7 +10,6 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Defines a constant curve (i.e. a curve with <i>y = constant</i>)
@@ -88,7 +87,7 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
    * @param interpolator An interpolator, not null
    * @return An interpolated curve with constant value 
    */
-  public InterpolatedDoublesCurve toInterpolatedDoublesCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesCurve toInterpolatedDoublesCurve(final double[] x, final Interpolator1D interpolator) {
     Validate.notNull(x, "x");
     Validate.notNull(interpolator, "interpolator");
     final double[] y = new double[x.length];

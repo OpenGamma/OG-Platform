@@ -15,14 +15,13 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @param <T> Type of the data
  */
-public abstract class InterpolatorND<T extends InterpolatorNDDataBundle> implements Interpolator<T, double[]> {
+public abstract class InterpolatorND implements Interpolator<InterpolatorNDDataBundle, double[]> {
 
   @Override
-  public abstract Double interpolate(T data, double[] x);
+  public abstract Double interpolate(InterpolatorNDDataBundle data, double[] x);
 
-  protected void validateInput(T data, double[] x) {
+  protected void validateInput(InterpolatorNDDataBundle data, double[] x) {
     Validate.notNull(x, "null position");
     Validate.notNull(data, "null databundle");
     List<Pair<double[], Double>> rawData = data.getData();
@@ -31,9 +30,9 @@ public abstract class InterpolatorND<T extends InterpolatorNDDataBundle> impleme
     Validate.isTrue(rawData.get(0).getFirst().length == dim, "data and requested point different dimension");
   }
 
-  public abstract T getDataBundle(double[] x, double[] y, double[] z, double[] values);
+  public abstract InterpolatorNDDataBundle getDataBundle(double[] x, double[] y, double[] z, double[] values);
 
-  public abstract T getDataBundle(List<Pair<double[], Double>> data);
+  public abstract InterpolatorNDDataBundle getDataBundle(List<Pair<double[], Double>> data);
 
   protected List<Pair<double[], Double>> transformData(double[] x, double[] y, double[] z, double[] values) {
     Validate.notNull(x, "x");

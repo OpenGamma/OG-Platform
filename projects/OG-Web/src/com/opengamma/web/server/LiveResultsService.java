@@ -48,6 +48,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+
 /**
  * The core of the back-end to the web client, providing the implementation of the Bayeux protocol.
  */
@@ -247,6 +249,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       result.add(entry.getValue());
     }
     
+    Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+    
     return result;
   }
 
@@ -321,7 +325,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
     s_logger.info("Initializing view '{}' with execution options '{}' for client '{}'", new Object[] {view.getName(), executionOptions, remote});
-    initializeClientView(remote, view.getUniqueId(), executionOptions, getUser(remote));
+    initializeClientView(remote, view.getUniqueId().toLatest(), executionOptions, getUser(remote));
   }
   
   public void processPauseRequest(Client remote, Message message) {

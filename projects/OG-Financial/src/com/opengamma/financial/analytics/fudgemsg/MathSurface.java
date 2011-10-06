@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
@@ -56,13 +55,12 @@ final class MathSurface {
     private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
     private static final String SURFACE_NAME_FIELD_NAME = "surface name";
 
-    @SuppressWarnings("unchecked")
     @Override
     public InterpolatedDoublesSurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] x = deserializer.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
       final double[] y = deserializer.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
       final double[] z = deserializer.fieldValueToObject(double[].class, message.getByName(Z_DATA_FIELD_NAME));
-      final Interpolator2D<? extends Interpolator1DDataBundle> interpolator = deserializer.fieldValueToObject(Interpolator2D.class, message.getByName(INTERPOLATOR_FIELD_NAME));
+      final Interpolator2D interpolator = deserializer.fieldValueToObject(Interpolator2D.class, message.getByName(INTERPOLATOR_FIELD_NAME));
       final String name = deserializer.fieldValueToObject(String.class, message.getByName(SURFACE_NAME_FIELD_NAME));
       return InterpolatedDoublesSurface.from(x, y, z, interpolator, name);
     }

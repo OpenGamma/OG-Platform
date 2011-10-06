@@ -21,10 +21,10 @@ import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBu
  */
 public class Extrapolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
-  private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> INTERPOLATOR = new DoubleQuadraticInterpolator1D();
-  private static final LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR);
-  private static final FlatExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle> FLAT_EXTRAPOLATOR = new FlatExtrapolator1D<Interpolator1DDoubleQuadraticDataBundle>();
-  private static final Interpolator1DDoubleQuadraticDataBundle DATA;
+  private static final Interpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
+  private static final LinearExtrapolator1D LINEAR_EXTRAPOLATOR = new LinearExtrapolator1D(INTERPOLATOR);
+  private static final FlatExtrapolator1D FLAT_EXTRAPOLATOR = new FlatExtrapolator1D();
+  private static final Interpolator1DDataBundle DATA;
 
   private static final double[] X_DATA = new double[] {0, 0.4, 1.0, 1.8, 2.8, 5};
   private static final double[] Y_DATA = new double[] {3., 4., 3.1, 2., 7., 2.};
@@ -38,7 +38,7 @@ public class Extrapolator1DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
-    new LinearExtrapolator1D<Interpolator1DDataBundle>(null);
+    new LinearExtrapolator1D(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

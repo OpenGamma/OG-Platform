@@ -28,7 +28,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param interpolator The interpolator, not null
    * @return An interpolated cube with automatically-generated name
    */
-  public static InterpolatedDoublesCube from(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
+  public static InterpolatedDoublesCube from(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND interpolator) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator);
   }
 
@@ -40,7 +40,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param interpolator The interpolator, not null
    * @return An interpolated cube with automatically-generated name
    */
-  public static InterpolatedDoublesCube from(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
+  public static InterpolatedDoublesCube from(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND interpolator) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator);
   }
 
@@ -52,7 +52,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param interpolator The interpolator, not null
    * @return An interpolated cube with automatically-generated name
    */
-  public static InterpolatedDoublesCube from(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
+  public static InterpolatedDoublesCube from(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND interpolator) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator);
   }
 
@@ -65,7 +65,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param name The name of the cube
    * @return An interpolated cube 
    */  
-  public static InterpolatedDoublesCube from(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
+  public static InterpolatedDoublesCube from(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND interpolator, String name) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator, name);
   }
 
@@ -78,7 +78,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param name The name of the cube
    * @return An interpolated cube 
    */ 
-  public static InterpolatedDoublesCube from(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
+  public static InterpolatedDoublesCube from(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND interpolator, String name) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator, name);
   }
 
@@ -91,12 +91,11 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param name The name of the cube
    * @return An interpolated cube 
    */ 
-  public static InterpolatedDoublesCube from(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator,
+  public static InterpolatedDoublesCube from(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND interpolator,
       String name) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator, name);
   }
 
-  @SuppressWarnings("rawtypes")
   private final InterpolatorND _interpolator;
   private InterpolatorNDDataBundle _dataBundle;
 
@@ -107,7 +106,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
    * @param interpolator The interpolator, not null
    */
-  public InterpolatedDoublesCube(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
+  public InterpolatedDoublesCube(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND interpolator) {
     super(xData, yData, zData, values);
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
@@ -121,7 +120,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
    * @param interpolator The interpolator, not null
    */
-  public InterpolatedDoublesCube(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
+  public InterpolatedDoublesCube(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND interpolator) {
     super(xData, yData, zData, values);
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
@@ -135,7 +134,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param values A list containing <i>value</i> data, not null, must be the same length as the <i>x</i> list
    * @param interpolator The interpolator, not null
    */
-  public InterpolatedDoublesCube(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
+  public InterpolatedDoublesCube(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND interpolator) {
     super(xData, yData, zData, values);
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
@@ -150,7 +149,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param interpolator The interpolator, not null
    * @param name The name of the cube
    */  
-  public InterpolatedDoublesCube(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
+  public InterpolatedDoublesCube(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND interpolator, String name) {
     super(xData, yData, zData, values, name);
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
@@ -165,7 +164,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param interpolator The interpolator, not null
    * @param name The name of the cube
    */ 
-  public InterpolatedDoublesCube(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
+  public InterpolatedDoublesCube(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND interpolator, String name) {
     super(xData, yData, zData, values, name);
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
@@ -180,7 +179,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
    * @param interpolator The interpolator, not null
    * @param name The name of the cube
    */ 
-  public InterpolatedDoublesCube(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
+  public InterpolatedDoublesCube(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND interpolator, String name) {
     super(xData, yData, zData, values, name);
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
@@ -191,7 +190,6 @@ public class InterpolatedDoublesCube extends DoublesCube {
     _dataBundle = _interpolator.getDataBundle(getXDataAsPrimitive(), getYDataAsPrimitive(), getZDataAsPrimitive(), getValuesAsPrimitive());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Double getValue(Double x, Double y, Double z) {
     Validate.notNull(x, "x");
@@ -200,7 +198,6 @@ public class InterpolatedDoublesCube extends DoublesCube {
     return _interpolator.interpolate(_dataBundle, new double[] {x, y, z});
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Double getValue(Triple<Double, Double, Double> xyz) {
     Validate.notNull(xyz, "xyz");
@@ -213,8 +210,7 @@ public class InterpolatedDoublesCube extends DoublesCube {
     return _interpolator.interpolate(_dataBundle, new double[] {x, y, z});
   }
 
-  @SuppressWarnings("unchecked")
-  public InterpolatorND<? extends InterpolatorNDDataBundle> getInterpolator() {
+  public InterpolatorND getInterpolator() {
     return _interpolator;
   }
 

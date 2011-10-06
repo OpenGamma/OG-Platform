@@ -144,11 +144,6 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
      */
     static final Meta INSTANCE = new Meta();
 
-    @Override
-    protected Class<SecurityDocument> documentsGenericType() {
-      return SecurityDocument.class;
-    }
-
     /**
      * The meta-properties.
      */

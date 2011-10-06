@@ -203,7 +203,7 @@ public class HestonPDETestCase {
       price[i] = strikeNprice[i][1];
     }
 
-    Interpolator1D<Interpolator1DDataBundle> interpolator = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
+    Interpolator1D interpolator = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
     final Interpolator1DDataBundle dataBundle = interpolator.getDataBundleFromSortedArrays(k, price);
 
     double fftPrice = interpolator.interpolate(dataBundle, STRIKE);

@@ -59,12 +59,12 @@ public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
 
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return null; //visitor.visitFloatingRateNote(this, data);
+    return visitor.visitFloatingRateNote(this, data);
   }
 
   @Override
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return null; //visitor.visitFloatingRateNote(this);
+    return visitor.visitFloatingRateNote(this);
   }
 
 }
