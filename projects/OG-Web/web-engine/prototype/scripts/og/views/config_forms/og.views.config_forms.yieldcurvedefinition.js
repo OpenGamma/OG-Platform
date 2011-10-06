@@ -98,7 +98,7 @@ $.register_module({
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name + '_' + data.currency,
-                        json: JSON.stringify(data),
+                        json: JSON.stringify({data: data, meta: meta}),
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
@@ -126,7 +126,7 @@ $.register_module({
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    save_resource(result.data, submit_type === 'save_as_new');
+                    save_resource(result, submit_type === 'save_as_new');
                 }},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
                     var currency = $(e.target).val();

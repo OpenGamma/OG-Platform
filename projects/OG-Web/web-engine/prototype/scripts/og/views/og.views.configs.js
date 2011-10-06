@@ -138,7 +138,7 @@ $.register_module({
                         item: 'history.configs.recent',
                         value: routes.current().hash
                     });
-                    (og.views.config_forms[config_type] || og.views.config_forms['default'])({
+                    og.views.config_forms[config_type]({
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
@@ -179,9 +179,7 @@ $.register_module({
                             layout.inner.resizeAll();
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content'
-                    });
-                    if (!og.views.config_forms[config_type])
-                        og.dev.warn('using default config template for config type: ' + config_type);
+                    });                        
                 };
                 rest_options = {
                     handler: rest_handler,

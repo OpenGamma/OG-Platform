@@ -183,7 +183,7 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
-        Form.type =  {SHR: 'short', BYT: 'byte', STR: 'string', IND: 'indicator'};
+        Form.type =  {SHR: 'short', BYT: 'byte', STR: 'string', IND: 'indicator', BOO: 'boolean'};
         numbers[Form.type.SHR] = null; numbers[Form.type.BYT] = null;
         return Form;
     }
