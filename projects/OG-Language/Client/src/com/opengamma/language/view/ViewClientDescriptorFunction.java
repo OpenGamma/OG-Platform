@@ -81,23 +81,23 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
    */
   public static final ViewClientDescriptorFunction STATIC_MARKET_DATA = new StaticMarketData();
 
-  private static final class SampleMarketData extends ViewClientDescriptorFunction {
+  private static final class HistoricalMarketData extends ViewClientDescriptorFunction {
 
-    private SampleMarketData() {
-      super("SampleMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, FIRST_VALUATION_TIME_PARAMETER, LAST_VALUATION_TIME_PARAMETER, SAMPLE_PERIOD_PARAMETER));
+    private HistoricalMarketData() {
+      super("HistoricalMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, FIRST_VALUATION_TIME_PARAMETER, LAST_VALUATION_TIME_PARAMETER, SAMPLE_PERIOD_PARAMETER));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.sampleMarketData((UniqueId) parameters[0], (Instant) parameters[1], (Instant) parameters[2], (Integer) parameters[3]);
+      return ViewClientDescriptor.historicalMarketData((UniqueId) parameters[0], (Instant) parameters[1], (Instant) parameters[2], (Integer) parameters[3]);
     }
 
   }
 
   /**
-   * sampleMarketData instance
+   * historicalMarketData instance
    */
-  public static final ViewClientDescriptorFunction SAMPLE_MARKET_DATA = new SampleMarketData();
+  public static final ViewClientDescriptorFunction HISTORICAL_MARKET_DATA = new HistoricalMarketData();
 
   private static final class TickingSnapshot extends ViewClientDescriptorFunction {
 
