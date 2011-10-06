@@ -6,13 +6,16 @@
 package com.opengamma.language.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
@@ -59,7 +62,10 @@ public final class ViewClientDescriptor {
   private static final String MARKET_DATA_USER = "UserMarketData";
   private static final String TICKING = "Ticking";
 
-  private static final int DEFAULT_SAMPLE_PERIOD = 86400;
+  /**
+   * Default value of samplePeriod.
+   */
+  public static final int DEFAULT_SAMPLE_PERIOD = 86400;
 
   private final Type _type;
   private final UniqueId _viewId;
@@ -169,7 +175,7 @@ public final class ViewClientDescriptor {
   }
 
   private static StringBuilder append(final StringBuilder sb, final Instant instant) {
-    return append(sb, instant.toEpochMillisLong() / 1000L);
+    return append(sb, instant.getEpochSeconds());
   }
 
   private static String escape(final String str) {
@@ -228,8 +234,14 @@ public final class ViewClientDescriptor {
   public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod) {
     final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
     final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
-    // TODO: want a batch of execution for the valuation sample period
-    final ViewExecutionOptions options = ExecutionOptions.singleCycle(firstValuationTimeValue, MarketData.live());
+    final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
+        ((int) (lastValuationTimeValue.getEpochSeconds() - firstValuationTimeValue.getEpochSeconds()) + samplePeriod - 1) / samplePeriod);
+    for (Instant valuationTime = firstValuationTimeValue; !valuationTime.isAfter(lastValuationTimeValue); valuationTime = valuationTime.plus(samplePeriod, TimeUnit.SECONDS)) {
+      final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime);
+      options.setMarketDataSpecification(MarketData.live());
+      cycles.add(options);
+    }
+    final ViewExecutionOptions options = ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), null, ExecutionFlags.none().get());
     StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), firstValuationTimeValue), lastValuationTimeValue);
     if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
       encoded = append(encoded, samplePeriod);
