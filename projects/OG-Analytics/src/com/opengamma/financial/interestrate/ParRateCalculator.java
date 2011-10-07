@@ -5,17 +5,14 @@
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.CouponIborFixed;
@@ -32,6 +29,8 @@ import com.opengamma.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc. For instruments that 
@@ -91,18 +90,9 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   /**
    * Compute the future rate (1-price) without convexity adjustment.
    */
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
     return method.parRate(future, curves);
-  }
-
-  @Override
-  /**
-   * Compute the future rate (1-price) without convexity adjustment.
-   */
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
-    return method.parRate(future.getUnderlyingFuture(), curves);
   }
 
   /**

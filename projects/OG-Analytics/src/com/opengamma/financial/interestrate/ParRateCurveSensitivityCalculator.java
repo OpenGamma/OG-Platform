@@ -5,13 +5,6 @@
  */
 package com.opengamma.financial.interestrate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -19,8 +12,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -36,6 +28,13 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * For an instrument, this calculates the sensitivity of the par rate (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) to points on the yield 
@@ -98,7 +97,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     final String curveName = future.getForwardCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
     final double ta = future.getFixingPeriodStartTime();
@@ -112,11 +111,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     result.put(curveName, temp);
     return result;
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return visitInterestRateFutureSecurity(future.getUnderlyingFuture(), curves);
   }
 
   @Override

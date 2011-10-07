@@ -10,8 +10,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -110,7 +109,8 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     return new CrossCurrencySwap(visitFloatingRateNote(ccs.getDomesticLeg(), 0.0), visitFloatingRateNote(ccs.getForeignLeg(), spread), ccs.getSpotFX());
   }
 
-  @Override //TODO remove (or rethink) this ASAP
+  @Override
+  //TODO remove (or rethink) this ASAP
   public ForexForward visitForexForward(final ForexForward fx, Double forwardFX) {
     double x = -fx.getPaymentCurrency1().getAmount() / forwardFX;
     PaymentFixed fp = new PaymentFixed(fx.getCurrency2(), fx.getPaymentTime(), x, fx.getPaymentCurrency2().getFundingCurveName());
@@ -118,10 +118,9 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final Double rate) {
-    final InterestRateFutureSecurity security = future.getUnderlyingFuture();
-    return new InterestRateFutureTransaction(new InterestRateFutureSecurity(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(),
-        security.getFixingPeriodEndTime(), security.getFixingPeriodAccrualFactor(), security.getNotional(), security.getPaymentAccrualFactor(), security.getName(), security.getDiscountingCurveName(),
-        security.getForwardCurveName()), future.getQuantity(), 1 - rate);
+  public InterestRateFuture visitInterestRateFuture(final InterestRateFuture security, final Double rate) {
+    return new InterestRateFuture(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(),
+        security.getFixingPeriodEndTime(), security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getName(),
+        security.getDiscountingCurveName(), security.getForwardCurveName());
   }
 }

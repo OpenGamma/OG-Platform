@@ -7,13 +7,6 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.calendar.Period;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -24,8 +17,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -39,6 +31,13 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.time.calendar.Period;
+
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -120,24 +119,25 @@ public class PresentValueCalculatorTest {
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
+    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double rate = (curve.getDiscountFactor(fixingPeriodStartTime) / curve.getDiscountFactor(fixingPeriodEndTime) - 1.0) / fixingPeriodAccrualFactor;
     final double price = 1 - rate;
     final double notional = 1;
-    InterestRateFutureTransaction ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
-        fixingPeriodAccrualFactor, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price);
+    InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double pv = PVC.visit(ir, CURVES);
-    assertEquals(0.0, pv, 1e-12);
+    assertEquals(price * notional * paymentAccrualFactor, pv, 1e-12);
     final double deltaPrice = 0.01;
-    ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional,
-        paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME), 1, price + deltaPrice);
+    ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice,
+        notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     pv = PVC.visit(ir, CURVES);
-    assertEquals(-deltaPrice * paymentAccrualFactor, pv, 1e-12);
+    assertEquals((price - deltaPrice) * notional * paymentAccrualFactor, pv, 1e-12);
   }
 
   @Test
   public void testFixedCouponAnnuity() {
-    AnnuityCouponFixed annuityReceiver = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, ZERO_PC_CURVE_NAME, false);
+    AnnuityCouponFixed annuityReceiver = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1.0, ZERO_PC_CURVE_NAME, false);
 
     double pv = PVC.visit(annuityReceiver, CURVES);
     assertEquals(10.0, pv, 1e-12);

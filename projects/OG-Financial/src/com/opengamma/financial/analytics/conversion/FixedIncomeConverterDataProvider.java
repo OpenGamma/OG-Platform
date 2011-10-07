@@ -24,7 +24,6 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -78,10 +77,16 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, curveNames);
   }
 
+  /** Convert an InterestRateFutureSecurityDefinition to the derivative form: InterestRateFutureSecurity. NO MORE  Transaction   */
   public InterestRateDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureSecurityDefinition definition, final ZonedDateTime now,
       final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
+
+    return definition.toDerivative(now, curveNames);
+
+    // TODO - CASE - Future refactor - cleanup the following InterestRateFutureTransactionDefinition rubbish
+    /*
     final ExternalIdBundle id = security.getExternalIdBundle();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7)); // FIXME Hardcoded behaviour
     final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
@@ -95,6 +100,8 @@ public class FixedIncomeConverterDataProvider {
     final double price = ts.getTimeSeries().getValueAt(length - 1) / 100; //TODO this is wrong; need margin data and previous close for lastMarginPrice
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(definition, 1, now, price);
     return transactionDefinition.toDerivative(now, lastMarginPrice, curveNames);
+    */
+
   }
 
   public InterestRateDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
@@ -105,7 +112,7 @@ public class FixedIncomeConverterDataProvider {
             .getHistoricalTimeSeries(_fieldName, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-    }    
+    }
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
       throw new OpenGammaRuntimeException("Price time series for " + security + " was empty");
@@ -149,19 +156,19 @@ public class FixedIncomeConverterDataProvider {
       if (payLegTS.isEmpty()) {
         throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId());
       }
-      if (receiveLegTS != null) {        
+      if (receiveLegTS != null) {
         if (receiveLegTS.isEmpty()) {
           throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
         }
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS}, curveNames);
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
+      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
     }
     if (receiveLegTS != null) {
       if (receiveLegTS.isEmpty()) {
         throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS}, curveNames);
+      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }

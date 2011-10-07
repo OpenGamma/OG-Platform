@@ -6,18 +6,6 @@
 package com.opengamma.math.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -40,8 +28,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
@@ -66,6 +53,17 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
 
 /**
  * 
@@ -305,9 +303,10 @@ public abstract class YieldCurveFittingSetup {
 
   protected static InterestRateDerivative makeFuture(final double time, final String fundCurveName,
       final String indexCurveName, final double rate, final int contracts) {
-    final InterestRateFutureSecurity underlyingFuture = new InterestRateFutureSecurity(time, INDEX, time, time + 0.25,
-        0.25, 1, 0.25, "N", fundCurveName, indexCurveName);
-    return new InterestRateFutureTransaction(underlyingFuture, contracts, rate);
+    final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
+    final InterestRateFuture underlyingFuture = new InterestRateFuture(time, INDEX, time, time + 0.25,
+        0.25, referencePrice, 1, 0.25, "N", fundCurveName, indexCurveName);
+    return underlyingFuture; // TODO CASE - Future Refactor - Check whether rate is required here. It may well be. *Shrug*
   }
 
   protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String liborCurveName,

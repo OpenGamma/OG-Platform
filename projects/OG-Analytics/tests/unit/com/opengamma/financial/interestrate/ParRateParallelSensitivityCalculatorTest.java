@@ -7,15 +7,6 @@ package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -26,8 +17,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -37,6 +27,15 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.util.money.Currency;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -96,10 +95,9 @@ public class ParRateParallelSensitivityCalculatorTest {
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
-    final double price = 0.973;
-    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime,
-        fixingPeriodAccrualFactor, 1, paymentAccrualFactor, "L", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME), 1, price);
-    //final InterestRateFuture edf = new InterestRateFuture(settlementDate, fixingDate, maturity, indexYearFraction, valueYearFraction, price, LIBOR_CURVE_NAME);
+    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
+    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor,
+        referencePrice, 1, paymentAccrualFactor, "L", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(ir, CURVES);
   }
 

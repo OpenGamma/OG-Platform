@@ -22,12 +22,11 @@ import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -100,7 +99,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(FixedCouponSwap<?> swap, S data);
 
   T visitFixedFloatSwap(FixedFloatSwap swap, S data);
-  
+
   T visitOISSwap(OISSwap swap, S data);
 
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, S data);
@@ -110,18 +109,16 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, S data);
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
-  
+
   T visitFloatingRateNote(FloatingRateNote frn, S data);
-  
+
   T visitCrossCurrencySwap(CrossCurrencySwap ccs, S data);
-  
+
   T visitForexForward(ForexForward fx, S data);
 
   T visitCash(Cash cash, S data);
 
-  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future, S data);
-
-  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future, S data);
+  T visitInterestRateFuture(InterestRateFuture future, S data);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
 
@@ -211,21 +208,17 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption);
 
-  T visitFloatingRateNote(FloatingRateNote frn); 
-  
+  T visitFloatingRateNote(FloatingRateNote frn);
+
   T visitCrossCurrencySwap(CrossCurrencySwap ccs);
-  
+
   T visitForexForward(ForexForward fx);
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap);
-  
-
 
   T visitCash(Cash cash);
 
-  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
-
-  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
+  T visitInterestRateFutureSecurity(InterestRateFuture future);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
 
@@ -270,9 +263,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
-
-
-
 
   //TODO cap / floor CMS spread
 }

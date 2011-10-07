@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -21,9 +19,9 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureTransactionDiscountingMethod;
-import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -44,6 +42,8 @@ import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
@@ -105,8 +105,8 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
    * Future transaction pricing without convexity adjustment.
    */
   @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
     return method.presentValue(future, curves).getAmount();
   }
 
