@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
@@ -34,9 +33,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
@@ -94,6 +91,9 @@ public class YieldCurveFunctionHelper {
   }
 
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final Instant curveDate, final InterpolatedYieldCurveSpecification specification, final Instant eod) {
+    // ENG-252; logic is wrong so always go for EOD
+    return eod;
+    /*
     boolean useEOD = false;
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -117,6 +117,7 @@ public class YieldCurveFunctionHelper {
     }
     // useEOD is set if there are futures but not the first after a tenor that we can calculate the expiry from
     return useEOD ? eod : null;
+    */
   }
 
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
