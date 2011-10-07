@@ -23,7 +23,7 @@ import java.util.List;
  * A function that can create instances of a Joda {@link Bean} class.  The function's parameters are derived from
  * the bean's writable properties in the order they appear in its {@link Bean#metaBean() meta} class.
  */
-public class CreateBeanFunction<T extends Bean> implements PublishedFunction {
+public class CreateBeanFunction implements PublishedFunction {
 
   private final MetaBean _metaBean;
   private final MetaFunction _metaFunction;
