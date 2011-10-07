@@ -136,7 +136,13 @@ public class RemoteHistoricalTimeSeriesSource implements HistoricalTimeSeriesSou
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
-    return getHistoricalTimeSeries(identifierBundle, (LocalDate) null, dataSource, dataProvider, dataField);
+    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataField, "dataField");
+    final RestTarget target = getTargetBase().resolveBase(REQUEST_ALL)
+      .resolveBase(dataSource).resolveBase((dataProvider != null) ? dataProvider : NULL_VALUE)
+      .resolveBase(dataField).resolveQuery("id", identifierBundle.toStringList());
+    return decodeMessage(getRestClient().getMsg(target));
   }
 
   @Override
