@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
@@ -42,9 +44,9 @@ public final class ViewClientDescriptor {
      */
     STATIC_MARKET_DATA,
     /**
-     * Created by {@link #sampleMarketData}.
+     * Created by {@link #historicalMarketData}.
      */
-    SAMPLE_MARKET_DATA,
+    HISTORICAL_MARKET_DATA,
     /**
      * Created by {@link #tickingSnapshot}.
      */
@@ -58,8 +60,9 @@ public final class ViewClientDescriptor {
   private static final char SEPARATOR = '~';
   private static final char ESCAPE_CHAR = '$';
 
-  private static final String MARKET_DATA_LIVE = "LiveMarketData";
-  private static final String MARKET_DATA_USER = "UserMarketData";
+  private static final String MARKET_DATA_HISTORICAL = "Historical";
+  private static final String MARKET_DATA_LIVE = "Live";
+  private static final String MARKET_DATA_USER = "User";
   private static final String TICKING = "Ticking";
 
   /**
@@ -110,16 +113,20 @@ public final class ViewClientDescriptor {
           }
           break;
         case 4:
-          if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return sampleMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))), DEFAULT_SAMPLE_PERIOD);
-          } else if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
+          if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
             return tickingSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
           }
           break;
-        case 5:
-          if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return sampleMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
-                Integer.parseInt(values.get(4)));
+        case 7:
+          if (MARKET_DATA_HISTORICAL.equals(values.get(0))) {
+            return historicalMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
+                DEFAULT_SAMPLE_PERIOD, values.get(4), values.get(5), values.get(6));
+          }
+          break;
+        case 8:
+          if (MARKET_DATA_HISTORICAL.equals(values.get(0))) {
+            return historicalMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
+                Integer.parseInt(values.get(4)), values.get(5), values.get(6), values.get(7));
           }
           break;
       }
@@ -231,26 +238,30 @@ public final class ViewClientDescriptor {
     return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded);
   }
 
-  public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod) {
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod,
+      final String source, final String provider, final String field) {
     final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
     final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
         ((int) (lastValuationTimeValue.getEpochSeconds() - firstValuationTimeValue.getEpochSeconds()) + samplePeriod - 1) / samplePeriod);
     for (Instant valuationTime = firstValuationTimeValue; !valuationTime.isAfter(lastValuationTimeValue); valuationTime = valuationTime.plus(samplePeriod, TimeUnit.SECONDS)) {
       final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime);
-      options.setMarketDataSpecification(MarketData.live());
+      // TODO: the strings hardcoded below are bad; move them somewhere else
+      options.setMarketDataSpecification(MarketData.historical(ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate(), source, provider, field));
       cycles.add(options);
     }
     final ViewExecutionOptions options = ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), null, ExecutionFlags.none().get());
-    StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), firstValuationTimeValue), lastValuationTimeValue);
+    StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_HISTORICAL), viewId), firstValuationTimeValue), lastValuationTimeValue);
     if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
       encoded = append(encoded, samplePeriod);
     }
-    return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded.toString());
+    append(append(append(encoded, source), provider), field);
+    return new ViewClientDescriptor(Type.HISTORICAL_MARKET_DATA, viewId, options, encoded.toString());
   }
 
-  public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime) {
-    return sampleMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD);
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final String source,
+      final String provider, final String field) {
+    return historicalMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD, source, provider, field);
   }
 
   public static ViewClientDescriptor tickingSnapshot(final UniqueId viewId, final UniqueId snapshotId) {

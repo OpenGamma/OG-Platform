@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
@@ -78,20 +79,12 @@ public class YieldCurveFunctionHelper {
   public Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile(
       final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     //TODO: avoid doing this compile twice all the time
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final LocalDate curveDate = atInstant.toLocalDate();
-    final InterpolatedYieldCurveSpecification fundingCurveSpecification = buildCurve(curveDate);
-
-    // ENG-252 expiry logic is wrong so make it valid for the current day only
-    final Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
-    Instant expiry = null;
-    // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
-    // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    // if (expiry.isBefore(eod)) {
-    expiry = eod;
-    // }
-    return new Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification>(atInstant.withTime(0, 0),
-        expiry, fundingCurveSpecification);
+    final Instant atInstant = Instant.of(atInstantProvider);
+    final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC);
+    final LocalDate curveDate = atInstantZDT.toLocalDate();
+    final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
+    Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant());
+    return new Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.withTime(0, 0) : null, expiry, specification);
   }
 
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {
@@ -100,26 +93,30 @@ public class YieldCurveFunctionHelper {
     return curveDefinitionSource.getDefinition(_currency, _curveName);
   }
 
-  //ENG-252 This logic is wrong
-  @SuppressWarnings("unused")
-  private Instant findCurveExpiryDate(final SecuritySource securitySource,
-      final InterpolatedYieldCurveSpecification specification, Instant expiry) {
+  private Instant findCurveExpiryDate(final SecuritySource securitySource, final Instant curveDate, final InterpolatedYieldCurveSpecification specification, final Instant eod) {
+    boolean useEOD = false;
     for (final FixedIncomeStripWithIdentifier strip : specification.getStrips()) {
       if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-        final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(ExternalIdBundle.of(strip
-            .getSecurity()));
-        final Instant futureInvalidAt = future.getExpiry().getExpiry().minus(strip.getMaturity().getPeriod())
-            .toInstant();
-        if (expiry == null) {
-          expiry = futureInvalidAt;
-        } else {
-          if (futureInvalidAt.isBefore(expiry)) {
-            expiry = futureInvalidAt;
+        if (strip.getNumberOfFuturesAfterTenor() == 1) {
+          //ENG-252 This logic may be wrong
+          final FutureSecurity future = (FutureSecurity) securitySource.getSecurity(ExternalIdBundle.of(strip.getSecurity()));
+          final Instant futureExpiry = future.getExpiry().toInstant();
+          final Instant tenor = curveDate.plus(strip.getMaturity().getPeriod().toDuration());
+          // Duration ahead of the tenor that the first future expires. The curve is valid for this duration - after
+          // this, the first future to expire will be something else.
+          final Duration d = Duration.between(tenor, futureExpiry);
+          final Instant expiry = curveDate.plus(d);
+          if (expiry.isBefore(eod)) {
+            return eod;
+          } else {
+            return expiry;
           }
         }
+        useEOD = true;
       }
     }
-    return expiry;
+    // useEOD is set if there are futures but not the first after a tenor that we can calculate the expiry from
+    return useEOD ? eod : null;
   }
 
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {

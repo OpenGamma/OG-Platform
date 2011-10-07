@@ -106,7 +106,7 @@ public class Loader extends ContextInitializationBean {
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getScheduler()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         GetViewResultFunction.INSTANCE,
-        ViewClientDescriptorFunction.SAMPLE_MARKET_DATA,
+        ViewClientDescriptorFunction.HISTORICAL_MARKET_DATA,
         ViewClientDescriptorFunction.STATIC_MARKET_DATA,
         ViewClientDescriptorFunction.TICKING_MARKET_DATA,
         ViewClientDescriptorFunction.STATIC_SNAPSHOT,
