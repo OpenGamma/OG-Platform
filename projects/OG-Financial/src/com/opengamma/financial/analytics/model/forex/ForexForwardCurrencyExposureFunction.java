@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -29,8 +30,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class ForexForwardCurrencyExposureFunction extends ForexForwardFunction {
   private static final CurrencyExposureForexCalculator CALCULATOR = CurrencyExposureForexCalculator.getInstance();
 
-  public ForexForwardCurrencyExposureFunction(final String payCurveName, final String receiveCurveName) {
-    super(payCurveName, receiveCurveName, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+  public ForexForwardCurrencyExposureFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName, final String receiveForwardCurveName) {
+    super(payFundingCurveName, payForwardCurveName, receiveFundingCurveName, receiveForwardCurveName);
   }
 
   @Override
@@ -44,9 +45,20 @@ public class ForexForwardCurrencyExposureFunction extends ForexForwardFunction {
       keys[i] = ca.getCurrency();
       values[i++] = ca.getAmount();
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPayCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveCurveName()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName()).get();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new CurrencyLabelledMatrix1D(keys, values)));
   }
+  
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName()).get();
+    Set<ValueSpecification> temp = Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(),
+        properties));
+    return temp;
+  }
+
 }

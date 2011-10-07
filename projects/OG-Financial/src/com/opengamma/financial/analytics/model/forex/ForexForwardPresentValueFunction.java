@@ -35,8 +35,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class ForexForwardPresentValueFunction extends ForexForwardFunction {
   private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
 
-  public ForexForwardPresentValueFunction(final String payCurveName, final String receiveCurveName) {
-    super(payCurveName, receiveCurveName, ValueRequirementNames.FX_PRESENT_VALUE);
+  public ForexForwardPresentValueFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName, final String receiveForwardCurveName) {
+    super(payFundingCurveName, payForwardCurveName, receiveFundingCurveName, receiveForwardCurveName);
   }
 
   @Override
@@ -47,10 +47,10 @@ public class ForexForwardPresentValueFunction extends ForexForwardFunction {
     Currency ccy = ca.getCurrency();
     double amount = ca.getAmount();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE, getPayCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveCurveName())
+        .with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName())
         .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, amount));
   }
   
@@ -61,9 +61,9 @@ public class ForexForwardPresentValueFunction extends ForexForwardFunction {
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
     final FXSecurity fxSecurity = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(ExternalIdBundle.of(underlyingIdentifier)));
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE, getPayCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveCurveName())
+        .with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName())
         .with(ValuePropertyNames.CURRENCY, fxSecurity.getReceiveCurrency().getCode()).get();
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties));
   }
 }
