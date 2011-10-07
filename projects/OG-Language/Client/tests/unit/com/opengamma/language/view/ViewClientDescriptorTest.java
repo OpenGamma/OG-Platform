@@ -41,8 +41,8 @@ public class ViewClientDescriptorTest {
 
   public void testHistoricalMarketData() {
     for (UniqueId viewId : VIEW_IDENTIFIERS) {
-      assertCycle(ViewClientDescriptor.historicalMarketData(viewId, Instant.now(), Instant.now()));
-      assertCycle(ViewClientDescriptor.historicalMarketData(viewId, Instant.now(), Instant.now(), 3600));
+      assertCycle(ViewClientDescriptor.historicalMarketData(viewId, Instant.now(), Instant.now(), "Provider", "Source", "Field"));
+      assertCycle(ViewClientDescriptor.historicalMarketData(viewId, Instant.now(), Instant.now(), 3600, "Provider", "Source", "Field"));
     }
   }
 

@@ -139,7 +139,7 @@ public class RegressionTest {
     final Instant lastValuationInstant = firstValuationInstant.plus(30, TimeUnit.DAYS);
     final UniqueId viewId = createRegressionView();
     createFunctionRepository();
-    final ViewClientDescriptor viewClientDescriptor = ViewClientDescriptor.historicalMarketData(viewId, firstValuationInstant, lastValuationInstant);
+    final ViewClientDescriptor viewClientDescriptor = ViewClientDescriptor.historicalMarketData(viewId, firstValuationInstant, lastValuationInstant, "Provider", "Source", "Field");
     _env.init();
     final ViewClient viewClient = _env.getViewProcessor().createViewClient(UserPrincipal.getTestUser());
     try {

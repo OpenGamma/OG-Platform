@@ -103,6 +103,7 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   }
 
   //-------------------------------------------------------------------------
+
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
     ExternalId identifier = requirement.getTargetSpecification().getIdentifier();

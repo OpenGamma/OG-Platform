@@ -8,6 +8,7 @@ package com.opengamma.language.view;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import javax.time.Instant;
 
@@ -25,12 +26,30 @@ import com.opengamma.language.function.PublishedFunction;
  */
 public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvoker implements PublishedFunction {
 
+  /**
+   * Property name of the default data source (if none is specified). E.g. BLOOMBERG
+   */
+  public static final String DATA_SOURCE_DEFAULT = "opengamma.view.historical.default.source";
+
+  /**
+   * Property name of the default data provider (if none is specified). E.g. CMPL
+   */
+  public static final String DATA_PROVIDER_DEFAULT = "opengamma.view.historical.default.provider";
+
+  /**
+   * Property name of the default data field (if none is specified). E.g. PX_LAST
+   */
+  public static final String DATA_FIELD_DEFAULT = "opengamma.view.historical.default.field";
+
   private static final MetaParameter VIEW_PARAMETER = new MetaParameter("view", JavaTypeInfo.builder(UniqueId.class).get());
   private static final MetaParameter VALUATION_TIME_PARAMETER = new MetaParameter("valuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter FIRST_VALUATION_TIME_PARAMETER = new MetaParameter("firstValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter LAST_VALUATION_TIME_PARAMETER = new MetaParameter("lastValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter SAMPLE_PERIOD_PARAMETER = new MetaParameter("samplePeriod", JavaTypeInfo.builder(Integer.class).defaultValue(ViewClientDescriptor.DEFAULT_SAMPLE_PERIOD).get());
   private static final MetaParameter SNAPSHOT_PARAMETER = new MetaParameter("snapshot", JavaTypeInfo.builder(UniqueId.class).get());
+  private static final MetaParameter DATA_SOURCE_PARAMETER = new MetaParameter("dataSource", JavaTypeInfo.builder(String.class).allowNull().get());
+  private static final MetaParameter DATA_PROVIDER_PARAMETER = new MetaParameter("dataProvider", JavaTypeInfo.builder(String.class).allowNull().get());
+  private static final MetaParameter DATA_FIELD_PARAMETER = new MetaParameter("dataField", JavaTypeInfo.builder(String.class).allowNull().get());
 
   private final MetaFunction _meta;
 
@@ -84,12 +103,36 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   private static final class HistoricalMarketData extends ViewClientDescriptorFunction {
 
     private HistoricalMarketData() {
-      super("HistoricalMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, FIRST_VALUATION_TIME_PARAMETER, LAST_VALUATION_TIME_PARAMETER, SAMPLE_PERIOD_PARAMETER));
+      super("HistoricalMarketDataViewClient", Arrays.asList(VIEW_PARAMETER, FIRST_VALUATION_TIME_PARAMETER, LAST_VALUATION_TIME_PARAMETER, SAMPLE_PERIOD_PARAMETER, DATA_SOURCE_PARAMETER,
+          DATA_PROVIDER_PARAMETER, DATA_FIELD_PARAMETER));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.historicalMarketData((UniqueId) parameters[0], (Instant) parameters[1], (Instant) parameters[2], (Integer) parameters[3]);
+      return ViewClientDescriptor.historicalMarketData((UniqueId) parameters[0], (Instant) parameters[1], (Instant) parameters[2], (Integer) parameters[3], (String) parameters[4],
+          (String) parameters[5], (String) parameters[6]);
+    }
+
+    @Override
+    protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
+      Properties props = null;
+      if (parameters[4] == null) {
+        props = sessionContext.getGlobalContext().getSystemSettings();
+        parameters[4] = props.getProperty(DATA_SOURCE_DEFAULT);
+      }
+      if (parameters[5] == null) {
+        if (props == null) {
+          props = sessionContext.getGlobalContext().getSystemSettings();
+        }
+        parameters[5] = props.getProperty(DATA_PROVIDER_DEFAULT);
+      }
+      if (parameters[6] == null) {
+        if (props == null) {
+          props = sessionContext.getGlobalContext().getSystemSettings();
+        }
+        parameters[6] = props.getProperty(DATA_FIELD_DEFAULT);
+      }
+      return super.invokeImpl(sessionContext, parameters);
     }
 
   }
@@ -138,7 +181,7 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   // AbstractFunctionInvoker
 
   @Override
-  protected final Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
+  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     return invokeImpl(parameters).encode();
   }
 
