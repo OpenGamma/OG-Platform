@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,20 +33,27 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalMarketDataProvider.class);
   
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
-  private final String _dataSource;
-  private final String _dataProvider;
-  private final String _dataField;
+  private final String _timeSeriesResolverKey;
+  private final HistoricalMarketDataFieldResolver _timeSeriesFieldResolver;
+  private final String _timeSeriesFieldResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
-  
-  public HistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource, String dataSource, String dataProvider, String field) {
+
+  /**
+   * Creates a new market data provider.
+   * 
+   * @param historicalTimeSeriesSource underlying source
+   * @param timeSeriesResolverKey the source resolver key, or null to use the source default
+   * @param fieldResolver field name resolver, not null
+   * @param fieldResolverKey the field name resolver resolution key, or null to use the resolver default
+   */
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey, final HistoricalMarketDataFieldResolver fieldResolver,
+      final String fieldResolverKey) {
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    ArgumentChecker.notNull(dataSource, "dataSource");
-    ArgumentChecker.notNull(dataProvider, "dataProvider");
-    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(fieldResolver, "fieldResolver");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
-    _dataSource = dataSource;
-    _dataProvider = dataProvider;
-    _dataField = field;
+    _timeSeriesResolverKey = timeSeriesResolverKey;
+    _timeSeriesFieldResolver = fieldResolver;
+    _timeSeriesFieldResolverKey = fieldResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
   }
   
@@ -91,29 +99,26 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
       return false;
     }
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return getDataProvider().equals(historicalSpec.getDataProvider())
-        && getDataSource().equals(historicalSpec.getDataSource())
-        && getDataField().equals(historicalSpec.getDataField());
+    return ObjectUtils.equals(getTimeSeriesResolverKey(), historicalSpec.getTimeSeriesResolverKey())
+        && ObjectUtils.equals(getTimeSeriesFieldResolverKey(), historicalSpec.getTimeSeriesFieldResolverKey());
   }
   
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(historicalSpec, getTimeSeriesSource());
+    return new HistoricalMarketDataSnapshot(historicalSpec, getTimeSeriesSource(), getTimeSeriesFieldResolver());
   }
 
   //-------------------------------------------------------------------------
 
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
-    ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
-    HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(ExternalIdBundle.of(identifier), getDataSource(), getDataProvider(), getDataField());
-    if (hts == null) {
-      hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(ExternalIdBundle.of(identifier), getDataSource(), "CMPL", getDataField());
-      if (hts == null) {
-        hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(ExternalIdBundle.of(identifier), getDataSource(), "EXCH_XCME", getDataField());
-      }
+    final String fieldName = getTimeSeriesFieldResolver().resolve(requirement.getValueName(), getTimeSeriesFieldResolverKey());
+    if (fieldName == null) {
+      return false;
     }
+    final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
+    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(fieldName, ExternalIdBundle.of(identifier), getTimeSeriesResolverKey());
     return (hts != null);
   }
   
@@ -122,16 +127,16 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
     return _historicalTimeSeriesSource;
   }
   
-  public String getDataSource() {
-    return _dataSource;
-  }
-  
-  public String getDataProvider() {
-    return _dataProvider;
-  }
-  
-  public String getDataField() {
-    return _dataField;
+  public String getTimeSeriesResolverKey() {
+    return _timeSeriesResolverKey;
   }
 
+  public HistoricalMarketDataFieldResolver getTimeSeriesFieldResolver() {
+    return _timeSeriesFieldResolver;
+  }
+  
+  public String getTimeSeriesFieldResolverKey() {
+    return _timeSeriesFieldResolverKey;
+  }
+  
 }

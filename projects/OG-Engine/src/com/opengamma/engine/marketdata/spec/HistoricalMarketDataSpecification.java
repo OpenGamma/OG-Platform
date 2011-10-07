@@ -3,15 +3,13 @@
 // CSOFF: Generated File
 package com.opengamma.engine.marketdata.spec;
 public class HistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
-  private static final long serialVersionUID = -7509181024321257288l;
+  private static final long serialVersionUID = -27042536230597185l;
   private javax.time.calendar.LocalDate _snapshotDate;
   public static final String SNAPSHOT_DATE_KEY = "snapshotDate";
-  private String _dataSource;
-  public static final String DATA_SOURCE_KEY = "dataSource";
-  private String _dataProvider;
-  public static final String DATA_PROVIDER_KEY = "dataProvider";
-  private String _dataField;
-  public static final String DATA_FIELD_KEY = "dataField";
+  private String _timeSeriesResolverKey;
+  public static final String TIME_SERIES_RESOLVER_KEY_KEY = "timeSeriesResolverKey";
+  private String _timeSeriesFieldResolverKey;
+  public static final String TIME_SERIES_FIELD_RESOLVER_KEY_KEY = "timeSeriesFieldResolverKey";
   public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate) {
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
@@ -29,42 +27,32 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'snapshotDate' is not date", e);
     }
-    fudgeField = fudgeMsg.getByName (DATA_SOURCE_KEY);
+    fudgeField = fudgeMsg.getByName (TIME_SERIES_RESOLVER_KEY_KEY);
     if (fudgeField != null)  {
       try {
-        setDataSource ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
+        setTimeSeriesResolverKey ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'dataSource' is not string", e);
+        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'timeSeriesResolverKey' is not string", e);
       }
     }
-    fudgeField = fudgeMsg.getByName (DATA_PROVIDER_KEY);
+    fudgeField = fudgeMsg.getByName (TIME_SERIES_FIELD_RESOLVER_KEY_KEY);
     if (fudgeField != null)  {
       try {
-        setDataProvider ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
+        setTimeSeriesFieldResolverKey ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
       }
       catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'dataProvider' is not string", e);
-      }
-    }
-    fudgeField = fudgeMsg.getByName (DATA_FIELD_KEY);
-    if (fudgeField != null)  {
-      try {
-        setDataField ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'dataField' is not string", e);
+        throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'timeSeriesFieldResolverKey' is not string", e);
       }
     }
   }
-  public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate, String dataSource, String dataProvider, String dataField) {
+  public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate, String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
     if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
     else {
       _snapshotDate = snapshotDate.toLocalDate ();
     }
-    _dataSource = dataSource;
-    _dataProvider = dataProvider;
-    _dataField = dataField;
+    _timeSeriesResolverKey = timeSeriesResolverKey;
+    _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
   }
   protected HistoricalMarketDataSpecification (final HistoricalMarketDataSpecification source) {
     super (source);
@@ -73,9 +61,8 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     else {
       _snapshotDate = source._snapshotDate.toLocalDate ();
     }
-    _dataSource = source._dataSource;
-    _dataProvider = source._dataProvider;
-    _dataField = source._dataField;
+    _timeSeriesResolverKey = source._timeSeriesResolverKey;
+    _timeSeriesFieldResolverKey = source._timeSeriesFieldResolverKey;
   }
   public HistoricalMarketDataSpecification clone () {
     return new HistoricalMarketDataSpecification (this);
@@ -91,14 +78,11 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     if (_snapshotDate != null)  {
       msg.add (SNAPSHOT_DATE_KEY, null, _snapshotDate);
     }
-    if (_dataSource != null)  {
-      msg.add (DATA_SOURCE_KEY, null, _dataSource);
+    if (_timeSeriesResolverKey != null)  {
+      msg.add (TIME_SERIES_RESOLVER_KEY_KEY, null, _timeSeriesResolverKey);
     }
-    if (_dataProvider != null)  {
-      msg.add (DATA_PROVIDER_KEY, null, _dataProvider);
-    }
-    if (_dataField != null)  {
-      msg.add (DATA_FIELD_KEY, null, _dataField);
+    if (_timeSeriesFieldResolverKey != null)  {
+      msg.add (TIME_SERIES_FIELD_RESOLVER_KEY_KEY, null, _timeSeriesFieldResolverKey);
     }
   }
   public static HistoricalMarketDataSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
@@ -124,23 +108,17 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
       _snapshotDate = snapshotDate.toLocalDate ();
     }
   }
-  public String getDataSource () {
-    return _dataSource;
+  public String getTimeSeriesResolverKey () {
+    return _timeSeriesResolverKey;
   }
-  public void setDataSource (String dataSource) {
-    _dataSource = dataSource;
+  public void setTimeSeriesResolverKey (String timeSeriesResolverKey) {
+    _timeSeriesResolverKey = timeSeriesResolverKey;
   }
-  public String getDataProvider () {
-    return _dataProvider;
+  public String getTimeSeriesFieldResolverKey () {
+    return _timeSeriesFieldResolverKey;
   }
-  public void setDataProvider (String dataProvider) {
-    _dataProvider = dataProvider;
-  }
-  public String getDataField () {
-    return _dataField;
-  }
-  public void setDataField (String dataField) {
-    _dataField = dataField;
+  public void setTimeSeriesFieldResolverKey (String timeSeriesFieldResolverKey) {
+    _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
   }
   public boolean equals (final Object o) {
     if (o == this) return true;
@@ -153,27 +131,20 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
       else return false;
     }
     else if (msg._snapshotDate != null) return false;
-    if (_dataSource != null) {
-      if (msg._dataSource != null) {
-        if (!_dataSource.equals (msg._dataSource)) return false;
+    if (_timeSeriesResolverKey != null) {
+      if (msg._timeSeriesResolverKey != null) {
+        if (!_timeSeriesResolverKey.equals (msg._timeSeriesResolverKey)) return false;
       }
       else return false;
     }
-    else if (msg._dataSource != null) return false;
-    if (_dataProvider != null) {
-      if (msg._dataProvider != null) {
-        if (!_dataProvider.equals (msg._dataProvider)) return false;
+    else if (msg._timeSeriesResolverKey != null) return false;
+    if (_timeSeriesFieldResolverKey != null) {
+      if (msg._timeSeriesFieldResolverKey != null) {
+        if (!_timeSeriesFieldResolverKey.equals (msg._timeSeriesFieldResolverKey)) return false;
       }
       else return false;
     }
-    else if (msg._dataProvider != null) return false;
-    if (_dataField != null) {
-      if (msg._dataField != null) {
-        if (!_dataField.equals (msg._dataField)) return false;
-      }
-      else return false;
-    }
-    else if (msg._dataField != null) return false;
+    else if (msg._timeSeriesFieldResolverKey != null) return false;
     return super.equals (msg);
   }
   public int hashCode () {
@@ -181,11 +152,9 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     hc *= 31;
     if (_snapshotDate != null) hc += _snapshotDate.hashCode ();
     hc *= 31;
-    if (_dataSource != null) hc += _dataSource.hashCode ();
+    if (_timeSeriesResolverKey != null) hc += _timeSeriesResolverKey.hashCode ();
     hc *= 31;
-    if (_dataProvider != null) hc += _dataProvider.hashCode ();
-    hc *= 31;
-    if (_dataField != null) hc += _dataField.hashCode ();
+    if (_timeSeriesFieldResolverKey != null) hc += _timeSeriesFieldResolverKey.hashCode ();
     return hc;
   }
   public String toString () {
