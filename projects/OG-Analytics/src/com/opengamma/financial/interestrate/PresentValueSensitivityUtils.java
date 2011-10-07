@@ -28,36 +28,71 @@ public class PresentValueSensitivityUtils {
     super();
   }
 
+  /**
+   * Add two list representing sensitivities into one. No attempt is made to net off sensitivities occurring at the same time
+   * @param sensi1 First list of sensitivities 
+   * @param sensi2 Second list of sensitivities
+   * @return combined list 
+   */
+  public static List<DoublesPair> addSensitivity(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2) {
+    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    for (final DoublesPair pair : sensi1) {
+      temp.add(pair);
+    }
+    for (final DoublesPair pair : sensi2) {
+      temp.add(pair);
+    }
+    return temp;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Add two maps representing sensitivities into one.
    * 
-   * @param curves  the list of curves, not null
    * @param sensi1  the first sensitivity, not null
    * @param sensi2  the second sensitivity, not null
    * @return the total sensitivity, not null
    */
-  public static Map<String, List<DoublesPair>> addSensitivity(final YieldCurveBundle curves, final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2) {
-    Validate.notNull(curves, "curve bundle");
+  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2) {
+
     Validate.notNull(sensi1, "sensitivity");
     Validate.notNull(sensi2, "sensitivity");
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : curves.getAllNames()) {
-      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      if (sensi1.containsKey(name)) {
-        for (final DoublesPair pair : sensi1.get(name)) {
-          temp.add(pair);
-        }
-      }
+    for (final String name : sensi1.keySet()) {
       if (sensi2.containsKey(name)) {
-        for (final DoublesPair pair : sensi2.get(name)) {
-          final DoublesPair newPair = new DoublesPair(pair.getFirst(), pair.getSecond());
-          temp.add(newPair);
-        }
+        result.put(name, addSensitivity(sensi1.get(name), sensi2.get(name)));
+      } else {
+        result.put(name, sensi1.get(name));
       }
-      result.put(name, temp);
     }
+
+    for (final String name : sensi2.keySet()) {
+      if (!result.containsKey(name)) {
+        result.put(name, sensi2.get(name));
+      }
+    }
+
+    //      List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    //      if (sensi1.containsKey(name)) {
+    //        for (final DoublesPair pair : sensi1.get(name)) {
+    //          temp.add(pair);
+    //        }
+    //      }
+    //      if (sensi2.containsKey(name)) {
+    //        for (final DoublesPair pair : sensi2.get(name)) {
+    //          final DoublesPair newPair = new DoublesPair(pair.getFirst(), pair.getSecond());
+    //          temp.add(newPair);
+    //        }
+    //      }
+    //      result.put(name, temp);
+    //    }
     return result;
+  }
+
+  //TODO smarter way to do this?
+  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2,
+      final Map<String, List<DoublesPair>> sensi3) {
+    return addSensitivity(addSensitivity(sensi1, sensi2), sensi3);
   }
 
   /**

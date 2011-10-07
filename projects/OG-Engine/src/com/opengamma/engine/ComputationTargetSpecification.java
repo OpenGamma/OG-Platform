@@ -59,9 +59,6 @@ public final class ComputationTargetSpecification implements Serializable {
         } else if (target instanceof ExternalIdentifiable) {
           final ExternalId id = ((ExternalIdentifiable) target).getExternalId();
           _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
-        } else if (target instanceof ExternalId) {
-          final ExternalId id = (ExternalId) target;
-          _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
         } else {
           _uniqueId = null;
         }

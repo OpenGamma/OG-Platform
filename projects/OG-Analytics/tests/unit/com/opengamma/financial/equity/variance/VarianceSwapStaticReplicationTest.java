@@ -24,7 +24,6 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
@@ -83,19 +82,15 @@ public class VarianceSwapStaticReplicationTest {
 
   private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.25, 0.27, 0.26, 0.24, 0.23, 0.25, 0.27, 0.26, 0.25, 0.26, 0.27};
 
-  private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
 
-  final static CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_EXPIRY = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERPOLATOR_1D_STRIKE);
-  @SuppressWarnings("unchecked")
   private static final BlackVolatilityFixedStrikeSurface VOL_STRIKE_SURFACE = new BlackVolatilityFixedStrikeSurface(new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, INTERPOLATOR_2D));
-  @SuppressWarnings("unchecked")
   private static final BlackVolatilityDeltaSurface VOL_PUTDELTA_SURFACE = new BlackVolatilityDeltaSurface(new InterpolatedDoublesSurface(EXPIRIES, PUTDELTAS, VOLS, INTERPOLATOR_2D), false);
-  @SuppressWarnings("unchecked")
   private static final BlackVolatilityDeltaSurface VOL_CALLDELTA_SURFACE = new BlackVolatilityDeltaSurface(new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAS, VOLS, INTERPOLATOR_2D), true);
   private static final VarianceSwapDataBundle MARKET_W_STRIKESURF = new VarianceSwapDataBundle(VOL_STRIKE_SURFACE, DISCOUNT, SPOT, FORWARD);
   private static final VarianceSwapDataBundle MARKET_W_PUTDELTASURF = new VarianceSwapDataBundle(VOL_PUTDELTA_SURFACE, DISCOUNT, SPOT, FORWARD);
@@ -129,10 +124,9 @@ public class VarianceSwapStaticReplicationTest {
   /**
    * Test of VolatilitySurface that doesn't permit extrapolation in strike dimension
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSurfaceWithoutStrikeExtrapolation() {
-    final CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> interpOnlyStrike = getInterpolator(Interpolator1DFactory.LINEAR);
+    final CombinedInterpolatorExtrapolator interpOnlyStrike = getInterpolator(Interpolator1DFactory.LINEAR);
     final Interpolator2D interp2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, interpOnlyStrike);
     final InterpolatedDoublesSurface surface = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, interp2D);
     final BlackVolatilityFixedStrikeSurface volSurface = new BlackVolatilityFixedStrikeSurface(surface);
@@ -166,7 +160,6 @@ public class VarianceSwapStaticReplicationTest {
    * Prices are very sensitive to Vol interpolation.. We ensure variance matches over flat portion of strikes,
    * and then mark to fixed levels over entire strike space
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testDeltaVsStrikeWithSmile() {
 
@@ -177,7 +170,7 @@ public class VarianceSwapStaticReplicationTest {
     // !!! Note. If you change deltas or vols, you will have to change the corresponding strikes, computed via BlackFormula
     final double[] strikes = new double[] {52.0531766415, 73.3763196717, 87.1645532146, 103.1743407499, 122.1246962968, 146.5899317452, 210.203171890956};
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERP1D_STEP = getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+    final CombinedInterpolatorExtrapolator INTERP1D_STEP = getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     final Interpolator2D INTERP2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERP1D_STEP);
 
@@ -418,7 +411,6 @@ public class VarianceSwapStaticReplicationTest {
   /**
    * Instead of matching slope and level at the cutoff, try choosing a level at zero strike, then filling in with shifted lognormal distribution
    */
-  @SuppressWarnings("unchecked")
   @Test
   public void testAlternativeUseOfShiftedLognormal() {
 

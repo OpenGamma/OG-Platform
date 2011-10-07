@@ -71,15 +71,17 @@ public class CouponOISDiscountingMethod implements PricingMethod {
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingPeriodAccrualFactor() * forwardBar;
     final double dfForwardStartBar = 1.0 / (coupon.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     final double dfBar = coupon.getNotionalAccrued() * coupon.getPaymentYearFraction() * forward * pvBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
-    resultMap.put(coupon.getFundingCurveName(), listDiscounting);
+    resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
+    PresentValueSensitivity result = new PresentValueSensitivity(resultMapDsc);
+    final Map<String, List<DoublesPair>> resultMapFwd = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(coupon.getForwardCurveName(), listForward);
-    final PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    resultMapFwd.put(coupon.getForwardCurveName(), listForward);
+    result = result.add(new PresentValueSensitivity(resultMapFwd));
     return result;
   }
 

@@ -58,8 +58,8 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
    * @param fixingPeriodStartDate The start date of the fixing period.
    * @param fixingPeriodEndDate The end date of the fixing period.
    */
-  public CouponOISDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, double paymentYearFraction,
-      double notional, final IndexOIS index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
+  public CouponOISDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
+      final double notional, final IndexOIS index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS Simplified: index");
     Validate.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
@@ -68,8 +68,8 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
     _index = index;
     ZonedDateTime date = fixingPeriodStartDate;
     ZonedDateTime previousDate;
-    List<ZonedDateTime> fixingDateList = new ArrayList<ZonedDateTime>();
-    List<Double> fixingAccrualFactorList = new ArrayList<Double>();
+    final List<ZonedDateTime> fixingDateList = new ArrayList<ZonedDateTime>();
+    final List<Double> fixingAccrualFactorList = new ArrayList<Double>();
     fixingDateList.add(date);
     while (date.isBefore(fixingPeriodEndDate)) {
       previousDate = date;
@@ -95,9 +95,9 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
    */
   public static CouponOISDefinition from(final IndexOIS index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1 + index.getPublicationLag() + settlementDays);
-    double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
+    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, businessDayConvention, index.getCalendar(), isEOM, tenor);
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getCalendar(), -1 + index.getPublicationLag() + settlementDays);
+    final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
     return new CouponOISDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, paymentYearFraction, notional, index, settlementDate, endFixingPeriodDate);
   }
 
@@ -126,35 +126,35 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
   }
 
   @Override
-  public CouponOIS toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(_fixingPeriodDate[0]), "toDerivative without time series only valid at dates where the fixing has not taken place yet.");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[0]);
-    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[0]);
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
     double fixingAccrualFactorTotal = 0.0;
-    for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {
-      fixingAccrualFactorTotal += _fixingPeriodAccrualFactor[loopperiod];
+    for (final Double element : _fixingPeriodAccrualFactor) {
+      fixingAccrualFactorTotal += element;
     }
-    CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
+    final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
         fixingAccrualFactorTotal, getNotional(), yieldCurveNames[1]);
     return cpn;
   }
 
   @Override
-  public Payment toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, String... yieldCurveNames) {
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     if (date.isBefore(_fixingPeriodDate[0])) {
       return toDerivative(date, yieldCurveNames);
     }
-    double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     int fixedPeriod = 0;
     double accruedNotional = getNotional();
     while (date.isAfter(_fixingPeriodDate[fixedPeriod]) && fixedPeriod < _fixingPeriodDate.length - 1) {
-      Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod]);
+      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod]);
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod]);
       }
@@ -162,36 +162,35 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
       fixedPeriod++;
     }
     if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
-      Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod]);
+      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod]);
       if (fixedRate != null) { // Fixed already
         accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
         fixedPeriod++;
       }
       if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
-        double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[fixedPeriod]);
-        double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
+        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[fixedPeriod]);
+        final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
         double fixingAccrualFactorLeft = 0.0;
         for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {
           fixingAccrualFactorLeft += _fixingPeriodAccrualFactor[loopperiod];
         }
-        CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
+        final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
             fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
         return cpn;
-      } else {
-        return new PaymentFixed(getCurrency(), paymentTime, accruedNotional, yieldCurveNames[0]);
       }
-    } else { // All fixed already
       return new PaymentFixed(getCurrency(), paymentTime, accruedNotional, yieldCurveNames[0]);
     }
+    // All fixed already
+    return new PaymentFixed(getCurrency(), paymentTime, accruedNotional, yieldCurveNames[0]);
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCouponOIS(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponOIS(this);
   }
 
@@ -206,7 +205,7 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -216,7 +215,7 @@ public class CouponOISDefinition extends CouponDefinition implements FixedIncome
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponOISDefinition other = (CouponOISDefinition) obj;
+    final CouponOISDefinition other = (CouponOISDefinition) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactor, other._fixingPeriodAccrualFactor)) {
       return false;
     }

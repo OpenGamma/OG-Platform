@@ -26,7 +26,7 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
@@ -45,8 +45,7 @@ import com.opengamma.util.tuple.Pair;
 public class TwoStateMarkovChainFitter {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
-    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+  private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final TransformParameters TRANSFORMS;
 
   static {
@@ -166,7 +165,7 @@ public class TwoStateMarkovChainFitter {
         final TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(forward, chainData);
         final PDEFullResults1D res = mc.solve(grid, _theta);
         final Map<DoublesPair, Double> data = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
-        final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
+        final Map<Double, Interpolator1DDataBundle> dataBundle = GRID_INTERPOLATOR2D.getDataBundle(data);
         final double[] modVols = new double[nMarketValues];
         for (int i = 0; i < nMarketValues; i++) {
           final double[] temp = marketVols.get(i).getFirst();
@@ -198,7 +197,7 @@ public class TwoStateMarkovChainFitter {
     return new LeastSquareResults(solverRes.getChiSq(), TRANSFORMS.inverseTransform(solverRes.getParameters()), solverRes.getCovariance());
   }
 
-  public void debug(final Map<Double, Interpolator1DDoubleQuadraticDataBundle> dataBundle) {
+  public void debug(final Map<Double, Interpolator1DDataBundle> dataBundle) {
     for (int i = 0; i < 101; i++) {
       final double k = 0. + 4.0 * i / 100.;
       System.out.print("\t" + k);

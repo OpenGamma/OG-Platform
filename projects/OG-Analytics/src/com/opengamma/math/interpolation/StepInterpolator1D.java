@@ -13,7 +13,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class StepInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+public class StepInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override

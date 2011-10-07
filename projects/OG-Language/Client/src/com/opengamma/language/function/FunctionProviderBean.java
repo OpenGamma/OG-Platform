@@ -7,6 +7,7 @@
 package com.opengamma.language.function;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -21,6 +22,17 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class FunctionProviderBean extends AbstractFunctionProvider implements InitializingBean {
   
   private Collection<PublishedFunction> _functions;
+
+  public FunctionProviderBean(final Collection<PublishedFunction> functions) {
+    setFunctions(functions);
+  }
+
+  public FunctionProviderBean(final PublishedFunction... functions) {
+    setFunctions(Arrays.asList(functions));
+  }
+
+  public FunctionProviderBean() {
+  }
 
   public void setFunctions(final Collection<PublishedFunction> functions) {
     ArgumentChecker.notNull(functions, "functions");

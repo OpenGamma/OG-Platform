@@ -10,13 +10,14 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class KrigingInterpolatorND extends InterpolatorND<KrigingInterpolatorDataBundle> {
+public class KrigingInterpolatorND extends InterpolatorND {
   private final double _beta;
 
   public KrigingInterpolatorND(final double beta) {
@@ -25,12 +26,13 @@ public class KrigingInterpolatorND extends InterpolatorND<KrigingInterpolatorDat
   }
 
   @Override
-  public Double interpolate(final KrigingInterpolatorDataBundle data, final double[] x) {
+  public Double interpolate(final InterpolatorNDDataBundle data, final double[] x) {      
     validateInput(data, x);
-
-    final List<Pair<double[], Double>> rawData = data.getData();
-    final Function1D<Double, Double> variogram = data.getVariogram();
-    final double[] w = data.getWeights();
+    Validate.isTrue(data instanceof KrigingInterpolatorDataBundle, "KriginInterpolatorND needs a KriginInterpolatorDataBundle");
+    KrigingInterpolatorDataBundle krigingData = (KrigingInterpolatorDataBundle) data;
+    final List<Pair<double[], Double>> rawData = krigingData.getData();
+    final Function1D<Double, Double> variogram = krigingData.getVariogram();
+    final double[] w = krigingData.getWeights();
 
     final int n = rawData.size();
     double sum = 0.0;
