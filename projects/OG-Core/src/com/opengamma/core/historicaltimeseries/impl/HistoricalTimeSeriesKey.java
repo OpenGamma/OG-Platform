@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.io.Serializable;
+
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -14,7 +16,9 @@ import com.opengamma.id.ExternalIdBundle;
 /**
  * Key to represent time-series data in a hash-map or cache.
  */
-/* package */ final class HistoricalTimeSeriesKey {
+/* package */final class HistoricalTimeSeriesKey implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final ExternalIdBundle _externalIdBundle;
   private final LocalDate _currentDate;
