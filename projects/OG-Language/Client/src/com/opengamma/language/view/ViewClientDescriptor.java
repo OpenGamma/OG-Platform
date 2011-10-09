@@ -6,13 +6,18 @@
 package com.opengamma.language.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.InfiniteViewCycleExecutionSequence;
@@ -39,9 +44,9 @@ public final class ViewClientDescriptor {
      */
     STATIC_MARKET_DATA,
     /**
-     * Created by {@link #sampleMarketData}.
+     * Created by {@link #historicalMarketData}.
      */
-    SAMPLE_MARKET_DATA,
+    HISTORICAL_MARKET_DATA,
     /**
      * Created by {@link #tickingSnapshot}.
      */
@@ -55,11 +60,15 @@ public final class ViewClientDescriptor {
   private static final char SEPARATOR = '~';
   private static final char ESCAPE_CHAR = '$';
 
-  private static final String MARKET_DATA_LIVE = "LiveMarketData";
-  private static final String MARKET_DATA_USER = "UserMarketData";
+  private static final String MARKET_DATA_HISTORICAL = "Historical";
+  private static final String MARKET_DATA_LIVE = "Live";
+  private static final String MARKET_DATA_USER = "User";
   private static final String TICKING = "Ticking";
 
-  private static final int DEFAULT_SAMPLE_PERIOD = 86400;
+  /**
+   * Default value of samplePeriod.
+   */
+  public static final int DEFAULT_SAMPLE_PERIOD = 86400;
 
   private final Type _type;
   private final UniqueId _viewId;
@@ -104,16 +113,20 @@ public final class ViewClientDescriptor {
           }
           break;
         case 4:
-          if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return sampleMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))), DEFAULT_SAMPLE_PERIOD);
-          } else if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
+          if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
             return tickingSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
           }
           break;
-        case 5:
-          if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return sampleMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
-                Integer.parseInt(values.get(4)));
+        case 6:
+          if (MARKET_DATA_HISTORICAL.equals(values.get(0))) {
+            return historicalMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
+                DEFAULT_SAMPLE_PERIOD, values.get(4), values.get(5));
+          }
+          break;
+        case 7:
+          if (MARKET_DATA_HISTORICAL.equals(values.get(0))) {
+            return historicalMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
+                Integer.parseInt(values.get(4)), values.get(5), values.get(6));
           }
           break;
       }
@@ -169,7 +182,7 @@ public final class ViewClientDescriptor {
   }
 
   private static StringBuilder append(final StringBuilder sb, final Instant instant) {
-    return append(sb, instant.toEpochMillisLong() / 1000L);
+    return append(sb, instant.getEpochSeconds());
   }
 
   private static String escape(final String str) {
@@ -225,22 +238,38 @@ public final class ViewClientDescriptor {
     return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded);
   }
 
-  public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod) {
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod,
+      final String timeSeriesResolverKey, final String timeSeriesFieldResolverKey) {
     final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
     final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
-    // TODO: want a batch of execution for the valuation sample period
-    final ViewExecutionOptions options = ExecutionOptions.singleCycle(firstValuationTimeValue, MarketData.live());
-    StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), firstValuationTimeValue), lastValuationTimeValue);
+    final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
+        ((int) (lastValuationTimeValue.getEpochSeconds() - firstValuationTimeValue.getEpochSeconds()) + samplePeriod - 1) / samplePeriod);
+    for (Instant valuationTime = firstValuationTimeValue; !valuationTime.isAfter(lastValuationTimeValue); valuationTime = valuationTime.plus(samplePeriod, TimeUnit.SECONDS)) {
+      final ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTime);
+      options.setMarketDataSpecification(MarketData.historical(ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate(), timeSeriesResolverKey, timeSeriesFieldResolverKey));
+      cycles.add(options);
+    }
+    final ViewExecutionOptions options = ExecutionOptions.of(new ArbitraryViewCycleExecutionSequence(cycles), null, ExecutionFlags.none().get());
+    StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_HISTORICAL), viewId), firstValuationTimeValue), lastValuationTimeValue);
     if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
       encoded = append(encoded, samplePeriod);
     }
-    return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded.toString());
+    append(append(encoded, timeSeriesResolverKey != null ? timeSeriesResolverKey : ""), timeSeriesFieldResolverKey != null ? timeSeriesFieldResolverKey : "");
+    return new ViewClientDescriptor(Type.HISTORICAL_MARKET_DATA, viewId, options, encoded.toString());
   }
 
-  public static ViewClientDescriptor sampleMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime) {
-    return sampleMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD);
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod) {
+    return historicalMarketData(viewId, firstValuationTime, lastValuationTime, samplePeriod, null, null);
   }
 
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final String timeSeriesResolverKey,
+      final String timeSeriesFieldResolverKey) {
+    return historicalMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD, timeSeriesResolverKey, timeSeriesFieldResolverKey);
+  }
+
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime) {
+    return historicalMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD, null, null);
+  }
   public static ViewClientDescriptor tickingSnapshot(final UniqueId viewId, final UniqueId snapshotId) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));

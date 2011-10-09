@@ -14,6 +14,7 @@ import javax.time.calendar.TimeZone;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
+import com.opengamma.engine.marketdata.DefaultHistoricalMarketDataFieldResolver;
 import com.opengamma.engine.marketdata.HistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -22,6 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
@@ -52,19 +54,19 @@ public class BatchLiveDataSnapshotProviderTest {
     ExternalIdBundle bundle = ExternalIdBundle.of(identifier);
     historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
     
-    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, "BLOOMBERG", "CMPL", "PX_LAST");
+    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, new DefaultHistoricalMarketDataFieldResolver(), null);
     InMemoryLKVMarketDataProvider batchDbProvider = new InMemoryLKVMarketDataProvider();
     
     BatchMarketDataProvider provider = new BatchMarketDataProvider(run, new DummyBatchMaster(), batchDbProvider, snapshotProvider);
     
-    HistoricalMarketDataSpecification marketDataSpec = new HistoricalMarketDataSpecification(LocalDate.of(2005, 11, 12).atStartOfDayInZone(TimeZone.UTC), "BLOOMBERG", "CMPL", "PX_LAST");
+    HistoricalMarketDataSpecification marketDataSpec = new HistoricalMarketDataSpecification(LocalDate.of(2005, 11, 12).atStartOfDayInZone(TimeZone.UTC), null, null);
     MarketDataSnapshot snapshot = provider.snapshot(marketDataSpec);
     snapshot.init();
-    Object ts = snapshot.query(new ValueRequirement("foo", identifier));
+    Object ts = snapshot.query(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, identifier));
     assertEquals(11.12, ts);
     
-    assertNull(snapshot.query(new ValueRequirement("foo", ExternalId.of("mytimeseries2", "500"))));
-    assertNull(snapshot.query(new ValueRequirement("foo", ExternalId.of("mytimeseries", "501"))));
+    assertNull(snapshot.query(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ExternalId.of("mytimeseries2", "500"))));
+    assertNull(snapshot.query(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ExternalId.of("mytimeseries", "501"))));
   }
 
 }
