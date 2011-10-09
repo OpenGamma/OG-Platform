@@ -88,23 +88,29 @@ public abstract class NodeSensitivityCalculator {
       throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
     }
     final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
-    final double[] res = new double[interpolatedCurve.size()];
+    final double[] result = new double[interpolatedCurve.size()];
     final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
     final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
-    final double[][] sensitivity = new double[curveSensitivities.size()][];
-    int k = 0;
-    for (final DoublesPair timeAndDF : curveSensitivities) {
-      sensitivity[k++] = interpolator.getNodeSensitivitiesForValue(data, timeAndDF.getFirst());
-    }
-    for (int j = 0; j < sensitivity[0].length; j++) {
-      double temp = 0.0;
-      k = 0;
-      for (final DoublesPair timeAndDF : curveSensitivities) {
-        temp += timeAndDF.getSecond() * sensitivity[k++][j];
+    if (curveSensitivities == null) {
+      for (int i = 0; i < interpolatedCurve.size(); i++) {
+        result[i] = 0;
       }
-      res[j] = temp;
+    } else {
+      final double[][] sensitivity = new double[curveSensitivities.size()][];
+      int k = 0;
+      for (final DoublesPair timeAndDF : curveSensitivities) {
+        sensitivity[k++] = interpolator.getNodeSensitivitiesForValue(data, timeAndDF.getFirst());
+      }
+      for (int j = 0; j < sensitivity[0].length; j++) {
+        double temp = 0.0;
+        k = 0;
+        for (final DoublesPair timeAndDF : curveSensitivities) {
+          temp += timeAndDF.getSecond() * sensitivity[k++][j];
+        }
+        result[j] = temp;
+      }
     }
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(result);
   }
 
 }

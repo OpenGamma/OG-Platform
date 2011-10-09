@@ -47,4 +47,5 @@ public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwa
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(),
         properties));
   }
+  
 }

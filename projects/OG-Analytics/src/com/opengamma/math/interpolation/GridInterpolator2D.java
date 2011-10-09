@@ -57,6 +57,7 @@ public class GridInterpolator2D extends Interpolator2D {
     return _xInterpolator.interpolate(_xInterpolator.getDataBundle(xData), value.getKey());
   }
 
+  @Override
   public Map<DoublesPair, Double> getNodeSensitivitiesForValue(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value) {
     Validate.notNull(value);
     Validate.notNull(dataBundle, "data bundle");

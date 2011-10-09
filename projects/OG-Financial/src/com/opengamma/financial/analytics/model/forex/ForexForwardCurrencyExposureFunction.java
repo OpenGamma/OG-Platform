@@ -16,12 +16,9 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -37,28 +34,19 @@ public class ForexForwardCurrencyExposureFunction extends ForexForwardFunction {
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target) {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward, data);
-    final int n = result.size();
-    final Currency[] keys = new Currency[n];
-    final double[] values = new double[n];
-    int i = 0;
-    for (final CurrencyAmount ca : result) {
-      keys[i] = ca.getCurrency();
-      values[i++] = ca.getAmount();
-    }
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
         .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, new CurrencyLabelledMatrix1D(keys, values)));
+    return Collections.singleton(new ComputedValue(spec, ForexUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
   
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName()).get();
-    Set<ValueSpecification> temp = Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(),
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(),
         properties));
-    return temp;
   }
 
 }

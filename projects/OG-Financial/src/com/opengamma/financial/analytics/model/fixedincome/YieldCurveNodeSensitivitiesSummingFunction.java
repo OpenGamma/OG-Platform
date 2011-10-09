@@ -45,6 +45,7 @@ import com.opengamma.util.money.Currency;
  */
 public class YieldCurveNodeSensitivitiesSummingFunction extends FilteringSummingFunction {
 
+  @SuppressWarnings("synthetic-access")
   private static final FinancialSecurityVisitor<Boolean> s_inclusionVisitor = new SecurityInclusionVisitor();
 
   public YieldCurveNodeSensitivitiesSummingFunction() {

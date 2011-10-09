@@ -31,8 +31,9 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
 
-  public ForexVanillaOptionFunction(final String putCurveName, final String callCurveName, final String surfaceName, final String valueRequirementName) {
-    super(putCurveName, callCurveName, surfaceName, valueRequirementName);
+  public ForexVanillaOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
+      final String callForwardCurveName, final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
@@ -76,11 +77,15 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    final String putCurveName = getPutCurveName();
-    final String callCurveName = getCallCurveName();
+    final String putFundingCurveName = getPutFundingCurveName();
+    final String putForwardCurveName = getPutForwardCurveName();
+    final String callFundingCurveName = getCallFundingCurveName();
+    final String callForwardCurveName = getCallForwardCurveName();
     final String surfaceName = getSurfaceName();
-    final ValueRequirement putCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putCurveName, putCurveName, putCurveName);
-    final ValueRequirement callCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callCurveName, callCurveName, callCurveName);
+    final ValueRequirement putFundingCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putFundingCurveName, putForwardCurveName, putFundingCurveName);
+    final ValueRequirement putForwardCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putForwardCurveName, putForwardCurveName, putFundingCurveName);
+    final ValueRequirement callFundingCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callFundingCurveName, callForwardCurveName, callFundingCurveName);
+    final ValueRequirement callForwardCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callForwardCurveName, callForwardCurveName, callFundingCurveName);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
@@ -89,6 +94,6 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     final ExternalId inverseSpotIdentifier = FXUtils.getSpotIdentifier(fxOption);
     final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
-    return Sets.newHashSet(putCurve, callCurve, fxVolatilitySurface, spotRequirement, inverseSpotRequirement);
+    return Sets.newHashSet(putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve, fxVolatilitySurface, spotRequirement, inverseSpotRequirement);
   }
 }
