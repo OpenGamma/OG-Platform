@@ -22,12 +22,12 @@ import com.opengamma.util.money.Currency;
 public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption implements InterestRateDerivative {
 
   /**
-   * List of calibration types for the Ratchet Ibor coupon annuity.
+   * List of calibration types for the physical swaption.
    */
   public enum SwaptionPhysicalFixedIborCalibrationType {
     /**
-     * The calibration instruments are long swaptions with one maturity for each fixed coupon and strike equal to the initial strike on the relevant period.
-     * The notional for all coupons is set to the first fixed leg coupon.
+     * The calibration instruments are long swaptions with one maturity for each fixed coupon and strikes equal to the original strikes on the relevant periods.
+     * The notional for all coupons is set to the first fixed leg coupon notional.
      */
     FIXEDLEG_STRIKE
   }
@@ -124,7 +124,12 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
     return "Swaption: Expiry=" + getTimeToExpiry() + ", is long=" + _isLong + "\n" + _underlyingSwap;
   }
 
-  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type) {
+  /**
+   * Create a calibration basket for the swaption.
+   * @param type The calibration type.
+   * @return The basket.
+   */
+  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type) { //, final YieldCurveBundle curves
     SwaptionPhysicalFixedIbor[] calibration = new SwaptionPhysicalFixedIbor[0];
     switch (type) {
       case FIXEDLEG_STRIKE:
