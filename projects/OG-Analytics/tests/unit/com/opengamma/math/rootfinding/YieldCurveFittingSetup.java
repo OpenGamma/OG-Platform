@@ -102,12 +102,12 @@ public abstract class YieldCurveFittingSetup {
       final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       final double[] marketRates,
-      final DoubleMatrix1D startPosition, 
+      final DoubleMatrix1D startPosition,
       final List<double[]> curveYields) {
-    return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator, 
+    return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator,
         marketRates, startPosition, curveYields, false);
   }
-  
+
   protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(
       final List<InterestRateDerivative> instruments,
       final YieldCurveBundle knownCurves,
@@ -117,7 +117,7 @@ public abstract class YieldCurveFittingSetup {
       final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       final double[] marketRates,
-      final DoubleMatrix1D startPosition, 
+      final DoubleMatrix1D startPosition,
       final List<double[]> curveYields,
       boolean useFiniteDifferenceByDefault) {
 
@@ -188,8 +188,8 @@ public abstract class YieldCurveFittingSetup {
 
     }
 
-//DoubleMatrix2D startJac = jac.evaluate(data.getStartPosition());
-//    System.out.print(startJac);
+    //DoubleMatrix2D startJac = jac.evaluate(data.getStartPosition());
+    //    System.out.print(startJac);
 
     final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(func, jac, data.getStartPosition());
     final DoubleMatrix1D modelMarketValueDiff = func.evaluate(yieldCurveNodes);
@@ -200,10 +200,10 @@ public abstract class YieldCurveFittingSetup {
 
     checkResult(yieldCurveNodes, data);
 
- //   DoubleMatrix2D endJac = jac.evaluate(yieldCurveNodes);
+    //   DoubleMatrix2D endJac = jac.evaluate(yieldCurveNodes);
 
-//    System.out.print("\n");
-//    System.out.print(endJac);
+    //    System.out.print("\n");
+    //    System.out.print(endJac);
   }
 
   protected void checkResult(final DoubleMatrix1D yieldCurveNodes, final YieldCurveFittingTestDataBundle data) {
@@ -338,7 +338,7 @@ public abstract class YieldCurveFittingSetup {
            final String indexCurveName, final double rate, final int contracts) {
     final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
     double tau = 1. / paymentFreq.getPeriodsPerYear();
-    final InterestRateFutureSecurity underlyingFuture = new InterestRateFutureSecurity(time, DUMMY_INDEX, time, time + tau,
+    final InterestRateFuture underlyingFuture = new InterestRateFuture(time, DUMMY_INDEX, time, time + tau,
         tau, referencePrice, 1, tau, "N", fundCurveName, indexCurveName);
 
     return underlyingFuture; // TODO CASE - Future Refactor - Check whether rate is required here. It may well be. *Shrug*
