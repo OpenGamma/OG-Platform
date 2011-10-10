@@ -5,16 +5,25 @@
 $.register_module({
     name: 'og.views.config_forms.volatilitycubedefinition',
     dependencies: [
-        'og.api.text',
         'og.api.rest',
-        'og.common.util.ui',
-        'og.views.forms.Constraints',
-        'og.views.forms.Dropdown'
+        'og.common.util.ui'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest, arr = function (obj) {
-            return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];
-        };
+        var module = this, Form = og.common.util.ui.Form, forms = og.views.forms, api = og.api.rest,
+            INDX = '<INDEX>', EMPT = '<EMPTY>', SWAP = 'swapTenors', OPEX = 'optionExpiries', RLST = 'relativeStrikes',
+            fields = [SWAP, OPEX, RLST],
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
+        return og.views.config_forms['default'].preload({
+            type: module.name.split('.').pop(),
+            meta: [
+                [['0', INDX].join('.'),         Form.type.STR],
+                [[OPEX, EMPT, INDX].join('.'),  Form.type.STR],
+                [[RLST, EMPT, INDX].join('.'),  Form.type.DBL],
+                [[SWAP, EMPT, INDX].join('.'),  Form.type.STR],
+                ['uniqueId',                    Form.type.STR]
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
+        });
+        /* dead code below, needs to be updated */
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -22,12 +31,11 @@ $.register_module({
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON,
-                class_name = 'com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition',
-                fields = ['swapTenors', 'optionExpiries', 'relativeStrikes'], new_item,
-                form = new ui.Form({
+                new_item,
+                form = new Form({
                     module: 'og.views.forms.volatility-cube-definition',
                     extras: {name: orig_name},
-                    data: fields.reduce(function (acc, val) {return acc[val] = [], acc;}, {0: master[0] || class_name}),
+                    data: fields.reduce(function (acc, val) {return acc[val] = [], acc;}, {0: master[0]}),
                     selector: selector,
                     processor: function (data) {
                         var $strips = $(form_id + ' .og-js-strips');

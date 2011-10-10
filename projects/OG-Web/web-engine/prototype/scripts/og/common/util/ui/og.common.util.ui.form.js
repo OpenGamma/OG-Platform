@@ -114,17 +114,18 @@ $.register_module({
                     };
                 })([]),
                 build_meta = function (data, path, warns) {
-                    var result = {}, key;
+                    var result = {}, key, empty = '<EMPTY>', index = '<INDEX>', null_path = path === null;
                     if ($.isArray(data)) return data.map(function (val, idx) {
-                        var value = build_meta(val, path ? [path, '<INDEX>'].join('.') : idx, warns);
+                        var value = build_meta(val, null_path ? idx : [path, index].join('.'), warns);
                         if ((value === Form.type.IND) && (val !== null)) value = Form.type.STR;
                         return value in numbers ? ((data[idx] = +data[idx]), value) : value;
                     });
-                    if (data === null || typeof data !== 'object')
+                    if (data === null || typeof data !== 'object') // no empty string keys at root level
                         return !(result = meta_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
                     for (key in data) {
-                        if ((result[key] = build_meta(data[key], path ? [path, key].join('.') : key, warns)) in numbers)
-                            data[key] = +data[key];
+                        result[key] = build_meta(data[key], null_path ? key : [path, key || empty].join('.'), warns);
+                        if (result[key] in numbers) data[key] = +data[key];
+                        // INDs that are not null need to be re-typed as STRs
                         if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
                     }
                     return result;
@@ -161,7 +162,7 @@ $.register_module({
                         }
                     });
                     form.process(data, errors);
-                    built_meta = meta_map ? build_meta(data, '', meta_warns) : null;
+                    built_meta = meta_map ? build_meta(data, null, meta_warns) : null;
                     meta_warns = meta_warns.sort().reduce(function (acc, val) {
                         return acc[acc.length - 1] !== val ? (acc.push(val), acc) : acc;
                     }, []).join('\n');
@@ -183,8 +184,15 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
-        Form.type =  {SHR: 'short', BYT: 'byte', STR: 'string', IND: 'indicator', BOO: 'boolean'};
-        numbers[Form.type.SHR] = null; numbers[Form.type.BYT] = null;
+        Form.type =  {
+            BOO: 'boolean',
+            BYT: 'byte',
+            DBL: 'double',
+            IND: 'indicator',
+            SHR: 'short',
+            STR: 'string',
+        };
+        numbers[Form.type.SHR] = null; numbers[Form.type.BYT] = null; numbers[Form.type.DBL] = null;
         return Form;
     }
 });

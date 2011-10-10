@@ -161,8 +161,7 @@ $.register_module({
                                 error_html = '\
                                     <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                         This configuration has been deleted\
-                                    </section>\
-                                ',
+                                    </section>',
                                 layout = og.views.common.layout;
                             toolbar('active');
                             if (json && json.deleted) {
