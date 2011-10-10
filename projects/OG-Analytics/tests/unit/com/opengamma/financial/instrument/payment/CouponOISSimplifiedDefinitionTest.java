@@ -101,6 +101,15 @@ public class CouponOISSimplifiedDefinitionTest {
 
   @Test
   /**
+   * Tests the builder from financial details.
+   */
+  public void from2() {
+    CouponOISSimplifiedDefinition cpnFrom = CouponOISSimplifiedDefinition.from(EUR_OIS, SPOT_DATE, END_ACCRUAL_DATE, NOTIONAL, EUR_SETTLEMENT_DAYS);
+    assertEquals("CouponOISSimplified definition: from", cpnFrom, EONIA_COUPON_DEFINITION);
+  }
+
+  @Test
+  /**
    * Tests the equal and hashCode methods.
    */
   public void equalHash() {
