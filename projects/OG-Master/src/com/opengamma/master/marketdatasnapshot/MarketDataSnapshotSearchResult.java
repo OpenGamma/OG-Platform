@@ -145,11 +145,6 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
      */
     static final Meta INSTANCE = new Meta();
 
-    @Override
-    protected Class<MarketDataSnapshotDocument> documentsGenericType() {
-      return MarketDataSnapshotDocument.class;
-    }
-
     /**
      * The meta-properties.
      */

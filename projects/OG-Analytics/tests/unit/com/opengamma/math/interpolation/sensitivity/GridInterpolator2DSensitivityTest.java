@@ -23,10 +23,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class GridInterpolator2DSensitivityTest {
-  private static final Interpolator1D<Interpolator1DDataBundle> LINEAR_1D = new LinearInterpolator1D();
-  // private static final Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> LINEAR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2DSensitivity<Interpolator1DDataBundle, Interpolator1DDataBundle> SENSE_CAL;
-  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR;
+  private static final Interpolator1D LINEAR_1D = new LinearInterpolator1D();
+  private static final GridInterpolator2DSensitivity SENSE_CAL;
+  private static final GridInterpolator2D INTERPOLATOR;
   private static final Map<DoublesPair, Double> DATA;
   private static final Map<Double, Interpolator1DDataBundle> DATA_BUNDLE;
   protected static Function<Double, Double> COS_EXP_FUNCTION = new Function<Double, Double>() {
@@ -47,9 +46,9 @@ public class GridInterpolator2DSensitivityTest {
       }
     }
 
-    INTERPOLATOR = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR_1D, LINEAR_1D);
+    INTERPOLATOR = new GridInterpolator2D(LINEAR_1D, LINEAR_1D);
     DATA_BUNDLE = INTERPOLATOR.getDataBundle(DATA);
-    SENSE_CAL = new GridInterpolator2DSensitivity<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR_1D, LINEAR_1D);
+    SENSE_CAL = new GridInterpolator2DSensitivity(LINEAR_1D, LINEAR_1D);
   }
 
   @Test

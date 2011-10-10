@@ -171,6 +171,7 @@ public class CommandLineBatchJob {
 
   public CommandLineBatchJob() {
     _user = UserPrincipal.getLocalUser();
+    // TODO: TIMEZONE
     _creationTime = ZonedDateTime.now();  // used later to obtain local date/time and zone
   }
 
@@ -514,12 +515,10 @@ public class CommandLineBatchJob {
         _batchMaster.startBatch(run);
         
         ViewClient client = run.getViewProcessor().createViewClient(UserPrincipal.getLocalUser());
-        HistoricalMarketDataSpecification marketDataSpec = getHistoricalMarketDataProvider() == null ?
-            MarketData.historical(run.getSnapshotObservationDate(), null, null, null) :
-              MarketData.historical(run.getSnapshotObservationDate(), getHistoricalMarketDataProvider().getDataSource(),
-                getHistoricalMarketDataProvider().getDataProvider(), getHistoricalMarketDataProvider().getDataField());
+        HistoricalMarketDataSpecification marketDataSpec = getHistoricalMarketDataProvider() == null ? MarketData.historical(run.getSnapshotObservationDate(), null, null) : MarketData.historical(
+            run.getSnapshotObservationDate(), getHistoricalMarketDataProvider().getTimeSeriesResolverKey(), getHistoricalMarketDataProvider().getTimeSeriesFieldResolverKey());
         ViewCycleExecutionOptions cycleExecutionOptions = new ViewCycleExecutionOptions(run.getValuationTime(), marketDataSpec);
-        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), null), true);
+        client.attachToViewProcess(run.getViewDefinition().getUniqueId(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.single(cycleExecutionOptions), null), true);
         client.waitForCompletion();
 
         _batchMaster.endBatch(run);

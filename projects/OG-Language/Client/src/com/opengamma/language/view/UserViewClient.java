@@ -34,7 +34,7 @@ public final class UserViewClient implements UniqueIdentifiable {
 
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
-  private static interface ViewResultListenerEvent {
+  private interface ViewResultListenerEvent {
 
     void callback(ViewResultListener listener);
 
@@ -210,7 +210,7 @@ public final class UserViewClient implements UniqueIdentifiable {
       synchronized (this) {
         if (!_attached) {
           final ViewClientDescriptor vcd = getViewClientKey().getClientDescriptor();
-          _viewClient.attachToViewProcess(vcd.getViewName(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
+          _viewClient.attachToViewProcess(vcd.getViewId(), vcd.getExecutionOptions(), !getViewClientKey().isSharedProcess());
           _attached = true;
         }
       }

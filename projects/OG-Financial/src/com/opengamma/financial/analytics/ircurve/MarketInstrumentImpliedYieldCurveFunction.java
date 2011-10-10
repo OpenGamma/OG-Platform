@@ -69,7 +69,6 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
@@ -116,10 +115,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private YieldCurveDefinition _fundingCurveDefinition;
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
-  private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _fundingInterpolator;
-  private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _forwardInterpolator;
-  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _fundingSensitivityCalculator;
-  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
+  private CombinedInterpolatorExtrapolator _fundingInterpolator;
+  private CombinedInterpolatorExtrapolator _forwardInterpolator;
+  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator _fundingSensitivityCalculator;
+  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator _forwardSensitivityCalculator;
   private final String _calculationType;
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String calculatorType) {
@@ -254,7 +253,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
         final Double fundingMarketValue = fundingMarketDataMap.get(strip.getSecurityIdentifier());
         if (fundingMarketValue == null) {
-          throw new NullPointerException("Could not get funding market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get funding market data for " + strip);
         }
         final double marketValue = fundingMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
@@ -264,7 +263,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
-          throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+          throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
         }
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
@@ -280,7 +279,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
         final Double forwardMarketValue = forwardMarketDataMap.get(strip.getSecurityIdentifier());
         if (forwardMarketValue == null) {
-          throw new NullPointerException("Could not get forward market data for " + strip);
+          throw new OpenGammaRuntimeException("Could not get forward market data for " + strip);
         }
         final double marketValue = forwardMarketValue;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
@@ -290,7 +289,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FixedIncomeInstrumentConverter<?> definition = _securityConverter.visit(financialSecurity);
         derivative = _definitionConverter.convert(financialSecurity, definition, now, curveNames, dataSource);
         if (derivative == null) {
-          throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+          throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
         }
         if (_calculationType.equals(PRESENT_VALUE_STRING)) {
           marketValues[i] = 0;
@@ -310,9 +309,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveKnots.put(_fundingCurveDefinitionName, fundingNodeTimes);
       curveKnots.put(_forwardCurveDefinitionName, forwardNodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> sensitivityCalculators = 
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
       curveNodes.put(_fundingCurveDefinitionName, fundingNodeTimes);
       interpolators.put(_fundingCurveDefinitionName, _fundingInterpolator);
       curveNodes.put(_forwardCurveDefinitionName, forwardNodeTimes);
@@ -328,7 +327,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       double[] yields = null;
       // TODO have the decomposition as an optional input [FIN-146]
       try {
-        rootFinder = new BroydenVectorRootFinder(1e-5, 1e-5, 10000, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
+        rootFinder = new BroydenVectorRootFinder(1e-4, 1e-4, 10000, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
         yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
       } catch (final Exception eSV) {
         s_logger.warn("Could not find root using SV decomposition and " + _calculationType + " method for curves " + _fundingCurveDefinitionName + " and " + _forwardCurveDefinitionName
@@ -428,9 +427,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
       curveKnots.put(_fundingCurveDefinitionName, nodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> sensitivityCalculators = 
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
       curveNodes.put(_fundingCurveDefinitionName, nodeTimes);
       interpolators.put(_fundingCurveDefinitionName, _fundingInterpolator);
       // TODO have use finite difference or not as an input [FIN-147]
@@ -486,17 +485,29 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper.compile(context, atInstant);
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper.compile(context, atInstant);
-    final InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
-    final InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());
+    final InstantProvider earliest = earlyBound(forwardCompile.getFirst(), fundingCompile.getFirst());
+    final InstantProvider latest = lateBound(forwardCompile.getSecond(), fundingCompile.getSecond());
     return new CompiledImpl(earliest, latest, fundingCompile.getThird(), forwardCompile.getThird());
   }
 
-  private InstantProvider max(final InstantProvider a, final InstantProvider b) {
-    return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
+  private InstantProvider earlyBound(final InstantProvider a, final InstantProvider b) {
+    if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    } else {
+      return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
+    }
   }
 
-  private InstantProvider min(final InstantProvider a, final InstantProvider b) {
-    return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+  private InstantProvider lateBound(final InstantProvider a, final InstantProvider b) {
+    if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    } else {
+      return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+    }
   }
 
   public int getPriority() {

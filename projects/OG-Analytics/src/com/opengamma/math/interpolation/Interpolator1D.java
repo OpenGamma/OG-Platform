@@ -16,10 +16,9 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * A base class for interpolation in one dimension.
- * @param <T> Type of Interpolator1DDataBundle
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>, Serializable {
+public abstract class Interpolator1D implements Interpolator<Interpolator1DDataBundle, Double>, Serializable {
   private static final long serialVersionUID = 1L;
   /**
    * Default accuracy
@@ -38,11 +37,11 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle> impleme
     return _eps;
   }
 
-  public abstract T getDataBundle(double[] x, double[] y);
+  public abstract Interpolator1DDataBundle getDataBundle(double[] x, double[] y);
 
-  public abstract T getDataBundleFromSortedArrays(double[] x, double[] y);
+  public abstract Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y);
 
-  public T getDataBundle(final Map<Double, Double> data) {
+  public Interpolator1DDataBundle getDataBundle(final Map<Double, Double> data) {
     Validate.notNull(data, "Backing data for interpolation must not be null.");
     Validate.notEmpty(data, "Backing data for interpolation must not be empty.");
     if (data instanceof SortedMap) {
@@ -84,7 +83,7 @@ public abstract class Interpolator1D<T extends Interpolator1DDataBundle> impleme
   }
 
   @Override
-  public abstract Double interpolate(T data, Double value);
+  public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {

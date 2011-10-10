@@ -13,7 +13,7 @@ import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilityS
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -22,13 +22,12 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class TwoStateMarkovChainLocalVolCalculator {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  private static final GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle> GRID_INTERPOLATOR2D = 
-    new GridInterpolator2D<Interpolator1DDoubleQuadraticDataBundle, Interpolator1DDoubleQuadraticDataBundle>(INTERPOLATOR_1D, INTERPOLATOR_1D);
+  private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
   public AbsoluteLocalVolatilitySurface calc(final PDEFullResults1D[] denRes, final TwoStateMarkovChainDataBundle chainData, final AbsoluteLocalVolatilitySurface lvOverlay) {
 
     final Map<DoublesPair, Double> lv = getLocalVolMap(denRes, chainData, lvOverlay);
-    final Map<Double, Interpolator1DDoubleQuadraticDataBundle> interpolatorDB = GRID_INTERPOLATOR2D.getDataBundle(lv);
+    final Map<Double, Interpolator1DDataBundle> interpolatorDB = GRID_INTERPOLATOR2D.getDataBundle(lv);
 
     final Function<Double, Double> lvFunc = new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")

@@ -17,7 +17,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -36,11 +35,11 @@ public class MultipleYieldCurveFinderFunctionTest {
 
   private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> CALCULATOR = ParRateCalculator.getInstance();
 
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FINDER;
   private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
-  private static final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> SENSITIVITY_CALCULATORS = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+  private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
+  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> SENSITIVITY_CALCULATORS = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
   private static final MultipleYieldCurveFinderDataBundle DATA;
 
   static {

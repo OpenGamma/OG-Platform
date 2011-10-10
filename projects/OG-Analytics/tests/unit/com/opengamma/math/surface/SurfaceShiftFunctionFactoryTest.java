@@ -16,7 +16,6 @@ import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -68,7 +67,7 @@ public class SurfaceShiftFunctionFactoryTest {
   private static final FunctionalDoublesSurface FUNCTIONAL = FunctionalDoublesSurface.from(F);
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
   private static final InterpolatedDoublesSurface INTERPOLATED = InterpolatedDoublesSurface.from(new double[] {1, 2, 1, 2}, new double[] {1, 2, 3, 4}, new double[] {1.2, 3.4, 5.6, 7.8},
-      new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, LINEAR));
+      new GridInterpolator2D(LINEAR, LINEAR));
   @SuppressWarnings("unchecked")
   private static final InterpolatedFromCurvesDoublesSurface INTERPOLATED_FROM_CURVES = InterpolatedFromCurvesDoublesSurface.from(true, new double[] {1},
       new Curve[] {NodalDoublesCurve.from(new double[] {1, 2}, new double[] {3, 4})}, LINEAR);

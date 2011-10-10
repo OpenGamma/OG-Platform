@@ -21,17 +21,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
  */
 public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
 
-  @SuppressWarnings({"rawtypes", "unused" })
+  @SuppressWarnings({"unused" })
   private final GridInterpolator2D _interpolator;
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   public Grid2DInterpolatedVolatilitySurfaceFunction(String tInterpolatorName, String tLeftExtrapolatorName, String tRightExtrapolatorName, String kInterpolatorName, String kLeftExtrapolatorName,
       String kRightExtrapolatorName) {
     Validate.notNull(tInterpolatorName, "t interpolator name");
@@ -40,8 +38,8 @@ public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
     Validate.notNull(kInterpolatorName, "k interpolator name");
     Validate.notNull(kLeftExtrapolatorName, "k left extrapolator name");
     Validate.notNull(kRightExtrapolatorName, "k right extrapolator name");
-    Interpolator1D<Interpolator1DDataBundle> tInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(tInterpolatorName, tLeftExtrapolatorName, tRightExtrapolatorName);
-    Interpolator1D<Interpolator1DDataBundle> kInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(kInterpolatorName, kLeftExtrapolatorName, kRightExtrapolatorName);
+    Interpolator1D tInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(tInterpolatorName, tLeftExtrapolatorName, tRightExtrapolatorName);
+    Interpolator1D kInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(kInterpolatorName, kLeftExtrapolatorName, kRightExtrapolatorName);
     _interpolator = new GridInterpolator2D(tInterpolator, kInterpolator);
   }
 

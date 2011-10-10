@@ -14,7 +14,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ShepardInterpolatorND extends InterpolatorND<InterpolatorNDDataBundle> {
+public class ShepardInterpolatorND extends InterpolatorND {
   private final Function1D<Double, Double> _basisFunction;
 
   public ShepardInterpolatorND(final double power) {

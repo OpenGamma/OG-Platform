@@ -152,7 +152,7 @@ public class CancelExecutionTest {
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     
-    ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
+    ViewDefinition viewDefinition = new ViewDefinition(UniqueId.of("foo", "bar"), "TestView", UserPrincipal.getTestUser());
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     MockViewDefinitionRepository viewDefinitionRepository = new MockViewDefinitionRepository();
     viewDefinitionRepository.addDefinition(viewDefinition);

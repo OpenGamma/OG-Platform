@@ -32,7 +32,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator);
   }
 
@@ -43,7 +43,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator);
   }
 
@@ -54,7 +54,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator);
   }
 
@@ -64,7 +64,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xyData, zData, interpolator);
   }
 
@@ -74,7 +74,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final double[] zData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xyData, zData, interpolator);
   }
 
@@ -84,7 +84,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xyData, zData, interpolator);
   }
 
@@ -93,7 +93,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final Map<DoublesPair, Double> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final Map<DoublesPair, Double> xyzData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xyzData, interpolator);
   }
 
@@ -102,7 +102,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface from(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D interpolator) {
     return new InterpolatedDoublesSurface(xyzData, interpolator);
   }
 
@@ -114,7 +114,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator,
+  public static InterpolatedDoublesSurface from(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator,
       final String name) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator, name);
   }
@@ -127,7 +127,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator,
+  public static InterpolatedDoublesSurface from(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator,
       final String name) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator, name);
   }
@@ -140,7 +140,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator,
+  public static InterpolatedDoublesSurface from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator,
       final String name) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator, name);
   }
@@ -152,7 +152,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xyData, zData, interpolator, name);
   }
 
@@ -163,7 +163,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoublesSurface from(final DoublesPair[] xyData, final double[] zData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xyData, zData, interpolator, name);
   }
 
@@ -174,7 +174,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoublesSurface from(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xyData, zData, interpolator, name);
   }
 
@@ -184,7 +184,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final Map<DoublesPair, Double> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoublesSurface from(final Map<DoublesPair, Double> xyzData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xyzData, interpolator, name);
   }
 
@@ -194,7 +194,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public static InterpolatedDoublesSurface from(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xyzData, interpolator, name);
   }
 
@@ -206,7 +206,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator  The interpolator, not null
    * @return An interpolated surface with automatically-generated name.
    */
-  public static InterpolatedDoublesSurface fromGrid(final double[] xVector, final double[] yVector, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedDoublesSurface fromGrid(final double[] xVector, final double[] yVector, final double[] zData, final Interpolator2D interpolator) {
     int nX = xVector.length;
     int nY = yVector.length;
     Validate.isTrue(zData.length == nX * nY, "Sizes not compatible");
@@ -223,9 +223,8 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
     return from(xData, yData, zData, interpolator);
   }
 
-  @SuppressWarnings("rawtypes")
   private final GridInterpolator2D _interpolator;
-  private Map<Double, ? extends Interpolator1DDataBundle> _data;
+  private Map<Double, Interpolator1DDataBundle> _data;
 
   /**
    * @param xData An array of <i>x</i> data points, not null 
@@ -233,8 +232,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param zData An array of <i>z</i> data points, not null, contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator) {
     super(xData, yData, zData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -248,8 +246,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param zData An array of <i>z</i> data points, not null, not null elements. Contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator) {
     super(xData, yData, zData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -263,8 +260,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param zData A list of <i>z</i> data points, not null, no null elements. Contains same number of entries as <i>x</i>
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator) {
     super(xData, yData, zData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -277,8 +273,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param zData An array of <i>z</i> data points, not null. Contains same number of entries as <i>x-y</i>
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final double[] zData, final Interpolator2D interpolator) {
     super(xyData, zData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -291,8 +286,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param zData An array of <i>z</i> data points, not null, no null elements. Contains same number of entries as <i>x-y</i>
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D interpolator) {
     super(xyData, zData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -305,8 +299,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param zData A list of <i>z</i> data points, not null, no null elements. Contains same number of entries as <i>x-y</i>
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D interpolator) {
     super(xyData, zData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -318,8 +311,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param xyzData A map of <i>x-y</i> data points to <i>z</i> data points, not null, no null elements
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final Map<DoublesPair, Double> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final Map<DoublesPair, Double> xyzData, final Interpolator2D interpolator) {
     super(xyzData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -331,8 +323,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param xyzData A list of <i>x-y-z</i> data points, not null, no null elements
    * @param interpolator The interpolator, not null
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D interpolator) {
     super(xyzData);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -347,8 +338,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator, final String name) {
     super(xData, yData, zData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -363,8 +353,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator, final String name) {
     super(xData, yData, zData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -379,8 +368,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator,
+  public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator,
       final String name) {
     super(xData, yData, zData, name);
     Validate.notNull(interpolator, "interpolator");
@@ -395,8 +383,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final double[] zData, final Interpolator2D interpolator, final String name) {
     super(xyData, zData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -410,8 +397,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final DoublesPair[] xyData, final Double[] zData, final Interpolator2D interpolator, final String name) {
     super(xyData, zData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -425,8 +411,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final Interpolator2D interpolator, final String name) {
     super(xyData, zData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -439,8 +424,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final Map<DoublesPair, Double> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final Map<DoublesPair, Double> xyzData, final Interpolator2D interpolator, final String name) {
     super(xyzData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -453,8 +437,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  @SuppressWarnings("rawtypes")
-  public InterpolatedDoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+  public InterpolatedDoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final Interpolator2D interpolator, final String name) {
     super(xyzData, name);
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(interpolator instanceof GridInterpolator2D); //TODO remove me
@@ -463,7 +446,6 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   }
 
   // TODO this logic should be in the interpolator
-  @SuppressWarnings("unchecked")
   private void init() {
     final Map<DoublesPair, Double> map = new TreeMap<DoublesPair, Double>();
     final double[] x = getXDataAsPrimitive();
@@ -478,7 +460,6 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public Double getZValue(final Double x, final Double y) {
     Validate.notNull(x, "x");
@@ -489,7 +470,6 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public Double getZValue(final Pair<Double, Double> xy) {
     Validate.notNull(xy, "xy");
@@ -499,8 +479,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
   /**
    * @return The interpolator
    */
-  @SuppressWarnings("unchecked")
-  public Interpolator2D<? extends Interpolator1DDataBundle> getInterpolator() {
+  public Interpolator2D getInterpolator() {
     return _interpolator;
   }
 

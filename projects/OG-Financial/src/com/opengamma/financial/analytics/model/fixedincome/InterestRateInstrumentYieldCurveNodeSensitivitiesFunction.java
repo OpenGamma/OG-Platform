@@ -222,12 +222,9 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final Map<String, DoubleMatrix1D> sensitivities = new HashMap<String, DoubleMatrix1D>();
     sensitivities.put(_fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
     sensitivities.put(_forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
-    final String[] relevantCurvesForDerivative = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
-        _fundingCurveName, _forwardCurveName);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    for (final String curveName : relevantCurvesForDerivative) {
-      results.addAll(getSensitivitiesForSingleCurve(target, security, curveName, bundle, sensitivities.get(curveName), currency, curveSpecs.get(curveName)));
-    }
+    results.addAll(getSensitivitiesForSingleCurve(target, security, _fundingCurveName, bundle, sensitivities.get(_fundingCurveName), currency, curveSpecs.get(_fundingCurveName)));
+    results.addAll(getSensitivitiesForSingleCurve(target, security, _forwardCurveName, bundle, sensitivities.get(_forwardCurveName), currency, curveSpecs.get(_forwardCurveName)));
     return results;
   }
 
@@ -240,7 +237,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
         result.add(getCouponSensitivityRequirement(target));
       }
-      return result;
+      return result; //TODO see if this is necessary
     } else {
       final Set<ValueRequirement> result = Sets.newHashSet(getCurveRequirement(target, _forwardCurveName),
                                                            getCurveRequirement(target, _fundingCurveName),

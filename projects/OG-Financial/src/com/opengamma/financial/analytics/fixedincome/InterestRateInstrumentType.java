@@ -98,9 +98,6 @@ public enum InterestRateInstrumentType {
       if (security instanceof InterestRateFutureSecurity) {
         return IR_FUTURE;
       }
-      //      if (security instanceof BondFutureSecurity) {
-      //        return BOND_FUTURE;
-      //      }
       throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
     }
 

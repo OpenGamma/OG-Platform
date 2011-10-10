@@ -16,8 +16,10 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -133,6 +135,38 @@ public class LiveDataServerMBean {
       return response.getTickDistributionSpecification();
     } catch (RuntimeException e) {
       s_logger.error("subscribe(" + securityUniqueId + ") failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Subscribes to market data. The subscription will be persistent."
+      + " If the server already subscribes to the given market data, this method will make the "
+      + " subscription persistent. Returns the name of the JMS topic market data will be published on.")
+  @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String subscribePersistently(String securityUniqueId) {
+    try {
+      LiveDataSpecification spec = _server.getLiveDataSpecification(securityUniqueId);
+      LiveDataSubscriptionResponse response = _server.subscribe(spec, true);
+      if (response.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS) {
+        throw new RuntimeException("Unsuccessful subscription: " + response.getUserMessage());
+      }
+      return response.getTickDistributionSpecification();
+    } catch (RuntimeException e) {
+      s_logger.error("subscribe(" + securityUniqueId + ") failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
+  @ManagedOperation(description = "Converts all subscriptions to persistent.")
+  public void subscribeAllPersistently() {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      for (String string : activeSubscriptionIds) {
+        MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(string);
+        marketDataDistributor.setPersistent(true);
+      }
+    } catch (RuntimeException e) {
+      s_logger.error("subscribeAllPersistently() failed", e);
       throw new RuntimeException(e.getMessage());
     }
   }

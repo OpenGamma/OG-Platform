@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
  * Custom JSON builder to convert ViewDefinition to JSON object and back again
  */
 public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDefinition> {
- 
+
   private static final String IDENTIFIER_FIELD = "identifier";
   private static final String USER_FIELD = "user";
   private static final String MIN_DELTA_CALC_PERIOD_FIELD = "minDeltaCalcPeriod";
@@ -48,23 +48,23 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   private static final String PORTFOLIO_REQUIREMENT_FIELD = "portfolioRequirement";
   private static final String PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD = "requiredOutput";
   private static final String PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD = "constraints";
-  
+
   private static final String SPECIFIC_REQUIREMENT_FIELD = "specificRequirement";
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
   private static final String CURRENCY_FIELD = "currency";
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
   private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
-  
+
   /**
    * Singleton
    */
   public static final ViewDefinitionJSONBuilder INSTANCE = new ViewDefinitionJSONBuilder();
-  
+
   /**
    * JSON template
    */
   private static final String TEMPLATE = createTemplate();
-  
+
   /**
    * Restricted constructor
    */
@@ -74,7 +74,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   @Override
   public ViewDefinition fromJSON(final String json) {
     ArgumentChecker.notNull(json, "JSON document");
-    
+
     ViewDefinition viewDefinition = null;
     try {
       JSONObject viewJSON = new JSONObject(json);
@@ -85,8 +85,8 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       String name = viewJSON.getString(NAME_FIELD);
       UserPrincipal liveDataUser = convertJsonToObject(UserPrincipal.class, viewJSON.getJSONObject(USER_FIELD));
       ResultModelDefinition resultModelDefinition = convertJsonToObject(ResultModelDefinition.class, viewJSON.getJSONObject(RESULT_MODEL_DEFINITION_FIELD));
-      viewDefinition = new ViewDefinition(name, portfolioOid, liveDataUser, resultModelDefinition);
-      
+      viewDefinition = new ViewDefinition(null, name, portfolioOid, liveDataUser, resultModelDefinition);
+
       if (viewJSON.opt(CURRENCY_FIELD) != null) {
         String isoCode = viewJSON.getString(CURRENCY_FIELD);
         viewDefinition.setDefaultCurrency(Currency.of(isoCode));
@@ -158,7 +158,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     }
     return viewDefinition;
   }
-  
+
   @Override
   public String toJSON(final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
@@ -222,26 +222,27 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
         calcConfigJSON.put(DEFAULT_PROPERTIES_FIELD, toJSONObject(calcConfig.getDefaultProperties()));
         calcConfigJSON.put(RESOLUTION_RULE_TRANSFORM_FIELD, toJSONObject(calcConfig.getResolutionRuleTransform(), false));
         calConfigJSONList.add(calcConfigJSON);
-      }  
+      }
       if (!calConfigJSONList.isEmpty()) {
         jsonObject.put(CALCULATION_CONFIGURATION_FIELD, calConfigJSONList);
       }
       if (viewDefinition.getUniqueId() != null) {
         jsonObject.put(UNIQUE_ID_FIELD, viewDefinition.getUniqueId().toString());
       }
-            
+
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
-    
+
     return jsonObject.toString();
   }
 
   private static String createTemplate() {
-    ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
+    ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE;
     String result = null;
     try {
-      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyView()));
+      String s = builder.toJSON(getDummyView());
+      JSONObject jsonObject = new JSONObject(s);
       jsonObject.put(CURRENCY_FIELD, "");
       jsonObject.put(CALCULATION_CONFIGURATION_FIELD, new JSONArray());
       result = jsonObject.toString();
@@ -252,7 +253,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   }
 
   private static ViewDefinition getDummyView() {
-    ViewDefinition dummy = new ViewDefinition("", new UserPrincipal("", ""));
+    ViewDefinition dummy = new ViewDefinition(null, "dummy", new UserPrincipal("", ""));
     dummy.setDefaultCurrency(Currency.GBP);
     dummy.setMaxDeltaCalculationPeriod(0L);
     dummy.setMaxFullCalculationPeriod(0L);
@@ -266,5 +267,5 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   public String getTemplate() {
     return TEMPLATE;
   }
-  
+
 }

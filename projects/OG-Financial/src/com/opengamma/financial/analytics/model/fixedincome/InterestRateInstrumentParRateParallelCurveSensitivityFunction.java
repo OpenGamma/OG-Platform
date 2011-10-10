@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,8 +41,10 @@ public class InterestRateInstrumentParRateParallelCurveSensitivityFunction exten
       final FinancialSecurity security, final ComputationTarget target) {
     final Map<String, Double> sensitivities = CALCULATOR.visit(derivative, bundle);
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    return Sets.newHashSet(new ComputedValue(getFundingCurveSpec(ccy, target), sensitivities.get(getFundingCurveName())), 
-                           new ComputedValue(getForwardCurveSpec(ccy, target), sensitivities.get(getForwardCurveName())));
+    Set<ComputedValue> result = new HashSet<ComputedValue>();
+    result.add(new ComputedValue(getFundingCurveSpec(ccy, target), sensitivities.containsKey(getFundingCurveName()) ? sensitivities.get(getFundingCurveName()) : 0));
+    result.add(new ComputedValue(getForwardCurveSpec(ccy, target), sensitivities.containsKey(getForwardCurveName()) ? sensitivities.get(getForwardCurveName()) : 0));
+    return result;
   }
 
   @Override

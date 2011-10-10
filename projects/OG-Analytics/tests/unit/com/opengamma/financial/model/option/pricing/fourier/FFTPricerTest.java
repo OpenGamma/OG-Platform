@@ -23,7 +23,7 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 public class FFTPricerTest {
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
+  private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
   private static final double FORWARD = 1;
   private static final double T = 1 / 52.0;
   private static final double DF = 0.96;

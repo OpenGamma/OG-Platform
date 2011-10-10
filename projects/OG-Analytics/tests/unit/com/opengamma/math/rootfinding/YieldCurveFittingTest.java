@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -31,7 +32,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
 import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -136,13 +136,15 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
   private YieldCurveFittingTestDataBundle getSingleCurveSetup() {
 
+    final SimpleFrequency paymentFreq = SimpleFrequency.QUARTERLY;
+
     final List<String> curveNames = new ArrayList<String>();
     curveNames.add("single curve");
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
+    final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
         FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = PresentValueCalculator.getInstance();
@@ -152,10 +154,10 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
     final HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
 
-    maturities.put("libor", new double[] {1. / 12, 2. / 12, 3. / 12}); //
-    maturities.put("fra", new double[] {0.5, 0.75});
-    maturities.put("cash", new double[] {1. / 365, 1. / 52, 2. / 52.});
-    maturities.put("swap", new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889});
+    maturities.put("libor", new double[] {1. / 12, 2. / 12, 3. / 12 }); //
+    maturities.put("fra", new double[] {0.5, 0.75 });
+    maturities.put("cash", new double[] {1. / 365, 1. / 52, 2. / 52. });
+    maturities.put("swap", new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889 });
 
     int nNodes = 0;
     for (final double[] temp : maturities.values()) {
@@ -194,7 +196,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     for (final String name : maturities.keySet()) {
       final double[] times = maturities.get(name);
       for (final double t : times) {
-        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(0), 0.0, 1.0);
+        ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(0), 0.0, 1.0);
         ird = REPLACE_RATE.visit(ird, ParRateCalculator.getInstance().visit(ird, bundle));
         instruments.add(ird);
         marketValues[index] = calculator.visit(ird, bundle);
@@ -214,17 +216,17 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     return data;
   }
 
-
   private YieldCurveFittingTestDataBundle getDoubleCurveSetup() {
+    final SimpleFrequency paymentFreq = SimpleFrequency.QUARTERLY;
 
     final List<String> curveNames = new ArrayList<String>();
     curveNames.add("funding curve");
     curveNames.add("Libor curve");
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
+    final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
         FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
         .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
@@ -234,12 +236,12 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     final HashMap<String, double[]> liborMaturities = new LinkedHashMap<String, double[]>();
     final HashMap<String, double[]> maturities = new LinkedHashMap<String, double[]>();
 
-    fundingMaturities.put("cash", new double[] {1. / 365, 1. / 52, 2. / 52.});
-    fundingMaturities.put("basisSwap", new double[] {1, 2, 5, 10, 20, 30, 50});
+    fundingMaturities.put("cash", new double[] {1. / 365, 1. / 52, 2. / 52. });
+    fundingMaturities.put("basisSwap", new double[] {1, 2, 5, 10, 20, 30, 50 });
 
-    liborMaturities.put("libor", new double[] {1. / 12, 2. / 12, 3. / 12}); //
-    liborMaturities.put("fra", new double[] {0.5, 0.75});
-    liborMaturities.put("swap", new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889});
+    liborMaturities.put("libor", new double[] {1. / 12, 2. / 12, 3. / 12 }); //
+    liborMaturities.put("fra", new double[] {0.5, 0.75 });
+    liborMaturities.put("swap", new double[] {1.00, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556, 35.00833333, 50.01388889 });
 
     maturities.putAll(fundingMaturities);
     maturities.putAll(liborMaturities);
@@ -280,7 +282,7 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     index = 0;
     for (final String name : maturities.keySet()) {
       for (final double t : maturities.get(name)) {
-        ird = makeIRD(name, t, curveNames.get(0), curveNames.get(1), 0.0, 1.0);
+        ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(1), 0.0, 1.0);
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
         index++;
@@ -298,5 +300,5 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
     return data;
   }
- 
+
 }

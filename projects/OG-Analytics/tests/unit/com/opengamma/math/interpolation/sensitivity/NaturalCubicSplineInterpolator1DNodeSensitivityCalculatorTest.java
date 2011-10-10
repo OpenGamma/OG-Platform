@@ -26,11 +26,10 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
-  private static final Interpolator1D<Interpolator1DCubicSplineDataBundle> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DCubicSplineDataBundle>(
-      INTERPOLATOR);
-  private static final Interpolator1DCubicSplineDataBundle DATA1;
+  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(INTERPOLATOR);
+  private static final Interpolator1DDataBundle DATA1;
   private static final double EPS = 1e-7;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
@@ -105,7 +104,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     }
   }
 
-  private <T extends Interpolator1DDataBundle> double getSensitivity(final T model, final Interpolator1D<T> interpolator, final double t, final int node) {
+  private double getSensitivity(final Interpolator1DDataBundle model, final Interpolator1D interpolator, final double t, final int node) {
     final double[] x = model.getKeys();
     final double[] y = model.getValues();
     final int n = y.length;
@@ -115,8 +114,8 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     yDown = Arrays.copyOf(y, n);
     yUp[node] += EPS;
     yDown[node] -= EPS;
-    final T modelUp = interpolator.getDataBundleFromSortedArrays(x, yUp);
-    final T modelDown = interpolator.getDataBundleFromSortedArrays(x, yDown);
+    final Interpolator1DDataBundle modelUp = interpolator.getDataBundleFromSortedArrays(x, yUp);
+    final Interpolator1DDataBundle modelDown = interpolator.getDataBundleFromSortedArrays(x, yDown);
     final double up = interpolator.interpolate(modelUp, t);
     final double down = interpolator.interpolate(modelDown, t);
     return (up - down) / 2.0 / EPS;

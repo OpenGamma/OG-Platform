@@ -136,14 +136,14 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   }
 
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
-    attachToViewProcess(viewDefinitionName, executionOptions, false);
+  public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
+    attachToViewProcess(definitionId, executionOptions, false);
   }
 
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
+  public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
     AttachToViewProcessRequest request = new AttachToViewProcessRequest();
-    request.setViewDefinitionName(viewDefinitionName);
+    request.setViewDefinitionId(definitionId);
     request.setExecutionOptions(executionOptions);
     request.setNewBatchProcess(newBatchProcess);
     _listenerLock.lock();

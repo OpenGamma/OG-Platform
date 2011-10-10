@@ -6,24 +6,22 @@
 package com.opengamma.math.interpolation.sensitivity;
 
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
  */
-@SuppressWarnings({"unchecked", "rawtypes" })
 public final class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory {
 
   private CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory() {
   }
 
-  public static CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculator(final String interpolatorName,
+  public static CombinedInterpolatorExtrapolatorNodeSensitivityCalculator getSensitivityCalculator(final String interpolatorName,
       final boolean useFiniteDifferenceByDefault) {
     final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, useFiniteDifferenceByDefault);
     return new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(sensitivityCalculator);
   }
 
-  public static CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculator(final String interpolatorName, final String extrapolatorName,
+  public static CombinedInterpolatorExtrapolatorNodeSensitivityCalculator getSensitivityCalculator(final String interpolatorName, final String extrapolatorName,
       final boolean useFiniteDifferenceByDefault) {
     final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, useFiniteDifferenceByDefault);
     if (extrapolatorName == null || extrapolatorName.isEmpty()) {
@@ -34,7 +32,7 @@ public final class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFact
   }
 
   //REVIEW see review in CombinedInterpolatorExtrapolatorFactory - the behaviour should be the same in both cases
-  public static CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculator(final String interpolatorName,
+  public static CombinedInterpolatorExtrapolatorNodeSensitivityCalculator getSensitivityCalculator(final String interpolatorName,
       final String leftExtrapolatorName, final String rightExtrapolatorName, final boolean useFiniteDifferenceByDefault) {
     final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, useFiniteDifferenceByDefault);
     if (leftExtrapolatorName == null || leftExtrapolatorName.isEmpty()) {

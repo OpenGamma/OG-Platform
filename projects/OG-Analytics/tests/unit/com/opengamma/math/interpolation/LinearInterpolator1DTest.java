@@ -19,7 +19,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 public class LinearInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LinearInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override

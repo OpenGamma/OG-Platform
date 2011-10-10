@@ -105,6 +105,14 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   }
 
   /**
+   * Gets the time difference between the last fixed leg payment and the settlement.
+   * @return The maturity time.
+   */
+  public double getMaturityTime() {
+    return _underlyingSwap.getFixedLeg().getNthPayment(_underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - _settlementTime;
+  }
+
+  /**
    * Gets the swaption currency.
    * @return The currency.
    */
@@ -117,13 +125,13 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
     return "Swaption: Expiry=" + getTimeToExpiry() + ", is long=" + _isLong + "\n" + _underlyingSwap;
   }
 
-  public InterestRateDerivative[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type, final YieldCurveBundle curves) {
-    InterestRateDerivative[] calibration = new InterestRateDerivative[0];
+  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type, final YieldCurveBundle curves) {
+    SwaptionPhysicalFixedIbor[] calibration = new SwaptionPhysicalFixedIbor[0];
     switch (type) {
       case FIXEDLEG_STRIKE:
         AnnuityCouponFixed legFixed = getUnderlyingSwap().getFixedLeg();
         int nbCal = legFixed.getNumberOfPayments();
-        calibration = new InterestRateDerivative[nbCal];
+        calibration = new SwaptionPhysicalFixedIbor[nbCal];
         double notional = Math.abs(legFixed.getNthPayment(0).getNotional());
         for (int loopcal = 0; loopcal < nbCal; loopcal++) {
           double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();

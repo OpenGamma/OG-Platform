@@ -5,40 +5,10 @@
  */
 package com.opengamma.masterdb.position;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.ZoneOffset;
-
-import org.apache.commons.lang.StringUtils;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -47,7 +17,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.position.Deal;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -64,6 +33,28 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
+import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.OffsetTime;
+import javax.time.calendar.ZoneOffset;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * A position master implementation using a database for persistence.
@@ -471,6 +462,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       
       // trade attributes
       Map<String, String> attributes = new HashMap<String, String>(trade.getAttributes());
+/*
       if (trade.getDeal() != null) {
         Deal deal = trade.getDeal();
         attributes.put(DEAL_CLASSNAME, deal.getClass().getName());
@@ -481,6 +473,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           }
         }
       }
+*/
       for (Entry<String, String> entry : attributes.entrySet()) {
         final long tradeAttrId = nextId("pos_trade_attr_seq");
         final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource()
@@ -780,10 +773,11 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           _trade.addAttribute(tradeAttrKey, tradeAttrValue);
         }
       }
-      fixupTrades(_documents);
+      //fixupTrades(_documents);
       return _documents;
     }
 
+/*
     @SuppressWarnings({"unchecked", "rawtypes" })
     private void fixupTrades(List<PositionDocument> documents) {
       for (PositionDocument positionDocument : documents) {
@@ -816,6 +810,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         }
       }
     }
+*/
 
     private void buildPosition(final ResultSet rs, final long positionId) throws SQLException {
       final long positionOid = rs.getLong("POSITION_OID");

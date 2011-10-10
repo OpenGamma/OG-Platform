@@ -9,7 +9,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.util.money.Currency;
 
@@ -23,7 +22,7 @@ public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
    * @param fixedLeg a fixed annuity for the receive leg
    * @param floatingLeg a variable (floating) annuity for the pay leg
    */
-  public FixedFloatSwap(final GenericAnnuity<CouponFixed> fixedLeg, final GenericAnnuity<CouponIbor> floatingLeg) {
+  public FixedFloatSwap(final AnnuityCouponFixed fixedLeg, final GenericAnnuity<CouponIbor> floatingLeg) {
     super(fixedLeg, floatingLeg);
   }
 

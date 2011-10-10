@@ -501,6 +501,11 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   public T visitFixedCouponSwap(final FixedCouponSwap<?> swap) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponSwap()");
   }
+  
+  @Override
+  public T visitOISSwap(final OISSwap swap) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitOISSwap()");
+  }
 
   @Override
   public T visitFixedPayment(final PaymentFixed payment) {
