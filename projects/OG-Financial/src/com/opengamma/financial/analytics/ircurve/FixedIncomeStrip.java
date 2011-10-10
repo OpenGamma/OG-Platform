@@ -113,7 +113,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   /**
    * Calculates the tenor of a strip. For all instruments except futures, this is the same as that entered on construction.
    * For futures, this is the start tenor + (3 * future number)
-   * @return The effectove tenor of the strip
+   * @return The effective tenor of the strip
    */
   public Tenor getEffectiveTenor() {
     return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ? 

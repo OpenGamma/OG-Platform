@@ -135,7 +135,7 @@ public class HistoricalTimeSeriesSourceResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("all/{currentDate}/{dataSource}/{dataProvider}/{dataField}")
-  public FudgeMsgEnvelope getAll(@PathParam("currentDate") String currentDate, 
+  public FudgeMsgEnvelope getAllWithCurrentDate(@PathParam("currentDate") String currentDate, 
       @PathParam("dataSource") String dataSource, 
       @PathParam("dataProvider") String dataProvider, 
       @PathParam("dataField") String dataField,
@@ -143,6 +143,19 @@ public class HistoricalTimeSeriesSourceResource {
     return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         identifiersToBundle(identifiers),
         NULL_VALUE.equals(currentDate) ? null : LocalDate.parse(currentDate),
+        dataSource,
+        NULL_VALUE.equals(dataProvider) ? null : dataProvider,
+        dataField));
+  }
+  
+  @GET
+  @Path("all/{dataSource}/{dataProvider}/{dataField}")
+  public FudgeMsgEnvelope getAll(@PathParam("dataSource") String dataSource, 
+      @PathParam("dataProvider") String dataProvider, 
+      @PathParam("dataField") String dataField,
+      @QueryParam("id") List<String> identifiers) {
+    return encodeMessage(getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        identifiersToBundle(identifiers),
         dataSource,
         NULL_VALUE.equals(dataProvider) ? null : dataProvider,
         dataField));

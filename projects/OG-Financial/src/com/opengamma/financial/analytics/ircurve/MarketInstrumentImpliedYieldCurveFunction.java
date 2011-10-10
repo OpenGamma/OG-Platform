@@ -69,10 +69,6 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -116,10 +112,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private YieldCurveDefinition _fundingCurveDefinition;
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
-  private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _fundingInterpolator;
-  private CombinedInterpolatorExtrapolator<Interpolator1DDataBundle> _forwardInterpolator;
-  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _fundingSensitivityCalculator;
-  private CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> _forwardSensitivityCalculator;
+  private CombinedInterpolatorExtrapolator _fundingInterpolator;
+  private CombinedInterpolatorExtrapolator _forwardInterpolator;
   private final String _calculationType;
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName, final String calculatorType) {
@@ -180,13 +174,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
     _fundingInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    _fundingSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_fundingCurveDefinition.getInterpolatorName(),
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     if (!_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
       _forwardInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_forwardCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-      _forwardSensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(_forwardCurveDefinition.getInterpolatorName(),
-          Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     }
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
@@ -310,17 +300,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveKnots.put(_fundingCurveDefinitionName, fundingNodeTimes);
       curveKnots.put(_forwardCurveDefinitionName, forwardNodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
       curveNodes.put(_fundingCurveDefinitionName, fundingNodeTimes);
       interpolators.put(_fundingCurveDefinitionName, _fundingInterpolator);
       curveNodes.put(_forwardCurveDefinitionName, forwardNodeTimes);
       interpolators.put(_forwardCurveDefinitionName, _forwardInterpolator);
       // TODO have use finite difference or not as an input [FIN-147]
-      sensitivityCalculators.put(_fundingCurveDefinitionName, _fundingSensitivityCalculator);
-      sensitivityCalculators.put(_forwardCurveDefinitionName, _forwardSensitivityCalculator);
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, sensitivityCalculators);
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false);
       // TODO have the calculator and sensitivity calculators as an input [FIN-144], [FIN-145]
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, _calculator);
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, _sensitivityCalculator);
@@ -428,15 +414,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
       curveKnots.put(_fundingCurveDefinitionName, nodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-      final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
       curveNodes.put(_fundingCurveDefinitionName, nodeTimes);
       interpolators.put(_fundingCurveDefinitionName, _fundingInterpolator);
       // TODO have use finite difference or not as an input [FIN-147]
-      sensitivityCalculators.put(_fundingCurveDefinitionName, _fundingSensitivityCalculator);
 
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, sensitivityCalculators);
+      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues, null, curveNodes, interpolators, false);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, _calculator);
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, _sensitivityCalculator);
       NewtonVectorRootFinder rootFinder;
@@ -486,17 +469,29 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper.compile(context, atInstant);
     final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper.compile(context, atInstant);
-    final InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
-    final InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());
+    final InstantProvider earliest = earlyBound(forwardCompile.getFirst(), fundingCompile.getFirst());
+    final InstantProvider latest = lateBound(forwardCompile.getSecond(), fundingCompile.getSecond());
     return new CompiledImpl(earliest, latest, fundingCompile.getThird(), forwardCompile.getThird());
   }
 
-  private InstantProvider max(final InstantProvider a, final InstantProvider b) {
-    return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
+  private InstantProvider earlyBound(final InstantProvider a, final InstantProvider b) {
+    if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    } else {
+      return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
+    }
   }
 
-  private InstantProvider min(final InstantProvider a, final InstantProvider b) {
-    return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+  private InstantProvider lateBound(final InstantProvider a, final InstantProvider b) {
+    if (a == null) {
+      return b;
+    } else if (b == null) {
+      return a;
+    } else {
+      return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
+    }
   }
 
   public int getPriority() {

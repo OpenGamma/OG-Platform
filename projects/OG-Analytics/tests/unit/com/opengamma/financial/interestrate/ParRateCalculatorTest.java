@@ -11,6 +11,8 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
+import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.*;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;

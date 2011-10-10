@@ -55,13 +55,11 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
     super(strike, expiry, isCall);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;

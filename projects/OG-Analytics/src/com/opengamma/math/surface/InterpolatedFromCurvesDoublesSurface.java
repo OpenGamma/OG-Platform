@@ -16,7 +16,6 @@ import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -35,7 +34,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false);
   }
 
@@ -48,7 +47,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final Double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false);
   }
 
@@ -61,7 +60,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final List<Double> points, final List<Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false);
   }
 
@@ -72,7 +71,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, 
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, curves, interpolator, false);
   }
 
@@ -86,7 +85,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false, name);
   }
 
@@ -100,7 +99,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final Double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false, name);
   }
 
@@ -114,7 +113,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final List<Double> points, final List<Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false, name);
   }
 
@@ -126,7 +125,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, curves, interpolator, false, name);
   }
 
@@ -139,7 +138,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, true);
   }
 
@@ -152,7 +151,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final Double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, true);
   }
 
@@ -165,7 +164,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final List<Double> points, final List<Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, true);
   }
 
@@ -176,7 +175,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface with an automatically-generated name
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, curves, interpolator, true);
   }
 
@@ -190,7 +189,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, true, name);
   }
 
@@ -204,7 +203,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final Double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, true, name);
   }
 
@@ -218,7 +217,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final List<Double> points, final List<Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, true, name);
   }
 
@@ -230,14 +229,14 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @return A surface 
    */
   public static InterpolatedFromCurvesDoublesSurface fromSorted(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final String name) {
+      final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, curves, interpolator, true, name);
   }
 
   private final double[] _points;
   private final int _nCurves;
   private final Curve<Double, Double>[] _curves;
-  private final Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
+  private final Interpolator1D _interpolator;
   private final boolean _xzCurves;
 
   /**
@@ -249,7 +248,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @param isSorted Are the intersection points of the curve sorted in increasing order
    */
   public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(points, "points");
     Validate.notNull(curves, "curves");
@@ -276,7 +275,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @param isSorted Are the intersection points of the curve sorted in increasing order
    */
   public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final Double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(points, "points");
     Validate.notNull(curves, "curves");
@@ -308,7 +307,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final List<Double> points, final List<Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted) {
+      final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(points, "points");
     Validate.notNull(curves, "curves");
@@ -339,7 +338,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @param isSorted Are the intersection points of the curve sorted in increasing order
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator,
+  public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, final Interpolator1D interpolator,
       final boolean isSorted) {
     super();
     Validate.notNull(curves, "curves");
@@ -374,7 +373,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @param name The name of the surface
    */
   public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(points, "points");
     Validate.notNull(curves, "curves");
@@ -403,7 +402,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final Double[] points, final Curve<Double, Double>[] curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(points, "points");
     Validate.notNull(curves, "curves");
@@ -438,7 +437,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    */
   @SuppressWarnings("unchecked")
   public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final List<Double> points, final List<Curve<Double, Double>> curves,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator, final boolean isSorted, final String name) {
+      final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(points, "points");
     Validate.notNull(curves, "curves");
@@ -470,7 +469,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
    * @param name The name of the surface
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator,
+  public InterpolatedFromCurvesDoublesSurface(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, final Interpolator1D interpolator,
       final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(curves, "curves");
@@ -572,7 +571,7 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
   /**
    * @return The interpolator
    */
-  public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolator() {
+  public Interpolator1D getInterpolator() {
     return _interpolator;
   }
 

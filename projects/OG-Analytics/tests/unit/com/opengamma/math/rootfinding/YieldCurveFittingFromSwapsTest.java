@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
@@ -34,9 +35,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -131,12 +129,6 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
-    // final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator
-    // = PresentValueCalculator.getInstance();
-    // final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String,
-    // List<DoublesPair>>> sensitivityCalculator =
-    // PresentValueSensitivityCalculator.getInstance();
-
     return getSwapOnlySetup(payments, curveNames, null, curveKnots, yields, startPosition, interpolatorName, calculator, sensitivityCalculator);
   }
 
@@ -231,7 +223,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       InterestRateDerivative instrument;
       final double[] marketValue = new double[n];
       for (int i = 0; i < n; i++) {
-        instrument = makeSwap(curveKnots[i], curveName, curveName, 0, 1.0);
+        instrument = makeSwap(curveKnots[i], SimpleFrequency.QUARTERLY, curveName, curveName, 0, 1.0);
         instrument = REPLACE_RATE.visit(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
         instruments.add(instrument);
         marketValue[i] = data.getMarketValueCalculator().visit(instrument, curveBundle);
@@ -323,10 +315,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator) {
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator,
+    final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator,
         LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     final int numCurves = curveNames.size();
@@ -349,7 +339,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       curve2 = curveNames.get(1);
     }
     for (int i = 0; i < n; i++) {
-      instrument = makeSwap(swapMaturities[i], curve1, curve2, 0, 1.0);
+      instrument = makeSwap(swapMaturities[i]/2.0, SimpleFrequency.QUARTERLY, curve1, curve2, 0, 1.0);
       instrument = REPLACE_RATE.visitFixedFloatSwap(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
       instruments.add(instrument);
       // if the calculator is Present Value this should be zero (by definition
@@ -370,8 +360,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       }
     }
 
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator, extrapolatorWithSense,
-        marketValueCalculator, marketValueSensitivityCalculator, marketValues, startPosition, yields);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator,
+        marketValueCalculator, marketValueSensitivityCalculator, marketValues, startPosition, yields, false);
 
     return data;
   }

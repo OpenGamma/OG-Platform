@@ -5,22 +5,32 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
-
 
 /**
  * 
  */
-public class OISSwap extends Swap<CouponFixed, CouponOIS> {
+public class OISSwap extends FixedCouponSwap<CouponOIS> {
 
   /**
-   * @param firstLeg The fixed leg
-   * @param secondLeg The OIS leg
+   * @param firstLeg The fixed leg 
+   * @param secondLeg The Floating leg 
    */
-  public OISSwap(GenericAnnuity<CouponFixed> firstLeg, GenericAnnuity<CouponOIS> secondLeg) {
+  public OISSwap(AnnuityCouponFixed firstLeg, GenericAnnuity<CouponOIS> secondLeg) {
     super(firstLeg, secondLeg);
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitOISSwap(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitOISSwap(this);
   }
 
 }

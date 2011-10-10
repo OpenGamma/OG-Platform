@@ -16,35 +16,34 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 
 /**
  * 
  */
 public class MultipleYieldCurveFinderDataBundle {
-
   private final List<InterestRateDerivative> _derivatives;
   private final double[] _marketValues;
   private final YieldCurveBundle _knownCurves;
   private final LinkedHashMap<String, double[]> _unknownCurveNodePoints;
-  private final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> _unknownCurveInterpolators;
-  private final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> _unknownCurveNodeSensitivityCalculators;
+  private final LinkedHashMap<String, Interpolator1D> _unknownCurveInterpolators;
   private final int _totalNodes;
   private final List<String> _names;
+  private final boolean _useFiniteDifferenceByDefault;
 
+//  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
+//      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators) {
+//    this(derivatives, marketValues, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, false);
+//  }
+  
   public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
-      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators) {
+      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, boolean useFiniteDifferenceByDefault) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notNull(marketValues, "market values null");
     Validate.notNull(unknownCurveNodePoints, "unknown curve node points");
     Validate.notNull(unknownCurveInterpolators, "unknown curve interpolators");
-    Validate.notNull(unknownCurveNodeSensitivityCalculators, "unknown curve sensitivity calculators");
     Validate.notEmpty(unknownCurveNodePoints, "unknown curve node points");
     Validate.notEmpty(unknownCurveInterpolators, "unknown curve interpolators");
-    Validate.notEmpty(unknownCurveNodeSensitivityCalculators, "unknown curve sensitivity calculators");
     Validate.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length; must be one par rate per derivative (have " + marketValues.length + " values for " 
         + derivatives.size() + " derivatives)");
 
@@ -63,25 +62,18 @@ public class MultipleYieldCurveFinderDataBundle {
     if (unknownCurveNodePoints.size() != unknownCurveInterpolators.size()) {
       throw new IllegalArgumentException("Number of unknown curves not the same as curve interpolators");
     }
-    if (unknownCurveNodePoints.size() != unknownCurveNodeSensitivityCalculators.size()) {
-      throw new IllegalArgumentException("Number of unknown curve not the same as curve sensitivity calculators");
-    }
     final Iterator<Entry<String, double[]>> nodePointsIterator = unknownCurveNodePoints.entrySet().iterator();
-    final Iterator<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
-    final Iterator<Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators
-        .entrySet().iterator();
+    final Iterator<Entry<String, Interpolator1D>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
     _names = new ArrayList<String>();
     while (nodePointsIterator.hasNext()) {
       final Entry<String, double[]> entry1 = nodePointsIterator.next();
-      final Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>> entry2 = unknownCurvesIterator.next();
-      final Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> entry3 = unknownNodeSensitivityCalculatorIterator.next();
+      final Entry<String, Interpolator1D> entry2 = unknownCurvesIterator.next();
       final String name1 = entry1.getKey();
-      if (!name1.equals(entry2.getKey()) || !name1.equals(entry3.getKey())) {
+      if (!name1.equals(entry2.getKey())) {
         throw new IllegalArgumentException("Names must be the same");
       }
       Validate.notNull(entry1.getValue(), "curve node points for " + name1);
       Validate.notNull(entry2.getValue(), "interpolator for " + name1);
-      Validate.notNull(entry3.getValue(), "sensitivity calculator for " + name1);
       _names.add(name1);
     }
     int nNodes = 0;
@@ -94,7 +86,7 @@ public class MultipleYieldCurveFinderDataBundle {
     _totalNodes = nNodes;
     _unknownCurveNodePoints = unknownCurveNodePoints;
     _unknownCurveInterpolators = unknownCurveInterpolators;
-    _unknownCurveNodeSensitivityCalculators = unknownCurveNodeSensitivityCalculators;
+    _useFiniteDifferenceByDefault = useFiniteDifferenceByDefault;
   }
 
   public List<InterestRateDerivative> getDerivatives() {
@@ -109,12 +101,8 @@ public class MultipleYieldCurveFinderDataBundle {
     return _unknownCurveNodePoints;
   }
 
-  public LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> getUnknownCurveInterpolators() {
+  public LinkedHashMap<String, Interpolator1D> getUnknownCurveInterpolators() {
     return _unknownCurveInterpolators;
-  }
-
-  public LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> getUnknownCurveNodeSensitivityCalculators() {
-    return _unknownCurveNodeSensitivityCalculators;
   }
 
   public int getNumInstruments() {
@@ -133,6 +121,10 @@ public class MultipleYieldCurveFinderDataBundle {
     return _marketValues[i];
   }
 
+  public boolean useFiniteDifferenceForNodeSensitivities() {
+    return _useFiniteDifferenceByDefault;
+  }
+  
   public double[] getCurveNodePointsForCurve(final String name) {
     Validate.notNull(name, "name");
     final double[] result = _unknownCurveNodePoints.get(name);
@@ -142,18 +134,9 @@ public class MultipleYieldCurveFinderDataBundle {
     return result;
   }
 
-  public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolatorForCurve(final String name) {
+  public Interpolator1D getInterpolatorForCurve(final String name) {
     Validate.notNull(name, "name");
-    final Interpolator1D<? extends Interpolator1DDataBundle> result = _unknownCurveInterpolators.get(name);
-    if (result == null) {
-      throw new IllegalArgumentException("Data for name " + name + " not found");
-    }
-    return result;
-  }
-
-  public Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculatorForName(final String name) {
-    Validate.notNull(name, "name");
-    final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> result = _unknownCurveNodeSensitivityCalculators.get(name);
+    final Interpolator1D result = _unknownCurveInterpolators.get(name);
     if (result == null) {
       throw new IllegalArgumentException("Data for name " + name + " not found");
     }
@@ -173,7 +156,7 @@ public class MultipleYieldCurveFinderDataBundle {
     result = prime * result + Arrays.hashCode(_marketValues);
     result = prime * result + ((_unknownCurveInterpolators == null) ? 0 : _unknownCurveInterpolators.hashCode());
     result = prime * result + ((_unknownCurveNodePoints == null) ? 0 : _unknownCurveNodePoints.hashCode());
-    result = prime * result + ((_unknownCurveNodeSensitivityCalculators == null) ? 0 : _unknownCurveNodeSensitivityCalculators.hashCode());
+    result = prime * result + (_useFiniteDifferenceByDefault ? 1231 : 1237);
     return result;
   }
 
@@ -205,7 +188,7 @@ public class MultipleYieldCurveFinderDataBundle {
     if (!ObjectUtils.equals(_unknownCurveNodePoints, other._unknownCurveNodePoints)) {
       return false;
     }
-    if (!ObjectUtils.equals(_unknownCurveNodeSensitivityCalculators, other._unknownCurveNodeSensitivityCalculators)) {
+    if (_useFiniteDifferenceByDefault != other._useFiniteDifferenceByDefault) {
       return false;
     }
     return true;

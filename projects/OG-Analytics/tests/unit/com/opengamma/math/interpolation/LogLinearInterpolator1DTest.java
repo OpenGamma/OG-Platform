@@ -19,8 +19,8 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 public class LogLinearInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DDataBundle> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final Interpolator1D LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D INTERPOLATOR = new LogLinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override

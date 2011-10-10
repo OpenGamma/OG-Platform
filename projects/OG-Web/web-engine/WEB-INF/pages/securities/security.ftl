@@ -196,7 +196,7 @@
         <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Is Cash Settled">${security.cashSettled?string?upper_case}</@rowout>
-        <@rowout label="Is Long">${security.isLong?string?upper_case}</@rowout>
+        <@rowout label="Is Long">${security.long?string?upper_case}</@rowout>
         <@rowout label="Is Payer">${security.payer?string?upper_case}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>

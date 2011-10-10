@@ -29,6 +29,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
@@ -118,6 +119,11 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     return -pvSecond / pvFixed;
   }
 
+  @Override
+  public Double visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
+    return visitFixedCouponSwap(swap, curves);
+  }
+
   /**
    * The assumption is that spread is on the second leg.
    * @param swap The tenor swap.
@@ -151,8 +157,8 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     AnnuityCouponIbor fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
     AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
 
-    double dPV = PVC.visit(dFloatLeg, curves) - PVC.visit(dFRN.getFirstLeg(), curves); //this is in domestic currency
-    double fPV = PVC.visit(fFloatLeg, curves) - PVC.visit(fFRN.getFirstLeg(), curves); //this is in foreign currency
+    double dPV = PVC.visit(dFloatLeg, curves) + PVC.visit(dFRN.getFirstLeg(), curves); //this is in domestic currency
+    double fPV = PVC.visit(fFloatLeg, curves) + PVC.visit(fFRN.getFirstLeg(), curves); //this is in foreign currency
     double fAnnuityPV = PVC.visit(fAnnuity, curves); //this is in foreign currency
 
     double fx = ccs.getSpotFX(); //TODO remove having CCS holding spot FX rate 

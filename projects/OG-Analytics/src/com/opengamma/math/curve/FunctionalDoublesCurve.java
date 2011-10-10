@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
@@ -98,7 +97,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
    * @param interpolator An interpolator
    * @return An interpolated curve with values <i>(x, f(x))</i>
    */
-  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D interpolator) {
     Validate.notNull(x, "x");
     Validate.notNull(interpolator);
     final int n = x.length;

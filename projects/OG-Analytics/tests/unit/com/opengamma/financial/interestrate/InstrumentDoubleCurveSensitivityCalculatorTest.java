@@ -21,15 +21,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -47,6 +45,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   private static final Logger LOGGER = LoggerFactory.getLogger(InstrumentDoubleCurveSensitivityCalculatorTest.class);
   private static final int WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
+  private static final SimpleFrequency FRQ = SimpleFrequency.QUARTERLY;
   private static final Function1D<Double, Double> DUMMY_CURVE = new Function1D<Double, Double>() {
     private static final double A = 0;
     private static final double B = 0.004148649;
@@ -69,10 +68,8 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       return (A + B * x) * Math.exp(-C * x);
     }
   };
-  private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> INTERPOLATOR_SENSITIVITIES = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-      .getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
   private static final NewtonVectorRootFinder ROOT_FINDER = new BroydenVectorRootFinder(1e-12, 1e-12, 100, DecompositionFactory.SV_COMMONS);
   private static final List<String> CURVE_NAMES = Arrays.asList("Funding", "Libor 3m");
   private static final Map<String, Map<String, double[]>> MATURITIES = getDoubleCurveMaturities();
@@ -181,24 +178,23 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   public void testBumpedData() {
     final double notional = 10394850;
     final double eps = 1e-4;
-    final InterestRateDerivative cash = makeIRD("cash", 1.5, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
-    testBumpedDataParRateMethod(cash, notional, eps);
-    final InterestRateDerivative libor = makeIRD("libor", 1.5, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
+
+    final InterestRateDerivative libor = makeSingleCurrencyIRD("libor", 1.5, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
     testBumpedDataParRateMethod(libor, notional, eps);
     testBumpedDataPVMethod(libor, notional, eps);
-    InterestRateDerivative swap = makeIRD("swap", 13, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.048, notional);
+    InterestRateDerivative swap = makeSingleCurrencyIRD("swap", 13,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.048, notional);
     testBumpedDataParRateMethod(swap, notional, eps);
     testBumpedDataPVMethod(swap, notional, eps);
-    final InterestRateDerivative fra = makeIRD("fra", 0.6666, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.02, notional);
+    final InterestRateDerivative fra = makeSingleCurrencyIRD("fra", 0.6666, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.02, notional);
     testBumpedDataParRateMethod(fra, notional, eps);
     testBumpedDataPVMethod(fra, notional, eps);
-    final InterestRateDerivative future = makeIRD("fra", 2, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.03, notional);
+    final InterestRateDerivative future = makeSingleCurrencyIRD("fra", 2, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.03, notional);
     testBumpedDataParRateMethod(future, notional, eps);
     testBumpedDataPVMethod(future, notional, eps);
-    swap = makeIRD("swap", 19, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.05, notional);
+    swap = makeSingleCurrencyIRD("swap", 19,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.05, notional);
     testBumpedDataParRateMethod(swap, notional, eps);
     testBumpedDataPVMethod(swap, notional, eps);
-    final InterestRateDerivative basisSwap = makeIRD("basisSwap", 12, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.005, notional);
+    final InterestRateDerivative basisSwap = makeSingleCurrencyIRD("basisSwap", 12,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.005, notional);
     testBumpedDataParRateMethod(basisSwap, notional, eps);
     testBumpedDataPVMethod(basisSwap, notional, eps);
   }
@@ -334,7 +330,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
         final double[] marketValuesForCurve = new double[maturities.get(curveName).get(instrumentType).length];
         int i = 0;
         for (final double t : maturities.get(curveName).get(instrumentType)) {
-          ird = makeIRD(instrumentType, t, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.0, 1);
+          ird = makeSingleCurrencyIRD(instrumentType, t, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.0, 1);
           marketValuesForCurve[i++] = ParRateCalculator.getInstance().visit(ird, bundle);
         }
         dataForCurve.put(instrumentType, marketValuesForCurve);
@@ -361,7 +357,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
         final double[] marketValuesForInstrument = marketValuesForCurve.get(instrumentType);
         int i = 0;
         for (final double t : maturities.get(curveName).get(instrumentType)) {
-          ird = makeIRD(instrumentType, t, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.0, 1);
+          ird = makeSingleCurrencyIRD(instrumentType, t,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.0, 1);
           instruments.add(REPLACE_RATE.visit(ird, marketValuesForInstrument[i]));
           if (isPV) {
             marketValuesArray[index] = 0;
@@ -378,8 +374,8 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       rates[i] = 0.03;
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES, calculator,
-        sensitivityCalculator, marketValuesArray, startPosition, null);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, calculator,
+        sensitivityCalculator, marketValuesArray, startPosition, null, false);
     return data;
   }
 
