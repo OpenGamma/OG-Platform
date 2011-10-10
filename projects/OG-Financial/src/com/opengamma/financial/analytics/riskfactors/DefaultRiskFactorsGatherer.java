@@ -249,7 +249,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
         .addAll(getSabrSensitivities())
         .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
-        .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
+        /*.add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))*/.build();
   }
 
   @Override
