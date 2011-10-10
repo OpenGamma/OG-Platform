@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation.sensitivity;
+package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -19,7 +19,6 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   private static final double EPS = 1e-15;
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final Interpolator1DNodeSensitivityCalculator CALCULATOR = new LinearInterpolator1DNodeSensitivityCalculator();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
@@ -43,12 +42,12 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    CALCULATOR.calculate(null, 1.);
+    INTERPOLATOR.getNodeSensitivitiesForValue(null, 1.);
   }
 
   @Test
   public void test() {
-    double[] result = CALCULATOR.calculate(DATA, 3.4);
+    double[] result = INTERPOLATOR.getNodeSensitivitiesForValue(DATA, 3.4);
     for (int i = 0; i < 3; i++) {
       assertEquals(0, result[i], 0);
     }
@@ -57,7 +56,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     for (int i = 5; i < 10; i++) {
       assertEquals(result[i], 0, 0);
     }
-    result = CALCULATOR.calculate(DATA, 7.);
+    result = INTERPOLATOR.getNodeSensitivitiesForValue(DATA, 7.);
     for (int i = 0; i < 7; i++) {
       assertEquals(0, result[i], 0);
     }

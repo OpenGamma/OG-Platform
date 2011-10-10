@@ -28,8 +28,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -72,8 +70,6 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   };
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator INTERPOLATOR_SENSITIVITIES = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-      .getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
   private static final NewtonVectorRootFinder ROOT_FINDER = new BroydenVectorRootFinder(1e-12, 1e-12, 100, DecompositionFactory.SV_COMMONS);
   private static final List<String> CURVE_NAMES = Arrays.asList("Funding", "Libor 3m");
   private static final Map<String, Map<String, double[]>> MATURITIES = getDoubleCurveMaturities();
@@ -378,8 +374,8 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       rates[i] = 0.03;
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES, calculator,
-        sensitivityCalculator, marketValuesArray, startPosition, null);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, CURVE_NAMES, curveKnots, INTERPOLATOR, calculator,
+        sensitivityCalculator, marketValuesArray, startPosition, null, false);
     return data;
   }
 

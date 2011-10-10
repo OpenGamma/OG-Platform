@@ -33,4 +33,9 @@ public class StepInterpolator1D extends Interpolator1D {
     return new ArrayInterpolator1DDataBundle(x, y, true);
   }
 
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
+  }
+
 }

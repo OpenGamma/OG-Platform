@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -33,13 +36,14 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends ForexVanillaOptionFunction {
-  private static final Double[] EMPTY_ARRAY = new Double[0];
+  private static final Double[] EMPTY_ARRAY = ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
   private static final PresentValueVolatilitySensitivityBlackCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackCalculator.getInstance();
   private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("##.###");
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.#####");
 
-  public ForexVanillaOptionPresentValueVolatilitySensitivityFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
+  public ForexVanillaOptionPresentValueVolatilitySensitivityFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
+      final String callForwardCurveName, final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
@@ -66,14 +70,22 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
       rowLabel.add(getFormattedStrike(k, result.getCurrencyPair()));
       values[0][0] = entry.getValue();
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, target.toSpecification(), properties);
     return Collections
         .singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(columnValue.toArray(EMPTY_ARRAY), columnLabel.toArray(), rowValue.toArray(EMPTY_ARRAY), rowLabel.toArray(), values)));
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, target.toSpecification(), properties));    
+  }
+  
   private String getFormattedTime(final double t) {
     if (t < 1. / 52) {
       return TIME_FORMATTER.format((t * 365)) + "D";

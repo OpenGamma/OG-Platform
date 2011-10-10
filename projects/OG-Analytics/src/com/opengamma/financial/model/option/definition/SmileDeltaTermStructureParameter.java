@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -20,7 +19,7 @@ import com.opengamma.util.tuple.Triple;
  * The delta used is the delta with respect to forward. 
  */
 public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<Double, Double, Double>> {
-
+  private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
   /**
    * The time to expiration in the term structure.
    */
@@ -149,15 +148,13 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     strikesExtra[0] = 0;
     strikesExtra[nbVol + 1] = strikes[nbVol - 1] * 100.0;
     System.arraycopy(strikes, 0, strikesExtra, 1, nbVol);
-    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikesExtra, volatilityExtra);
-    LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    double volatility = interpolator.interpolate(volatilityInterpolation, strike);
+    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikesExtra, volatilityExtra);    
+    double volatility = INTERPOLATOR.interpolate(volatilityInterpolation, strike);
     // Backward sweep    
     double volBar = 1.0;
-    LinearInterpolator1DNodeSensitivityCalculator interpolatorDerivative = new LinearInterpolator1DNodeSensitivityCalculator();
     //    double[] strikeExtraBar = ?;
     // FIXME: the strike sensitivity to volatility is missing. The sensitivity to x data in interpolation is required [PLAT-1396]
-    double[] volatilityExtraBar = interpolatorDerivative.calculate(volatilityInterpolation, strike);
+    double[] volatilityExtraBar = INTERPOLATOR.getNodeSensitivitiesForValue(volatilityInterpolation, strike);
     double[] volatilityTBar = new double[nbVol];
     double[] variancePeriodTBar = new double[nbVol];
     double[] variancePeriod0Bar = new double[nbVol];

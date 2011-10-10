@@ -44,8 +44,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -68,8 +66,6 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final int BENCHMARK_CYCLES = 1;
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator INTERPOLATOR_SENSITIVITIES = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-      .getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
   private static final NewtonVectorRootFinder ROOT_FINDER = new BroydenVectorRootFinder(1e-8, 1e-8, 10000, DecompositionFactory.SV_COLT);
   private static final InstrumentSensitivityCalculator ISC = InstrumentSensitivityCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PVCS = PresentValueCouponSensitivityCalculator.getInstance();
@@ -368,8 +364,8 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     }
     rates[0] = 0.02;
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES,
-        calculator, sensitivityCalculator, marketValues, startPosition, null);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, INTERPOLATOR,
+        calculator, sensitivityCalculator, marketValues, startPosition, null, false);
     return data; 
   }
   
@@ -389,8 +385,8 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
     }
     rates[0] = 0.02;
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, Arrays.asList(DOUBLE_CURVE_NAMES), curveKnots, INTERPOLATOR, INTERPOLATOR_SENSITIVITIES,
-        calculator, sensitivityCalculator, marketValues, startPosition, null);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, Arrays.asList(DOUBLE_CURVE_NAMES), curveKnots, INTERPOLATOR,
+        calculator, sensitivityCalculator, marketValues, startPosition, null, false);
     return data; 
   }
 
