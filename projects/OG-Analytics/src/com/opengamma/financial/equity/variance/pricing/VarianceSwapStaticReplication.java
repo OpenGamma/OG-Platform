@@ -58,7 +58,7 @@ public class VarianceSwapStaticReplication {
     CALLDELTA,
     /** Implied spot Put delta  */
     PUTDELTA
-  };
+  }
 
   // Integration parameters
   private final double _lowerBound; // ~ zero

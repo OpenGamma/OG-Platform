@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -31,7 +30,7 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
      * The notional for all coupons is set to the first fixed leg coupon.
      */
     FIXEDLEG_STRIKE
-  };
+  }
 
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.
@@ -125,7 +124,7 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
     return "Swaption: Expiry=" + getTimeToExpiry() + ", is long=" + _isLong + "\n" + _underlyingSwap;
   }
 
-  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type, final YieldCurveBundle curves) {
+  public SwaptionPhysicalFixedIbor[] calibrationBasket(final SwaptionPhysicalFixedIborCalibrationType type) {
     SwaptionPhysicalFixedIbor[] calibration = new SwaptionPhysicalFixedIbor[0];
     switch (type) {
       case FIXEDLEG_STRIKE:
