@@ -17,7 +17,6 @@ import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
@@ -38,8 +37,8 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
   @Test
   public void testInterpolatedVolatilitySurface() {
     final double sigma = 0.4;
-    final Interpolator1D<Interpolator1DDataBundle> linear = new LinearInterpolator1D();
-    final Interpolator2D<Interpolator1DDataBundle> interpolator = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(linear, linear);
+    final Interpolator1D linear = new LinearInterpolator1D();
+    final Interpolator2D interpolator = new GridInterpolator2D(linear, linear);
     final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
     data.put(Pair.of(0., 1.), sigma);
     data.put(Pair.of(1., 0.), sigma);

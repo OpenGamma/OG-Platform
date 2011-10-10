@@ -48,17 +48,12 @@ public class MarketData {
    * Gets a historical market data specification.
    * 
    * @param date  the date, not null
-   * @param dataSource  the data source, not null
-   * @param dataProvider  the data provider, not null
-   * @param dataField  the data field, not null
+   * @param timeSeriesResolverKey time series resolver key, or null for the system default
+   * @param timeSeriesFieldResolverKey time series field resolver key, or null for the system default
    * @return the historical market data specification, not null
    */
-  public static HistoricalMarketDataSpecification historical(LocalDate date, String dataSource, String dataProvider, String dataField) {
-    HistoricalMarketDataSpecification result = new HistoricalMarketDataSpecification(date);
-    result.setDataSource(dataSource);
-    result.setDataProvider(dataProvider);
-    result.setDataField(dataField);
-    return result;
+  public static HistoricalMarketDataSpecification historical(LocalDate date, String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
+    return new HistoricalMarketDataSpecification(date, timeSeriesResolverKey, timeSeriesFieldResolverKey);
   }
   
   //-------------------------------------------------------------------------

@@ -145,11 +145,6 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
      */
     static final Meta INSTANCE = new Meta();
 
-    @Override
-    protected Class<ExchangeDocument> documentsGenericType() {
-      return ExchangeDocument.class;
-    }
-
     /**
      * The meta-properties.
      */

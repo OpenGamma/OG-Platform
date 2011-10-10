@@ -96,9 +96,8 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
 
   private static final int FLAG_START_AND_END = 0x01;
   private static final int FLAG_SOURCE_AND_PROVIDER = 0x02;
-  private static final int FLAG_RESOLUTION_KEY = 0x04;
-  private static final int FLAG_FIELD = 0x08;
-  private static final int FLAG_IDENTIFIER_VALIDITY_DATE = 0x10;
+  private static final int FLAG_FIELD = 0x04;
+  private static final int FLAG_IDENTIFIER_VALIDITY_DATE = 0x08;
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
@@ -108,9 +107,6 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
     }
     if (parameters[DATA_FIELD] != null) {
       flags |= FLAG_FIELD;
-    }
-    if (parameters[RESOLUTION_KEY] != null) {
-      flags |= FLAG_RESOLUTION_KEY;
     }
     if ((parameters[DATA_SOURCE] != null) && (parameters[DATA_PROVIDER] != null)) {
       flags |= FLAG_SOURCE_AND_PROVIDER;
@@ -139,15 +135,15 @@ public class FetchTimeSeriesFunction extends AbstractFunctionInvoker implements 
         return source.getHistoricalTimeSeries(getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE], (String) parameters[DATA_SOURCE],
             (String) parameters[DATA_PROVIDER], (String) parameters[DATA_FIELD], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END],
             (Boolean) parameters[INCLUSIVE_END]);
-      case FLAG_FIELD | FLAG_RESOLUTION_KEY:
+      case FLAG_FIELD:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY]);
-      case FLAG_FIELD | FLAG_RESOLUTION_KEY | FLAG_START_AND_END:
+      case FLAG_FIELD | FLAG_START_AND_END:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (String) parameters[RESOLUTION_KEY],
             (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[INCLUSIVE_END]);
-      case FLAG_FIELD | FLAG_RESOLUTION_KEY | FLAG_IDENTIFIER_VALIDITY_DATE:
+      case FLAG_FIELD | FLAG_IDENTIFIER_VALIDITY_DATE:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
             (String) parameters[RESOLUTION_KEY]);
-      case FLAG_FIELD | FLAG_RESOLUTION_KEY | FLAG_START_AND_END | FLAG_IDENTIFIER_VALIDITY_DATE:
+      case FLAG_FIELD | FLAG_START_AND_END | FLAG_IDENTIFIER_VALIDITY_DATE:
         return source.getHistoricalTimeSeries((String) parameters[DATA_FIELD], getExternalIdBundle(sessionContext, parameters[IDENTIFIER]), (LocalDate) parameters[IDENTIFIER_VALIDITY_DATE],
             (String) parameters[RESOLUTION_KEY], (LocalDate) parameters[START], (Boolean) parameters[INCLUSIVE_START], (LocalDate) parameters[END], (Boolean) parameters[INCLUSIVE_END]);
       default:

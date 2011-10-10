@@ -16,9 +16,11 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 
 /**
@@ -88,9 +90,20 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getFirstLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getSecondLeg(), rate));
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Override
+  public FixedCouponSwap<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final Double rate) {
+    return new FixedCouponSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
+  }
+
   @Override
   public FixedFloatSwap visitFixedFloatSwap(final FixedFloatSwap swap, final Double rate) {
     return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
+  }
+
+  @Override
+  public OISSwap visitOISSwap(final OISSwap swap, final Double rate) {
+    return new OISSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
   }
 
   @Override
@@ -99,10 +112,10 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   /**
-   * Sets a spread on the foreign ibor payments. Any existing spreads are removed.
-   * @param ccs The swap
-   * @param spread The spread
-   * @return A cross-currency swap with a different FX rate 
+   * Sets a spread on the foreign ibor payments. Any existing spreads are removed. 
+   * @param ccs The Cross Currency Swap
+   * @param spread the new spread (any old spread is ignored)
+   * @return A new CrossCurrencySwap with the spread set
    */
   @Override
   public CrossCurrencySwap visitCrossCurrencySwap(final CrossCurrencySwap ccs, final Double spread) {

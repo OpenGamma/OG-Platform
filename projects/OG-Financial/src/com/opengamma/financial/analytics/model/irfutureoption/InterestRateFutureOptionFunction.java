@@ -30,7 +30,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -65,20 +64,16 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final String _surfaceName;
-  private final String[] _valueRequirementNames;
   private InterestRateFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
-  public InterestRateFutureOptionFunction(String forwardCurveName, String fundingCurveName, final String surfaceName, final String... valueRequirementNames) { //TODO add the curve names?
+  public InterestRateFutureOptionFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) { 
     Validate.notNull(forwardCurveName, "forward curve name");
     Validate.notNull(fundingCurveName, "funding curve name");
     Validate.notNull(surfaceName, "surface name");
-    Validate.notNull(valueRequirementNames, "value requirement names");
-    Validate.isTrue(valueRequirementNames.length > 0);
     _forwardCurveName = forwardCurveName;
     _fundingCurveName = fundingCurveName;
     _surfaceName = surfaceName;
-    _valueRequirementNames = valueRequirementNames;
   }
 
   @Override
@@ -98,25 +93,13 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
-    final ValueSpecification[] specifications = new ValueSpecification[_valueRequirementNames.length];
-    int i = 0;
-    final String ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    for (final String name : _valueRequirementNames) {
-      final ValueSpecification specification = new ValueSpecification(name, target.toSpecification(),
-          createValueProperties()
-              .with(ValuePropertyNames.CURRENCY, ccy)
-              .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
-              .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName)
-              .with(ValuePropertyNames.SURFACE, _surfaceName).get());
-      specifications[i++] = specification;
-    }
     @SuppressWarnings("unchecked")
     final FixedIncomeInstrumentConverter<InterestRateDerivative> irFutureOptionDefinition = (FixedIncomeInstrumentConverter<InterestRateDerivative>) _converter.convert(trade);
-    final InterestRateDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_forwardCurveName, _fundingCurveName}, dataSource);
-    return getResults(irFutureOption, data, specifications, desiredValues, inputs, target);
+    final InterestRateDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    return getResults(irFutureOption, data, desiredValues, inputs, target);
   }
 
-  protected abstract Set<ComputedValue> getResults(InterestRateDerivative irFutureOption, SABRInterestRateDataBundle data, ValueSpecification[] specifications, Set<ValueRequirement> desiredValues,
+  protected abstract Set<ComputedValue> getResults(InterestRateDerivative irFutureOption, SABRInterestRateDataBundle data, Set<ValueRequirement> desiredValues,
       final FunctionInputs inputs, ComputationTarget target);
 
   @Override
@@ -143,20 +126,6 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     requirements.add(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
     requirements.add(getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
     return requirements;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
-    for (final String name : _valueRequirementNames) {
-      result.add(new ValueSpecification(name, target.toSpecification(),
-          createValueProperties()
-              .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-              .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
-              .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName)
-              .with(ValuePropertyNames.SURFACE, _surfaceName).get()));
-    }
-    return result;
   }
 
   private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName,
@@ -190,8 +159,8 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName},
-        new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
+    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
+        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
   protected SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
@@ -220,6 +189,7 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
   protected String getFundingCurveName() {
     return _fundingCurveName;
   }
+  
   protected String getSurfaceName() {
     return _surfaceName;
   }

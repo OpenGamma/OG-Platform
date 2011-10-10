@@ -37,6 +37,7 @@ import com.opengamma.financial.interestrate.payments.method.CouponOISDiscounting
 import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -220,9 +221,14 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
+  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle data) {
+    return visitSwap(frn, data);
+  }
+
+  @Override
   public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle data) {
-    double domesticValue = visitSwap(ccs.getDomesticLeg());
-    double foreignValue = visitSwap(ccs.getForeignLeg());
+    double domesticValue = visit(ccs.getDomesticLeg(), data);
+    double foreignValue = visit(ccs.getForeignLeg(), data);
     double fx = ccs.getSpotFX();
     return domesticValue - fx * foreignValue;
   }

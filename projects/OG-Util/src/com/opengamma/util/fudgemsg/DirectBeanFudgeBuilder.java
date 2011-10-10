@@ -78,13 +78,13 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
         if (prop.readWrite().isReadable()) {
           Object obj = prop.get(bean);
           if (obj instanceof List<?>) {
-            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, (List<?>) obj);
+            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, bean.getClass(), (List<?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Set<?>) {
-            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, new ArrayList<Object>((Set<?>) obj));
+            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, bean.getClass(), new ArrayList<Object>((Set<?>) obj));
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Map<?, ?>) {
-            MutableFudgeMsg subMsg = buildMessageMap(serializer, prop, (Map<?, ?>) obj);
+            MutableFudgeMsg subMsg = buildMessageMap(serializer, bean.getClass(), prop, (Map<?, ?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else {
             serializer.addToMessageWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
@@ -97,8 +97,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     }
   }
 
-  private MutableFudgeMsg buildMessageCollection(FudgeSerializer serializer, MetaProperty<Object> prop, List<?> list) {
-    Class<?> contentType = JodaBeanUtils.collectionType(prop);
+  private MutableFudgeMsg buildMessageCollection(FudgeSerializer serializer, MetaProperty<Object> prop, Class<?> beanType, List<?> list) {
+    Class<?> contentType = JodaBeanUtils.collectionType(prop, beanType);
     MutableFudgeMsg msg = serializer.newMessage();
     for (Object entry : list) {
       if (entry == null) {
@@ -112,9 +112,9 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return msg;
   }
 
-  private MutableFudgeMsg buildMessageMap(FudgeSerializer serializer, MetaProperty<Object> prop, Map<?, ?> map) {
-    Class<?> keyType = JodaBeanUtils.mapKeyType(prop);
-    Class<?> valueType = JodaBeanUtils.mapValueType(prop);
+  private MutableFudgeMsg buildMessageMap(FudgeSerializer serializer, Class<?> beanType, MetaProperty<Object> prop, Map<?, ?> map) {
+    Class<?> keyType = JodaBeanUtils.mapKeyType(prop, beanType);
+    Class<?> valueType = JodaBeanUtils.mapValueType(prop, beanType);
     MutableFudgeMsg msg = serializer.newMessage();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       if (entry.getKey() == null) {
@@ -149,17 +149,17 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
             if (List.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectList(deserializer, mp, (FudgeMsg) value);
+                value = buildObjectList(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
             } else if (Set.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectSet(deserializer, mp, (FudgeMsg) value);
+                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
             } else if (Map.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectMap(deserializer, mp, (FudgeMsg) value);
+                value = buildObjectMap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
             }
             if (value == null) {
@@ -177,8 +177,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     }
   }
 
-  private List<Object> buildObjectList(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
-    Class<?> contentType = JodaBeanUtils.collectionType(prop);
+  private List<Object> buildObjectList(FudgeDeserializer deserializer, MetaProperty<Object> prop, Class<?> type, FudgeMsg msg) {
+    Class<?> contentType = JodaBeanUtils.collectionType(prop, type);
     List<Object> list = new ArrayList<Object>();  // should be List<contentType>
     for (FudgeField field : msg) {
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
@@ -190,8 +190,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return list;
   }
 
-  private Set<Object> buildObjectSet(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
-    Class<?> contentType = JodaBeanUtils.collectionType(prop);
+  private Set<Object> buildObjectSet(FudgeDeserializer deserializer, MetaProperty<Object> prop, Class<?> type, FudgeMsg msg) {
+    Class<?> contentType = JodaBeanUtils.collectionType(prop, type);
     Set<Object> set = new LinkedHashSet<Object>();  // should be Set<contentType>
     for (FudgeField field : msg) {
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
@@ -203,9 +203,9 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return set;
   }
 
-  private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<Object> prop, FudgeMsg msg) {
-    Class<?> keyType = JodaBeanUtils.mapKeyType(prop);
-    Class<?> valueType = JodaBeanUtils.mapValueType(prop);
+  private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<Object> prop, Class<?> type, FudgeMsg msg) {
+    Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
+    Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
     Map<Object, Object> map = new HashMap<Object, Object>();  // should be Map<keyType,contentType>
     Queue<Object> keys = new LinkedList<Object>();
     Queue<Object> values = new LinkedList<Object>();

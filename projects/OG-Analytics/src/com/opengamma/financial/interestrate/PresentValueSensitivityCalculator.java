@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate;
 
+import static com.opengamma.financial.interestrate.PresentValueSensitivityUtils.*;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -31,8 +32,12 @@ import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
+import com.opengamma.financial.interestrate.swap.definition.ForexForward;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -57,6 +62,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   /**
    * The method used for OIS coupons.
    */
+  @SuppressWarnings("unused")
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
@@ -144,7 +150,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   public Map<String, List<DoublesPair>> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> senseR = visit(swap.getSecondLeg(), curves);
     final Map<String, List<DoublesPair>> senseP = visit(swap.getFirstLeg(), curves);
-    return PresentValueSensitivityUtils.addSensitivity(curves, senseR, senseP);
+    return addSensitivity(senseR, senseP);
   }
 
   @Override
@@ -153,8 +159,34 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   }
 
   @Override
+  public Map<String, List<DoublesPair>> visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
+  }
+
+  @Override
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+    return visitSwap(frn, curves);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
+    Map<String, List<DoublesPair>> senseD = visit(ccs.getDomesticLeg(), curves);
+    Map<String, List<DoublesPair>> senseF = visit(ccs.getForeignLeg(), curves);
+    //Note the sensitivities subtract rather than add here because the CCS is set up as domestic FRN minus a foreign FRN
+    return addSensitivity(senseD, multiplySensitivity(senseF, -ccs.getSpotFX()));
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
+    Map<String, List<DoublesPair>> senseP1 = visit(fx.getPaymentCurrency1(), curves);
+    Map<String, List<DoublesPair>> senseP2 = visit(fx.getPaymentCurrency2(), curves);
+    //Note the sensitivities add rather than subtract here because the FX Forward is set up as a notional in one currency PLUS a notional in another  with the  opposite sign
+    return PresentValueSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
   }
 
   @Override
@@ -230,7 +262,45 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
-    return METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
+    //my way
+    final String fundingCurveName = payment.getFundingCurveName();
+    final String liborCurveName = payment.getForwardCurveName();
+    final YieldAndDiscountCurve fundCurve = data.getCurve(fundingCurveName);
+    final YieldAndDiscountCurve liborCurve = data.getCurve(liborCurveName);
+
+    final double tPay = payment.getPaymentTime();
+    final double tStart = payment.getFixingPeriodStartTime();
+    final double tEnd = payment.getFixingPeriodEndTime();
+    final double dfPay = fundCurve.getDiscountFactor(tPay);
+    final double dfStart = liborCurve.getDiscountFactor(tStart);
+    final double dfEnd = liborCurve.getDiscountFactor(tEnd);
+    final double forward = (dfStart / dfEnd - 1) / payment.getFixingPeriodAccrualFactor();
+    final double notional = payment.getNotional();
+
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+
+    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    DoublesPair s;
+    s = new DoublesPair(tPay, -tPay * dfPay * notional * (forward) * payment.getPaymentYearFraction());
+    temp.add(s);
+
+    if (!liborCurveName.equals(fundingCurveName)) {
+      result.put(fundingCurveName, temp);
+      temp = new ArrayList<DoublesPair>();
+    }
+
+    final double ratio = notional * dfPay * dfStart / dfEnd * payment.getPaymentYearFraction() / payment.getFixingPeriodAccrualFactor();
+    s = new DoublesPair(tStart, -tStart * ratio);
+    temp.add(s);
+    s = new DoublesPair(tEnd, tEnd * ratio);
+    temp.add(s);
+
+    result.put(liborCurveName, temp);
+
+    //TODO restore this once Marc fixes it 
+    // Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
+
+    return result;
   }
 
   @Override

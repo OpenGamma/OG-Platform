@@ -16,7 +16,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 
 /**
@@ -28,14 +27,14 @@ public class MultipleYieldCurveFinderDataBundle {
   private final double[] _marketValues;
   private final YieldCurveBundle _knownCurves;
   private final LinkedHashMap<String, double[]> _unknownCurveNodePoints;
-  private final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> _unknownCurveInterpolators;
-  private final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> _unknownCurveNodeSensitivityCalculators;
+  private final LinkedHashMap<String, Interpolator1D> _unknownCurveInterpolators;
+  private final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> _unknownCurveNodeSensitivityCalculators;
   private final int _totalNodes;
   private final List<String> _names;
 
   public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
-      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators,
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators) {
+      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators,
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators) {
     Validate.notNull(derivatives);
     Validate.noNullElements(derivatives);
     Validate.notNull(marketValues, "market values null");
@@ -67,14 +66,14 @@ public class MultipleYieldCurveFinderDataBundle {
       throw new IllegalArgumentException("Number of unknown curve not the same as curve sensitivity calculators");
     }
     final Iterator<Entry<String, double[]>> nodePointsIterator = unknownCurveNodePoints.entrySet().iterator();
-    final Iterator<Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
-    final Iterator<Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators
+    final Iterator<Entry<String, Interpolator1D>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
+    final Iterator<Entry<String, Interpolator1DNodeSensitivityCalculator>> unknownNodeSensitivityCalculatorIterator = unknownCurveNodeSensitivityCalculators
         .entrySet().iterator();
     _names = new ArrayList<String>();
     while (nodePointsIterator.hasNext()) {
       final Entry<String, double[]> entry1 = nodePointsIterator.next();
-      final Entry<String, Interpolator1D<? extends Interpolator1DDataBundle>> entry2 = unknownCurvesIterator.next();
-      final Entry<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> entry3 = unknownNodeSensitivityCalculatorIterator.next();
+      final Entry<String, Interpolator1D> entry2 = unknownCurvesIterator.next();
+      final Entry<String, Interpolator1DNodeSensitivityCalculator> entry3 = unknownNodeSensitivityCalculatorIterator.next();
       final String name1 = entry1.getKey();
       if (!name1.equals(entry2.getKey()) || !name1.equals(entry3.getKey())) {
         throw new IllegalArgumentException("Names must be the same");
@@ -109,11 +108,11 @@ public class MultipleYieldCurveFinderDataBundle {
     return _unknownCurveNodePoints;
   }
 
-  public LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> getUnknownCurveInterpolators() {
+  public LinkedHashMap<String, Interpolator1D> getUnknownCurveInterpolators() {
     return _unknownCurveInterpolators;
   }
 
-  public LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> getUnknownCurveNodeSensitivityCalculators() {
+  public LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> getUnknownCurveNodeSensitivityCalculators() {
     return _unknownCurveNodeSensitivityCalculators;
   }
 
@@ -142,18 +141,18 @@ public class MultipleYieldCurveFinderDataBundle {
     return result;
   }
 
-  public Interpolator1D<? extends Interpolator1DDataBundle> getInterpolatorForCurve(final String name) {
+  public Interpolator1D getInterpolatorForCurve(final String name) {
     Validate.notNull(name, "name");
-    final Interpolator1D<? extends Interpolator1DDataBundle> result = _unknownCurveInterpolators.get(name);
+    final Interpolator1D result = _unknownCurveInterpolators.get(name);
     if (result == null) {
       throw new IllegalArgumentException("Data for name " + name + " not found");
     }
     return result;
   }
 
-  public Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> getSensitivityCalculatorForName(final String name) {
+  public Interpolator1DNodeSensitivityCalculator getSensitivityCalculatorForName(final String name) {
     Validate.notNull(name, "name");
-    final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> result = _unknownCurveNodeSensitivityCalculators.get(name);
+    final Interpolator1DNodeSensitivityCalculator result = _unknownCurveNodeSensitivityCalculators.get(name);
     if (result == null) {
       throw new IllegalArgumentException("Data for name " + name + " not found");
     }

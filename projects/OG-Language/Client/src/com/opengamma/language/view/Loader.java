@@ -7,7 +7,6 @@
 package com.opengamma.language.view;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.jms.ConnectionFactory;
@@ -22,10 +21,9 @@ import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.MutableUserContext;
-import com.opengamma.language.function.AbstractFunctionProvider;
-import com.opengamma.language.function.MetaFunction;
-import com.opengamma.language.invoke.AbstractTypeConverterProvider;
-import com.opengamma.language.invoke.TypeConverter;
+import com.opengamma.language.function.FunctionProviderBean;
+import com.opengamma.language.invoke.TypeConverterProviderBean;
+import com.opengamma.language.procedure.ProcedureProviderBean;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -106,19 +104,19 @@ public class Loader extends ContextInitializationBean {
     }
     s_logger.info("Configuring view processor support");
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getConnectionFactory(), getScheduler()));
-    globalContext.getFunctionProvider().addProvider(new AbstractFunctionProvider() {
-      @Override
-      protected void loadDefinitions(final Collection<MetaFunction> definitions) {
-        definitions.add(GetViewResultFunction.INSTANCE.getMetaFunction());
-        definitions.add(ViewClientFunction.INSTANCE.getMetaFunction());
-      }
-    });
-    globalContext.getTypeConverterProvider().addTypeConverterProvider(new AbstractTypeConverterProvider() {
-      @Override
-      protected void loadTypeConverters(final Collection<TypeConverter> converters) {
-        converters.add(UserViewClientConverter.INSTANCE);
-      }
-    });
+    globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
+        GetViewResultFunction.INSTANCE,
+        ViewClientDescriptorFunction.HISTORICAL_MARKET_DATA,
+        ViewClientDescriptorFunction.STATIC_MARKET_DATA,
+        ViewClientDescriptorFunction.TICKING_MARKET_DATA,
+        ViewClientDescriptorFunction.STATIC_SNAPSHOT,
+        ViewClientDescriptorFunction.TICKING_SNAPSHOT,
+        ViewClientFunction.INSTANCE,
+        ViewsFunction.INSTANCE));
+    globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        TriggerViewCycleProcedure.INSTANCE));
+    globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
+        UserViewClientConverter.INSTANCE));
   }
 
   @Override

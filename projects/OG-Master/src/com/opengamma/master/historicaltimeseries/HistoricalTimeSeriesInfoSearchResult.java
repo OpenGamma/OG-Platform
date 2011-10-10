@@ -136,11 +136,6 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
      */
     static final Meta INSTANCE = new Meta();
 
-    @Override
-    protected Class<HistoricalTimeSeriesInfoDocument> documentsGenericType() {
-      return HistoricalTimeSeriesInfoDocument.class;
-    }
-
     /**
      * The meta-properties.
      */

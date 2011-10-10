@@ -19,16 +19,16 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
   private static final LinearInterpolator1DNodeSensitivityCalculator LINEAR = new LinearInterpolator1DNodeSensitivityCalculator();
-  private static final FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> LEFT = new FlatExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>();
-  private static final LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> RIGHT = new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR);
+  private static final FlatExtrapolator1DNodeSensitivityCalculator LEFT = new FlatExtrapolator1DNodeSensitivityCalculator();
+  private static final LinearExtrapolator1DNodeSensitivityCalculator RIGHT = new LinearExtrapolator1DNodeSensitivityCalculator(LINEAR);
   private static final double[] X;
   private static final double[] Y;
   private static final Interpolator1DDataBundle DATA;
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle> COMBINED1 = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(
+  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator COMBINED1 = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(
       LINEAR);
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle> COMBINED2 = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(
+  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator COMBINED2 = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(
       LINEAR, LEFT);
-  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle> COMBINED3 = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(
+  private static final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator COMBINED3 = new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(
       LINEAR, LEFT, RIGHT);
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
@@ -52,32 +52,32 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
-    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
+    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
-    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(null, LEFT);
+    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(null, LEFT);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator3() {
-    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(null, LEFT, RIGHT);
+    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(null, LEFT, RIGHT);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExtrapolator() {
-    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR, null);
+    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(LINEAR, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeftExtrapolator() {
-    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR, null, RIGHT);
+    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(LINEAR, null, RIGHT);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRightExtrapolator() {
-    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR, LEFT, null);
+    new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator(LINEAR, LEFT, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertNull;
 import org.testng.annotations.Test;
 
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
@@ -50,7 +49,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testNullExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, null,false);
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, null,false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertNull(combined.getLeftSensitivityCalculator());
     assertNull(combined.getRightSensitivityCalculator());
@@ -58,7 +57,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testEmptyExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, "", false);
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, "", false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertNull(combined.getLeftSensitivityCalculator());
     assertNull(combined.getRightSensitivityCalculator());
@@ -66,7 +65,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testNullLeftExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, null,
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, null,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(combined.getLeftSensitivityCalculator().getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);
@@ -75,7 +74,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testEmptyLeftExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, "",
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, "",
         Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(combined.getLeftSensitivityCalculator().getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);
@@ -84,7 +83,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testNullRightExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR, null, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(combined.getLeftSensitivityCalculator().getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);
@@ -93,7 +92,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testEmptyRightExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR, "", false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(combined.getLeftSensitivityCalculator().getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);
@@ -102,7 +101,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testNullLeftAndRightExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, null, null, false);
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, null, null, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertNull(combined.getLeftSensitivityCalculator());
     assertNull(combined.getRightSensitivityCalculator());
@@ -110,7 +109,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testEmptyLeftAndRightExtrapolatorName() {
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, "", "", false);
+    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, "", "", false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertNull(combined.getLeftSensitivityCalculator());
     assertNull(combined.getRightSensitivityCalculator());
@@ -118,7 +117,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testNoExtrapolator() {
-    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, false);
+    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertNull(combined.getLeftSensitivityCalculator());
     assertNull(combined.getRightSensitivityCalculator());
@@ -128,7 +127,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testOneExtrapolator() {
-    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
+    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(combined.getLeftSensitivityCalculator().getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);
@@ -141,7 +140,7 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTes
 
   @Test
   public void testTwoExtrapolators() {
-    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
+    CombinedInterpolatorExtrapolatorNodeSensitivityCalculator combined = getSensitivityCalculator(Interpolator1DFactory.LINEAR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR, false);
     assertEquals(combined.getSensitivityCalculator().getClass(), LinearInterpolator1DNodeSensitivityCalculator.class);
     assertEquals(combined.getLeftSensitivityCalculator().getClass(), FlatExtrapolator1DNodeSensitivityCalculator.class);

@@ -249,10 +249,13 @@ public class SavePortfolio {
     PortfolioDocument document;
     if (updateMatchingName) {
       document = result.getFirstDocument();
-      final ManageablePortfolio resultPortfolio = document.getPortfolio();
-      if (nodesEqual(manageablePortfolio.getRootNode(), resultPortfolio.getRootNode())) {
-        s_logger.debug("Found existing match at {}", document.getUniqueId());
-        return document.getUniqueId();
+      // TODO why did this assume document will never be null? is that valid or have I broken something?
+      if (document != null) {
+        final ManageablePortfolio resultPortfolio = document.getPortfolio();
+        if (nodesEqual(manageablePortfolio.getRootNode(), resultPortfolio.getRootNode())) {
+          s_logger.debug("Found existing match at {}", document.getUniqueId());
+          return document.getUniqueId();
+        }
       }
     } else {
       document = null;

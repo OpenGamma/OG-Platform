@@ -11,13 +11,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class RadialBasisFunctionInterpolatorND extends InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> {
+public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
  //TODO R White 14/07/2011 These are only used by getDataBundle, the actual interpolate method used the information in the RadialBasisFunctionInterpolatorDataBundle
  // should remove them altogether and just pass in the information in the getDataBundle method
   private final Function1D<Double, Double> _basisFunction;
@@ -30,11 +31,13 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND<RadialBasi
   }
 
   @Override
-  public Double interpolate(final RadialBasisFunctionInterpolatorDataBundle data, final double[] x) {
+  public Double interpolate(final InterpolatorNDDataBundle data, final double[] x) {
     validateInput(data, x);
-    final List<Pair<double[], Double>> rawData = data.getData();
-    final double[] w = data.getWeights();
-    final Function1D<Double, Double> basisFunction = data.getBasisFunction();
+    Validate.isTrue(data instanceof RadialBasisFunctionInterpolatorDataBundle, "RadialBasisFunctionInterpolatorND needs a RadialBasisFunctionInterpolatorDataBundle");
+    RadialBasisFunctionInterpolatorDataBundle radialData = (RadialBasisFunctionInterpolatorDataBundle) data;
+    final List<Pair<double[], Double>> rawData = radialData.getData();
+    final double[] w = radialData.getWeights();
+    final Function1D<Double, Double> basisFunction = radialData.getBasisFunction();
     final int n = rawData.size();
     double sum = 0;
     double normSum = 0;
@@ -47,7 +50,7 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND<RadialBasi
       normSum += phi;
     }
 
-    return data.isNormalized() ? sum / normSum : sum;
+    return radialData.isNormalized() ? sum / normSum : sum;
   }
 
   @Override

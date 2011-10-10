@@ -79,10 +79,13 @@ public class DefinitionAnnotater {
   }
 
   protected void annotateDefinition(final Definition definition) {
-    final Map<String, String> info = getInfo(OBJECT);
+    Map<String, String> info = getInfo(OBJECT);
     if (info == null) {
-      // No annotations for the function
-      return;
+      info = getInfo(OBJECT + definition.getName());
+      if (info == null) {
+        // No annotations for the definition      
+        return;
+      }
     }
     String value = info.get(NAME);
     if (value != null) {

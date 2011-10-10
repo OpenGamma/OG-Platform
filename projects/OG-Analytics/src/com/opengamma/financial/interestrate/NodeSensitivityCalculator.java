@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -41,18 +42,18 @@ public abstract class NodeSensitivityCalculator {
     Validate.notNull(ird, "null InterestRateDerivative");
     Validate.notNull(calculator, "null calculator");
     Validate.notNull(interpolatedCurves, "interpolated curves");
-    final YieldCurveBundle allCurves = new YieldCurveBundle(interpolatedCurves);
+    final YieldCurveBundle allCurves = (interpolatedCurves instanceof SABRInterestRateDataBundle) ? new SABRInterestRateDataBundle((SABRInterestRateDataBundle) interpolatedCurves)
+        : new YieldCurveBundle(interpolatedCurves);
     if (fixedCurves != null) {
       for (final String name : interpolatedCurves.getAllNames()) {
         Validate.isTrue(!fixedCurves.containsName(name), "fixed curves contain a name that is also in interpolated curves");
       }
       allCurves.addAll(fixedCurves);
     }
-    final Map<String, List<DoublesPair>> senseMap = calculator.visit(ird, allCurves);
-    return curveToNodeSensitivities(senseMap, interpolatedCurves);
+    final Map<String, List<DoublesPair>> sensitivityMap = calculator.visit(ird, allCurves);
+    return curveToNodeSensitivities(sensitivityMap, interpolatedCurves);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   public DoubleMatrix1D curveToNodeSensitivities(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
     final List<Double> result = new ArrayList<Double>();
     for (final String name : interpolatedCurves.getAllNames()) { // loop over all curves (by name)
@@ -61,7 +62,7 @@ public abstract class NodeSensitivityCalculator {
         throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
       }
       final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve.getCurve();
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = interpolatedCurve.getInterpolator();
+      final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
       final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
       Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
       // TODO move this logic into a factory
@@ -99,14 +100,13 @@ public abstract class NodeSensitivityCalculator {
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSensitivities, final YieldAndDiscountCurve yieldCurve) {
     if (!(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
     }
     final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
     final double[] res = new double[interpolatedCurve.size()];
-    final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = interpolatedCurve.getInterpolator();
+    final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
     final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
     Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
     // TODO move this logic into a factory
