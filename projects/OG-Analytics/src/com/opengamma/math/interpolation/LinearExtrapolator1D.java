@@ -14,12 +14,17 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class LinearExtrapolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
-  private static final double EPS = 1e-8;
   private final Interpolator1D _interpolator;
+  private final double _eps;
 
   public LinearExtrapolator1D(final Interpolator1D interpolator) {
+    this(interpolator, 1e-8);
+  }
+
+  public LinearExtrapolator1D(final Interpolator1D interpolator, double eps) {
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
+    _eps = eps;
   }
 
   @Override
@@ -44,14 +49,24 @@ public class LinearExtrapolator1D extends Interpolator1D {
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
+  @Override
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    if (value < data.firstKey()) {
+      return getLeftSensitivities(data, value);
+    } else if (value > data.lastKey()) {
+      return getRightSensitivities(data, value);
+    }
+    throw new IllegalArgumentException("Value " + value + " was within data range");
+  }
+
   private Double leftExtrapolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
     final double x = data.firstKey();
     final double y = data.firstValue();
-    final double eps = EPS * (data.lastKey() - x);
-    final Interpolator1D interpolator = _interpolator;
-    final double m = (interpolator.interpolate(data, x + eps) - y) / eps;
+    final double eps = _eps * (data.lastKey() - x);
+    final double m = (_interpolator.interpolate(data, x + eps) - y) / eps;
     return y + (value - x) * m;
   }
 
@@ -60,10 +75,33 @@ public class LinearExtrapolator1D extends Interpolator1D {
     Validate.notNull(value, "value");
     final double x = data.lastKey();
     final double y = data.lastValue();
-    final double eps = EPS * (x - data.firstKey());
-    final Interpolator1D interpolator = _interpolator;
-    final double m = (y - interpolator.interpolate(data, x - eps)) / eps;
+    final double eps = _eps * (x - data.firstKey());
+    final double m = (y - _interpolator.interpolate(data, x - eps)) / eps;
     return y + (value - x) * m;
   }
 
+
+  private double[] getLeftSensitivities(final Interpolator1DDataBundle data, final double value) {
+    final double eps = _eps * (data.lastKey() - data.firstKey());
+    final double x = data.firstKey();
+    final double[] result = _interpolator.getNodeSensitivitiesForValue(data, x + eps);
+    final int n = result.length;
+    for (int i = 1; i < n; i++) {
+      result[i] = result[i] * (value - x) / eps;
+    }
+    result[0] = 1 + (result[0] - 1) * (value - x) / eps;
+    return result;
+  }
+
+  private double[] getRightSensitivities(final Interpolator1DDataBundle data, final Double value) {
+    final double eps = _eps * (data.lastKey() - data.firstKey());
+    final double x = data.lastKey();
+    final double[] result = _interpolator.getNodeSensitivitiesForValue(data, x - eps);
+    final int n = result.length;
+    for (int i = 0; i < n - 1; i++) {
+      result[i] = -result[i] * (value - x) / eps;
+    }
+    result[n - 1] = 1 + (1 - result[n - 1]) * (value - x) / eps;
+    return result;
+  }
 }

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -29,8 +30,9 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexVanillaOptionVegaFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.VEGA_MATRIX);
+  public ForexVanillaOptionVegaFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
+      final String callForwardCurveName, final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
@@ -57,12 +59,21 @@ public class ForexVanillaOptionVegaFunction extends ForexVanillaOptionFunction {
         values[i][j] = vega[j][i];
       }
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName()).with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties));    
+  }
+  
   private String getFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));

@@ -45,7 +45,7 @@ public class InterestRateFutureOptionPresentValueFunction extends InterestRateFu
     return Sets.newHashSet(getSpecification(target));
   }
   
-  private ValueSpecification getSpecification(ComputationTarget target) {
+  private ValueSpecification getSpecification(final ComputationTarget target) {
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
         createValueProperties()
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())

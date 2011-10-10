@@ -59,11 +59,10 @@ public class ForexSecurityConverter implements FXOptionSecurityVisitor<ForexConv
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
       return new ForexOptionVanillaDefinition(underlying, expiry, false, isLong);
-    } else {
-      final double fxRate = putAmount / callAmount;
-      underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
-      return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
-    }
+    } 
+    final double fxRate = putAmount / callAmount;
+    underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
+    return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
   }
 
   @Override

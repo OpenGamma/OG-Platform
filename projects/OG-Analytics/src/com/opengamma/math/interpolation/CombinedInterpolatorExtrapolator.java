@@ -81,4 +81,20 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
     return _interpolator.interpolate(data, value);
   }
 
+  @Override
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    Validate.notNull(value, "value");
+    if (value < data.firstKey()) {
+      if (_leftExtrapolator != null) {
+        return _leftExtrapolator.getNodeSensitivitiesForValue(data, value);
+      }
+    } else if (value > data.lastKey()) {
+      if (_rightExtrapolator != null) {
+        return _rightExtrapolator.getNodeSensitivitiesForValue(data, value);
+      }
+    }
+    return _interpolator.getNodeSensitivitiesForValue(data, value);
+  }
+
 }

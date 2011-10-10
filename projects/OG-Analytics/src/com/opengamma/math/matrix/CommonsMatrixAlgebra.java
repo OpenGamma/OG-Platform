@@ -72,11 +72,11 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
    */
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
-    Validate.notNull(m, "m");
+    Validate.notNull(m, "matrix was null");
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
-      final LUDecomposition lud = new LUDecompositionImpl(temp);
-      final RealMatrix inv = lud.getSolver().getInverse();
+      final SingularValueDecomposition sv = new SingularValueDecompositionImpl(temp);
+      final RealMatrix inv = sv.getSolver().getInverse();
       return CommonsMathWrapper.unwrap(inv);
     }
     throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());

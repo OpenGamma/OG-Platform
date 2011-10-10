@@ -39,7 +39,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -160,8 +159,8 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
         : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_forwardCurveName, _fundingCurveName},
-        new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
+    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName},
+        new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
   protected SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
@@ -183,13 +182,4 @@ public abstract class SwaptionSABRFunction extends AbstractFunction.NonCompiledI
     return _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU) :
         new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
   }
-
-  protected ValueProperties getResultProperties(final FinancialSecurity security) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
-        .with(ValuePropertyNames.CUBE, getHelper().getDefinitionName()).get();
-  }
-
 }

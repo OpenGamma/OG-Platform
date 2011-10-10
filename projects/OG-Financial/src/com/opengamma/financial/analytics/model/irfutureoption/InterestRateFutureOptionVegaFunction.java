@@ -30,10 +30,10 @@ import com.opengamma.financial.analytics.volatility.sabr.SABRFittedSurfaces;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.GridInterpolator2DSensitivity;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
@@ -49,7 +49,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
  */
 public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOptionFunction {
   private static final LinearInterpolator1D LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final GridInterpolator2DSensitivity NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2DSensitivity(LINEAR, LINEAR);
+  private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(LINEAR, LINEAR);
+  @SuppressWarnings("synthetic-access")
   private static final DoublesPairComparator COMPARATOR = new DoublesPairComparator();
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.OG_ALGEBRA;
 
@@ -101,9 +102,9 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     final InterpolatedDoublesSurface rhoSurface = (InterpolatedDoublesSurface) data.getSABRParameter().getRhoSurface().getSurface();
     final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
     final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
-    final Map<Double, List<Pair<Double, Double>>> alphaGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.calculate(alphaDataBundle, expiryMaturity));
-    final Map<Double, List<Pair<Double, Double>>> nuGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.calculate(nuDataBundle, expiryMaturity));
-    final Map<Double, List<Pair<Double, Double>>> rhoGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.calculate(rhoDataBundle, expiryMaturity));
+    final Map<Double, List<Pair<Double, Double>>> alphaGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(alphaDataBundle, expiryMaturity));
+    final Map<Double, List<Pair<Double, Double>>> nuGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(nuDataBundle, expiryMaturity));
+    final Map<Double, List<Pair<Double, Double>>> rhoGridNodeSensitivities = getMaturityExpiryValueMap(NODE_SENSITIVITY_CALCULATOR.getNodeSensitivitiesForValue(rhoDataBundle, expiryMaturity));
     if (alphaGridNodeSensitivities.size() != 1) {
       throw new OpenGammaRuntimeException("Cannot handle volatility cubes");
     }

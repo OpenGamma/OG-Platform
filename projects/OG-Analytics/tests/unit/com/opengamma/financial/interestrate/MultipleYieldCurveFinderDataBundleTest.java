@@ -23,9 +23,6 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.LogLinearInterpolator1D;
-import com.opengamma.math.interpolation.sensitivity.FiniteDifferenceInterpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -41,11 +38,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
   private static final double[] PAR_RATES;
   private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
   private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> SENSITIVITY_CALCULATORS = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
   private static final Interpolator1D INTERPOLATOR1 = new LinearInterpolator1D();
-  private static final Interpolator1DNodeSensitivityCalculator CALCULATOR1 = new LinearInterpolator1DNodeSensitivityCalculator();
   private static final Interpolator1D INTERPOLATOR2 = new LogLinearInterpolator1D();
-  private static final Interpolator1DNodeSensitivityCalculator CALCULATOR2 = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(INTERPOLATOR2);
   private static final MultipleYieldCurveFinderDataBundle DATA;
 
   static {
@@ -66,41 +60,34 @@ public class MultipleYieldCurveFinderDataBundleTest {
     }
     NODES.put(CURVE_NAME1, TIMES1);
     INTERPOLATORS.put(CURVE_NAME1, INTERPOLATOR1);
-    SENSITIVITY_CALCULATORS.put(CURVE_NAME1, CALCULATOR1);
     NODES.put(CURVE_NAME2, TIMES2);
     INTERPOLATORS.put(CURVE_NAME2, INTERPOLATOR2);
-    SENSITIVITY_CALCULATORS.put(CURVE_NAME2, CALCULATOR2);
-    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivatives() {
-    new MultipleYieldCurveFinderDataBundle(null, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(null, PAR_RATES, null, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParRates() {
-    new MultipleYieldCurveFinderDataBundle(null, null, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(null, null, null, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNodes() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, null, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, null, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolators() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, null, SENSITIVITY_CALCULATORS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSensitivityCalculators() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, null);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, null, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthParRates() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[] {0.01}, null, NODES, INTERPOLATORS, null);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[] {0.01}, null, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -108,32 +95,25 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
     bundle.setCurve(CURVE_NAME1, curve);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, bundle, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, bundle, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
-    new MultipleYieldCurveFinderDataBundle(new ArrayList<InterestRateDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(new ArrayList<InterestRateDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1,
-        new YieldCurve(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+        new YieldCurve(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSize1() {
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testWrongSize2() {
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
-    calculators.put(CURVE_NAME2, CALCULATOR1);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -141,15 +121,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     interpolators.put(CURVE_NAME1, INTERPOLATOR2);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testWrongNames2() {
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
-    calculators.put(CURVE_NAME2, CALCULATOR1);
-    calculators.put(CURVE_NAME1, CALCULATOR2);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -157,7 +129,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
     nodes.put(CURVE_NAME1, TIMES1);
     nodes.put(CURVE_NAME2, null);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false);
 
   }
 
@@ -166,15 +138,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     interpolators.put(CURVE_NAME1, null);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullValue3() {
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
-    calculators.put(CURVE_NAME2, CALCULATOR1);
-    calculators.put(CURVE_NAME1, null);
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -188,11 +152,6 @@ public class MultipleYieldCurveFinderDataBundleTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullName3() {
-    DATA.getSensitivityCalculatorForName(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongName1() {
     DATA.getCurveNodePointsForCurve("X");
   }
@@ -200,11 +159,6 @@ public class MultipleYieldCurveFinderDataBundleTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongName2() {
     DATA.getInterpolatorForCurve("Y");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testWrongName3() {
-    DATA.getSensitivityCalculatorForName("Z");
   }
 
   @Test
@@ -223,42 +177,36 @@ public class MultipleYieldCurveFinderDataBundleTest {
     assertEquals(DATA.getInterpolatorForCurve(CURVE_NAME1), INTERPOLATOR1);
     assertEquals(DATA.getInterpolatorForCurve(CURVE_NAME2), INTERPOLATOR2);
     assertEquals(DATA.getKnownCurves(), null);
-    assertEquals(DATA.getSensitivityCalculatorForName(CURVE_NAME1), CALCULATOR1);
-    assertEquals(DATA.getSensitivityCalculatorForName(CURVE_NAME2), CALCULATOR2);
     assertEquals(DATA.getTotalNodes(), TIMES1.length * 2);
     assertEquals(DATA.getUnknownCurveInterpolators(), INTERPOLATORS);
     assertEquals(DATA.getUnknownCurveNodePoints(), NODES);
-    assertEquals(DATA.getUnknownCurveNodeSensitivityCalculators(), SENSITIVITY_CALCULATORS);
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    MultipleYieldCurveFinderDataBundle other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    MultipleYieldCurveFinderDataBundle other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
     final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>(DERIVATIVES);
     derivatives.set(0, new Cash(CUR, 1000, 1, 0.05, CURVE_NAME1));
-    other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, false);
     assertFalse(other.equals(DATA));
-    other = new MultipleYieldCurveFinderDataBundle(derivatives, new double[PAR_RATES.length], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    other = new MultipleYieldCurveFinderDataBundle(derivatives, new double[PAR_RATES.length], null, NODES, INTERPOLATORS, false);
     assertFalse(other.equals(DATA));
     final YieldCurveBundle knownCurves = new YieldCurveBundle();
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, knownCurves, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, knownCurves, NODES, INTERPOLATORS, false);
     assertFalse(other.equals(DATA));
     final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
     nodes.put(CURVE_NAME1, TIMES1);
     nodes.put(CURVE_NAME2, TIMES1);
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false);
     assertFalse(other.equals(DATA));
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     interpolators.put(CURVE_NAME1, INTERPOLATOR1);
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false);
     assertFalse(other.equals(DATA));
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
-    calculators.put(CURVE_NAME1, CALCULATOR1);
-    calculators.put(CURVE_NAME2, CALCULATOR1);
-    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
+    other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, true);
     assertFalse(other.equals(DATA));
   }
 }

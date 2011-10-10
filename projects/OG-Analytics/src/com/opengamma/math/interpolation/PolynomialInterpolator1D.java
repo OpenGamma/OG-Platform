@@ -115,4 +115,9 @@ public class PolynomialInterpolator1D extends Interpolator1D {
     return result;
   }
 
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
+  }
+
 }

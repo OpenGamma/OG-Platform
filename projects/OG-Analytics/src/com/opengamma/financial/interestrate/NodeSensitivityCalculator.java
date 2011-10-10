@@ -14,13 +14,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -64,24 +59,12 @@ public abstract class NodeSensitivityCalculator {
       final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve.getCurve();
       final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
       final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
-      Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
-      // TODO move this logic into a factory
-      if (interpolator instanceof CombinedInterpolatorExtrapolator) {
-        final CombinedInterpolatorExtrapolator combined = (CombinedInterpolatorExtrapolator) interpolator;
-        final String interpolatorName = Interpolator1DFactory.getInterpolatorName(combined.getInterpolator());
-        final String leftExtrapolatorName = Interpolator1DFactory.getInterpolatorName(combined.getLeftExtrapolator());
-        final String rightExtrapolatorName = Interpolator1DFactory.getInterpolatorName(combined.getRightExtrapolator());
-        sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName, false);
-      } else {
-        final String interpolatorName = Interpolator1DFactory.getInterpolatorName(interpolator);
-        sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, false);
-      }
       final List<DoublesPair> sensitivityList = curveSensitivities.get(name);
       if (sensitivityList != null && sensitivityList.size() > 0) {
         final double[][] sensitivity = new double[sensitivityList.size()][];
         int k = 0;
         for (final DoublesPair timeAndDF : sensitivityList) {
-          sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
+          sensitivity[k++] = interpolator.getNodeSensitivitiesForValue(data, timeAndDF.getFirst());
         }
         for (int j = 0; j < sensitivity[0].length; j++) {
           double temp = 0.0;
@@ -105,35 +88,29 @@ public abstract class NodeSensitivityCalculator {
       throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
     }
     final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
-    final double[] res = new double[interpolatedCurve.size()];
+    final double[] result = new double[interpolatedCurve.size()];
     final Interpolator1D interpolator = interpolatedCurve.getInterpolator();
     final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
-    Interpolator1DNodeSensitivityCalculator sensitivityCalculator;
-    // TODO move this logic into a factory
-    if (interpolator instanceof CombinedInterpolatorExtrapolator) {
-      final CombinedInterpolatorExtrapolator combined = (CombinedInterpolatorExtrapolator) interpolator;
-      final String interpolatorName = Interpolator1DFactory.getInterpolatorName(combined.getInterpolator());
-      final String leftExtrapolatorName = Interpolator1DFactory.getInterpolatorName(combined.getLeftExtrapolator());
-      final String rightExtrapolatorName = Interpolator1DFactory.getInterpolatorName(combined.getRightExtrapolator());
-      sensitivityCalculator = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName, false);
-    } else {
-      final String interpolatorName = Interpolator1DFactory.getInterpolatorName(interpolator);
-      sensitivityCalculator = Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator(interpolatorName, false);
-    }
-    final double[][] sensitivity = new double[curveSensitivities.size()][];
-    int k = 0;
-    for (final DoublesPair timeAndDF : curveSensitivities) {
-      sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
-    }
-    for (int j = 0; j < sensitivity[0].length; j++) {
-      double temp = 0.0;
-      k = 0;
-      for (final DoublesPair timeAndDF : curveSensitivities) {
-        temp += timeAndDF.getSecond() * sensitivity[k++][j];
+    if (curveSensitivities == null) {
+      for (int i = 0; i < interpolatedCurve.size(); i++) {
+        result[i] = 0;
       }
-      res[j] = temp;
+    } else {
+      final double[][] sensitivity = new double[curveSensitivities.size()][];
+      int k = 0;
+      for (final DoublesPair timeAndDF : curveSensitivities) {
+        sensitivity[k++] = interpolator.getNodeSensitivitiesForValue(data, timeAndDF.getFirst());
+      }
+      for (int j = 0; j < sensitivity[0].length; j++) {
+        double temp = 0.0;
+        k = 0;
+        for (final DoublesPair timeAndDF : curveSensitivities) {
+          temp += timeAndDF.getSecond() * sensitivity[k++][j];
+        }
+        result[j] = temp;
+      }
     }
-    return new DoubleMatrix1D(res);
+    return new DoubleMatrix1D(result);
   }
 
 }
