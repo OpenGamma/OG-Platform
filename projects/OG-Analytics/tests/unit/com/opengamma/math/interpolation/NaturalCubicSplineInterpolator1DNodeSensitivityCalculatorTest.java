@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation.sensitivity;
+package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -27,8 +27,6 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
-  private static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(INTERPOLATOR);
   private static final Interpolator1DDataBundle DATA1;
   private static final double EPS = 1e-7;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
@@ -81,7 +79,7 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     double[] sensitivity;
     for (int i = 0; i < 100; i++) {
       final double t = tmax * RANDOM.nextDouble();
-      sensitivity = CALCULATOR.calculate(DATA1, t);
+      sensitivity = INTERPOLATOR.getNodeSensitivitiesForValue(DATA1, t);
       for (int j = 0; j < sensitivity.length; j++) {
         assertEquals(getSensitivity(DATA1, INTERPOLATOR, t, j), sensitivity[j], EPS);
       }
@@ -97,8 +95,8 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
       rates[i] = FUNCTION.evaluate(fwdTimes[i]);
     }
     final Interpolator1DCubicSplineDataBundle data = new Interpolator1DCubicSplineDataBundle(INTERPOLATOR.getDataBundleFromSortedArrays(fwdTimes, rates));
-    final double[] sensitivity1 = CALCULATOR.calculate(data, 0.25);
-    final double[] sensitivity2 = FD_CALCULATOR.calculate(data, 0.25);
+    final double[] sensitivity1 = INTERPOLATOR.getNodeSensitivitiesForValue(data, 0.25);
+    final double[] sensitivity2 = INTERPOLATOR.getNodeSensitivitiesForValue(data, 0.25, true);
     for (int j = 0; j < sensitivity1.length; j++) {
       assertEquals(sensitivity1[j], sensitivity2[j], EPS);
     }

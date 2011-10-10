@@ -103,7 +103,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     if (conventions == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + swapSecurity);
     }
-    final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, currency, conventions, payFixed);
+    final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, conventions, payFixed);
 
     final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed)
         : getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
@@ -154,7 +154,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     if (conventions == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + swapSecurity);
     }
-    final AnnuityCouponFixedDefinition fixedAnnuity = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, currency, conventions, true);
+    final AnnuityCouponFixedDefinition fixedAnnuity = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, conventions, true);
     final AnnuityCouponCMSDefinition cmsReceiveLeg = getCMSwapLegDefinition(effectiveDate, maturityDate, floatingLeg, calendar, currency, false);
     return payFixed ? new SwapDefinition(fixedAnnuity, cmsReceiveLeg) : new SwapDefinition(cmsReceiveLeg, fixedAnnuity);
   }
@@ -181,7 +181,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   private AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
-      final Currency currency, final ConventionBundle conventions, final boolean isPayer) {
+      final ConventionBundle conventions, final boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     try {
       if (conventions.isEOMConvention() == null) {

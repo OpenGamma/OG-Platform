@@ -22,7 +22,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
   private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});
-  private static final Interpolator1D INTERPOLATOR = new RationalFunctionInterpolator1D(3);
+  private static final Interpolator1D INTERPOLATOR = new RationalFunctionInterpolator1D(3, 1e-12);
   private static final Interpolator1DDataBundle MODEL;
   private static final double EPS = 1;
 
@@ -48,7 +48,7 @@ public class RationalFunctionInterpolator1DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    new RationalFunctionInterpolator1D(10).interpolate(MODEL, 0.23);
+    new RationalFunctionInterpolator1D(10, 1e-12).interpolate(MODEL, 0.23);
   }
 
   @Test

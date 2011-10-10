@@ -25,4 +25,7 @@ public abstract class Interpolator2D implements Interpolator<Map<Double, Interpo
    */
   @Override
   public abstract Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value);
+  
+  public abstract Map<DoublesPair, Double> getNodeSensitivitiesForValue(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value);
+
 }

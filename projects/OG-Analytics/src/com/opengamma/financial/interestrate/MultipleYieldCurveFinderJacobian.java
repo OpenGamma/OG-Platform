@@ -17,7 +17,6 @@ import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.tuple.DoublesPair;
@@ -76,13 +75,13 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
           }
           final InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve;
           final Interpolator1DDataBundle data = interpolatedCurve.getDataBundle();
-          final Interpolator1DNodeSensitivityCalculator sensitivityCalculator = _data.getSensitivityCalculatorForName(name);
+          final Interpolator1D sensitivityCalculator = _data.getInterpolatorForCurve(name);
           final List<DoublesPair> senseList = senseMap.get(name);
           if (senseList.size() != 0) {
             final double[][] sensitivity = new double[senseList.size()][];
             int k = 0;
             for (final DoublesPair timeAndDF : senseList) {
-              sensitivity[k++] = sensitivityCalculator.calculate(data, timeAndDF.getFirst());
+              sensitivity[k++] = sensitivityCalculator.getNodeSensitivitiesForValue(data, timeAndDF.getFirst(), _data.useFiniteDifferenceForNodeSensitivities());
             }
             for (int j = 0; j < sensitivity[0].length; j++) {
               double temp = 0.0;

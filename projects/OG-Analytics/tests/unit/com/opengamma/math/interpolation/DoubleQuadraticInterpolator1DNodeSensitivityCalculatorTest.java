@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation.sensitivity;
+package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -14,7 +14,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 
 /**
@@ -23,9 +22,6 @@ import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBu
 public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
-  private static final Interpolator1DNodeSensitivityCalculator CALCULATOR = new DoubleQuadraticInterpolator1DNodeSensitivityCalculator();
-  private static final Interpolator1DNodeSensitivityCalculator FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(
-      INTERPOLATOR);
   private static final Interpolator1DDoubleQuadraticDataBundle DATA;
   private static final double EPS = 1e-7;
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
@@ -55,17 +51,17 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInputData() {
-    CALCULATOR.calculate(null, 3.);
+    INTERPOLATOR.getNodeSensitivitiesForValue(null, 3.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
-    CALCULATOR.calculate(DATA, 31.);
+    INTERPOLATOR.getNodeSensitivitiesForValue(DATA, 31.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
-    CALCULATOR.calculate(DATA, -1.);
+    INTERPOLATOR.getNodeSensitivitiesForValue(DATA, -1.);
   }
 
   @Test
@@ -75,8 +71,8 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
     double[] sensitivity, fdSensitivity;
     for (int i = 0; i < 100; i++) {
       t = tmax * RANDOM.nextDouble();
-      sensitivity = CALCULATOR.calculate(DATA, t);
-      fdSensitivity = FD_CALCULATOR.calculate(DATA, t);
+      sensitivity = INTERPOLATOR.getNodeSensitivitiesForValue(DATA, t);
+      fdSensitivity = INTERPOLATOR.getNodeSensitivitiesForValue(DATA, t, true);
       for (int j = 0; j < sensitivity.length; j++) {
         assertEquals(fdSensitivity[j], sensitivity[j], EPS);
       }
@@ -86,10 +82,11 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
   @Test
   public void testEdgeCase() {
     final double tmax = DATA.lastKey();
-    final double[] sensitivity = CALCULATOR.calculate(DATA, tmax);
+    final double[] sensitivity = INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tmax);
     for (int j = 0; j < sensitivity.length - 1; j++) {
       assertEquals(0, sensitivity[j], EPS);
     }
     assertEquals(1.0, sensitivity[sensitivity.length - 1], EPS);
   }
+  
 }

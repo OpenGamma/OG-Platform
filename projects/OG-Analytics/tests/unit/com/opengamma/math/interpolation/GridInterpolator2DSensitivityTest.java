@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation.sensitivity;
+package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -24,7 +24,6 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class GridInterpolator2DSensitivityTest {
   private static final Interpolator1D LINEAR_1D = new LinearInterpolator1D();
-  private static final GridInterpolator2DSensitivity SENSE_CAL;
   private static final GridInterpolator2D INTERPOLATOR;
   private static final Map<DoublesPair, Double> DATA;
   private static final Map<Double, Interpolator1DDataBundle> DATA_BUNDLE;
@@ -48,12 +47,11 @@ public class GridInterpolator2DSensitivityTest {
 
     INTERPOLATOR = new GridInterpolator2D(LINEAR_1D, LINEAR_1D);
     DATA_BUNDLE = INTERPOLATOR.getDataBundle(DATA);
-    SENSE_CAL = new GridInterpolator2DSensitivity(LINEAR_1D, LINEAR_1D);
   }
 
   @Test
   public void test() {
-    Map<DoublesPair, Double> res = SENSE_CAL.calculate(DATA_BUNDLE, new DoublesPair(4.5, 7.25));
+    Map<DoublesPair, Double> res = INTERPOLATOR.getNodeSensitivitiesForValue(DATA_BUNDLE, new DoublesPair(4.5, 7.25));
     assertEquals(0.375, res.get(new DoublesPair(4.0, 7.0)),0.0);
     assertEquals(0.375, res.get(new DoublesPair(5.0, 7.0)),0.0);
     assertEquals(0.125, res.get(new DoublesPair(4.0, 8.0)),0.0);

@@ -9,8 +9,13 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -55,5 +60,18 @@ public class ForexUtils {
     }
     // TODO: currency not in the order
     return true;
+  }
+
+  public static CurrencyLabelledMatrix1D getMultipleCurrencyAmountAsMatrix(final MultipleCurrencyAmount mca) {
+    Validate.notNull(mca, "multiple currency amount");
+    final int n = mca.size();
+    final Currency[] keys = new Currency[n];
+    final double[] values = new double[n];
+    int i = 0;
+    for (final CurrencyAmount ca : mca) {
+      keys[i] = ca.getCurrency();
+      values[i++] = ca.getAmount();
+    }
+    return new CurrencyLabelledMatrix1D(keys, values);
   }
 }

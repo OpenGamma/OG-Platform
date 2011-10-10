@@ -9,14 +9,13 @@ import java.util.Set;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class YieldCurveLabelGenerator {
 
-  public static Object[] getLabels(final InterpolatedYieldCurveSpecificationWithSecurities spec, final Currency currency, final String curveName) {
+  public static Object[] getLabels(final InterpolatedYieldCurveSpecificationWithSecurities spec) {
     final Set<FixedIncomeStripWithSecurity> strips = spec.getStrips();
     final int n = strips.size();
     final Object[] labels = new Object[n];

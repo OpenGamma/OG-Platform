@@ -47,7 +47,6 @@ import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
@@ -100,17 +99,32 @@ public abstract class YieldCurveFittingSetup {
       final List<String> curveNames,
       final List<double[]> curvesKnots,
       final Interpolator1D extrapolator,
-      final Interpolator1DNodeSensitivityCalculator extrapolatorSensitivity,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       final double[] marketRates,
-      final DoubleMatrix1D startPosition, final List<double[]> curveYields) {
+      final DoubleMatrix1D startPosition, 
+      final List<double[]> curveYields) {
+    return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator, 
+        marketRates, startPosition, curveYields, false);
+  }
+  
+  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(
+      final List<InterestRateDerivative> instruments,
+      final YieldCurveBundle knownCurves,
+      final List<String> curveNames,
+      final List<double[]> curvesKnots,
+      final Interpolator1D extrapolator,
+      final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      final double[] marketRates,
+      final DoubleMatrix1D startPosition, 
+      final List<double[]> curveYields,
+      boolean useFiniteDifferenceByDefault) {
 
     Validate.notNull(curveNames);
     Validate.notNull(curvesKnots);
     Validate.notNull(instruments);
     Validate.notNull(extrapolator);
-    Validate.notNull(extrapolatorSensitivity);
 
     final int n = curveNames.size();
     Validate.isTrue(n == curvesKnots.size());
@@ -123,18 +137,14 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators =
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
       unknownCurveNodes.put(curveNames.get(i), curvesKnots.get(i));
-      unknownCurveNodeSensitivityCalculators.put(curveNames.get(i), extrapolatorSensitivity);
     }
     if (curveYields == null) {
       return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes,
-          unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators,
-          marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition);
+          unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, useFiniteDifferenceByDefault);
     }
 
     Validate.isTrue(curveYields.size() == n, "wrong number of true yields");
@@ -143,8 +153,7 @@ public abstract class YieldCurveFittingSetup {
       yields.put(curveNames.get(i), curveYields.get(i));
     }
     return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators,
-        marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, yields);
+        marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, yields, useFiniteDifferenceByDefault);
   }
 
   public void doHotSpot(final NewtonVectorRootFinder rootFinder, final YieldCurveFittingTestDataBundle data,
@@ -274,8 +283,7 @@ public abstract class YieldCurveFittingSetup {
       final double[] marketRates) {
     Validate.isTrue(instruments.size() == marketRates.length);
     return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(),
-        old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
-        old.getUnknownCurveNodeSensitivityCalculators());
+        old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old.useFiniteDifferenceForNodeSensitivities());
   }
 
   protected static InterestRateDerivative makeSingleCurrencyIRD(final String type, final double maturity, final SimpleFrequency paymentFreq, final String fundCurveName,

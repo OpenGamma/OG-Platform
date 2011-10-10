@@ -31,8 +31,9 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFunction {
 
-  public ForexSingleBarrierOptionFunction(final String putCurveName, final String callCurveName, final String surfaceName, final String valueRequirementName) {
-    super(putCurveName, callCurveName, surfaceName, valueRequirementName);
+  public ForexSingleBarrierOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, 
+      final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
@@ -76,8 +77,8 @@ public abstract class ForexSingleBarrierOptionFunction extends ForexOptionFuncti
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXBarrierOptionSecurity fxOption = (FXBarrierOptionSecurity) target.getSecurity();
-    final String putCurveName = getPutCurveName();
-    final String callCurveName = getCallCurveName();
+    final String putCurveName = getPutFundingCurveName();
+    final String callCurveName = getCallFundingCurveName();
     final String surfaceName = getSurfaceName();
     final ValueRequirement putCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putCurveName, putCurveName, putCurveName);
     final ValueRequirement callCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callCurveName, callCurveName, callCurveName);

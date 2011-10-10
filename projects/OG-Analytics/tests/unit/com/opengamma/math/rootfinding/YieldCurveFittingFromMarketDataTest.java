@@ -29,8 +29,6 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -102,9 +100,6 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory
         .getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
             FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
-
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
         .getInstance();
@@ -169,8 +164,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames,
-        curveKnots, extrapolator, extrapolatorWithSense, calculator, sensitivityCalculator,
-        marketValues, startPosition, null);
+        curveKnots, extrapolator, calculator, sensitivityCalculator, marketValues, startPosition, null, false);
 
     return data;
 
