@@ -203,7 +203,7 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public void attachToViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions, boolean privateProcess) {
+  public void attachToViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions, boolean privateProcess) {
     _clientLock.lock();
     try {
       checkNotTerminated();
@@ -212,9 +212,9 @@ public class ViewClientImpl implements ViewClient {
       // cause initial updates to be pushed through, they will not be seen until the merging update listener is
       // resumed, at which point the new permission provider will be in place. 
       if (privateProcess) {
-        _permissionProvider = getViewProcessor().attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, definitionId, executionOptions);
+        _permissionProvider = getViewProcessor().attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
       } else {
-        _permissionProvider = getViewProcessor().attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, definitionId, executionOptions);
+        _permissionProvider = getViewProcessor().attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
       }
       attachToViewProcessCore();
     } finally {
