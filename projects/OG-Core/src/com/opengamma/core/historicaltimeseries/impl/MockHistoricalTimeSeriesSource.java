@@ -104,18 +104,34 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     return getSubSeries(hts, start, inclusiveStart, end, includeEnd);
   }
 
-  //-------------------------------------------------------------------------
+  private HistoricalTimeSeries getAnyMatching(final String dataField, final ExternalIdBundle identifiers) {
+    for (Map.Entry<HistoricalTimeSeriesKey, UniqueId> ts : _metaUniqueIdStore.entrySet()) {
+      if (dataField.equals(ts.getKey().getDataField()) && identifiers.equals(ts.getKey().getExternalIdBundle())) {
+        return _timeSeriesStore.get(ts.getValue());
+      }
+    }
+    return null;
+  }
+
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String resolutionKey) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    if (resolutionKey == null) {
+      return getAnyMatching(dataField, identifiers);
+    } else {
+      throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String configName, 
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    if (configName == null) {
+      return getSubSeries(getAnyMatching(dataField, identifiers), start, inclusiveStart, end, includeEnd);
+    } else {
+      throw new UnsupportedOperationException(getClass().getName() + " does not support resolved getHistoricalTimeSeries");
+    }
   }
 
   @Override

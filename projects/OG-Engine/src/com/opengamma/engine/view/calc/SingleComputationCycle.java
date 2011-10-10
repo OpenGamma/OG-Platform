@@ -450,11 +450,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       Collection<ValueSpecification> specsToCopy = new HashSet<ValueSpecification>();
 
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
-        markExecuted(unchangedNode);
-        specsToCopy.addAll(unchangedNode.getOutputValues());
+        if (previousCycle.isExecuted(unchangedNode)) {
+          markExecuted(unchangedNode);
+          if (previousCycle.isFailed(unchangedNode)) {
+            markFailed(unchangedNode);
+          } else {
+            specsToCopy.addAll(unchangedNode.getOutputValues());
+          }
+        }
       }
-
-      copyValues(cache, previousCache, specsToCopy);
+      if (!specsToCopy.isEmpty()) {
+        copyValues(cache, previousCache, specsToCopy);
+      }
     }
   }
 

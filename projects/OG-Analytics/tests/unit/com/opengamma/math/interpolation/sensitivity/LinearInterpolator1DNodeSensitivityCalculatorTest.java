@@ -19,7 +19,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   private static final double EPS = 1e-15;
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle> CALCULATOR = new LinearInterpolator1DNodeSensitivityCalculator();
+  private static final Interpolator1DNodeSensitivityCalculator CALCULATOR = new LinearInterpolator1DNodeSensitivityCalculator();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override

@@ -25,7 +25,7 @@
         <entry key="active-configuration" value="file:$PROJECT_DIR$/common/checkstyle.xml:" />
         <entry key="check-test-classes" value="false" />
         <entry key="location-0" value="CLASSPATH:/sun_checks.xml:The default CheckStyle rules." />
-        <entry key="location-1" value="FILE:$PROJECT_DIR$/common/checkstyle.xml:" />
+        <entry key="location-1" value="file:$PROJECT_DIR$/common/checkstyle.xml:" />
         <entry key="thirdparty-classpath" value="" />
       </map>
     </option>

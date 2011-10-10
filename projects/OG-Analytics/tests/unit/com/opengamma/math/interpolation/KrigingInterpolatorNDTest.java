@@ -10,14 +10,14 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
+import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 
 /**
  * 
  */
 public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final double BETA = 1.5;
-  private static final InterpolatorND<KrigingInterpolatorDataBundle> INTERPOLATOR = new KrigingInterpolatorND(BETA);
+  private static final InterpolatorND INTERPOLATOR = new KrigingInterpolatorND(BETA);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowBeta() {
@@ -46,7 +46,7 @@ public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
 
   @Test
   public void test() {
-    InterpolatorND<KrigingInterpolatorDataBundle> other = new KrigingInterpolatorND(BETA);
+    InterpolatorND other = new KrigingInterpolatorND(BETA);
     assertEquals(other, INTERPOLATOR);
     assertEquals(other.hashCode(), INTERPOLATOR.hashCode());
     other = new KrigingInterpolatorND(1.4);
@@ -60,14 +60,14 @@ public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
     final double x2 = 10 * RANDOM.nextDouble();
     final double x3 = 10 * RANDOM.nextDouble();
     // Fails utterly for flat surface since the variogram function will be zero for all r
-    final InterpolatorND<KrigingInterpolatorDataBundle> interpolator = new KrigingInterpolatorND(1.99);
-    final KrigingInterpolatorDataBundle dataBundle = interpolator.getDataBundle(FLAT_DATA);
+    final InterpolatorND interpolator = new KrigingInterpolatorND(1.99);
+    final InterpolatorNDDataBundle dataBundle = interpolator.getDataBundle(FLAT_DATA);
     assertEquals(INTERPOLATOR.interpolate(dataBundle, new double[] {x1, x2, x3}), 0, 0);
   }
 
   @Test
   public void testInterpolation() {
-    final InterpolatorND<KrigingInterpolatorDataBundle> interpolator = new KrigingInterpolatorND(1.99);
+    final InterpolatorND interpolator = new KrigingInterpolatorND(1.99);
     assertCosExp(interpolator, 2e-2);
   }
 

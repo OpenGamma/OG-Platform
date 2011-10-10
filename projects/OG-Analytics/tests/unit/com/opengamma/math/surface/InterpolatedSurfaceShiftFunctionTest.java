@@ -24,8 +24,7 @@ public class InterpolatedSurfaceShiftFunctionTest {
   private static final double[] X = new double[] {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4 };
   private static final double[] Y = new double[] {0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4 };
   private static final double[] Z = new double[] {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
-  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR =
-      new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(new LinearInterpolator1D(), new LinearInterpolator1D()) {
+  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(new LinearInterpolator1D(), new LinearInterpolator1D()) {
 
         @Override
         public Double interpolate(Map<Double, Interpolator1DDataBundle> dataBundle, DoublesPair value) {

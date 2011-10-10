@@ -81,7 +81,7 @@
   </bean>
 
   <!-- Config loaders, should be commented out most of the time -->
-  <!-- bean id="curveLoader" class="com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator">
+  <!--bean id="curveLoader" class="com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator">
     <constructor-arg ref="sharedConfigMaster" />
   </bean>
   <bean id="currencyMatrixLoader" class="com.opengamma.financial.currency.CurrencyMatrixConfigPopulator">

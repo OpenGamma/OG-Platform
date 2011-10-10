@@ -43,7 +43,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
 
   private final int _nParams;
   private final ParameterLimitsTransform[] _transforms;
-  private final Interpolator1D<Interpolator1DDataBundle> _interpolator;
+  private final Interpolator1D _interpolator;
   private final double _alpha;
   private final double _limitTolerance;
 
@@ -54,11 +54,11 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
     this(Interpolator1DFactory.getInterpolator("DoubleQuadratic"), DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, fixVol0);
   }
 
-  public HestonFFTSmileFitter(final Interpolator1D<Interpolator1DDataBundle> interpolator, boolean fixVol0) {
+  public HestonFFTSmileFitter(final Interpolator1D interpolator, boolean fixVol0) {
     this(interpolator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, fixVol0);
   }
 
-  public HestonFFTSmileFitter(final Interpolator1D<Interpolator1DDataBundle> interpolator, final double alpha, final double limitTolerance, boolean fixVol0) {
+  public HestonFFTSmileFitter(final Interpolator1D interpolator, final double alpha, final double limitTolerance, boolean fixVol0) {
     Validate.notNull(interpolator, "interpolator");
     Validate.isTrue(alpha != 0 && alpha != -1, "alpha cannot be 0 or -1");
     Validate.isTrue(limitTolerance > 0, "limit tolerance must be > 0");
@@ -157,7 +157,7 @@ public class HestonFFTSmileFitter extends LeastSquareSmileFitter {
    * Gets the interpolator.
    * @return the interpolator
    */
-  protected Interpolator1D<Interpolator1DDataBundle> getInterpolator() {
+  protected Interpolator1D getInterpolator() {
     return _interpolator;
   }
 

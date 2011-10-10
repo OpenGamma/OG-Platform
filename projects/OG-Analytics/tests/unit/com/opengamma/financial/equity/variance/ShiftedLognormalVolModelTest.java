@@ -19,12 +19,9 @@ import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurf
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStrikeSurface;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.surface.ConstantDoublesSurface;
@@ -76,11 +73,9 @@ public class ShiftedLognormalVolModelTest {
                                                      0.25, 0.25, 0.25, 0.25,
                                                      0.26, 0.24, 0.23, 0.25 };
 
-  private static final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  @SuppressWarnings("unchecked")
-  private static final Interpolator2D<Interpolator1DDoubleQuadraticDataBundle> INTERPOLATOR_2D = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDoubleQuadraticDataBundle>(
-      new LinearInterpolator1D(), (Interpolator1D<Interpolator1DDoubleQuadraticDataBundle>) INTERPOLATOR_1D);
+  private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(new LinearInterpolator1D(), INTERPOLATOR_1D);
   private static final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, DELTAS, VOLS, INTERPOLATOR_2D);
   private static final BlackVolatilityDeltaSurface DELTA_VOLSURFACE = new BlackVolatilityDeltaSurface(DELTA_SURFACE);
 

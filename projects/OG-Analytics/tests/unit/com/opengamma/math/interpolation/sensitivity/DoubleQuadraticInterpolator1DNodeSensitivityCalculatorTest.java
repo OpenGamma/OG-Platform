@@ -23,8 +23,8 @@ import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBu
 public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle> CALCULATOR = new DoubleQuadraticInterpolator1DNodeSensitivityCalculator();
-  private static final Interpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle> FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDoubleQuadraticDataBundle>(
+  private static final Interpolator1DNodeSensitivityCalculator CALCULATOR = new DoubleQuadraticInterpolator1DNodeSensitivityCalculator();
+  private static final Interpolator1DNodeSensitivityCalculator FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(
       INTERPOLATOR);
   private static final Interpolator1DDoubleQuadraticDataBundle DATA;
   private static final double EPS = 1e-7;

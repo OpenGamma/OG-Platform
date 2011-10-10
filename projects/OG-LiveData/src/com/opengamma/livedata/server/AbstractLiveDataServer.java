@@ -411,6 +411,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         }
       }
       
+      //Allow checks here, before we do the snapshot or the subscribe
+      checkSubscribe(securityUniqueId2NewSubscription.keySet());
+      
       // In some cases, the underlying market data API may not, when the subscription is started,
       // return a full image of all fields. If so, we need to get the full image explicitly.
       Collection<String> newSubscriptionsForWhichSnapshotIsRequired = new ArrayList<String>();
@@ -493,6 +496,16 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     return responses;
   }
   
+  /**
+   * Check that a subscription request is valid.
+   * Will be called before any snapshot or subscribe requests for the keys
+   * @param uniqueIds The unique ids for which a subscribe is being requested  
+   */
+  protected void checkSubscribe(Set<String> uniqueIds) {
+    //Do nothing by default
+  }
+   
+
   /**
    * Returns a snapshot of the requested market data.
    * If the server already subscribes to the market data,

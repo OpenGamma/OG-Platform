@@ -49,8 +49,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
  */
 public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOptionFunction {
   private static final LinearInterpolator1D LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
-  private static final GridInterpolator2DSensitivity<Interpolator1DDataBundle, Interpolator1DDataBundle> NODE_SENSITIVITY_CALCULATOR =
-      new GridInterpolator2DSensitivity<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, LINEAR);
+  private static final GridInterpolator2DSensitivity NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2DSensitivity(LINEAR, LINEAR);
   private static final DoublesPairComparator COMPARATOR = new DoublesPairComparator();
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.OG_ALGEBRA;
 

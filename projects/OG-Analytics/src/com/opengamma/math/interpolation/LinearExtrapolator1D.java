@@ -11,30 +11,29 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 
- * @param <T>
  */
-public class LinearExtrapolator1D<T extends Interpolator1DDataBundle> extends Interpolator1D<T> {
+public class LinearExtrapolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
   private static final double EPS = 1e-8;
-  private final Interpolator1D<T> _interpolator;
+  private final Interpolator1D _interpolator;
 
-  public LinearExtrapolator1D(final Interpolator1D<T> interpolator) {
+  public LinearExtrapolator1D(final Interpolator1D interpolator) {
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
   }
 
   @Override
-  public T getDataBundle(final double[] x, final double[] y) {
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return _interpolator.getDataBundle(x, y);
   }
 
   @Override
-  public T getDataBundleFromSortedArrays(final double[] x, final double[] y) {
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return _interpolator.getDataBundleFromSortedArrays(x, y);
   }
 
   @Override
-  public Double interpolate(final T data, final Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
     if (value < data.firstKey()) {
@@ -45,24 +44,24 @@ public class LinearExtrapolator1D<T extends Interpolator1DDataBundle> extends In
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
-  private Double leftExtrapolate(final T data, final Double value) {
+  private Double leftExtrapolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
     final double x = data.firstKey();
     final double y = data.firstValue();
     final double eps = EPS * (data.lastKey() - x);
-    final Interpolator1D<T> interpolator = _interpolator;
+    final Interpolator1D interpolator = _interpolator;
     final double m = (interpolator.interpolate(data, x + eps) - y) / eps;
     return y + (value - x) * m;
   }
 
-  private Double rightExtrapolate(final T data, final Double value) {
+  private Double rightExtrapolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
     final double x = data.lastKey();
     final double y = data.lastValue();
     final double eps = EPS * (x - data.firstKey());
-    final Interpolator1D<T> interpolator = _interpolator;
+    final Interpolator1D interpolator = _interpolator;
     final double m = (y - interpolator.interpolate(data, x - eps)) / eps;
     return y + (value - x) * m;
   }

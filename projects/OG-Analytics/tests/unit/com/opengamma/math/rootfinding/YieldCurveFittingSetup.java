@@ -60,7 +60,6 @@ import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -102,8 +101,8 @@ public abstract class YieldCurveFittingSetup {
       final YieldCurveBundle knownCurves,
       final List<String> curveNames,
       final List<double[]> curvesKnots,
-      final Interpolator1D<? extends Interpolator1DDataBundle> extrapolator,
-      final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorSensitivity,
+      final Interpolator1D extrapolator,
+      final Interpolator1DNodeSensitivityCalculator extrapolatorSensitivity,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       final double[] marketRates,
@@ -124,10 +123,10 @@ public abstract class YieldCurveFittingSetup {
     }
     Validate.isTrue(count <= instruments.size(), "more nodes than instruments");
 
-    final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators =
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -264,7 +263,7 @@ public abstract class YieldCurveFittingSetup {
   }
 
   protected static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
-      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+      final Interpolator1D interpolator) {
     final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
@@ -371,7 +370,7 @@ public abstract class YieldCurveFittingSetup {
       return makeSinglePaymentOISSwap(time, fundingCurveName, indexCurveName, rate, notional);
     }
 
-    paymentFreq = SimpleFrequency.ANNUAL;
+    paymentFreq = SimpleFrequency.ANNUAL; //TODO even though this is only a test, this is a bad idea.
 
     final int index = (int) (time * paymentFreq.getPeriodsPerYear());
     final double[] paymentTimes = new double[index];
