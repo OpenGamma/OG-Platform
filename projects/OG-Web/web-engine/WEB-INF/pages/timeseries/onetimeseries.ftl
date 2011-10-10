@@ -140,6 +140,14 @@ $(function () {
 </@subsection>
 </@section>
 
+<#-- SECTION Update security -->
+<@section title="Update Timeseries">
+  <@form method="PUT" action="${uris.oneTimeSeries()}">
+  <p>
+    <@rowin><input type="submit" value="Update" /></@rowin>
+  </p>
+  </@form>
+</@section>
 
 <#-- SECTION Delete Timeseries -->
 <@section title="Delete Timeseries">

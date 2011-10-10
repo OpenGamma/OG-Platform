@@ -459,8 +459,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           }
         }
       }
-
-      copyValues(cache, previousCache, specsToCopy);
+      if (!specsToCopy.isEmpty()) {
+        copyValues(cache, previousCache, specsToCopy);
+      }
     }
   }
 

@@ -5,26 +5,29 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.function.MetaFunction;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.time.calendar.ZonedDateTime;
-
-import java.rmi.server.UID;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-/**
- *
- */
 public class CreateBeanFunctionTest {
+
+  /**
+   * This is needed to register the meta-bean for the security type so it can be looked up when the bean is created.
+   */
+  @BeforeClass
+  public void registerMetaBean() throws ClassNotFoundException {
+    Class.forName("com.opengamma.financial.security.fx.FXForwardSecurity");
+  }
 
   @Test
   public void invoke() {
     String testFunctionName = "testFunctionName";
-    CreateBeanFunction<FXForwardSecurity> function =
-        new CreateBeanFunction<FXForwardSecurity>(testFunctionName, FXForwardSecurity.class);
+    CreateBeanFunction function = new CreateBeanFunction(testFunctionName, FXForwardSecurity.class);
 
     UniqueId uniqueId = UniqueId.of("Tst", "uid");
     ExternalId regionId = ExternalId.of("Tst", "region");
