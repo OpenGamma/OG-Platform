@@ -41,10 +41,9 @@ public class CalendarUtils {
         resultRegions.add(regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
       }
       return new HolidaySourceCalendarAdapter(holidaySource, resultRegions);
-    } else {
-      final Region region = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
-      return new HolidaySourceCalendarAdapter(holidaySource, region);
-    }
+    } 
+    final Region region = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
+    return new HolidaySourceCalendarAdapter(holidaySource, region);
   }
 
   public static Calendar getCalendar(final HolidaySource holidaySource, final Currency currency) {

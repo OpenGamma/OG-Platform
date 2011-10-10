@@ -76,6 +76,7 @@ final class LabelledMatrix1DBuilder {
       message.add(MATRIX_FIELD_NAME, msg);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public DoubleLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
@@ -195,6 +196,7 @@ final class LabelledMatrix1DBuilder {
       return new LocalDateLabelledMatrix1D(keysArray, labelsArray, valuesArray);
     }
 
+    @SuppressWarnings("synthetic-access")
     private Class<?> getClass(final String labelType) {
       Class<?> labelClass;
       try {
@@ -229,6 +231,7 @@ final class LabelledMatrix1DBuilder {
       message.add(MATRIX_FIELD_NAME, msg);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public CurrencyLabelledMatrix1D buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final FudgeMsg msg = message.getMessage(MATRIX_FIELD_NAME);
