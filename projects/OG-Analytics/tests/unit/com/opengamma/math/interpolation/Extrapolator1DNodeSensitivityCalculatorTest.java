@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.interpolation.sensitivity;
+package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -14,7 +14,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle;
 
@@ -23,12 +22,9 @@ import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle
  */
 public class Extrapolator1DNodeSensitivityCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
-  private static final NaturalCubicSplineInterpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
-  private static final NaturalCubicSplineInterpolator1DNodeSensitivityCalculator CALCULATOR = new NaturalCubicSplineInterpolator1DNodeSensitivityCalculator();
-  private static final FiniteDifferenceInterpolator1DNodeSensitivityCalculator FD_CALCULATOR = new FiniteDifferenceInterpolator1DNodeSensitivityCalculator(INTERPOLATOR);
-  private static final FlatExtrapolator1DNodeSensitivityCalculator FLAT_CALCULATOR = new FlatExtrapolator1DNodeSensitivityCalculator();
-  private static final LinearExtrapolator1DNodeSensitivityCalculator LINEAR_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator(CALCULATOR);
-  private static final LinearExtrapolator1DNodeSensitivityCalculator LINEAR_FD_CALCULATOR = new LinearExtrapolator1DNodeSensitivityCalculator(FD_CALCULATOR);
+  private static final FlatExtrapolator1D FLAT_INTERPOLATOR = new FlatExtrapolator1D();
+  private static final LinearExtrapolator1D LINEAR_INTERPOLATOR = new LinearExtrapolator1D(new LinearInterpolator1D(), 1e-6);
+  private static final LinearExtrapolator1D CUBIC_INTERPOLATOR = new LinearExtrapolator1D(new NaturalCubicSplineInterpolator1D(), 1e-6);
   private static final Interpolator1DCubicSplineDataBundle DATA;
   private static final double EPS = 1e-4;
 
@@ -56,27 +52,27 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new LinearExtrapolator1DNodeSensitivityCalculator(null);
+    new LinearExtrapolator1D(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
-    LINEAR_CALCULATOR.calculate(null, 102);
+    LINEAR_INTERPOLATOR.getNodeSensitivitiesForValue(null, 102.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
-    FLAT_CALCULATOR.calculate(null, 105);
+    FLAT_INTERPOLATOR.getNodeSensitivitiesForValue(null, 105.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWithinRange1() {
-    LINEAR_CALCULATOR.calculate(DATA, 20.);
+    LINEAR_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, 20.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWithinRange2() {
-    FLAT_CALCULATOR.calculate(DATA, 20);
+    FLAT_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, 20.);
   }
 
   @Test
@@ -86,17 +82,30 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     for (int i = 0; i < 100; i++) {
       tUp = RANDOM.nextDouble() * 10 + 30;
       tDown = -RANDOM.nextDouble() * 10;
-      sensitivityFD = LINEAR_FD_CALCULATOR.calculate(DATA, tUp);
-      sensitivity = LINEAR_CALCULATOR.calculate(DATA, tUp);
+      sensitivityFD = LINEAR_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tUp, true);
+      sensitivity = LINEAR_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tUp);
       for (int j = 0; j < sensitivity.length; j++) {
         assertEquals(sensitivityFD[j], sensitivity[j], EPS);
       }
-      sensitivityFD = LINEAR_FD_CALCULATOR.calculate(DATA, tDown);
-      sensitivity = LINEAR_CALCULATOR.calculate(DATA, tDown);
+      sensitivityFD = LINEAR_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tDown, true);
+      sensitivity = LINEAR_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tDown);
+      for (int j = 0; j < sensitivity.length; j++) {
+        assertEquals(sensitivityFD[j], sensitivity[j], EPS);
+      }
+    }
+    for (int i = 0; i < 100; i++) {
+      tUp = RANDOM.nextDouble() * 10 + 30;
+      tDown = -RANDOM.nextDouble() * 10;
+      sensitivityFD = CUBIC_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tUp, true);
+      sensitivity = CUBIC_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tUp);
+      for (int j = 0; j < sensitivity.length; j++) {
+        assertEquals(sensitivityFD[j], sensitivity[j], EPS);
+      }
+      sensitivityFD = CUBIC_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tDown, true);
+      sensitivity = CUBIC_INTERPOLATOR.getNodeSensitivitiesForValue(DATA, tDown);
       for (int j = 0; j < sensitivity.length; j++) {
         assertEquals(sensitivityFD[j], sensitivity[j], EPS);
       }
     }
   }
-
 }

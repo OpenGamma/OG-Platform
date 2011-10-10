@@ -68,7 +68,9 @@ public abstract class FilteringSummingFunction extends PropertyPreservingFunctio
         ValuePropertyNames.CURVE,
         ValuePropertyNames.CURVE_CURRENCY,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-        YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+        YieldCurveFunction.PROPERTY_FUNDING_CURVE,
+        ValuePropertyNames.PAY_CURVE,
+        ValuePropertyNames.RECEIVE_CURVE);
   }
   
   @Override

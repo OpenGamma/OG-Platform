@@ -43,8 +43,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -87,9 +85,6 @@ public class YieldCurveBootStrapTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   private static final Interpolator1D EXTRAPOLATOR;
-  private static final Interpolator1DNodeSensitivityCalculator EXTRAPOLATOR_WITH_SENSITIVITY;
-  private static final Interpolator1DNodeSensitivityCalculator EXTRAPOLATOR_WITH_FD_SENSITIVITY;
-
   private static final InterestRateDerivativeVisitor<YieldCurveBundle, Double> PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
@@ -132,10 +127,6 @@ public class YieldCurveBootStrapTest {
     SINGLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
     DOUBLE_CURVE_INSTRUMENTS = new ArrayList<InterestRateDerivative>();
     EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    EXTRAPOLATOR_WITH_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
-        FLAT_EXTRAPOLATOR, false);
-    EXTRAPOLATOR_WITH_FD_SENSITIVITY = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator(Interpolator1DFactory.DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
-        FLAT_EXTRAPOLATOR, true);
 
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     FUNDING_CURVE = makeYieldCurve(FUNDING_YIELDS, FUNDING_CURVE_TIMES, EXTRAPOLATOR);
@@ -160,39 +151,29 @@ public class YieldCurveBootStrapTest {
 
     LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
     MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators);
+        false);
     SINGLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
     SINGLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
-    unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
-    unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR_WITH_FD_SENSITIVITY);
     data = new MultipleYieldCurveFinderDataBundle(SINGLE_CURVE_INSTRUMENTS, new double[SINGLE_CURVE_INSTRUMENTS.size()], null, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators);
+        true);
     SINGLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
     unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     unknownCurveInterpolators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(FUNDING_CURVE_NAME, FUNDING_CURVE_TIMES);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, LIBOR_CURVE_TIMES);
-    unknownCurveNodeSensitivityCalculators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
-    unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
-    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators);
+    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, false);
 
     DOUBLE_CURVE_FINDER = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
     DOUBLE_CURVE_JACOBIAN = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
-    unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
-    unknownCurveNodeSensitivityCalculators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR_WITH_FD_SENSITIVITY);
-    unknownCurveNodeSensitivityCalculators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR_WITH_FD_SENSITIVITY);
-
+    data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, null, unknownCurveNodes, unknownCurveInterpolators, true);
     DOUBLE_CURVE_JACOBIAN_WITH_FD_INTERPOLATOR_SENSITIVITY = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
 
     // There is at least one other root in the double curve finding problem (i.e. two curves that give the correct par rates but are different from the curves used to generate the par rates in the
@@ -344,10 +325,8 @@ public class YieldCurveBootStrapTest {
     final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
     final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    unknownCurveSensitivityCalculators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
     final double[] swapRates = Arrays.copyOf(SWAP_VALUES, SWAP_VALUES.length);
     DoubleMatrix1D yieldCurveNodes = X0;
@@ -364,7 +343,7 @@ public class YieldCurveBootStrapTest {
         instruments.add(ird);
       }
       final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(instruments, swapRates, null, unknownCurveNodes, unknownCurveInterpolators,
-          unknownCurveSensitivityCalculators);
+          false);
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, EXTRAPOLATOR);
@@ -404,12 +383,10 @@ public class YieldCurveBootStrapTest {
     knownCurves.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     unknownCurveInterpolators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(LIBOR_CURVE_NAME, TIME_GRID);
-    unknownCurveSensitivityCalculators.put(LIBOR_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveSensitivityCalculators);
+        false);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacCal = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
@@ -430,12 +407,10 @@ public class YieldCurveBootStrapTest {
 
     final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
     unknownCurveInterpolators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR);
     unknownCurveNodes.put(FUNDING_CURVE_NAME, TIME_GRID);
-    unknownCurveSensitivityCalculators.put(FUNDING_CURVE_NAME, EXTRAPOLATOR_WITH_SENSITIVITY);
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(DOUBLE_CURVE_INSTRUMENTS, SWAP_VALUES, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveSensitivityCalculators);
+        false);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacCal = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);

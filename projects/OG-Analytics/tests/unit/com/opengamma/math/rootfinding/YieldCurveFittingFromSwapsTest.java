@@ -35,8 +35,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -319,8 +317,6 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator,
         LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
 
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
     final int numCurves = curveNames.size();
@@ -364,8 +360,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       }
     }
 
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator, extrapolatorWithSense,
-        marketValueCalculator, marketValueSensitivityCalculator, marketValues, startPosition, yields);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curveKnots, extrapolator,
+        marketValueCalculator, marketValueSensitivityCalculator, marketValues, startPosition, yields, false);
 
     return data;
   }

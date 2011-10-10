@@ -333,7 +333,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     FixedFloatSwap swapAmortized = new FixedFloatSwap(new AnnuityCouponFixed(cpnFixed), new AnnuityCouponIbor(cpnIbor));
     SwaptionPhysicalFixedIbor swaptionAmortized = SwaptionPhysicalFixedIbor.from(swaptionCalibration[0].getTimeToExpiry(), swapAmortized, swaptionCalibration[0].getSettlementTime(), IS_LONG);
 
-    InterestRateDerivative[] swaptionCalibration2 = swaptionAmortized.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE, CURVES);
+    InterestRateDerivative[] swaptionCalibration2 = swaptionAmortized.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);
 
     assertEquals("Calibration basket", swaptionCalibration.length, swaptionCalibration2.length);
     for (int loopcal = 0; loopcal < swaptionCalibration.length; loopcal++) {

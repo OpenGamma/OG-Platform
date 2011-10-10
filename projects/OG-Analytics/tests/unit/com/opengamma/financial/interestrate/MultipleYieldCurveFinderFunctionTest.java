@@ -17,8 +17,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.LinearInterpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 
@@ -39,7 +37,6 @@ public class MultipleYieldCurveFinderFunctionTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FINDER;
   private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
   private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
-  private static final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> SENSITIVITY_CALCULATORS = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
   private static final MultipleYieldCurveFinderDataBundle DATA;
 
   static {
@@ -58,8 +55,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     }
     NODES.put(CURVE_NAME, TIMES);
     INTERPOLATORS.put(CURVE_NAME, INTERPOLATOR);
-    SENSITIVITY_CALCULATORS.put(CURVE_NAME, new LinearInterpolator1DNodeSensitivityCalculator());
-    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, SIMPLE_RATES, null, NODES, INTERPOLATORS, false);
     FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 
@@ -88,7 +84,7 @@ public class MultipleYieldCurveFinderFunctionTest {
     final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
     list.add(new Cash(CUR, 1, 1, 0.01, CURVE_NAME));
     list.add(new Cash(CUR, 0.5, 1, 0.01, CURVE_NAME));
-    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS), CALCULATOR);
+    new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, false), CALCULATOR);
   }
 
   @Test

@@ -32,22 +32,23 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBarrierOptionFunction {
   private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
 
-  public ForexSingleBarrierOptionPresentValueFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_PRESENT_VALUE);
+  public ForexSingleBarrierOptionPresentValueFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
+      final String callForwardCurveName, final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
+  protected Set<ComputedValue> getResult(final ForexDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+    final MultipleCurrencyAmount result = CALCULATOR.visit(fxSingleBarrierOption, data);
     Validate.isTrue(result.size() == 1);
     CurrencyAmount ca = result.getCurrencyAmounts()[0];
     Currency ccy = ca.getCurrency();
     double amount = ca.getAmount();
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName())
+                                                              .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, amount));
   }
 
@@ -63,10 +64,10 @@ public class ForexSingleBarrierOptionPresentValueFunction extends ForexSingleBar
       ccy = putCurrency;
     }
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
+        .with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
         .with(ValuePropertyNames.SURFACE, getSurfaceName())
         .with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties));
   }
 }

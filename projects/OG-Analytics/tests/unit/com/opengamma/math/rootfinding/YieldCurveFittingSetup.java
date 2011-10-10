@@ -60,7 +60,6 @@ import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
@@ -102,17 +101,32 @@ public abstract class YieldCurveFittingSetup {
       final List<String> curveNames,
       final List<double[]> curvesKnots,
       final Interpolator1D extrapolator,
-      final Interpolator1DNodeSensitivityCalculator extrapolatorSensitivity,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
       final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
       final double[] marketRates,
-      final DoubleMatrix1D startPosition, final List<double[]> curveYields) {
+      final DoubleMatrix1D startPosition, 
+      final List<double[]> curveYields) {
+    return getYieldCurveFittingTestDataBundle(instruments, knownCurves, curveNames, curvesKnots, extrapolator, marketValueCalculator, marketValueSensitivityCalculator, 
+        marketRates, startPosition, curveYields, false);
+  }
+  
+  protected static YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(
+      final List<InterestRateDerivative> instruments,
+      final YieldCurveBundle knownCurves,
+      final List<String> curveNames,
+      final List<double[]> curvesKnots,
+      final Interpolator1D extrapolator,
+      final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
+      final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> marketValueSensitivityCalculator,
+      final double[] marketRates,
+      final DoubleMatrix1D startPosition, 
+      final List<double[]> curveYields,
+      boolean useFiniteDifferenceByDefault) {
 
     Validate.notNull(curveNames);
     Validate.notNull(curvesKnots);
     Validate.notNull(instruments);
     Validate.notNull(extrapolator);
-    Validate.notNull(extrapolatorSensitivity);
 
     final int n = curveNames.size();
     Validate.isTrue(n == curvesKnots.size());
@@ -125,18 +139,14 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator> unknownCurveNodeSensitivityCalculators =
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
       unknownCurveNodes.put(curveNames.get(i), curvesKnots.get(i));
-      unknownCurveNodeSensitivityCalculators.put(curveNames.get(i), extrapolatorSensitivity);
     }
     if (curveYields == null) {
       return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes,
-          unknownCurveInterpolators, unknownCurveNodeSensitivityCalculators,
-          marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition);
+          unknownCurveInterpolators, marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, useFiniteDifferenceByDefault);
     }
 
     Validate.isTrue(curveYields.size() == n, "wrong number of true yields");
@@ -145,8 +155,7 @@ public abstract class YieldCurveFittingSetup {
       yields.put(curveNames.get(i), curveYields.get(i));
     }
     return new YieldCurveFittingTestDataBundle(instruments, knownCurves, unknownCurveNodes, unknownCurveInterpolators,
-        unknownCurveNodeSensitivityCalculators,
-        marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, yields);
+        marketValueCalculator, marketValueSensitivityCalculator, marketRates, startPosition, yields, useFiniteDifferenceByDefault);
   }
 
   public void doHotSpot(final NewtonVectorRootFinder rootFinder, final YieldCurveFittingTestDataBundle data,
@@ -276,8 +285,7 @@ public abstract class YieldCurveFittingSetup {
       final double[] marketRates) {
     Validate.isTrue(instruments.size() == marketRates.length);
     return new MultipleYieldCurveFinderDataBundle(instruments, marketRates, old.getKnownCurves(),
-        old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(),
-        old.getUnknownCurveNodeSensitivityCalculators());
+        old.getUnknownCurveNodePoints(), old.getUnknownCurveInterpolators(), old.useFiniteDifferenceForNodeSensitivities());
   }
 
   protected static InterestRateDerivative makeSingleCurrencyIRD(final String type, final double maturity, final SimpleFrequency paymentFreq, final String fundCurveName,
@@ -336,11 +344,7 @@ public abstract class YieldCurveFittingSetup {
     return new InterestRateFutureTransaction(underlyingFuture, contracts, rate);
   }
 
-  //  protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String indexCurveName,
-  //      final double rate, final double notional) {
-  //    final int index = (int) Math.round(2 * time);
-  //    return makeSwap(index, fundCurveName, indexCurveName, rate, notional);
-  //  }
+ 
 
   protected static TenorSwap<CouponIbor> makeBasisSwap(final double time, final String fundCurveName,
       final String liborCurveName, final double rate, final double notional) {
@@ -476,35 +480,6 @@ public abstract class YieldCurveFittingSetup {
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
-  //  protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
-  //        final String liborCurveName, final double rate, final double notional) {
-  //
-  //    final double[] fixed = new double[payments];
-  //    final double[] floating = new double[2 * payments];
-  //    final double[] indexFixing = new double[2 * payments];
-  //    final double[] indexMaturity = new double[2 * payments];
-  //    final double[] yearFrac = new double[2 * payments];
-  //
-  //    final double sigma = 0.0 / 365.0;
-  //
-  //    for (int i = 0; i < payments; i++) {
-  //      fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-  //      floating[2 * i + 1] = fixed[i];
-  //    }
-  //    for (int i = 0; i < 2 * payments; i++) {
-  //      if (i % 2 == 0) {
-  //        floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-  //      }
-  //      yearFrac[i] = 0.25 + sigma * (RANDOM.nextDouble() - 0.5);
-  //      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
-  //      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-  //    }
-  //    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, fixed, notional, rate, fundingCurveName, true);
-  //
-  //    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(DUMMY_CUR, floating, indexFixing, indexMaturity, yearFrac,
-  //          notional, fundingCurveName, liborCurveName, false);
-  //    return new FixedFloatSwap(fixedLeg, floatingLeg);
-  //  }
 
   /**
    * Sets up a simple Floating rate note to test the analytics 

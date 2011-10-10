@@ -28,12 +28,12 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
+import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -123,11 +123,33 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
   @Test
   public void testNewton() {
     final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
-
     YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
-    data.setTestType(TestType.ANALYTIC_JACOBIAN); //can't do analytic Jacobian for CCS yet 
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Newton");
+    data.setTestType(TestType.FD_JACOBIAN);
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Newton (FD Jacobian)");
+  }
+  
+  @Test
+  public void testShermanMorrison() {
+    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder:Sherman Morrison");
+    data.setTestType(TestType.FD_JACOBIAN);
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Sherman Morrison (FD Jacobian)");
+  }
 
-    doHotSpot(rootFinder, data, "Double curve, Libor, cash, FRA, swaps, basis swaps. Root finder: Newton");
+  @Test
+  public void testBroyden() {
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Broyden");
+    data.setTestType(TestType.FD_JACOBIAN);
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Broyden (FD Jacobian)");
+  }
+
+  @Test
+  public void testJacobian() {
+    assertJacobian(getMultiCurveSetup());
   }
 
   private YieldCurveFittingTestDataBundle getMultiCurveSetup() {
@@ -143,9 +165,6 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
 
     final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
         FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
-
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
 
@@ -275,9 +294,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
 
-    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, extrapolatorWithSense, calculator,
-        sensitivityCalculator,
-        marketValues, startPosition, yields);
+    final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, calculator,
+        sensitivityCalculator, marketValues, startPosition, yields, false);
 
     return data;
   }

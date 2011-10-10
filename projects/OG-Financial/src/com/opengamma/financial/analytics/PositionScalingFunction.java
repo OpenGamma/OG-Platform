@@ -50,7 +50,9 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
         ValuePropertyNames.CURVE_CALCULATION_METHOD,
         ValuePropertyNames.CALCULATION_METHOD,
-        ValuePropertyNames.SURFACE);
+        ValuePropertyNames.SURFACE,
+        ValuePropertyNames.PAY_CURVE,
+        ValuePropertyNames.RECEIVE_CURVE);
   }
 
   @Override
