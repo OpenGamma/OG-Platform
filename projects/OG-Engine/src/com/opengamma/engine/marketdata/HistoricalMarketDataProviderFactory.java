@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A factory for {@link HistoricalMarketDataProvider} instances.
@@ -15,20 +16,27 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 public class HistoricalMarketDataProviderFactory implements MarketDataProviderFactory {
 
   private final HistoricalTimeSeriesSource _timeSeriesSource;
+  private final HistoricalMarketDataFieldResolver _fieldResolver;
   
-  public HistoricalMarketDataProviderFactory(HistoricalTimeSeriesSource timeSeriesSource) {
+  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver) {
+    ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
+    ArgumentChecker.notNull(fieldResolver, "fieldResolver");
     _timeSeriesSource = timeSeriesSource;
+    _fieldResolver = fieldResolver;
   }
   
   @Override
   public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataProvider(getTimeSeriesSource(), historicalMarketDataSpec.getDataSource(), historicalMarketDataSpec.getDataProvider(), historicalMarketDataSpec.getDataField());
+    return new HistoricalMarketDataProvider(getTimeSeriesSource(), historicalMarketDataSpec.getTimeSeriesResolverKey(), getFieldResolver(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey());
   }
   
-  //-------------------------------------------------------------------------
   private HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
+  }
+
+  private HistoricalMarketDataFieldResolver getFieldResolver() {
+    return _fieldResolver;
   }
 
 }

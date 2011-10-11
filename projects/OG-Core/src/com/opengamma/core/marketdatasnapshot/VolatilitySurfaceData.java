@@ -47,6 +47,10 @@ public class VolatilitySurfaceData<X, Y> {
     _ys = ys;
   }
 
+  public int size() {
+    return _values.size();
+  }
+  
   public X[] getXs() {
     return _xs;
   }

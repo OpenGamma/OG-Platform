@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.ParRateCalculator;
@@ -28,9 +29,6 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculator;
-import com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
@@ -99,12 +97,9 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     curveNames.add("single curve");
     final String interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
 
-    final CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> extrapolator = CombinedInterpolatorExtrapolatorFactory
+    final CombinedInterpolatorExtrapolator extrapolator = CombinedInterpolatorExtrapolatorFactory
         .getInterpolator(interpolator, LINEAR_EXTRAPOLATOR,
             FLAT_EXTRAPOLATOR);
-    final CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense = CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory
-        .getSensitivityCalculator(interpolator, LINEAR_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, false);
-
     final InterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator = ParRateCalculator.getInstance();
     final InterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = ParRateCurveSensitivityCalculator
         .getInstance();
@@ -155,7 +150,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
       final double[] rates = marketRates.get(name);
       Validate.isTrue(times.length == rates.length);
       for (int i = 0; i < times.length; i++) {
-        ird = makeIRD(name, times[i], curveNames.get(0), curveNames.get(0), rates[i], 1);
+        ird = makeSingleCurrencyIRD(name,  times[i], SimpleFrequency.QUARTERLY, curveNames.get(0), curveNames.get(0), rates[i], 1);
         instruments.add(ird);
         marketValues[index] = rates[i];
         index++;
@@ -169,8 +164,7 @@ public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup 
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames,
-        curveKnots, extrapolator, extrapolatorWithSense, calculator, sensitivityCalculator,
-        marketValues, startPosition, null);
+        curveKnots, extrapolator, calculator, sensitivityCalculator, marketValues, startPosition, null, false);
 
     return data;
 

@@ -9,18 +9,16 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -29,25 +27,26 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class ForexSingleBarrierOptionCurrencyExposureFunction extends ForexSingleBarrierOptionFunction {
   private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
 
-  public ForexSingleBarrierOptionCurrencyExposureFunction(final String putCurveName, final String callCurveName, final String surfaceName) {
-    super(putCurveName, callCurveName, surfaceName, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+  public ForexSingleBarrierOptionCurrencyExposureFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, 
+      final String callForwardCurveName, final String surfaceName) {
+    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
-    final int n = result.size();
-    final Currency[] keys = new Currency[n];
-    final double[] values = new double[n];
-    int i = 0;
-    for (final CurrencyAmount ca : result) {
-      keys[i] = ca.getCurrency();
-      values[i++] = ca.getAmount();
-    }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, new CurrencyLabelledMatrix1D(keys, values)));
+  protected Set<ComputedValue> getResult(final ForexDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+    final MultipleCurrencyAmount result = CALCULATOR.visit(fxSingleBarrierOption, data);    
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, ForexUtils.getMultipleCurrencyAmountAsMatrix(result)));
+  }
+  
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
+                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
+                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties));
   }
 }

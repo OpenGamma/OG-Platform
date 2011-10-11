@@ -47,7 +47,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilder imple
     LocalDate curveDate = deserializer.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
     String name = message.getString("name");
     Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
-    Interpolator1D<?> interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
+    Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
     List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");
     List<FixedIncomeStripWithSecurity> resolvedStrips = new ArrayList<FixedIncomeStripWithSecurity>();
     for (FudgeField resolvedStripField : resolvedStripFields) {

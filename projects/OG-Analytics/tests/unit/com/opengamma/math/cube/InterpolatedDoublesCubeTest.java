@@ -152,7 +152,7 @@ public class InterpolatedDoublesCubeTest extends DoublesCubeTest {
     CUBE.getValue(new Triple<Double, Double, Double>(1., 1., null));
   }
 
-  private static class MyInterpolator extends InterpolatorND<InterpolatorNDDataBundle> {
+  private static class MyInterpolator extends InterpolatorND {
 
     @Override
     public Double interpolate(final InterpolatorNDDataBundle data, final double[] x) {

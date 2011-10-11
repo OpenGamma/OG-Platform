@@ -5,6 +5,8 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.io.Serializable;
+
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -14,7 +16,9 @@ import com.opengamma.id.ExternalIdBundle;
 /**
  * Key to represent time-series data in a hash-map or cache.
  */
-/* package */ final class HistoricalTimeSeriesKey {
+/* package */final class HistoricalTimeSeriesKey implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final ExternalIdBundle _externalIdBundle;
   private final LocalDate _currentDate;
@@ -32,12 +36,30 @@ import com.opengamma.id.ExternalIdBundle;
     _configName = configName;
   }
 
-  //-------------------------------------------------------------------------
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
 
-  //-------------------------------------------------------------------------
+  public LocalDate getCurrentDate() {
+    return _currentDate;
+  }
+
+  public String getDataSource() {
+    return _dataSource;
+  }
+
+  public String getDataProvider() {
+    return _dataProvider;
+  }
+
+  public String getDataField() {
+    return _dataField;
+  }
+
+  public String getConfigName() {
+    return _configName;
+  }
+
   @Override
   public boolean equals(Object object) {
     if (object == this) {
@@ -46,7 +68,7 @@ import com.opengamma.id.ExternalIdBundle;
     if ((object instanceof HistoricalTimeSeriesKey)) {
       HistoricalTimeSeriesKey other = (HistoricalTimeSeriesKey) object;
       return
-          ObjectUtils.equals(_externalIdBundle, _externalIdBundle) &&
+ ObjectUtils.equals(_externalIdBundle, other._externalIdBundle) &&
           ObjectUtils.equals(_currentDate, other._currentDate) &&
           ObjectUtils.equals(_dataProvider, other._dataProvider) &&
           ObjectUtils.equals(_dataSource, other._dataSource) &&

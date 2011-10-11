@@ -65,7 +65,6 @@ public class CashOrNothingOptionDefinition extends OptionDefinition {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
@@ -74,7 +73,6 @@ public class CashOrNothingOptionDefinition extends OptionDefinition {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;

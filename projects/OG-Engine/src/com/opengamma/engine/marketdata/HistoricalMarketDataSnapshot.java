@@ -26,10 +26,12 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
 
   private final HistoricalMarketDataSpecification _marketDataSpec;
   private final HistoricalTimeSeriesSource _timeSeriesSource;
+  private final HistoricalMarketDataFieldResolver _fieldResolver;
   
-  public HistoricalMarketDataSnapshot(HistoricalMarketDataSpecification marketDataSpec, HistoricalTimeSeriesSource timeSeriesSource) {
+  public HistoricalMarketDataSnapshot(HistoricalMarketDataSpecification marketDataSpec, HistoricalTimeSeriesSource timeSeriesSource, HistoricalMarketDataFieldResolver fieldResolver) {
     _marketDataSpec = marketDataSpec;
     _timeSeriesSource = timeSeriesSource;
+    _fieldResolver = fieldResolver;
   }
   
   @Override
@@ -59,11 +61,10 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
     LocalDate date = getMarketDataSpec().getSnapshotDate();
     ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
-        ExternalIdBundle.of(identifier), 
-        getMarketDataSpec().getDataSource(), 
-        getMarketDataSpec().getDataProvider(), 
-        getMarketDataSpec().getDataField(), 
-        date, 
+        getFieldResolver().resolve(requirement.getValueName(), getMarketDataSpec().getTimeSeriesFieldResolverKey()),
+        ExternalIdBundle.of(identifier),
+        getMarketDataSpec().getTimeSeriesResolverKey(),
+        date,
         true, 
         date, 
         true);
@@ -80,6 +81,10 @@ public class HistoricalMarketDataSnapshot implements MarketDataSnapshot {
   
   private HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
+  }
+
+  private HistoricalMarketDataFieldResolver getFieldResolver() {
+    return _fieldResolver;
   }
 
 }

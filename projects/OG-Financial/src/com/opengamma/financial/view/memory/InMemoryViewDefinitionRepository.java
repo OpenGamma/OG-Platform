@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.view.memory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
@@ -20,6 +22,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.UpdateViewDefinitionRequest;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,62 +32,120 @@ import com.opengamma.util.ArgumentChecker;
 public class InMemoryViewDefinitionRepository implements ManageableViewDefinitionRepository {
 
   private static final String UID_SCHEME = "MemViewDef";
-  
+
+  private final ConcurrentMap<ObjectId, ViewDefinition> _definitionsByNewest = new ConcurrentSkipListMap<ObjectId, ViewDefinition>();
+  private final ConcurrentMap<UniqueId, ViewDefinition> _definitionsByUniqueId = new ConcurrentSkipListMap<UniqueId, ViewDefinition>();
   private final ConcurrentMap<String, ViewDefinition> _definitionsByName = new ConcurrentSkipListMap<String, ViewDefinition>();
   private final ChangeManager _changeManager = new BasicChangeManager();
-  
+
   //-------------------------------------------------------------------------
+  @Override
+  public ViewDefinition getDefinition(UniqueId definitionId) {
+    if (definitionId.isVersioned()) {
+      return _definitionsByUniqueId.get(definitionId);
+    } else {
+      return _definitionsByNewest.get(definitionId.getObjectId());
+    }
+  }
+
   @Override
   public ViewDefinition getDefinition(String definitionName) {
     return _definitionsByName.get(definitionName);
   }
 
   @Override
-  public Set<String> getDefinitionNames() {
-    return new TreeSet<String>(_definitionsByName.keySet());
+  public Set<UniqueId> getDefinitionIds() {
+    return new TreeSet<UniqueId>(_definitionsByUniqueId.keySet());
   }
-  
+
+  public Map<UniqueId, String> getDefinitionEntries() {
+    Map<UniqueId, String> result = new HashMap<UniqueId, String>();
+    for (Map.Entry<ObjectId, ViewDefinition> entry : _definitionsByNewest.entrySet()) {
+      result.put(entry.getValue().getUniqueId(), entry.getValue().getName());
+    }
+    return result;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public boolean isModificationSupported() {
     return true;
   }
-  
-  @Override
-  public void addViewDefinition(AddViewDefinitionRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    request.checkValid();
-    
-    final ViewDefinition viewDefinition = request.getViewDefinition();
-    _definitionsByName.put(viewDefinition.getName(), viewDefinition);
-    changeManager().entityChanged(ChangeType.ADDED, null, getUniqueId(request.getViewDefinition().getName()), Instant.now());
-  }
-  
+
   @Override
   public void updateViewDefinition(UpdateViewDefinitionRequest request) {
     ArgumentChecker.notNull(request, "request");
     request.checkValid();
-    
+
+    final ViewDefinition viewDefinition = request.getViewDefinition();
     final String originalName = request.getName();
-    if (originalName.equals(request.getViewDefinition().getName())) {
+
+    if (originalName.equals(viewDefinition.getName())) {
       // Same name - just replace
-      if (_definitionsByName.replace(originalName, request.getViewDefinition()) == null) {
-        throw new DataNotFoundException("View definition not found: " + originalName); 
+      if (_definitionsByName.replace(originalName, viewDefinition) == null) {
+        throw new DataNotFoundException("View definition not found in name index: " + originalName);
+      } else if (_definitionsByName.get(originalName).getUniqueId() == null || _definitionsByUniqueId.replace(_definitionsByName.get(originalName).getUniqueId(), viewDefinition) == null) {
+        throw new DataNotFoundException("View definition not found in UniqueId index: " + originalName);
       }
+
+      // If this is a newer version of an existing view definition, update latest version index too
+      final ViewDefinition existingVersion = _definitionsByNewest.get(viewDefinition.getUniqueId().getObjectId());
+      if (existingVersion == null) {
+        // this is the first encountered instance of this ObjectId
+        _definitionsByNewest.put(viewDefinition.getUniqueId().getObjectId(), viewDefinition);
+      } else if ((existingVersion.getUniqueId() == null) || (existingVersion.getUniqueId().getVersion().compareTo(viewDefinition.getUniqueId().getVersion()) < 0)) {
+        // this is a newer version than the one stored in the repository
+        _definitionsByNewest.put(viewDefinition.getUniqueId().getObjectId(), viewDefinition);
+      }
+
     } else {
       // Changing name - remove old, add new
-      removeViewDefinition(originalName);
+      removeViewDefinition(_definitionsByName.get(originalName).getUniqueId());
       addViewDefinition(new AddViewDefinitionRequest(request.getViewDefinition()));
     }
-    changeManager().entityChanged(ChangeType.UPDATED, getUniqueId(originalName), getUniqueId(request.getViewDefinition().getName()), Instant.now());
+
+    changeManager().entityChanged(ChangeType.UPDATED, _definitionsByName.get(originalName).getUniqueId(), request.getViewDefinition().getUniqueId(), Instant.now());
   }
 
   @Override
-  public void removeViewDefinition(String name) {
-    if (_definitionsByName.remove(name) == null) {
-      throw new DataNotFoundException("View definition not found: " + name);
+  public void addViewDefinition(AddViewDefinitionRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    request.checkValid();
+
+    final ViewDefinition viewDefinition = request.getViewDefinition();
+
+    // Update indexes
+    _definitionsByUniqueId.put(viewDefinition.getUniqueId(), viewDefinition);
+    _definitionsByName.put(viewDefinition.getName(), viewDefinition);
+
+    // If this is a newer version of an existing view definition, update latest version index too
+    final ViewDefinition existingVersion = _definitionsByNewest.get(viewDefinition.getUniqueId().getObjectId());
+    if (existingVersion == null) {
+      // this is the first encountered instance of this ObjectId
+      _definitionsByNewest.put(viewDefinition.getUniqueId().getObjectId(), viewDefinition);
+      changeManager().entityChanged(ChangeType.ADDED, null, request.getViewDefinition().getUniqueId(), Instant.now());
+    } else if ((existingVersion.getUniqueId() == null) || (existingVersion.getUniqueId().getVersion().compareTo(viewDefinition.getUniqueId().getVersion()) < 0)) {
+      // this is a newer version than the one stored in the repository
+      _definitionsByNewest.put(viewDefinition.getUniqueId().getObjectId(), viewDefinition);
+      changeManager().entityChanged(ChangeType.UPDATED, existingVersion.getUniqueId(), request.getViewDefinition().getUniqueId(), Instant.now());
     }
-    changeManager().entityChanged(ChangeType.REMOVED, getUniqueId(name), null, Instant.now());
+
+  }
+
+  @Override
+  public void removeViewDefinition(UniqueId definitionId) {
+    ArgumentChecker.notNull(definitionId, UID_SCHEME);
+
+    final ViewDefinition oldViewDef = _definitionsByUniqueId.remove(definitionId);
+
+    if (oldViewDef == null) {
+      throw new DataNotFoundException("View definition not found in UniqueId index: " + definitionId);
+    } else if (_definitionsByName.remove(oldViewDef.getName()) == null) {
+      throw new DataNotFoundException("View definition not found in name index: " + definitionId);
+    } else if (_definitionsByNewest.remove(definitionId.getObjectId()) == null) {
+      throw new DataNotFoundException("View definition not found in ObjectId index: " + definitionId);
+    }
+    changeManager().entityChanged(ChangeType.REMOVED, definitionId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -92,12 +153,7 @@ public class InMemoryViewDefinitionRepository implements ManageableViewDefinitio
   public ChangeManager changeManager() {
     return _changeManager;
   }
-  
+
   //-------------------------------------------------------------------------
-  private UniqueId getUniqueId(String definitionName) {
-    // NOTE jonathan 2011-08-03 -- at the moment view definitions are identified to the engine by name, so this is an
-    // intermediate solution
-    return UniqueId.of(UID_SCHEME, definitionName);
-  }
 
 }

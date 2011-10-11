@@ -6,12 +6,15 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,9 +41,9 @@ public class AggregatingViewDefinitionRepository implements ViewDefinitionReposi
   }
 
   @Override
-  public ViewDefinition getDefinition(String definitionName) {
+  public ViewDefinition getDefinition(UniqueId definitionId) {
     for (ViewDefinitionRepository repository : _repositories) {
-      ViewDefinition definition = repository.getDefinition(definitionName);
+      ViewDefinition definition = repository.getDefinition(definitionId);
       if (definition != null) {
         return definition;
       }
@@ -49,14 +52,37 @@ public class AggregatingViewDefinitionRepository implements ViewDefinitionReposi
   }
 
   @Override
-  public Set<String> getDefinitionNames() {
-    Set<String> result = new TreeSet<String>();
+  public ViewDefinition getDefinition(String name) {
     for (ViewDefinitionRepository repository : _repositories) {
-      result.addAll(repository.getDefinitionNames());
+      ViewDefinition definition = repository.getDefinition(name);
+      if (definition != null) {
+        return definition;
+      }
+    }
+    return null;    
+  }
+  
+  @Override
+  public Set<UniqueId> getDefinitionIds() {
+    Set<UniqueId> result = new TreeSet<UniqueId>();
+    for (ViewDefinitionRepository repository : _repositories) {
+      result.addAll(repository.getDefinitionIds());
     }
     return result;
   }
 
+  @Override
+  public Map<UniqueId, String> getDefinitionEntries() {
+
+    Map<UniqueId, String> result = new HashMap<UniqueId, String>();
+    
+    for (ViewDefinitionRepository repository : _repositories) {
+      result.putAll(repository.getDefinitionEntries());
+    }
+    
+    return result;
+  }
+  
   @Override
   public ChangeManager changeManager() {
     return _changeManager;

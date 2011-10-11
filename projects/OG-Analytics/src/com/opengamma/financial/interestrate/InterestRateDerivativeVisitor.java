@@ -204,6 +204,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(FixedCouponSwap<?> swap);
 
   T visitFixedFloatSwap(FixedFloatSwap swap);
+  
+  T visitOISSwap(OISSwap swap);
 
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption);
 

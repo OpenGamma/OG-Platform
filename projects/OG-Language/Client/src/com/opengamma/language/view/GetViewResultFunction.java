@@ -153,12 +153,13 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
 
     @Override
     public void processCompleted() {
-      // Ignore
+      s_logger.info("Process completed");
+      postResult(null);
     }
 
     @Override
     public void processTerminated(final boolean executionInterrupted) {
-      // Ignore
+      postResult("View process terminated");
     }
 
     @Override
@@ -196,7 +197,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
         final AsynchronousOperation<Object> async = new AsynchronousOperation<Object>();
         final Listener listener = new Listener(viewClientHandle, async.getCallback(), waitForResult, lastViewCycleId);
         result = viewClient.getLatestResult();
-        if (result != null) {
+        if ((result != null) && !result.getViewCycleId().equals(lastViewCycleId)) {
           // Result might have arrived before the listener was registered
           s_logger.debug("Inline result received");
           listener.postResult(result);

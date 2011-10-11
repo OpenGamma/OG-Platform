@@ -42,7 +42,6 @@ import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
@@ -62,8 +61,8 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
   private static final BitSet FIXED = new BitSet();
   private static final boolean RECOVER_ATM_VOL = false;
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
-  private static final FlatExtrapolator1D<Interpolator1DDataBundle> FLAT = new FlatExtrapolator1D<Interpolator1DDataBundle>();
-  private static final GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle> INTERPOLATOR = new GridInterpolator2D<Interpolator1DDataBundle, Interpolator1DDataBundle>(LINEAR, LINEAR,
+  private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
+  private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR,
         FLAT, FLAT);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private ValueSpecification _resultSpecification;
@@ -117,6 +116,9 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
     @SuppressWarnings("unchecked")
     final FuturePriceCurveData<Double> futurePriceData = (FuturePriceCurveData<Double>) objectFuturePriceData;
     //assumes that the sorting is first x, then y
+    if (volatilitySurfaceData.size() == 0) {
+      throw new OpenGammaRuntimeException("Interest rate future option volatility surface definition name=" + _definitionName + " contains no data");
+    }
     final Double[] x = volatilitySurfaceData.getXs();
     final Double[] y = volatilitySurfaceData.getYs();
     DoubleArrayList strikeList = new DoubleArrayList();

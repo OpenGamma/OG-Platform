@@ -8,8 +8,6 @@ package com.opengamma.math.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-
 /**
  * 
  */
@@ -49,11 +47,11 @@ public final class Interpolator1DFactory {
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
 
-  private static final Map<String, Interpolator1D<? extends Interpolator1DDataBundle>> s_staticInstances;
+  private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Interpolator1D<? extends Interpolator1DDataBundle>> staticInstances = new HashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
+    final Map<String, Interpolator1D> staticInstances = new HashMap<String, Interpolator1D>();
     final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
     staticInstances.put(LINEAR, LINEAR_INSTANCE);
     instanceNames.put(LinearInterpolator1D.class, LINEAR);
@@ -68,16 +66,15 @@ public final class Interpolator1DFactory {
     staticInstances.put(STEP, STEP_INSTANCE);
     instanceNames.put(StepInterpolator1D.class, STEP);
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
-    s_staticInstances = new HashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>(staticInstances);
+    s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
 
   private Interpolator1DFactory() {
   }
 
-  public static <T extends Interpolator1DDataBundle> Interpolator1D<T> getInterpolator(final String interpolatorName) {
-    @SuppressWarnings("unchecked")
-    final Interpolator1D<T> interpolator = (Interpolator1D<T>) s_staticInstances.get(interpolatorName);
+  public static Interpolator1D getInterpolator(final String interpolatorName) {
+    final Interpolator1D interpolator = s_staticInstances.get(interpolatorName);
     if (interpolator != null) {
       return interpolator;
     }
@@ -86,7 +83,7 @@ public final class Interpolator1DFactory {
     throw new IllegalArgumentException("Interpolator not handled: " + interpolatorName);
   }
 
-  public static String getInterpolatorName(final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static String getInterpolatorName(final Interpolator1D interpolator) {
     if (interpolator == null) {
       return null;
     }

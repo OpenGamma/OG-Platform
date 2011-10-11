@@ -161,14 +161,18 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
     return ImmutableSet.of(
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
         getPresentValue(ValueProperties.builder()),
-        getPV01());
+        getPV01(getFundingCurve()),
+        getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCashSecurity(CashSecurity security) {
     return ImmutableSet.of(
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()));
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
+        getPresentValue(ValueProperties.builder()),
+        getPV01(getFundingCurve()),
+        getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
@@ -182,14 +186,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
       getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
       getPresentValue(ValueProperties.builder()),
-      getPV01());
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFutureSecurity(FutureSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getPresentValue(ValueProperties.builder()))
-      .add(getPV01())
+      .add(getPV01(getFundingCurve()))
+      .add(getPV01(getForwardCurve(security.getCurrency())))
       .addAll(security.accept((FutureSecurityVisitor<Set<Pair<String, ValueProperties>>>) this)).build();
   }
 
@@ -204,10 +210,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       Currency ccy = ((InterestRateNotional) payNotional).getCurrency();
       builder.add(getYieldCurveNodeSensitivities(getFundingCurve(), ccy));
       builder.add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy));
+      builder.add(getPV01(getFundingCurve()));
+      builder.add(getPV01(getForwardCurve(ccy)));
     }
     
     builder.add(getPresentValue(ValueProperties.builder()));
-    builder.add(getPV01());
     return builder.build();
   }
 
@@ -228,14 +235,14 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(FXOptionSecurity security) {
-    return ImmutableSet.of(
-      getFXPresentValue(),
-      getFXCurrencyExposure(),
-      getVegaMatrix(ValueProperties.builder()));
-    
-      // YCNS doesn't seem to work
-      // getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
-      // getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+      .add(getFXPresentValue())
+      .add(getFXCurrencyExposure())
+      .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   @Override
@@ -245,29 +252,37 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
         .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
         .addAll(getSabrSensitivities())
         .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
-        .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
+        /*.add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))*/.build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+    Currency ccy = security.getCurrency();
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .addAll(getSabrSensitivities())
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), ccy))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy))
       .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
       .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT"))).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-    return ImmutableSet.of(
-      getFXPresentValue(),
-      getFXCurrencyExposure(),
-      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()),
-      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()));
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getFXPresentValue())
+        .add(getFXCurrencyExposure())
+        .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
   
   @Override
   public Set<Pair<String, ValueProperties>> visitFXSecurity(FXSecurity security) {
     return ImmutableSet.of(
+        getFXPresentValue(),
+        getFXCurrencyExposure(),
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()));
   }
@@ -336,7 +351,10 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   public Set<Pair<String, ValueProperties>> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
     return ImmutableSet.of(
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()));
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
+        getPresentValue(ValueProperties.builder()),
+        getPV01(getFundingCurve()),
+        getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
@@ -382,11 +400,13 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
-    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints);
+    return getRiskFactor(ValueRequirementNames.VEGA_MATRIX, constraints, false);
   }
   
-  private Pair<String, ValueProperties> getPV01() {
-    return getRiskFactor(ValueRequirementNames.PV01);
+  private Pair<String, ValueProperties> getPV01(String curveName) {
+    ValueProperties.Builder constraints = ValueProperties
+        .with(ValuePropertyNames.CURVE, curveName);
+    return getRiskFactor(ValueRequirementNames.PV01, constraints, true);
   }
 
   private Set<Pair<String, ValueProperties>> getSabrSensitivities() {

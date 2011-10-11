@@ -62,7 +62,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   }
 
   private static ViewDefinition getDummyView() {
-    ViewDefinition dummy = new ViewDefinition("", new UserPrincipal("", ""));
+    ViewDefinition dummy = new ViewDefinition(null, "dummy", new UserPrincipal("", ""));
     dummy.setDefaultCurrency(Currency.GBP);
     dummy.setMaxDeltaCalculationPeriod(0L);
     dummy.setMaxFullCalculationPeriod(0L);

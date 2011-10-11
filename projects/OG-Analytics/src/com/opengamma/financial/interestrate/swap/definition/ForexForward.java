@@ -18,9 +18,9 @@ public class ForexForward extends Forex implements InterestRateDerivative {
   private double _spotFX;
 
   /**
-   * 
-   * @param paymentCurrency1 The first payment currency
-   * @param paymentCurrency2 The second payment currency
+   * This is the exchange of an amount of domestic currency for an amount of foreign currency at some time in the future 
+   * @param paymentCurrency1 domestic payment
+   * @param paymentCurrency2 foreign payment 
    * @param spotFX fxRate is defined such that ccy1 = fx*ccy2 
    */
   public ForexForward(PaymentFixed paymentCurrency1, PaymentFixed paymentCurrency2, double spotFX) {
@@ -40,7 +40,7 @@ public class ForexForward extends Forex implements InterestRateDerivative {
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visit(this);
+    return visitor.visitForexForward(this);
   }
 
 }

@@ -13,7 +13,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class StepInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+public class StepInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -31,6 +31,11 @@ public class StepInterpolator1D extends Interpolator1D<Interpolator1DDataBundle>
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y, true);
+  }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
   }
 
 }

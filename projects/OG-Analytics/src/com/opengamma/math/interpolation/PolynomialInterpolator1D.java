@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * Interpolates between data points using a polynomial. The method used is
  * Neville's algorithm.
  */
-public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+public class PolynomialInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
   private final NevilleInterpolator _interpolator = new NevilleInterpolator();
   private final int _degree;
@@ -113,6 +113,11 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataB
     result = prime * result + _degree;
     result = prime * result + _offset;
     return result;
+  }
+
+  @Override
+  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
+    return getFiniteDifferenceSensitivities(data, value);
   }
 
 }
