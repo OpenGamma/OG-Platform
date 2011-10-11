@@ -54,6 +54,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImp
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -385,7 +386,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       if (cacheMarketData.getValue() == null) {
         cacheValue = dataAsValue;
       } else {
-        if (shouldShiftData(dataAsValue.getSpecification().getTargetSpecification())) {
+        if (shouldShiftData(dataAsValue.getSpecification())) {
           if (dataAsValue.getValue() instanceof Double) {
             final Double value = (Double) dataAsValue.getValue();
             cacheValue = new ComputedValue(dataAsValue.getSpecification(), value * cacheMarketData.getValue());
@@ -401,8 +402,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private boolean shouldShiftData(final ComputationTargetSpecification targetSpec) {
-    if (targetSpec.getType() == ComputationTargetType.SECURITY) {
+  private boolean shouldShiftData(final ValueSpecification valueSpec) {
+    final ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
+    if ((targetSpec.getType() == ComputationTargetType.SECURITY) && MarketDataRequirementNames.MARKET_VALUE.equals(valueSpec.getValueName())) {
       final Security security;
       try {
         security = getViewProcessContext().getSecuritySource().getSecurity(targetSpec.getUniqueId());
