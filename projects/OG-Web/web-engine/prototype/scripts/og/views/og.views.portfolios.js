@@ -342,8 +342,9 @@ $.register_module({
                     },
                     id: args.id,
                     node: args.node,
+                    version: args.version,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
@@ -363,7 +364,7 @@ $.register_module({
                 route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'
             },
             load_portfolios: {
-                route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/:node?/version:?/name:?', method: module.name + '.load_' + page_name
             },
             load_new_portfolios: {
                 route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name

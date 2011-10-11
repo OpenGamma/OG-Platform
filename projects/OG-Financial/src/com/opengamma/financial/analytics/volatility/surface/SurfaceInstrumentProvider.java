@@ -15,6 +15,19 @@ import com.opengamma.id.ExternalId;
  * @param <Y> The type of the y-axis values
  */
 public interface SurfaceInstrumentProvider<X, Y> {
+  
+  /** 
+   * Prefix field name. 
+   */
+  String PREFIX_FIELD_NAME = "PREFIX";
+  /** 
+   * Postfix field name.
+   */
+  String POSTFIX_FIELD_NAME = "POSTFIX";
+  /** 
+   * Data field name.
+   */
+  String DATA_FIELD_NAME = "DATA_FIELD_NAME";
 
   //TODO in general, each instrument type will need a different set of inputs - not sure how helpful this class actually is
 

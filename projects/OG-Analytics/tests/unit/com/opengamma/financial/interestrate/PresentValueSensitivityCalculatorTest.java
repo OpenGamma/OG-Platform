@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial.interestrate;
 
+import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.makeOISSwap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Comparator;
+import java.util.ListIterator;
+import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -33,11 +37,18 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.math.curve.AddCurveSpreadFunction;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.curve.SpreadDoublesCurve;
+import com.opengamma.math.curve.SubtractCurveSpreadFunction;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
@@ -281,7 +292,7 @@ public class PresentValueSensitivityCalculatorTest {
   public void testForwardLiborAnnuity() {
     final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
     final double yield = curve.getInterestRate(0.0);
-    final double eps = 1e-8;
+    final double eps = 1e-9;
 
     final int n = 15;
     final double alpha = 0.245;
@@ -305,55 +316,30 @@ public class PresentValueSensitivityCalculatorTest {
       yields[i + 1] = yield;
     }
 
-    final YieldAndDiscountCurve tempCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
-
     final boolean isPayer = true;
+    final AnnuityCouponIbor annuitySingleCurve = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, FIVE_PC_CURVE_NAME,
+        FIVE_PC_CURVE_NAME,
+        isPayer);
     final AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME,
         isPayer);
-    final AnnuityCouponIbor bumpedAnnuity = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME,
-        "Bumped Curve", isPayer);
-    final AnnuityCouponIbor bumpedAnnuity_funding = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bumped Curve",
-        FIVE_PC_CURVE_NAME, isPayer);
-    final double pv = PVC.visit(annuity, CURVES);
+
+    final Map<String, List<DoublesPair>> senseSingleCurve = PVSC.visit(annuitySingleCurve, CURVES);
     final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
 
-    List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
-    temp = mergeSameTimes(temp);
+    //1. single curve sense   
+    List<DoublesPair> senseAnal = netSensitvities(senseSingleCurve.get(FIVE_PC_CURVE_NAME), eps, eps);
+    List<DoublesPair> senseFD = curveSensitvityFDCalculator(annuitySingleCurve, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps, eps);
+    assertSensitivityEquals(senseFD, senseAnal, eps);
 
-    // 1. Forward curve sensitivity
-    for (int i = 0; i < n + 1; i++) {
-      final YieldAndDiscountCurve bumpedCurve = tempCurve.withSingleShift(nodeTimes[i], eps);
-      final YieldCurveBundle curves = new YieldCurveBundle();
-      curves.addAll(CURVES);
-      curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.visit(bumpedAnnuity, curves);
-      final double res = (bumpedpv - pv) / eps;
-      final DoublesPair pair = temp.get(i);
-      assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
-      assertEquals(res, pair.getSecond(), 1e-6);
-    }
+    // 2. Forward curve sensitivity
+    senseAnal = netSensitvities(sense.get(FIVE_PC_CURVE_NAME), eps, eps);
+    senseFD = curveSensitvityFDCalculator(annuity, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, eps, eps);
+    assertSensitivityEquals(senseFD, senseAnal, eps);
 
-    // 2. Funding curve sensitivity
-    final YieldAndDiscountCurve curve_funding = CURVES.getCurve(ZERO_PC_CURVE_NAME);
-    final double yield_funding = curve_funding.getInterestRate(0.0);
-    final double[] yields_funding = new double[n + 1];
-    for (int i = 0; i < n; i++) {
-      yields_funding[i + 1] = yield_funding;
-    }
-    final YieldAndDiscountCurve tempCurve_funding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields_funding, new LinearInterpolator1D()));
-    List<DoublesPair> temp_funding = sense.get(ZERO_PC_CURVE_NAME);
-    temp_funding = mergeSameTimes(temp_funding);
-    for (int i = 0; i < n; i++) {
-      final YieldAndDiscountCurve bumpedCurve = tempCurve_funding.withSingleShift(nodeTimes[i + 1], eps);
-      final YieldCurveBundle curves = new YieldCurveBundle();
-      curves.addAll(CURVES);
-      curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.visit(bumpedAnnuity_funding, curves);
-      final double res = (bumpedpv - pv) / eps;
-      final DoublesPair pair = temp_funding.get(i);
-      assertEquals(nodeTimes[i + 1], pair.getFirst(), 0.0);
-      assertEquals(res, pair.getSecond(), 1e-6);
-    }
+    // 3. Funding curve sensitivity
+    senseAnal = netSensitvities(sense.get(ZERO_PC_CURVE_NAME), eps, eps);
+    senseFD = curveSensitvityFDCalculator(annuity, PVC, CURVES, ZERO_PC_CURVE_NAME, nodeTimes, eps, eps);
+    assertSensitivityEquals(senseFD, senseAnal, eps);
   }
 
   @Test
@@ -526,7 +512,7 @@ public class PresentValueSensitivityCalculatorTest {
 
   @Test
   public void testFixedFloatSwap() {
-
+    final double eps = 1e-9;
     final int n = 20;
     final double[] fixedPaymentTimes = new double[n];
     final double[] floatPaymentTimes = new double[2 * n];
@@ -540,72 +526,51 @@ public class PresentValueSensitivityCalculatorTest {
     final double swapRate = 0.04;
     final boolean isPayer = true;
 
+    final Swap<?, ?> swapSingleCurve = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, isPayer);
     final Swap<?, ?> swapPayer = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, isPayer);
     final Swap<?, ?> swapReceiver = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, !isPayer);
-    final Swap<?, ?> swapBumped = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, ZERO_PC_CURVE_NAME, "Bumped Curve", isPayer);
-    final Swap<?, ?> swapBumped_funding = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, swapRate, "Bumped Curve", FIVE_PC_CURVE_NAME, isPayer);
-    final double pvSwap = PVC.visit(swapPayer, CURVES);
     final Map<String, List<DoublesPair>> sensiPayer = PVSC.visit(swapPayer, CURVES);
     final Map<String, List<DoublesPair>> sensiReceiver = PVSC.visit(swapReceiver, CURVES);
+    final Map<String, List<DoublesPair>> sensiSwapSingleCurve = PVSC.visit(swapSingleCurve, CURVES);
 
-    // 1. Forward curve sensitivity
-    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double yield = curve.getInterestRate(0.0);
-    final double eps = 1e-8;
-    final double[] nodeTimes = new double[2 * n + 1];
-    final double[] yields = new double[2 * n + 1];
-    nodeTimes[0] = 0.0;
-    for (int i = 0; i < 2 * n; i++) {
-      nodeTimes[i + 1] = floatPaymentTimes[i];
-      yields[i + 1] = yield;
-    }
-    final YieldAndDiscountCurve tempCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
-    List<DoublesPair> temp = sensiPayer.get(FIVE_PC_CURVE_NAME);
-    List<DoublesPair> sensiReceiverForward = sensiReceiver.get(FIVE_PC_CURVE_NAME);
-    temp = mergeSameTimes(temp);
-    sensiReceiverForward = mergeSameTimes(sensiReceiverForward);
-    double res = 0;
-    for (int i = 0; i < 2 * n + 1; i++) {
-      final YieldAndDiscountCurve bumpedCurve = tempCurve.withSingleShift(nodeTimes[i], eps);
-      final YieldCurveBundle curves = new YieldCurveBundle();
-      curves.addAll(CURVES);
-      curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.visit(swapBumped, curves);
-      res = (bumpedpv - pvSwap) / eps;
-      final DoublesPair pair = temp.get(i);
-      assertEquals(nodeTimes[i], pair.getFirst(), 0.0);
-      assertEquals(res, pair.getSecond(), 1e-6);
-      final DoublesPair pairReceiver = sensiReceiverForward.get(i);
-      assertEquals(pairReceiver.getFirst(), pair.getFirst(), 0.0);
-      assertEquals(pairReceiver.getSecond(), -pair.getSecond(), 1e-6);
-    }
+    //1. Single curve sensitivity 
+    List<DoublesPair> senSwapSingleCurve = netSensitvities(sensiSwapSingleCurve.get(FIVE_PC_CURVE_NAME), eps, eps);
+    List<DoublesPair> fdsenSwapSingleCurve = curveSensitvityFDCalculator(swapSingleCurve, PVC, CURVES, FIVE_PC_CURVE_NAME, floatPaymentTimes,
+        eps, eps);
+    assertSensitivityEquals(senSwapSingleCurve, fdsenSwapSingleCurve, eps);
 
-    // 2. Funding curve sensitivity
-    final YieldAndDiscountCurve curve_funding = CURVES.getCurve(ZERO_PC_CURVE_NAME);
-    final double yield_funding = curve_funding.getInterestRate(0.0);
-    final double[] yields_funding = new double[2 * n + 1];
-    for (int i = 0; i < 2 * n; i++) {
-      yields_funding[i + 1] = yield_funding;
-    }
-    final YieldAndDiscountCurve tempCurve_funding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields_funding, new LinearInterpolator1D()));
-    final List<DoublesPair> temp_funding = sensiPayer.get(ZERO_PC_CURVE_NAME);
-    final List<DoublesPair> sensitivityFunding = new ArrayList<DoublesPair>();
-    for (int loopcpn = 0; loopcpn < n; loopcpn++) {
-      sensitivityFunding.add(new DoublesPair(temp_funding.get(2 * loopcpn).first, temp_funding.get(2 * loopcpn).second));
-      sensitivityFunding.add(new DoublesPair(temp_funding.get(2 * loopcpn + 1).first, temp_funding.get(2 * loopcpn + 1).second + temp_funding.get(2 * n + loopcpn).second));
-    }
-    for (int i = 0; i < 2 * n; i++) {
-      final YieldAndDiscountCurve bumpedCurve = tempCurve_funding.withSingleShift(nodeTimes[i + 1], eps);
-      final YieldCurveBundle curves = new YieldCurveBundle();
-      curves.addAll(CURVES);
-      curves.setCurve("Bumped Curve", bumpedCurve);
-      final double bumpedpv = PVC.visit(swapBumped_funding, curves);
-      res = (bumpedpv - pvSwap) / eps;
-      final DoublesPair pair = sensitivityFunding.get(i);
-      assertEquals(nodeTimes[i + 1], pair.getFirst(), 0.0);
-      assertEquals(res, pair.getSecond(), 1e-6);
-    }
+    // 2. Forward curve sensitivity
+    List<DoublesPair> senPayerFwd = netSensitvities(sensiPayer.get(FIVE_PC_CURVE_NAME), eps, eps);
+    List<DoublesPair> senReceiverFwd = netSensitvities(sensiReceiver.get(FIVE_PC_CURVE_NAME), eps, eps);
 
+    List<DoublesPair> fdSenPayerFwd = curveSensitvityFDCalculator(swapPayer, PVC, CURVES, FIVE_PC_CURVE_NAME, floatPaymentTimes,
+            eps, eps);
+    List<DoublesPair> fdSenReceiverFwd = curveSensitvityFDCalculator(swapReceiver, PVC, CURVES, FIVE_PC_CURVE_NAME, floatPaymentTimes,
+            eps, eps);
+
+    assertSensitivityEquals(fdSenPayerFwd, senPayerFwd, eps);
+    assertSensitivityEquals(fdSenReceiverFwd, senReceiverFwd, eps);
+
+    // 3. Funding curve sensitivity
+    senPayerFwd = netSensitvities(sensiPayer.get(ZERO_PC_CURVE_NAME), eps, eps);
+    senReceiverFwd = netSensitvities(sensiReceiver.get(ZERO_PC_CURVE_NAME), eps, eps);
+
+    fdSenPayerFwd = curveSensitvityFDCalculator(swapPayer, PVC, CURVES, ZERO_PC_CURVE_NAME, floatPaymentTimes,
+            eps, eps);
+    fdSenReceiverFwd = curveSensitvityFDCalculator(swapReceiver, PVC, CURVES, ZERO_PC_CURVE_NAME, floatPaymentTimes
+            , eps, eps);
+
+    assertSensitivityEquals(fdSenPayerFwd, senPayerFwd, eps);
+    assertSensitivityEquals(fdSenReceiverFwd, senReceiverFwd, eps);
+
+  }
+
+  private static void assertSensitivityEquals(List<DoublesPair> expected, List<DoublesPair> accual, double tol) {
+    assertEquals(expected.size(), accual.size(), 0);
+    for (int i = 0; i < expected.size(); i++) {
+      assertEquals(expected.get(i).first, accual.get(i).first, 0.0);
+      assertEquals(expected.get(i).second, accual.get(i).second, tol);
+    }
   }
 
   // Swaption description
@@ -668,30 +633,174 @@ public class PresentValueSensitivityCalculatorTest {
       assertEquals("Node " + i, nodeTimes[i + 1], pair.getFirst(), 0.0);
       assertEquals("Node " + i, res, pair.getSecond(), 1E+0);
     }
+  }
+
+  @Test
+  final void testOISSwap() {
+    double eps = 1e-9;
+    double notional = 1e8;
+    double relTol = eps;
+    double absTol = notional * eps;
+    double maturity = 10.0;
+    double rate = Math.exp(0.05) - 1;
+
+    double[] nodeTimes = new double[10];
+    for (int i = 0; i < 10; i++) {
+      nodeTimes[i] = 1.0 * (i + 1);
+    }
+
+    OISSwap swap = makeOISSwap(maturity, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
+    Map<String, List<DoublesPair>> sense = PVSC.visit(swap, CURVES);
+
+    //1. single curve sense   
+    List<DoublesPair> senseAnal = netSensitvities(sense.get(FIVE_PC_CURVE_NAME), relTol, absTol);
+    List<DoublesPair> senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, relTol, absTol);
+    assertSensitivityEquals(senseFD, senseAnal, absTol);
+
+    swap = makeOISSwap(maturity, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
+    sense = PVSC.visit(swap, CURVES);
+
+    //    //2. index curve sense   
+    senseAnal = netSensitvities(sense.get(FIVE_PC_CURVE_NAME), relTol, absTol);
+    senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, relTol, absTol);
+    assertSensitivityEquals(senseFD, senseAnal, absTol);
+
+    //    //2. funding curve sense   
+    senseAnal = netSensitvities(sense.get(ZERO_PC_CURVE_NAME), relTol, absTol);
+    senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, ZERO_PC_CURVE_NAME, nodeTimes, relTol, absTol);
+    assertSensitivityEquals(senseFD, senseAnal, absTol);
 
   }
 
-  // Merge consecutive sensitivity with same time.
-  List<DoublesPair> mergeSameTimes(final List<DoublesPair> old) {
+  final static List<DoublesPair> curveSensitvityFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
+      final YieldCurveBundle curves, final String curveName, final double[] t, final double relTol, final double absTol) {
+    List<DoublesPair> res = new ArrayList<DoublesPair>();
+    for (double time : t) {
+      double sense = curveSensitvityFDCalculator(ird, calculator, curves, curveName, time);
+      res.add(new DoublesPair(time, sense));
+    }
+    return netSensitvities(res, relTol, absTol);
+  }
+
+  @SuppressWarnings("unchecked")
+  final static double curveSensitvityFDCalculator(final InterestRateDerivative ird, AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Double> calculator,
+      final YieldCurveBundle curves, final String curveName, final double t) {
+
+    final double eps = 1e-6;
+
+    Function1D<Double, Double> blip = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double x) {
+        return (x == t ? eps : 0.0); //TODO should we check within a tolerance? 
+      }
+    };
+
+    FunctionalDoublesCurve blipCurve = FunctionalDoublesCurve.from(blip);
+    YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
+
+    @SuppressWarnings("rawtypes")
+    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve };
+    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new AddCurveSpreadFunction()));
+    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(curveSet, new SubtractCurveSpreadFunction()));
+
+    curves.replaceCurve(curveName, upCurve);
+    double up = calculator.visit(ird, curves);
+    curves.replaceCurve(curveName, downCurve);
+    double down = calculator.visit(ird, curves);
+    curves.replaceCurve(curveName, originalCurve);
+
+    return (up - down) / 2 / eps;
+  }
+
+  @Test
+  final void testNetSensitvities() {
+    final List<DoublesPair> old = new ArrayList<DoublesPair>();
+    old.add(new DoublesPair(0.23, 12.3));
+    old.add(new DoublesPair(0.231, -12.3));
+    old.add(new DoublesPair(0.23, -12.3));
+    old.add(new DoublesPair(1.23, 3.24));
+    old.add(new DoublesPair(1.78, -3.24));
+    old.add(new DoublesPair(1.23, -1.0));
+    old.add(new DoublesPair(1.23, 1.0));
+
+    final List<DoublesPair> expected = new ArrayList<DoublesPair>();
+    expected.add(new DoublesPair(0.231, -12.3));
+    expected.add(new DoublesPair(1.23, 3.24));
+    expected.add(new DoublesPair(1.78, -3.24));
+
+    List<DoublesPair> res = netSensitvities(old, 1e-9, 1e-12);
+    assertEquals(expected.size(), res.size());
+
+    for (int i = 0; i < expected.size(); i++) {
+      assertEquals(expected.get(i).first, res.get(i).first, 0.0);
+      assertEquals(expected.get(i).second, res.get(i).second, 1e-9);
+    }
+  }
+
+  /**
+   * Takes a list of curve sensitivities (i.e. an unordered list of pairs of times and sensitivities) and returns a list order by ascending
+   * time, and with sensitivities that occur at the same time netted (zero net sensitivities are removed)
+   * @param old An unordered list of pairs of times and sensitivities
+   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored 
+   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored 
+   * @return A time ordered netted list
+   */
+  final static List<DoublesPair> netSensitvities(final List<DoublesPair> old, final double relTol, final double absTol) {
+
+    Validate.notNull(old, "null list");
+    Validate.isTrue(relTol >= 0.0 && absTol >= 0.0);
+
     final List<DoublesPair> res = new ArrayList<DoublesPair>();
-    final Iterator<DoublesPair> iterator = old.iterator();
+    TreeSet<DoublesPair> ts = new TreeSet<DoublesPair>(FirstThenSecondDoublesPairComparator.INSTANCE);
+    ts.addAll(old);
+
+    Iterator<DoublesPair> iterator = ts.iterator();
     DoublesPair pair = iterator.next();
     double t = pair.getFirst();
     double sum = pair.getSecond();
-
+    double scale = Math.abs(sum);
     while (iterator.hasNext()) {
       pair = iterator.next();
-      if (CompareUtils.closeEquals(pair.getFirst(), t, 1e-6)) {
-        sum += pair.getSecond();
+      if (pair.getFirstDouble() > t) {
+        if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
+          res.add(new DoublesPair(t, sum));
+        }
+        t = pair.getFirstDouble();
+        sum = pair.getSecondDouble();
+        scale = Math.abs(sum);
       } else {
-        res.add(new DoublesPair(t, sum));
-        t = pair.getFirst();
-        sum = pair.getSecond();
+        sum += pair.getSecondDouble();
+        scale += Math.abs(pair.getSecondDouble());
       }
     }
-    res.add(new DoublesPair(t, sum));
+    if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
+      res.add(new DoublesPair(t, sum));
+    }
 
     return res;
   }
+
+  //  // Merge consecutive sensitivity with same time.
+  //  List<DoublesPair> mergeSameTimes(final List<DoublesPair> old) {
+  //    final List<DoublesPair> res = new ArrayList<DoublesPair>();
+  //    final Iterator<DoublesPair> iterator = old.iterator();
+  //    DoublesPair pair = iterator.next();
+  //    double t = pair.getFirst();
+  //    double sum = pair.getSecond();
+  //
+  //    while (iterator.hasNext()) {
+  //      pair = iterator.next();
+  //      if (CompareUtils.closeEquals(pair.getFirst(), t, 1e-6)) {
+  //        sum += pair.getSecond();
+  //      } else {
+  //        res.add(new DoublesPair(t, sum));
+  //        t = pair.getFirst();
+  //        sum = pair.getSecond();
+  //      }
+  //    }
+  //    res.add(new DoublesPair(t, sum));
+  //
+  //    return res;
+  //  }
 
 }

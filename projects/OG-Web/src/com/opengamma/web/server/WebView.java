@@ -179,8 +179,8 @@ public class WebView {
     return _executionOptions;
   }
   
-  public boolean matches(UniqueId viewDefinition, ViewExecutionOptions executionOptions) {
-    return getViewDefinitionId().equals(viewDefinition) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
+  public boolean matches(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+    return getViewDefinitionId().equals(viewDefinitionId) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
   }
   
   public WebViewGrid getGridByName(String name) {

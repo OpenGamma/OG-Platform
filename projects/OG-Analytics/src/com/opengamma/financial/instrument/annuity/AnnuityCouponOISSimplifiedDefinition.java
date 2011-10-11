@@ -43,13 +43,13 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
   public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final Period tenorCoupon, final double notional, final IndexOIS index,
       final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, tenorAnnuity, tenorCoupon, businessDayConvention, index.getCalendar(), isEOM);
-    return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, index, isPayer, settlementDays, businessDayConvention, isEOM);
+    return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, index, isPayer, settlementDays);
   }
 
   /**
    * Annuity builder from the financial details.
    * @param settlementDate The settlement date.
-   * @param maturityDate The maturity date.
+   * @param maturityDate The maturity date. The maturity date is the end date of the last fixing period.
    * @param frequency The coupons frequency.
    * @param notional The notional.
    * @param index The OIS index.
@@ -62,17 +62,27 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
   public static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Frequency frequency, final double notional, final IndexOIS index,
       final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, frequency, businessDayConvention, index.getCalendar(), isEOM);
-    return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, index, isPayer, settlementDays, businessDayConvention, isEOM);
+    return AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, index, isPayer, settlementDays);
   }
 
+  /**
+   * Annuity builder from the financial details.
+   * @param settlementDate The settlement date.
+   * @param endFixingPeriodDate An array of date with the end fixing period date for each coupon.
+   * @param notional The notional.
+   * @param index The OIS index.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @param settlementDays The number of days between last fixing of each coupon and the coupon payment (also called spot lag). 
+   * @return
+   */
   private static AnnuityCouponOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final IndexOIS index,
-      final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
+      final boolean isPayer, final int settlementDays) {
     final double sign = isPayer ? -1.0 : 1.0;
     double notionalSigned = sign * notional;
     final CouponOISSimplifiedDefinition[] coupons = new CouponOISSimplifiedDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate[0], notionalSigned, settlementDays, businessDayConvention, isEOM);
+    coupons[0] = CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate[0], notionalSigned, settlementDays);
     for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponOISSimplifiedDefinition.from(index, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, settlementDays, businessDayConvention, isEOM);
+      coupons[loopcpn] = CouponOISSimplifiedDefinition.from(index, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, settlementDays);
     }
     return new AnnuityCouponOISSimplifiedDefinition(coupons);
   }

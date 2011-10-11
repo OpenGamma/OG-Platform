@@ -9,6 +9,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -140,5 +143,34 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
     }
     return value;
   }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(getUniqueId()).append(getSourceCurrencies()).append(getTargetCurrencies()).toHashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (obj instanceof CurrencyMatrix) {
+      CurrencyMatrix other = (CurrencyMatrix) obj;
+      EqualsBuilder equalsBuider = new EqualsBuilder().append(getUniqueId(), other.getUniqueId())
+          .append(getSourceCurrencies(), other.getSourceCurrencies())
+          .append(getTargetCurrencies(), other.getTargetCurrencies());
+      for (Currency source : getSourceCurrencies()) {
+        for (Currency target : getTargetCurrencies()) {
+          equalsBuider.append(getConversion(source, target), other.getConversion(source, target));
+        }
+      }
+      return equalsBuider.isEquals();
+    }
+    return false;
+  }
+
 
 }

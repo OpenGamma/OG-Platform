@@ -344,11 +344,7 @@ public abstract class YieldCurveFittingSetup {
     return underlyingFuture; // TODO CASE - Future Refactor - Check whether rate is required here. It may well be. *Shrug*
   }
 
-  //  protected static FixedFloatSwap makeSwap(final double time, final String fundCurveName, final String indexCurveName,
-  //      final double rate, final double notional) {
-  //    final int index = (int) Math.round(2 * time);
-  //    return makeSwap(index, fundCurveName, indexCurveName, rate, notional);
-  //  }
+ 
 
   protected static TenorSwap<CouponIbor> makeBasisSwap(final double time, final String fundCurveName,
       final String liborCurveName, final double rate, final double notional) {
@@ -484,35 +480,6 @@ public abstract class YieldCurveFittingSetup {
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
-  //  protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName,
-  //        final String liborCurveName, final double rate, final double notional) {
-  //
-  //    final double[] fixed = new double[payments];
-  //    final double[] floating = new double[2 * payments];
-  //    final double[] indexFixing = new double[2 * payments];
-  //    final double[] indexMaturity = new double[2 * payments];
-  //    final double[] yearFrac = new double[2 * payments];
-  //
-  //    final double sigma = 0.0 / 365.0;
-  //
-  //    for (int i = 0; i < payments; i++) {
-  //      fixed[i] = 0.5 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-  //      floating[2 * i + 1] = fixed[i];
-  //    }
-  //    for (int i = 0; i < 2 * payments; i++) {
-  //      if (i % 2 == 0) {
-  //        floating[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-  //      }
-  //      yearFrac[i] = 0.25 + sigma * (RANDOM.nextDouble() - 0.5);
-  //      indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
-  //      indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
-  //    }
-  //    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, fixed, notional, rate, fundingCurveName, true);
-  //
-  //    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(DUMMY_CUR, floating, indexFixing, indexMaturity, yearFrac,
-  //          notional, fundingCurveName, liborCurveName, false);
-  //    return new FixedFloatSwap(fixedLeg, floatingLeg);
-  //  }
 
   /**
    * Sets up a simple Floating rate note to test the analytics 

@@ -189,8 +189,9 @@ $.register_module({
                         }});
                     },
                     id: args.id,
+                    version: args.version,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
@@ -207,7 +208,7 @@ $.register_module({
                 route: '/' + page_name + '/:id/deleted:/name:?/type:?', method: module.name + '.load_delete'
             },
             load_securities: {
-                route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_' + page_name
             },
             load_new_securities: {
                 route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
