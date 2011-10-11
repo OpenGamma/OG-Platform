@@ -15,7 +15,6 @@ import javax.time.Instant;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -55,7 +54,6 @@ public class ViewCompilationContext {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
     final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     final DependencyGraphBuilderFactory builderFactory = new DependencyGraphBuilderFactory();
-    CompiledFunctionResolver defaultResolver = null;
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = builderFactory.newInstance();
       builder.setCalculationConfigurationName(configName);
@@ -65,16 +63,7 @@ public class ViewCompilationContext {
       final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);
       compilationContext.setViewCalculationConfiguration(calcConfig);
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
-      if (transformedRules == rules) {
-        // No transformation applied; use the default resolver
-        if (defaultResolver == null) {
-          defaultResolver = new DefaultCompiledFunctionResolver(compilationContext, rules);
-        }
-        builder.setFunctionResolver(defaultResolver);
-      } else {
-        // Create a new resolver with the transformed rules
-        builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
-      }
+      builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
       builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
     }

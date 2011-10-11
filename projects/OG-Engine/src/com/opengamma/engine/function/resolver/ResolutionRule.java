@@ -152,16 +152,16 @@ public class ResolutionRule {
       if (output.isSatisfiedBy(resultSpec)) {
         validSpec = resultSpec;
       }
-      }
+    }
     if (validSpec == null) {
       return null;
-      }
+    }
     // Apply the target filter for this rule (this is applied last because filters probably rarely exclude compared to the other tests)
     if (!_computationTargetFilter.accept(target)) {
       return null;
-      }
-    return validSpec;
     }
+    return validSpec;
+  }
 
   @Override
   public String toString() {
