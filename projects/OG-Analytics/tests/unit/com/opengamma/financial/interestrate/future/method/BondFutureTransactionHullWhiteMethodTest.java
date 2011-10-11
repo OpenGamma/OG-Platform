@@ -27,7 +27,7 @@ import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
 import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -147,7 +147,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
    */
   public void presentValueCurveSensitivity() {
     //TODO: review the sensitivity difference.
-    PresentValueSensitivity pvs = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
+    InterestRateCurveSensitivity pvs = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
     pvs = pvs.clean();
     final double ratioTolerancePrice = 2.0E-4;
     final double deltaShift = 1.0E-7;
@@ -184,9 +184,9 @@ public class BondFutureTransactionHullWhiteMethodTest {
    * Tests the present value curve sensitivity method for bond futures transactions.
    */
   public void presentValueCurveSensitivityRelative() {
-    final PresentValueSensitivity pvcsComputed = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
-    final PresentValueSensitivity pcsSecurity = METHOD_FUTURE_SECURITY.priceCurveSensitivity(BOND_FUTURE_SECURITY, BUNDLE_HW);
-    final PresentValueSensitivity pvcsExpected = pcsSecurity.multiply(QUANTITY * NOTIONAL);
+    final InterestRateCurveSensitivity pvcsComputed = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
+    final InterestRateCurveSensitivity pcsSecurity = METHOD_FUTURE_SECURITY.priceCurveSensitivity(BOND_FUTURE_SECURITY, BUNDLE_HW);
+    final InterestRateCurveSensitivity pvcsExpected = pcsSecurity.multiply(QUANTITY * NOTIONAL);
     assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected, pvcsComputed);
   }
 
@@ -198,7 +198,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
     long startTime, endTime;
     final int nbTest = 1000;
     CurrencyAmount pv = CurrencyAmount.of(CUR, 0.0);
-    PresentValueSensitivity pvs = new PresentValueSensitivity();
+    InterestRateCurveSensitivity pvs = new InterestRateCurveSensitivity();
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pv = METHOD_FUTURE_TRANSACTION.presentValue(FUTURE_TRANSACTION, BUNDLE_HW);

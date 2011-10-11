@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -116,7 +116,7 @@ public class SwapFixedIborMethodTest {
     curvesNotBumped.addAll(curves);
     curvesNotBumped.setCurve("Bumped Curve", tempCurveFunding);
     final double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, curvesNotBumped);
-    final PresentValueSensitivity pvbpDr = SwapFixedIborMethod.presentValueBasisPointSensitivity(SWAP_PAYER, curvesNotBumped);
+    final InterestRateCurveSensitivity pvbpDr = SwapFixedIborMethod.presentValueBasisPointSensitivity(SWAP_PAYER, curvesNotBumped);
 
     final List<DoublesPair> tempFunding = pvbpDr.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int i = 0; i < nbPayDate; i++) {

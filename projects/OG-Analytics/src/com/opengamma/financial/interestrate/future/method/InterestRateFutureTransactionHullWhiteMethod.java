@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.future.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
@@ -52,11 +52,11 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
    * @param curves The Hull-White parameters and the curves.
    * @return The present value rate sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     final InterestRateFutureSecurity underlyingFuture = future.getUnderlyingFuture();
-    PresentValueSensitivity priceSensi = METHOD_SECURITY.priceCurveSensitivity(underlyingFuture, curves);
-    PresentValueSensitivity result = priceSensi.multiply(future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity());
+    InterestRateCurveSensitivity priceSensi = METHOD_SECURITY.priceCurveSensitivity(underlyingFuture, curves);
+    InterestRateCurveSensitivity result = priceSensi.multiply(future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity());
     return result;
   }
 

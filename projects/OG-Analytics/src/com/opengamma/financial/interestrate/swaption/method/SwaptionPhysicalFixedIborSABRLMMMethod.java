@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
@@ -181,7 +181,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
    * @param curves The curves and SABR data.
    * @return The present value curve sensitivities. 
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
     Validate.notNull(swaption);
     Validate.notNull(curves);
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
@@ -201,7 +201,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     double[] dPvAmdLambda = new double[nbCal];
     double[][][] dPvCaldGamma = new double[nbCal][][];
     double[][] dPvCaldLambda = new double[nbCal][nbCal];
-    PresentValueSensitivity pvcsCal = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaption, lmmBundle);
+    InterestRateCurveSensitivity pvcsCal = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaption, lmmBundle);
     pvcsCal = pvcsCal.clean();
     double[][] dPvAmdGamma = METHOD_SWAPTION_LMM.presentValueLMMSensitivity(swaption, lmmBundle);
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
@@ -224,9 +224,9 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
         }
       }
     }
-    PresentValueSensitivity[] pvcsCalBase = new PresentValueSensitivity[nbCal];
-    PresentValueSensitivity[] pvcsCalCal = new PresentValueSensitivity[nbCal];
-    PresentValueSensitivity[] pvcsCalDiff = new PresentValueSensitivity[nbCal];
+    InterestRateCurveSensitivity[] pvcsCalBase = new InterestRateCurveSensitivity[nbCal];
+    InterestRateCurveSensitivity[] pvcsCalCal = new InterestRateCurveSensitivity[nbCal];
+    InterestRateCurveSensitivity[] pvcsCalDiff = new InterestRateCurveSensitivity[nbCal];
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
       pvcsCalBase[loopcal] = METHOD_SWAPTION_SABR.presentValueSensitivity(swaptionCalibration[loopcal], curves);
       pvcsCalBase[loopcal] = pvcsCalBase[loopcal].clean();
@@ -239,19 +239,19 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     DoubleMatrix2D dPvCaldLambdaMatrix = new DoubleMatrix2D(dPvCaldLambda);
     DoubleMatrix2D dPvCaldLambdaMatrixInverse = matrix.getInverse(dPvCaldLambdaMatrix);
     // Curve sensitivity
-    PresentValueSensitivity[] dLambdadC = new PresentValueSensitivity[nbCal];
+    InterestRateCurveSensitivity[] dLambdadC = new InterestRateCurveSensitivity[nbCal];
     for (int loopcal1 = 0; loopcal1 < nbCal; loopcal1++) {
-      dLambdadC[loopcal1] = new PresentValueSensitivity();
+      dLambdadC[loopcal1] = new InterestRateCurveSensitivity();
       for (int loopcal2 = 0; loopcal2 <= loopcal1; loopcal2++) {
         dLambdadC[loopcal1] = dLambdadC[loopcal1].add(pvcsCalDiff[loopcal2].multiply(dPvCaldLambdaMatrixInverse.getEntry(loopcal1, loopcal2)));
       }
     }
-    PresentValueSensitivity pvcsAdjust = new PresentValueSensitivity();
+    InterestRateCurveSensitivity pvcsAdjust = new InterestRateCurveSensitivity();
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
       pvcsAdjust = pvcsAdjust.add(dLambdadC[loopcal].multiply(dPvAmdLambda[loopcal]));
     }
     pvcsAdjust = pvcsAdjust.clean();
-    PresentValueSensitivity pvcsTot = pvcsCal.add(pvcsAdjust);
+    InterestRateCurveSensitivity pvcsTot = pvcsCal.add(pvcsAdjust);
     pvcsTot = pvcsTot.clean();
     return pvcsTot;
   }

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import static com.opengamma.financial.interestrate.PresentValueSensitivityUtils.*;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.*;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;

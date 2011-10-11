@@ -30,7 +30,7 @@ import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefi
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -285,7 +285,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests the curve sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvsSwaption = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    InterestRateCurveSensitivity pvsSwaption = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     pvsSwaption = pvsSwaption.clean();
     final double deltaTolerancePrice = 1.0E+0;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -338,7 +338,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     CurrencyAmount pvPayerLongApproximation = CurrencyAmount.of(CUR, 0.0);
     CurrencyAmount pvPayerLongMC = CurrencyAmount.of(CUR, 0.0);
     double[] pvhws = METHOD_HW.presentValueHullWhiteSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    PresentValueSensitivity pvcs = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
+    InterestRateCurveSensitivity pvcs = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
     YieldAndDiscountCurve curve = CURVES.getCurve(FUNDING_CURVE_NAME);
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

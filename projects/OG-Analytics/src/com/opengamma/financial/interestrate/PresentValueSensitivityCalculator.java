@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static com.opengamma.financial.interestrate.PresentValueSensitivityUtils.*;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.*;
 
 import org.apache.commons.lang.Validate;
 
@@ -186,7 +186,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     Map<String, List<DoublesPair>> senseP1 = visit(fx.getPaymentCurrency1(), curves);
     Map<String, List<DoublesPair>> senseP2 = visit(fx.getPaymentCurrency2(), curves);
     //Note the sensitivities add rather than subtract here because the FX Forward is set up as a notional in one currency PLUS a notional in another  with the  opposite sign
-    return PresentValueSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
+    return InterestRateCurveSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
   }
 
   @Override

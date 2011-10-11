@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -200,7 +200,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Test the present value curvesensitivity.
    */
   public void presentValueCurveSensitivity() {
-    PresentValueSensitivity pvsSwaption = METHOD_LMM.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_LMM);
+    InterestRateCurveSensitivity pvsSwaption = METHOD_LMM.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_LMM);
     pvsSwaption = pvsSwaption.clean();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -408,7 +408,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double nuVegaTotalExpected = (pvAmortizedShiftNu.getAmount() - pvAmortized.getAmount()) / shiftNu;
     assertEquals("Nu sensitivity value", nuVegaTotalExpected, nuVegaTotalComputed, 1.0E+1);
     // Curve sensitivity (parallel shift check)
-    PresentValueSensitivity pvcs = method.presentValueCurveSensitivity(swaptionAmortized, sabrBundle);
+    InterestRateCurveSensitivity pvcs = method.presentValueCurveSensitivity(swaptionAmortized, sabrBundle);
     double shiftCurve = 0.0000001;
     YieldAndDiscountCurve curve5Shift = new YieldCurve(ConstantDoublesCurve.from(0.05 + shiftCurve));
     YieldAndDiscountCurve curve4Shift = new YieldCurve(ConstantDoublesCurve.from(0.04 + shiftCurve));
