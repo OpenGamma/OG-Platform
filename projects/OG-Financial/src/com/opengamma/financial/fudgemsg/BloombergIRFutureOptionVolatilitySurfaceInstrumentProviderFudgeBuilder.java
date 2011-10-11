@@ -48,8 +48,9 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderFudgeBuil
       postfix = message.getString("postfix");
     }
     String dataFieldName = message.getString(DATA_FIELD_NAME);
+    //backward compatibility
     if (dataFieldName == null) {
-      dataFieldName = message.getString(DATA_FIELD_NAME);
+      dataFieldName = message.getString("dataFieldName");
     }
     return new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(futureOptionPrefix, 
         postfix, dataFieldName, Double.parseDouble(message.getString("useCallAboveStrikeValue")));
