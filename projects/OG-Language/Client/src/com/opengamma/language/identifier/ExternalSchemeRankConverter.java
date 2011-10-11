@@ -15,8 +15,8 @@ import com.opengamma.language.definition.JavaTypeInfo;
  */
 public class ExternalSchemeRankConverter extends AbstractMappedConverter {
 
-  private static final JavaTypeInfo<String[]> STRING_ARRAY = JavaTypeInfo.builder(String[].class).get();
-  private static final JavaTypeInfo<ExternalSchemeRank> EXTERNAL_SCHEME_RANK = JavaTypeInfo.builder(ExternalSchemeRank.class).get();
+  private static final JavaTypeInfo<String[]> STRING_ARRAY = JavaTypeInfo.builder(String[].class).allowNull().get();
+  private static final JavaTypeInfo<ExternalSchemeRank> EXTERNAL_SCHEME_RANK = JavaTypeInfo.builder(ExternalSchemeRank.class).allowNull().get();
 
   /**
    * Default instance.

@@ -262,43 +262,8 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
-    //my way
-    final String fundingCurveName = payment.getFundingCurveName();
-    final String liborCurveName = payment.getForwardCurveName();
-    final YieldAndDiscountCurve fundCurve = data.getCurve(fundingCurveName);
-    final YieldAndDiscountCurve liborCurve = data.getCurve(liborCurveName);
 
-    final double tPay = payment.getPaymentTime();
-    final double tStart = payment.getFixingPeriodStartTime();
-    final double tEnd = payment.getFixingPeriodEndTime();
-    final double dfPay = fundCurve.getDiscountFactor(tPay);
-    final double dfStart = liborCurve.getDiscountFactor(tStart);
-    final double dfEnd = liborCurve.getDiscountFactor(tEnd);
-    final double forward = (dfStart / dfEnd - 1) / payment.getFixingPeriodAccrualFactor();
-    final double notional = payment.getNotional();
-
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
-    DoublesPair s;
-    s = new DoublesPair(tPay, -tPay * dfPay * notional * (forward) * payment.getPaymentYearFraction());
-    temp.add(s);
-
-    if (!liborCurveName.equals(fundingCurveName)) {
-      result.put(fundingCurveName, temp);
-      temp = new ArrayList<DoublesPair>();
-    }
-
-    final double ratio = notional * dfPay * dfStart / dfEnd * payment.getPaymentYearFraction() / payment.getFixingPeriodAccrualFactor();
-    s = new DoublesPair(tStart, -tStart * ratio);
-    temp.add(s);
-    s = new DoublesPair(tEnd, tEnd * ratio);
-    temp.add(s);
-
-    result.put(liborCurveName, temp);
-
-    //TODO restore this once Marc fixes it 
-    // Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
+    Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
 
     return result;
   }

@@ -133,11 +133,12 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
   }
 
-  private void initializeClientView(final Client remote, final UniqueId definitionId, final ViewExecutionOptions executionOptions, final UserPrincipal user) {
+  private void initializeClientView(final Client remote, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions, final UserPrincipal user) {
     synchronized (_clientViews) {
       WebView webView = _clientViews.get(remote.getId());
+      
       if (webView != null) {
-        if (webView.matches(definitionId, executionOptions)) {
+        if (webView.matches(viewDefinitionId, executionOptions)) {
           // Already initialized
           webView.reconnected();
           return;
@@ -149,10 +150,10 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
       try {
-        webView = new WebView(getClient(), remote, viewClient, definitionId, executionOptions, user, getExecutorService(), getResultConverterCache());
+        webView = new WebView(getClient(), remote, viewClient, viewDefinitionId, executionOptions, user, getExecutorService(), getResultConverterCache());
       } catch (Exception e) {
         viewClient.shutdown();
-        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + definitionId + "'", e);  //// should this print out view definition name rather than Id?
+        throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionId + "'", e);
       }
       _clientViews.put(remote.getId(), webView);
     }
@@ -245,7 +246,6 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     s_logger.debug("Available view entries: " + availableViewEntries);
     
     for (Map.Entry<UniqueId, String> entry : availableViewEntries.entrySet()) {
-//      result.add(entry.getValue() + "(" + entry.getKey().toString() + ")");
       result.add(entry.getValue());
     }
     
@@ -325,7 +325,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     }
     ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
     s_logger.info("Initializing view '{}' with execution options '{}' for client '{}'", new Object[] {view.getName(), executionOptions, remote});
-    initializeClientView(remote, view.getUniqueId().toLatest(), executionOptions, getUser(remote));
+    initializeClientView(remote, view.getUniqueId(), executionOptions, getUser(remote));
   }
   
   public void processPauseRequest(Client remote, Message message) {
