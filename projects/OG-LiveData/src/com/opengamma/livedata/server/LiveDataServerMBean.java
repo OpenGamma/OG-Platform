@@ -220,8 +220,46 @@ public class LiveDataServerMBean {
       });
       return Iterators.toArray(results.iterator(), String.class);
     } catch (RuntimeException e) {
-      s_logger.error("getSnapshot() failed", e);
+      s_logger.error("getAllSnapshots() failed", e);
       throw new RuntimeException(e.getMessage());
     }
   }
+  
+  @ManagedAttribute(description = "Gets the current field history of a security. Will not cause an underlying snapshot.")
+  @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public String getFieldHistory(String securityUniqueId) {
+    try {
+      Subscription subscription = _server.getSubscription(securityUniqueId);
+      if (subscription == null) {
+        return null;
+      }
+      return subscription.getLiveDataHistory().getLastKnownValues().toString();
+    } catch (RuntimeException e) {
+      s_logger.error("getFieldHistory() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  @ManagedAttribute(description = "Gets the current field history of all active securities. Will not cause any underlying snapshots.")
+  public String[] getAllFieldHistories() {
+    try {
+      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
+
+        @Override
+        public String apply(String from) {
+          try {
+            return getFieldHistory(from);
+          } catch (RuntimeException e) {
+            return e.getMessage();
+          }
+        }
+      });
+      return Iterators.toArray(results.iterator(), String.class);
+    } catch (RuntimeException e) {
+      s_logger.error("getAllFieldHistories() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
 }
