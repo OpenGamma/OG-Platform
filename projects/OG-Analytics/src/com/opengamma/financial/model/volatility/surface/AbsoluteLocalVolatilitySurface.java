@@ -27,6 +27,7 @@ public class AbsoluteLocalVolatilitySurface extends VolatilitySurface {
    * @param s value of the underlying
    * @return The Dupire local volatility 
    */
+  @Override
   public double getVolatility(final double t, final double s) {
     DoublesPair temp = new DoublesPair(t, s);
     return getVolatility(temp);

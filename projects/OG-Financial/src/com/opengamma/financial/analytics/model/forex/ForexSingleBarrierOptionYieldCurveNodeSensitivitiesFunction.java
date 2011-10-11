@@ -148,7 +148,7 @@ public class ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction extends
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    final FXBarrierOptionSecurity fxOption = (FXBarrierOptionSecurity) target.getSecurity();
     final String putFundingCurveName = getPutFundingCurveName();
     final String putForwardCurveName = getPutForwardCurveName();
     final String callFundingCurveName = getCallFundingCurveName();

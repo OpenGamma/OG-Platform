@@ -20,7 +20,8 @@ public class CouponIborFixed extends CouponFixed {
   public CouponIborFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
       final double fixingTime, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, rate);
-    _couponIbor = new CouponIbor(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
+    _couponIbor = new CouponIbor(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, 
+        fixingYearFraction, spread, forwardCurveName);
   }
 
   public CouponIbor toCouponIbor() {

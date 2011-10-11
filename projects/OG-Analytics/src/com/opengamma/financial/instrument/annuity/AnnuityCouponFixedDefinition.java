@@ -199,6 +199,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @param trimDate The date.
    * @return The trimmed annuity.
    */
+  @Override
   public AnnuityCouponFixedDefinition trimBefore(ZonedDateTime trimDate) {
     List<CouponFixedDefinition> list = new ArrayList<CouponFixedDefinition>();
     for (CouponFixedDefinition payment : getPayments()) {
