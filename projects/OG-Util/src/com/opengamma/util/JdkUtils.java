@@ -9,8 +9,13 @@ import java.math.BigDecimal;
 
 /**
  * Utility to fix bugs in the JDK.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class JdkUtils {
+
+  /** Singleton zero. */
+  private static final BigDecimal ZERO = BigDecimal.valueOf(0, 0);
 
   /**
    * Restricted constructor.
@@ -29,9 +34,8 @@ public final class JdkUtils {
    * @return the stripped decimal, not null
    */
   public static BigDecimal stripTrailingZeros(final BigDecimal decimal) {
-    BigDecimal zero = BigDecimal.valueOf(0, 0);
-    if (decimal.compareTo(zero) == 0) {
-      return zero;
+    if (decimal.compareTo(ZERO) == 0) {
+      return ZERO;
     } else {
       return decimal.stripTrailingZeros();
     }

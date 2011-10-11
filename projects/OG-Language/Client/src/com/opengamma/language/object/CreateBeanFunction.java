@@ -42,7 +42,7 @@ public class CreateBeanFunction implements PublishedFunction {
       PropertyReadWrite readWrite = metaProperty.readWrite();
       if (readWrite == PropertyReadWrite.READ_WRITE || readWrite == PropertyReadWrite.WRITE_ONLY) {
         paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
-        JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).get();
+        JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).allowNull().get();
         metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
       }
     }

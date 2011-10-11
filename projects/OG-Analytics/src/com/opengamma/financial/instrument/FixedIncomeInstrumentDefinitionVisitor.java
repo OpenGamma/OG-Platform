@@ -23,7 +23,6 @@ import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginT
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -99,10 +98,6 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future, T data);
 
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future);
-
-  U visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future, T data);
-
-  U visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future);
 
   U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
 

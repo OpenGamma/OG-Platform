@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Gets the current OpenGamma build version. 
+ * Utility methods to work with the current OpenGamma build version. 
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class VersionUtils {
 

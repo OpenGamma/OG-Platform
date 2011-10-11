@@ -177,7 +177,9 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
       for (FudgeField specificRequirementField : calcConfigMsg.getAllByName(SPECIFIC_REQUIREMENT_FIELD)) {
         calcConfig.addSpecificRequirement(deserializer.fieldValueToObject(ValueRequirement.class, specificRequirementField));
       }
-      calcConfig.setDeltaDefinition(deserializer.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
+      if (calcConfigMsg.hasField(DELTA_DEFINITION_FIELD)) {
+        calcConfig.setDeltaDefinition(deserializer.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
+      }
       if (calcConfigMsg.hasField(DEFAULT_PROPERTIES_FIELD)) {
         calcConfig.setDefaultProperties(deserializer.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
       }

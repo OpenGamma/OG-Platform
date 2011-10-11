@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.testng.annotations.Test;
 
 /**
- * Test RegexUtils.
+ * Test.
  */
 @Test
 public class RegexUtilsTest {
@@ -51,6 +51,8 @@ public class RegexUtilsTest {
     assertEquals(true, RegexUtils.wildcardMatch("Hello*", "Hello"));
     assertEquals(true, RegexUtils.wildcardMatch("Hello*", "Hello world"));
     assertEquals(false, RegexUtils.wildcardMatch("Hello*", "Hell on earth"));
+    assertEquals(false, RegexUtils.wildcardMatch(null, "Hell on earth"));
+    assertEquals(false, RegexUtils.wildcardMatch("Hello*", null));
   }
 
 }

@@ -13,3 +13,47 @@
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
+
+.OG-versions .og-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.OG-versions table {
+  width: 100%;
+}
+
+.OG-versions thead {
+  background-color: #fffdf2;
+}
+
+.OG-versions td,
+.OG-versions th {
+  padding:  0 10px 0 10px;
+}
+
+.OG-versions td span {
+  color: #999;
+}
+
+.OG-versions th {
+  text-align: left;
+}
+
+.OG-versions tbody tr:hover {
+  background-color: #fffdf2;
+  color: #487287;
+  cursor: default;
+}
+
+.OG-versions .og-selected a {
+  font-weight: bold;
+  color: #555;
+  border: none;
+}
+
+.OG-versions .og-selected a:after {
+  content: ' (viewing)'
+}

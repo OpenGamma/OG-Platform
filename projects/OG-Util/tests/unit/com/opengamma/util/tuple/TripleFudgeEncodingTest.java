@@ -39,4 +39,19 @@ public class TripleFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
     assertEncodeDecodeCycle(Triple.class, object);
   }
 
+  public void test_nullFirst() {
+    Triple<String, String, String> object = Triple.of(null, "B", "C");
+    assertEncodeDecodeCycle(Triple.class, object);
+  }
+
+  public void test_nullSecond() {
+    Triple<String, String, String> object = Triple.of("A", null, "C");
+    assertEncodeDecodeCycle(Triple.class, object);
+  }
+
+  public void test_nullThird() {
+    Triple<String, String, String> object = Triple.of("A", "B", null);
+    assertEncodeDecodeCycle(Triple.class, object);
+  }
+
 }

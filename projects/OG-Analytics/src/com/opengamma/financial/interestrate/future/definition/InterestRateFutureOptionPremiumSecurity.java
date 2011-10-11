@@ -20,7 +20,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InterestRateDeri
   /**
    * Underlying future security.
    */
-  private final InterestRateFutureSecurity _underlyingFuture;
+  private final InterestRateFuture _underlyingFuture;
   /**
    * Expiration date.
    */
@@ -49,7 +49,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InterestRateDeri
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionPremiumSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._expirationTime = expirationTime;
@@ -63,7 +63,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InterestRateDeri
    * Gets the underlying future security.
    * @return The underlying future security.
    */
-  public InterestRateFutureSecurity getUnderlyingFuture() {
+  public InterestRateFuture getUnderlyingFuture() {
     return _underlyingFuture;
   }
 

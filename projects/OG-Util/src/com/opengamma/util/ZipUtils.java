@@ -21,18 +21,29 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
+ * Utility methods to assist with ZIP files.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class ZipUtils {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ZipUtils.class);
-  
+
   /**
    * Restricted constructor
    */
   private ZipUtils() {
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Unzips a ZIP archive.
+   * 
+   * @param archive  the archive file, not null
+   * @param outputDir  the output directory, not null
+   * @throws IOException if an error occurs
+   */
   public static void unzipArchive(final File archive, final File outputDir) throws IOException {
     ArgumentChecker.notNull(archive, "archive");
     ArgumentChecker.notNull(outputDir, "outputDir");
@@ -43,9 +54,9 @@ public final class ZipUtils {
         ZipEntry entry = (ZipEntry) e.nextElement();
         unzipEntry(zipfile, entry, outputDir);
       }
-    } catch (IOException e) {
-      s_logger.error("Error while extracting file {}, rethrowing..", archive, e);
-      throw e;
+    } catch (IOException ex) {
+      s_logger.error("Error while extracting file {}, rethrowing..", archive, ex);
+      throw ex;
     }
   }
 
@@ -54,16 +65,16 @@ public final class ZipUtils {
       createDir(new File(outputDir, entry.getName()));
       return;
     }
-
+    
     File outputFile = new File(outputDir, entry.getName());
     if (!outputFile.getParentFile().exists()) {
       createDir(outputFile.getParentFile());
     }
-
+    
     s_logger.debug("Extracting: " + entry);
     BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
     BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-
+    
     try {
       IOUtils.copy(inputStream, outputStream);
     } finally {
