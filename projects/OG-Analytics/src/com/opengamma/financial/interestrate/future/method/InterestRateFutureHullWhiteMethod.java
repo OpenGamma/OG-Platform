@@ -5,6 +5,16 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.tuple.DoublesPair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,17 +22,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
-import com.opengamma.util.tuple.DoublesPair;
-
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
  */
-public class InterestRateFutureSecurityHullWhiteMethod {
+public class InterestRateFutureHullWhiteMethod extends InterestRateFutureMethod {
 
   /**
    * The Hull-White model.
@@ -35,7 +38,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
    * @param curves The Hull-White parameters and the curves.
    * @return The price.
    */
-  public double price(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public double price(final InterestRateFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -47,13 +50,25 @@ public class InterestRateFutureSecurityHullWhiteMethod {
     return price;
   }
 
+  public CurrencyAmount presentValue(final InterestRateFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+    final double pv = presentValueFromPrice(future, price(future, curves));
+    return CurrencyAmount.of(future.getCurrency(), pv);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof InterestRateFuture, "Interest rate future");
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    return presentValue((InterestRateFuture) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
+  }
+
   /**
    * Compute the price sensitivity to rates of a interest rate future by discounting.
    * @param future The future.
    * @param curves The Hull-White parameters and the curves.
    * @return The price rate sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public PresentValueSensitivity priceCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -72,6 +87,12 @@ public class InterestRateFutureSecurityHullWhiteMethod {
     resultMap.put(future.getForwardCurveName(), listForward);
     PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
     return result;
+  }
+
+  @Override
+  public PresentValueSensitivity priceCurveSensitivity(InterestRateFuture future, YieldCurveBundle curves) {
+    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    return priceCurveSensitivity(future, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
 }

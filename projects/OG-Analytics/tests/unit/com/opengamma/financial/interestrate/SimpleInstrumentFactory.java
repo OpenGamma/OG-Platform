@@ -5,10 +5,6 @@
  */
 package com.opengamma.financial.interestrate;
 
-import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
-
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -25,8 +21,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
@@ -37,6 +32,10 @@ import com.opengamma.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * A set of methods to generate simply interest rate derivatives for testing purposes 
@@ -85,9 +84,8 @@ public abstract class SimpleInstrumentFactory {
   public static InterestRateDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName,
       final String indexCurveName, final double rate, final int contracts) {
     double tau = 1. / paymentFreq.getPeriodsPerYear();
-    final InterestRateFutureSecurity underlyingFuture = new InterestRateFutureSecurity(time, DUMMY_INDEX, time, time + tau,
-        tau, 1, tau, "N", fundCurveName, indexCurveName);
-    return new InterestRateFutureTransaction(underlyingFuture, contracts, rate);
+    return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau,
+        tau, 0, 1, tau, "N", fundCurveName, indexCurveName);
   }
 
   public static OISSwap makeOISSwap(final double time, final String fundingCurveName,

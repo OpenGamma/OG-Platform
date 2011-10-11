@@ -33,7 +33,7 @@ public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
      * The calibration instruments are caps at strike given by the coupon in the forward curve.
      */
     FORWARD_COUPON
-  };
+  }
 
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 

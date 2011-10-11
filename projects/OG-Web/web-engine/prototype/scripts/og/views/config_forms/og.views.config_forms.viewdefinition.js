@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.viewdefinition',
+    name: 'og.views.config_forms.viewdefinition',
     dependencies: [
         'og.api.rest',
         'og.common.util.ui',
@@ -11,7 +11,7 @@ $.register_module({
         'og.views.forms.Dropdown'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest,
+        var Form = og.common.util.ui.Form, forms = og.views.forms, api = og.api.rest,
             RMDF = 'resultModelDefinition',
             SETS = 'calculationConfiguration',
             DEFP = 'defaultProperties',
@@ -24,17 +24,71 @@ $.register_module({
             REQS = 'portfolioRequirement',
             SECU = 'securityType',
             REQO = 'requiredOutput',
-            CONS = 'constraints';
+            CONS = 'constraints',
+            WITH = 'with',
+            WTHO = 'without',
+            INDX = '<INDEX>',
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                id_count = 0, prefix = 'viewdef_', master = config.data.template_data.configJSON, column_set_tabs,
-                form = new ui.Form({
+                id_count = 0, prefix = 'viewdef_',
+                master = config.data.template_data.configJSON.data,
+                column_set_tabs,
+                meta_map = [
+                    ['0',                                                                           Form.type.STR],
+                    // <constraints>
+                    [[SETS, INDX, DEFP, WITH, '*'].join('.'),                                       Form.type.IND],
+                    [[SETS, INDX, DEFP, WITH, '*', 'optional'].join('.'),                           Form.type.IND],
+                    [[SETS, INDX, DEFP, WITH, '*', '*'].join('.'),                                  Form.type.STR],
+                    [[SETS, INDX, DEFP, WTHO].join('.'),                                            Form.type.STR],
+                    [[SETS, INDX, DEFP, WTHO, '*'].join('.'),                                       Form.type.STR],
+                    // </constraints>
+                    [[SETS, INDX, 'name'].join('.'),                                                Form.type.STR],
+                    // <constraints>
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*'].join('.'),               Form.type.IND],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', 'optional'].join('.'),   Form.type.IND],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WITH, '*', '*'].join('.'),          Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO].join('.'),                    Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, CONS, WTHO, '*'].join('.'),               Form.type.STR],
+                    // </constraints>
+                    [[SETS, INDX, COLS, INDX, REQS, INDX, REQO].join('.'),                          Form.type.STR],
+                    [[SETS, INDX, COLS, INDX, SECU].join('.'),                                      Form.type.STR],
+                    [[SETS, INDX, RLTR, '0'].join('.'),                                             Form.type.STR],
+                    [[SETS, INDX, RLTR, '*'].join('.'),                                             Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, SPCT].join('.'),                                      Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, SPTT].join('.'),                                      Form.type.STR],
+                    // <constraints>
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*'].join('.'),                           Form.type.IND],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', 'optional'].join('.'),               Form.type.IND],
+                    [[SETS, INDX, SPEC, INDX, CONS, WITH, '*', '*'].join('.'),                      Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WTHO].join('.'),                                Form.type.STR],
+                    [[SETS, INDX, SPEC, INDX, CONS, WTHO, '*'].join('.'),                           Form.type.STR],
+                    // </constraints>
+                    [[SETS, INDX, SPEC, INDX, SPVN].join('.'),                                      Form.type.STR],
+                    ['currency',                                                                    Form.type.STR],
+                    ['identifier',                                                                  Form.type.STR],
+                    ['maxDeltaCalcPeriod',                                                          Form.type.SHR],
+                    ['maxFullCalcPeriod',                                                           Form.type.SHR],
+                    ['minDeltaCalcPeriod',                                                          Form.type.SHR],
+                    ['minFullCalcPeriod',                                                           Form.type.SHR],
+                    ['name',                                                                        Form.type.STR],
+                    [[RMDF, 'aggregatePositionOutputMode'].join('.'),                               Form.type.STR],
+                    [[RMDF, 'positionOutputMode'].join('.'),                                        Form.type.STR],
+                    [[RMDF, 'primitiveOutputMode'].join('.'),                                       Form.type.STR],
+                    [[RMDF, 'securityOutputMode'].join('.'),                                        Form.type.STR],
+                    [[RMDF, 'tradeOutputMode'].join('.'),                                           Form.type.STR],
+                    ['uniqueId',                                                                    Form.type.STR],
+                    [['user', 'ipAddress'].join('.'),                                               Form.type.STR],
+                    [['user', 'userName'].join('.'),                                                Form.type.STR]
+                ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+                form = new Form({
                     module: 'og.views.forms.view-definition',
                     data: master,
+                    meta: meta_map,
                     selector: selector,
                     extras: {name: master.name},
                     processor: function (data) { // remove undefineds that we added
@@ -53,17 +107,19 @@ $.register_module({
                     }
                 }),
                 form_id = '#' + form.id,
-                save_resource = function (data, as_new) {
+                save_resource = function (result, as_new) {
+                    var data = result.data, meta = result.meta;
                     if (!deleted && !is_new && as_new && (orig_name === data.name))
                         return window.alert('Please select a new name.');
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name,
-                        json: JSON.stringify(data),
+                        json: JSON.stringify({data: data, meta: meta}),
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
                 };
+            master[SETS] = arr(master[SETS]); // initialize master[SETS]
             form.attach([
                 {type: 'form:load', handler: function () {
                     var header = '\
@@ -83,7 +139,7 @@ $.register_module({
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    save_resource(result.data, submit_type === 'save_as_new');
+                    save_resource(result, submit_type === 'save_as_new');
                 }},
                 {type: 'click', selector: form_id + ' .og-js-collapse-handle', handler: function (e) {
                     var $target = $(e.target), $handle = $target.is('.og-js-collapse-handle') ? $target
@@ -343,7 +399,8 @@ $.register_module({
                                 reqs_block = new form.Block({
                                     wrap: '<ul class="og-js-port-req">{{html html}}</ul>'
                                 });
-                            if (col[REQS]) Array.prototype.push.apply(reqs_block.children, col[REQS].map(new_port_req));
+                            if (col[REQS] = arr(col[REQS]))
+                                Array.prototype.push.apply(reqs_block.children, col[REQS].map(new_port_req));
                             return new form.Block({
                                 module: 'og.views.forms.view-definition-column-value',
                                 extras: {id: col_id},
@@ -452,11 +509,14 @@ $.register_module({
                             })
                         ];
                         // column tabs
-                        if (set[COLS]) Array.prototype.push.apply(col_tabs.children, set[COLS].map(new_col_tab));
+                        if ((set[COLS] = arr(set[COLS])).length)
+                            Array.prototype.push.apply(col_tabs.children, set[COLS].map(new_col_tab));
                         // column values
-                        if (set[COLS]) Array.prototype.push.apply(col_vals.children, set[COLS].map(new_col_val));
+                        if ((set[COLS] = arr(set[COLS])).length)
+                            Array.prototype.push.apply(col_vals.children, set[COLS].map(new_col_val));
                         // additional values
-                        if (set[SPEC]) Array.prototype.push.apply(spec_vals.children, set[SPEC].map(new_spec_val));
+                        if ((set[SPEC] = arr(set[SPEC])).length)
+                            Array.prototype.push.apply(spec_vals.children, set[SPEC].map(new_spec_val));
                         return column_set;
                     };
                 form.children.push(
@@ -467,7 +527,8 @@ $.register_module({
                     new form.Block({ // form item_4
                         module: 'og.views.forms.view-definition-colset-tabs',
                         extras: {
-                            tabs: (master[SETS] || (master[SETS] = [])).reduce(function (acc, set, idx) {
+                            tabs: master[SETS].reduce(function (acc, set, idx) {
+                                set.name = set.name || 'Set ' + (idx + 1);
                                 return acc + '<li><a class="og-tab og-js-colset-tab' + (idx ? '' : ' og-active') + '"' +
                                     ' href="#"><div class="og-delete og-js-rem-colset"></div>' +
                                     '<span class="og-js-colset-tab-name">' + set.name + '</span></a></li>';
@@ -494,10 +555,9 @@ $.register_module({
                                     $(form_id + ' .og-js-empty-colsets').hide();
                                     (function () {
                                         var $sec = $(form_id + ' section.og-js-colsets'),
-                                            block, set = {name: 'Set '};
+                                            block, set = {name: 'Set ' + (master[SETS].length + 1)};
                                         set[DEFP] = {};
-                                        if (!master[SETS]) master[SETS] = [set]; else master[SETS].push(set);
-                                        set.name += master[SETS].length;
+                                        master[SETS].push(set);
                                         column_sets.children.push(block = new_col_set(set, master[SETS].length - 1));
                                         block.html(function (html) {
                                             $sec.append($(html));

@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -98,7 +98,7 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements FixedI
 
   @Override
   public InterestRateFutureOptionPremiumSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
+    final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
     return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);

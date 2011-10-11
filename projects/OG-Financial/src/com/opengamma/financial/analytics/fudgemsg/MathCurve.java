@@ -90,9 +90,8 @@ final class MathCurve {
       final Object function = deserializer.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
       if (function instanceof Function) {
         return FunctionalDoublesCurve.from((Function) function, name);
-      } else {
-        throw new OpenGammaRuntimeException("Expected serialized function, got " + function);
-      }
+      } 
+      throw new OpenGammaRuntimeException("Expected serialized function, got " + function);
     }
 
     @Override

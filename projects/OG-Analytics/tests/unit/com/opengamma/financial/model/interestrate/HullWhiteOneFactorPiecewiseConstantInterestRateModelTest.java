@@ -9,6 +9,19 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
@@ -17,27 +30,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
-
 /**
  * Tests related to the construction of the Hull-White one factor model with piecewise constant volatility. The computation of several model related factors are also tested.
  */
 public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
 
   private static final double MEAN_REVERSION = 0.01;
-  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
-  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
+  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014 };
+  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0 };
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
@@ -102,6 +102,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR);
     final double NOTIONAL = 1000000.0; // 1m
     final double FUTURE_FACTOR = 0.25;
+    final double REFERENCE_PRICE = 0.0; // TODO CASE - Future Refactor - referencePrice = 0
     final String NAME = "ERU2";
     final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
     DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -112,8 +113,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
     final String DISCOUNTING_CURVE_NAME = "Funding";
     final String FORWARD_CURVE_NAME = "Forward";
-    InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    InterestRateFuture ERU2 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR,
+        NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
     double factor = MODEL.futureConvexityFactor(ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), MODEL_PARAMETERS);
     double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
@@ -144,9 +145,9 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the swaption exercise boundary.
    */
   public void kappa() {
-    double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05};
+    double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05 };
     double notional = 100000000; // 100m
-    double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00};
+    double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00 };
     double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
     int nbCF = cashFlowAmount.length;
     double[] discountedCashFlow = new double[nbCF];

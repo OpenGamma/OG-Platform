@@ -10,9 +10,9 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.AbstractInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureSecurityDiscountingMethod;
-import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 
 /**
  * Calculate security prices for futures (bond and interest rate).
@@ -30,7 +30,7 @@ public final class PriceFromCurvesDiscountingCalculator extends AbstractInterest
   /**
    * The method to compute interest rate future prices.
    */
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  private static final InterestRateFutureDiscountingMethod METHOD_RATE_FUTURE = InterestRateFutureDiscountingMethod.getInstance();
 
   /**
    * Return the calculator instance.
@@ -47,7 +47,7 @@ public final class PriceFromCurvesDiscountingCalculator extends AbstractInterest
   }
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(future);
     return METHOD_RATE_FUTURE.price(future, curves);
