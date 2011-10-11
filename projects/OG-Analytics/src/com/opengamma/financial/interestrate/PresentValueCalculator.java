@@ -108,7 +108,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
-    return method.presentValue(future, curves).getAmount();
+    return method.price(future, curves);
   }
 
   @Override

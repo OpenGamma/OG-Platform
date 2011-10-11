@@ -47,6 +47,6 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price rate sensitivity.
    */
-  abstract public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves);
+  public abstract InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves);
 
 }

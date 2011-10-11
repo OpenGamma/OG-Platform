@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
  */
-public class InterestRateFutureSecurityHullWhiteMethod {
+public class InterestRateFutureHullWhiteMethod {
 
   /**
    * The Hull-White model.
@@ -35,7 +35,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
    * @param curves The Hull-White parameters and the curves.
    * @return The price.
    */
-  public double price(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public double price(final InterestRateFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -53,7 +53,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
    * @param curves The Hull-White parameters and the curves.
    * @return The price rate sensitivity.
    */
-  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final HullWhiteOneFactorPiecewiseConstantDataBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());

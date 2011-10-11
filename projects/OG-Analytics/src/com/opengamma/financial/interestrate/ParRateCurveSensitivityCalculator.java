@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.interestrate;
 
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.*;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
@@ -21,7 +23,6 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -22,15 +22,15 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute the price for an interest rate future with discounting (like a forward). 
  * No convexity adjustment is done. 
  */
-public final class InterestRateFutureSecurityDiscountingMethod {
+public final class InterestRateFutureDiscountingMethod {
 
-  private static final InterestRateFutureSecurityDiscountingMethod INSTANCE = new InterestRateFutureSecurityDiscountingMethod();
+  private static final InterestRateFutureDiscountingMethod INSTANCE = new InterestRateFutureDiscountingMethod();
 
-  public static InterestRateFutureSecurityDiscountingMethod getInstance() {
+  public static InterestRateFutureDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
-  private InterestRateFutureSecurityDiscountingMethod() {
+  private InterestRateFutureDiscountingMethod() {
   }
 
   /**
@@ -39,7 +39,7 @@ public final class InterestRateFutureSecurityDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price.
    */
-  public double price(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public double price(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -55,7 +55,7 @@ public final class InterestRateFutureSecurityDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The rate.
    */
-  public double parRate(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public double parRate(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
@@ -70,7 +70,7 @@ public final class InterestRateFutureSecurityDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price rate sensitivity.
    */
-  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
