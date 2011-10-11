@@ -36,6 +36,9 @@ public class EquityFutureConverter extends AbstractFutureSecurityVisitor<FixedIn
     // What this futuresPrice represents is the last margin price, then when one computes pv, they get back the value expected if one unwinds the trade 
     final Double futuresPrice = trade.getPremium();
 
+    // TODO Case 2011.10.04 Instead of getting Premium from the trade, we might take previous close from time series in the ConventionSource.
+    // I spoke to Elaine about the idea of always pricing against yesterday's close, even on trade date. Latter case is handled by tradePremium ~ (pricePrevClose - priceTradeTime)*unitAmount*nContracts
+
     /* FIXME Case 2011-05-27 Revisit holiday conventions for input dates 
     final ConventionBundle conventions = super.getConventionSource().getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_EQFUTURE"));
     final Calendar calendar = CalendarUtil.getCalendar(super.getHolidaySource(), currency); //TODO use exchange holiday

@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.region;
 
-import static com.opengamma.util.EnumUtils.getEnumFromString;
+import static com.opengamma.util.EnumUtils.safeValueOf;
 
 import java.net.URI;
 
@@ -106,7 +106,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     countryISO = StringUtils.trimToNull(countryISO);
     currencyISO = StringUtils.trimToNull(currencyISO);
     timeZoneId = StringUtils.trimToNull(timeZoneId);
-    RegionClassification regionClassification = getEnumFromString(RegionClassification.class, classification);
+    RegionClassification regionClassification = safeValueOf(RegionClassification.class, classification);
     if (name == null || regionClassification == null) {
       FlexiBean out = createRootData();
       if (name == null) {
@@ -188,7 +188,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     countryISO = StringUtils.trimToNull(countryISO);
     currencyISO = StringUtils.trimToNull(currencyISO);
     timeZoneId = StringUtils.trimToNull(timeZoneId);
-    RegionClassification regionClassification = getEnumFromString(RegionClassification.class, classification);
+    RegionClassification regionClassification = safeValueOf(RegionClassification.class, classification);
     if (name == null || regionClassification == null) {
       FlexiBean out = createRootData();
       if (name == null) {
@@ -226,7 +226,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     countryISO = StringUtils.trimToNull(countryISO);
     currencyISO = StringUtils.trimToNull(currencyISO);
     timeZoneId = StringUtils.trimToNull(timeZoneId);
-    RegionClassification regionClassification = getEnumFromString(RegionClassification.class, classification);
+    RegionClassification regionClassification = safeValueOf(RegionClassification.class, classification);
     if (name == null || regionClassification == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }

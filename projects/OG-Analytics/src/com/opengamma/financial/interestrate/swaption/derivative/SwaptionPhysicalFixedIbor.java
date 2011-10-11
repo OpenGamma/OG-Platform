@@ -30,7 +30,7 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
      * The notional for all coupons is set to the first fixed leg coupon notional.
      */
     FIXEDLEG_STRIKE
-  };
+  }
 
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.

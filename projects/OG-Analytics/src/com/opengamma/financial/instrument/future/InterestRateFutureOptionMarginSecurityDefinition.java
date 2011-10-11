@@ -16,7 +16,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 
 /**
  * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type). The option is of American type.
@@ -95,7 +95,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements FixedIn
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
-    InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
+    InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
     InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
     return option;
   }

@@ -12,7 +12,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 /**
- * Test CompareUtils.
+ * Test.
  */
 @Test
 public class CompareUtilsTest {
@@ -37,20 +37,72 @@ public class CompareUtilsTest {
     assertEquals("A", CompareUtils.min("A", "B"));
   }
 
-  public void testCompareWithNull() {
-    assertTrue(CompareUtils.compareWithNull(null, null) == 0);
-    assertTrue(CompareUtils.compareWithNull(null, "Test") < 0);
-    assertTrue(CompareUtils.compareWithNull("Test", null) > 0);
-    assertTrue(CompareUtils.compareWithNull("Test", "Test") == 0);
-    assertTrue(CompareUtils.compareWithNull("AAAA", "BBBB") == "AAAA".compareTo("BBBB"));
+  public void test_compareWithNullLow() {
+    assertTrue(CompareUtils.compareWithNullLow(null, null) == 0);
+    assertTrue(CompareUtils.compareWithNullLow(null, "Test") < 0);
+    assertTrue(CompareUtils.compareWithNullLow("Test", null) > 0);
+    assertTrue(CompareUtils.compareWithNullLow("Test", "Test") == 0);
+    assertTrue(CompareUtils.compareWithNullLow("AAAA", "BBBB") == "AAAA".compareTo("BBBB"));
   }
 
-  public void testCompareWithNullHigh() {
+  public void test_compareWithNullHigh() {
     assertTrue(CompareUtils.compareWithNullHigh(null, null) == 0);
     assertTrue(CompareUtils.compareWithNullHigh(null, "Test") > 0);
     assertTrue(CompareUtils.compareWithNullHigh("Test", null) < 0);
     assertTrue(CompareUtils.compareWithNullHigh("Test", "Test") == 0);
     assertTrue(CompareUtils.compareWithNullHigh("AAAA", "BBBB") == "AAAA".compareTo("BBBB"));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_closeEquals() {
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.2d), true);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.3d), false);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.1d), false);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.2000000000000001d), true);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.1999999999999999d), true);
+    assertEquals(CompareUtils.closeEquals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY), true);
+    assertEquals(CompareUtils.closeEquals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY), true);
+    assertEquals(CompareUtils.closeEquals(Double.NaN, Double.NaN), false);
+    assertEquals(CompareUtils.closeEquals(Double.POSITIVE_INFINITY, Double.NaN), false);
+    assertEquals(CompareUtils.closeEquals(Double.NaN, Double.POSITIVE_INFINITY), false);
+    assertEquals(CompareUtils.closeEquals(Double.NEGATIVE_INFINITY, Double.NaN), false);
+    assertEquals(CompareUtils.closeEquals(Double.NaN, Double.NEGATIVE_INFINITY), false);
+  }
+
+  public void test_closeEquals_tolerance() {
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.2d, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.3d, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.1d, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.2002d, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.2001d, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.20009d, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.2000001d, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(0.2d, 0.1999999d, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 0.0001d), true);
+    assertEquals(CompareUtils.closeEquals(Double.NaN, Double.NaN, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(Double.POSITIVE_INFINITY, Double.NaN, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(Double.NaN, Double.POSITIVE_INFINITY, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(Double.NEGATIVE_INFINITY, Double.NaN, 0.0001d), false);
+    assertEquals(CompareUtils.closeEquals(Double.NaN, Double.NEGATIVE_INFINITY, 0.0001d), false);
+  }
+
+  public void test_compareWithTolerance() {
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.2d, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.3d, 0.0001d), -1);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.1d, 0.0001d), 1);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.2002d, 0.0001d), -1);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.2001d, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.20009d, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.2000001d, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(0.2d, 0.1999999d, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(Double.POSITIVE_INFINITY, 1.0d, 0.0001d), 1);
+    assertEquals(CompareUtils.compareWithTolerance(1.0d, Double.POSITIVE_INFINITY, 0.0001d), -1);
+    assertEquals(CompareUtils.compareWithTolerance(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 0.0001d), 0);
+    assertEquals(CompareUtils.compareWithTolerance(Double.NEGATIVE_INFINITY, 1.0d, 0.0001d), -1);
+    assertEquals(CompareUtils.compareWithTolerance(1.0d, Double.NEGATIVE_INFINITY, 0.0001d), 1);
+    assertEquals(CompareUtils.compareWithTolerance(Double.NaN, Double.NaN, 0.0001d), 1);  // weird case
   }
 
 }
