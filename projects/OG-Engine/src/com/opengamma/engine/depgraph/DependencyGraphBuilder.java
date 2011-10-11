@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -66,10 +67,8 @@ public final class DependencyGraphBuilder {
   private static final boolean DEBUG_DUMP_FAILURE_INFO = false; // DON'T CHECK IN WITH =true
   private static final int MAX_CALLBACK_DEPTH = 16;
 
-  private static int s_defaultMaxAdditionalThreads = NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
-
   public static int getDefaultMaxAdditionalThreads() {
-    return s_defaultMaxAdditionalThreads;
+    return NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
   }
 
   private static final class RequirementResolver extends AggregateResolvedValueProducer {
@@ -1048,8 +1047,9 @@ public final class DependencyGraphBuilder {
 
   protected static PrintStream openDebugStream(final String name) {
     try {
-      int fileId = s_nextDebugId.getAndIncrement();
-      return new PrintStream(new FileOutputStream("/tmp/" + name + fileId + ".txt"));
+      final int fileId = s_nextDebugId.getAndIncrement();
+      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + fileId + ".txt";
+      return new PrintStream(new FileOutputStream(fileName));
     } catch (IOException e) {
       s_loggerBuilder.error("Can't open debug file", e);
       return System.out;

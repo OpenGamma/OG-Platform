@@ -53,9 +53,9 @@ public class ViewCompilationContext {
   // --------------------------------------------------------------------------
   private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
-    final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(valuationTime);
-    final Collection<ResolutionRule> rules = functionResolver.getAllResolutionRules();
+    final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     final DependencyGraphBuilderFactory builderFactory = new DependencyGraphBuilderFactory();
+    CompiledFunctionResolver defaultResolver = null;
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = builderFactory.newInstance();
       builder.setCalculationConfigurationName(configName);
@@ -67,7 +67,10 @@ public class ViewCompilationContext {
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
       if (transformedRules == rules) {
         // No transformation applied; use the default resolver
-        builder.setFunctionResolver(functionResolver);
+        if (defaultResolver == null) {
+          defaultResolver = new DefaultCompiledFunctionResolver(compilationContext, rules);
+        }
+        builder.setFunctionResolver(defaultResolver);
       } else {
         // Create a new resolver with the transformed rules
         builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));

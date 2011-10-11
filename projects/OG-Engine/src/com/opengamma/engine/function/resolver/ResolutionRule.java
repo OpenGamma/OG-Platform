@@ -111,7 +111,7 @@ public class ResolutionRule {
       return null;
     }
     return getResult(output, target, resultSpecs);
-    }
+  }
 
   /**
    * The first half of the full {@link #getResult(ValueRequirement,ComputationTarget,FunctionCompilationContext)} implementation
