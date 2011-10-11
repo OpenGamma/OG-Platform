@@ -6,7 +6,6 @@ $.register_module({
     name: 'og.common.slickgrid.manager',
     dependencies: ['og.common.util.ui.message'],
     obj: function () {
-
         return function (obj) {
             var DEFAULT_PAGESIZE = 20,
                 data = {length: 0},
@@ -28,16 +27,14 @@ $.register_module({
                     filters = args.filters,
                     is_new_filter = args.filter_being_applied || false,
                     handle_data;
-
+                delete args.filters.version;
                 if (!is_new_filter) {
                     while (data[from_page * DEFAULT_PAGESIZE] !== undefined && from_page < to_page) from_page++;
                     while (data[to_page * DEFAULT_PAGESIZE] !== undefined && from_page < to_page) to_page--;
                 } else for (var i = 0; i < data.length; i++) if (data[i]) delete data[i]; // Delete old data
-
                 // Get page size/number
                 request_page_size = (((to_page - from_page) * DEFAULT_PAGESIZE) + DEFAULT_PAGESIZE);
                 request_page_number = Math.floor(from_page / (request_page_size / DEFAULT_PAGESIZE));
-
                 (function () {
                     // The search is always different if filters is populated on keyup
                     // so only check if cached data exists if a new filter has not been applied
@@ -53,7 +50,6 @@ $.register_module({
                         for (i = from_num; i < to_num; i++) data_already_cached = data[i] !== undefined || false;
                     }
                 }());
-
                 // Rest handler
                 handle_data = function (r) {
                     var from, to, json_header;
@@ -122,7 +118,7 @@ $.register_module({
                         }, {});
                     }())));
                 }
-            }
+            };
             return {
                 data: data,                                  // properties
                 on_data_loading: on_data_loading,            // events

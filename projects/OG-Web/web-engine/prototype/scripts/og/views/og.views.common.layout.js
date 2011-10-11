@@ -57,7 +57,7 @@ $.register_module({
                 initClosed: true,
                 spacing_closed: 0,
                 enableCursorHotkey: true,
-                onopen: og.views.common.versions
+                onopen: og.views.common.versions.load
             }
         },
         analytics = {

@@ -3,7 +3,7 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.yieldcurvedefinition',
+    name: 'og.views.config_forms.yieldcurvedefinition',
     dependencies: [
         'og.api.rest',
         'og.common.util.ui',
@@ -11,23 +11,38 @@ $.register_module({
         'og.views.forms.Dropdown'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest;
+        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest, Form = ui.Form,
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
                 orig_name = config.data.template_data.configJSON.name, submit_type,
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
-                master = config.data.template_data.configJSON, strips,
+                master = config.data.template_data.configJSON.data, strips,
                 CONV = 'conventionName', NUMF = 'numFutures',
-                CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName'
-                form = new ui.Form({
+                CURV = 'CurveSpecificationBuilderConfiguration', INTR = 'interpolatorName',
+                INDX = '<INDEX>',
+                sep = '~',
+                meta_map = [
+                    [['0', INDX].join('.'),                 Form.type.STR],
+                    ['currency',                            Form.type.STR],
+                    [INTR,                                  Form.type.STR],
+                    ['name',                                Form.type.STR],
+                    ['region',                              Form.type.STR],
+                    [['strip', INDX, CONV].join('.'),       Form.type.STR],
+                    [['strip', INDX, NUMF].join('.'),       Form.type.BYT],
+                    [['strip', INDX, 'tenor'].join('.'),    Form.type.STR],
+                    [['strip', INDX, 'type'].join('.'),     Form.type.STR],
+                    ['uniqueId',                            Form.type.STR],
+                ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+                form = new Form({
                     module: 'og.views.forms.yield-curve-definition',
                     data: master,
+                    meta: meta_map,
                     selector: selector,
                     extras: {
                         name: master.name, currency: master.currency || (master.currency = 'USD'),
-                        region_scheme: master.region.Scheme,
                         interpolator: master[INTR]
                     },
                     processor: function (data) {
@@ -83,7 +98,7 @@ $.register_module({
                     api.configs.put({
                         id: as_new ? undefined : resource_id,
                         name: data.name + '_' + data.currency,
-                        json: JSON.stringify(data),
+                        json: JSON.stringify({data: data, meta: meta}),
                         loading: loading,
                         handler: as_new ? save_new_handler : save_handler
                     });
@@ -111,7 +126,7 @@ $.register_module({
                     submit_type = $(e.target).val();
                 }},
                 {type: 'form:submit', handler: function (result) {
-                    save_resource(result.data, submit_type === 'save_as_new');
+                    save_resource(result, submit_type === 'save_as_new');
                 }},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
                     var currency = $(e.target).val();
@@ -134,7 +149,7 @@ $.register_module({
                         $el.remove();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-add', handler: function (e) { // add a strip
-                    var block = new_strip({}, (master.strip || (master.strip = [])).push({}) - 1);
+                    var block = new_strip({}, master.strip.push({}) - 1);
                     block.html(function (html) {$(form_id + ' .og-js-strips').append($(html)), block.load();});
                 }}
             ]);
@@ -142,9 +157,12 @@ $.register_module({
                 new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) { // item_0
                     handler(template);
                 }}),
-                new forms.Dropdown({
-                    form: form, value: master.region.Value, resource: 'regions',
-                    index: 'region.Value', placeholder: 'Please select...',
+                new forms.Dropdown({ // item_1
+                    form: form, value: master.region.split(sep)[1],
+                    resource: 'regions', placeholder: 'Please select...',
+                    processor: function (selector, data, errors) {
+                        data.region = master.region.split(sep)[0] + sep + $(selector).val();
+                    },
                     data_generator: function (handler) {
                         api.regions.get({
                             page: 'all',
@@ -160,9 +178,10 @@ $.register_module({
                         });
                     }
                 }),
-                strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{html html}}</ul>'}) // item_1
+                strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{html html}}</ul>'}) // item_2
             ];
-            if (master.strip) Array.prototype.push.apply(strips.children, master.strip.map(new_strip));
+            if ((master.strip = arr(master.strip)).length)
+                Array.prototype.push.apply(strips.children, master.strip.map(new_strip));
             form.dom();
         };
     }

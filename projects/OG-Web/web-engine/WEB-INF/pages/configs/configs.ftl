@@ -37,6 +37,7 @@
   <@form method="POST" action="${uris.configs()}">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="" /></@rowin>
+    <@rowin label="Type"><input type="text" size="30" maxlength="80" name="type" value="" /></@rowin>
     <@rowin label="Configuration (XML)">
       <div style="border:1px solid black;padding:2px;"><textarea rows="30" cols="80" name="configxml" id="xmltextarea"></textarea></div>
     </@rowin>

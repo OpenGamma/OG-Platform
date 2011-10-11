@@ -56,7 +56,8 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
         calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),
         iborConvention.isEOMConvention());
     final double notional = security.getUnitAmount();
-    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, notional, paymentAccrualFactor);
+    final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
+    return new InterestRateFutureSecurityDefinition(lastTradeDate, iborIndex, referencePrice, notional, paymentAccrualFactor);
   }
 
   private double getAccrualFactor(final Period period) {

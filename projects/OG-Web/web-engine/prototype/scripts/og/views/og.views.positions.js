@@ -185,8 +185,9 @@ $.register_module({
                         }});
                     },
                     id: args.id,
+                    version: args.version,
                     loading: function () {
-                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions()}
+                        if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.load()}
                         ui.message({
                             location: '.ui-layout-inner-center',
                             message: {0: 'loading...', 3000: 'still loading...'}
@@ -200,7 +201,7 @@ $.register_module({
             load_filter: {route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'},
             load_delete: {route: '/' + page_name + '/deleted:/quantity:?', method: module.name + '.load_delete'},
             load_positions: {
-                route: '/' + page_name + '/:id/:node?/quantity:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_' + page_name
             },
             load_new_positions: {
                 route: '/' + page_name + '/:id/:node?/new:/quantity:?', method: module.name + '.load_new_' + page_name

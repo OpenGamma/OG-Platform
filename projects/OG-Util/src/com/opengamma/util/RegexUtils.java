@@ -9,7 +9,9 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 /**
- * Utility to simplify comparisons.
+ * Utility methods to simplify comparisons.
+ * <p>
+ * This is a static thread-safe utility class.
  */
 public final class RegexUtils {
 
