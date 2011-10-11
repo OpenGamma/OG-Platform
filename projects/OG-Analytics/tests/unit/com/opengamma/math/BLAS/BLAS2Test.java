@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.FullMatrix;
+import com.opengamma.math.matrix.DenseMatrix;
 
 /**
  * Tests the BLAS2 library
@@ -74,11 +74,11 @@ public class BLAS2Test {
   double [] y19 = {10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190};
 
   // casts to objects for tests
-  FullMatrix aMatrix5by5 = new FullMatrix(A5by5);
-  FullMatrix aMatrix5by4 = new FullMatrix(A5by4);
-  FullMatrix aMatrix4by5 = new FullMatrix(A4by5);
-  FullMatrix aMatrix1by1 = new FullMatrix(A1by1);
-  FullMatrix aMatrix19by17 = new FullMatrix(A19by17);
+  DenseMatrix aMatrix5by5 = new DenseMatrix(A5by5);
+  DenseMatrix aMatrix5by4 = new DenseMatrix(A5by4);
+  DenseMatrix aMatrix4by5 = new DenseMatrix(A4by5);
+  DenseMatrix aMatrix1by1 = new DenseMatrix(A1by1);
+  DenseMatrix aMatrix19by17 = new DenseMatrix(A19by17);
   CompressedSparseRowFormatMatrix csraMatrix4by4 = new CompressedSparseRowFormatMatrix(sparseA4by4);
   CompressedSparseRowFormatMatrix csrLargeaMatrix7by7 = new CompressedSparseRowFormatMatrix(sparseA7by7);
 
@@ -174,7 +174,7 @@ public void testConstructor()
   /* Normal 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix() {
-  FullMatrix NullMat = null;
+  DenseMatrix NullMat = null;
   BLAS2.dgemvInputSanityChecker(NullMat, x5);
 }
 
@@ -192,7 +192,7 @@ public void testInputCatcherSizeWillNotCommute() {
 /* Normal 3 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testInputCatcherMatrix3inputs() {
-  FullMatrix NullMat = null;
+  DenseMatrix NullMat = null;
   BLAS2.dgemvInputSanityChecker(NullMat, x4, y5);
 }
 
@@ -221,7 +221,7 @@ public void testInputCatcherSizeWillNotCommuteWithReturnVector() {
 /* Transpose 2 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testTransposeInputCatcherMatrix() {
-  FullMatrix NullMat = null;
+  DenseMatrix NullMat = null;
   BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x5);
 }
 
@@ -239,7 +239,7 @@ public void testTransposeInputCatcherSizeWillNotCommute() {
 /* Transpose 3 inputs */
 @Test(expectedExceptions = AssertionError.class)
 public void testTransposeInputCatcherMatrix3inputs() {
-  FullMatrix NullMat = null;
+  DenseMatrix NullMat = null;
   BLAS2.dgemvInputSanityCheckerTransposed(NullMat, x4, y5);
 }
 

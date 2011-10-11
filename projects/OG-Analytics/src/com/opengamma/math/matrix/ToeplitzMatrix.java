@@ -22,7 +22,7 @@ package com.opengamma.math.matrix;
  * than their Full Matrix counterparts.
  *
  */
-public class ToeplitzMatrix extends FullMatrix {
+public class ToeplitzMatrix extends DenseMatrix {
   public ToeplitzMatrix(double[][] aMatrix) {
     super(aMatrix);
   }
@@ -31,7 +31,7 @@ public class ToeplitzMatrix extends FullMatrix {
     super(aMatrix);
   }
 
-  public ToeplitzMatrix(FullMatrix aMatrix) {
+  public ToeplitzMatrix(DenseMatrix aMatrix) {
     super(aMatrix.toArray());
   }
 }

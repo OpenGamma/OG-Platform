@@ -14,7 +14,7 @@ public class VandermondeMatrixTest {
   double[][] _data = {{1,2,4},{1,3,9},{1,4,16},{1,5,25}};
 
 /**
- * there is no reason why these tests explicitly would fail, they rely on FullMatrix supers
+ * there is no reason why these tests explicitly would fail, they rely on DenseMatrix supers
  * and so if these tests fail something is broken upstream.
  */
 
@@ -29,8 +29,8 @@ public void testConstructorFromDoubleMatrix2D() {
 }
 
 @Test
-public void testConstructorFromFullMatrix() {
-  new VandermondeMatrix(new FullMatrix(_data));
+public void testConstructorFromDenseMatrix() {
+  new VandermondeMatrix(new DenseMatrix(_data));
 }
 
 

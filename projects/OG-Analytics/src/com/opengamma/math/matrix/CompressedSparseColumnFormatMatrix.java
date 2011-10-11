@@ -183,7 +183,7 @@ public class CompressedSparseColumnFormatMatrix extends SparseMatrixType  {
  * Converts matrix to a Full Matrix representation (undoes the sparse compression)
  * @return tmp, a DoubleMatrix2D
  */
-  public DoubleMatrix2D toFullMatrix() {
+  public DoubleMatrix2D toDenseMatrix() {
     return new DoubleMatrix2D(this.toArray());
   }
 

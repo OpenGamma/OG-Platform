@@ -143,7 +143,7 @@ public class SparseCoordinateFormatMatrix extends SparseMatrixType {
    * Converts COO to DoubleMatrix2D
    * @return tmp, a DoubleMatrix2D corresponding to the full matrix representation
    */
-  public DoubleMatrix2D toFullMatrix() {
+  public DoubleMatrix2D toDenseMatrix() {
     return new DoubleMatrix2D(this.toArray());
   }
 

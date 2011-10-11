@@ -155,10 +155,10 @@ public void testToArray() {
 }
 
 @Test
-public void testToFullMatrix() {
+public void testToDenseMatrix() {
   CompressedSparseRowFormatMatrix M = new CompressedSparseRowFormatMatrix(data);
   DoubleMatrix2D N = new DoubleMatrix2D(data);
-  assertTrue(N.equals(M.toFullMatrix()));
+  assertTrue(N.equals(M.toDenseMatrix()));
 }
 
 @Test

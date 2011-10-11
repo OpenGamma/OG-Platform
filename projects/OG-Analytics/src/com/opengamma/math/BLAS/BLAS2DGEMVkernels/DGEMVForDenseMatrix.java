@@ -10,12 +10,12 @@ import com.opengamma.math.BLAS.BLAS2KernelAbstraction;
 /**
  *
  */
-public final class DGEMVForFullMatrix extends BLAS2KernelAbstraction {
-  private static DGEMVForFullMatrix s_instance = new DGEMVForFullMatrix();
+public final class DGEMVForDenseMatrix extends BLAS2KernelAbstraction {
+  private static DGEMVForDenseMatrix s_instance = new DGEMVForDenseMatrix();
 
-  public static DGEMVForFullMatrix getInstance() {
+  public static DGEMVForDenseMatrix getInstance() {
     return s_instance;
   }
 
-  private DGEMVForFullMatrix() {}
+  private DGEMVForDenseMatrix() {}
 }

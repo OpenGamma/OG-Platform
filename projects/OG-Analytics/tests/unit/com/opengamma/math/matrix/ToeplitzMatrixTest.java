@@ -14,7 +14,7 @@ public class ToeplitzMatrixTest {
   double[][] _data = {{1,2,3,4},{5,1,2,3},{6,5,1,2},{7,6,5,1}};
 
 /**
- * there is no reason why these tests explicitly would fail, they rely on FullMatrix supers
+ * there is no reason why these tests explicitly would fail, they rely on DenseMatrix supers
  * and so if these tests fail something is broken upstream.
  */
 
@@ -29,8 +29,8 @@ public void testConstructorFromDoubleMatrix2D() {
 }
 
 @Test
-public void testConstructorFromFullMatrix() {
-  new ToeplitzMatrix(new FullMatrix(_data));
+public void testConstructorFromDenseMatrix() {
+  new ToeplitzMatrix(new DenseMatrix(_data));
 }
 
 

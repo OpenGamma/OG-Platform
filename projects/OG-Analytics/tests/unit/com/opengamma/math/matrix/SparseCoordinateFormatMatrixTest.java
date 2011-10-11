@@ -86,11 +86,11 @@ public class SparseCoordinateFormatMatrixTest {
    assertTrue(Arrays.deepEquals(data,tmp.toArray()));
  }
 
- @Test //test toFullMatrix
- public void testToFullMatrix() {
+ @Test //test toDenseMatrix
+ public void testToDenseMatrix() {
    SparseCoordinateFormatMatrix tmp = new SparseCoordinateFormatMatrix(data);
    DoubleMatrix2D N = new DoubleMatrix2D(data);
-   assertTrue(N.equals(tmp.toFullMatrix()));
+   assertTrue(N.equals(tmp.toDenseMatrix()));
  }
 
 

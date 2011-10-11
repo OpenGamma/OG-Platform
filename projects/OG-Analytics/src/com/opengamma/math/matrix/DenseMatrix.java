@@ -10,9 +10,9 @@ import java.util.Arrays;
 import org.apache.commons.lang.NotImplementedException;
 
 /**
- * The FullMatrix class provides access to the typically understood notion of a matrix, i.e. A Fully populated array.
+ * The DenseMatrix class provides access to the typically understood notion of a matrix, i.e. A Fully populated array.
  */
-public class FullMatrix implements MatrixPrimitiveInterface {
+public class DenseMatrix implements MatrixPrimitiveInterface {
   private double[] _data;
   private int _rows;
   private int _cols;
@@ -25,7 +25,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
    * Constructs from an array of arrays representation
    * @param aMatrix is an n columns x m rows matrix stored as a row major array of arrays
    */
-  public FullMatrix(double[][] aMatrix) {
+  public DenseMatrix(double[][] aMatrix) {
     // test if ragged
     if (MatrixPrimitiveUtils.isRagged(aMatrix)) {
       throw new NotImplementedException("Construction from ragged array not implemented");
@@ -55,7 +55,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
   }
 
   // construct from DoubleMatrix2D
-  public FullMatrix(DoubleMatrix2D aMatrix) {
+  public DenseMatrix(DoubleMatrix2D aMatrix) {
     this(aMatrix.toArray());
   }
 
@@ -124,7 +124,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
 
   /**
    * Gets the data
-   * @return _data the FullMatrix data in it's native storage format
+   * @return _data the DenseMatrix data in it's native storage format
    */
   public double[] getData() {
     return _data;
@@ -168,7 +168,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
 
   @Override
   public String toString() {
-    return "FullMatrix:" +
+    return "DenseMatrix:" +
       "\ndata = " + Arrays.toString(_data) +
       "\nrows = " + _rows +
       "\ncols = " + _cols +
@@ -197,7 +197,7 @@ public class FullMatrix implements MatrixPrimitiveInterface {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    FullMatrix other = (FullMatrix) obj;
+    DenseMatrix other = (DenseMatrix) obj;
     if (_cols != other._cols) {
       return false;
     }

@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 /**
  *
  */
-public class FullMatrixTest {
+public class DenseMatrixTest {
 double _ragged[][]={{1,2,3,4},{5,6,7},{11,12,13,14,15}};
 double _square[][]={{1,2,3},{4,5,6},{7,8,9}};
 double _tallRectangle[][]={{1,2,3},{4,5,6},{7,8,9},{10,11,12}};
@@ -31,31 +31,31 @@ double _withZeros[][]={{0,2,3,0},{0,0,7,8},{9,0,0,0}};
 @Test(expectedExceptions =  NotImplementedException.class)
 public void testContructFromRaggedArray()
 {
-  new FullMatrix(_ragged);
+  new DenseMatrix(_ragged);
 }
 
 @Test
 public void testContructFromSquareArray()
 {
-  new FullMatrix(_square);
+  new DenseMatrix(_square);
 }
 
 @Test
 public void testContructFromTallRectangle()
 {
-  new FullMatrix(_tallRectangle);
+  new DenseMatrix(_tallRectangle);
 }
 
 @Test
 public void testContructFromWideRectangle()
 {
-  new FullMatrix(_wideRectangle);
+  new DenseMatrix(_wideRectangle);
 }
 
 @Test
 public void testContructFromDoubleMatrix2D()
 {
-  new FullMatrix(new DoubleMatrix2D(_square));
+  new DenseMatrix(new DoubleMatrix2D(_square));
 }
 
 /**
@@ -63,13 +63,13 @@ public void testContructFromDoubleMatrix2D()
  */
 @Test
 public void testGetNumberOfElements() {
-  FullMatrix tmp = new FullMatrix(_square);
+  DenseMatrix tmp = new DenseMatrix(_square);
   assertEquals(9,tmp.getNumberOfElements());
   }
 
 @Test
 public void testGetEntryDualIndex() {
-  FullMatrix tmp = new FullMatrix(_square);
+  DenseMatrix tmp = new DenseMatrix(_square);
   for (int i = 0; i < _square.length; i++) {
     for (int j = 0; j < _square.length; j++) {
       assertEquals(_square[i][j],tmp.getEntry(i,j));
@@ -79,7 +79,7 @@ public void testGetEntryDualIndex() {
 
 @Test
 public void testGetFullRow() {
-  FullMatrix tmp = new FullMatrix(_square);
+  DenseMatrix tmp = new DenseMatrix(_square);
   for (int i = 0; i < _square.length; i++) {
       assertTrue(Arrays.equals(_square[i],tmp.getFullRow(i)));
   }
@@ -87,7 +87,7 @@ public void testGetFullRow() {
 
 @Test
 public void testGetFullColumn() {
-  FullMatrix tmp = new FullMatrix(_square);
+  DenseMatrix tmp = new DenseMatrix(_square);
   double[] colmangle = new double[_square.length];
   for (int i = 0; i < _square.length; i++) {
     for (int j = 0; j < _square.length; j++) {
@@ -99,7 +99,7 @@ public void testGetFullColumn() {
 
 @Test
 public void testGetRowElements() {
-  FullMatrix tmp = new FullMatrix(_square);
+  DenseMatrix tmp = new DenseMatrix(_square);
   for (int i = 0; i < _square.length; i++) {
       assertTrue(Arrays.equals(_square[i],tmp.getRowElements(i)));
   }
@@ -107,7 +107,7 @@ public void testGetRowElements() {
 
 @Test
 public void testGetColumnElements() {
-  FullMatrix tmp = new FullMatrix(_square);
+  DenseMatrix tmp = new DenseMatrix(_square);
   double[] colmangle = new double[_square.length];
   for (int i = 0; i < _square.length; i++) {
     for (int j = 0; j < _square.length; j++) {
@@ -119,41 +119,41 @@ public void testGetColumnElements() {
 
 @Test
 public void testGetNumberOfNonZeroElements() {
-  FullMatrix tmp = new FullMatrix(_withZeros);
+  DenseMatrix tmp = new DenseMatrix(_withZeros);
   assertEquals(5,tmp.getNumberOfNonZeroElements());
-  tmp = new FullMatrix(_square);
+  tmp = new DenseMatrix(_square);
   assertEquals(9,tmp.getNumberOfNonZeroElements());
 }
 
 @Test
 public void testToArray() {
-  FullMatrix tmp = new FullMatrix(_tallRectangle);
+  DenseMatrix tmp = new DenseMatrix(_tallRectangle);
   assertTrue(Arrays.deepEquals(_tallRectangle,tmp.toArray()));
 }
 
 @Test
 public void testEqualsAndHashCode() {
-  FullMatrix N;
-  FullMatrix M = new FullMatrix(_square);
+  DenseMatrix N;
+  DenseMatrix M = new DenseMatrix(_square);
   assertTrue(M.equals(M)); // test this = obj
   assertFalse(M.equals(null)); // test obj != null
   assertFalse(M.equals(M.getClass())); // test obj class
 
   // false, cols too long
-  N = new FullMatrix(_tallRectangle);
+  N = new DenseMatrix(_tallRectangle);
   assertFalse(M.equals(N));
 
   // false, rows too long
-  N = new FullMatrix(_tallRectangle);
+  N = new DenseMatrix(_tallRectangle);
   assertFalse(M.equals(N));
 
   //
   double [][] _squareDiff = {{1,1,3},{4,5,6},{7,8,9}};
-  N = new FullMatrix(_squareDiff);
+  N = new DenseMatrix(_squareDiff);
   assertFalse(M.equals(N));
 
   // hash
-  N = new FullMatrix(_square);
+  N = new DenseMatrix(_square);
   assertTrue(M.equals(N));
   assertEquals(M.hashCode(), N.hashCode());
 }

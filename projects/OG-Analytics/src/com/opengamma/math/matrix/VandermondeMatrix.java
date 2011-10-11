@@ -6,7 +6,7 @@
 package com.opengamma.math.matrix;
 
 /**
- * VandermondeMatrix is an extension of FullMatrix that specialises a FullMatrix as to having Vandermonde
+ * VandermondeMatrix is an extension of DenseMatrix that specialises a DenseMatrix as to having Vandermonde
  * structure, thus aiding the selection of optimal algorithms for common linear algebra.
  *
  * A [m x n] Vandermonde Matrix has the form:
@@ -28,7 +28,7 @@ package com.opengamma.math.matrix;
  * than their Full Matrix counterparts.
  *
  */
-public class VandermondeMatrix extends FullMatrix {
+public class VandermondeMatrix extends DenseMatrix {
   public VandermondeMatrix(double[][] aMatrix) {
     super(aMatrix);
   }
@@ -37,7 +37,7 @@ public class VandermondeMatrix extends FullMatrix {
     super(aMatrix);
   }
 
-  public VandermondeMatrix(FullMatrix aMatrix) {
+  public VandermondeMatrix(DenseMatrix aMatrix) {
     super(aMatrix.toArray());
   }
 }
