@@ -196,6 +196,8 @@ public class TripleTest {
     assertEquals(e.equals(c), false);
     assertEquals(e.equals(d), false);
     assertEquals(e.equals(e), true);
+    
+    assertEquals(e.equals("RUBBISH"), false);
   }
 
   public void testEquals_null() {
@@ -273,6 +275,11 @@ public class TripleTest {
     assertNotNull(pair);
     assertEquals("Black Album", pair.getFirst());
     assertEquals("99 Problems", pair.getSecond());
+  }
+
+  public void test_toString() {
+    Triple<String, String, String> test = new Triple<String, String, String>("A", "B", "C");
+    assertEquals("[A, B, C]", test.toString());
   }
 
 }

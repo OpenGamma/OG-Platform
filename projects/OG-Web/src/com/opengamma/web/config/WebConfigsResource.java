@@ -27,6 +27,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -37,7 +38,6 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.Paging;
 import com.opengamma.util.PagingRequest;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.json.JSONBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -131,10 +131,13 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.TEXT_HTML)
   public Response postHTML(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configxml") String xml,
+      @FormParam("type") String type) {
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
+    type = StringUtils.trimToNull(type);
+    
+    if (name == null || xml == null || type == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
@@ -142,16 +145,32 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
+      if (type == null) {
+        out.put("err_typeMissing", true);
+      }
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    final Pair<Object, Class<?>> typedValue = parseXML(xml);
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
+     
+    final Object configObj = parseXML(xml);
+    final Class<?> logicalClazz = getLogicalClazz(type);
+    
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(logicalClazz);
     doc.setName(name);
-    doc.setValue(typedValue.getFirst());
+    doc.setValue(configObj);
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
+  }
+
+  private Class<?> getLogicalClazz(final String type) {
+    final Class<?> logicalClass;
+    try {
+      logicalClass = Class.forName(type);
+    } catch (Throwable t) {
+      throw new OpenGammaRuntimeException("Invalid logical class name from form param type[" + type + "]");
+    }
+    return logicalClass;
   }
 
   @POST
@@ -160,7 +179,8 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   public Response postJSON(
       @FormParam("name") String name,
       @FormParam("configJSON") String json,
-      @FormParam("configXML") String xml) {
+      @FormParam("configXML") String xml,
+      @FormParam("type") String type) {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
@@ -168,18 +188,19 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     if (isEmptyName(name) || isEmptyConfigData(json, xml)) {
       result = Response.status(Status.BAD_REQUEST).build();
     } else {
-      Pair<Object, Class<?>> typedValue = null;
+      Object configObj = null;
       if (json != null) {
-        typedValue = parseJSON(json);
+        configObj = parseJSON(json);
       } else if (xml != null) {
-        typedValue = parseXML(xml);
+        configObj = parseXML(xml);
       }
-      if (typedValue == null) {
+      if (configObj == null) {
         result = Response.status(Status.BAD_REQUEST).build();
       } else {
-        ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
+        final Class<?> logicalClazz = getLogicalClazz(type);
+        ConfigDocument<Object> doc = new ConfigDocument<Object>(logicalClazz);
         doc.setName(name);
-        doc.setValue(typedValue.getFirst());
+        doc.setValue(configObj);
         ConfigDocument<?> added = data().getConfigMaster().add(doc);
         URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
         result = Response.created(uri).build();

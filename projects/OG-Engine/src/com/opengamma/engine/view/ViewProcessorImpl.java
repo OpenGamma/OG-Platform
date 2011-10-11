@@ -310,13 +310,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
   
-  private ViewProcessImpl getOrCreateViewProcess(UniqueId definitionId, ViewExecutionOptions executionOptions) {
+  private ViewProcessImpl getOrCreateViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
     _processLock.lock();
     try {
-      ViewProcessDescription viewDescription = new ViewProcessDescription(definitionId, executionOptions);
+      ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(definitionId, executionOptions, false);
+        process = createViewProcess(viewDefinitionId, executionOptions, false);
         _sharedProcessesByDescription.put(viewDescription, process);
       }
       return process;

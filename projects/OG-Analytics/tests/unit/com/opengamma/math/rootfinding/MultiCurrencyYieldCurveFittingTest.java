@@ -30,8 +30,10 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
+import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -121,11 +123,33 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
   @Test
   public void testNewton() {
     final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
-
     YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
-    data.setTestType(TestType.ANALYTIC_JACOBIAN); //can't do analytic Jacobian for CCS yet 
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Newton");
+    data.setTestType(TestType.FD_JACOBIAN);
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Newton (FD Jacobian)");
+  }
+  
+  @Test
+  public void testShermanMorrison() {
+    final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
+    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder:Sherman Morrison");
+    data.setTestType(TestType.FD_JACOBIAN);
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Sherman Morrison (FD Jacobian)");
+  }
 
-    doHotSpot(rootFinder, data, "Double curve, Libor, cash, FRA, swaps, basis swaps. Root finder: Newton");
+  @Test
+  public void testBroyden() {
+    final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
+    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Broyden");
+    data.setTestType(TestType.FD_JACOBIAN);
+    doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Broyden (FD Jacobian)");
+  }
+
+  @Test
+  public void testJacobian() {
+    assertJacobian(getMultiCurveSetup());
   }
 
   private YieldCurveFittingTestDataBundle getMultiCurveSetup() {

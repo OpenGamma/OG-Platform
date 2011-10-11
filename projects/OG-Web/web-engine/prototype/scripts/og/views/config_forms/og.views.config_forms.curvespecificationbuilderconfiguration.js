@@ -3,16 +3,42 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.views.configs.curvespecificationbuilderconfiguration',
+    name: 'og.views.config_forms.curvespecificationbuilderconfiguration',
     dependencies: [
         'og.api.text',
         'og.api.rest',
-        'og.common.util.ui',
-        'og.views.forms.Constraints',
-        'og.views.forms.Dropdown'
+        'og.common.util.ui'
     ],
     obj: function () {
-        var ui = og.common.util.ui, forms = og.views.forms, api = og.api.rest;
+        var module = this, Form = og.common.util.ui.Form, api = og.api.rest,
+            fields = {
+                BAS: 'basisSwapInstrumentProviders',
+                CAS: 'cashInstrumentProviders',
+                FRA: 'fraInstrumentProviders',
+                FUT: 'futureInstrumentProviders',
+                OIS: 'oisSwapInstrumentProviders',
+                RAT: 'rateInstrumentProviders',
+                SWA: 'swapInstrumentProviders',
+                TSW: 'tenorSwapInstrumentProviders'
+            },
+            MKTS = 'marketSector',
+            CURR = 'ccy',
+            SCHM = 'scheme',
+            STTY = 'stripType',
+            INST = 'instrument',
+            PRFX = 'prefix',
+            INDX = '<INDEX>',
+            arr = function (obj) {return arr && $.isArray(obj) ? obj : typeof obj !== 'undefined' ? [obj] : [];};
+        return og.views.config_forms['default'].preload({
+            type: module.name.split('.').pop(),
+            meta: [
+                [['0', INDX].join('.'),         Form.type.STR],
+                [['*', '*', '0'].join('.'),     Form.type.STR],
+                [['*', '*', INST].join('.'),    Form.type.STR],
+                [['*', '*', 'type'].join('.'),  Form.type.STR]
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
+        });
+        // the following is "dead" code for now until it can be repaired ... for the time being, see above
         return function (config) {
             var load_handler = config.handler || $.noop, selector = config.selector,
                 loading = config.loading || $.noop, deleted = config.data.template_data.deleted, is_new = config.is_new,
@@ -20,32 +46,15 @@ $.register_module({
                 resource_id = config.data.template_data.object_id,
                 save_new_handler = config.save_new_handler, save_handler = config.save_handler,
                 master = config.data.template_data.configJSON, new_strip_item,
-                class_name = 'com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration',
                 transposed = {}, has = 'hasOwnProperty', format,
                 strip_types = ['LIBOR', 'CASH', 'SWAP', 'FUTURE', 'OIS_SWAP', 'FRA', 'TENOR_SWAP', 'BASIS_SWAP'],
                 field_names = ['RAT', 'CAS', 'SWA', 'FUT', 'OIS', 'FRA', 'TSW', 'BAS'],
-                fields = {
-                    BAS: 'basisSwapInstrumentProviders',
-                    CAS: 'cashInstrumentProviders',
-                    FRA: 'fraInstrumentProviders',
-                    FUT: 'futureInstrumentProviders',
-                    OIS: 'oisSwapInstrumentProviders',
-                    RAT: 'rateInstrumentProviders',
-                    SWA: 'swapInstrumentProviders',
-                    TSW: 'tenorSwapInstrumentProviders'
-                },
-                MKTS = 'marketSector',
-                CURR = 'ccy',
-                SCHM = 'scheme',
-                STTY = 'stripType',
-                INST = 'instrument',
-                PRFX = 'prefix',
                 popup_module = 'og.views.forms.curve-specification-builder-popup', update_cell
-                form = new ui.Form({
+                form = new Form({
                     module: 'og.views.forms.curve-specification-builder',
                     data: field_names.reduce(function (acc, val) {
                         return acc[fields[val]] = [], acc;
-                    }, {0: master[0] || class_name}),
+                    }, {0: master[0]}),
                     selector: selector,
                     extras: {name: orig_name},
                     processor: function (data) {
@@ -232,12 +241,12 @@ $.register_module({
                 return new form.Block({module: 'og.views.forms.curve-specification-builder-strip', extras: extras});
             };
             transposed = field_names.reduce(function (acc, val) {
-                acc[val] = (master[fields[val]] || []).reduce(function (acc, val) {
+                acc[val] = (master[fields[val]] = arr(master[fields[val]])).reduce(function (acc, val) {
                     for (var tenor in val) if (val[has](tenor)) acc[tenor] = val[tenor];
                     return acc;
                 }, {});
                 // fill out sparse array, populating nulls
-                (master.tenors || (master.tenors = [])).forEach(function (tenor) {
+                (master.tenors = arr(master.tenors)).forEach(function (tenor) {
                     if (!acc[val][has](tenor)) acc[val][tenor] = null;
                 });
                 return acc;
