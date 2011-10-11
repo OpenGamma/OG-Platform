@@ -32,6 +32,7 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
    * @param trimDate The date.
    * @return The trimmed annuity.
    */
+  @Override
   public AnnuityPaymentFixedDefinition trimBefore(ZonedDateTime trimDate) {
     List<PaymentFixedDefinition> list = new ArrayList<PaymentFixedDefinition>();
     for (PaymentFixedDefinition payment : getPayments()) {
