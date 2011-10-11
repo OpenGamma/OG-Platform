@@ -7,6 +7,8 @@ package com.opengamma.util;
 
 /**
  * Utility methods for working with threads.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class ThreadUtils {
 

@@ -12,6 +12,8 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Utility for managing IP addresses.
+ * <p>
+ * This is a thread-safe static utility class.
  */
 public final class InetAddressUtils {
 
@@ -31,8 +33,8 @@ public final class InetAddressUtils {
   public static String getLocalHostName() {
     try {
       return InetAddress.getLocalHost().getHostName();
-    } catch (UnknownHostException e) {
-      throw new OpenGammaRuntimeException("Could not obtain local host", e);
+    } catch (UnknownHostException ex) {
+      throw new OpenGammaRuntimeException("Could not obtain local host", ex);
     }
   }
 

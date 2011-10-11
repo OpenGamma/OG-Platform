@@ -343,7 +343,7 @@ public final class UniqueId
     if (cmp != 0) {
       return cmp;
     }
-    return CompareUtils.compareWithNull(_version, other._version);
+    return CompareUtils.compareWithNullLow(_version, other._version);
   }
 
   @Override
