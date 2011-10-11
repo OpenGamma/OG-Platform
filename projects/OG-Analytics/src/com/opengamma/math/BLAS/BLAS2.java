@@ -1466,7 +1466,7 @@ public class BLAS2 {
   }
 
   /* HELPER FUNCTIONS */
-  /** 3 helper functions for STATEFULL FULL/simplified alpha ?* A*x ?+ beta*y */
+  /** 4 helper functions for STATEFULL FULL/simplified alpha ?* A*x ?+ beta*y */
   // alpha*A*x
   private static void alphaAx(double[] y, double alpha, double[] ptrA, double[] aVector, int rows, int cols) {
     double alphaTmp;
@@ -1479,7 +1479,7 @@ public class BLAS2 {
       idx = i * cols;
       alphaTmp = 0;
       acc = 0;
-      for (int j = 0; j < ub; j += 4) {
+      for (int j = 0; j < ub; j += 8) {
         ptr = idx + j;
         alphaTmp += ptrA[ptr] * aVector[j]
                  + ptrA[ptr + 1] * aVector[j + 1]
@@ -1608,15 +1608,15 @@ public class BLAS2 {
       if (Double.doubleToLongBits(beta) == 0) {
         dgemvInPlaceTransposed(y, aMatrix, aVector);
       } else if (Double.doubleToLongBits(beta) == 0) {
-        axplusy(y, ptrA, aVector, rows, cols);
+        aTranposedxplusy(y, ptrA, aVector, rows, cols);
       } else {
-        axplusbetay(y, ptrA, beta, aVector, rows, cols);
+        aTranposedxplusbetay(y, ptrA, beta, aVector, rows, cols);
       }
     } else {
       if (Double.doubleToLongBits(beta) == 0) {
-        alphaAx(y, alpha, ptrA, aVector, rows, cols);
+        alphaATranposedx(y, alpha, ptrA, aVector, rows, cols);
       } else {
-        alphaAxplusbetay(y, alpha, ptrA, beta, aVector, rows, cols);
+        alphaATranposedxplusbetay(y, alpha, ptrA, beta, aVector, rows, cols);
       }
     }
   }
@@ -1722,11 +1722,11 @@ public class BLAS2 {
    * @param beta a double indicating the scaling of y
    * @param aVector a DoubleMatrix1D vector
    */
-  public static void dgemvInPlaceTranposed(DoubleMatrix1D y, double alpha, FullMatrix aMatrix, double beta, DoubleMatrix1D aVector) {
+  public static void dgemvInPlaceTransposed(DoubleMatrix1D y, double alpha, FullMatrix aMatrix, double beta, DoubleMatrix1D aVector) {
     dgemvInPlaceTransposed(y.getData(), alpha, aMatrix, beta, aVector.getData());
   }
 
-  /** 3 helper functions for STATEFULL FULL/simplified ****TRANSPOSED**** alpha*A^T*x ?+ beta*y */
+  /** 4 helper functions for STATEFULL FULL/simplified ****TRANSPOSED**** alpha*A^T*x ?+ beta*y */
   private static void alphaATranposedx(double[] y, double alpha, double[] ptrA, double[] aVector, int rows, int cols) {
     double alphaTmp;
     for (int i = 0; i < cols; i++) {
@@ -1738,7 +1738,7 @@ public class BLAS2 {
     }
   }
 
-  private static void ATranposedxplusbetay(double[] y, double[] ptrA, double beta, double[] aVector, int rows, int cols) {
+  private static void aTranposedxplusbetay(double[] y, double[] ptrA, double beta, double[] aVector, int rows, int cols) {
     double alphaTmp;
     for (int i = 0; i < cols; i++) {
       alphaTmp = 0;
@@ -1746,6 +1746,17 @@ public class BLAS2 {
         alphaTmp += ptrA[i + j * cols] * aVector[j];
       }
       y[i] = alphaTmp + beta * y[i];
+    }
+  }
+
+  private static void aTranposedxplusy(double[] y, double[] ptrA, double[] aVector, int rows, int cols) {
+    double alphaTmp;
+    for (int i = 0; i < cols; i++) {
+      alphaTmp = 0;
+      for (int j = 0; j < rows; j++) {
+        alphaTmp += ptrA[i + j * cols] * aVector[j];
+      }
+      y[i] += alphaTmp;
     }
   }
 
