@@ -8,6 +8,10 @@ package com.opengamma.math.BLAS;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.opengamma.math.BLAS.BLAS2DGEMVkernels.DGEMVForFullMatrix;
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.FullMatrix;
@@ -19,6 +23,17 @@ import com.opengamma.math.matrix.MatrixPrimitiveInterface;
   * METHODS: DGEMV
  */
 public class BLAS2 {
+  /**
+   * orientation: Enumeration based for the orientation of matrix A in the scheme
+   * y := alpha*A*x + beta*y
+   */
+  public enum orientation {
+    /** orientation is "normal" */
+    normal,
+    /** orientation is "transposed" */
+    transposed
+  }
+
   /**
   * DGEMV  performs one of the following matrix vector operations
   *
@@ -33,17 +48,18 @@ public class BLAS2 {
   */
 
   /**
-   * orientation: Enumeration based for the orientation of matrix A in the scheme
-   * y := alpha*A*x + beta*y
+   * DGEMV hashmapped function pointers
    */
-  public enum orientation {
-    /** orientation is "normal" */
-    normal,
-    /** orientation is "transposed" */
-    transposed
-  };
+  private static Map<Class<?>, BLAS2KernelAbstraction> s_dgemvFunctionPointers  = new HashMap<Class<?>, BLAS2KernelAbstraction>();
+  static {
+    s_dgemvFunctionPointers.put(FullMatrix.class, DGEMVForFullMatrix.getInstance());
+  }
 
-  /**
+  public Map<Class<?>, BLAS2KernelAbstraction> getHashMap() {
+    return s_dgemvFunctionPointers;
+  }
+
+   /**
    * Ensures that the inputs to DGEMV routines are sane when DGMEV is function(Matrix,Vector).
    * @param aMatrix is the matrix to be tested (A)
    * @param aVector is the vector to be tested (x)
@@ -119,6 +135,8 @@ public class BLAS2 {
    * @return tmp a double[] vector
    */
   public static double[] dgemv(FullMatrix aMatrix, double[] aVector, BLAS2.orientation o) {
+    BLAS2KernelAbstraction use = s_dgemvFunctionPointers.get(aMatrix.getClass());
+    System.out.println(use.hashCode());
     double[] tmp = null;
     switch (o) {
       case normal:

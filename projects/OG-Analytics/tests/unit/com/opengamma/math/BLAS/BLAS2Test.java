@@ -8,6 +8,7 @@ package com.opengamma.math.BLAS;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -152,6 +153,18 @@ public class BLAS2Test {
   double[] tmp_A19x17T_times_x19_plus_beta_times_y17 = {38920,39080,39240,39400,39560,39720,39880,40040,40200,40360,40520,40680,40840,41000,41160,41320,41480}; //A^T*x+beta*y
   double[] tmp_alpha_times_A19x17_times_x17_plus_beta_times_y19={12465,30642,48819,66996,85173,103350,121527,139704,157881,176058,194235,212412,230589,248766,266943,285120,303297,321474,339651}; //alpha*A*x+beta*y
   double[] tmp_alpha_times_A19x17T_times_x19_plus_beta_times_y17={272620,273920,275220,276520,277820,279120,280420,281720,283020,284320,285620,286920,288220,289520,290820,292120,293420}; //alpha*A^T*x+beta*y
+
+
+  /**
+   * Test constructor
+   */
+@Test
+public void testConstructor()
+{
+  BLAS2 tmp = new BLAS2();
+  Map<?,?> foo = tmp.getHashMap();
+  System.out.println(foo.toString());
+}
 
 
 /**
