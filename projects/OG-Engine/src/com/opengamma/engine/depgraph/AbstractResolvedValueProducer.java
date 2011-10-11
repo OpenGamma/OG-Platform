@@ -96,6 +96,7 @@ import com.opengamma.engine.value.ValueSpecification;
       synchronized (AbstractResolvedValueProducer.this) {
         assert !_closed;
         _closed = true;
+        _pumped.remove(this);
       }
       release(context);
     }

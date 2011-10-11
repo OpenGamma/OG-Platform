@@ -111,6 +111,7 @@ public final class DependencyGraphBuilder {
         s_loggerContext.debug("Discarding finished task");
         context.discardFinishedTask(getResults(), _fallback);
         _fallback.release(context);
+        _fallback = null;
       }
       // Release any other tasks
       for (ResolveTask task : _tasks) {
@@ -127,16 +128,12 @@ public final class DependencyGraphBuilder {
     public int release(final GraphBuildingContext context) {
       final int count = super.release(context);
       if (count == 0) {
-        ResolveTask fallback;
-        synchronized (this) {
-          fallback = _fallback;
-          _fallback = null;
-        }
-        if (fallback != null) {
+        if (_fallback != null) {
           // Discard the fallback task
           s_loggerContext.debug("Discarding unfinished fallback task");
-          context.discardUnfinishedTask(fallback);
-          fallback.release(context);
+          context.discardUnfinishedTask(_fallback);
+          _fallback.release(context);
+          _fallback = null;
         }
       }
       return count;
