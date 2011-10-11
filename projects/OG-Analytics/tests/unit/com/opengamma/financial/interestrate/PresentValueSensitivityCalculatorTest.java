@@ -10,9 +10,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Comparator;
-import java.util.ListIterator;
-import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -67,6 +64,7 @@ import java.util.TreeSet;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 /**
