@@ -15,9 +15,6 @@ import com.opengamma.util.money.Currency;
  */
 public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDefinition> {
  
-//  private static final String CALCULATION_CONFIGURATION_FIELD = "calculationConfiguration";
-//  private static final String CURRENCY_FIELD = "currency";
-
   /**
    * Singleton
    */
@@ -49,16 +46,6 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   private static String createTemplate() {
     ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
     return builder.toJSON(getDummyView());
-//    String result = null;
-//    try {
-//      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyView()));
-//      jsonObject.put(CURRENCY_FIELD, "");
-//      jsonObject.put(CALCULATION_CONFIGURATION_FIELD, new JSONArray());
-//      result = jsonObject.toString();
-//    } catch (JSONException ex) {
-//      throw new OpenGammaRuntimeException("invalid json produced from dummy view definition", ex);
-//    }
-//    return result;
   }
 
   private static ViewDefinition getDummyView() {

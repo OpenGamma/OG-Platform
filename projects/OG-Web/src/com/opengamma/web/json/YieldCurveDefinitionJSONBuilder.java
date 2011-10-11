@@ -19,8 +19,6 @@ import com.opengamma.util.time.Tenor;
  */
 public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<YieldCurveDefinition> {
   
-//  private static final String REGION_FIELD = "region";
-//  private static final String CURRENCY_FIELD = "currency";
   /**
    * Singleton
    */
@@ -50,29 +48,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   
   private static String createTemplate() {
     return YieldCurveDefinitionJSONBuilder.INSTANCE.toJSON(getDummyYieldCurveDefinition());
-//    String result = null;
-//    try {
-//      JSONObject jsonObject = new JSONObject(builder.toJSON(getDummyYieldCurveDefinition()));
-//      jsonObject.put(CURRENCY_FIELD, "");
-//      jsonObject.put(REGION_FIELD, getBlankIdentifier());
-//      result = jsonObject.toString();
-//    } catch (JSONException ex) {
-//      throw new OpenGammaRuntimeException("invalid json produced from dummy yield curve definition", ex);
-//    }
-//    return result;
   }
-
-//  private static JSONObject getBlankIdentifier() {
-//    JSONObject blankIdentifier = null;
-//    try {
-//      blankIdentifier = new JSONObject();
-//      blankIdentifier.put(ExternalIdFudgeBuilder.SCHEME_FIELD_NAME, "");
-//      blankIdentifier.put(ExternalIdFudgeBuilder.VALUE_FIELD_NAME, "");
-//    } catch (JSONException ex) {
-//      throw new OpenGammaRuntimeException("invalid json produced from blank region identifier", ex);
-//    }
-//    return blankIdentifier;
-//  }
 
   private static YieldCurveDefinition getDummyYieldCurveDefinition() {
     YieldCurveDefinition dummy = new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.US), "", "");
