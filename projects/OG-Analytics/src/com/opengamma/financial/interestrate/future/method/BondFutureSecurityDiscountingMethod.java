@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.future.method;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.stat.descriptive.rank.Min;
 
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
@@ -77,7 +77,7 @@ public final class BondFutureSecurityDiscountingMethod {
    * @param curves The curves.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureSecurity future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final double[] priceFromBond = new double[future.getDeliveryBasket().length];
@@ -90,7 +90,7 @@ public final class BondFutureSecurityDiscountingMethod {
         indexCTD = loopbasket;
       }
     }
-    PresentValueSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], curves);
+    InterestRateCurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(future.getDeliveryBasket()[indexCTD], curves);
     result = result.multiply(1.0 / future.getConversionFactor()[indexCTD]);
     return result;
   }

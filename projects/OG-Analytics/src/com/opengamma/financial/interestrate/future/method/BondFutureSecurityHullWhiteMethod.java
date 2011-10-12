@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
@@ -211,7 +211,7 @@ public final class BondFutureSecurityHullWhiteMethod {
    * @param nbPoint The number of point in the numerical cross estimation.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData, final int nbPoint) {
     Validate.notNull(future, "Future");
     Validate.notNull(hwData, "Hull-White data bundle");
     final int nbBond = future.getDeliveryBasket().length;
@@ -351,11 +351,11 @@ public final class BondFutureSecurityHullWhiteMethod {
       listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
     resultMap.put(future.getDeliveryBasket()[0].getDiscountingCurveName(), listCredit);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 
-  public PresentValueSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public InterestRateCurveSensitivity priceCurveSensitivity(final BondFutureSecurity future, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     return priceCurveSensitivity(future, hwData, DEFAULT_NB_POINTS);
   }
 

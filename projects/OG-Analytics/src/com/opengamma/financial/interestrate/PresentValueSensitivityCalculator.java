@@ -5,7 +5,16 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static com.opengamma.financial.interestrate.PresentValueSensitivityUtils.*;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
+import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -43,13 +52,6 @@ import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 /**
  * For an instrument, this calculates the sensitivity of the present value (PV) to points on the yield curve(s) (i.e. dPV/dR at every point the instrument has sensitivity). The return 
  * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs 
@@ -62,7 +64,6 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
   /**
    * The method used for OIS coupons.
    */
-  @SuppressWarnings("unused")
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
@@ -107,19 +108,9 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
    */
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
+    InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(future, curves).getSensitivities();
   }
-
-  /**
-   * {@inheritDoc}
-   * Future transaction pricing without convexity adjustment.
-   */
-  //  @Override
-  //  public Map<String, List<DoublesPair>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-  //    final InterestRateFutureSecurityDiscountingMethod method = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  //    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
-  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {
@@ -186,7 +177,7 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     Map<String, List<DoublesPair>> senseP1 = visit(fx.getPaymentCurrency1(), curves);
     Map<String, List<DoublesPair>> senseP2 = visit(fx.getPaymentCurrency2(), curves);
     //Note the sensitivities add rather than subtract here because the FX Forward is set up as a notional in one currency PLUS a notional in another  with the  opposite sign
-    return PresentValueSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
+    return InterestRateCurveSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
   }
 
   @Override

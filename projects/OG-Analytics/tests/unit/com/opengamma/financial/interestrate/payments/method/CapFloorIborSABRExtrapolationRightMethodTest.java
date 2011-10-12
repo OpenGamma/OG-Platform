@@ -29,7 +29,7 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -210,10 +210,10 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PresentValueSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
-    final PresentValueSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
+    InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
+    final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
-    final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerancePrice = 1.0E-1;
@@ -255,10 +255,10 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PresentValueSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_HIGH_LONG, sabrBundle);
-    final PresentValueSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_HIGH_SHORT, sabrBundle);
+    InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_HIGH_LONG, sabrBundle);
+    final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_HIGH_SHORT, sabrBundle);
     // Long/short parity
-    final PresentValueSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
+    final InterestRateCurveSensitivity pvsCapShort_1 = pvsCapShort.multiply(-1);
     assertEquals(pvsCapLong.getSensitivities(), pvsCapShort_1.getSensitivities());
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerancePrice = 1.0E-1;
@@ -299,8 +299,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     SABRInterestRateExtrapolationParameters sabrExtra = SABRInterestRateExtrapolationParameters.from(SABR_PARAMETERS, CUT_OFF_STRIKE, MU);
     SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(sabrExtra, CURVES);
-    PresentValueSensitivity pvsMethod = METHOD.presentValueSensitivity(CAP_HIGH_LONG, SABR_BUNDLE);
-    PresentValueSensitivity pvsCalculator = new PresentValueSensitivity(PVSC.visit(CAP_HIGH_LONG, sabrExtraBundle));
+    InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(CAP_HIGH_LONG, SABR_BUNDLE);
+    InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(PVSC.visit(CAP_HIGH_LONG, sabrExtraBundle));
     assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator);
   }
 

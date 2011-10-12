@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackBarrierPriceFunction;
@@ -122,7 +122,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param smile The volatility and curves description.
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
@@ -149,12 +149,12 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     listForeign.add(new DoublesPair(payTime, rForeignBar));
     final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<String, List<DoublesPair>>();
     resultForeignMap.put(foreignCurveName, listForeign);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultForeignMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
     final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
-    result = result.add(new PresentValueSensitivity(resultDomesticMap));
+    result = result.add(new InterestRateCurveSensitivity(resultDomesticMap));
     return result;
   }
 
@@ -164,7 +164,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final ForexDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);

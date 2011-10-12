@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.ForexDerivative;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
@@ -38,7 +38,7 @@ public class ForexSingleBarrierOptionPresentValueCurveSensitivityFunction extend
                                                               .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName())
                                                               .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
-    final PresentValueSensitivity result = CALCULATOR.visit(fxSingleBarrierOption, data);
+    final InterestRateCurveSensitivity result = CALCULATOR.visit(fxSingleBarrierOption, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
   

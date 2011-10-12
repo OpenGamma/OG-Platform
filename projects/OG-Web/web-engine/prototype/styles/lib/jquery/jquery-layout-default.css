@@ -233,3 +233,10 @@
   top: 0;
   right: 0;
 }
+
+/* Versions */
+.ui-layout-inner-south .ui-layout-content {
+  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: scroll;
+}

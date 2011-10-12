@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -280,7 +280,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * @param hwData The Hull-White parameters and the curves.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     // Forward sweep
     String fundingCurveName = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName();
     double expiryTime = swaption.getTimeToExpiry();
@@ -417,10 +417,10 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
     pvsDF.put(fundingCurveName, listDf);
-    PresentValueSensitivity sensitivity = new PresentValueSensitivity(pvsDF);
-    Map<Double, PresentValueSensitivity> cfeIborCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
+    InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
+    Map<Double, InterestRateCurveSensitivity> cfeIborCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
-      PresentValueSensitivity sensiCfe = cfeIborCurveSensi.get(cfeIbor.getNthPayment(loopcf).getPaymentTime());
+      InterestRateCurveSensitivity sensiCfe = cfeIborCurveSensi.get(cfeIbor.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
         sensitivity = sensitivity.add(sensiCfe.multiply(cfeAmountIborBar[loopcf]));
       }
