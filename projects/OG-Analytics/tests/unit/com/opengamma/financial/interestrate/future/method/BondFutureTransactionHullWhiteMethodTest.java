@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import static com.opengamma.financial.interestrate.FDCurveSensitivityCalculator.curveSensitvityFDCalculator;
 import static org.testng.AssertJUnit.assertEquals;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
@@ -24,17 +25,14 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureTransactionDefinition;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.future.calculator.PresentValueFromFuturePriceCalculator;
 import com.opengamma.financial.interestrate.future.definition.BondFutureSecurity;
 import com.opengamma.financial.interestrate.future.definition.BondFutureTransaction;
-import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -78,9 +76,6 @@ public class BondFutureTransactionHullWhiteMethodTest {
   private static final ZonedDateTime FIRST_DELIVERY_DATE = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
   private static final ZonedDateTime LAST_DELIVERY_DATE = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, CALENDAR, SETTLEMENT_DAYS);
   private static final double NOTIONAL = 100000;
-  private static final BondFutureSecurityDefinition BOND_FUTURE_SECURITY_DEFINITION = new BondFutureSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL,
-      BASKET_DEFINITION, CONVERSION_FACTOR);
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 20);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_TRADING_DATE);
@@ -109,10 +104,7 @@ public class BondFutureTransactionHullWhiteMethodTest {
   // Transaction
   private static final int QUANTITY = 4321;
   private static final double REFERENCE_PRICE = 1.0987;
-  private static final BondFutureTransactionDefinition BOND_FUTURE_TRANSACTION_DEFINITION = new BondFutureTransactionDefinition(BOND_FUTURE_SECURITY_DEFINITION, QUANTITY, REFERENCE_DATE,
-      REFERENCE_PRICE);
   private static final BondFutureTransaction FUTURE_TRANSACTION = new BondFutureTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
-
   @Test(enabled = true)
   /**
    * Tests the present value method for bond futures transactions.
@@ -141,6 +133,8 @@ public class BondFutureTransactionHullWhiteMethodTest {
     assertEquals("Bond future transaction Method: present value from price", presentValueMethod, presentValueCalculator);
   }
 
+ 
+  
   @Test
   /**
    * Tests the curve sensitivity.
@@ -150,10 +144,8 @@ public class BondFutureTransactionHullWhiteMethodTest {
     InterestRateCurveSensitivity pvs = METHOD_FUTURE_TRANSACTION.presentValueCurveSensitivity(FUTURE_TRANSACTION, BUNDLE_HW);
     pvs = pvs.clean();
     final double ratioTolerancePrice = 2.0E-4;
-    final double deltaShift = 1.0E-7;
     // 1. Credit curve sensitivity
-    final String bumpedCurveName = "Bumped Curve";
-    final BondFutureTransaction futBumpedForward = BOND_FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, new String[] {bumpedCurveName, CURVES_NAME[1]});
+
     DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
     bondTime.add(BOND_FUTURE_SECURITY.getDeliveryLastTime());
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
@@ -162,18 +154,27 @@ public class BondFutureTransactionHullWhiteMethodTest {
       }
     }
     double[] nodeTimesBond = bondTime.toDoubleArray();
-    final double[] sensiCredit = SensitivityFiniteDifference.curveSensitivity(futBumpedForward, BUNDLE_HW, CURVES_NAME[0], bumpedCurveName, nodeTimesBond, deltaShift, METHOD_FUTURE_TRANSACTION);
+  
+  
+   List<DoublesPair> fdSensiList = curveSensitvityFDCalculator(FUTURE_TRANSACTION,METHOD_FUTURE_TRANSACTION,BUNDLE_HW,CURVES_NAME[0],
+       nodeTimesBond,1e-9);
     final List<DoublesPair> sensiPvCredit = pvs.getSensitivities().get(CURVES_NAME[0]);
-    for (int loopnode = 0; loopnode < sensiCredit.length; loopnode++) {
+    
+    assertEquals( fdSensiList.size(),  sensiPvCredit.size());
+    
+    
+    for (int loopnode = 0; loopnode <  fdSensiList.size(); loopnode++) {
       final DoublesPair pairPv = sensiPvCredit.get(loopnode);
-      assertEquals("Sensitivity bond future pv to forward curve: Node " + loopnode, nodeTimesBond[loopnode], pairPv.getFirst(), 1E-8);
+      assertEquals(fdSensiList.get(loopnode).getFirst(), pairPv.getFirst(), 1E-8); //checking times
     }
-    assertEquals("Sensitivity finite difference method: node sensitivity 0", 1, sensiPvCredit.get(0).second / sensiCredit[0], ratioTolerancePrice);
+    assertEquals("Sensitivity finite difference method: node sensitivity 0", 1, sensiPvCredit.get(0).second / fdSensiList.get(0).second,
+        ratioTolerancePrice);
     double sumCalculated = 0.0;
     double sumExpected = 0.0;
-    for (int loopnode = 1; loopnode < sensiCredit.length; loopnode++) {
+   //TODO R White: Should test individual sensitivities not the sum - there is some error with the individual entries 
+    for (int loopnode = 1; loopnode < fdSensiList.size(); loopnode++) {
       sumCalculated += sensiPvCredit.get(loopnode).second;
-      sumExpected += sensiCredit[loopnode];
+      sumExpected += fdSensiList.get(loopnode).second;
     }
     assertEquals("Sensitivity finite difference method: node sensitivity", 1, sumExpected / sumCalculated, ratioTolerancePrice);
 

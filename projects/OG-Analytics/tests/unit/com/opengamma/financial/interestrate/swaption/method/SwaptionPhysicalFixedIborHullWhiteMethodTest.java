@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.swaption.method;
 
+import static com.opengamma.financial.interestrate.TestUtils.assertSensitivityEquals;
 import static org.testng.AssertJUnit.assertEquals;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
@@ -28,9 +29,11 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
+import com.opengamma.financial.interestrate.FDCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.TestUtils;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -91,7 +94,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   private static final FixedCouponSwap<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -292,7 +295,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final double deltaShift = 1.0E-6;
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final SwaptionPhysicalFixedIbor swptBumpedForward = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], bumpedCurveName});
+    final SwaptionPhysicalFixedIbor swptBumpedForward = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], bumpedCurveName });
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
       CouponIbor cpn = (CouponIbor) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
@@ -309,7 +312,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
     }
     // 2. Discounting curve sensitivity
-    final SwaptionPhysicalFixedIbor swptBumpedDisc = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {bumpedCurveName, CURVES_NAME[1]});
+    final SwaptionPhysicalFixedIbor swptBumpedDisc = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {bumpedCurveName, CURVES_NAME[1] });
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
       CouponIbor cpn = (CouponIbor) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
@@ -319,11 +322,10 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(swptBumpedDisc, BUNDLE_HW, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_HW);
     assertEquals("Sensitivity finite difference method: number of node", SWAP_TENOR_YEAR * 4, sensiDiscMethod.length);
     final List<DoublesPair> sensiPvDisc = pvsSwaption.getSensitivities().get(CURVES_NAME[0]);
-    for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
-      final DoublesPair pairPv = sensiPvDisc.get(loopnode + 1);
-      assertEquals("Sensitivity swaption pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
-      assertEquals("Sensitivity finite difference method: node sensitivity", sensiDiscMethod[loopnode], pairPv.second, deltaTolerancePrice);
-    }
+    List<DoublesPair> fdSense = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(SWAPTION_PAYER_LONG, METHOD_HW, BUNDLE_HW,
+        CURVES_NAME[0], nodeTimesDisc, 1e-8);
+    
+    assertSensitivityEquals(sensiPvDisc, fdSense, deltaTolerancePrice);
   }
 
   @Test(enabled = false)

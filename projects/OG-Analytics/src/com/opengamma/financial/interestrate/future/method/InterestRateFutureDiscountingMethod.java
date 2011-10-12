@@ -5,6 +5,14 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.tuple.DoublesPair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,17 +20,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.util.tuple.DoublesPair;
-
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward). 
  * No convexity adjustment is done. 
  */
-public final class InterestRateFutureDiscountingMethod {
+public final class InterestRateFutureDiscountingMethod extends InterestRateFutureMethod {
 
   private static final InterestRateFutureDiscountingMethod INSTANCE = new InterestRateFutureDiscountingMethod();
 
@@ -49,6 +51,17 @@ public final class InterestRateFutureDiscountingMethod {
     return price;
   }
 
+  public CurrencyAmount presentValue(final InterestRateFuture future, final YieldCurveBundle curves) {
+    final double pv = presentValueFromPrice(future, price(future, curves));
+    return CurrencyAmount.of(future.getCurrency(), pv);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof InterestRateFuture, "Interest rate future");
+    return presentValue((InterestRateFuture) instrument, curves);
+  }
+
   /**
    * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
    * @param future The future.
@@ -70,6 +83,7 @@ public final class InterestRateFutureDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The price rate sensitivity.
    */
+  @Override
   public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
@@ -89,5 +103,4 @@ public final class InterestRateFutureDiscountingMethod {
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
-
 }

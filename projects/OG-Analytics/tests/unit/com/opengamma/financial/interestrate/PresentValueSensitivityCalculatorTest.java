@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate;
 
+import static com.opengamma.financial.interestrate.TestUtils.assertSensitivityEquals;
 import static com.opengamma.financial.interestrate.FDCurveSensitivityCalculator.curveSensitvityFDCalculator;
 import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.clean;
 import static com.opengamma.financial.interestrate.SimpleInstrumentFactory.makeOISSwap;
@@ -529,12 +530,6 @@ public class PresentValueSensitivityCalculatorTest {
     assertSensitivityEquals(senseFD, senseAnal, absTol);
   }
 
-  private static void assertSensitivityEquals(List<DoublesPair> expected, List<DoublesPair> accual, double tol) {
-    assertEquals(expected.size(), accual.size(), 0);
-    for (int i = 0; i < expected.size(); i++) {
-      assertEquals(expected.get(i).first, accual.get(i).first, 0.0);
-      assertEquals(expected.get(i).second, accual.get(i).second, tol);
-    }
-  }
+ 
 
 }
