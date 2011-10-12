@@ -114,6 +114,7 @@ public class Loader extends ContextInitializationBean {
         ViewClientFunction.INSTANCE,
         ViewsFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
+        ConfigureViewClientProcedure.INSTANCE,
         TriggerViewCycleProcedure.INSTANCE));
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
         UserViewClientConverter.INSTANCE));
