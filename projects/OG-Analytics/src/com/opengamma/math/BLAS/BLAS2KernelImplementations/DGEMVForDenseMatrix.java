@@ -9,9 +9,8 @@ import com.opengamma.math.BLAS.BLAS2KernelAbstractions.BLAS2DGEMVKernelAbstracti
 import com.opengamma.math.matrix.DenseMatrix;
 
 /**
- * Does DGEMV like operations on the DenseMatrix types
+ * Does DGEMV like operations on the DenseMatrix type
  */
-//public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<DenseMatrix> {
 public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<DenseMatrix> {
   private static DGEMVForDenseMatrix s_instance = new DGEMVForDenseMatrix();
 
@@ -23,7 +22,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
   }
 
   @Override
-  public double[] stateless_A_times_x(DenseMatrix aMatrix, double[] aVector) {
+  public double[] dm_stateless_A_times_x(DenseMatrix aMatrix, double[] aVector) {
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     final double[] ptrA = aMatrix.getData();
@@ -55,7 +54,7 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
   }
 
   @Override
-  public double[] stateless_AT_times_x(DenseMatrix aMatrix, double[] aVector) {
+  public double[] dm_stateless_AT_times_x(DenseMatrix aMatrix, double[] aVector) {
     final int rows = aMatrix.getNumberOfRows();
     final int cols = aMatrix.getNumberOfColumns();
     double[] ptrA = aMatrix.getData();
@@ -143,115 +142,126 @@ public final class DGEMVForDenseMatrix extends BLAS2DGEMVKernelAbstraction<Dense
     return tmp;
   }
 
+  /* TODO: Replace vector scalings with BLAS1 calls.*/
   @Override
-  public double[] stateless_alpha_times_A_times_x() {
+  public double[] dm_stateless_alpha_times_A_times_x(double alpha, DenseMatrix aMatrix, double[] aVector) {
+    final int rows = aMatrix.getNumberOfRows();
+    double[] tmp = dm_stateless_A_times_x(aMatrix, aVector);
+    for (int i = 0; i < rows; i++) {
+      tmp[i] *= alpha; // slight cache thrash but should help force A*x to be JITed
+    }
+    return tmp;
+  }
+
+  /* TODO: Replace vector scalings with BLAS1 calls.*/
+  @Override
+  public double[] dm_stateless_alpha_times_AT_times_x(double alpha, DenseMatrix aMatrix, double[] aVector) {
+    final int cols = aMatrix.getNumberOfColumns();
+    double[] tmp = dm_stateless_AT_times_x(aMatrix, aVector);
+    for (int i = 0; i < cols; i++) {
+      tmp[i] *= alpha; // slight cache thrash but should help force A*x to be JITed
+    }
+    return tmp;
+  }
+
+  @Override
+  public double[] dm_stateless_A_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_alpha_times_AT_times_x() {
+  public double[] dm_stateless_AT_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_A_times_x_plus_y() {
+  public double[] dm_stateless_alpha_times_A_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_AT_times_x_plus_y() {
+  public double[] dm_stateless_alpha_times_AT_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_alpha_times_A_times_x_plus_y() {
+  public double[] dm_stateless_A_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_alpha_times_AT_times_x_plus_y() {
+  public double[] dm_stateless_AT_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_A_times_x_plus_beta_times_y() {
+  public double[] dm_stateless_alpha_times_A_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_AT_times_x_plus_beta_times_y() {
+  public double[] dm_stateless_alpha_times_AT_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] stateless_alpha_times_A_times_x_plus_beta_times_y() {
+  public double[] dm_inplace_A_times_x() {
     return null;
   }
 
   @Override
-  public double[] stateless_alpha_times_AT_times_x_plus_beta_times_y() {
+  public double[] dm_inplace_AT_times_x() {
     return null;
   }
 
   @Override
-  public double[] inplace_A_times_x() {
+  public double[] dm_inplace_alpha_times_A_times_x() {
     return null;
   }
 
   @Override
-  public double[] inplace_AT_times_x() {
+  public double[] dm_inplace_alpha_times_AT_times_x() {
     return null;
   }
 
   @Override
-  public double[] inplace_alpha_times_A_times_x() {
+  public double[] dm_inplace_A_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_alpha_times_AT_times_x() {
+  public double[] dm_inplace_AT_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_A_times_x_plus_y() {
+  public double[] dm_inplace_alpha_times_A_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_AT_times_x_plus_y() {
+  public double[] dm_inplace_alpha_times_AT_times_x_plus_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_alpha_times_A_times_x_plus_y() {
+  public double[] dm_inplace_A_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_alpha_times_AT_times_x_plus_y() {
+  public double[] dm_inplace_AT_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_A_times_x_plus_beta_times_y() {
+  public double[] dm_inplace_alpha_times_A_times_x_plus_beta_times_y() {
     return null;
   }
 
   @Override
-  public double[] inplace_AT_times_x_plus_beta_times_y() {
+  public double[] dm_inplace_alpha_times_AT_times_x_plus_beta_times_y() {
     return null;
   }
 
-  @Override
-  public double[] inplace_alpha_times_A_times_x_plus_beta_times_y() {
-    return null;
   }
-
-  @Override
-  public double[] inplace_alpha_times_AT_times_x_plus_beta_times_y() {
-    return null;
-  }
-
-
-}
