@@ -16,7 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
@@ -488,7 +488,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
    * @param lmmBundle The LMM parameters and the curves.
    * @return The present value.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final LiborMarketModelDisplacedDiffusionDataBundle lmmBundle) {
     // 1. Swaption CFE preparation
     AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), lmmBundle);
     YieldAndDiscountCurve dsc = lmmBundle.getCurve(cfe.getDiscountCurve());
@@ -774,10 +774,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
     pvsDF.put(cfe.getDiscountCurve(), listDfSensi);
-    PresentValueSensitivity sensitivity = new PresentValueSensitivity(pvsDF);
-    Map<Double, PresentValueSensitivity> cfeCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap(), lmmBundle);
+    InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
+    Map<Double, InterestRateCurveSensitivity> cfeCurveSensi = CFECSC.visit(swaption.getUnderlyingSwap(), lmmBundle);
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      PresentValueSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
+      InterestRateCurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
         sensitivity = sensitivity.add(sensiCfe.multiply(-multFact * cfaInitBar[loopcf]));
       }

@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -120,9 +120,9 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The present value curve sensitivity.
    */
-  public PresentValueSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    final PresentValueSensitivity pvcsNominal = new PresentValueSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    final PresentValueSensitivity pvcsCoupon = new PresentValueSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
+    final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
+    final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
     return pvcsNominal.add(pvcsCoupon);
   }
 
@@ -189,16 +189,16 @@ public final class BondSecurityDiscountingMethod {
    * @param curves The curve bundle.
    * @return The price curve sensitivity.
    */
-  public PresentValueSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity dirtyPriceCurveSensitivity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     final double pv = presentValue(bond, curves);
-    final PresentValueSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
+    final InterestRateCurveSensitivity sensiPv = presentValueCurveSensitivity(bond, curves);
     final double df = curves.getCurve(bond.getRepoCurveName()).getDiscountFactor(bond.getSettlementTime());
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(bond.getRepoCurveName(), listDf);
-    PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.multiply(pv / notional);
     result = result.add(sensiPv.multiply(1 / (df * notional)));
     return result;

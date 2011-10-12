@@ -25,6 +25,12 @@ ${ogStyle.print('og_all.css', 'all',false)}
         <div>
           <header><h2>Version History</h2></header>
         </div>
+        <div class="og-version-header">
+          <table>
+            <colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>
+            <thead><tr><th>Reference</th><th>Name</th><th>Valid from</th></tr></thead>
+          </table>
+        </div>
       </div>
       <div class="ui-layout-content"></div>
     </div>

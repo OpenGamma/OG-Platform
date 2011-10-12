@@ -40,6 +40,7 @@
 
 .OG-versions th {
   text-align: left;
+  padding-bottom: 5px;
 }
 
 .OG-versions tbody tr:hover {
@@ -56,4 +57,12 @@
 
 .OG-versions .og-selected a:after {
   content: ' (viewing)'
+}
+
+.OG-versions .og-version-header {
+  margin-right: 20px;
+}
+
+.OG-versions colgroup {
+  width: 33%;
 }
