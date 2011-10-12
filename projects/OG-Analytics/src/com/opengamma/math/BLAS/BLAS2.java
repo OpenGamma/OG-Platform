@@ -11,10 +11,14 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.math.BLAS.BLAS2DGEMVkernels.DGEMVForDenseMatrix;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.BLAS.BLAS2KernelAbstractions.BLAS2DGEMVKernelAbstraction;
+import com.opengamma.math.BLAS.BLAS2KernelImplementations.DGEMVForDenseMatrix;
 import com.opengamma.math.matrix.CompressedSparseRowFormatMatrix;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DenseMatrix;
+import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.Matrix;
 import com.opengamma.math.matrix.MatrixPrimitiveInterface;
 
 /**
@@ -50,20 +54,22 @@ public class BLAS2 {
   /**
    * DGEMV hashmapped function pointers
    */
-  private static Map<Class<?>, BLAS2KernelAbstraction> s_dgemvFunctionPointers  = new HashMap<Class<?>, BLAS2KernelAbstraction>();
+  //  private static Map<Class<?>, BLAS2DGEMVKernelAbstraction<?>> s_dgemvFunctionPointers  = new HashMap<Class<?>, BLAS2DGEMVKernelAbstraction<?>>();
+  private static Map<Class<?>, BLAS2DGEMVKernelAbstraction<?>> s_dgemvFunctionPointers = new HashMap<Class<?>, BLAS2DGEMVKernelAbstraction<?>>();
   static {
     s_dgemvFunctionPointers.put(DenseMatrix.class, DGEMVForDenseMatrix.getInstance());
   }
 
-  public Map<Class<?>, BLAS2KernelAbstraction> getHashMap() {
+  //  public Map<Class<?>, BLAS2DGEMVKernelAbstraction<?>> getHashMap() {
+  public Map<Class<?>, BLAS2DGEMVKernelAbstraction<?>> getHashMap() {
     return s_dgemvFunctionPointers;
   }
 
-   /**
-   * Ensures that the inputs to DGEMV routines are sane when DGMEV is function(Matrix,Vector).
-   * @param aMatrix is the matrix to be tested (A)
-   * @param aVector is the vector to be tested (x)
-   */
+  /**
+  * Ensures that the inputs to DGEMV routines are sane when DGMEV is function(Matrix,Vector).
+  * @param aMatrix is the matrix to be tested (A)
+  * @param aVector is the vector to be tested (x)
+  */
   public static void dgemvInputSanityChecker(MatrixPrimitiveInterface aMatrix, double[] aVector) {
     assertNotNull(aMatrix); // check not null
     assertNotNull(aVector); // check not null
@@ -123,7 +129,6 @@ public class BLAS2 {
     assertEquals(aMatrix.getNumberOfRows(), aYVector.length); // check commutable on back assignment
   }
 
-
   /* Stateless manipulators on the DenseMatrix type */
 
   /* GROUP1:: A*x OR A^T*x */
@@ -133,17 +138,20 @@ public class BLAS2 {
    * @param aVector a double[] vector
    * @param o orientation "normal" performs A*x, "transpose" performs A^T*x
    * @return tmp a double[] vector
+   * @param <T> a kind of matrix
    */
-  public static double[] dgemv(DenseMatrix aMatrix, double[] aVector, BLAS2.orientation o) {
-    BLAS2KernelAbstraction use = s_dgemvFunctionPointers.get(aMatrix.getClass());
-    System.out.println(use.hashCode());
+  @SuppressWarnings("unchecked")
+  public static <T extends Matrix<Double>> double[] dgemv(T aMatrix, double[] aVector, BLAS2.orientation o) {
+    //    BLAS2DGEMVKernelAbstraction<?> use = s_dgemvFunctionPointers.get(aMatrix.getClass());
+    BLAS2DGEMVKernelAbstraction<T> use = (BLAS2DGEMVKernelAbstraction<T>) s_dgemvFunctionPointers.get(aMatrix.getClass());
+    Validate.notNull(use, "BLAS2 DGEMV was called with an unknown Matrix type: " + aMatrix.getClass() + ". If this type is needed the implement a BLAS2DGEMVKernelAbstraction.");
     double[] tmp = null;
     switch (o) {
       case normal:
-        tmp = dgemv(aMatrix, aVector);
+        tmp = use.stateless_A_times_x(aMatrix, aVector);
         break;
       case transposed:
-        tmp = dgemvTransposed(aMatrix, aVector);
+        tmp = use.stateless_AT_times_x(aMatrix, aVector);
         break;
       default:
         throw new IllegalArgumentException("BLAS2.orientation should be enumerated to either normal or transpose.");
@@ -574,7 +582,6 @@ public class BLAS2 {
     return tmp;
   }
 
-
   /**
    * DGEMV simplified: returns:=A^T*x + y
    * @param aMatrix a DenseMatrix
@@ -639,7 +646,6 @@ public class BLAS2 {
     double[] tmp = dgemv(alpha, aMatrix, aVector, y.getData(), o);
     return tmp;
   }
-
 
   /**
    * DGEMV simplified: returns:= alpha*A*x + y OR returns:=alpha*A^T*x + y  depending on the enum orientation.
@@ -1584,7 +1590,6 @@ public class BLAS2 {
       }
     }
   }
-
 
   /**
    * DGEMV FULL/simplified: y:=alpha*A*x + beta*y OR y:=alpha*A*x
